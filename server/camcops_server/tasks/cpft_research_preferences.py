@@ -34,7 +34,7 @@ from camcops_server.cc_modules.cc_html import tr_qa, get_yes_no_unknown
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BoolColumn,
-    CamcopsColumn,
+    camcops_column,
     CharColType,
     PermittedValueChecker,
 )
@@ -68,7 +68,7 @@ class CpftResearchPreferences(
         setattr(
             cls,
             cls.FN_CONTACT_PREFERENCE,
-            CamcopsColumn(
+            camcops_column(
                 cls.FN_CONTACT_PREFERENCE,
                 CharColType,
                 permitted_value_checker=PermittedValueChecker(

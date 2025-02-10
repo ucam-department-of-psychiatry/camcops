@@ -41,7 +41,7 @@ from camcops_server.cc_modules.cc_html import (
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     PermittedValueChecker,
 )
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
@@ -112,7 +112,7 @@ class DistressThermometer(
             ],
         )
 
-    distress = CamcopsColumn(
+    distress = camcops_column(
         "distress",
         Integer,
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=10),

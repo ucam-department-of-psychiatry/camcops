@@ -43,7 +43,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     CharColType,
     PermittedValueChecker,
 )
@@ -193,7 +193,7 @@ class Honos(
             ],
         )
 
-    q8problemtype = CamcopsColumn(
+    q8problemtype = camcops_column(
         "q8problemtype",
         CharColType,
         permitted_value_checker=PermittedValueChecker(
@@ -405,7 +405,7 @@ class Honos65(
             ],
         )
 
-    q8problemtype = CamcopsColumn(
+    q8problemtype = camcops_column(
         "q8problemtype",
         CharColType,
         permitted_value_checker=PermittedValueChecker(

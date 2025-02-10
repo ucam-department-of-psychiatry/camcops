@@ -52,7 +52,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    camcops_column,
 )
 from camcops_server.cc_modules.cc_string import AS
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -271,55 +271,55 @@ class Icd10SpecPD(
         "date_pertains_to", Date, comment="Date the assessment pertains to"
     )
     comments = Column("comments", UnicodeText, comment="Clinician's comments")
-    skip_paranoid = CamcopsColumn(
+    skip_paranoid = camcops_column(
         "skip_paranoid",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for paranoid PD?",
     )
-    skip_schizoid = CamcopsColumn(
+    skip_schizoid = camcops_column(
         "skip_schizoid",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for schizoid PD?",
     )
-    skip_dissocial = CamcopsColumn(
+    skip_dissocial = camcops_column(
         "skip_dissocial",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for dissocial PD?",
     )
-    skip_eu = CamcopsColumn(
+    skip_eu = camcops_column(
         "skip_eu",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for emotionally unstable PD?",
     )
-    skip_histrionic = CamcopsColumn(
+    skip_histrionic = camcops_column(
         "skip_histrionic",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for histrionic PD?",
     )
-    skip_anankastic = CamcopsColumn(
+    skip_anankastic = camcops_column(
         "skip_anankastic",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for anankastic PD?",
     )
-    skip_anxious = CamcopsColumn(
+    skip_anxious = camcops_column(
         "skip_anxious",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for anxious PD?",
     )
-    skip_dependent = CamcopsColumn(
+    skip_dependent = camcops_column(
         "skip_dependent",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for dependent PD?",
     )
-    other_pd_present = CamcopsColumn(
+    other_pd_present = camcops_column(
         "other_pd_present",
         Boolean,
         permitted_value_checker=BIT_CHECKER,

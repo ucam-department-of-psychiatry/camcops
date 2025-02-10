@@ -42,7 +42,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BoolColumn,
-    CamcopsColumn,
+    camcops_column,
     PermittedValueChecker,
     SummaryCategoryColType,
 )
@@ -81,7 +81,7 @@ class Das28(
         setattr(
             cls,
             "vas",
-            CamcopsColumn(
+            camcops_column(
                 "vas",
                 Integer,
                 comment="Patient assessment of health (0-100mm)",

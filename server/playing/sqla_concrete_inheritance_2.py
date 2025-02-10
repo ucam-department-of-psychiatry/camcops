@@ -37,7 +37,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.declarative import declared_attr, AbstractConcreteBase
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BoolColumn,
-    CamcopsColumn,
+    camcops_column,
 )
 
 
@@ -56,7 +56,7 @@ class TreeNode(AbstractConcreteBase, Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     if WITH_CAMCOPS_COLUMNS:
-        counter = CamcopsColumn("counter", Integer)
+        counter = camcops_column("counter", Integer)
         flipswitch = BoolColumn("flipswitch")
 
     @declared_attr

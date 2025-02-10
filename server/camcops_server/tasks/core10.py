@@ -43,7 +43,7 @@ from camcops_server.cc_modules.cc_report import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     ZERO_TO_FOUR_CHECKER,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -77,61 +77,61 @@ class Core10(TaskHasPatientMixin, Task):
     COMMENT_NORMAL = " (0 not at all - 4 most or all of the time)"
     COMMENT_REVERSED = " (0 most or all of the time - 4 not at all)"
 
-    q1 = CamcopsColumn(
+    q1 = camcops_column(
         "q1",
         Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment="Q1 (tension/anxiety)" + COMMENT_NORMAL,
     )
-    q2 = CamcopsColumn(
+    q2 = camcops_column(
         "q2",
         Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment="Q2 (support)" + COMMENT_REVERSED,
     )
-    q3 = CamcopsColumn(
+    q3 = camcops_column(
         "q3",
         Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment="Q3 (coping)" + COMMENT_REVERSED,
     )
-    q4 = CamcopsColumn(
+    q4 = camcops_column(
         "q4",
         Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment="Q4 (talking is too much)" + COMMENT_NORMAL,
     )
-    q5 = CamcopsColumn(
+    q5 = camcops_column(
         "q5",
         Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment="Q5 (panic)" + COMMENT_NORMAL,
     )
-    q6 = CamcopsColumn(
+    q6 = camcops_column(
         "q6",
         Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment="Q6 (suicidality)" + COMMENT_NORMAL,
     )
-    q7 = CamcopsColumn(
+    q7 = camcops_column(
         "q7",
         Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment="Q7 (sleep problems)" + COMMENT_NORMAL,
     )
-    q8 = CamcopsColumn(
+    q8 = camcops_column(
         "q8",
         Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment="Q8 (despair/hopelessness)" + COMMENT_NORMAL,
     )
-    q9 = CamcopsColumn(
+    q9 = camcops_column(
         "q9",
         Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment="Q9 (unhappy)" + COMMENT_NORMAL,
     )
-    q10 = CamcopsColumn(
+    q10 = camcops_column(
         "q10",
         Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,

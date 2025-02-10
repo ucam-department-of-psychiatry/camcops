@@ -36,7 +36,7 @@ from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     PendulumDateTimeAsIsoTextColType,
     DiagnosticCodeColType,
 )
@@ -96,7 +96,7 @@ class DemoQuestionnaire(
     date_time = Column("date_time", PendulumDateTimeAsIsoTextColType)
     thermometer = Column("thermometer", Integer)
     diagnosticcode_code = Column("diagnosticcode_code", DiagnosticCodeColType)
-    diagnosticcode_description = CamcopsColumn(
+    diagnosticcode_description = camcops_column(
         "diagnosticcode_description",
         UnicodeText,
         exempt_from_anonymisation=True,
@@ -104,12 +104,12 @@ class DemoQuestionnaire(
     diagnosticcode2_code = Column(
         "diagnosticcode2_code", DiagnosticCodeColType
     )  # v2
-    diagnosticcode2_description = CamcopsColumn(
+    diagnosticcode2_description = camcops_column(
         "diagnosticcode2_description",
         UnicodeText,
         exempt_from_anonymisation=True,
     )  # v2
-    photo_blobid = CamcopsColumn(
+    photo_blobid = camcops_column(
         "photo_blobid",
         Integer,
         is_blob_id_field=True,
@@ -117,13 +117,13 @@ class DemoQuestionnaire(
     )
     # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
     photo_rotation = Column("photo_rotation", Integer)  # DEFUNCT as of v2.0.0
-    canvas_blobid = CamcopsColumn(
+    canvas_blobid = camcops_column(
         "canvas_blobid",
         Integer,
         is_blob_id_field=True,
         blob_relationship_attr_name="canvas",
     )
-    canvas2_blobid = CamcopsColumn(
+    canvas2_blobid = camcops_column(
         "canvas2_blobid",
         Integer,
         is_blob_id_field=True,

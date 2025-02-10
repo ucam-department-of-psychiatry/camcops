@@ -93,7 +93,7 @@ from camcops_server.cc_modules.cc_snomed import (
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     DiagnosticCodeColType,
 )
 from camcops_server.cc_modules.cc_validators import (
@@ -134,7 +134,7 @@ class DiagnosisItemBase(GenericTabletRecordMixin, Base):
     )
 
     # noinspection PyMethodParameters
-    description: Mapped[Optional[str]] = CamcopsColumn(
+    description: Mapped[Optional[str]] = camcops_column(
         "description",
         UnicodeText,
         exempt_from_anonymisation=True,

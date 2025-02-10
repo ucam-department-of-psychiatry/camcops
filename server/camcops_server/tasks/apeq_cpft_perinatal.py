@@ -45,7 +45,7 @@ from camcops_server.cc_modules.cc_report import (
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     ZERO_TO_FIVE_CHECKER,
     ZERO_TO_TWO_CHECKER,
 )
@@ -71,43 +71,43 @@ class APEQCPFTPerinatal(Task):
     FN_QPREFIX = "q"
     MAIN_EXPLANATION = " (0 no, 1 yes to some extent, 2 yes)"
 
-    q1 = CamcopsColumn(
+    q1 = camcops_column(
         "q1",
         Integer,
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q1. Treated with respect/dignity" + MAIN_EXPLANATION,
     )
-    q2 = CamcopsColumn(
+    q2 = camcops_column(
         "q2",
         Integer,
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q2. Felt listened to" + MAIN_EXPLANATION,
     )
-    q3 = CamcopsColumn(
+    q3 = camcops_column(
         "q3",
         Integer,
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q3. Needs were understood" + MAIN_EXPLANATION,
     )
-    q4 = CamcopsColumn(
+    q4 = camcops_column(
         "q4",
         Integer,
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q4. Given info about team" + MAIN_EXPLANATION,
     )
-    q5 = CamcopsColumn(
+    q5 = camcops_column(
         "q5",
         Integer,
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q5. Family considered/included" + MAIN_EXPLANATION,
     )
-    q6 = CamcopsColumn(
+    q6 = camcops_column(
         "q6",
         Integer,
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q6. Views on treatment taken into account" + MAIN_EXPLANATION,
     )
-    ff_rating = CamcopsColumn(
+    ff_rating = camcops_column(
         "ff_rating",
         Integer,
         permitted_value_checker=ZERO_TO_FIVE_CHECKER,

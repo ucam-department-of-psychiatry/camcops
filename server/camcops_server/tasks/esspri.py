@@ -31,7 +31,7 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa, tr, answer
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     ZERO_TO_10_CHECKER,
 )
 
@@ -67,7 +67,7 @@ class Esspri(
             setattr(
                 cls,
                 q_field,
-                CamcopsColumn(
+                camcops_column(
                     q_field,
                     Integer,
                     permitted_value_checker=ZERO_TO_10_CHECKER,

@@ -42,7 +42,7 @@ from camcops_server.cc_modules.cc_html import (
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     BIT_CHECKER,
     PendulumDateTimeAsIsoTextColType,
 )
@@ -78,19 +78,19 @@ class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         PendulumDateTimeAsIsoTextColType,
         comment="Date/time that contact ended",
     )
-    patient_contact = CamcopsColumn(
+    patient_contact = camcops_column(
         "patient_contact",
         Integer,
         permitted_value_checker=BIT_CHECKER,
         comment="Patient contact involved (0 no, 1 yes)?",
     )
-    staff_liaison = CamcopsColumn(
+    staff_liaison = camcops_column(
         "staff_liaison",
         Integer,
         permitted_value_checker=BIT_CHECKER,
         comment="Liaison with staff involved (0 no, 1 yes)?",
     )
-    other_liaison = CamcopsColumn(
+    other_liaison = camcops_column(
         "other_liaison",
         Integer,
         permitted_value_checker=BIT_CHECKER,

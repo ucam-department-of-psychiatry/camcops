@@ -40,7 +40,7 @@ from camcops_server.cc_modules.cc_fhir import (
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     PendulumDateTimeAsIsoTextColType,
     ZERO_TO_ONE_CHECKER,
     ZERO_TO_TWO_CHECKER,
@@ -65,33 +65,33 @@ class Apeqpt(Task):
     provides_trackers = True
 
     # todo: remove q_datetime (here and in the C++) -- it duplicates when_created  # noqa
-    q_datetime = CamcopsColumn(
+    q_datetime = camcops_column(
         "q_datetime",
         PendulumDateTimeAsIsoTextColType,
         comment="Date/time the assessment tool was completed",
     )
 
     N_CHOICE_QUESTIONS = 3
-    q1_choice = CamcopsColumn(
+    q1_choice = camcops_column(
         "q1_choice",
         Integer,
         comment="Enough information was provided (0 no, 1 yes)",
         permitted_value_checker=ZERO_TO_ONE_CHECKER,
     )
-    q2_choice = CamcopsColumn(
+    q2_choice = camcops_column(
         "q2_choice",
         Integer,
         comment="Treatment preference (0 no, 1 yes)",
         permitted_value_checker=ZERO_TO_ONE_CHECKER,
     )
-    q3_choice = CamcopsColumn(
+    q3_choice = camcops_column(
         "q3_choice",
         Integer,
         comment="Preference offered (0 no, 1 yes, 2 N/A)",
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
     )
 
-    q1_satisfaction = CamcopsColumn(
+    q1_satisfaction = camcops_column(
         "q1_satisfaction",
         Integer,
         comment=(
@@ -100,7 +100,7 @@ class Apeqpt(Task):
         ),
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
     )
-    q2_satisfaction = CamcopsColumn(
+    q2_satisfaction = camcops_column(
         "q2_satisfaction", UnicodeText, comment="Service experience"
     )
 

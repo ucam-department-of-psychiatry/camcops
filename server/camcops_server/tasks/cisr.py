@@ -50,7 +50,7 @@ from camcops_server.cc_modules.cc_html import (
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     ZERO_TO_FOUR_CHECKER,
     ONE_TO_TWO_CHECKER,
     ONE_TO_THREE_CHECKER,
@@ -1952,7 +1952,7 @@ class Cisr(TaskHasPatientMixin, Task):
 
     # Demographics
 
-    ethnic = CamcopsColumn(
+    ethnic = camcops_column(
         FN_ETHNIC,
         Integer,
         comment=(
@@ -1962,7 +1962,7 @@ class Cisr(TaskHasPatientMixin, Task):
         ),
         permitted_value_checker=ONE_TO_SEVEN_CHECKER,
     )
-    married = CamcopsColumn(
+    married = camcops_column(
         FN_MARRIED,
         Integer,
         comment=(
@@ -1972,7 +1972,7 @@ class Cisr(TaskHasPatientMixin, Task):
         ),
         permitted_value_checker=ONE_TO_SIX_CHECKER,
     )
-    empstat = CamcopsColumn(
+    empstat = camcops_column(
         FN_EMPSTAT,
         Integer,
         comment=(
@@ -1984,7 +1984,7 @@ class Cisr(TaskHasPatientMixin, Task):
         ),
         permitted_value_checker=ONE_TO_EIGHT_CHECKER,
     )
-    emptype = CamcopsColumn(
+    emptype = camcops_column(
         FN_EMPTYPE,
         Integer,
         comment=(
@@ -1996,7 +1996,7 @@ class Cisr(TaskHasPatientMixin, Task):
         ),
         permitted_value_checker=ONE_TO_SEVEN_CHECKER,
     )
-    home = CamcopsColumn(
+    home = camcops_column(
         FN_HOME,
         Integer,
         comment=(
@@ -2010,44 +2010,44 @@ class Cisr(TaskHasPatientMixin, Task):
 
     # Appetite/weight
 
-    appetite1 = CamcopsColumn(
+    appetite1 = camcops_column(
         FN_APPETITE1,
         Integer,
         comment="Marked appetite loss in past month" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    weight1 = CamcopsColumn(
+    weight1 = camcops_column(
         FN_WEIGHT1,
         Integer,
         comment="Weight loss in past month" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    weight2 = CamcopsColumn(
+    weight2 = camcops_column(
         FN_WEIGHT2,
         Integer,
         comment="Weight loss: trying to lose weight?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    weight3 = CamcopsColumn(
+    weight3 = camcops_column(
         FN_WEIGHT3,
         Integer,
         comment="Weight loss amount (1: ≥0.5 stones; 2: <0.5 stones)",
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    appetite2 = CamcopsColumn(
+    appetite2 = camcops_column(
         FN_APPETITE2,
         Integer,
         comment="Marked increase in appetite in past month" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    weight4 = CamcopsColumn(
+    weight4 = camcops_column(
         # male/female responses unified (no "weight4a")
         FN_WEIGHT4,
         Integer,
         comment="Weight gain in past month (1 yes, 2 no, 3 yes but pregnant)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    weight5 = CamcopsColumn(
+    weight5 = camcops_column(
         FN_WEIGHT5,
         Integer,
         comment="Weight gain amount (1: ≥0.5 stones; 2: <0.5 stones)",
@@ -2056,20 +2056,20 @@ class Cisr(TaskHasPatientMixin, Task):
 
     # Somatic problems
 
-    gp_year = CamcopsColumn(
+    gp_year = camcops_column(
         FN_GP_YEAR,
         Integer,
         comment="Consultations with GP in past year (0: none, 1: 1–2, 2: 3–4, "
         "3: 6–10; 4: >10",
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
     )
-    disable = CamcopsColumn(
+    disable = camcops_column(
         FN_DISABLE,
         Integer,
         comment="Longstanding illness/disability/infirmity" + CMT_1_YES_2_NO,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    illness = CamcopsColumn(
+    illness = camcops_column(
         FN_ILLNESS,
         Integer,
         comment="Conditions (1 diabetes, 2 asthma, 3 arthritis, 4 heart "
@@ -2078,84 +2078,84 @@ class Cisr(TaskHasPatientMixin, Task):
         permitted_value_checker=ONE_TO_EIGHT_CHECKER,
     )
 
-    somatic_mand1 = CamcopsColumn(
+    somatic_mand1 = camcops_column(
         FN_SOMATIC_MAND1,
         Integer,
         comment="Any aches/pains in past month?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    somatic_pain1 = CamcopsColumn(
+    somatic_pain1 = camcops_column(
         FN_SOMATIC_PAIN1,
         Integer,
         comment="Pain/ache brought on or made worse because low/anxious/"
         "stressed" + CMT_NEVER_SOMETIMES_ALWAYS,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    somatic_pain2 = CamcopsColumn(
+    somatic_pain2 = camcops_column(
         FN_SOMATIC_PAIN2,
         Integer,
         comment="Pain: days in past week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    somatic_pain3 = CamcopsColumn(
+    somatic_pain3 = camcops_column(
         FN_SOMATIC_PAIN3,
         Integer,
         comment="Pain: lasted >3h on any day in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    somatic_pain4 = CamcopsColumn(
+    somatic_pain4 = camcops_column(
         FN_SOMATIC_PAIN4,
         Integer,
         comment="Pain: unpleasant in past week?" + CMT_UNPLEASANT,
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
-    somatic_pain5 = CamcopsColumn(
+    somatic_pain5 = camcops_column(
         FN_SOMATIC_PAIN5,
         Integer,
         comment="Pain: bothersome whilst doing something interesting in past "
         "week?" + CMT_BOTHERSOME_INTERESTING,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    somatic_mand2 = CamcopsColumn(
+    somatic_mand2 = camcops_column(
         FN_SOMATIC_MAND2,
         Integer,
         comment="Bodily discomfort in past month?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    somatic_dis1 = CamcopsColumn(
+    somatic_dis1 = camcops_column(
         FN_SOMATIC_DIS1,
         Integer,
         comment="Discomfort brought on or made worse because low/anxious/"
         "stressed" + CMT_NEVER_SOMETIMES_ALWAYS,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    somatic_dis2 = CamcopsColumn(
+    somatic_dis2 = camcops_column(
         FN_SOMATIC_DIS2,
         Integer,
         comment="Discomfort: days in past week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    somatic_dis3 = CamcopsColumn(
+    somatic_dis3 = camcops_column(
         FN_SOMATIC_DIS3,
         Integer,
         comment="Discomfort: lasted >3h on any day in past week"
         + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    somatic_dis4 = CamcopsColumn(
+    somatic_dis4 = camcops_column(
         FN_SOMATIC_DIS4,
         Integer,
         comment="Discomfort: unpleasant in past week?" + CMT_UNPLEASANT,
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
-    somatic_dis5 = CamcopsColumn(
+    somatic_dis5 = camcops_column(
         FN_SOMATIC_DIS5,
         Integer,
         comment="Discomfort: bothersome whilst doing something interesting in "
         "past week?" + CMT_BOTHERSOME_INTERESTING,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    somatic_dur = CamcopsColumn(
+    somatic_dur = camcops_column(
         FN_SOMATIC_DUR,
         Integer,
         comment="Duration of ache/pain/discomfort" + CMT_DURATION,
@@ -2164,83 +2164,83 @@ class Cisr(TaskHasPatientMixin, Task):
 
     # Fatigue/lacking energy
 
-    fatigue_mand1 = CamcopsColumn(
+    fatigue_mand1 = camcops_column(
         FN_FATIGUE_MAND1,
         Integer,
         comment="Tired in past month" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    fatigue_cause1 = CamcopsColumn(
+    fatigue_cause1 = camcops_column(
         FN_FATIGUE_CAUSE1,
         Integer,
         comment="Main reason for feeling tired" + CMT_FATIGUE_CAUSE,
         permitted_value_checker=ONE_TO_EIGHT_CHECKER,
     )
-    fatigue_tired1 = CamcopsColumn(
+    fatigue_tired1 = camcops_column(
         FN_FATIGUE_TIRED1,
         Integer,
         comment="Tired: days in past week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    fatigue_tired2 = CamcopsColumn(
+    fatigue_tired2 = camcops_column(
         FN_FATIGUE_TIRED2,
         Integer,
         comment="Tired: >3h on any one day in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    fatigue_tired3 = CamcopsColumn(
+    fatigue_tired3 = camcops_column(
         FN_FATIGUE_TIRED3,
         Integer,
         comment="So tired you've had to push yourself to get things done in "
         "past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    fatigue_tired4 = CamcopsColumn(
+    fatigue_tired4 = camcops_column(
         FN_FATIGUE_TIRED4,
         Integer,
         comment="Tired during an enjoyable activity" + CMT_DURING_ENJOYABLE,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    fatigue_mand2 = CamcopsColumn(
+    fatigue_mand2 = camcops_column(
         FN_FATIGUE_MAND2,
         Integer,
         comment="Lacking in energy in past month" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    fatigue_cause2 = CamcopsColumn(
+    fatigue_cause2 = camcops_column(
         FN_FATIGUE_CAUSE2,
         Integer,
         comment="Main reason for lacking energy" + CMT_FATIGUE_CAUSE,
         permitted_value_checker=ONE_TO_EIGHT_CHECKER,
     )
-    fatigue_energy1 = CamcopsColumn(
+    fatigue_energy1 = camcops_column(
         FN_FATIGUE_ENERGY1,
         Integer,
         comment="Lacking energy: days in past week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    fatigue_energy2 = CamcopsColumn(
+    fatigue_energy2 = camcops_column(
         FN_FATIGUE_ENERGY2,
         Integer,
         comment="Lacking energy: for >3h on any one day in past week"
         + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    fatigue_energy3 = CamcopsColumn(
+    fatigue_energy3 = camcops_column(
         FN_FATIGUE_ENERGY3,
         Integer,
         comment="So lacking in energy you've had to push yourself to get "
         "things done in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    fatigue_energy4 = CamcopsColumn(
+    fatigue_energy4 = camcops_column(
         FN_FATIGUE_ENERGY4,
         Integer,
         comment="Lacking energy during an enjoyable activity"
         + CMT_DURING_ENJOYABLE,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    fatigue_dur = CamcopsColumn(
+    fatigue_dur = camcops_column(
         FN_FATIGUE_DUR,
         Integer,
         comment="Feeling tired/lacking energy for how long?" + CMT_DURATION,
@@ -2249,54 +2249,54 @@ class Cisr(TaskHasPatientMixin, Task):
 
     # Concentration/memory
 
-    conc_mand1 = CamcopsColumn(
+    conc_mand1 = camcops_column(
         FN_CONC_MAND1,
         Integer,
         comment="Problems in concentrating during past monnth?"
         + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    conc_mand2 = CamcopsColumn(
+    conc_mand2 = camcops_column(
         FN_CONC_MAND2,
         Integer,
         comment="Problems with forgetting things during past month?"
         + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    conc1 = CamcopsColumn(
+    conc1 = camcops_column(
         FN_CONC1,
         Integer,
         comment="Concentration/memory problems: days in past week"
         + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    conc2 = CamcopsColumn(
+    conc2 = camcops_column(
         FN_CONC2,
         Integer,
         comment="In past week, could concentrate on all of: TV, newspaper, "
         "conversation" + CMT_1_YES_2_NO,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    conc3 = CamcopsColumn(
+    conc3 = camcops_column(
         FN_CONC3,
         Integer,
         comment="Problems with concentration have stopped you from getting on "
         "with things in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    conc_dur = CamcopsColumn(
+    conc_dur = camcops_column(
         FN_CONC_DUR,
         Integer,
         comment="Problems with concentration: for how long?" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
-    conc4 = CamcopsColumn(
+    conc4 = camcops_column(
         FN_CONC4,
         Integer,
         comment="Forgotten anything important in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    forget_dur = CamcopsColumn(
+    forget_dur = camcops_column(
         FN_FORGET_DUR,
         Integer,
         comment="Problems with memory: for how long?" + CMT_DURATION,
@@ -2305,76 +2305,76 @@ class Cisr(TaskHasPatientMixin, Task):
 
     # Sleep
 
-    sleep_mand1 = CamcopsColumn(
+    sleep_mand1 = camcops_column(
         FN_SLEEP_MAND1,
         Integer,
         comment="Problems with sleep loss in past month" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    sleep_lose1 = CamcopsColumn(
+    sleep_lose1 = camcops_column(
         FN_SLEEP_LOSE1,
         Integer,
         comment="Sleep loss: nights in past week with problems"
         + CMT_NIGHTS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    sleep_lose2 = CamcopsColumn(
+    sleep_lose2 = camcops_column(
         FN_SLEEP_LOSE2,
         Integer,
         comment="On night with least sleep in past week, how long trying to "
         "get to sleep?" + CMT_SLEEP_CHANGE,
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
-    sleep_lose3 = CamcopsColumn(
+    sleep_lose3 = camcops_column(
         FN_SLEEP_LOSE3,
         Integer,
         comment="On how many nights in past week did you spend >=3h trying to "
         "get to sleep?" + CMT_NIGHTS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    sleep_emw = CamcopsColumn(
+    sleep_emw = camcops_column(
         FN_SLEEP_EMW,
         Integer,
         comment="Woken >2h earlier (and couldn't return to sleep) in past "
         "week?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    sleep_cause = CamcopsColumn(
+    sleep_cause = camcops_column(
         FN_SLEEP_CAUSE,
         Integer,
         comment="What are your sleep difficulties caused by? (1 noise, "
         "2 shift work, 3 pain/illness, 4 worries, 5 unknown, 6 other",
         permitted_value_checker=ONE_TO_SIX_CHECKER,
     )
-    sleep_mand2 = CamcopsColumn(
+    sleep_mand2 = camcops_column(
         FN_SLEEP_MAND2,
         Integer,
         comment="Problems with excess sleep in past month (1 no, 2 slept more "
         "than usual but not a problem, 3 yes)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    sleep_gain1 = CamcopsColumn(
+    sleep_gain1 = camcops_column(
         FN_SLEEP_GAIN1,
         Integer,
         comment="Sleep gain: how many nights in past week"
         + CMT_NIGHTS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    sleep_gain2 = CamcopsColumn(
+    sleep_gain2 = camcops_column(
         FN_SLEEP_GAIN2,
         Integer,
         comment="On night with most sleep in past week, how much more than "
         "usual?" + CMT_SLEEP_CHANGE,
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
-    sleep_gain3 = CamcopsColumn(
+    sleep_gain3 = camcops_column(
         FN_SLEEP_GAIN3,
         Integer,
         comment="On how many nights in past week did you sleep >3h longer "
         "than usual?" + CMT_NIGHTS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    sleep_dur = CamcopsColumn(
+    sleep_dur = camcops_column(
         FN_SLEEP_DUR,
         Integer,
         comment="How long have you had these problems with sleep?"
@@ -2384,49 +2384,49 @@ class Cisr(TaskHasPatientMixin, Task):
 
     # Irritability
 
-    irrit_mand1 = CamcopsColumn(
+    irrit_mand1 = camcops_column(
         FN_IRRIT_MAND1,
         Integer,
         comment="Irritable with those around you in past month?"
         + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    irrit_mand2 = CamcopsColumn(
+    irrit_mand2 = camcops_column(
         FN_IRRIT_MAND2,
         Integer,
         comment="Short-tempered/angry over trivial things in past month? "
         "(1 no, 2 sometimes, 3 yes)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    irrit1 = CamcopsColumn(
+    irrit1 = camcops_column(
         FN_IRRIT1,
         Integer,
         comment="Irritable/short-tempered/angry: days in past week"
         + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    irrit2 = CamcopsColumn(
+    irrit2 = camcops_column(
         FN_IRRIT2,
         Integer,
         comment="Irritable/short-tempered/angry: for >1h on any day in past "
         "week?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    irrit3 = CamcopsColumn(
+    irrit3 = camcops_column(
         FN_IRRIT3,
         Integer,
         comment="Irritable/short-tempered/angry: wanted to shout at someone? "
         "(1 no; yes but didn't shout; 3 yes and did shout)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    irrit4 = CamcopsColumn(
+    irrit4 = camcops_column(
         FN_IRRIT4,
         Integer,
         comment="In past week, have you had arguments/rows/lost temper? "
         "(1 no; 2 yes but justified; 3 yes)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    irrit_dur = CamcopsColumn(
+    irrit_dur = camcops_column(
         FN_IRRIT_DUR,
         Integer,
         comment="Irritable/short-tempered/angry: for how long?" + CMT_DURATION,
@@ -2435,46 +2435,46 @@ class Cisr(TaskHasPatientMixin, Task):
 
     # Hypochondriasis
 
-    hypo_mand1 = CamcopsColumn(
+    hypo_mand1 = camcops_column(
         FN_HYPO_MAND1,
         Integer,
         comment="Worried about physical health in past month?"
         + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    hypo_mand2 = CamcopsColumn(
+    hypo_mand2 = camcops_column(
         FN_HYPO_MAND2,
         Integer,
         comment="Do you worry you have a serious illness?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    hypo1 = CamcopsColumn(
+    hypo1 = camcops_column(
         FN_HYPO1,
         Integer,
         comment="Worrying about health/having a serious illness: how many "
         "days in past week?" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    hypo2 = CamcopsColumn(
+    hypo2 = camcops_column(
         FN_HYPO2,
         Integer,
         comment="Worrying too much about physical health?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    hypo3 = CamcopsColumn(
+    hypo3 = camcops_column(
         FN_HYPO3,
         Integer,
         comment="Worrying about health: how unpleasant?" + CMT_UNPLEASANT,
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
-    hypo4 = CamcopsColumn(
+    hypo4 = camcops_column(
         FN_HYPO4,
         Integer,
         comment="Able to take mind off health worries in past week?"
         + CMT_1_YES_2_NO,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    hypo_dur = CamcopsColumn(
+    hypo_dur = camcops_column(
         FN_HYPO_DUR,
         Integer,
         comment="Worrying about physical health: for how long?" + CMT_DURATION,
@@ -2483,54 +2483,54 @@ class Cisr(TaskHasPatientMixin, Task):
 
     # Depression
 
-    depr_mand1 = CamcopsColumn(
+    depr_mand1 = camcops_column(
         FN_DEPR_MAND1,
         Integer,
         comment="Sad/miserable/depressed in past month?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    depr1 = CamcopsColumn(
+    depr1 = camcops_column(
         FN_DEPR1,
         Integer,
         comment="Sad/miserable/depressed in past week?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    depr_mand2 = CamcopsColumn(
+    depr_mand2 = camcops_column(
         FN_DEPR_MAND2,
         Integer,
         comment="In the past month, able to enjoy/take an interest in things "
         "as much as usual?" + CMT_ANHEDONIA,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    depr2 = CamcopsColumn(
+    depr2 = camcops_column(
         FN_DEPR2,
         Integer,
         comment="In the past week, able to enjoy/take an interest in things "
         "as much as usual?" + CMT_ANHEDONIA,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    depr3 = CamcopsColumn(
+    depr3 = camcops_column(
         FN_DEPR3,
         Integer,
         comment="[Depressed mood] or [anhedonia] on how many days in past "
         "week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    depr4 = CamcopsColumn(
+    depr4 = camcops_column(
         FN_DEPR4,
         Integer,
         comment="[Depressed mood] or [anhedonia] for >3h on any day in past "
         "week?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    depr_content = CamcopsColumn(
+    depr_content = camcops_column(
         FN_DEPR_CONTENT,
         Integer,
         comment="Main reason for [depressed mood] or [anhedonia]?"
         + CMT_STRESSORS,
         permitted_value_checker=ONE_TO_NINE_CHECKER,
     )
-    depr5 = CamcopsColumn(
+    depr5 = camcops_column(
         FN_DEPR5,
         Integer,
         comment="In past week, during [depressed mood] or [anhedonia], did "
@@ -2538,79 +2538,79 @@ class Cisr(TaskHasPatientMixin, Task):
         "(1 always, 2 sometimes, 3 no)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    depr_dur = CamcopsColumn(
+    depr_dur = camcops_column(
         FN_DEPR_DUR,
         Integer,
         comment="Depressed mood/anhedonia: for how long?" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
-    depth1 = CamcopsColumn(
+    depth1 = camcops_column(
         FN_DEPTH1,
         Integer,
         comment="Diurnal mood variation in past week (1 worse in the morning, "
         "2 worse in the evening, 3 varies, 4 no difference)",
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
-    depth2 = CamcopsColumn(
+    depth2 = camcops_column(
         FN_DEPTH2,
         Integer,
         comment="Libido in past month (1 not applicable, 2 no change, "
         "3 increased, 4 decreased)",
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
-    depth3 = CamcopsColumn(
+    depth3 = camcops_column(
         FN_DEPTH3,
         Integer,
         comment="Restlessness in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    depth4 = CamcopsColumn(
+    depth4 = camcops_column(
         FN_DEPTH4,
         Integer,
         comment="Psychomotor retardation in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    depth5 = CamcopsColumn(
+    depth5 = camcops_column(
         FN_DEPTH5,
         Integer,
         comment="Guilt/blamed self in past week (1 never, 2 only when it was "
         "my fault, 3 sometimes, 4 often)",
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
-    depth6 = CamcopsColumn(
+    depth6 = camcops_column(
         FN_DEPTH6,
         Integer,
         comment="Feeling not as good as other people in past week"
         + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    depth7 = CamcopsColumn(
+    depth7 = camcops_column(
         FN_DEPTH7,
         Integer,
         comment="Hopeless in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    depth8 = CamcopsColumn(
+    depth8 = camcops_column(
         FN_DEPTH8,
         Integer,
         comment="Life not worth living in past week (1 no, 2 sometimes, "
         "3 always)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    depth9 = CamcopsColumn(
+    depth9 = camcops_column(
         FN_DEPTH9,
         Integer,
         comment="Thoughts of suicide in past week (1 no; 2 yes, but would "
         "never commit suicide; 3 yes)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    depth10 = CamcopsColumn(
+    depth10 = camcops_column(
         FN_DEPTH10,
         Integer,
         comment="Thoughts of way to kill self in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    doctor = CamcopsColumn(
+    doctor = camcops_column(
         FN_DOCTOR,
         Integer,
         comment="Have you spoken to your doctor about these thoughts of "
@@ -2621,52 +2621,52 @@ class Cisr(TaskHasPatientMixin, Task):
 
     # Worry/generalized anxiety
 
-    worry_mand1 = CamcopsColumn(
+    worry_mand1 = camcops_column(
         FN_WORRY_MAND1,
         Integer,
         comment="Excessive worry in past month?" + CMT_NO_SOMETIMES_OFTEN,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    worry_mand2 = CamcopsColumn(
+    worry_mand2 = camcops_column(
         FN_WORRY_MAND2,
         Integer,
         comment="Any worries at all in past month?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    worry_cont1 = CamcopsColumn(
+    worry_cont1 = camcops_column(
         FN_WORRY_CONT1,
         Integer,
         comment="Main source of worry in past week?" + CMT_STRESSORS,
         permitted_value_checker=ONE_TO_NINE_CHECKER,
     )
-    worry2 = CamcopsColumn(
+    worry2 = camcops_column(
         FN_WORRY2,
         Integer,
         comment="Worries (about things other than physical health) on how "
         "many days in past week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    worry3 = CamcopsColumn(
+    worry3 = camcops_column(
         FN_WORRY3,
         Integer,
         comment="Worrying too much?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    worry4 = CamcopsColumn(
+    worry4 = camcops_column(
         FN_WORRY4,
         Integer,
         comment="How unpleasant is worry (about things other than physical "
         "health)" + CMT_UNPLEASANT,
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
-    worry5 = CamcopsColumn(
+    worry5 = camcops_column(
         FN_WORRY5,
         Integer,
         comment="Worry (about things other than physical health) for >3h on "
         "any day in past week?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    worry_dur = CamcopsColumn(
+    worry_dur = camcops_column(
         FN_WORRY_DUR,
         Integer,
         comment="Worry (about things other than physical health): for how "
@@ -2674,61 +2674,61 @@ class Cisr(TaskHasPatientMixin, Task):
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
-    anx_mand1 = CamcopsColumn(
+    anx_mand1 = camcops_column(
         FN_ANX_MAND1,
         Integer,
         comment="Anxious/nervous in past month?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    anx_mand2 = CamcopsColumn(
+    anx_mand2 = camcops_column(
         FN_ANX_MAND2,
         Integer,
         comment="Muscle tension/couldn't relax in past month?"
         + CMT_NO_SOMETIMES_OFTEN,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    anx_phobia1 = CamcopsColumn(
+    anx_phobia1 = camcops_column(
         FN_ANX_PHOBIA1,
         Integer,
         comment="Phobic anxiety in past month?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    anx_phobia2 = CamcopsColumn(
+    anx_phobia2 = camcops_column(
         FN_ANX_PHOBIA2,
         Integer,
         comment="Phobic anxiety: always specific? (1 always specific, "
         "2 sometimes general)",
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    anx2 = CamcopsColumn(
+    anx2 = camcops_column(
         FN_ANX2,
         Integer,
         comment="Anxiety/nervousness/tension: how many days in past week"
         + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    anx3 = CamcopsColumn(
+    anx3 = camcops_column(
         FN_ANX3,
         Integer,
         comment="Anxiety/nervousness/tension: how unpleasant in past week"
         + CMT_UNPLEASANT,
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
-    anx4 = CamcopsColumn(
+    anx4 = camcops_column(
         FN_ANX4,
         Integer,
         comment="Anxiety/nervousness/tension: physical symptoms in past "
         "week?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    anx5 = CamcopsColumn(
+    anx5 = camcops_column(
         FN_ANX5,
         Integer,
         comment="Anxiety/nervousness/tension: for >3h on any day in past "
         "week?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    anx_dur = CamcopsColumn(
+    anx_dur = camcops_column(
         FN_ANX_DUR,
         Integer,
         comment="Anxiety/nervousness/tension: for how long?" + CMT_DURATION,
@@ -2737,13 +2737,13 @@ class Cisr(TaskHasPatientMixin, Task):
 
     # Specific phobias
 
-    phobias_mand = CamcopsColumn(
+    phobias_mand = camcops_column(
         FN_PHOBIAS_MAND,
         Integer,
         comment="Phobic avoidance in past month?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    phobias_type1 = CamcopsColumn(
+    phobias_type1 = camcops_column(
         FN_PHOBIAS_TYPE1,
         Integer,
         comment="Which phobia? (1 travelling alone by bus/train; 2 being far "
@@ -2752,33 +2752,33 @@ class Cisr(TaskHasPatientMixin, Task):
         "8 enclosed spaces or heights; 9 something else)",
         permitted_value_checker=ONE_TO_NINE_CHECKER,
     )
-    phobias1 = CamcopsColumn(
+    phobias1 = camcops_column(
         FN_PHOBIAS1,
         Integer,
         comment="Phobic anxiety: days in past week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    phobias2 = CamcopsColumn(
+    phobias2 = camcops_column(
         FN_PHOBIAS2,
         Integer,
         comment="Phobic anxiety: physical symptoms in past week?"
         + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    phobias3 = CamcopsColumn(
+    phobias3 = camcops_column(
         FN_PHOBIAS3,
         Integer,
         comment="Phobic avoidance in past week?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    phobias4 = CamcopsColumn(
+    phobias4 = camcops_column(
         FN_PHOBIAS4,
         Integer,
         comment="Phobic avoidance: how many times in past week? (1: none, "
         "2: 1–3, 3: >=4)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    phobias_dur = CamcopsColumn(
+    phobias_dur = camcops_column(
         FN_PHOBIAS_DUR,
         Integer,
         comment="Phobic anxiety: for how long?" + CMT_DURATION,
@@ -2787,21 +2787,21 @@ class Cisr(TaskHasPatientMixin, Task):
 
     # Panic
 
-    panic_mand = CamcopsColumn(
+    panic_mand = camcops_column(
         FN_PANIC_MAND,
         Integer,
         comment="Panic in past month (1: no, my anxiety never got that bad; "
         "2: yes, sometimes; 3: yes, often)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    panic1 = CamcopsColumn(
+    panic1 = camcops_column(
         FN_PANIC1,
         Integer,
         comment="Panic: how often in past week (1 not in past seven days, "
         "2 once, 3 more than once)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    panic2 = CamcopsColumn(
+    panic2 = camcops_column(
         FN_PANIC2,
         Integer,
         comment="Panic: how unpleasant in past week (1 a little "
@@ -2809,50 +2809,50 @@ class Cisr(TaskHasPatientMixin, Task):
         "unpleasant)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    panic3 = CamcopsColumn(
+    panic3 = camcops_column(
         FN_PANIC3,
         Integer,
         comment="Panic: in the past week, did the worst panic last >10min "
         "(1: <10min; 2 >=10min)",
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    panic4 = CamcopsColumn(
+    panic4 = camcops_column(
         FN_PANIC4,
         Integer,
         comment="Do panics start suddenly?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    pansym_a = CamcopsColumn(
+    pansym_a = camcops_column(
         FN_PANSYM_A,
         Integer,
         comment=CMT_PANIC_SYMPTOM + "heart racing" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    pansym_b = CamcopsColumn(
+    pansym_b = camcops_column(
         FN_PANSYM_B,
         Integer,
         comment=CMT_PANIC_SYMPTOM + "hands sweaty/clammy" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    pansym_c = CamcopsColumn(
+    pansym_c = camcops_column(
         FN_PANSYM_C,
         Integer,
         comment=CMT_PANIC_SYMPTOM + "trembling/shaking" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    pansym_d = CamcopsColumn(
+    pansym_d = camcops_column(
         FN_PANSYM_D,
         Integer,
         comment=CMT_PANIC_SYMPTOM + "short of breath" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    pansym_e = CamcopsColumn(
+    pansym_e = camcops_column(
         FN_PANSYM_E,
         Integer,
         comment=CMT_PANIC_SYMPTOM + "choking sensation" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    pansym_f = CamcopsColumn(
+    pansym_f = camcops_column(
         FN_PANSYM_F,
         Integer,
         comment=(
@@ -2862,13 +2862,13 @@ class Cisr(TaskHasPatientMixin, Task):
         ),
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    pansym_g = CamcopsColumn(
+    pansym_g = camcops_column(
         FN_PANSYM_G,
         Integer,
         comment=CMT_PANIC_SYMPTOM + "nausea" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    pansym_h = CamcopsColumn(
+    pansym_h = camcops_column(
         FN_PANSYM_H,
         Integer,
         comment=(
@@ -2878,7 +2878,7 @@ class Cisr(TaskHasPatientMixin, Task):
         ),
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    pansym_i = CamcopsColumn(
+    pansym_i = camcops_column(
         FN_PANSYM_I,
         Integer,
         comment=(
@@ -2888,7 +2888,7 @@ class Cisr(TaskHasPatientMixin, Task):
         ),
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    pansym_j = CamcopsColumn(
+    pansym_j = camcops_column(
         FN_PANSYM_J,
         Integer,
         comment=(
@@ -2896,32 +2896,32 @@ class Cisr(TaskHasPatientMixin, Task):
         ),
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    pansym_k = CamcopsColumn(
+    pansym_k = camcops_column(
         FN_PANSYM_K,
         Integer,
         comment=CMT_PANIC_SYMPTOM + "fear were dying" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    pansym_l = CamcopsColumn(
+    pansym_l = camcops_column(
         FN_PANSYM_L,
         Integer,
         comment=CMT_PANIC_SYMPTOM + "tingling/numbness" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    pansym_m = CamcopsColumn(
+    pansym_m = camcops_column(
         FN_PANSYM_M,
         Integer,
         comment=CMT_PANIC_SYMPTOM + "hot flushes/chills" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    panic5 = CamcopsColumn(
+    panic5 = camcops_column(
         FN_PANIC5,
         Integer,
         comment="Is panic always brought on by specific things?"
         + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    panic_dur = CamcopsColumn(
+    panic_dur = camcops_column(
         FN_PANIC_DUR,
         Integer,
         comment="Panic: for how long?" + CMT_DURATION,
@@ -2930,32 +2930,32 @@ class Cisr(TaskHasPatientMixin, Task):
 
     # Compulsions
 
-    comp_mand1 = CamcopsColumn(
+    comp_mand1 = camcops_column(
         FN_COMP_MAND1,
         Integer,
         comment="Compulsions in past month" + CMT_NO_SOMETIMES_OFTEN,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    comp1 = CamcopsColumn(
+    comp1 = camcops_column(
         FN_COMP1,
         Integer,
         comment="Compulsions: how many days in past week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    comp2 = CamcopsColumn(
+    comp2 = camcops_column(
         FN_COMP2,
         Integer,
         comment="Compulsions: tried to stop in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    comp3 = CamcopsColumn(
+    comp3 = camcops_column(
         FN_COMP3,
         Integer,
         comment="Compulsions: upsetting/annoying in past week"
         + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    comp4 = CamcopsColumn(
+    comp4 = camcops_column(
         FN_COMP4,
         Integer,
         comment="Compulsions: greatest number of repeats in past week "
@@ -2963,7 +2963,7 @@ class Cisr(TaskHasPatientMixin, Task):
         "3: three or more repeats)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    comp_dur = CamcopsColumn(
+    comp_dur = camcops_column(
         FN_COMP_DUR,
         Integer,
         comment="Compulsions: for how long?" + CMT_DURATION,
@@ -2972,13 +2972,13 @@ class Cisr(TaskHasPatientMixin, Task):
 
     # Obsessions
 
-    obsess_mand1 = CamcopsColumn(
+    obsess_mand1 = camcops_column(
         FN_OBSESS_MAND1,
         Integer,
         comment="Obsessions in past month" + CMT_NO_SOMETIMES_OFTEN,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    obsess_mand2 = CamcopsColumn(
+    obsess_mand2 = camcops_column(
         FN_OBSESS_MAND2,
         Integer,
         comment="Obsessions: same thoughts repeating or general worries (1 "
@@ -2986,32 +2986,32 @@ class Cisr(TaskHasPatientMixin, Task):
         "general)",
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    obsess1 = CamcopsColumn(
+    obsess1 = camcops_column(
         FN_OBSESS1,
         Integer,
         comment="Obsessions: how many days in past week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    obsess2 = CamcopsColumn(
+    obsess2 = camcops_column(
         FN_OBSESS2,
         Integer,
         comment="Obsessions: tried to stop in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    obsess3 = CamcopsColumn(
+    obsess3 = camcops_column(
         FN_OBSESS3,
         Integer,
         comment="Obsessions: upsetting/annoying in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    obsess4 = CamcopsColumn(
+    obsess4 = camcops_column(
         FN_OBSESS4,
         Integer,
         comment="Obsessions: longest time spent thinking these thoughts, in "
         "past week (1: <15min; 2: >=15min)",
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    obsess_dur = CamcopsColumn(
+    obsess_dur = camcops_column(
         FN_OBSESS_DUR,
         Integer,
         comment="Obsessions: for how long?" + CMT_DURATION,
@@ -3020,7 +3020,7 @@ class Cisr(TaskHasPatientMixin, Task):
 
     # Overall impact
 
-    overall2 = CamcopsColumn(
+    overall2 = camcops_column(
         FN_OVERALL2,
         Integer,
         comment="Overall impact on normal activities in past week (1 not at "

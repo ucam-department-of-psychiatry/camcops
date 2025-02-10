@@ -40,7 +40,7 @@ from camcops_server.cc_modules.cc_html import (
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     PermittedValueChecker,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -137,7 +137,7 @@ class Dad(
             setattr(
                 cls,
                 colname,
-                CamcopsColumn(
+                camcops_column(
                     colname,
                     Integer,
                     permitted_value_checker=YN_NA_CHECKER,

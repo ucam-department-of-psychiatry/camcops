@@ -33,7 +33,7 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     ZERO_TO_10_CHECKER,
     ZERO_TO_FOUR_CHECKER,
     ZERO_TO_SEVEN_CHECKER,
@@ -95,7 +95,7 @@ class KhandakerMojoSociodemographics(
         setattr(
             cls,
             cls.FN_GENDER,
-            CamcopsColumn(
+            camcops_column(
                 cls.FN_GENDER,
                 Integer,
                 permitted_value_checker=ZERO_TO_TWO_CHECKER,
@@ -107,14 +107,14 @@ class KhandakerMojoSociodemographics(
         setattr(
             cls,
             cls.FN_OTHER_GENDER,
-            CamcopsColumn(
+            camcops_column(
                 cls.FN_OTHER_GENDER, UnicodeText, comment="Other (specify)"
             ),
         )
         setattr(
             cls,
             cls.FN_ETHNICITY,
-            CamcopsColumn(
+            camcops_column(
                 cls.FN_ETHNICITY,
                 Integer,
                 permitted_value_checker=ZERO_TO_10_CHECKER,
@@ -129,14 +129,14 @@ class KhandakerMojoSociodemographics(
         setattr(
             cls,
             cls.FN_OTHER_ETHNICITY,
-            CamcopsColumn(
+            camcops_column(
                 cls.FN_OTHER_ETHNICITY, UnicodeText, comment="Other (specify)"
             ),
         )
         setattr(
             cls,
             cls.FN_WITH_WHOM_LIVE,
-            CamcopsColumn(
+            camcops_column(
                 cls.FN_WITH_WHOM_LIVE,
                 Integer,
                 permitted_value_checker=ZERO_TO_SEVEN_CHECKER,
@@ -150,7 +150,7 @@ class KhandakerMojoSociodemographics(
         setattr(
             cls,
             cls.FN_OTHER_WITH_WHOM_LIVE,
-            CamcopsColumn(
+            camcops_column(
                 cls.FN_OTHER_WITH_WHOM_LIVE,
                 UnicodeText,
                 comment="Other (specify)",
@@ -159,7 +159,7 @@ class KhandakerMojoSociodemographics(
         setattr(
             cls,
             cls.FN_RELATIONSHIP_STATUS,
-            CamcopsColumn(
+            camcops_column(
                 cls.FN_RELATIONSHIP_STATUS,
                 Integer,
                 permitted_value_checker=ZERO_TO_FOUR_CHECKER,
@@ -173,7 +173,7 @@ class KhandakerMojoSociodemographics(
         setattr(
             cls,
             cls.FN_EDUCATION,
-            CamcopsColumn(
+            camcops_column(
                 cls.FN_EDUCATION,
                 Integer,
                 permitted_value_checker=ZERO_TO_FOUR_CHECKER,
@@ -187,7 +187,7 @@ class KhandakerMojoSociodemographics(
         setattr(
             cls,
             cls.FN_EMPLOYMENT,
-            CamcopsColumn(
+            camcops_column(
                 cls.FN_EMPLOYMENT,
                 Integer,
                 permitted_value_checker=ZERO_TO_SEVEN_CHECKER,
@@ -202,14 +202,14 @@ class KhandakerMojoSociodemographics(
         setattr(
             cls,
             cls.FN_OTHER_EMPLOYMENT,
-            CamcopsColumn(
+            camcops_column(
                 cls.FN_OTHER_EMPLOYMENT, UnicodeText, comment="Other (specify)"
             ),
         )
         setattr(
             cls,
             cls.FN_ACCOMMODATION,
-            CamcopsColumn(
+            camcops_column(
                 cls.FN_ACCOMMODATION,
                 Integer,
                 permitted_value_checker=ZERO_TO_SIX_CHECKER,
@@ -225,7 +225,7 @@ class KhandakerMojoSociodemographics(
         setattr(
             cls,
             cls.FN_OTHER_ACCOMMODATION,
-            CamcopsColumn(
+            camcops_column(
                 cls.FN_OTHER_ACCOMMODATION,
                 UnicodeText,
                 comment="Other (specify)",

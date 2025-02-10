@@ -1306,7 +1306,7 @@ class PhoneNumberColType(TypeDecorator):
 
 
 # =============================================================================
-# PermittedValueChecker: used by CamcopsColumn
+# PermittedValueChecker: used by camcops_column
 # =============================================================================
 
 
@@ -1430,14 +1430,14 @@ ONE_TO_NINE_CHECKER = PermittedValueChecker(minimum=1, maximum=9)
 
 
 # =============================================================================
-# CamcopsColumn: provides extra functions over Column.
+# camcops_column: provides extra functions over Column.
 # =============================================================================
 
 # Column attributes:
 COLATTR_PERMITTED_VALUE_CHECKER = "permitted_value_checker"
 
 
-def CamcopsColumn(
+def camcops_column(
     *args,
     include_in_anon_staging_db: bool = False,
     exempt_from_anonymisation: bool = False,
@@ -1493,7 +1493,7 @@ def CamcopsColumn(
 
 
 # =============================================================================
-# Operate on Column/CamcopsColumn properties
+# Operate on Column/MappedColumn properties
 # =============================================================================
 
 
@@ -1519,10 +1519,10 @@ def gen_columns_matching_attrnames(
 
 def gen_camcops_columns(
     obj,
-) -> Generator[Tuple[str, CamcopsColumn], None, None]:
+) -> Generator[Tuple[str, MappedColumn], None, None]:
     """
     Finds all columns of an object that are
-    :class:`camcops_server.cc_modules.cc_sqla_coltypes.CamcopsColumn` columns.
+    :func:`camcops_server.cc_modules.cc_sqla_coltypes.camcops_column` columns.
 
     Args:
         obj: SQLAlchemy ORM object to inspect
@@ -1531,16 +1531,16 @@ def gen_camcops_columns(
         ``attrname, column`` tuples
     """
     for attrname, column in gen_columns(obj):
-        if isinstance(column, CamcopsColumn):
+        if column.info.get("is_camcops_column", False):
             yield attrname, column
 
 
 def gen_camcops_blob_columns(
     obj,
-) -> Generator[Tuple[str, CamcopsColumn], None, None]:
+) -> Generator[Tuple[str, MappedColumn], None, None]:
     """
     Finds all columns of an object that are
-    :class:`camcops_server.cc_modules.cc_sqla_coltypes.CamcopsColumn` columns
+    :func:`camcops_server.cc_modules.cc_sqla_coltypes.camcops_column` columns
     referencing the BLOB table.
 
     Args:
@@ -1571,7 +1571,7 @@ def get_column_attr_names(obj) -> List[str]:
 def get_camcops_column_attr_names(obj) -> List[str]:
     """
     Get a list of
-    :class:`camcops_server.cc_modules.cc_sqla_coltypes.CamcopsColumn` column
+    :func:`camcops_server.cc_modules.cc_sqla_coltypes.camcops_column` column
     attribute names from an SQLAlchemy ORM object.
     """
     return [attrname for attrname, _ in gen_camcops_columns(obj)]
@@ -1580,7 +1580,7 @@ def get_camcops_column_attr_names(obj) -> List[str]:
 def get_camcops_blob_column_attr_names(obj) -> List[str]:
     """
     Get a list of
-    :class:`camcops_server.cc_modules.cc_sqla_coltypes.CamcopsColumn` BLOB
+    :func:`camcops_server.cc_modules.cc_sqla_coltypes.camcops_column` BLOB
     column attribute names from an SQLAlchemy ORM object.
     """
     return [attrname for attrname, _ in gen_camcops_blob_columns(obj)]
@@ -1589,7 +1589,7 @@ def get_camcops_blob_column_attr_names(obj) -> List[str]:
 def permitted_value_failure_msgs(obj) -> List[str]:
     """
     Checks a SQLAlchemy ORM object instance against its permitted value checks
-    (via its :class:`camcops_server.cc_modules.cc_sqla_coltypes.CamcopsColumn`
+    (via its :func:`camcops_server.cc_modules.cc_sqla_coltypes.camcops_column`
     columns), if it has any.
 
     Returns a list of failure messages (empty list means all OK).
@@ -1723,4 +1723,4 @@ def BoolColumn(name: str, *args, **kwargs) -> MappedColumn[bool]:
             name,
         )
 
-    return CamcopsColumn(name, type_arg, *args, **kwargs)
+    return camcops_column(name, type_arg, *args, **kwargs)

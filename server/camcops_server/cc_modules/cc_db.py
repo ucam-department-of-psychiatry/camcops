@@ -73,7 +73,7 @@ from camcops_server.cc_modules.cc_constants import (
 )
 from camcops_server.cc_modules.cc_dataclasses import SummarySchemaInfo
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     COLATTR_PERMITTED_VALUE_CHECKER,
     EraColType,
     gen_ancillary_relationships,
@@ -1285,7 +1285,9 @@ def add_multiple_columns(
             colkwargs[COLATTR_PERMITTED_VALUE_CHECKER] = PermittedValueChecker(
                 minimum=minimum, maximum=maximum, permitted_values=pv
             )
-            setattr(cls, colname, CamcopsColumn(colname, coltype, **colkwargs))
+            setattr(
+                cls, colname, camcops_column(colname, coltype, **colkwargs)
+            )
         else:
             setattr(cls, colname, Column(colname, coltype, **colkwargs))
 

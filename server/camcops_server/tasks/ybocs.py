@@ -45,7 +45,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    camcops_column,
     PermittedValueChecker,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -125,7 +125,7 @@ class Ybocs(
             setattr(
                 cls,
                 fname,
-                CamcopsColumn(
+                camcops_column(
                     fname,
                     Integer,
                     permitted_value_checker=PermittedValueChecker(
@@ -406,7 +406,7 @@ class YbocsSc(
             setattr(
                 cls,
                 item + cls.SUFFIX_CURRENT,
-                CamcopsColumn(
+                camcops_column(
                     item + cls.SUFFIX_CURRENT,
                     Boolean,
                     permitted_value_checker=BIT_CHECKER,
@@ -416,7 +416,7 @@ class YbocsSc(
             setattr(
                 cls,
                 item + cls.SUFFIX_PAST,
-                CamcopsColumn(
+                camcops_column(
                     item + cls.SUFFIX_PAST,
                     Boolean,
                     permitted_value_checker=BIT_CHECKER,
@@ -426,7 +426,7 @@ class YbocsSc(
             setattr(
                 cls,
                 item + cls.SUFFIX_PRINCIPAL,
-                CamcopsColumn(
+                camcops_column(
                     item + cls.SUFFIX_PRINCIPAL,
                     Boolean,
                     permitted_value_checker=BIT_CHECKER,

@@ -45,7 +45,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    camcops_column,
     ZERO_TO_ONE_CHECKER,
     ZERO_TO_TWO_CHECKER,
     ZERO_TO_THREE_CHECKER,
@@ -85,7 +85,7 @@ class Ifs(
             setattr(
                 cls,
                 fname1,
-                CamcopsColumn(
+                camcops_column(
                     fname1,
                     Boolean,
                     permitted_value_checker=BIT_CHECKER,
@@ -95,7 +95,7 @@ class Ifs(
             setattr(
                 cls,
                 fname2,
-                CamcopsColumn(
+                camcops_column(
                     fname2,
                     Boolean,
                     permitted_value_checker=BIT_CHECKER,
@@ -107,7 +107,7 @@ class Ifs(
             setattr(
                 cls,
                 fname,
-                CamcopsColumn(
+                camcops_column(
                     fname,
                     Integer,
                     permitted_value_checker=BIT_CHECKER,
@@ -119,7 +119,7 @@ class Ifs(
             setattr(
                 cls,
                 fname,
-                CamcopsColumn(
+                camcops_column(
                     fname,
                     Float,
                     permitted_value_checker=ZERO_TO_ONE_CHECKER,
@@ -132,7 +132,7 @@ class Ifs(
             setattr(
                 cls,
                 fname,
-                CamcopsColumn(
+                camcops_column(
                     fname,
                     Integer,
                     permitted_value_checker=ZERO_TO_TWO_CHECKER,
@@ -140,25 +140,25 @@ class Ifs(
                 ),
             )
 
-    q1 = CamcopsColumn(
+    q1 = camcops_column(
         "q1",
         Integer,
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment="Q1. Motor series (motor programming)",
     )
-    q2 = CamcopsColumn(
+    q2 = camcops_column(
         "q2",
         Integer,
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment="Q2. Conflicting instructions (interference sensitivity)",
     )
-    q3 = CamcopsColumn(
+    q3 = camcops_column(
         "q3",
         Integer,
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment="Q3. Go/no-go (inhibitory control)",
     )
-    q5 = CamcopsColumn(
+    q5 = camcops_column(
         "q5",
         Integer,
         permitted_value_checker=ZERO_TO_TWO_CHECKER,

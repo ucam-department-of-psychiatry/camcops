@@ -39,7 +39,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BoolColumn,
-    CamcopsColumn,
+    camcops_column,
     PermittedValueChecker,
 )
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
@@ -75,7 +75,7 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         Integer,
         comment="Age (y) at onset of first symptoms of inflammatory disease",
     )
-    q2_when_psych_sx_started = CamcopsColumn(
+    q2_when_psych_sx_started = camcops_column(
         "q2_when_psych_sx_started",
         Integer,
         permitted_value_checker=PermittedValueChecker(
@@ -86,7 +86,7 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         "before diagnosis [Dx], 4 = around time of Dx, 5 = weeks or "
         "months after Dx, 6 = years after Dx)",
     )
-    q3_worst_symptom_last_month = CamcopsColumn(
+    q3_worst_symptom_last_month = camcops_column(
         "q3_worst_symptom_last_month",
         Integer,
         permitted_value_checker=PermittedValueChecker(
@@ -97,7 +97,7 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         "7 = bowel Sx, 8 = mobility, 9 = skin, 10 = other, 11 = no Sx "
         "in past month)",
     )
-    q4a_symptom_timing = CamcopsColumn(
+    q4a_symptom_timing = camcops_column(
         "q4a_symptom_timing",
         Integer,
         permitted_value_checker=PermittedValueChecker(

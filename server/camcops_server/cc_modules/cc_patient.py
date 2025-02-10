@@ -111,7 +111,7 @@ from camcops_server.cc_modules.cc_simpleobjects import (
 )
 from camcops_server.cc_modules.cc_specialnote import SpecialNote
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     EmailAddressColType,
     PatientNameColType,
     SexColType,
@@ -155,13 +155,13 @@ class Patient(GenericTabletRecordMixin, Base):
         comment="Primary key (patient ID) on the source tablet device",
         # client PK
     )
-    uuid = CamcopsColumn(
+    uuid = camcops_column(
         PFN_UUID,
         UuidColType,
         comment="UUID",
         default=uuid.uuid4,  # generates a random UUID
     )  # type: Optional[uuid.UUID]
-    forename = CamcopsColumn(
+    forename = camcops_column(
         "forename",
         PatientNameColType,
         index=True,
@@ -169,7 +169,7 @@ class Patient(GenericTabletRecordMixin, Base):
         include_in_anon_staging_db=True,
         comment="Forename",
     )  # type: Optional[str]
-    surname = CamcopsColumn(
+    surname = camcops_column(
         "surname",
         PatientNameColType,
         index=True,
@@ -177,7 +177,7 @@ class Patient(GenericTabletRecordMixin, Base):
         include_in_anon_staging_db=True,
         comment="Surname",
     )  # type: Optional[str]
-    dob = CamcopsColumn(
+    dob = camcops_column(
         "dob",
         sqltypes.Date,  # verified: merge_db handles this correctly
         index=True,
@@ -186,29 +186,29 @@ class Patient(GenericTabletRecordMixin, Base):
         comment="Date of birth",
         # ... e.g. "2013-02-04"
     )
-    sex = CamcopsColumn(
+    sex = camcops_column(
         "sex",
         SexColType,
         index=True,
         include_in_anon_staging_db=True,
         comment="Sex (M, F, X)",
     )
-    address = CamcopsColumn(
+    address = camcops_column(
         "address", UnicodeText, identifies_patient=True, comment="Address"
     )
-    email = CamcopsColumn(
+    email = camcops_column(
         "email",
         EmailAddressColType,
         identifies_patient=True,
         comment="Patient's e-mail address",
     )
-    gp = CamcopsColumn(
+    gp = camcops_column(
         "gp",
         UnicodeText,
         identifies_patient=True,
         comment="General practitioner (GP)",
     )
-    other = CamcopsColumn(
+    other = camcops_column(
         "other", UnicodeText, identifies_patient=True, comment="Other details"
     )
     idnums = relationship(

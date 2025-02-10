@@ -42,7 +42,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    camcops_column,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
@@ -141,7 +141,7 @@ class CbiR(
             comment_strings=QUESTION_SNIPPETS,
         )
 
-    confirm_blanks = CamcopsColumn(
+    confirm_blanks = camcops_column(
         "confirm_blanks",
         Integer,
         permitted_value_checker=BIT_CHECKER,

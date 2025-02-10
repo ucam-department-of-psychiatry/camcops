@@ -50,7 +50,7 @@ from camcops_server.cc_modules.cc_html import (
 )
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     MimeTypeColType,
     TableNameColType,
 )
@@ -119,7 +119,7 @@ class Blob(GenericTabletRecordMixin, TaskDescendant, Base):
         nullable=False,
         comment="Field name of the field referring to this BLOB by ID",
     )
-    filename = CamcopsColumn(
+    filename = camcops_column(
         "filename",
         Text,  # Text is correct; filenames can be long
         exempt_from_anonymisation=True,
@@ -285,7 +285,7 @@ def blob_relationship(
 
         class Something(Base):
 
-            photo_blobid = CamcopsColumn(
+            photo_blobid = camcops_column(
                 "photo_blobid", Integer,
                 is_blob_id_field=True, blob_field_xml_name="photo_blob"
             )

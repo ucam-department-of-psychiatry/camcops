@@ -36,7 +36,7 @@ from camcops_server.cc_modules.cc_html import answer, get_yes_no_none
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BoolColumn,
-    CamcopsColumn,
+    camcops_column,
     MIN_ZERO_CHECKER,
     ONE_TO_THREE_CHECKER,
     ZERO_TO_100_CHECKER,
@@ -123,7 +123,7 @@ class LynallIamLifeEvents(
             setattr(
                 cls,
                 fn_severity,
-                CamcopsColumn(
+                camcops_column(
                     fn_severity,
                     Integer,
                     comment=cmt_severity,
@@ -148,7 +148,7 @@ class LynallIamLifeEvents(
             setattr(
                 cls,
                 fn_frequency,
-                CamcopsColumn(
+                camcops_column(
                     fn_frequency,
                     Integer,
                     comment=cmt_frequency,

@@ -36,7 +36,7 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import answer, tr_qa, tr, tr_span_col
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     PermittedValueChecker,
     ZERO_TO_THREE_CHECKER,
 )
@@ -100,7 +100,7 @@ class Rapid3(
             setattr(
                 cls,
                 q_fieldname,
-                CamcopsColumn(
+                camcops_column(
                     q_fieldname,
                     Integer,
                     permitted_value_checker=ZERO_TO_THREE_CHECKER,
@@ -117,7 +117,7 @@ class Rapid3(
         setattr(
             cls,
             "q2",
-            CamcopsColumn(
+            camcops_column(
                 "q2",
                 Float,
                 permitted_value_checker=PermittedValueChecker(
@@ -133,7 +133,7 @@ class Rapid3(
         setattr(
             cls,
             "q3",
-            CamcopsColumn(
+            camcops_column(
                 "q3",
                 Float,
                 permitted_value_checker=PermittedValueChecker(

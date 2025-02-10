@@ -37,7 +37,7 @@ from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, identity, tr, tr_span_col
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     ONE_TO_FIVE_CHECKER,
     ONE_TO_SIX_CHECKER,
 )
@@ -157,20 +157,20 @@ class Rand36(
             ],
         )
 
-    q1 = CamcopsColumn(
+    q1 = camcops_column(
         "q1",
         Integer,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Q1 (general health) (1 excellent - 5 poor)",
     )
-    q2 = CamcopsColumn(
+    q2 = camcops_column(
         "q2",
         Integer,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Q2 (health cf. 1y ago) (1 much better - 5 much worse)",
     )
 
-    q20 = CamcopsColumn(
+    q20 = camcops_column(
         "q20",
         Integer,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
@@ -178,13 +178,13 @@ class Rand36(
         "emotional problems interfered with social activity) "
         "(1 not at all - 5 extremely)",
     )
-    q21 = CamcopsColumn(
+    q21 = camcops_column(
         "q21",
         Integer,
         permitted_value_checker=ONE_TO_SIX_CHECKER,
         comment="Q21 (past 4 weeks, how much pain (1 none - 6 very severe)",
     )
-    q22 = CamcopsColumn(
+    q22 = camcops_column(
         "q22",
         Integer,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
@@ -192,7 +192,7 @@ class Rand36(
         "(1 not at all - 5 extremely)",
     )
 
-    q32 = CamcopsColumn(
+    q32 = camcops_column(
         "q32",
         Integer,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,

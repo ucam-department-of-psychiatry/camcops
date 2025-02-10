@@ -57,7 +57,7 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    camcops_column,
     PermittedValueChecker,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -400,13 +400,13 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
             comment_strings=["name", "number", "street", "town", "county"],
         )
 
-    task_edition = CamcopsColumn(
+    task_edition = camcops_column(
         "task_edition",
         String(length=255),
         comment="Task edition. Older task instances will have NULL and that "
         "indicates UK English, 2012 version.",
     )
-    task_address_version = CamcopsColumn(
+    task_address_version = camcops_column(
         "task_address_version",
         String(length=1),
         comment="Task version, determining the address for recall (A/B/C). "
@@ -415,7 +415,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
             permitted_values=["A", "B", "C"]
         ),
     )  # type: str
-    remote_administration = CamcopsColumn(
+    remote_administration = camcops_column(
         "remote_administration",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -428,7 +428,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         comment="Age at leaving full time education",
     )
     occupation = Column("occupation", UnicodeText, comment="Occupation")
-    handedness = CamcopsColumn(
+    handedness = camcops_column(
         "handedness",
         String(length=1),  # was Text
         comment="Handedness (L or R)",
@@ -441,56 +441,56 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         Integer,
         comment="Attention, repetition, number of trials (not scored)",
     )
-    fluency_letters_score = CamcopsColumn(
+    fluency_letters_score = camcops_column(
         "fluency_letters_score",
         Integer,
         comment="Fluency, words beginning with P, score 0-7",
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=7),
     )  # type: Optional[int]
-    fluency_animals_score = CamcopsColumn(
+    fluency_animals_score = camcops_column(
         "fluency_animals_score",
         Integer,
         comment="Fluency, animals, score 0-7",
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=7),
     )  # type: Optional[int]
-    lang_follow_command_practice = CamcopsColumn(
+    lang_follow_command_practice = camcops_column(
         "lang_follow_command_practice",
         Integer,
         comment="Language, command, practice trial (not scored)",
         permitted_value_checker=BIT_CHECKER,
     )
-    lang_read_words_aloud = CamcopsColumn(
+    lang_read_words_aloud = camcops_column(
         "lang_read_words_aloud",
         Integer,
         comment="Language, read five irregular words (0 or 1)",
         permitted_value_checker=BIT_CHECKER,
     )  # type: Optional[int]
-    vsp_copy_infinity = CamcopsColumn(
+    vsp_copy_infinity = camcops_column(
         "vsp_copy_infinity",
         Integer,
         comment="Visuospatial, copy infinity (0-1)",
         permitted_value_checker=BIT_CHECKER,
     )  # type: Optional[int]
-    vsp_copy_cube = CamcopsColumn(
+    vsp_copy_cube = camcops_column(
         "vsp_copy_cube",
         Integer,
         comment="Visuospatial, copy cube (0-2)",
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=2),
     )  # type: Optional[int]
-    vsp_draw_clock = CamcopsColumn(
+    vsp_draw_clock = camcops_column(
         "vsp_draw_clock",
         Integer,
         comment="Visuospatial, draw clock (0-5)",
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=5),
     )  # type: Optional[int]
-    picture1_blobid = CamcopsColumn(
+    picture1_blobid = camcops_column(
         "picture1_blobid",
         Integer,
         comment="Photo 1/2 PNG BLOB ID",
         is_blob_id_field=True,
         blob_relationship_attr_name="picture1",
     )
-    picture2_blobid = CamcopsColumn(
+    picture2_blobid = camcops_column(
         "picture2_blobid",
         Integer,
         comment="Photo 2/2 PNG BLOB ID",
@@ -1332,12 +1332,12 @@ class MiniAce(
             comment_strings=ADDRESS_PARTS,
         )
 
-    task_edition = CamcopsColumn(
+    task_edition = camcops_column(
         "task_edition",
         String(length=255),
         comment="Task edition.",
     )
-    task_address_version = CamcopsColumn(
+    task_address_version = camcops_column(
         "task_address_version",
         String(length=1),
         comment="Task version, determining the address for recall (A/B/C).",
@@ -1345,7 +1345,7 @@ class MiniAce(
             permitted_values=["A", "B", "C"]
         ),
     )  # type: str
-    remote_administration = CamcopsColumn(
+    remote_administration = camcops_column(
         "remote_administration",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -1358,7 +1358,7 @@ class MiniAce(
         comment="Age at leaving full time education",
     )
     occupation = Column("occupation", UnicodeText, comment=OCCUPATION)
-    handedness = CamcopsColumn(
+    handedness = camcops_column(
         "handedness",
         String(length=1),  # was Text
         comment="Handedness (L or R)",
@@ -1366,26 +1366,26 @@ class MiniAce(
             permitted_values=["L", "R"]
         ),
     )
-    fluency_animals_score = CamcopsColumn(
+    fluency_animals_score = camcops_column(
         "fluency_animals_score",
         Integer,
         comment="Fluency, animals, score 0-7",
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=7),
     )  # type: Optional[int]
-    vsp_draw_clock = CamcopsColumn(
+    vsp_draw_clock = camcops_column(
         "vsp_draw_clock",
         Integer,
         comment="Visuospatial, draw clock (0-5)",
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=5),
     )  # type: Optional[int]
-    picture1_blobid = CamcopsColumn(
+    picture1_blobid = camcops_column(
         "picture1_blobid",
         Integer,
         comment="Photo 1/2 PNG BLOB ID",
         is_blob_id_field=True,
         blob_relationship_attr_name="picture1",
     )
-    picture2_blobid = CamcopsColumn(
+    picture2_blobid = camcops_column(
         "picture2_blobid",
         Integer,
         comment="Photo 2/2 PNG BLOB ID",

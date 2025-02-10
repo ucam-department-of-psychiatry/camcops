@@ -43,7 +43,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     MIN_ZERO_CHECKER,
     PermittedValueChecker,
     SummaryCategoryColType,
@@ -107,32 +107,32 @@ class Ciwa(
 
     SCORED_QUESTIONS = strseq("q", 1, NSCOREDQUESTIONS)
 
-    q10 = CamcopsColumn(
+    q10 = camcops_column(
         "q10",
         Integer,
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=4),
         comment="Q10, orientation/clouding of sensorium (0-4, higher worse)",
     )
     t = Column("t", Float, comment="Temperature (degrees C)")
-    hr = CamcopsColumn(
+    hr = camcops_column(
         "hr",
         Integer,
         permitted_value_checker=MIN_ZERO_CHECKER,
         comment="Heart rate (beats/minute)",
     )
-    sbp = CamcopsColumn(
+    sbp = camcops_column(
         "sbp",
         Integer,
         permitted_value_checker=MIN_ZERO_CHECKER,
         comment="Systolic blood pressure (mmHg)",
     )
-    dbp = CamcopsColumn(
+    dbp = camcops_column(
         "dbp",
         Integer,
         permitted_value_checker=MIN_ZERO_CHECKER,
         comment="Diastolic blood pressure (mmHg)",
     )
-    rr = CamcopsColumn(
+    rr = camcops_column(
         "rr",
         Integer,
         permitted_value_checker=MIN_ZERO_CHECKER,

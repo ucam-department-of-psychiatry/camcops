@@ -37,7 +37,7 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    camcops_column,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
@@ -129,7 +129,7 @@ class Nart(
             setattr(
                 cls,
                 w,
-                CamcopsColumn(
+                camcops_column(
                     w,
                     Boolean,
                     permitted_value_checker=BIT_CHECKER,

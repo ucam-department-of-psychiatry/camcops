@@ -43,7 +43,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    camcops_column,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
@@ -271,7 +271,7 @@ class Factg(TaskHasPatientMixin, Task):
             ],
         )
 
-    ignore_s_q7 = CamcopsColumn(
+    ignore_s_q7 = camcops_column(
         "ignore_s_q7", Boolean, permitted_value_checker=BIT_CHECKER
     )
 

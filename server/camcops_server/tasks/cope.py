@@ -35,7 +35,7 @@ from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     BIT_CHECKER,
     PermittedValueChecker,
 )
@@ -113,7 +113,7 @@ class CopeBrief(
             ],
         )
 
-    completed_by_patient = CamcopsColumn(
+    completed_by_patient = camcops_column(
         "completed_by_patient",
         Integer,
         permitted_value_checker=BIT_CHECKER,
@@ -124,7 +124,7 @@ class CopeBrief(
         UnicodeText,
         comment="Name of person task completed by (if not by patient)",
     )
-    relationship_to_patient = CamcopsColumn(
+    relationship_to_patient = camcops_column(
         "relationship_to_patient",
         Integer,
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=9),

@@ -69,7 +69,7 @@ from camcops_server.cc_modules.cc_report import Report
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BoolColumn,
-    CamcopsColumn,
+    camcops_column,
     CharColType,
     PendulumDateTimeAsIsoTextColType,
     DiagnosticCodeColType,
@@ -102,19 +102,19 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
     referral_date_time = Column(
         "referral_date_time", PendulumDateTimeAsIsoTextColType
     )
-    lps_division = CamcopsColumn(
+    lps_division = camcops_column(
         "lps_division", UnicodeText, exempt_from_anonymisation=True
     )
-    referral_priority = CamcopsColumn(
+    referral_priority = camcops_column(
         "referral_priority", UnicodeText, exempt_from_anonymisation=True
     )
-    referral_method = CamcopsColumn(
+    referral_method = camcops_column(
         "referral_method", UnicodeText, exempt_from_anonymisation=True
     )
     referrer_name = Column("referrer_name", UnicodeText)
     referrer_contact_details = Column("referrer_contact_details", UnicodeText)
     referring_consultant = Column("referring_consultant", UnicodeText)
-    referring_specialty = CamcopsColumn(
+    referring_specialty = camcops_column(
         "referring_specialty", UnicodeText, exempt_from_anonymisation=True
     )
     referring_specialty_other = Column(
@@ -126,14 +126,14 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
     patient_aware_of_referral = BoolColumn("patient_aware_of_referral")
     interpreter_required = BoolColumn("interpreter_required")
     sensory_impairment = BoolColumn("sensory_impairment")
-    marital_status_code = CamcopsColumn(
+    marital_status_code = camcops_column(
         "marital_status_code",
         CharColType,
         permitted_value_checker=PermittedValueChecker(
             permitted_values=PV_NHS_MARITAL_STATUS
         ),
     )
-    ethnic_category_code = CamcopsColumn(
+    ethnic_category_code = camcops_column(
         "ethnic_category_code",
         CharColType,
         permitted_value_checker=PermittedValueChecker(
@@ -447,7 +447,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     info_filename_stem = "clinical"
 
     discharge_date = Column("discharge_date", Date)
-    discharge_reason_code = CamcopsColumn(
+    discharge_reason_code = camcops_column(
         "discharge_reason_code", UnicodeText, exempt_from_anonymisation=True
     )
 
@@ -460,12 +460,12 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         # Was previously text! That wasn't right.
         "patient_wanted_copy_of_letter"
     )
-    gaf_at_first_assessment = CamcopsColumn(
+    gaf_at_first_assessment = camcops_column(
         "gaf_at_first_assessment",
         Integer,
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=100),
     )
-    gaf_at_discharge = CamcopsColumn(
+    gaf_at_discharge = camcops_column(
         "gaf_at_discharge",
         Integer,
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=100),
@@ -531,7 +531,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         constraint_name="ck_cpft_lps_discharge_substanceother",
     )
     referral_reason_other = BoolColumn("referral_reason_other")
-    referral_reason_transplant_organ = CamcopsColumn(
+    referral_reason_transplant_organ = camcops_column(
         "referral_reason_transplant_organ",
         UnicodeText,
         exempt_from_anonymisation=True,
@@ -547,7 +547,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     diagnosis_psych_1_icd10code = Column(
         "diagnosis_psych_1_icd10code", DiagnosticCodeColType
     )
-    diagnosis_psych_1_description = CamcopsColumn(
+    diagnosis_psych_1_description = camcops_column(
         "diagnosis_psych_1_description",
         UnicodeText,
         exempt_from_anonymisation=True,
@@ -555,7 +555,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     diagnosis_psych_2_icd10code = Column(
         "diagnosis_psych_2_icd10code", DiagnosticCodeColType
     )
-    diagnosis_psych_2_description = CamcopsColumn(
+    diagnosis_psych_2_description = camcops_column(
         "diagnosis_psych_2_description",
         UnicodeText,
         exempt_from_anonymisation=True,
@@ -563,7 +563,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     diagnosis_psych_3_icd10code = Column(
         "diagnosis_psych_3_icd10code", DiagnosticCodeColType
     )
-    diagnosis_psych_3_description = CamcopsColumn(
+    diagnosis_psych_3_description = camcops_column(
         "diagnosis_psych_3_description",
         UnicodeText,
         exempt_from_anonymisation=True,
@@ -571,7 +571,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     diagnosis_psych_4_icd10code = Column(
         "diagnosis_psych_4_icd10code", DiagnosticCodeColType
     )
-    diagnosis_psych_4_description = CamcopsColumn(
+    diagnosis_psych_4_description = camcops_column(
         "diagnosis_psych_4_description",
         UnicodeText,
         exempt_from_anonymisation=True,
@@ -625,7 +625,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     management_other = BoolColumn("management_other")
     management_other_detail = Column("management_other_detail", UnicodeText)
 
-    outcome = CamcopsColumn(
+    outcome = camcops_column(
         "outcome", UnicodeText, exempt_from_anonymisation=True
     )
     outcome_hospital_transfer_detail = Column(

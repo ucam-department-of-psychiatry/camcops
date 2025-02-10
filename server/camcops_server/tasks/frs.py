@@ -38,7 +38,7 @@ from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     PermittedValueChecker,
     SummaryCategoryColType,
 )
@@ -216,7 +216,7 @@ class Frs(
             setattr(
                 cls,
                 colname,
-                CamcopsColumn(
+                camcops_column(
                     colname,
                     Integer,
                     permitted_value_checker=PermittedValueChecker(

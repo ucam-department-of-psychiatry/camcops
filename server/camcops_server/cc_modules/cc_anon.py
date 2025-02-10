@@ -48,7 +48,7 @@ from cardinal_pythonlib.sqlalchemy.session import SQLITE_MEMORY_URL
 from sqlalchemy.dialects.mysql.base import MySQLDialect
 from sqlalchemy.engine import create_engine
 from sqlalchemy.engine.interfaces import Dialect
-from sqlalchemy.orm import Session as SqlASession, sessionmaker
+from sqlalchemy.orm import MappedColumn, Session as SqlASession, sessionmaker
 from sqlalchemy.sql.schema import Column
 
 from camcops_server.cc_modules.cc_constants import TABLET_ID_FIELD
@@ -60,7 +60,6 @@ from camcops_server.cc_modules.cc_patientidnum import (
     EXTRA_IDNUM_FIELD_PREFIX,
 )
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
-from camcops_server.cc_modules.cc_sqla_coltypes import CamcopsColumn
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_exportrecipientinfo import (
@@ -83,7 +82,7 @@ MIN_STRING_LENGTH_TO_CONSIDER_SCRUBBING = 256
 
 def _gen_columns_for_anon_staging_db(
     req: "CamcopsRequest", recipient: "ExportRecipientInfo"
-) -> Generator[Union[Column, CamcopsColumn], None, None]:
+) -> Generator[Union[Column, MappedColumn], None, None]:
     """
     Generates all columns for an anonymisation staging database.
     """
@@ -130,7 +129,7 @@ def _get_type_size_as_text_from_sqltype(sqltype: str) -> Tuple[str, str]:
 
 # noinspection PyUnusedLocal
 def _get_cris_dd_row(
-    column: Union[Column, CamcopsColumn, None],
+    column: Union[Column, MappedColumn, None],
     recipient: "ExportRecipientInfo",
     dest_dialect: Dialect = None,
 ) -> Dict:
@@ -171,7 +170,7 @@ def _get_cris_dd_row(
         exempt_from_anonymisation = False
         identifies_patient = False
 
-        if isinstance(column, CamcopsColumn):
+        if column.info.get("is_camcops_column", False):
             exempt_from_anonymisation = column.exempt_from_anonymisation
             identifies_patient = column.identifies_patient
             if column.permitted_value_checker:
@@ -297,7 +296,7 @@ def write_cris_data_dictionary(
 
 
 def _get_crate_dd_row(
-    column: Union[Column, CamcopsColumn, None],
+    column: Union[Column, MappedColumn, None],
     recipient: "ExportRecipientInfo",
     dest_dialect: Dialect = None,
     src_db: str = "camcops",
@@ -344,7 +343,7 @@ def _get_crate_dd_row(
             coltype, min_length=MIN_STRING_LENGTH_TO_CONSIDER_SCRUBBING
         )
 
-        if isinstance(column, CamcopsColumn):
+        if column.info.get("is_camcops_column", False):
             exempt_from_anonymisation = column.exempt_from_anonymisation
             identifies_patient = column.identifies_patient
             force_include = column.include_in_anon_staging_db

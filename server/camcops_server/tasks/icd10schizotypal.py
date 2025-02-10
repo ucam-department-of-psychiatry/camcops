@@ -45,7 +45,7 @@ from camcops_server.cc_modules.cc_html import get_yes_no_none, td, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    camcops_column,
 )
 from camcops_server.cc_modules.cc_string import AS
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -102,7 +102,7 @@ class Icd10Schizotypal(
         "date_pertains_to", Date, comment="Date the assessment pertains to"
     )
     comments = Column("comments", UnicodeText, comment="Clinician's comments")
-    b = CamcopsColumn(
+    b = camcops_column(
         "b",
         Boolean,
         permitted_value_checker=BIT_CHECKER,

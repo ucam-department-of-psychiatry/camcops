@@ -28,6 +28,7 @@ camcops_server/tasks/hamd.py
 from typing import List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.orm import MappedColumn
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -37,7 +38,7 @@ from camcops_server.cc_modules.cc_html import answer, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     SummaryCategoryColType,
     ZERO_TO_ONE_CHECKER,
     ZERO_TO_TWO_CHECKER,
@@ -202,41 +203,41 @@ class Hamd(
         "q18b",
     ]
 
-    whichq16 = CamcopsColumn(
+    whichq16 = camcops_column(
         "whichq16",
         Integer,
         permitted_value_checker=ZERO_TO_ONE_CHECKER,
         comment="Method of assessing weight loss (0 = A, by history; "
         "1 = B, by measured change)",
     )
-    q16a = CamcopsColumn(
+    q16a = camcops_column(
         "q16a",
         Integer,
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment="Q16A, weight loss, by history (0 none - 2 definite,"
         " or 3 not assessed [not scored])",
     )
-    q16b = CamcopsColumn(
+    q16b = camcops_column(
         "q16b",
         Integer,
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment="Q16B, weight loss, by measurement (0 none - "
         "2 more than 2lb, or 3 not assessed [not scored])",
     )
-    q17 = CamcopsColumn(
+    q17 = camcops_column(
         "q17",
         Integer,
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q17, lack of insight (0-2, higher worse)",
     )
-    q18a = CamcopsColumn(
+    q18a = camcops_column(
         "q18a",
         Integer,
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q18A (not scored), diurnal variation, presence "
         "(0 none, 1 worse AM, 2 worse PM)",
     )
-    q18b = CamcopsColumn(
+    q18b = camcops_column(
         "q18b",
         Integer,
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
@@ -395,7 +396,7 @@ class Hamd(
                 if q == "q16a" or q == "q16b":
                     rangestr = " <sup>range 0–2; ‘3’ not scored</sup>"
                 else:
-                    col = getattr(self.__class__, q)  # type: CamcopsColumn
+                    col = getattr(self.__class__, q)  # type: MappedColumn
                     rangestr = " <sup>range {}–{}</sup>".format(
                         col.permitted_value_checker.minimum,
                         col.permitted_value_checker.maximum,

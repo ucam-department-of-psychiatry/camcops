@@ -43,7 +43,7 @@ from camcops_server.cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     SummaryCategoryColType,
     ZERO_TO_THREE_CHECKER,
 )
@@ -103,7 +103,7 @@ class Phq9(
             ],
         )
 
-    q10 = CamcopsColumn(
+    q10 = camcops_column(
         "q10",
         Integer,
         permitted_value_checker=ZERO_TO_THREE_CHECKER,

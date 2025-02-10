@@ -178,7 +178,7 @@ from camcops_server.cc_modules.cc_snomed import SnomedLookup
 from camcops_server.cc_modules.cc_specialnote import SpecialNote
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BoolColumn,
-    CamcopsColumn,
+    camcops_column,
     COLATTR_PERMITTED_VALUE_CHECKER,
     gen_ancillary_relationships,
     get_camcops_blob_column_attr_names,
@@ -351,7 +351,7 @@ class TaskHasClinicianMixin(object):
     """
 
     # noinspection PyMethodParameters
-    clinician_specialty: Mapped[Optional[str]] = CamcopsColumn(
+    clinician_specialty: Mapped[Optional[str]] = camcops_column(
         TFN_CLINICIAN_SPECIALTY,
         Text,
         exempt_from_anonymisation=True,
@@ -360,7 +360,7 @@ class TaskHasClinicianMixin(object):
     )
 
     # noinspection PyMethodParameters
-    clinician_name: Mapped[Optional[str]] = CamcopsColumn(
+    clinician_name: Mapped[Optional[str]] = camcops_column(
         TFN_CLINICIAN_NAME,
         Text,
         exempt_from_anonymisation=True,
@@ -368,16 +368,18 @@ class TaskHasClinicianMixin(object):
     )
 
     # noinspection PyMethodParameters
-    clinician_professional_registration: Mapped[Optional[str]] = CamcopsColumn(
-        TFN_CLINICIAN_PROFESSIONAL_REGISTRATION,
-        Text,
-        exempt_from_anonymisation=True,
-        comment="(CLINICIAN) Clinician's professional registration (e.g. "
-        "GMC# 12345)",
+    clinician_professional_registration: Mapped[Optional[str]] = (
+        camcops_column(
+            TFN_CLINICIAN_PROFESSIONAL_REGISTRATION,
+            Text,
+            exempt_from_anonymisation=True,
+            comment="(CLINICIAN) Clinician's professional registration (e.g. "
+            "GMC# 12345)",
+        )
     )
 
     # noinspection PyMethodParameters
-    clinician_post: Mapped[Optional[str]] = CamcopsColumn(
+    clinician_post: Mapped[Optional[str]] = camcops_column(
         TFN_CLINICIAN_POST,
         Text,
         exempt_from_anonymisation=True,
@@ -385,7 +387,7 @@ class TaskHasClinicianMixin(object):
     )
 
     # noinspection PyMethodParameters
-    clinician_service: Mapped[Optional[str]] = CamcopsColumn(
+    clinician_service: Mapped[Optional[str]] = camcops_column(
         TFN_CLINICIAN_SERVICE,
         Text,
         exempt_from_anonymisation=True,
@@ -394,7 +396,7 @@ class TaskHasClinicianMixin(object):
     )
 
     # noinspection PyMethodParameters
-    clinician_contact_details: Mapped[Optional[str]] = CamcopsColumn(
+    clinician_contact_details: Mapped[Optional[str]] = camcops_column(
         TFN_CLINICIAN_CONTACT_DETAILS,
         Text,
         exempt_from_anonymisation=True,
@@ -472,7 +474,7 @@ class TaskHasRespondentMixin(object):
     """
 
     # noinspection PyMethodParameters
-    respondent_name: Mapped[Optional[str]] = CamcopsColumn(
+    respondent_name: Mapped[Optional[str]] = camcops_column(
         TFN_RESPONDENT_NAME,
         Text,
         identifies_patient=True,
@@ -514,7 +516,7 @@ class Task(GenericTabletRecordMixin, Base):
     Note:
 
     - For column definitions: use
-      :class:`camcops_server.cc_modules.cc_sqla_coltypes.CamcopsColumn`, not
+      :func:`camcops_server.cc_modules.cc_sqla_coltypes.camcops_column`, not
       :class:`Column`, if you have fields that need to define permitted values,
       mark them as BLOB-referencing fields, or do other CamCOPS-specific
       things.
@@ -1188,7 +1190,7 @@ class Task(GenericTabletRecordMixin, Base):
                 DateTime,
                 comment="Task's creation date/time (UTC)",
             ),
-            CamcopsColumn(
+            camcops_column(
                 SNOMED_COLNAME_EXPRESSION,
                 Text,
                 exempt_from_anonymisation=True,

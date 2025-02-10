@@ -35,7 +35,7 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     ZERO_TO_10_CHECKER,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -62,31 +62,31 @@ class Ors(TaskHasPatientMixin, Task):
     VAS_MIN_INT = 0
     VAS_MAX_INT = 10
 
-    q_session = CamcopsColumn("q_session", Integer, comment="Session number")
-    q_date = CamcopsColumn("q_date", Date, comment="Session date")
-    q_who = CamcopsColumn("q_who", Integer, comment="Completed by")
-    q_who_other = CamcopsColumn(
+    q_session = camcops_column("q_session", Integer, comment="Session number")
+    q_date = camcops_column("q_date", Date, comment="Session date")
+    q_who = camcops_column("q_who", Integer, comment="Completed by")
+    q_who_other = camcops_column(
         "q_who_other", UnicodeText, comment="Completed by other: who?"
     )
-    q_individual = CamcopsColumn(
+    q_individual = camcops_column(
         "q_individual",
         Float,
         comment="Individual rating (0-10, 10 better)",
         permitted_value_checker=ZERO_TO_10_CHECKER,
     )
-    q_interpersonal = CamcopsColumn(
+    q_interpersonal = camcops_column(
         "q_interpersonal",
         Float,
         comment="Interpersonal rating (0-10, 10 better)",
         permitted_value_checker=ZERO_TO_10_CHECKER,
     )
-    q_social = CamcopsColumn(
+    q_social = camcops_column(
         "q_social",
         Float,
         comment="Social rating (0-10, 10 better)",
         permitted_value_checker=ZERO_TO_10_CHECKER,
     )
-    q_overall = CamcopsColumn(
+    q_overall = camcops_column(
         "q_overall",
         Float,
         comment="Overall rating (0-10, 10 better)",

@@ -34,7 +34,7 @@ from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BoolColumn,
-    CamcopsColumn,
+    camcops_column,
     ZERO_TO_TWO_CHECKER,
 )
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
@@ -66,7 +66,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_DIAGNOSIS,
-            CamcopsColumn(
+            camcops_column(
                 cls.FN_DIAGNOSIS,
                 Integer,
                 permitted_value_checker=ZERO_TO_TWO_CHECKER,
@@ -79,7 +79,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_DIAGNOSIS_DATE,
-            CamcopsColumn(
+            camcops_column(
                 cls.FN_DIAGNOSIS_DATE,
                 Date,
                 comment=(
@@ -155,7 +155,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_SMOKING_STATUS,
-            CamcopsColumn(
+            camcops_column(
                 cls.FN_SMOKING_STATUS,
                 Integer,
                 permitted_value_checker=ZERO_TO_TWO_CHECKER,
@@ -168,7 +168,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_ALCOHOL_UNITS_PER_WEEK,
-            CamcopsColumn(
+            camcops_column(
                 cls.FN_ALCOHOL_UNITS_PER_WEEK,
                 Float,
                 comment=(
@@ -280,7 +280,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_OTHER_MENTAL_ILLNESS_DETAILS,
-            CamcopsColumn(
+            camcops_column(
                 cls.FN_OTHER_MENTAL_ILLNESS_DETAILS,
                 UnicodeText,
                 comment="If other, please list here",
@@ -301,7 +301,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_HOSPITALISATION_DETAILS,
-            CamcopsColumn(
+            camcops_column(
                 cls.FN_HOSPITALISATION_DETAILS,
                 UnicodeText,
                 comment=(
@@ -422,7 +422,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_FAMILY_OTHER_MENTAL_ILLNESS_DETAILS,
-            CamcopsColumn(
+            camcops_column(
                 cls.FN_FAMILY_OTHER_MENTAL_ILLNESS_DETAILS,
                 UnicodeText,
                 comment="If other, please list here",

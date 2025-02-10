@@ -42,7 +42,7 @@ from camcops_server.cc_modules.cc_html import (
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     PermittedValueChecker,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -140,7 +140,7 @@ class Demqol(
             ],
         )
 
-    q29 = CamcopsColumn(
+    q29 = camcops_column(
         "q29",
         Integer,
         permitted_value_checker=PermittedValueChecker(
@@ -344,7 +344,7 @@ class DemqolProxy(
             ],
         )
 
-    q32 = CamcopsColumn(
+    q32 = camcops_column(
         "q32",
         Integer,
         permitted_value_checker=PermittedValueChecker(

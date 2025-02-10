@@ -33,7 +33,7 @@ from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BoolColumn,
-    CamcopsColumn,
+    camcops_column,
     MIN_ZERO_CHECKER,
     PermittedValueChecker,
     ZERO_TO_FOUR_CHECKER,
@@ -59,13 +59,13 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
     shortname = "Deakin_S1_HealthReview"
     info_filename_stem = "deakin_s1_healthreview"
 
-    ethnicity = CamcopsColumn(
+    ethnicity = camcops_column(
         "ethnicity",
         Integer,
         permitted_value_checker=PermittedValueChecker(minimum=1, maximum=16),
         comment="Ethnicity code, per GMC Patient Questionnaire (1-16)",
     )
-    ethnicity_text = CamcopsColumn(
+    ethnicity_text = camcops_column(
         "ethnicity_text",
         UnicodeText,
         exempt_from_anonymisation=True,
@@ -77,7 +77,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         comment="Ethnicity, other, details",
     )
 
-    handedness = CamcopsColumn(
+    handedness = camcops_column(
         "handedness",
         String(length=1),  # was Text
         permitted_value_checker=PermittedValueChecker(
@@ -85,7 +85,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         ),
         comment="Handedness (L, R)",
     )
-    education = CamcopsColumn(
+    education = camcops_column(
         "education", Text, exempt_from_anonymisation=True
     )
 
@@ -160,13 +160,13 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         constraint_name="ck_deakin_1_healthreview_recdruglast3mo",
     )
 
-    recdrug_tobacco_frequency = CamcopsColumn(
+    recdrug_tobacco_frequency = camcops_column(
         "recdrug_tobacco_frequency",
         Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    recdrug_tobacco_cigsperweek = CamcopsColumn(
+    recdrug_tobacco_cigsperweek = camcops_column(
         "recdrug_tobacco_cigsperweek",
         Integer,
         permitted_value_checker=MIN_ZERO_CHECKER,
@@ -174,13 +174,13 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
     )
     recdrug_tobacco_prevheavy = BoolColumn("recdrug_tobacco_prevheavy")
 
-    recdrug_cannabis_frequency = CamcopsColumn(
+    recdrug_cannabis_frequency = camcops_column(
         "recdrug_cannabis_frequency",
         Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    recdrug_cannabis_jointsperweek = CamcopsColumn(
+    recdrug_cannabis_jointsperweek = camcops_column(
         "recdrug_cannabis_jointsperweek",
         Integer,
         permitted_value_checker=MIN_ZERO_CHECKER,
@@ -188,13 +188,13 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
     )
     recdrug_cannabis_prevheavy = BoolColumn("recdrug_cannabis_prevheavy")
 
-    recdrug_alcohol_frequency = CamcopsColumn(
+    recdrug_alcohol_frequency = camcops_column(
         "recdrug_alcohol_frequency",
         Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    recdrug_alcohol_unitsperweek = CamcopsColumn(
+    recdrug_alcohol_unitsperweek = camcops_column(
         "recdrug_alcohol_unitsperweek",
         Integer,
         permitted_value_checker=MIN_ZERO_CHECKER,
@@ -202,7 +202,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
     )
     recdrug_alcohol_prevheavy = BoolColumn("recdrug_alcohol_prevheavy")
 
-    recdrug_mdma_frequency = CamcopsColumn(
+    recdrug_mdma_frequency = camcops_column(
         "recdrug_mdma_frequency",
         Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
@@ -210,7 +210,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
     )
     recdrug_mdma_prevheavy = BoolColumn("recdrug_mdma_prevheavy")
 
-    recdrug_cocaine_frequency = CamcopsColumn(
+    recdrug_cocaine_frequency = camcops_column(
         "recdrug_cocaine_frequency",
         Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
@@ -218,7 +218,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
     )
     recdrug_cocaine_prevheavy = BoolColumn("recdrug_cocaine_prevheavy")
 
-    recdrug_crack_frequency = CamcopsColumn(
+    recdrug_crack_frequency = camcops_column(
         "recdrug_crack_frequency",
         Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
@@ -226,7 +226,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
     )
     recdrug_crack_prevheavy = BoolColumn("recdrug_crack_prevheavy")
 
-    recdrug_heroin_frequency = CamcopsColumn(
+    recdrug_heroin_frequency = camcops_column(
         "recdrug_heroin_frequency",
         Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
@@ -234,7 +234,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
     )
     recdrug_heroin_prevheavy = BoolColumn("recdrug_heroin_prevheavy")
 
-    recdrug_methadone_frequency = CamcopsColumn(
+    recdrug_methadone_frequency = camcops_column(
         "recdrug_methadone_frequency",
         Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
@@ -242,7 +242,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
     )
     recdrug_methadone_prevheavy = BoolColumn("recdrug_methadone_prevheavy")
 
-    recdrug_amphetamines_frequency = CamcopsColumn(
+    recdrug_amphetamines_frequency = camcops_column(
         "recdrug_amphetamines_frequency",
         Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
@@ -253,7 +253,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         constraint_name="ck_deakin_1_healthreview_amphetprevheavy",
     )
 
-    recdrug_benzodiazepines_frequency = CamcopsColumn(
+    recdrug_benzodiazepines_frequency = camcops_column(
         "recdrug_benzodiazepines_frequency",
         Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
@@ -264,7 +264,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         constraint_name="ck_deakin_1_healthreview_benzoprevheavy",
     )
 
-    recdrug_ketamine_frequency = CamcopsColumn(
+    recdrug_ketamine_frequency = camcops_column(
         "recdrug_ketamine_frequency",
         Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
@@ -272,7 +272,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
     )
     recdrug_ketamine_prevheavy = BoolColumn("recdrug_ketamine_prevheavy")
 
-    recdrug_legalhighs_frequency = CamcopsColumn(
+    recdrug_legalhighs_frequency = camcops_column(
         "recdrug_legalhighs_frequency",
         Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
@@ -280,7 +280,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
     )
     recdrug_legalhighs_prevheavy = BoolColumn("recdrug_legalhighs_prevheavy")
 
-    recdrug_inhalants_frequency = CamcopsColumn(
+    recdrug_inhalants_frequency = camcops_column(
         "recdrug_inhalants_frequency",
         Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
@@ -288,7 +288,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
     )
     recdrug_inhalants_prevheavy = BoolColumn("recdrug_inhalants_prevheavy")
 
-    recdrug_hallucinogens_frequency = CamcopsColumn(
+    recdrug_hallucinogens_frequency = camcops_column(
         "recdrug_hallucinogens_frequency",
         Integer,
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
