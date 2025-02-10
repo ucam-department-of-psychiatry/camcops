@@ -37,7 +37,6 @@ from camcops_server.cc_modules.cc_html import answer, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     SummaryCategoryColType,
-    ZERO_TO_TWO_CHECKER,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
@@ -80,22 +79,42 @@ class Hamd7(
             cls,
             "q",
             1,
-            cls.NQUESTIONS,
+            5,
             minimum=0,
-            maximum=4,  # see below
-            comment_fmt="Q{n}, {s} (0-4, except Q6 0-2; higher worse)",
+            maximum=4,
+            comment_fmt="Q{n}, {s} (0-4, higher worse)",
             comment_strings=[
                 "depressed mood",
                 "guilt",
                 "interest/pleasure/level of activities",
                 "psychological anxiety",
                 "somatic anxiety",
+            ],
+        )
+        add_multiple_columns(
+            cls,
+            "q",
+            6,
+            6,
+            minimum=0,
+            maximum=2,
+            comment_fmt="Q{n}, {s} (0-2, higher worse)",
+            comment_strings=[
                 "energy/somatic symptoms",
+            ],
+        )
+        add_multiple_columns(
+            cls,
+            "q",
+            7,
+            7,
+            minimum=0,
+            maximum=4,
+            comment_fmt="Q{n}, {s} (0-4, higher worse)",
+            comment_strings=[
                 "suicide",
             ],
         )
-        # Now fix the wrong bits. Hardly elegant!
-        cls.q6.set_permitted_value_checker(ZERO_TO_TWO_CHECKER)
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 26

@@ -138,7 +138,7 @@ from semantic_version import Version
 from sqlalchemy.dialects import mysql
 from sqlalchemy.engine.interfaces import Dialect
 from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.orm import MappedColumn
+from sqlalchemy.orm import mapped_column, MappedColumn
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.elements import conv
 from sqlalchemy.sql.expression import text
@@ -1437,114 +1437,59 @@ ONE_TO_NINE_CHECKER = PermittedValueChecker(minimum=1, maximum=9)
 COLATTR_PERMITTED_VALUE_CHECKER = "permitted_value_checker"
 
 
-# noinspection PyAbstractClass
-class CamcopsColumn(MappedColumn):
+def CamcopsColumn(
+    *args,
+    include_in_anon_staging_db: bool = False,
+    exempt_from_anonymisation: bool = False,
+    identifies_patient: bool = False,
+    is_blob_id_field: bool = False,
+    blob_relationship_attr_name: str = "",
+    permitted_value_checker: PermittedValueChecker = None,
+    **kwargs,
+) -> MappedColumn[Any]:
     """
-    A SQLAlchemy :class:`Column` class that supports some CamCOPS-specific
-    flags, such as:
-
-    - whether a field is a BLOB reference;
-    - how it should be treated for anonymisation;
-    - which values are permitted in the field (in a soft sense: duff values
-      cause errors to be reported, but they're still stored).
+    Args:
+        *args:
+            Arguments to the :class:`Column` constructor.
+        include_in_anon_staging_db:
+            Ensure this is marked for inclusion in data dictionaries for an
+            anonymisation staging database.
+        exempt_from_anonymisation:
+            If true: though this field might be text, it is guaranteed not
+            to contain identifiers (e.g. it might contain only predefined
+            disease severity descriptions) and does not require
+            anonymisation.
+        identifies_patient:
+            If true: contains a patient identifier (e.g. name).
+        is_blob_id_field:
+            If true: this field contains a reference (client FK) to the
+            BLOB table.
+        blob_relationship_attr_name:
+            For BLOB ID fields: the name of the associated relationship
+            attribute (which, when accessed, yields the BLOB itself) in
+            the owning class/object.
+        permitted_value_checker:
+            If specified, a :class:`PermittedValueChecker` that allows
+            soft constraints to be specified on the field's contents. (That
+            is, no constraints are specified at the database level, but we
+            can moan if incorrect data are present.)
+        **kwargs:
+            Arguments to the :class:`Column` constructor.
     """
-
-    inherit_cache = True  # https://sqlalche.me/e/14/cprf
-
-    def __init__(
-        self,
-        *args,
-        include_in_anon_staging_db: bool = False,
-        exempt_from_anonymisation: bool = False,
-        identifies_patient: bool = False,
-        is_blob_id_field: bool = False,
-        blob_relationship_attr_name: str = "",
-        permitted_value_checker: PermittedValueChecker = None,
-        **kwargs,
-    ) -> None:
-        """
-
-        Args:
-            *args:
-                Arguments to the :class:`Column` constructor.
-            include_in_anon_staging_db:
-                Ensure this is marked for inclusion in data dictionaries for an
-                anonymisation staging database.
-            exempt_from_anonymisation:
-                If true: though this field might be text, it is guaranteed not
-                to contain identifiers (e.g. it might contain only predefined
-                disease severity descriptions) and does not require
-                anonymisation.
-            identifies_patient:
-                If true: contains a patient identifier (e.g. name).
-            is_blob_id_field:
-                If true: this field contains a reference (client FK) to the
-                BLOB table.
-            blob_relationship_attr_name:
-                For BLOB ID fields: the name of the associated relationship
-                attribute (which, when accessed, yields the BLOB itself) in
-                the owning class/object.
-            permitted_value_checker:
-                If specified, a :class:`PermittedValueChecker` that allows
-                soft constraints to be specified on the field's contents. (That
-                is, no constraints are specified at the database level, but we
-                can moan if incorrect data are present.)
-            **kwargs:
-                Arguments to the :class:`Column` constructor.
-        """
-        self.include_in_anon_staging_db = include_in_anon_staging_db
-        self.exempt_from_anonymisation = exempt_from_anonymisation
-        self.identifies_patient = identifies_patient
-        self.is_blob_id_field = is_blob_id_field
-        self.blob_relationship_attr_name = blob_relationship_attr_name
-        self.permitted_value_checker = permitted_value_checker
-        if is_blob_id_field:
-            assert blob_relationship_attr_name, (
-                "If specifying a BLOB ID field, must give the attribute name "
-                "of the relationship too"
-            )
-        super().__init__(*args, **kwargs)
-
-    def _constructor(self, *args, **kwargs) -> "CamcopsColumn":
-        """
-        SQLAlchemy method (not clearly documented) to assist in copying
-        objects. Returns a copy of this object.
-
-        See https://github.com/sqlalchemy/sqlalchemy/issues/2284
-        """
-        kwargs["include_in_anon_staging_db"] = self.include_in_anon_staging_db
-        kwargs["exempt_from_anonymisation"] = self.exempt_from_anonymisation
-        kwargs["identifies_patient"] = self.identifies_patient
-        kwargs["is_blob_id_field"] = self.is_blob_id_field
-        kwargs["blob_relationship_attr_name"] = (
-            self.blob_relationship_attr_name
+    if is_blob_id_field:
+        assert blob_relationship_attr_name, (
+            "If specifying a BLOB ID field, must give the attribute name "
+            "of the relationship too"
         )
-        kwargs[COLATTR_PERMITTED_VALUE_CHECKER] = self.permitted_value_checker
-        # noinspection PyTypeChecker
-        return self.__class__(*args, **kwargs)
-
-    def __repr__(self) -> str:
-        def kvp(attrname: str) -> str:
-            return f"{attrname}={getattr(self, attrname)!r}"
-
-        elements = [
-            kvp("include_in_anon_staging_db"),
-            kvp("exempt_from_anonymisation"),
-            kvp("identifies_patient"),
-            kvp("is_blob_id_field"),
-            kvp("blob_relationship_attr_name"),
-            kvp(COLATTR_PERMITTED_VALUE_CHECKER),
-            f"super()={super().__repr__()}",
-        ]
-        return f"CamcopsColumn({', '.join(elements)})"
-
-    def set_permitted_value_checker(
-        self, permitted_value_checker: PermittedValueChecker
-    ) -> None:
-        """
-        Sets the :class:`PermittedValueChecker` attribute.
-        """
-        self.permitted_value_checker = permitted_value_checker
+    info = dict(
+        include_in_anon_staging_db=include_in_anon_staging_db,
+        exempt_from_anonymisation=exempt_from_anonymisation,
+        identifies_patient=identifies_patient,
+        is_blob_id_field=is_blob_id_field,
+        blob_relationship_attr_name=blob_relationship_attr_name,
+        permitted_value_checker=permitted_value_checker,
+    )
+    return mapped_column(*args, info=info, **kwargs)
 
 
 # =============================================================================
@@ -1758,66 +1703,24 @@ def _name_type_in_column_args(args: Tuple[Any, ...]) -> Tuple[bool, bool]:
     return name_in_args, type_in_args
 
 
-# noinspection PyAbstractClass
-class BoolColumn(CamcopsColumn):
-    """
-    A :class:`camcops_server.cc_modules.cc_sqla_coltypes.CamcopsColumn`
-    representing a boolean value.
-    """
+def BoolColumn(name: str, *args, **kwargs) -> MappedColumn[bool]:
+    constraint_name = kwargs.pop(
+        "constraint_name", None
+    )  # type: Optional[str]
+    if constraint_name:
+        constraint_name_conv = conv(constraint_name)
+        # ... see help for ``conv``
+    else:
+        constraint_name_conv = None
+    type_arg = Boolean(name=constraint_name_conv)
+    # The "name" parameter to Boolean() specifies the name of the
+    # (0, 1) constraint.
+    kwargs[COLATTR_PERMITTED_VALUE_CHECKER] = BIT_CHECKER
 
-    inherit_cache = True  # https://sqlalche.me/e/14/cprf
+    if not constraint_name and len(name) >= LONG_COLUMN_NAME_WARNING_LIMIT:
+        log.warning(
+            "BoolColumn with long column name and no constraint name: {!r}",
+            name,
+        )
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        # Must pass on all arguments, ultimately to Column, or when using
-        # AbstractConcreteBase, you can get this:
-        #
-        # TypeError: Could not create a copy of this <class 'camcops_server.
-        # cc_modules.cc_sqla_coltypes.BoolColumn'> object.  Ensure the class
-        # includes a _constructor() attribute or method which accepts the
-        # standard Column constructor arguments, or references the Column class
-        # itself.
-        #
-        # During internal copying, "type_" can arrive here within kwargs, so
-        # we must make sure that we don't send it on twice to super().__init().
-        # Also, Column.make_proxy() calls our _constructor() with name and type
-        # in args, so we must handle that, too...
-
-        _, type_in_args = _name_type_in_column_args(args)
-        self.constraint_name = kwargs.pop(
-            "constraint_name", None
-        )  # type: Optional[str]
-        if not type_in_args:
-            if self.constraint_name:
-                constraint_name_conv = conv(self.constraint_name)
-                # ... see help for ``conv``
-            else:
-                constraint_name_conv = None
-            kwargs["type_"] = Boolean(name=constraint_name_conv)
-            # The "name" parameter to Boolean() specifies the  name of the
-            # (0, 1) constraint.
-        kwargs[COLATTR_PERMITTED_VALUE_CHECKER] = BIT_CHECKER
-        super().__init__(*args, **kwargs)
-        if (
-            not self.constraint_name
-            and len(self.name) >= LONG_COLUMN_NAME_WARNING_LIMIT
-        ):
-            log.warning(
-                "BoolColumn with long column name and no constraint "
-                "name: {!r}",
-                self.name,
-            )
-
-    def __repr__(self) -> str:
-        def kvp(attrname: str) -> str:
-            return f"{attrname}={getattr(self, attrname)!r}"
-
-        elements = [kvp("constraint_name"), f"super()={super().__repr__()}"]
-        return f"BoolColumn({', '.join(elements)})"
-
-    def _constructor(self, *args: Any, **kwargs: Any) -> "BoolColumn":
-        """
-        Make a copy; see
-        https://bitbucket.org/zzzeek/sqlalchemy/issues/2284/please-make-column-easier-to-subclass
-        """
-        kwargs["constraint_name"] = self.constraint_name
-        return super()._constructor(*args, **kwargs)
+    return CamcopsColumn(name, type_arg, *args, **kwargs)

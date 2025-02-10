@@ -1229,7 +1229,7 @@ def add_multiple_columns(
     """
     Add a sequence of SQLAlchemy columns to a class.
 
-    Called from a metaclass.
+    Called via __init_subclass__() on the base class.
     Used to make task creation a bit easier.
 
     Args:

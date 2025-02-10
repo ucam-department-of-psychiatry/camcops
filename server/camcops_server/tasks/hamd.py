@@ -90,26 +90,69 @@ class Hamd(
             cls,
             "q",
             1,
-            15,
-            comment_fmt="Q{n}, {s} (scored 0-4, except 0-2 for "
-            "Q4-6/12-14, higher worse)",
+            3,
+            comment_fmt="Q{n}, {s} (scored 0-4, higher worse)",
             minimum=0,
-            maximum=4,  # amended below
+            maximum=4,
             comment_strings=[
                 "depressed mood",
                 "guilt",
                 "suicide",
+            ],
+        )
+        add_multiple_columns(
+            cls,
+            "q",
+            4,
+            6,
+            comment_fmt="Q{n}, {s} (scored 0-2, higher worse)",
+            minimum=0,
+            maximum=2,
+            comment_strings=[
                 "early insomnia",
                 "middle insomnia",
                 "late insomnia",
+            ],
+        )
+        add_multiple_columns(
+            cls,
+            "q",
+            7,
+            11,
+            comment_fmt="Q{n}, {s} (scored 0-4, higher worse)",
+            minimum=0,
+            maximum=4,
+            comment_strings=[
                 "work/activities",
                 "psychomotor retardation",
                 "agitation",
                 "anxiety, psychological",
                 "anxiety, somatic",
+            ],
+        )
+        add_multiple_columns(
+            cls,
+            "q",
+            12,
+            14,
+            comment_fmt="Q{n}, {s} (scored 0-2, higher worse)",
+            minimum=0,
+            maximum=2,
+            comment_strings=[
                 "somatic symptoms, gastointestinal",
                 "somatic symptoms, general",
                 "genital symptoms",
+            ],
+        )
+        add_multiple_columns(
+            cls,
+            "q",
+            15,
+            15,
+            comment_fmt="Q{n}, {s} (scored 0-4, higher worse)",
+            minimum=0,
+            maximum=4,
+            comment_strings=[
                 "hypochondriasis",
             ],
         )
@@ -117,24 +160,38 @@ class Hamd(
             cls,
             "q",
             19,
-            21,
-            comment_fmt="Q{n} (not scored), {s} (0-4 for Q19, "
-            "0-3 for Q20, 0-2 for Q21, higher worse)",
+            19,
+            comment_fmt="Q{n} (not scored), {s} (0-4, higher worse)",
             minimum=0,
-            maximum=4,  # below
+            maximum=4,
             comment_strings=[
                 "depersonalization/derealization",
+            ],
+        )
+        add_multiple_columns(
+            cls,
+            "q",
+            20,
+            20,
+            comment_fmt="Q{n} (not scored), {s} (0-3, higher worse)",
+            minimum=0,
+            maximum=3,
+            comment_strings=[
                 "paranoid symptoms",
+            ],
+        )
+        add_multiple_columns(
+            cls,
+            "q",
+            21,
+            21,
+            comment_fmt="Q{n} (not scored), {s} (0-2, higher worse)",
+            minimum=0,
+            maximum=2,
+            comment_strings=[
                 "obsessional/compulsive symptoms",
             ],
         )
-        # Now fix the wrong bits. Hardly elegant!
-        for qnum in (4, 5, 6, 12, 13, 14, 21):
-            qname = "q" + str(qnum)
-            col = getattr(cls, qname)
-            col.set_permitted_value_checker(ZERO_TO_TWO_CHECKER)
-        # noinspection PyUnresolvedReferences
-        cls.q20.set_permitted_value_checker(ZERO_TO_THREE_CHECKER)
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS) + [
         "whichq16",

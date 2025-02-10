@@ -52,7 +52,6 @@ from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     CamcopsColumn,
-    ZERO_TO_THREE_CHECKER,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
@@ -98,9 +97,9 @@ class Moca(
             cls,
             "q",
             1,
-            cls.NQUESTIONS,
+            11,
             minimum=0,
-            maximum=1,  # see below
+            maximum=1,
             comment_fmt="{s}",
             comment_strings=[
                 "Q1 (VSE/path) (0-1)",
@@ -114,7 +113,29 @@ class Moca(
                 "Q9 (attention/5 digits) (0-1)",
                 "Q10 (attention/3 digits) (0-1)",
                 "Q11 (attention/tapping) (0-1)",
-                "Q12 (attention/serial 7s) (0-3)",  # different max
+            ],
+        )
+        add_multiple_columns(
+            cls,
+            "q",
+            12,
+            12,
+            minimum=0,
+            maximum=3,
+            comment_fmt="{s}",
+            comment_strings=[
+                "Q12 (attention/serial 7s) (0-3)",
+            ],
+        )
+        add_multiple_columns(
+            cls,
+            "q",
+            13,
+            cls.NQUESTIONS,
+            minimum=0,
+            maximum=1,  # see below
+            comment_fmt="{s}",
+            comment_strings=[
                 "Q13 (language/sentence 1) (0-1)",
                 "Q14 (language/sentence 2) (0-1)",
                 "Q15 (language/fluency) (0-1)",
@@ -133,9 +154,6 @@ class Moca(
                 "Q28 (orientation/city) (0-1)",
             ],
         )
-        # Fix maximum for Q12:
-        # noinspection PyUnresolvedReferences
-        cls.q12.set_permitted_value_checker(ZERO_TO_THREE_CHECKER)
 
         add_multiple_columns(
             cls,
