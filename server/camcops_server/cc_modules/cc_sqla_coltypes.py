@@ -1667,41 +1667,8 @@ def gen_blob_relationships(
 
 
 # =============================================================================
-# Specializations of CamcopsColumn to save typing
+# Specializations of camcops_column to save typing
 # =============================================================================
-
-
-def _name_type_in_column_args(args: Tuple[Any, ...]) -> Tuple[bool, bool]:
-    """
-    SQLAlchemy doesn't encourage deriving from Column. If you do, you have to
-    implement ``__init__()`` and ``_constructor()`` carefully. The
-    ``__init__()`` function will be called by user code, and via SQLAlchemy
-    internals, including via ``_constructor`` (e.g. from
-    ``Column.make_proxy()``).
-
-    It is likely that ``__init__`` will experience many combinations of the
-    column name and type being passed either in ``*args`` or ``**kwargs``. It
-    must pass them on to :class:`Column`. If you don't mess with the type,
-    that's easy; just pass them on unmodified. But if you plan to mess with the
-    type, as we do in :class:`BoolColumn` below, we must make sure that we
-    don't pass either of ``name`` or ``type_`` in *both* ``args`` and
-    ``kwargs``.
-
-    This function tells you whether ``name`` and ``type_`` are present in args,
-    using the same method as ``Column.__init__()``.
-    """
-    name_in_args = False
-    type_in_args = False
-    args = list(args)  # make a copy, and make it a list not a tuple
-    if args:
-        if isinstance(args[0], str):
-            name_in_args = True
-            args.pop(0)
-    if args:
-        coltype = args[0]
-        if hasattr(coltype, "_sqla_type"):
-            type_in_args = True
-    return name_in_args, type_in_args
 
 
 def BoolColumn(name: str, *args, **kwargs) -> MappedColumn[bool]:
