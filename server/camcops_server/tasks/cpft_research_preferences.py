@@ -33,7 +33,7 @@ from camcops_server.cc_modules.cc_constants import CssClass, PV
 from camcops_server.cc_modules.cc_html import tr_qa, get_yes_no_unknown
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    BoolColumn,
+    bool_column,
     camcops_column,
     CharColType,
     PermittedValueChecker,
@@ -77,10 +77,10 @@ class CpftResearchPreferences(
             ),
         )
         setattr(
-            cls, cls.FN_CONTACT_BY_EMAIL, BoolColumn(cls.FN_CONTACT_BY_EMAIL)
+            cls, cls.FN_CONTACT_BY_EMAIL, bool_column(cls.FN_CONTACT_BY_EMAIL)
         )
         setattr(
-            cls, cls.FN_RESEARCH_OPT_OUT, BoolColumn(cls.FN_RESEARCH_OPT_OUT)
+            cls, cls.FN_RESEARCH_OPT_OUT, bool_column(cls.FN_RESEARCH_OPT_OUT)
         )
 
     @staticmethod

@@ -35,7 +35,7 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import answer, get_yes_no_none
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    BoolColumn,
+    bool_column,
     camcops_column,
     MIN_ZERO_CHECKER,
     ONE_TO_THREE_CHECKER,
@@ -113,7 +113,7 @@ class LynallIamLifeEvents(
             cmt_main = (
                 f"Q{q}: in last 6 months: {comment_strings[i]} (0 no, 1 yes)"
             )
-            setattr(cls, fn_main, BoolColumn(fn_main, comment=cmt_main))
+            setattr(cls, fn_main, bool_column(fn_main, comment=cmt_main))
 
             fn_severity = qfieldname_severity(q)
             cmt_severity = (

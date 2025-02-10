@@ -38,7 +38,7 @@ from camcops_server.cc_modules.cc_html import (
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    BoolColumn,
+    bool_column,
     camcops_column,
     PermittedValueChecker,
 )
@@ -119,12 +119,12 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         comment="If Q4a == 2, number of days that brain Sx typically begin "
         "after physical Sx",
     )
-    q5_antibiotics = BoolColumn(
+    q5_antibiotics = bool_column(
         "q5_antibiotics",
         comment="Medication for infection (e.g. antibiotics) in past 3 months?"
         " (0 = no, 1 = yes)",
     )
-    q6a_inpatient_last_y = BoolColumn(
+    q6a_inpatient_last_y = bool_column(
         "q6a_inpatient_last_y",
         comment="Inpatient in the last year? (0 = no, 1 = yes)",
     )
@@ -134,7 +134,7 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         comment="If Q6a is true, approximate number of weeks spent as an "
         "inpatient in the past year",
     )
-    q7a_sx_last_2y = BoolColumn(
+    q7a_sx_last_2y = bool_column(
         "q7a_sx_last_2y",
         comment="Symptoms within the last 2 years? (0 = no, 1 = yes)",
     )
@@ -151,7 +151,7 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         comment="Current smoking status (0 = no, 1 = yes but not every day, "
         "2 = every day)",
     )
-    q9_pregnant = BoolColumn(
+    q9_pregnant = bool_column(
         "q9_pregnant", comment="Currently pregnant (0 = no or N/A, 1 = yes)"
     )
     q10a_effective_rx_physical = Column(
@@ -164,31 +164,31 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         UnicodeText,
         comment="Most effective treatments for brain/psychiatric Sx",
     )
-    q11a_ph_depression = BoolColumn(
+    q11a_ph_depression = bool_column(
         "q11a_ph_depression", comment="Personal history of depression?"
     )
-    q11b_ph_bipolar = BoolColumn(
+    q11b_ph_bipolar = bool_column(
         "q11b_ph_bipolar", comment="Personal history of bipolar disorder?"
     )
-    q11c_ph_schizophrenia = BoolColumn(
+    q11c_ph_schizophrenia = bool_column(
         "q11c_ph_schizophrenia", comment="Personal history of schizophrenia?"
     )
-    q11d_ph_autistic_spectrum = BoolColumn(
+    q11d_ph_autistic_spectrum = bool_column(
         "q11d_ph_autistic_spectrum",
         comment="Personal history of autism/Asperger's?",
     )
-    q11e_ph_ptsd = BoolColumn(
+    q11e_ph_ptsd = bool_column(
         "q11e_ph_ptsd", comment="Personal history of PTSD?"
     )
-    q11f_ph_other_anxiety = BoolColumn(
+    q11f_ph_other_anxiety = bool_column(
         "q11f_ph_other_anxiety",
         comment="Personal history of other anxiety disorders?",
     )
-    q11g_ph_personality_disorder = BoolColumn(
+    q11g_ph_personality_disorder = bool_column(
         "q11g_ph_personality_disorder",
         comment="Personal history of personality disorder?",
     )
-    q11h_ph_other_psych = BoolColumn(
+    q11h_ph_other_psych = bool_column(
         "q11h_ph_other_psych",
         comment="Personal history of other psychiatric disorder(s)?",
     )
@@ -198,31 +198,31 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         comment="If q11h_ph_other_psych is true, this is the free-text "
         "details field",
     )
-    q12a_fh_depression = BoolColumn(
+    q12a_fh_depression = bool_column(
         "q12a_fh_depression", comment="Family history of depression?"
     )
-    q12b_fh_bipolar = BoolColumn(
+    q12b_fh_bipolar = bool_column(
         "q12b_fh_bipolar", comment="Family history of bipolar disorder?"
     )
-    q12c_fh_schizophrenia = BoolColumn(
+    q12c_fh_schizophrenia = bool_column(
         "q12c_fh_schizophrenia", comment="Family history of schizophrenia?"
     )
-    q12d_fh_autistic_spectrum = BoolColumn(
+    q12d_fh_autistic_spectrum = bool_column(
         "q12d_fh_autistic_spectrum",
         comment="Family history of autism/Asperger's?",
     )
-    q12e_fh_ptsd = BoolColumn(
+    q12e_fh_ptsd = bool_column(
         "q12e_fh_ptsd", comment="Family history of PTSD?"
     )
-    q12f_fh_other_anxiety = BoolColumn(
+    q12f_fh_other_anxiety = bool_column(
         "q12f_fh_other_anxiety",
         comment="Family history of other anxiety disorders?",
     )
-    q12g_fh_personality_disorder = BoolColumn(
+    q12g_fh_personality_disorder = bool_column(
         "q12g_fh_personality_disorder",
         comment="Family history of personality disorder?",
     )
-    q12h_fh_other_psych = BoolColumn(
+    q12h_fh_other_psych = bool_column(
         "q12h_fh_other_psych",
         comment="Family history of other psychiatric disorder(s)?",
     )
@@ -232,10 +232,10 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         comment="If q12h_fh_other_psych is true, this is the free-text "
         "details field",
     )
-    q13a_behcet = BoolColumn(
+    q13a_behcet = bool_column(
         "q13a_behcet", comment="Behçet’s syndrome? (0 = no, 1 = yes)"
     )
-    q13b_oral_ulcers = BoolColumn(
+    q13b_oral_ulcers = bool_column(
         "q13b_oral_ulcers",
         comment="(If Behçet’s) Oral ulcers? (0 = no, 1 = yes)",
     )
@@ -244,11 +244,11 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         Integer,
         comment="(If Behçet’s + oral) Age (y) at first oral ulcers",
     )
-    q13d_oral_scarring = BoolColumn(
+    q13d_oral_scarring = bool_column(
         "q13d_oral_scarring",
         comment="(If Behçet’s + oral) Oral scarring? (0 = no, 1 = yes)",
     )
-    q13e_genital_ulcers = BoolColumn(
+    q13e_genital_ulcers = bool_column(
         "q13e_genital_ulcers",
         comment="(If Behçet’s) Genital ulcers? (0 = no, 1 = yes)",
     )
@@ -257,7 +257,7 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         Integer,
         comment="(If Behçet’s + genital) Age (y) at first genital ulcers",
     )
-    q13g_genital_scarring = BoolColumn(
+    q13g_genital_scarring = bool_column(
         "q13g_genital_scarring",
         comment="(If Behçet’s + genital) Genital scarring? (0 = no, 1 = yes)",
     )

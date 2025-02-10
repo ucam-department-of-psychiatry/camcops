@@ -34,7 +34,7 @@ from sqlalchemy.sql.sqltypes import Integer
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import get_yes_no_unknown, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
-from camcops_server.cc_modules.cc_sqla_coltypes import BoolColumn
+from camcops_server.cc_modules.cc_sqla_coltypes import bool_column
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
     Task,
@@ -106,7 +106,7 @@ class ElixhauserCI(
             setattr(
                 cls,
                 colname,
-                BoolColumn(
+                bool_column(
                     colname,
                     comment="Disease present (0 no, 1 yes)",
                     constraint_name=constraint_name,

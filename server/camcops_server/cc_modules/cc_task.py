@@ -177,7 +177,6 @@ from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_snomed import SnomedLookup
 from camcops_server.cc_modules.cc_specialnote import SpecialNote
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    BoolColumn,
     camcops_column,
     COLATTR_PERMITTED_VALUE_CHECKER,
     gen_ancillary_relationships,
@@ -2235,7 +2234,6 @@ class Task(GenericTabletRecordMixin, Base):
             int_type = isinstance(coltype, Integer)
             bool_type = (
                 is_sqlatype_binary(coltype)
-                or isinstance(coltype, BoolColumn)
                 or isinstance(coltype, Boolean)
                 # For booleans represented as integers: it is better to be as
                 # constraining as possible and say that only 0/1 options are

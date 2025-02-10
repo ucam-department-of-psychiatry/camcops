@@ -33,7 +33,7 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    BoolColumn,
+    bool_column,
     camcops_column,
     ZERO_TO_TWO_CHECKER,
 )
@@ -91,7 +91,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_DIAGNOSIS_DATE_APPROXIMATE,
-            BoolColumn(
+            bool_column(
                 cls.FN_DIAGNOSIS_DATE_APPROXIMATE,
                 comment="True if diagnosis date was derived from duration",
             ),
@@ -99,7 +99,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_HAS_FIBROMYALGIA,
-            BoolColumn(
+            bool_column(
                 cls.FN_HAS_FIBROMYALGIA,
                 comment="Do you have a diagnosis of fibromyalgia?",
             ),
@@ -107,7 +107,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_IS_PREGNANT,
-            BoolColumn(
+            bool_column(
                 cls.FN_IS_PREGNANT,
                 comment=(
                     "Are you, or is there any possibility that you might "
@@ -118,7 +118,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_HAS_INFECTION_PAST_MONTH,
-            BoolColumn(
+            bool_column(
                 cls.FN_HAS_INFECTION_PAST_MONTH,
                 comment=(
                     "Do you currently have an infection, or had "
@@ -130,7 +130,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_HAD_INFECTION_TWO_MONTHS_PRECEDING,
-            BoolColumn(
+            bool_column(
                 cls.FN_HAD_INFECTION_TWO_MONTHS_PRECEDING,
                 comment=(
                     "Have you had an infection, or had treatment for "
@@ -143,7 +143,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_HAS_ALCOHOL_SUBSTANCE_DEPENDENCE,
-            BoolColumn(
+            bool_column(
                 cls.FN_HAS_ALCOHOL_SUBSTANCE_DEPENDENCE,
                 comment=(
                     "Do you have a current diagnosis of alcohol or "
@@ -181,7 +181,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_DEPRESSION,
-            BoolColumn(
+            bool_column(
                 cls.FN_DEPRESSION,
                 comment=(
                     "Have you had any of the following conditions "
@@ -192,7 +192,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_BIPOLAR_DISORDER,
-            BoolColumn(
+            bool_column(
                 cls.FN_BIPOLAR_DISORDER,
                 comment=(
                     "Have you had any of the following conditions "
@@ -203,7 +203,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_SCHIZOPHRENIA,
-            BoolColumn(
+            bool_column(
                 cls.FN_SCHIZOPHRENIA,
                 comment=(
                     "Have you had any of the following conditions "
@@ -214,7 +214,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_AUTISM,
-            BoolColumn(
+            bool_column(
                 cls.FN_AUTISM,
                 comment=(
                     "Have you had any of the following conditions "
@@ -225,7 +225,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_PTSD,
-            BoolColumn(
+            bool_column(
                 cls.FN_PTSD,
                 comment=(
                     "Have you had any of the following conditions "
@@ -236,7 +236,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_ANXIETY,
-            BoolColumn(
+            bool_column(
                 cls.FN_ANXIETY,
                 comment=(
                     "Have you had any of the following conditions "
@@ -247,7 +247,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_PERSONALITY_DISORDER,
-            BoolColumn(
+            bool_column(
                 cls.FN_PERSONALITY_DISORDER,
                 comment=(
                     "Have you had any of the following conditions "
@@ -258,7 +258,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_INTELLECTUAL_DISABILITY,
-            BoolColumn(
+            bool_column(
                 cls.FN_INTELLECTUAL_DISABILITY,
                 comment=(
                     "Have you had any of the following conditions "
@@ -269,7 +269,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_OTHER_MENTAL_ILLNESS,
-            BoolColumn(
+            bool_column(
                 cls.FN_OTHER_MENTAL_ILLNESS,
                 comment=(
                     "Have you had any of the following conditions "
@@ -289,7 +289,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_HOSPITALISED_IN_LAST_YEAR,
-            BoolColumn(
+            bool_column(
                 cls.FN_HOSPITALISED_IN_LAST_YEAR,
                 comment=(
                     "Have you had a physical or mental illness "
@@ -313,7 +313,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_FAMILY_DEPRESSION,
-            BoolColumn(
+            bool_column(
                 cls.FN_FAMILY_DEPRESSION,
                 comment=(
                     "Has anyone in your immediate family "
@@ -325,7 +325,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_FAMILY_BIPOLAR_DISORDER,
-            BoolColumn(
+            bool_column(
                 cls.FN_FAMILY_BIPOLAR_DISORDER,
                 comment=(
                     "Has anyone in your immediate family "
@@ -337,7 +337,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_FAMILY_SCHIZOPHRENIA,
-            BoolColumn(
+            bool_column(
                 cls.FN_FAMILY_SCHIZOPHRENIA,
                 comment=(
                     "Has anyone in your immediate family "
@@ -349,7 +349,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_FAMILY_AUTISM,
-            BoolColumn(
+            bool_column(
                 cls.FN_FAMILY_AUTISM,
                 comment=(
                     "Has anyone in your immediate family "
@@ -361,7 +361,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_FAMILY_PTSD,
-            BoolColumn(
+            bool_column(
                 cls.FN_FAMILY_PTSD,
                 comment=(
                     "Has anyone in your immediate family "
@@ -373,7 +373,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_FAMILY_ANXIETY,
-            BoolColumn(
+            bool_column(
                 cls.FN_FAMILY_ANXIETY,
                 comment=(
                     "Has anyone in your immediate family "
@@ -385,7 +385,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_FAMILY_PERSONALITY_DISORDER,
-            BoolColumn(
+            bool_column(
                 cls.FN_FAMILY_PERSONALITY_DISORDER,
                 comment=(
                     "Has anyone in your immediate family "
@@ -397,7 +397,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_FAMILY_INTELLECTUAL_DISABILITY,
-            BoolColumn(
+            bool_column(
                 cls.FN_FAMILY_INTELLECTUAL_DISABILITY,
                 comment=(
                     "Has anyone in your immediate family "
@@ -410,7 +410,7 @@ class KhandakerMojoMedical(
         setattr(
             cls,
             cls.FN_FAMILY_OTHER_MENTAL_ILLNESS,
-            BoolColumn(
+            bool_column(
                 cls.FN_FAMILY_OTHER_MENTAL_ILLNESS,
                 comment=(
                     "Has anyone in your immediate family "

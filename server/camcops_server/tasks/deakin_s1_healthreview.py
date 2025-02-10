@@ -32,7 +32,7 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    BoolColumn,
+    bool_column,
     camcops_column,
     MIN_ZERO_CHECKER,
     PermittedValueChecker,
@@ -89,63 +89,65 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         "education", Text, exempt_from_anonymisation=True
     )
 
-    allergies = BoolColumn("allergies")
-    allergy_asthma = BoolColumn("allergy_asthma")
-    allergy_pollen_dust = BoolColumn("allergy_pollen_dust")
-    allergy_dermatitis = BoolColumn("allergy_dermatitis")
-    allergy_food = BoolColumn("allergy_food")
-    allergy_dander = BoolColumn("allergy_dander")
-    allergy_other = BoolColumn("allergy_other")
+    allergies = bool_column("allergies")
+    allergy_asthma = bool_column("allergy_asthma")
+    allergy_pollen_dust = bool_column("allergy_pollen_dust")
+    allergy_dermatitis = bool_column("allergy_dermatitis")
+    allergy_food = bool_column("allergy_food")
+    allergy_dander = bool_column("allergy_dander")
+    allergy_other = bool_column("allergy_other")
     allergy_details = Column("allergy_details", Text)
 
-    vaccinations_last3months = BoolColumn("vaccinations_last3months")
+    vaccinations_last3months = bool_column("vaccinations_last3months")
     vaccination_details = Column("vaccination_details", Text)
 
-    infections_last3months = BoolColumn("infections_last3months")
-    infection_recent_respiratory = BoolColumn("infection_recent_respiratory")
-    infection_recent_gastroenteritis = BoolColumn(
+    infections_last3months = bool_column("infections_last3months")
+    infection_recent_respiratory = bool_column("infection_recent_respiratory")
+    infection_recent_gastroenteritis = bool_column(
         "infection_recent_gastroenteritis",
         constraint_name="ck_deakin_1_healthreview_inf_recent_gastro",
     )
-    infection_recent_urinary = BoolColumn("infection_recent_urinary")
-    infection_recent_sexual = BoolColumn("infection_recent_sexual")
-    infection_recent_hepatitis = BoolColumn("infection_recent_hepatitis")
-    infection_recent_other = BoolColumn("infection_recent_other")
+    infection_recent_urinary = bool_column("infection_recent_urinary")
+    infection_recent_sexual = bool_column("infection_recent_sexual")
+    infection_recent_hepatitis = bool_column("infection_recent_hepatitis")
+    infection_recent_other = bool_column("infection_recent_other")
     infection_recent_details = Column("infection_recent_details", Text)
 
-    infections_chronic = BoolColumn("infections_chronic")
-    infection_chronic_respiratory = BoolColumn("infection_chronic_respiratory")
-    infection_chronic_gastroenteritis = BoolColumn(
+    infections_chronic = bool_column("infections_chronic")
+    infection_chronic_respiratory = bool_column(
+        "infection_chronic_respiratory"
+    )
+    infection_chronic_gastroenteritis = bool_column(
         "infection_chronic_gastroenteritis",
         constraint_name="ck_deakin_1_healthreview_inf_chronic_gastro",
     )
-    infection_chronic_urinary = BoolColumn("infection_chronic_urinary")
-    infection_chronic_sexual = BoolColumn("infection_chronic_sexual")
-    infection_chronic_hepatitis = BoolColumn("infection_chronic_hepatitis")
-    infection_chronic_other = BoolColumn("infection_chronic_other")
+    infection_chronic_urinary = bool_column("infection_chronic_urinary")
+    infection_chronic_sexual = bool_column("infection_chronic_sexual")
+    infection_chronic_hepatitis = bool_column("infection_chronic_hepatitis")
+    infection_chronic_other = bool_column("infection_chronic_other")
     infection_chronic_details = Column("infection_chronic_details", Text)
 
-    immune_disorders = BoolColumn("immune_disorders")
-    immunity_ms = BoolColumn("immunity_ms")
-    immunity_sle = BoolColumn("immunity_sle")
-    immunity_arthritis = BoolColumn("immunity_arthritis")
-    immunity_hiv = BoolColumn("immunity_hiv")
-    immunity_graves = BoolColumn("immunity_graves")
-    immunity_diabetes = BoolColumn("immunity_diabetes")
-    immunity_other = BoolColumn("immunity_other")
+    immune_disorders = bool_column("immune_disorders")
+    immunity_ms = bool_column("immunity_ms")
+    immunity_sle = bool_column("immunity_sle")
+    immunity_arthritis = bool_column("immunity_arthritis")
+    immunity_hiv = bool_column("immunity_hiv")
+    immunity_graves = bool_column("immunity_graves")
+    immunity_diabetes = bool_column("immunity_diabetes")
+    immunity_other = bool_column("immunity_other")
     immunity_details = Column("immunity_details", Text)
 
-    family_history = BoolColumn("family_history")
-    familyhistory_ms = BoolColumn("familyhistory_ms")
-    familyhistory_sle = BoolColumn("familyhistory_sle")
-    familyhistory_arthritis = BoolColumn("familyhistory_arthritis")
-    familyhistory_graves = BoolColumn("familyhistory_graves")
-    familyhistory_diabetes = BoolColumn("familyhistory_diabetes")
-    familyhistory_psychosis_sz = BoolColumn("familyhistory_psychosis_sz")
-    familyhistory_bipolar = BoolColumn("familyhistory_bipolar")
+    family_history = bool_column("family_history")
+    familyhistory_ms = bool_column("familyhistory_ms")
+    familyhistory_sle = bool_column("familyhistory_sle")
+    familyhistory_arthritis = bool_column("familyhistory_arthritis")
+    familyhistory_graves = bool_column("familyhistory_graves")
+    familyhistory_diabetes = bool_column("familyhistory_diabetes")
+    familyhistory_psychosis_sz = bool_column("familyhistory_psychosis_sz")
+    familyhistory_bipolar = bool_column("familyhistory_bipolar")
     familyhistory_details = Column("familyhistory_details", Text)
 
-    health_anything_else = BoolColumn("health_anything_else")
+    health_anything_else = bool_column("health_anything_else")
     health_anything_else_details = Column(
         "health_anything_else_details", UnicodeText
     )
@@ -155,7 +157,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         "first_antipsychotic_medication", UnicodeText
     )
 
-    recreational_drug_in_last_3_months = BoolColumn(
+    recreational_drug_in_last_3_months = bool_column(
         "recreational_drug_in_last_3_months",
         constraint_name="ck_deakin_1_healthreview_recdruglast3mo",
     )
@@ -172,7 +174,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         permitted_value_checker=MIN_ZERO_CHECKER,
         comment="Tobacco: cigarettes per week",
     )
-    recdrug_tobacco_prevheavy = BoolColumn("recdrug_tobacco_prevheavy")
+    recdrug_tobacco_prevheavy = bool_column("recdrug_tobacco_prevheavy")
 
     recdrug_cannabis_frequency = camcops_column(
         "recdrug_cannabis_frequency",
@@ -186,7 +188,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         permitted_value_checker=MIN_ZERO_CHECKER,
         comment="Cannabis: joints per week",
     )
-    recdrug_cannabis_prevheavy = BoolColumn("recdrug_cannabis_prevheavy")
+    recdrug_cannabis_prevheavy = bool_column("recdrug_cannabis_prevheavy")
 
     recdrug_alcohol_frequency = camcops_column(
         "recdrug_alcohol_frequency",
@@ -200,7 +202,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         permitted_value_checker=MIN_ZERO_CHECKER,
         comment="Alcohol: units per week",
     )
-    recdrug_alcohol_prevheavy = BoolColumn("recdrug_alcohol_prevheavy")
+    recdrug_alcohol_prevheavy = bool_column("recdrug_alcohol_prevheavy")
 
     recdrug_mdma_frequency = camcops_column(
         "recdrug_mdma_frequency",
@@ -208,7 +210,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    recdrug_mdma_prevheavy = BoolColumn("recdrug_mdma_prevheavy")
+    recdrug_mdma_prevheavy = bool_column("recdrug_mdma_prevheavy")
 
     recdrug_cocaine_frequency = camcops_column(
         "recdrug_cocaine_frequency",
@@ -216,7 +218,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    recdrug_cocaine_prevheavy = BoolColumn("recdrug_cocaine_prevheavy")
+    recdrug_cocaine_prevheavy = bool_column("recdrug_cocaine_prevheavy")
 
     recdrug_crack_frequency = camcops_column(
         "recdrug_crack_frequency",
@@ -224,7 +226,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    recdrug_crack_prevheavy = BoolColumn("recdrug_crack_prevheavy")
+    recdrug_crack_prevheavy = bool_column("recdrug_crack_prevheavy")
 
     recdrug_heroin_frequency = camcops_column(
         "recdrug_heroin_frequency",
@@ -232,7 +234,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    recdrug_heroin_prevheavy = BoolColumn("recdrug_heroin_prevheavy")
+    recdrug_heroin_prevheavy = bool_column("recdrug_heroin_prevheavy")
 
     recdrug_methadone_frequency = camcops_column(
         "recdrug_methadone_frequency",
@@ -240,7 +242,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    recdrug_methadone_prevheavy = BoolColumn("recdrug_methadone_prevheavy")
+    recdrug_methadone_prevheavy = bool_column("recdrug_methadone_prevheavy")
 
     recdrug_amphetamines_frequency = camcops_column(
         "recdrug_amphetamines_frequency",
@@ -248,7 +250,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    recdrug_amphetamines_prevheavy = BoolColumn(
+    recdrug_amphetamines_prevheavy = bool_column(
         "recdrug_amphetamines_prevheavy",
         constraint_name="ck_deakin_1_healthreview_amphetprevheavy",
     )
@@ -259,7 +261,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    recdrug_benzodiazepines_prevheavy = BoolColumn(
+    recdrug_benzodiazepines_prevheavy = bool_column(
         "recdrug_benzodiazepines_prevheavy",
         constraint_name="ck_deakin_1_healthreview_benzoprevheavy",
     )
@@ -270,7 +272,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    recdrug_ketamine_prevheavy = BoolColumn("recdrug_ketamine_prevheavy")
+    recdrug_ketamine_prevheavy = bool_column("recdrug_ketamine_prevheavy")
 
     recdrug_legalhighs_frequency = camcops_column(
         "recdrug_legalhighs_frequency",
@@ -278,7 +280,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    recdrug_legalhighs_prevheavy = BoolColumn("recdrug_legalhighs_prevheavy")
+    recdrug_legalhighs_prevheavy = bool_column("recdrug_legalhighs_prevheavy")
 
     recdrug_inhalants_frequency = camcops_column(
         "recdrug_inhalants_frequency",
@@ -286,7 +288,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    recdrug_inhalants_prevheavy = BoolColumn("recdrug_inhalants_prevheavy")
+    recdrug_inhalants_prevheavy = bool_column("recdrug_inhalants_prevheavy")
 
     recdrug_hallucinogens_frequency = camcops_column(
         "recdrug_hallucinogens_frequency",
@@ -294,34 +296,34 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    recdrug_hallucinogens_prevheavy = BoolColumn(
+    recdrug_hallucinogens_prevheavy = bool_column(
         "recdrug_hallucinogens_prevheavy",
         constraint_name="ck_deakin_1_healthreview_hallucinogenprevheavy",
     )
 
     recdrug_details = Column("recdrug_details", UnicodeText)
 
-    recdrug_prevheavy = BoolColumn("recdrug_prevheavy")
+    recdrug_prevheavy = bool_column("recdrug_prevheavy")
     recdrug_prevheavy_details = Column(
         "recdrug_prevheavy_details", UnicodeText
     )
 
-    mri_claustrophobic = BoolColumn("mri_claustrophobic")
-    mri_difficulty_lying_1_hour = BoolColumn("mri_difficulty_lying_1_hour")
-    mri_nonremovable_metal = BoolColumn("mri_nonremovable_metal")
-    mri_metal_from_operations = BoolColumn("mri_metal_from_operations")
-    mri_tattoos_nicotine_patches = BoolColumn("mri_tattoos_nicotine_patches")
-    mri_worked_with_metal = BoolColumn("mri_worked_with_metal")
-    mri_previous_brain_scan = BoolColumn("mri_previous_brain_scan")
+    mri_claustrophobic = bool_column("mri_claustrophobic")
+    mri_difficulty_lying_1_hour = bool_column("mri_difficulty_lying_1_hour")
+    mri_nonremovable_metal = bool_column("mri_nonremovable_metal")
+    mri_metal_from_operations = bool_column("mri_metal_from_operations")
+    mri_tattoos_nicotine_patches = bool_column("mri_tattoos_nicotine_patches")
+    mri_worked_with_metal = bool_column("mri_worked_with_metal")
+    mri_previous_brain_scan = bool_column("mri_previous_brain_scan")
     mri_previous_brain_scan_details = Column(
         "mri_previous_brain_scan_details", UnicodeText
     )
-    other_relevant_things = BoolColumn("other_relevant_things")
+    other_relevant_things = bool_column("other_relevant_things")
     other_relevant_things_details = Column(
         "other_relevant_things_details", UnicodeText
     )
 
-    willing_to_participate_in_further_studies = BoolColumn(
+    willing_to_participate_in_further_studies = bool_column(
         "willing_to_participate_in_further_studies",
         constraint_name="ck_deakin_1_healthreview_wtpifs",
     )

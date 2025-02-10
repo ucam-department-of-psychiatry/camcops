@@ -39,7 +39,7 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import DateTime, Integer
 
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    BoolColumn,
+    bool_column,
     camcops_column,
     gen_camcops_blob_columns,
     gen_camcops_columns,
@@ -74,7 +74,7 @@ class TestColType(Base):
     number_1_to_3 = camcops_column(
         "number_1_to_3", Integer, permitted_value_checker=ONE_TO_THREE_CHECKER
     )
-    flag = BoolColumn("flag")
+    flag = bool_column("flag")
     blob_id = camcops_column(
         "blob_id",
         Integer,

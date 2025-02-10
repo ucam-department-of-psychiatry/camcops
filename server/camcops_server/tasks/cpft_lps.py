@@ -68,7 +68,7 @@ from camcops_server.cc_modules.cc_pyramid import ViewParam
 from camcops_server.cc_modules.cc_report import Report
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    BoolColumn,
+    bool_column,
     camcops_column,
     CharColType,
     PendulumDateTimeAsIsoTextColType,
@@ -123,9 +123,9 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
     patient_location = Column("patient_location", UnicodeText)
     admission_date = Column("admission_date", Date)
     estimated_discharge_date = Column("estimated_discharge_date", Date)
-    patient_aware_of_referral = BoolColumn("patient_aware_of_referral")
-    interpreter_required = BoolColumn("interpreter_required")
-    sensory_impairment = BoolColumn("sensory_impairment")
+    patient_aware_of_referral = bool_column("patient_aware_of_referral")
+    interpreter_required = bool_column("interpreter_required")
+    sensory_impairment = bool_column("sensory_impairment")
     marital_status_code = camcops_column(
         "marital_status_code",
         CharColType,
@@ -140,20 +140,20 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
             permitted_values=PV_NHS_ETHNIC_CATEGORY
         ),
     )
-    admission_reason_overdose = BoolColumn("admission_reason_overdose")
-    admission_reason_self_harm_not_overdose = BoolColumn(
+    admission_reason_overdose = bool_column("admission_reason_overdose")
+    admission_reason_self_harm_not_overdose = bool_column(
         "admission_reason_self_harm_not_overdose",
         constraint_name="ck_cpft_lps_referral_arshno",
     )
-    admission_reason_confusion = BoolColumn("admission_reason_confusion")
-    admission_reason_trauma = BoolColumn("admission_reason_trauma")
-    admission_reason_falls = BoolColumn("admission_reason_falls")
-    admission_reason_infection = BoolColumn("admission_reason_infection")
-    admission_reason_poor_adherence = BoolColumn(
+    admission_reason_confusion = bool_column("admission_reason_confusion")
+    admission_reason_trauma = bool_column("admission_reason_trauma")
+    admission_reason_falls = bool_column("admission_reason_falls")
+    admission_reason_infection = bool_column("admission_reason_infection")
+    admission_reason_poor_adherence = bool_column(
         "admission_reason_poor_adherence",
         constraint_name="ck_cpft_lps_referral_adpa",
     )
-    admission_reason_other = BoolColumn("admission_reason_other")
+    admission_reason_other = bool_column("admission_reason_other")
     existing_psychiatric_teams = Column(
         "existing_psychiatric_teams", UnicodeText
     )
@@ -451,12 +451,12 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         "discharge_reason_code", UnicodeText, exempt_from_anonymisation=True
     )
 
-    leaflet_or_discharge_card_given = BoolColumn(
+    leaflet_or_discharge_card_given = bool_column(
         "leaflet_or_discharge_card_given",
         constraint_name="ck_cpft_lps_discharge_lodcg",
     )
-    frequent_attender = BoolColumn("frequent_attender")
-    patient_wanted_copy_of_letter = BoolColumn(
+    frequent_attender = bool_column("frequent_attender")
+    patient_wanted_copy_of_letter = bool_column(
         # Was previously text! That wasn't right.
         "patient_wanted_copy_of_letter"
     )
@@ -471,66 +471,68 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=100),
     )
 
-    referral_reason_self_harm_overdose = BoolColumn(
+    referral_reason_self_harm_overdose = bool_column(
         "referral_reason_self_harm_overdose",
         constraint_name="ck_cpft_lps_discharge_rrshoverdose",
     )
-    referral_reason_self_harm_other = BoolColumn(
+    referral_reason_self_harm_other = bool_column(
         "referral_reason_self_harm_other",
         constraint_name="ck_cpft_lps_discharge_rrshother",
     )
-    referral_reason_suicidal_ideas = BoolColumn(
+    referral_reason_suicidal_ideas = bool_column(
         "referral_reason_suicidal_ideas",
         constraint_name="ck_cpft_lps_discharge_rrsuicidal",
     )
-    referral_reason_behavioural_disturbance = BoolColumn(
+    referral_reason_behavioural_disturbance = bool_column(
         "referral_reason_behavioural_disturbance",
         constraint_name="ck_cpft_lps_discharge_behavdisturb",
     )
-    referral_reason_low_mood = BoolColumn("referral_reason_low_mood")
-    referral_reason_elevated_mood = BoolColumn("referral_reason_elevated_mood")
-    referral_reason_psychosis = BoolColumn("referral_reason_psychosis")
-    referral_reason_pre_transplant = BoolColumn(
+    referral_reason_low_mood = bool_column("referral_reason_low_mood")
+    referral_reason_elevated_mood = bool_column(
+        "referral_reason_elevated_mood"
+    )
+    referral_reason_psychosis = bool_column("referral_reason_psychosis")
+    referral_reason_pre_transplant = bool_column(
         "referral_reason_pre_transplant",
         constraint_name="ck_cpft_lps_discharge_pretransplant",
     )
-    referral_reason_post_transplant = BoolColumn(
+    referral_reason_post_transplant = bool_column(
         "referral_reason_post_transplant",
         constraint_name="ck_cpft_lps_discharge_posttransplant",
     )
-    referral_reason_delirium = BoolColumn("referral_reason_delirium")
-    referral_reason_anxiety = BoolColumn("referral_reason_anxiety")
-    referral_reason_somatoform_mus = BoolColumn(
+    referral_reason_delirium = bool_column("referral_reason_delirium")
+    referral_reason_anxiety = bool_column("referral_reason_anxiety")
+    referral_reason_somatoform_mus = bool_column(
         "referral_reason_somatoform_mus",
         constraint_name="ck_cpft_lps_discharge_mus",
     )
-    referral_reason_motivation_adherence = BoolColumn(
+    referral_reason_motivation_adherence = bool_column(
         "referral_reason_motivation_adherence",
         constraint_name="ck_cpft_lps_discharge_motivadherence",
     )
-    referral_reason_capacity = BoolColumn("referral_reason_capacity")
-    referral_reason_eating_disorder = BoolColumn(
+    referral_reason_capacity = bool_column("referral_reason_capacity")
+    referral_reason_eating_disorder = bool_column(
         "referral_reason_eating_disorder",
         constraint_name="ck_cpft_lps_discharge_eatingdis",
     )
-    referral_reason_safeguarding = BoolColumn("referral_reason_safeguarding")
-    referral_reason_discharge_placement = BoolColumn(
+    referral_reason_safeguarding = bool_column("referral_reason_safeguarding")
+    referral_reason_discharge_placement = bool_column(
         "referral_reason_discharge_placement",
         constraint_name="ck_cpft_lps_discharge_dcplacement",
     )
-    referral_reason_cognitive_problem = BoolColumn(
+    referral_reason_cognitive_problem = bool_column(
         "referral_reason_cognitive_problem",
         constraint_name="ck_cpft_lps_discharge_cognitiveprob",
     )
-    referral_reason_substance_alcohol = BoolColumn(
+    referral_reason_substance_alcohol = bool_column(
         "referral_reason_substance_alcohol",
         constraint_name="ck_cpft_lps_discharge_alcohol",
     )
-    referral_reason_substance_other = BoolColumn(
+    referral_reason_substance_other = bool_column(
         "referral_reason_substance_other",
         constraint_name="ck_cpft_lps_discharge_substanceother",
     )
-    referral_reason_other = BoolColumn("referral_reason_other")
+    referral_reason_other = bool_column("referral_reason_other")
     referral_reason_transplant_organ = camcops_column(
         "referral_reason_transplant_organ",
         UnicodeText,
@@ -540,7 +542,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         "referral_reason_other_detail", UnicodeText
     )
 
-    diagnosis_no_active_mental_health_problem = BoolColumn(
+    diagnosis_no_active_mental_health_problem = bool_column(
         "diagnosis_no_active_mental_health_problem",
         constraint_name="ck_cpft_lps_discharge_nomhprob",
     )
@@ -581,48 +583,52 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     diagnosis_medical_3 = Column("diagnosis_medical_3", UnicodeText)
     diagnosis_medical_4 = Column("diagnosis_medical_4", UnicodeText)
 
-    management_assessment_diagnostic = BoolColumn(
+    management_assessment_diagnostic = bool_column(
         "management_assessment_diagnostic",
         constraint_name="ck_cpft_lps_discharge_mx_ass_diag",
     )
-    management_medication = BoolColumn("management_medication")
-    management_specialling_behavioural_disturbance = BoolColumn(
+    management_medication = bool_column("management_medication")
+    management_specialling_behavioural_disturbance = bool_column(
         "management_specialling_behavioural_disturbance",
         # Constraint name too long for MySQL unless we do this:
         constraint_name="ck_cpft_lps_discharge_msbd",
     )
-    management_supportive_patient = BoolColumn("management_supportive_patient")
-    management_supportive_carers = BoolColumn("management_supportive_carers")
-    management_supportive_staff = BoolColumn("management_supportive_staff")
-    management_nursing_management = BoolColumn("management_nursing_management")
-    management_therapy_cbt = BoolColumn("management_therapy_cbt")
-    management_therapy_cat = BoolColumn("management_therapy_cat")
-    management_therapy_other = BoolColumn("management_therapy_other")
-    management_treatment_adherence = BoolColumn(
+    management_supportive_patient = bool_column(
+        "management_supportive_patient"
+    )
+    management_supportive_carers = bool_column("management_supportive_carers")
+    management_supportive_staff = bool_column("management_supportive_staff")
+    management_nursing_management = bool_column(
+        "management_nursing_management"
+    )
+    management_therapy_cbt = bool_column("management_therapy_cbt")
+    management_therapy_cat = bool_column("management_therapy_cat")
+    management_therapy_other = bool_column("management_therapy_other")
+    management_treatment_adherence = bool_column(
         "management_treatment_adherence",
         constraint_name="ck_cpft_lps_discharge_mx_rx_adhere",
     )
-    management_capacity = BoolColumn("management_capacity")
-    management_education_patient = BoolColumn("management_education_patient")
-    management_education_carers = BoolColumn("management_education_carers")
-    management_education_staff = BoolColumn("management_education_staff")
-    management_accommodation_placement = BoolColumn(
+    management_capacity = bool_column("management_capacity")
+    management_education_patient = bool_column("management_education_patient")
+    management_education_carers = bool_column("management_education_carers")
+    management_education_staff = bool_column("management_education_staff")
+    management_accommodation_placement = bool_column(
         "management_accommodation_placement",
         constraint_name="ck_cpft_lps_discharge_accom",
     )
-    management_signposting_external_referral = BoolColumn(
+    management_signposting_external_referral = bool_column(
         "management_signposting_external_referral",
         constraint_name="ck_cpft_lps_discharge_mx_signpostrefer",
     )
-    management_mha_s136 = BoolColumn("management_mha_s136")
-    management_mha_s5_2 = BoolColumn("management_mha_s5_2")
-    management_mha_s2 = BoolColumn("management_mha_s2")
-    management_mha_s3 = BoolColumn("management_mha_s3")
-    management_complex_case_conference = BoolColumn(
+    management_mha_s136 = bool_column("management_mha_s136")
+    management_mha_s5_2 = bool_column("management_mha_s5_2")
+    management_mha_s2 = bool_column("management_mha_s2")
+    management_mha_s3 = bool_column("management_mha_s3")
+    management_complex_case_conference = bool_column(
         "management_complex_case_conference",
         constraint_name="ck_cpft_lps_discharge_caseconf",
     )
-    management_other = BoolColumn("management_other")
+    management_other = bool_column("management_other")
     management_other_detail = Column("management_other_detail", UnicodeText)
 
     outcome = camcops_column(

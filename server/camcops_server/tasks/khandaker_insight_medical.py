@@ -42,7 +42,7 @@ from camcops_server.cc_modules.cc_html import (
     tr_span_col,
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
-from camcops_server.cc_modules.cc_sqla_coltypes import BoolColumn
+from camcops_server.cc_modules.cc_sqla_coltypes import bool_column
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
@@ -110,7 +110,7 @@ class KhandakerInsightMedical(
     @classmethod
     def extend_table(cls: Type["KhandakerInsightMedical"], **kwargs) -> None:
         for qinfo in QUESTIONS:
-            setattr(cls, qinfo.fieldname_yn, BoolColumn(qinfo.fieldname_yn))
+            setattr(cls, qinfo.fieldname_yn, bool_column(qinfo.fieldname_yn))
             setattr(
                 cls,
                 qinfo.fieldname_comment,

@@ -1671,7 +1671,7 @@ def gen_blob_relationships(
 # =============================================================================
 
 
-def BoolColumn(name: str, *args, **kwargs) -> MappedColumn[bool]:
+def bool_column(name: str, *args, **kwargs) -> MappedColumn[bool]:
     constraint_name = kwargs.pop(
         "constraint_name", None
     )  # type: Optional[str]
@@ -1687,7 +1687,7 @@ def BoolColumn(name: str, *args, **kwargs) -> MappedColumn[bool]:
 
     if not constraint_name and len(name) >= LONG_COLUMN_NAME_WARNING_LIMIT:
         log.warning(
-            "BoolColumn with long column name and no constraint name: {!r}",
+            "bool_column with long column name and no constraint name: {!r}",
             name,
         )
 

@@ -41,7 +41,7 @@ from camcops_server.cc_modules.cc_html import (
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    BoolColumn,
+    bool_column,
     camcops_column,
     PermittedValueChecker,
     SummaryCategoryColType,
@@ -75,7 +75,7 @@ class Das28(
     def extend_table(cls: Type["Das28"], **kwargs) -> None:
         for field_name in cls.get_joint_field_names():
             setattr(
-                cls, field_name, BoolColumn(field_name, comment="0 no, 1 yes")
+                cls, field_name, bool_column(field_name, comment="0 no, 1 yes")
             )
 
         setattr(
