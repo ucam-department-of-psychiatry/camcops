@@ -938,7 +938,7 @@ class GenericTabletRecordMixin(object):
         Generate all ``_current`` BLOBs owned by this object.
         """
         for id_attrname, column in gen_camcops_blob_columns(self):
-            relationship_attr = column.blob_relationship_attr_name
+            relationship_attr = column.info.get("blob_relationship_attr_name")
             blob = getattr(self, relationship_attr)
             if blob is None:
                 continue
