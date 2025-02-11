@@ -398,8 +398,8 @@ class Hamd(
                 else:
                     col = getattr(self.__class__, q)  # type: MappedColumn
                     rangestr = " <sup>range {}–{}</sup>".format(
-                        col.permitted_value_checker.minimum,
-                        col.permitted_value_checker.maximum,
+                        col.info["permitted_value_checker"].minimum,
+                        col.info["permitted_value_checker"].maximum,
                     )
                 qstr = self.wxstring(req, "" + q + "_s") + rangestr
             q_a += tr_qa(
