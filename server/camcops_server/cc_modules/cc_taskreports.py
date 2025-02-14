@@ -204,7 +204,7 @@ class TaskCountReport(Report):
 
             # noinspection PyUnresolvedReferences
             query = (
-                select(selectors)
+                select(*selectors)
                 .select_from(TaskIndexEntry.__table__)
                 .group_by(*groupers)
                 .order_by(*sorters)
@@ -295,7 +295,7 @@ class TaskCountReport(Report):
 
                 # noinspection PyUnresolvedReferences
                 query = (
-                    select(selectors)
+                    select(*selectors)
                     .select_from(cls.__table__)
                     .where(cls._current == True)  # noqa: E712
                     .group_by(*groupers)

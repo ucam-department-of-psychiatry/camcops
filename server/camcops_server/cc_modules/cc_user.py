@@ -330,7 +330,7 @@ class SecurityLoginFailure(Base):
             username: the user's username
         """
         dbsession = req.dbsession
-        q = CountStarSpecializedQuery([cls], session=dbsession).filter(
+        q = CountStarSpecializedQuery(cls, session=dbsession).filter(
             cls.username == username
         )
         return q.count_star()

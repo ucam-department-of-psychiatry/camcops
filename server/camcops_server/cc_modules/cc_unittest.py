@@ -128,8 +128,8 @@ class ExtendedTestCase(TestCase):
 @pytest.mark.usefixtures("setup")
 class DemoRequestTestCase(ExtendedTestCase):
     """
-    Test case that creates a demo Pyramid request that refers to a bare
-    in-memory SQLite database.
+    Test case that creates a demo Pyramid request that refers to a database.
+    See server/camcops_server/conftest.py
     """
 
     dbsession: "Session"
