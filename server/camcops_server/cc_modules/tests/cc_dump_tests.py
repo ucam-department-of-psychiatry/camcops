@@ -25,6 +25,9 @@ camcops_server/cc_modules/tests/cc_dump_tests.py
 
 """
 
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import String
+
 from camcops_server.cc_modules.cc_constants import EXTRA_TASK_TABLENAME_FIELD
 from camcops_server.cc_modules.cc_db import (
     SFN_CAMCOPS_SERVER_VERSION,
@@ -34,6 +37,7 @@ from camcops_server.cc_modules.cc_db import (
 from camcops_server.cc_modules.cc_dump import DumpController
 from camcops_server.cc_modules.cc_patientidnum import extra_id_colname
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
+from camcops_server.cc_modules.cc_summaryelement import ExtraSummaryTable
 from camcops_server.cc_modules.cc_testfactories import (
     NHSPatientIdNumFactory,
     PatientFactory,
@@ -47,12 +51,10 @@ from camcops_server.tasks.tests.factories import (
 
 class GetDestTableForSrcObjectTests(DemoRequestTestCase):
     def test_copies_table_with_subset_of_columns(self) -> None:
-
         patient = PatientFactory()
         src_table = patient.__table__
 
         options = TaskExportOptions()
-
         controller = DumpController(
             self.engine, self.dbsession, options, self.req
         )
@@ -67,8 +69,8 @@ class GetDestTableForSrcObjectTests(DemoRequestTestCase):
     def test_copies_column_comments(self) -> None:
         patient = PatientFactory()
         src_table = patient.__table__
-        options = TaskExportOptions()
 
+        options = TaskExportOptions()
         controller = DumpController(
             self.engine, self.dbsession, options, self.req
         )
@@ -80,8 +82,8 @@ class GetDestTableForSrcObjectTests(DemoRequestTestCase):
     def test_skips_irrelevant_columns(self) -> None:
         patient = PatientFactory()
         src_table = patient.__table__
-        options = TaskExportOptions()
 
+        options = TaskExportOptions()
         controller = DumpController(
             self.engine, self.dbsession, options, self.req
         )
@@ -102,8 +104,8 @@ class GetDestTableForSrcObjectTests(DemoRequestTestCase):
     def test_foreign_keys_are_empty_set(self) -> None:
         patient = PatientFactory()
         bmi = BmiFactory(patient=patient)
-        options = TaskExportOptions()
 
+        options = TaskExportOptions()
         controller = DumpController(
             self.engine, self.dbsession, options, self.req
         )
@@ -115,8 +117,8 @@ class GetDestTableForSrcObjectTests(DemoRequestTestCase):
     def test_tablet_record_includes_summaries(self) -> None:
         patient = PatientFactory()
         bmi = BmiFactory(patient=patient)
-        options = TaskExportOptions(db_include_summaries=True)
 
+        options = TaskExportOptions(db_include_summaries=True)
         controller = DumpController(
             self.engine, self.dbsession, options, self.req
         )
@@ -133,8 +135,8 @@ class GetDestTableForSrcObjectTests(DemoRequestTestCase):
     def test_has_extra_id_num_columns(self) -> None:
         patient = PatientFactory()
         idnum = NHSPatientIdNumFactory(patient=patient)
-        options = TaskExportOptions(db_patient_id_per_row=True)
 
+        options = TaskExportOptions(db_patient_id_per_row=True)
         controller = DumpController(
             self.engine, self.dbsession, options, self.req
         )
@@ -147,8 +149,8 @@ class GetDestTableForSrcObjectTests(DemoRequestTestCase):
     def test_task_descendant_has_extra_task_xref_columns(self) -> None:
         patient = PatientFactory()
         photo_sequence = PhotoSequenceFactory(patient=patient, photos=1)
-        options = TaskExportOptions(db_patient_id_per_row=True)
 
+        options = TaskExportOptions(db_patient_id_per_row=True)
         controller = DumpController(
             self.engine, self.dbsession, options, self.req
         )
@@ -156,6 +158,86 @@ class GetDestTableForSrcObjectTests(DemoRequestTestCase):
         single_photo = photo_sequence.photos[0]
 
         dest_table = controller.get_dest_table_for_src_object(single_photo)
+        dest_names = [c.name for c in dest_table.c]
+
+        self.assertIn(EXTRA_TASK_TABLENAME_FIELD, dest_names)
+
+
+class GetDestTableForEstTests(DemoRequestTestCase):
+    def test_copies_table_with_subset_of_columns(self) -> None:
+        patient = PatientFactory()
+        bmi = BmiFactory(patient=patient)
+
+        options = TaskExportOptions()
+        controller = DumpController(
+            self.engine, self.dbsession, options, self.req
+        )
+
+        columns = [
+            Column("one", String),
+            Column("two", String),
+            Column("three", String),
+        ]
+
+        est = ExtraSummaryTable(
+            tablename="test_tablename",
+            xmlname="test_xmlname",
+            columns=columns,
+            rows=[],
+            task=bmi,
+        )
+        dest_table = controller.get_dest_table_for_est(est)
+
+        src_names = [c.name for c in columns]
+        dest_names = [c.name for c in dest_table.c]
+
+        self.assertEqual(set(dest_names), set(src_names))
+
+    def test_appends_extra_id_columns(self) -> None:
+        patient = PatientFactory()
+        idnum = NHSPatientIdNumFactory(patient=patient)
+        bmi = BmiFactory(patient=patient)
+
+        options = TaskExportOptions()
+        controller = DumpController(
+            self.engine, self.dbsession, options, self.req
+        )
+
+        est = ExtraSummaryTable(
+            tablename="test_tablename",
+            xmlname="test_xmlname",
+            columns=[],
+            rows=[],
+            task=bmi,
+        )
+        dest_table = controller.get_dest_table_for_est(
+            est, add_extra_id_cols=True
+        )
+
+        dest_names = [c.name for c in dest_table.c]
+
+        self.assertIn(extra_id_colname(idnum.which_idnum), dest_names)
+
+    def test_appends_extra_task_xref_columns(self) -> None:
+        patient = PatientFactory()
+        photo_sequence = PhotoSequenceFactory(patient=patient, photos=1)
+
+        options = TaskExportOptions()
+        controller = DumpController(
+            self.engine, self.dbsession, options, self.req
+        )
+
+        est = ExtraSummaryTable(
+            tablename="test_tablename",
+            xmlname="test_xmlname",
+            columns=[],
+            rows=[],
+            task=photo_sequence,
+        )
+        dest_table = controller.get_dest_table_for_est(
+            est, add_extra_id_cols=True
+        )
+
         dest_names = [c.name for c in dest_table.c]
 
         self.assertIn(EXTRA_TASK_TABLENAME_FIELD, dest_names)
