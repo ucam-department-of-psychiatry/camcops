@@ -1106,12 +1106,16 @@ class PhotoFactory(TaskHasPatientFactory):
         if not create:
             return
 
-        obj.photo = BlobFactory.create(
-            fieldname="photo_blobid",
-            tablename="photo",
-            tablepk=obj.id,
-            **kwargs,
-        )
+        if "fieldname" not in kwargs:
+            kwargs["fieldname"] = "photo_blobid"
+
+        if "tablename" not in kwargs:
+            kwargs["tablename"] = "photo"
+
+        if "tablepk" not in kwargs:
+            kwargs["tablepk"] = obj.id
+
+        obj.photo = BlobFactory.create(**kwargs)
 
 
 class PhotoSequenceFactory(TaskHasPatientFactory):
