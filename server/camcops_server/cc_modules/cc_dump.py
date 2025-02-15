@@ -336,9 +336,6 @@ class DumpController(object):
             # "sqlalchemy.exc.ArgumentError: Column object 'ccc' already
             # assigned to Table 'ttt'"
             copied_column = src_column.copy()
-            copied_column.comment = src_column.comment
-            # ... see SQLAlchemy trivial bug:
-            # https://bitbucket.org/zzzeek/sqlalchemy/issues/4087/columncopy-doesnt-copy-comment-attribute  # noqa
             if FOREIGN_KEY_CONSTRAINTS_IN_DUMP:
                 copied_column.foreign_keys = set(
                     fk.copy() for fk in src_column.foreign_keys
