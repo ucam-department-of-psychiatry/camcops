@@ -25,6 +25,9 @@ camcops_server/cc_modules/tests/cc_dump_tests.py
 
 """
 
+import pytest
+from sqlalchemy import select
+from sqlalchemy.sql.expression import table, text
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import String
 
@@ -34,7 +37,10 @@ from camcops_server.cc_modules.cc_db import (
     SFN_IS_COMPLETE,
 )
 
-from camcops_server.cc_modules.cc_dump import DumpController
+from camcops_server.cc_modules.cc_dump import (
+    DumpController,
+    copy_tasks_and_summaries,
+)
 from camcops_server.cc_modules.cc_patientidnum import extra_id_colname
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_summaryelement import ExtraSummaryTable
@@ -241,3 +247,131 @@ class GetDestTableForEstTests(DemoRequestTestCase):
         dest_names = [c.name for c in dest_table.c]
 
         self.assertIn(EXTRA_TASK_TABLENAME_FIELD, dest_names)
+
+
+@pytest.mark.usefixtures("setup_dest_session")
+class CopyTasksAndSummariesTests(DemoRequestTestCase):
+    def test_task_fields_copied(self) -> None:
+        export_options = TaskExportOptions(
+            include_blobs=False,
+            db_patient_id_per_row=False,
+            db_make_all_tables_even_empty=False,
+            db_include_summaries=False,
+        )
+
+        patient = PatientFactory()
+        bmi = BmiFactory(patient=patient)
+
+        copy_tasks_and_summaries(
+            tasks=[bmi],
+            dst_engine=self.dest_engine,
+            dst_session=self.dest_session,
+            export_options=export_options,
+            req=self.req,
+        )
+        self.dest_session.commit()
+
+        query = select(text("*")).select_from(table("bmi"))
+        result = self.dest_session.execute(query)
+
+        row = next(result)
+
+        # Normal columns
+        self.assertAlmostEqual(row.height_m, bmi.height_m)
+        self.assertAlmostEqual(row.mass_kg, bmi.mass_kg)
+
+        # TODO: Should be present but None
+        # for colname in [
+        #     "_addition_pending",
+        #     "_forcibly_preserved",
+        #     "_manually_erased",
+        # ]:  # not exhaustive list
+        #     self.assertIsNone(getattr(row, colname))
+
+        # No summaries
+        self.assertFalse(hasattr(row, SFN_IS_COMPLETE))
+        self.assertFalse(hasattr(row, SFN_CAMCOPS_SERVER_VERSION))
+
+    def test_summary_fields_copied(self) -> None:
+        export_options = TaskExportOptions(
+            include_blobs=False,
+            db_patient_id_per_row=False,
+            db_make_all_tables_even_empty=False,
+            db_include_summaries=True,
+        )
+
+        patient = PatientFactory()
+        bmi = BmiFactory(patient=patient)
+
+        copy_tasks_and_summaries(
+            tasks=[bmi],
+            dst_engine=self.dest_engine,
+            dst_session=self.dest_session,
+            export_options=export_options,
+            req=self.req,
+        )
+        self.dest_session.commit()
+
+        query = select(text("*")).select_from(table("bmi"))
+        result = self.dest_session.execute(query)
+
+        row = next(result)
+
+        self.assertTrue(hasattr(row, SFN_IS_COMPLETE))
+        self.assertTrue(hasattr(row, SFN_CAMCOPS_SERVER_VERSION))
+
+    def test_has_extra_id_num_columns(self) -> None:
+        export_options = TaskExportOptions(
+            include_blobs=False,
+            db_patient_id_per_row=True,
+            db_make_all_tables_even_empty=False,
+            db_include_summaries=False,
+        )
+
+        patient = PatientFactory()
+        idnum = NHSPatientIdNumFactory(patient=patient)
+        bmi = BmiFactory(patient=patient)
+
+        copy_tasks_and_summaries(
+            tasks=[bmi],
+            dst_engine=self.dest_engine,
+            dst_session=self.dest_session,
+            export_options=export_options,
+            req=self.req,
+        )
+        query = select(text("*")).select_from(table("bmi"))
+        result = self.dest_session.execute(query)
+
+        row = next(result)
+
+        self.assertEqual(
+            getattr(row, extra_id_colname(idnum.which_idnum)),
+            idnum.idnum_value,
+        )
+
+    def test_has_extra_task_xref_columns(self) -> None:
+        export_options = TaskExportOptions(
+            include_blobs=False,
+            db_patient_id_per_row=True,
+            db_make_all_tables_even_empty=False,
+            db_include_summaries=False,
+        )
+
+        patient = PatientFactory()
+        photo_sequence = PhotoSequenceFactory(patient=patient, photos=1)
+
+        copy_tasks_and_summaries(
+            tasks=[photo_sequence],
+            dst_engine=self.dest_engine,
+            dst_session=self.dest_session,
+            export_options=export_options,
+            req=self.req,
+        )
+        query = select(text("*")).select_from(table("photosequence_photos"))
+        result = self.dest_session.execute(query)
+
+        row = next(result)
+
+        self.assertEqual(
+            getattr(row, EXTRA_TASK_TABLENAME_FIELD), "photosequence"
+        )
