@@ -36,7 +36,7 @@ import tempfile
 from typing import Generator, TYPE_CHECKING
 
 import pytest
-from sqlalchemy import event
+from sqlalchemy import event, MetaData
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import Session
 
@@ -304,3 +304,51 @@ def setup(
     request.cls.db_filename = TEST_DATABASE_FILENAME
     request.cls.mysql = mysql
     request.cls.config_file = config_file
+
+
+@pytest.fixture(scope="session")
+def dest_engine(request: "FixtureRequest") -> Generator["Engine", None, None]:
+    engine = make_memory_sqlite_engine()
+
+    yield engine
+    engine.dispose()
+
+
+# noinspection PyUnusedLocal
+@pytest.fixture
+def dest_session(
+    request: "FixtureRequest",
+    dest_engine: "Engine",
+) -> Generator[Session, None, None]:
+    """
+    Returns an sqlalchemy session, and after the test tears down everything
+    properly.
+    """
+
+    connection = dest_engine.connect()
+    # begin the nested transaction
+    transaction = connection.begin()
+    # use the connection with the already started transaction
+    session = Session(bind=connection)
+
+    yield session
+
+    session.close()
+    # roll back the broader transaction
+    transaction.rollback()
+    # put back the connection to the connection pool
+    connection.close()
+
+    metadata = MetaData()
+    metadata.reflect(dest_engine)
+    metadata.drop_all(dest_engine)
+
+
+@pytest.fixture
+def setup_dest_session(
+    request: "FixtureRequest",
+    dest_engine: "Engine",
+    dest_session: Session,
+) -> None:
+    request.cls.dest_session = dest_session
+    request.cls.dest_engine = dest_engine
