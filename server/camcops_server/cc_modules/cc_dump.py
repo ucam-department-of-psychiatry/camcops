@@ -143,6 +143,9 @@ FOREIGN_KEY_CONSTRAINTS_IN_DUMP = False
 # =============================================================================
 
 
+USE_LEGACY_DUMP_METHOD = 1
+
+
 class DumpController(object):
     """
     A controller class that manages the copying (dumping) of information from
@@ -325,6 +328,19 @@ class DumpController(object):
         if tablename in self.dst_tables:
             return self.dst_tables[tablename]
 
+        if USE_LEGACY_DUMP_METHOD:
+            dst_table = self.get_legacy_dest_table(src_obj)
+        else:
+            dst_table = self.get_new_dest_table(src_obj)
+
+        # ... that modifies the metadata, so:
+        self.dst_tables[tablename] = dst_table
+        return dst_table
+
+    def get_legacy_dest_table(self, src_obj: object) -> Table:
+        src_table = src_obj.__table__  # type: Table
+        tablename = src_table.name
+
         # Copy columns, dropping any we don't want, and dropping FK constraints
         dst_columns = []  # type: List[Column]
         for src_column in src_table.columns:
@@ -362,6 +378,24 @@ class DumpController(object):
             #               copied_column.foreign_keys)
             dst_columns.append(copied_column)
 
+        dst_columns += self.get_extra_columns(src_obj)
+
+        return Table(tablename, self.dst_metadata, *dst_columns)
+
+    def get_new_dest_table(self, src_obj: object) -> Table:
+        src_table = src_obj.__table__  # type: Table
+        dst_table = src_table.to_metadata(self.dst_metadata)
+
+        dst_columns = self.get_extra_columns(src_obj)
+
+        for dst_column in dst_columns:
+            dst_table.append_column(dst_column)
+
+        return dst_table
+
+    def get_extra_columns(self, src_obj: object) -> List[Column]:
+        dst_columns = []
+
         # Add extra columns?
         if self.export_options.db_include_summaries:
             if isinstance(src_obj, GenericTabletRecordMixin):
@@ -381,10 +415,7 @@ class DumpController(object):
             if isinstance(src_obj, TaskDescendant):
                 dst_columns += src_obj.extra_task_xref_columns()
 
-        dst_table = Table(tablename, self.dst_metadata, *dst_columns)
-        # ... that modifies the metadata, so:
-        self.dst_tables[tablename] = dst_table
-        return dst_table
+        return dst_columns
 
     def get_dest_table_for_est(
         self, est: "ExtraSummaryTable", add_extra_id_cols: bool = False
