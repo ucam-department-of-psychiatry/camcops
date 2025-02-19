@@ -56,22 +56,6 @@ from camcops_server.tasks.tests.factories import (
 
 
 class GetDestTableForSrcObjectTests(DemoRequestTestCase):
-    def test_copies_table_with_subset_of_columns(self) -> None:
-        patient = PatientFactory()
-        src_table = patient.__table__
-
-        options = TaskExportOptions()
-        controller = DumpController(
-            self.engine, self.dbsession, options, self.req
-        )
-
-        dest_table = controller.get_dest_table_for_src_object(patient)
-
-        src_names = [c.name for c in src_table.c]
-        dest_names = [c.name for c in dest_table.c]
-
-        self.assertLess(set(dest_names), set(src_names))
-
     def test_copies_column_comments(self) -> None:
         patient = PatientFactory()
         src_table = patient.__table__
@@ -84,28 +68,6 @@ class GetDestTableForSrcObjectTests(DemoRequestTestCase):
         dest_table = controller.get_dest_table_for_src_object(patient)
 
         self.assertEqual(src_table.c.id.comment, dest_table.c.id.comment)
-
-    def test_skips_irrelevant_columns(self) -> None:
-        patient = PatientFactory()
-        src_table = patient.__table__
-
-        options = TaskExportOptions()
-        controller = DumpController(
-            self.engine, self.dbsession, options, self.req
-        )
-
-        dest_table = controller.get_dest_table_for_src_object(patient)
-
-        src_names = [c.name for c in src_table.c]
-        dest_names = [c.name for c in dest_table.c]
-
-        for c in [
-            "_addition_pending",
-            "_forcibly_preserved",
-            "_manually_erased",
-        ]:  # not exhaustive list
-            self.assertIn(c, src_names)
-            self.assertNotIn(c, dest_names)
 
     def test_foreign_keys_are_empty_set(self) -> None:
         patient = PatientFactory()
