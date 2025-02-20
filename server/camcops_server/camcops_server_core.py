@@ -94,11 +94,7 @@ import camcops_server.cc_modules.client_api  # noqa: E402, F401
 
 # ... import side effects (register unit test)
 
-from camcops_server.cc_modules.cc_config import (  # noqa: E402
-    CamcopsConfig,
-    get_config_filename_from_os_env,
-    get_default_config_from_os_env,
-)
+from camcops_server.cc_modules.cc_config import CamcopsConfig  # noqa: E402
 from camcops_server.cc_modules.cc_constants import (  # noqa: E402
     ConfigDefaults,
     DEFAULT_FLOWER_ADDRESS,
@@ -172,17 +168,15 @@ DEFAULT_CLEANUP_TIMEOUT_S = 10.0
 # =============================================================================
 
 
-def ensure_database_is_ok() -> None:
+def ensure_database_is_ok(config: CamcopsConfig) -> None:
     """
     Opens a link to the database and checks it's of the correct version
     (or otherwise raises an assertion error).
     """
-    config = get_default_config_from_os_env()
     config.assert_database_ok()
 
 
-def ensure_directories_exist() -> None:
-    config = get_default_config_from_os_env()
+def ensure_directories_exist(config: CamcopsConfig) -> None:
     mkdir_p(config.export_lockdir)
     if config.user_download_dir:
         mkdir_p(config.user_download_dir)
@@ -198,16 +192,14 @@ def join_url_fragments(*fragments: str) -> str:
     return "/".join(newfrags)
 
 
-def precache() -> None:
+def precache(config: CamcopsConfig) -> None:
     """
     Populates the major caches. (These are process-wide caches, e.g. using
     dogpile's ``@cache_region_static.cache_on_arguments``, not config-specific
     caches.)
     """
     log.info("Prepopulating caches")
-    config_filename = get_config_filename_from_os_env()
-    config = get_default_config_from_os_env()
-    _ = all_extra_strings_as_dicts(config_filename)
+    _ = all_extra_strings_as_dicts(config.camcops_config_filename)
     _ = config.get_task_snomed_concepts()
     _ = config.get_icd9cm_snomed_concepts()
     _ = config.get_icd10_snomed_concepts()
@@ -334,13 +326,13 @@ def make_wsgi_app(
 # =============================================================================
 
 
-def ensure_ok_for_webserver() -> None:
+def ensure_ok_for_webserver(config: CamcopsConfig) -> None:
     """
     Prerequisites for firing up the web server.
     """
-    ensure_database_is_ok()
-    ensure_directories_exist()
-    precache()
+    ensure_database_is_ok(config)
+    ensure_directories_exist(config)
+    precache(config)
 
 
 def test_serve_pyramid(
@@ -862,7 +854,7 @@ def reindex(cfg: CamcopsConfig) -> None:
     Args:
         cfg: a :class:`camcops_server.cc_modules.cc_config.CamcopsConfig`
     """
-    ensure_database_is_ok()
+    ensure_database_is_ok(cfg)
     with cfg.get_dbsession_context() as dbsession:
         reindex_everything(dbsession)
 
@@ -879,7 +871,7 @@ def check_index(cfg: CamcopsConfig, show_all_bad: bool = False) -> bool:
     Returns:
         are the indexes all good?
     """
-    ensure_database_is_ok()
+    ensure_database_is_ok(cfg)
     with cfg.get_dbsession_context() as dbsession:
         ok = check_indexes(dbsession, show_all_bad)
         if ok:
@@ -909,7 +901,9 @@ def add_dummy_data(
 
 
 def launch_celery_workers(
-    verbose: bool = False, cleanup_timeout_s: float = DEFAULT_CLEANUP_TIMEOUT_S
+    config: CamcopsConfig,
+    verbose: bool = False,
+    cleanup_timeout_s: float = DEFAULT_CLEANUP_TIMEOUT_S,
 ) -> None:
     """
     Launch Celery workers.
@@ -922,7 +916,6 @@ def launch_celery_workers(
       https://docs.celeryproject.org/en/latest/userguide/optimizing.html
 
     """  # noqa: E501
-    config = get_default_config_from_os_env()
     cmdargs = [
         CELERY,
         "--app",
@@ -946,7 +939,9 @@ def launch_celery_workers(
 
 
 def launch_celery_beat(
-    verbose: bool = False, cleanup_timeout_s: float = DEFAULT_CLEANUP_TIMEOUT_S
+    config: CamcopsConfig,
+    verbose: bool = False,
+    cleanup_timeout_s: float = DEFAULT_CLEANUP_TIMEOUT_S,
 ) -> None:
     """
     Launch the Celery Beat scheduler.
@@ -954,8 +949,7 @@ def launch_celery_beat(
     (This can be combined with ``celery worker``, but that's not recommended;
     https://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html#starting-the-scheduler).
     """
-    ensure_directories_exist()
-    config = get_default_config_from_os_env()
+    ensure_directories_exist(config)
     cmdargs = [
         CELERY,
         "--app",
@@ -998,11 +992,10 @@ def launch_celery_flower(
 # =============================================================================
 
 
-def dev_cli() -> None:
+def dev_cli(config: CamcopsConfig) -> None:
     """
     Fire up a developer debug command-line.
     """
-    config = get_default_config_from_os_env()
     # noinspection PyUnusedLocal
     engine = config.get_sqla_engine()  # noqa: F841
     with command_line_request_context() as req:
