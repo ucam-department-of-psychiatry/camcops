@@ -55,14 +55,19 @@ from camcops_server.tasks.tests.factories import (
 )
 
 
-class GetDestTableForSrcObjectTests(DemoRequestTestCase):
+@pytest.mark.usefixtures("setup_dest_session")
+class DumpTestCase(DemoRequestTestCase):
+    pass
+
+
+class GetDestTableForSrcObjectTests(DumpTestCase):
     def test_copies_column_comments(self) -> None:
         patient = PatientFactory()
         src_table = patient.__table__
 
         options = TaskExportOptions()
         controller = DumpController(
-            self.engine, self.dbsession, options, self.req
+            self.dest_engine, self.dest_session, options, self.req
         )
 
         dest_table = controller.get_dest_table_for_src_object(patient)
@@ -75,7 +80,7 @@ class GetDestTableForSrcObjectTests(DemoRequestTestCase):
 
         options = TaskExportOptions()
         controller = DumpController(
-            self.engine, self.dbsession, options, self.req
+            self.dest_engine, self.dest_session, options, self.req
         )
 
         dest_table = controller.get_dest_table_for_src_object(bmi)
@@ -88,7 +93,7 @@ class GetDestTableForSrcObjectTests(DemoRequestTestCase):
 
         options = TaskExportOptions(db_include_summaries=True)
         controller = DumpController(
-            self.engine, self.dbsession, options, self.req
+            self.dest_engine, self.dest_session, options, self.req
         )
 
         dest_table = controller.get_dest_table_for_src_object(bmi)
@@ -106,7 +111,7 @@ class GetDestTableForSrcObjectTests(DemoRequestTestCase):
 
         options = TaskExportOptions(db_patient_id_per_row=True)
         controller = DumpController(
-            self.engine, self.dbsession, options, self.req
+            self.dest_engine, self.dest_session, options, self.req
         )
 
         dest_table = controller.get_dest_table_for_src_object(patient)
@@ -120,7 +125,7 @@ class GetDestTableForSrcObjectTests(DemoRequestTestCase):
 
         options = TaskExportOptions(db_patient_id_per_row=True)
         controller = DumpController(
-            self.engine, self.dbsession, options, self.req
+            self.dest_engine, self.dest_session, options, self.req
         )
 
         single_photo = photo_sequence.photos[0]
@@ -131,14 +136,14 @@ class GetDestTableForSrcObjectTests(DemoRequestTestCase):
         self.assertIn(EXTRA_TASK_TABLENAME_FIELD, dest_names)
 
 
-class GetDestTableForEstTests(DemoRequestTestCase):
+class GetDestTableForEstTests(DumpTestCase):
     def test_copies_table_with_subset_of_columns(self) -> None:
         patient = PatientFactory()
         bmi = BmiFactory(patient=patient)
 
         options = TaskExportOptions()
         controller = DumpController(
-            self.engine, self.dbsession, options, self.req
+            self.dest_engine, self.dest_session, options, self.req
         )
 
         columns = [
@@ -168,7 +173,7 @@ class GetDestTableForEstTests(DemoRequestTestCase):
 
         options = TaskExportOptions()
         controller = DumpController(
-            self.engine, self.dbsession, options, self.req
+            self.dest_engine, self.dest_session, options, self.req
         )
 
         est = ExtraSummaryTable(
@@ -192,7 +197,7 @@ class GetDestTableForEstTests(DemoRequestTestCase):
 
         options = TaskExportOptions()
         controller = DumpController(
-            self.engine, self.dbsession, options, self.req
+            self.dest_engine, self.dest_session, options, self.req
         )
 
         est = ExtraSummaryTable(
@@ -211,13 +216,11 @@ class GetDestTableForEstTests(DemoRequestTestCase):
         self.assertIn(EXTRA_TASK_TABLENAME_FIELD, dest_names)
 
 
-@pytest.mark.usefixtures("setup_dest_session")
-class CopyTasksAndSummariesTests(DemoRequestTestCase):
+class CopyTasksAndSummariesTests(DumpTestCase):
     def test_task_fields_copied(self) -> None:
         export_options = TaskExportOptions(
             include_blobs=False,
             db_patient_id_per_row=False,
-            db_make_all_tables_even_empty=False,
             db_include_summaries=False,
         )
 
@@ -242,13 +245,13 @@ class CopyTasksAndSummariesTests(DemoRequestTestCase):
         self.assertAlmostEqual(row.height_m, bmi.height_m)
         self.assertAlmostEqual(row.mass_kg, bmi.mass_kg)
 
-        # TODO: Should be present but None
-        # for colname in [
-        #     "_addition_pending",
-        #     "_forcibly_preserved",
-        #     "_manually_erased",
-        # ]:  # not exhaustive list
-        #     self.assertIsNone(getattr(row, colname))
+        # Should have been nulled
+        for colname in [
+            "_addition_pending",
+            "_forcibly_preserved",
+            "_manually_erased",
+        ]:  # not exhaustive list
+            self.assertIsNone(getattr(row, colname))
 
         # No summaries
         self.assertFalse(hasattr(row, SFN_IS_COMPLETE))
@@ -258,7 +261,6 @@ class CopyTasksAndSummariesTests(DemoRequestTestCase):
         export_options = TaskExportOptions(
             include_blobs=False,
             db_patient_id_per_row=False,
-            db_make_all_tables_even_empty=False,
             db_include_summaries=True,
         )
 
@@ -286,7 +288,6 @@ class CopyTasksAndSummariesTests(DemoRequestTestCase):
         export_options = TaskExportOptions(
             include_blobs=False,
             db_patient_id_per_row=True,
-            db_make_all_tables_even_empty=False,
             db_include_summaries=False,
         )
 
@@ -315,7 +316,6 @@ class CopyTasksAndSummariesTests(DemoRequestTestCase):
         export_options = TaskExportOptions(
             include_blobs=False,
             db_patient_id_per_row=True,
-            db_make_all_tables_even_empty=False,
             db_include_summaries=False,
         )
 

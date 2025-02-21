@@ -307,11 +307,36 @@ def setup(
 
 
 @pytest.fixture(scope="session")
-def dest_engine(request: "FixtureRequest") -> Generator["Engine", None, None]:
-    engine = make_memory_sqlite_engine()
+def dest_engine(
+    request: "FixtureRequest", echo: bool
+) -> Generator["Engine", None, None]:
+    """
+    An in-memory database for testing export via the dest_session fixture.
+    """
+    engine = make_memory_sqlite_engine(echo=echo)
 
     yield engine
+
     engine.dispose()
+
+
+# noinspection PyUnusedLocal
+@pytest.fixture
+def dest_tables(
+    request: "FixtureRequest", dest_engine: "Engine"
+) -> Generator[None, None, None]:
+
+    # Unlike the tables fixture, we don't create any tables as they are created
+    # in the tests themselves and the columns change between tests. So the
+    # scope here is the default 'function', which means they are dropped after
+    # each test, rather than 'session', which would only drop them at the end
+    # of the test run.
+
+    yield
+
+    metadata = MetaData()
+    metadata.reflect(dest_engine)
+    metadata.drop_all(dest_engine)
 
 
 # noinspection PyUnusedLocal
@@ -319,12 +344,12 @@ def dest_engine(request: "FixtureRequest") -> Generator["Engine", None, None]:
 def dest_session(
     request: "FixtureRequest",
     dest_engine: "Engine",
+    dest_tables: None,
 ) -> Generator[Session, None, None]:
     """
     Returns an sqlalchemy session, and after the test tears down everything
     properly.
     """
-
     connection = dest_engine.connect()
     # begin the nested transaction
     transaction = connection.begin()
@@ -339,10 +364,6 @@ def dest_session(
     # put back the connection to the connection pool
     connection.close()
 
-    metadata = MetaData()
-    metadata.reflect(dest_engine)
-    metadata.drop_all(dest_engine)
-
 
 @pytest.fixture
 def setup_dest_session(
@@ -350,5 +371,9 @@ def setup_dest_session(
     dest_engine: "Engine",
     dest_session: Session,
 ) -> None:
+    """
+    Use this fixture where a second, in-memory database is required.
+    Slow, so avoid use sparingly.
+    """
     request.cls.dest_session = dest_session
     request.cls.dest_engine = dest_engine
