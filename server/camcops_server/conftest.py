@@ -373,7 +373,7 @@ def setup_dest_session(
 ) -> None:
     """
     Use this fixture where a second, in-memory database is required.
-    Slow, so avoid use sparingly.
+    Slow, so use sparingly.
     """
     request.cls.dest_session = dest_session
     request.cls.dest_engine = dest_engine
