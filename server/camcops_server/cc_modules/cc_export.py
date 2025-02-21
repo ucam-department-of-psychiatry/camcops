@@ -708,7 +708,9 @@ def write_information_schema_to_dst(
         # Override some specific column types by hand, or they'll fail as
         # SQLAlchemy fails to reflect the MySQL LONGTEXT type properly:
         Column("COLUMN_DEFAULT", Text),
+        Column("COLUMN_KEY", Text),
         Column("COLUMN_TYPE", Text),
+        Column("DATA_TYPE", Text),
         Column("GENERATION_EXPRESSION", Text),
         autoload=True,  # "read (reflect) structure from the database"
         autoload_with=src_engine,  # "read (reflect) structure from the source"
