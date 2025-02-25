@@ -335,7 +335,16 @@ class DumpController(object):
 
         for dst_column in dst_table.columns:
             if dst_column.foreign_keys:
-                changed_columns.append(Column(dst_column.name, Integer))
+                changed_columns.append(
+                    # Trying to set index=dst_column.index here results in
+                    # index ... already exists error when the table is created.
+                    Column(
+                        dst_column.name,
+                        Integer,
+                        nullable=dst_column.nullable,
+                        comment=dst_column.comment,
+                    )
+                )
             elif self._dump_skip_column(tablename, dst_column.name):
                 changed_columns.append(Column(dst_column.name, Integer))
 

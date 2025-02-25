@@ -74,6 +74,25 @@ class GetDestTableForSrcObjectTests(DumpTestCase):
 
         self.assertEqual(src_table.c.id.comment, dest_table.c.id.comment)
 
+    def test_copies_column_info_for_foreign_key(self) -> None:
+        patient = PatientFactory()
+        src_table = patient.__table__
+
+        options = TaskExportOptions()
+        controller = DumpController(
+            self.dest_engine, self.dest_session, options, self.req
+        )
+
+        dest_table = controller.get_dest_table_for_src_object(patient)
+
+        self.assertFalse(dest_table.c._device_id.nullable)
+        # TODO: if we think it is worth it. Currently will result in index
+        # exists error if we try to set this on a removed foreign key.
+        # self.assertTrue(dest_table.c._device_id.index)
+        self.assertEqual(
+            src_table.c._device_id.comment, dest_table.c._device_id.comment
+        )
+
     def test_foreign_keys_are_empty_set(self) -> None:
         patient = PatientFactory()
         bmi = BmiFactory(patient=patient)
