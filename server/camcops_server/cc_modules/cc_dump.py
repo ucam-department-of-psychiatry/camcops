@@ -238,8 +238,10 @@ class DumpController(object):
         Generates all destination columns.
         """
         for table in self.gen_all_dest_tables():
-            for col in table.columns:
-                yield col
+            if not self._dump_skip_table(table.name):
+                for col in table.columns:
+                    if col.name not in DUMP_SKIP_COLNAMES:
+                        yield col
 
     def consider_object(self, src_obj: object) -> None:
         """

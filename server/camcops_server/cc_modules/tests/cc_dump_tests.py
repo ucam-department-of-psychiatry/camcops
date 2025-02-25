@@ -337,3 +337,30 @@ class CopyTasksAndSummariesTests(DumpTestCase):
         self.assertEqual(
             getattr(row, EXTRA_TASK_TABLENAME_FIELD), "photosequence"
         )
+
+
+class GenAllDestColumnsTests(DumpTestCase):
+    def test_omits_irrelevant_columns(self) -> None:
+        options = TaskExportOptions(
+            include_blobs=False,
+            db_patient_id_per_row=False,
+            db_make_all_tables_even_empty=True,
+            db_include_summaries=False,
+        )
+
+        controller = DumpController(
+            self.dest_engine, self.dest_session, options, self.req
+        )
+
+        table_column_names = {}
+        columns = controller.gen_all_dest_columns()
+
+        for column in columns:
+            table_column_names.setdefault(column.table.name, []).append(
+                column.name
+            )
+
+        self.assertNotIn(
+            "_addition_pending", table_column_names[column.table.name]
+        )
+        self.assertNotIn("blobs", table_column_names)
