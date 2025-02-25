@@ -217,6 +217,7 @@ server/camcops_server
     cc_modules/tests/cc_blob_tests.py.rst
     cc_modules/tests/cc_config_tests.py.rst
     cc_modules/tests/cc_device_tests.py.rst
+    cc_modules/tests/cc_dump_tests.py.rst
     cc_modules/tests/cc_export_tests.py.rst
     cc_modules/tests/cc_fhir_tests.py.rst
     cc_modules/tests/cc_formatter_tests.py.rst

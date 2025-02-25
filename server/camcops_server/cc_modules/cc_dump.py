@@ -48,6 +48,7 @@ from cardinal_pythonlib.sqlalchemy.orm_inspect import (
     gen_orm_classes_from_base,
     walk_orm_tree,
 )
+from sqlalchemy import insert, Integer
 from sqlalchemy.exc import CompileError
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm import MappedColumn, Session as SqlASession
@@ -237,8 +238,10 @@ class DumpController(object):
         Generates all destination columns.
         """
         for table in self.gen_all_dest_tables():
-            for col in table.columns:
-                yield col
+            if not self._dump_skip_table(table.name):
+                for col in table.columns:
+                    if col.name not in DUMP_SKIP_COLNAMES:
+                        yield col
 
     def consider_object(self, src_obj: object) -> None:
         """
@@ -325,51 +328,31 @@ class DumpController(object):
         if tablename in self.dst_tables:
             return self.dst_tables[tablename]
 
+        dst_table = src_table.to_metadata(self.dst_metadata)
+
         # Copy columns, dropping any we don't want, and dropping FK constraints
-        dst_columns = []  # type: List[Column]
-        for src_column in src_table.columns:
-            # log.debug("trying {!r}", src_column.name)
-            if self._dump_skip_column(tablename, src_column.name):
-                # log.debug("... skipping {!r}", src_column.name)
-                continue
-            # You can't add the source column directly; you get
-            # "sqlalchemy.exc.ArgumentError: Column object 'ccc' already
-            # assigned to Table 'ttt'"
-            copied_column = src_column.copy()
-            copied_column.comment = src_column.comment
-            # ... see SQLAlchemy trivial bug:
-            # https://bitbucket.org/zzzeek/sqlalchemy/issues/4087/columncopy-doesnt-copy-comment-attribute  # noqa
-            if FOREIGN_KEY_CONSTRAINTS_IN_DUMP:
-                copied_column.foreign_keys = set(
-                    fk.copy() for fk in src_column.foreign_keys
+        changed_columns = []  # type: List[Column]
+
+        for dst_column in dst_table.columns:
+            if dst_column.foreign_keys:
+                changed_columns.append(
+                    # Trying to set index=dst_column.index here results in
+                    # index ... already exists error when the table is created.
+                    Column(
+                        dst_column.name,
+                        Integer,
+                        nullable=dst_column.nullable,
+                        comment=dst_column.comment,
+                    )
                 )
-                log.warning(
-                    "NOT WORKING: foreign key commands not being " "emitted"
-                )
-                # but
-                # https://docs.sqlalchemy.org/en/latest/core/constraints.html
-                # works fine under SQLite, even if the other table hasn't been
-                # created yet. Does the table to which the FK refer have to be
-                # in the metadata already?
-                # That's quite possible, but I've not checked.
-                # Would need to iterate through tables in dependency order,
-                # like merge_db() does.
-            else:
-                # Probably blank already, as the copy() command only copies
-                # non-constraint-bound ForeignKey objects, but to be sure:
-                copied_column.foreign_keys = set()
-                # ... type is: Set[ForeignKey]
-            # if src_column.foreign_keys:
-            #     log.debug("Column {}, FKs {!r} -> {!r}", src_column.name,
-            #               src_column.foreign_keys,
-            #               copied_column.foreign_keys)
-            dst_columns.append(copied_column)
+            elif self._dump_skip_column(tablename, dst_column.name):
+                changed_columns.append(Column(dst_column.name, Integer))
 
         # Add extra columns?
         if self.export_options.db_include_summaries:
             if isinstance(src_obj, GenericTabletRecordMixin):
                 for summary_element in src_obj.get_summaries(self.req):
-                    dst_columns.append(
+                    changed_columns.append(
                         camcops_column(
                             summary_element.name,
                             summary_element.coltype,
@@ -380,11 +363,16 @@ class DumpController(object):
         if self.export_options.db_patient_id_in_each_row:
             merits, _ = self._merits_extra_id_num_columns(src_obj)
             if merits:
-                dst_columns.extend(all_extra_id_columns(self.req))
+                changed_columns.extend(all_extra_id_columns(self.req))
             if isinstance(src_obj, TaskDescendant):
-                dst_columns += src_obj.extra_task_xref_columns()
+                changed_columns += src_obj.extra_task_xref_columns()
 
-        dst_table = Table(tablename, self.dst_metadata, *dst_columns)
+        dst_table = Table(
+            tablename,
+            self.dst_metadata,
+            *changed_columns,
+            extend_existing=True,
+        )
         # ... that modifies the metadata, so:
         self.dst_tables[tablename] = dst_table
         return dst_table
@@ -501,7 +489,7 @@ class DumpController(object):
                 if isinstance(src_obj, TaskDescendant):
                     src_obj.add_extra_task_xref_info_to_row(row)
         try:
-            self.dst_session.execute(dst_table.insert(row))
+            self.dst_session.execute(insert(dst_table).values(row))
         except CompileError:
             log.critical("\ndst_table:\n{}\nrow:\n{}", dst_table, row)
             raise
