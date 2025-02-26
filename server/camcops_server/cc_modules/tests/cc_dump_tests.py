@@ -55,7 +55,7 @@ from camcops_server.tasks.tests.factories import (
 )
 
 
-@pytest.mark.usefixtures("setup_dest_session")
+@pytest.mark.usefixtures("setup_temp_session")
 class DumpTestCase(DemoRequestTestCase):
     pass
 
@@ -67,7 +67,7 @@ class GetDestTableForSrcObjectTests(DumpTestCase):
 
         options = TaskExportOptions()
         controller = DumpController(
-            self.dest_engine, self.dest_session, options, self.req
+            self.temp_engine, self.temp_session, options, self.req
         )
 
         dest_table = controller.get_dest_table_for_src_object(patient)
@@ -80,7 +80,7 @@ class GetDestTableForSrcObjectTests(DumpTestCase):
 
         options = TaskExportOptions()
         controller = DumpController(
-            self.dest_engine, self.dest_session, options, self.req
+            self.temp_engine, self.temp_session, options, self.req
         )
 
         dest_table = controller.get_dest_table_for_src_object(patient)
@@ -99,7 +99,7 @@ class GetDestTableForSrcObjectTests(DumpTestCase):
 
         options = TaskExportOptions()
         controller = DumpController(
-            self.dest_engine, self.dest_session, options, self.req
+            self.temp_engine, self.temp_session, options, self.req
         )
 
         dest_table = controller.get_dest_table_for_src_object(bmi)
@@ -112,7 +112,7 @@ class GetDestTableForSrcObjectTests(DumpTestCase):
 
         options = TaskExportOptions(db_include_summaries=True)
         controller = DumpController(
-            self.dest_engine, self.dest_session, options, self.req
+            self.temp_engine, self.temp_session, options, self.req
         )
 
         dest_table = controller.get_dest_table_for_src_object(bmi)
@@ -130,7 +130,7 @@ class GetDestTableForSrcObjectTests(DumpTestCase):
 
         options = TaskExportOptions(db_patient_id_per_row=True)
         controller = DumpController(
-            self.dest_engine, self.dest_session, options, self.req
+            self.temp_engine, self.temp_session, options, self.req
         )
 
         dest_table = controller.get_dest_table_for_src_object(patient)
@@ -144,7 +144,7 @@ class GetDestTableForSrcObjectTests(DumpTestCase):
 
         options = TaskExportOptions(db_patient_id_per_row=True)
         controller = DumpController(
-            self.dest_engine, self.dest_session, options, self.req
+            self.temp_engine, self.temp_session, options, self.req
         )
 
         single_photo = photo_sequence.photos[0]
@@ -162,7 +162,7 @@ class GetDestTableForEstTests(DumpTestCase):
 
         options = TaskExportOptions()
         controller = DumpController(
-            self.dest_engine, self.dest_session, options, self.req
+            self.temp_engine, self.temp_session, options, self.req
         )
 
         columns = [
@@ -192,7 +192,7 @@ class GetDestTableForEstTests(DumpTestCase):
 
         options = TaskExportOptions()
         controller = DumpController(
-            self.dest_engine, self.dest_session, options, self.req
+            self.temp_engine, self.temp_session, options, self.req
         )
 
         est = ExtraSummaryTable(
@@ -216,7 +216,7 @@ class GetDestTableForEstTests(DumpTestCase):
 
         options = TaskExportOptions()
         controller = DumpController(
-            self.dest_engine, self.dest_session, options, self.req
+            self.temp_engine, self.temp_session, options, self.req
         )
 
         est = ExtraSummaryTable(
@@ -248,15 +248,15 @@ class CopyTasksAndSummariesTests(DumpTestCase):
 
         copy_tasks_and_summaries(
             tasks=[bmi],
-            dst_engine=self.dest_engine,
-            dst_session=self.dest_session,
+            dst_engine=self.temp_engine,
+            dst_session=self.temp_session,
             export_options=export_options,
             req=self.req,
         )
-        self.dest_session.commit()
+        self.temp_session.commit()
 
         query = select(text("*")).select_from(table("bmi"))
-        result = self.dest_session.execute(query)
+        result = self.temp_session.execute(query)
 
         row = next(result)
 
@@ -288,15 +288,15 @@ class CopyTasksAndSummariesTests(DumpTestCase):
 
         copy_tasks_and_summaries(
             tasks=[bmi],
-            dst_engine=self.dest_engine,
-            dst_session=self.dest_session,
+            dst_engine=self.temp_engine,
+            dst_session=self.temp_session,
             export_options=export_options,
             req=self.req,
         )
-        self.dest_session.commit()
+        self.temp_session.commit()
 
         query = select(text("*")).select_from(table("bmi"))
-        result = self.dest_session.execute(query)
+        result = self.temp_session.execute(query)
 
         row = next(result)
 
@@ -316,13 +316,13 @@ class CopyTasksAndSummariesTests(DumpTestCase):
 
         copy_tasks_and_summaries(
             tasks=[bmi],
-            dst_engine=self.dest_engine,
-            dst_session=self.dest_session,
+            dst_engine=self.temp_engine,
+            dst_session=self.temp_session,
             export_options=export_options,
             req=self.req,
         )
         query = select(text("*")).select_from(table("bmi"))
-        result = self.dest_session.execute(query)
+        result = self.temp_session.execute(query)
 
         row = next(result)
 
@@ -343,13 +343,13 @@ class CopyTasksAndSummariesTests(DumpTestCase):
 
         copy_tasks_and_summaries(
             tasks=[photo_sequence],
-            dst_engine=self.dest_engine,
-            dst_session=self.dest_session,
+            dst_engine=self.temp_engine,
+            dst_session=self.temp_session,
             export_options=export_options,
             req=self.req,
         )
         query = select(text("*")).select_from(table("photosequence_photos"))
-        result = self.dest_session.execute(query)
+        result = self.temp_session.execute(query)
 
         row = next(result)
 
@@ -368,7 +368,7 @@ class GenAllDestColumnsTests(DumpTestCase):
         )
 
         controller = DumpController(
-            self.dest_engine, self.dest_session, options, self.req
+            self.temp_engine, self.temp_session, options, self.req
         )
 
         table_column_names = {}
