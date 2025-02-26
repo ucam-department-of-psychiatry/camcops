@@ -27,10 +27,9 @@ camcops_server/tasks/paradise24.py
 
 """
 
-from typing import Any, Dict, Optional, Type, Tuple
+from typing import Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -40,13 +39,19 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, Task
 
 
-class Paradise24Metaclass(DeclarativeMeta):
-    def __init__(
-        cls: Type["Paradise24"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Paradise24(
+    TaskHasPatientMixin,
+    Task,
+):
+    __tablename__ = "paradise24"
+    shortname = "PARADISE 24"
+
+    Q_PREFIX = "q"
+    FIRST_Q = 1
+    LAST_Q = 24
+
+    @classmethod
+    def extend_table(cls: Type["Paradise24"], **kwargs) -> None:
 
         add_multiple_columns(
             cls,
@@ -84,17 +89,6 @@ class Paradise24Metaclass(DeclarativeMeta):
                 "community 0-2 (none - a lot)",
             ],
         )
-
-        super().__init__(name, bases, classdict)
-
-
-class Paradise24(TaskHasPatientMixin, Task, metaclass=Paradise24Metaclass):
-    __tablename__ = "paradise24"
-    shortname = "PARADISE 24"
-
-    Q_PREFIX = "q"
-    FIRST_Q = 1
-    LAST_Q = 24
 
     ALL_FIELD_NAMES = strseq(Q_PREFIX, FIRST_Q, LAST_Q)
 

@@ -25,10 +25,9 @@ camcops_server/tasks/aims.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass, PV
@@ -58,14 +57,24 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class AimsMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Aims"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Aims(
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
+):
+    """
+    Server implementation of the AIMS task.
+    """
+
+    __tablename__ = "aims"
+    shortname = "AIMS"
+    provides_trackers = True
+
+    NQUESTIONS = 12
+    NSCOREDQUESTIONS = 10
+
+    @classmethod
+    def extend_table(cls: Type["Aims"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -100,22 +109,6 @@ class AimsMetaclass(DeclarativeMeta):
             ],
         )
 
-        super().__init__(name, bases, classdict)
-
-
-class Aims(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=AimsMetaclass
-):
-    """
-    Server implementation of the AIMS task.
-    """
-
-    __tablename__ = "aims"
-    shortname = "AIMS"
-    provides_trackers = True
-
-    NQUESTIONS = 12
-    NSCOREDQUESTIONS = 10
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     SCORED_FIELDS = strseq("q", 1, NSCOREDQUESTIONS)
 

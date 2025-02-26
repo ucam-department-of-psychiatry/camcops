@@ -65,9 +65,10 @@ INSTALL_REQUIRES = [
     # -------------------------------------------------------------------------
     # Direct dependencies of CamCOPS
     # -------------------------------------------------------------------------
-    "alembic==1.4.2",  # database migrations
-    "asteval==0.9.25",  # safe-ish alternative to eval
-    "cardinal_pythonlib==1.1.25",  # RNC libraries
+    "alembic==1.14.1",  # database migrations
+    "asteval==1.0.6",  # safe-ish alternative to eval
+    "black==24.4.2",  # auto code formatter, keep in sync with .pre-commit-config.yaml  # noqa: E501
+    "cardinal_pythonlib @ git+https://github.com/RudolfCardinal/pythonlib@5dd68a1808431502b27f936286b9b9037295b4d2#egg=cardinal_pythonlib-2.0.2-rc3",  # RNC libraries  # noqa: E501
     "celery==5.3.6",  # background tasks
     "colander==1.7.0",  # serialization/deserialization from web forms
     "CherryPy==18.6.0",  # web server
@@ -84,6 +85,7 @@ INSTALL_REQUIRES = [
     "Faker==4.1.1",  # create fake data; for test and dummy database creation
     # FHIR export, our fork until https://github.com/smart-on-fhir/client-py/pull/105 is merged  # noqa
     "fhirclient @ git+https://github.com/ucam-department-of-psychiatry/client-py@128bbe3c2194a51ba6ff8cf880ef2fdb9bfcc2d6#egg=fhirclient-4.0.0.1",  # noqa: E501
+    "flake8==5.0.4",  # code checks, keep in sync with .pre-commit-config.yaml
     "flower==2.0.1",  # monitor for Celery
     "gunicorn==23.0.0",  # web server (Unix only)
     "hl7==0.3.5",  # For HL7 export
@@ -104,14 +106,15 @@ INSTALL_REQUIRES = [
     "pyotp==2.6.0",  # Multi-factor authentication
     "pyramid==1.10.8",  # web framework
     "pyramid_debugtoolbar==4.6.1",  # debugging for Pyramid
-    "pytest==7.2.0",  # automatic testing
+    "pytest==8.3.4",  # automatic testing
+    "pytest-env==1.1.5",  # automatic testing
     "qrcode[pil]==7.2",  # for registering with Authenticators
     "requests==2.32.2",  # in fetch_snomed_codes.py and cc_sms.py, but also required by something else?  # noqa
     "rich-argparse==0.5.0",  # colourful help
     "sadisplay==0.4.9",  # SQL Alchemy schema display script
     "scipy==1.13.1",  # used by some tasks. slow installation.
     "semantic_version==2.8.5",  # semantic versioning; better than semver
-    "sqlalchemy==1.4.49",  # database access
+    "sqlalchemy==2.0.37",  # database access
     "statsmodels==0.14.4",  # e.g. logistic regression
     "twilio==7.9.3",  # SMS backend for Multi-factor authentication
     "urllib3==1.26.19",  # dependency, pinned to avoid vulnerabilities

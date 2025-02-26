@@ -76,7 +76,7 @@ def upgrade():
         return
     # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)  # for echo
     # bind._echo = True  # echo on, in a hacky way
-    dbsession = orm.Session(bind=bind)
+    dbsession = orm.Session(bind=bind, future=True)
 
     # How to do this?
     # (1) One approach is to create a "cut-down" Patient class with just two
@@ -96,7 +96,7 @@ def upgrade():
     uuid_col = patient_table.columns.uuid  # type: Column
 
     # SELECT patient._pk FROM patient WHERE patient.uuid IS NULL:
-    pk_query = select([pk_col]).where(uuid_col.is_(None))
+    pk_query = select(pk_col).where(uuid_col.is_(None))
     rows = dbsession.execute(pk_query)
     pks_needing_uuid = [row[0] for row in rows]
 

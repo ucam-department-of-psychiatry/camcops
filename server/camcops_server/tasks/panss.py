@@ -25,10 +25,9 @@ camcops_server/tasks/panss.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import (
@@ -56,14 +55,25 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class PanssMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Panss"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Panss(
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
+):
+    """
+    Server implementation of the PANSS task.
+    """
+
+    __tablename__ = "panss"
+    shortname = "PANSS"
+    provides_trackers = True
+
+    NUM_P = 7
+    NUM_N = 7
+    NUM_G = 16
+
+    @classmethod
+    def extend_table(cls: Type["Panss"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "p",
@@ -127,23 +137,6 @@ class PanssMetaclass(DeclarativeMeta):
                 "active social avoidance",
             ],
         )
-        super().__init__(name, bases, classdict)
-
-
-class Panss(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=PanssMetaclass
-):
-    """
-    Server implementation of the PANSS task.
-    """
-
-    __tablename__ = "panss"
-    shortname = "PANSS"
-    provides_trackers = True
-
-    NUM_P = 7
-    NUM_N = 7
-    NUM_G = 16
 
     P_FIELDS = strseq("p", 1, NUM_P)
     N_FIELDS = strseq("n", 1, NUM_N)

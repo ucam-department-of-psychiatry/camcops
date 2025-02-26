@@ -25,10 +25,9 @@ camcops_server/tasks/fast.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -52,14 +51,21 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class FastMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Fast"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Fast(
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the FAST task.
+    """
+
+    __tablename__ = "fast"
+    shortname = "FAST"
+
+    NQUESTIONS = 4
+
+    @classmethod
+    def extend_table(cls: Type["Fast"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -75,18 +81,7 @@ class FastMetaclass(DeclarativeMeta):
                 "others concerned",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Fast(TaskHasPatientMixin, Task, metaclass=FastMetaclass):
-    """
-    Server implementation of the FAST task.
-    """
-
-    __tablename__ = "fast"
-    shortname = "FAST"
-
-    NQUESTIONS = 4
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 16
 

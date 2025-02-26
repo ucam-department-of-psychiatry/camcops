@@ -48,5 +48,5 @@ class Thing(Base):
 
 # url = "mysql+mysqldb://scott:tiger@127.0.0.1:3306/dummy?charset=utf8"
 url = "mysql+mysqldb://scott:tiger@127.0.0.1:3306/dummy"
-engine = create_engine(url, echo=True)
+engine = create_engine(url, echo=True, future=True)
 Base.metadata.create_all(engine)

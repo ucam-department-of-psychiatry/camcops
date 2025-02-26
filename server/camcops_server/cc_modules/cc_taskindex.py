@@ -271,13 +271,11 @@ class PatientIdNumIndexEntry(Base):
                 # Source:
                 (
                     select(
-                        [
-                            idnumcols._pk,
-                            literal(indexed_at_utc),
-                            patientcols._pk,
-                            idnumcols.which_idnum,
-                            idnumcols.idnum_value,
-                        ]
+                        idnumcols._pk,
+                        literal(indexed_at_utc),
+                        patientcols._pk,
+                        idnumcols.which_idnum,
+                        idnumcols.idnum_value,
                     )
                     .select_from(
                         join(

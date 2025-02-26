@@ -25,7 +25,8 @@ camcops_server/tasks/diagnosis.py
 
 """
 
-from abc import ABC
+from abc import ABC, ABCMeta
+import datetime
 import logging
 from typing import Any, Dict, List, Optional, Type, TYPE_CHECKING
 
@@ -43,7 +44,7 @@ from fhirclient.models.condition import Condition
 import hl7
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
-from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.expression import (
     and_,
     exists,
@@ -90,10 +91,10 @@ from camcops_server.cc_modules.cc_snomed import (
     SnomedExpression,
     SnomedFocusConcept,
 )
-from camcops_server.cc_modules.cc_sqlalchemy import Base, DeclarativeAndABCMeta
+from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
     DiagnosticCodeColType,
+    mapped_camcops_column,
 )
 from camcops_server.cc_modules.cc_validators import (
     validate_restricted_sql_search_literal,
@@ -120,36 +121,32 @@ class DiagnosisItemBase(GenericTabletRecordMixin, Base):
     __abstract__ = True
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def seqnum(cls) -> Column:
-        return Column(
-            "seqnum",
-            Integer,
-            nullable=False,
-            comment="Sequence number (consistently 1-based as of 2018-12-01)",
-        )
+    seqnum: Mapped[int] = mapped_column(
+        "seqnum",
+        comment="Sequence number (consistently 1-based as of 2018-12-01)",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def code(cls) -> Column:
-        return Column("code", DiagnosticCodeColType, comment="Diagnostic code")
+    code: Mapped[Optional[str]] = mapped_column(
+        "code",
+        DiagnosticCodeColType,
+        comment="Diagnostic code",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def description(cls) -> Column:
-        return CamcopsColumn(
-            "description",
-            UnicodeText,
-            exempt_from_anonymisation=True,
-            comment="Description of the diagnostic code",
-        )
+    description: Mapped[Optional[str]] = mapped_camcops_column(
+        "description",
+        UnicodeText,
+        exempt_from_anonymisation=True,
+        comment="Description of the diagnostic code",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def comment(cls) -> Column:
-        return Column(  # new in v2.0.0
-            "comment", UnicodeText, comment="Clinician's comment"
-        )
+    comment: Mapped[Optional[str]] = mapped_column(
+        "comment",
+        UnicodeText,
+        comment="Clinician's comment",
+    )
 
     def get_html_table_row(self) -> str:
         return tr(
@@ -181,16 +178,16 @@ class DiagnosisBase(
     TaskHasPatientMixin,
     Task,
     ABC,
-    metaclass=DeclarativeAndABCMeta,
+    metaclass=ABCMeta,
 ):
     __abstract__ = True
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def relates_to_date(cls) -> Column:
-        return Column(  # new in v2.0.0
-            "relates_to_date", Date, comment="Date that diagnoses relate to"
-        )
+    relates_to_date: Mapped[Optional[datetime.date]] = mapped_column(
+        "relates_to_date",
+        Date,
+        comment="Date that diagnoses relate to",
+    )
 
     items = None  # type: List[DiagnosisItemBase]
     # ... must be overridden by a relationship
@@ -602,7 +599,9 @@ def get_diagnosis_report_query(
         wheres.append(diagnosis_class._group_id.in_(group_ids))
         # Helpfully, SQLAlchemy will render this as "... AND 1 != 1" if we
         # pass an empty list to in_().
-    query = select(select_fields).select_from(from_clause).where(and_(*wheres))
+    query = (
+        select(*select_fields).select_from(from_clause).where(and_(*wheres))
+    )
     return query
 
 
@@ -912,7 +911,7 @@ def get_diagnosis_inc_exc_report_query(
     inclusion_criteria = []  # type: List[ColumnElement]
     for idx in inclusion_dx:
         inclusion_criteria.append(item_class.code.like(idx))
-    wheres.append(or_(*inclusion_criteria))
+    wheres.append(or_(True, *inclusion_criteria))
 
     # Exclusion criteria are the trickier: we need to be able to link
     # multiple diagnoses for the same patient, so we need to use a linking
@@ -977,11 +976,13 @@ def get_diagnosis_inc_exc_report_query(
             edx_wheres.append(edx_sets.c._group_id.in_(group_ids))
             # ... bugfix 2018-06-19: "wheres" -> "edx_wheres"
         exclusion_select = (
-            select(["*"]).select_from(edx_joined).where(and_(*edx_wheres))
+            select("*").select_from(edx_joined).where(and_(*edx_wheres))
         )
         wheres.append(not_(exists(exclusion_select)))
 
-    query = select(select_fields).select_from(select_from).where(and_(*wheres))
+    query = (
+        select(*select_fields).select_from(select_from).where(and_(*wheres))
+    )
     return query
 
 

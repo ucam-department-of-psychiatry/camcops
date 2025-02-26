@@ -34,7 +34,7 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     ZERO_TO_TWO_CHECKER,
 )
 from camcops_server.cc_modules.cc_task import (
@@ -58,7 +58,7 @@ class Irac(TaskHasPatientMixin, Task):
     shortname = "IRAC"
 
     aim = Column("aim", UnicodeText, comment="Main aim of the contact")
-    achieved = CamcopsColumn(
+    achieved = camcops_column(
         "achieved",
         Integer,
         permitted_value_checker=ZERO_TO_TWO_CHECKER,

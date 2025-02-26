@@ -63,7 +63,10 @@ class TaskTests(DemoDatabaseTestCase):
         from sqlalchemy.sql.schema import Column
         from camcops_server.cc_modules.cc_ctvinfo import CtvInfo
         from camcops_server.cc_modules.cc_patient import Patient
-        from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
+        from camcops_server.cc_modules.cc_simpleobjects import (
+            IdNumReference,
+            TaskExportOptions,
+        )
         from camcops_server.cc_modules.cc_snomed import (
             SnomedExpression,
         )
@@ -87,6 +90,16 @@ class TaskTests(DemoDatabaseTestCase):
         dummy_data_factory = DummyDataInserter()
         task_doc_root = os.path.join(
             Path(__file__).resolve().parents[4], "docs", "source", "tasks"
+        )
+        export_options = TaskExportOptions(
+            include_blobs=True,
+            xml_include_ancillary=True,
+            xml_include_calculated=True,
+            xml_include_comments=True,
+            xml_include_patient=True,
+            xml_include_plain_columns=True,
+            xml_include_snomed=True,
+            xml_with_header_comments=True,
         )
         for cls in subclasses:
             log.info("Testing {}", cls)
@@ -205,7 +218,7 @@ class TaskTests(DemoDatabaseTestCase):
             # Views
             for page in t.get_spreadsheet_pages(req):
                 self.assertIsInstance(page.get_tsv(), str)
-            self.assertIsInstance(t.get_xml(req), str)
+            self.assertIsInstance(t.get_xml(req, export_options), str)
             self.assertIsInstance(t.get_html(req), str)
             self.assertIsInstance(t.get_pdf(req), bytes)
             self.assertIsInstance(t.get_pdf_html(req), str)

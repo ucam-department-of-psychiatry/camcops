@@ -37,7 +37,7 @@ from camcops_server.cc_modules.cc_html import answer, identity, tr
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     PermittedValueChecker,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -62,7 +62,7 @@ class QolBasic(TaskHasPatientMixin, Task):
     info_filename_stem = "qol"
     provides_trackers = True
 
-    tto = CamcopsColumn(
+    tto = camcops_column(
         "tto",
         Float,
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=10),
@@ -70,7 +70,7 @@ class QolBasic(TaskHasPatientMixin, Task):
         "number of years in full health [0-10] that you think is "
         "of equal value to 10 years in your current health state.",
     )
-    rs = CamcopsColumn(
+    rs = camcops_column(
         "rs",
         Float,
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=100),

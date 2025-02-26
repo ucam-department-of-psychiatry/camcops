@@ -25,10 +25,9 @@ camcops_server/tasks/audit.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -52,14 +51,24 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class AuditMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Audit"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Audit(
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the AUDIT task.
+    """
+
+    __tablename__ = "audit"
+    shortname = "AUDIT"
+    provides_trackers = True
+
+    prohibits_commercial = True
+
+    NQUESTIONS = 10
+
+    @classmethod
+    def extend_table(cls: Type["Audit"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -81,21 +90,7 @@ class AuditMetaclass(DeclarativeMeta):
                 "others concerned",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Audit(TaskHasPatientMixin, Task, metaclass=AuditMetaclass):
-    """
-    Server implementation of the AUDIT task.
-    """
-
-    __tablename__ = "audit"
-    shortname = "AUDIT"
-    provides_trackers = True
-
-    prohibits_commercial = True
-
-    NQUESTIONS = 10
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 
     @staticmethod
@@ -247,14 +242,18 @@ class Audit(TaskHasPatientMixin, Task, metaclass=AuditMetaclass):
 # =============================================================================
 
 
-class AuditCMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["AuditC"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class AuditC(TaskHasPatientMixin, Task):
+    __tablename__ = "audit_c"
+    shortname = "AUDIT-C"
+    extrastring_taskname = "audit"  # shares strings with AUDIT
+    info_filename_stem = extrastring_taskname
+
+    prohibits_commercial = True
+
+    NQUESTIONS = 3
+
+    @classmethod
+    def extend_table(cls: Type["AuditC"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -269,18 +268,7 @@ class AuditCMetaclass(DeclarativeMeta):
                 "how often six drinks",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class AuditC(TaskHasPatientMixin, Task, metaclass=AuditMetaclass):
-    __tablename__ = "audit_c"
-    shortname = "AUDIT-C"
-    extrastring_taskname = "audit"  # shares strings with AUDIT
-    info_filename_stem = extrastring_taskname
-
-    prohibits_commercial = True
-
-    NQUESTIONS = 3
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 
     @staticmethod

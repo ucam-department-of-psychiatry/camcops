@@ -46,7 +46,7 @@ from alembic import op
 from sqlalchemy import orm
 from sqlalchemy.engine.strategies import MockEngineStrategy
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column
@@ -99,7 +99,7 @@ def upgrade():
     if isinstance(bind, MockEngineStrategy.MockConnection):
         log.warning("Using mock connection; skipping step")
         return
-    session = orm.Session(bind=bind)
+    session = orm.Session(bind=bind, future=True)
 
     for idnum in session.query(PatientIdNum):
         if idnum.id == 0:

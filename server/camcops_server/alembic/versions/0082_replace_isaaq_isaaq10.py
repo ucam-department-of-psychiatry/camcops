@@ -75,7 +75,7 @@ def upgrade():
         return
     # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)  # for echo
     # bind._echo = True  # echo on, in a hacky way
-    dbsession = orm.Session(bind=bind)
+    dbsession = orm.Session(bind=bind, future=True)
 
     # Some shorthand:
     # noinspection PyUnresolvedReferences

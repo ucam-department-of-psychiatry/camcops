@@ -25,10 +25,9 @@ camcops_server/tasks/caps.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass, PV
@@ -86,14 +85,24 @@ QUESTION_SNIPPETS = [
 ]
 
 
-class CapsMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Caps"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Caps(
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the CAPS task.
+    """
+
+    __tablename__ = "caps"
+    shortname = "CAPS"
+    provides_trackers = True
+
+    prohibits_commercial = True
+
+    NQUESTIONS = 32
+
+    @classmethod
+    def extend_table(cls: Type["Caps"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "endorse",
@@ -134,21 +143,7 @@ class CapsMetaclass(DeclarativeMeta):
             comment_fmt="Q{n} ({s}): frequency (1 low - 5 high), if endorsed",
             comment_strings=QUESTION_SNIPPETS,
         )
-        super().__init__(name, bases, classdict)
 
-
-class Caps(TaskHasPatientMixin, Task, metaclass=CapsMetaclass):
-    """
-    Server implementation of the CAPS task.
-    """
-
-    __tablename__ = "caps"
-    shortname = "CAPS"
-    provides_trackers = True
-
-    prohibits_commercial = True
-
-    NQUESTIONS = 32
     ENDORSE_FIELDS = strseq("endorse", 1, NQUESTIONS)
 
     @staticmethod

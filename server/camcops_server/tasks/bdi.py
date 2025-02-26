@@ -25,11 +25,10 @@ camcops_server/tasks/bdi.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, String
 
@@ -153,14 +152,20 @@ CUSTOM_SOMATIC_KHANDAKER_BDI_II_FIELDS = Task.fieldnames_from_list(
 # =============================================================================
 
 
-class BdiMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Bdi"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Bdi(
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the BDI task.
+    """
+
+    __tablename__ = "bdi"
+    shortname = "BDI"
+    provides_trackers = True
+
+    @classmethod
+    def extend_table(cls: Type["Bdi"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -178,17 +183,6 @@ class BdiMetaclass(DeclarativeMeta):
                 for q in range(1, NQUESTIONS + 1)
             ],
         )
-        super().__init__(name, bases, classdict)
-
-
-class Bdi(TaskHasPatientMixin, Task, metaclass=BdiMetaclass):
-    """
-    Server implementation of the BDI task.
-    """
-
-    __tablename__ = "bdi"
-    shortname = "BDI"
-    provides_trackers = True
 
     bdi_scale = Column(
         "bdi_scale",

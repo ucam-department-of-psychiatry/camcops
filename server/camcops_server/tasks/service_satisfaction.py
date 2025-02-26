@@ -27,15 +27,14 @@ camcops_server/tasks/service_satisfaction.py
 
 from typing import Optional
 
-from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, UnicodeText
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    mapped_camcops_column,
     ZERO_TO_FOUR_CHECKER,
 )
 from camcops_server.cc_modules.cc_string import AS
@@ -53,31 +52,26 @@ from camcops_server.cc_modules.cc_task import (
 
 class AbstractSatisfaction(object):
     # noinspection PyMethodParameters
-    @declared_attr
-    def service(cls) -> Column:
-        return Column(
-            "service", UnicodeText, comment="Clinical service being rated"
-        )
+    service: Mapped[Optional[str]] = mapped_column(
+        "service", UnicodeText, comment="Clinical service being rated"
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def rating(cls) -> Column:
-        return CamcopsColumn(
-            "rating",
-            Integer,
-            permitted_value_checker=ZERO_TO_FOUR_CHECKER,
-            comment="Rating (0 very poor - 4 excellent)",
-        )
+    rating: Mapped[Optional[int]] = mapped_camcops_column(
+        "rating",
+        permitted_value_checker=ZERO_TO_FOUR_CHECKER,
+        comment="Rating (0 very poor - 4 excellent)",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def good(cls) -> Column:
-        return Column("good", UnicodeText, comment="What has been good?")
+    good: Mapped[Optional[str]] = mapped_column(
+        "good", UnicodeText, comment="What has been good?"
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def bad(cls) -> Column:
-        return Column("bad", UnicodeText, comment="What could be improved?")
+    bad: Mapped[Optional[str]] = mapped_column(
+        "bad", UnicodeText, comment="What could be improved?"
+    )
 
     TASK_FIELDS = ["service", "rating", "good", "bad"]
 

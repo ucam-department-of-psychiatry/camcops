@@ -39,7 +39,7 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    camcops_column,
     gen_camcops_columns,
     get_camcops_column_attr_names,
     ZERO_TO_TWO_CHECKER,
@@ -77,91 +77,91 @@ class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     hy_pv = ZERO_TO_FIVE_CHECKER
 
     # Part I
-    q1a = CamcopsColumn(
+    q1a = camcops_column(
         "q1a",
         Integer,
         permitted_value_checker=informant_pv,
         comment="Part I: informant for Q1.1-1.6" + informant_cmt,
     )
-    q1_1 = CamcopsColumn(
+    q1_1 = camcops_column(
         "q1_1",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part I, Q1.1 " + main_cmt,
     )
-    q1_2 = CamcopsColumn(
+    q1_2 = camcops_column(
         "q1_2",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part I, Q1.2 " + main_cmt,
     )
-    q1_3 = CamcopsColumn(
+    q1_3 = camcops_column(
         "q1_3",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part I, Q1.3 " + main_cmt,
     )
-    q1_4 = CamcopsColumn(
+    q1_4 = camcops_column(
         "q1_4",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part I, Q1.4 " + main_cmt,
     )
-    q1_5 = CamcopsColumn(
+    q1_5 = camcops_column(
         "q1_5",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part I, Q1.5 " + main_cmt,
     )
-    q1_6 = CamcopsColumn(
+    q1_6 = camcops_column(
         "q1_6",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part I, Q1.6 " + main_cmt,
     )
-    q1_6a = CamcopsColumn(
+    q1_6a = camcops_column(
         "q1_6a",
         Integer,
         permitted_value_checker=informant_pv,
         comment="Part I, Q1.6a: informant for Q1.7-1.13" + informant_cmt,
     )
-    q1_7 = CamcopsColumn(
+    q1_7 = camcops_column(
         "q1_7",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part I, Q1.7 " + main_cmt,
     )
-    q1_8 = CamcopsColumn(
+    q1_8 = camcops_column(
         "q1_8",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part I, Q1.8 " + main_cmt,
     )
-    q1_9 = CamcopsColumn(
+    q1_9 = camcops_column(
         "q1_9",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part I, Q1.9 " + main_cmt,
     )
-    q1_10 = CamcopsColumn(
+    q1_10 = camcops_column(
         "q1_10",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part I, Q1.10 " + main_cmt,
     )
-    q1_11 = CamcopsColumn(
+    q1_11 = camcops_column(
         "q1_11",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part I, Q1.11 " + main_cmt,
     )
-    q1_12 = CamcopsColumn(
+    q1_12 = camcops_column(
         "q1_12",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part I, Q1.12 " + main_cmt,
     )
-    q1_13 = CamcopsColumn(
+    q1_13 = camcops_column(
         "q1_13",
         Integer,
         permitted_value_checker=main_pv,
@@ -169,79 +169,79 @@ class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     )
 
     # Part II
-    q2_1 = CamcopsColumn(
+    q2_1 = camcops_column(
         "q2_1",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part II, Q2.1 " + main_cmt,
     )
-    q2_2 = CamcopsColumn(
+    q2_2 = camcops_column(
         "q2_2",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part II, Q2.2 " + main_cmt,
     )
-    q2_3 = CamcopsColumn(
+    q2_3 = camcops_column(
         "q2_3",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part II, Q2.3 " + main_cmt,
     )
-    q2_4 = CamcopsColumn(
+    q2_4 = camcops_column(
         "q2_4",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part II, Q2.4 " + main_cmt,
     )
-    q2_5 = CamcopsColumn(
+    q2_5 = camcops_column(
         "q2_5",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part II, Q2.5 " + main_cmt,
     )
-    q2_6 = CamcopsColumn(
+    q2_6 = camcops_column(
         "q2_6",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part II, Q2.6 " + main_cmt,
     )
-    q2_7 = CamcopsColumn(
+    q2_7 = camcops_column(
         "q2_7",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part II, Q2.7 " + main_cmt,
     )
-    q2_8 = CamcopsColumn(
+    q2_8 = camcops_column(
         "q2_8",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part II, Q2.8 " + main_cmt,
     )
-    q2_9 = CamcopsColumn(
+    q2_9 = camcops_column(
         "q2_9",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part II, Q2.9 " + main_cmt,
     )
-    q2_10 = CamcopsColumn(
+    q2_10 = camcops_column(
         "q2_10",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part II, Q2.10 " + main_cmt,
     )
-    q2_11 = CamcopsColumn(
+    q2_11 = camcops_column(
         "q2_11",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part II, Q2.11 " + main_cmt,
     )
-    q2_12 = CamcopsColumn(
+    q2_12 = camcops_column(
         "q2_12",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part II, Q2.12 " + main_cmt,
     )
-    q2_13 = CamcopsColumn(
+    q2_13 = camcops_column(
         "q2_13",
         Integer,
         permitted_value_checker=main_pv,
@@ -249,238 +249,238 @@ class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     )
 
     # Part III
-    q3a = CamcopsColumn(
+    q3a = camcops_column(
         "q3a",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Part III, Q3a (medication) " + yn_cmt,
     )
-    q3b = CamcopsColumn(
+    q3b = camcops_column(
         "q3b",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Part III, Q3b (clinical state) " + on_off_cmt,
     )
-    q3c = CamcopsColumn(
+    q3c = camcops_column(
         "q3c",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Part III, Q3c (levodopa) " + yn_cmt,
     )
-    q3c1 = CamcopsColumn(
+    q3c1 = camcops_column(
         "q3c1", Float, comment="Part III, Q3c.1 (minutes since last dose)"
     )
-    q3_1 = CamcopsColumn(
+    q3_1 = camcops_column(
         "q3_1",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.1 " + main_cmt,
     )
-    q3_2 = CamcopsColumn(
+    q3_2 = camcops_column(
         "q3_2",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.2 " + main_cmt,
     )
-    q3_3a = CamcopsColumn(
+    q3_3a = camcops_column(
         "q3_3a",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.3a " + main_cmt,
     )
-    q3_3b = CamcopsColumn(
+    q3_3b = camcops_column(
         "q3_3b",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.3b " + main_cmt,
     )
-    q3_3c = CamcopsColumn(
+    q3_3c = camcops_column(
         "q3_3c",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.3c " + main_cmt,
     )
-    q3_3d = CamcopsColumn(
+    q3_3d = camcops_column(
         "q3_3d",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.3d " + main_cmt,
     )
-    q3_3e = CamcopsColumn(
+    q3_3e = camcops_column(
         "q3_3e",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.3e " + main_cmt,
     )
-    q3_4a = CamcopsColumn(
+    q3_4a = camcops_column(
         "q3_4a",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.4a " + main_cmt,
     )
-    q3_4b = CamcopsColumn(
+    q3_4b = camcops_column(
         "q3_4b",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.4b " + main_cmt,
     )
-    q3_5a = CamcopsColumn(
+    q3_5a = camcops_column(
         "q3_5a",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.5a " + main_cmt,
     )
-    q3_5b = CamcopsColumn(
+    q3_5b = camcops_column(
         "q3_5b",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.5b " + main_cmt,
     )
-    q3_6a = CamcopsColumn(
+    q3_6a = camcops_column(
         "q3_6a",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.6a " + main_cmt,
     )
-    q3_6b = CamcopsColumn(
+    q3_6b = camcops_column(
         "q3_6b",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.6b " + main_cmt,
     )
-    q3_7a = CamcopsColumn(
+    q3_7a = camcops_column(
         "q3_7a",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.7a " + main_cmt,
     )
-    q3_7b = CamcopsColumn(
+    q3_7b = camcops_column(
         "q3_7b",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.7b " + main_cmt,
     )
-    q3_8a = CamcopsColumn(
+    q3_8a = camcops_column(
         "q3_8a",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.8a " + main_cmt,
     )
-    q3_8b = CamcopsColumn(
+    q3_8b = camcops_column(
         "q3_8b",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.8b " + main_cmt,
     )
-    q3_9 = CamcopsColumn(
+    q3_9 = camcops_column(
         "q3_9",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.9 " + main_cmt,
     )
-    q3_10 = CamcopsColumn(
+    q3_10 = camcops_column(
         "q3_10",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.10 " + main_cmt,
     )
-    q3_11 = CamcopsColumn(
+    q3_11 = camcops_column(
         "q3_11",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.11 " + main_cmt,
     )
-    q3_12 = CamcopsColumn(
+    q3_12 = camcops_column(
         "q3_12",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.12 " + main_cmt,
     )
-    q3_13 = CamcopsColumn(
+    q3_13 = camcops_column(
         "q3_13",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.13 " + main_cmt,
     )
-    q3_14 = CamcopsColumn(
+    q3_14 = camcops_column(
         "q3_14",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.14 " + main_cmt,
     )
-    q3_15a = CamcopsColumn(
+    q3_15a = camcops_column(
         "q3_15a",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.15a " + main_cmt,
     )
-    q3_15b = CamcopsColumn(
+    q3_15b = camcops_column(
         "q3_15b",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.15b " + main_cmt,
     )
-    q3_16a = CamcopsColumn(
+    q3_16a = camcops_column(
         "q3_16a",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.16a " + main_cmt,
     )
-    q3_16b = CamcopsColumn(
+    q3_16b = camcops_column(
         "q3_16b",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.16b " + main_cmt,
     )
-    q3_17a = CamcopsColumn(
+    q3_17a = camcops_column(
         "q3_17a",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.17a " + main_cmt,
     )
-    q3_17b = CamcopsColumn(
+    q3_17b = camcops_column(
         "q3_17b",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.17b " + main_cmt,
     )
-    q3_17c = CamcopsColumn(
+    q3_17c = camcops_column(
         "q3_17c",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.17c " + main_cmt,
     )
-    q3_17d = CamcopsColumn(
+    q3_17d = camcops_column(
         "q3_17d",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.17d " + main_cmt,
     )
-    q3_17e = CamcopsColumn(
+    q3_17e = camcops_column(
         "q3_17e",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.17e " + main_cmt,
     )
-    q3_18 = CamcopsColumn(
+    q3_18 = camcops_column(
         "q3_18",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part III, Q3.18 " + main_cmt,
     )
-    q3_dyskinesia_present = CamcopsColumn(
+    q3_dyskinesia_present = camcops_column(
         "q3_dyskinesia_present",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Part III, q3_dyskinesia_present " + yn_cmt,
     )
-    q3_dyskinesia_interfered = CamcopsColumn(
+    q3_dyskinesia_interfered = camcops_column(
         "q3_dyskinesia_interfered",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Part III, q3_dyskinesia_interfered " + yn_cmt,
     )
-    q3_hy_stage = CamcopsColumn(
+    q3_hy_stage = camcops_column(
         "q3_hy_stage",
         Integer,
         permitted_value_checker=hy_pv,
@@ -488,37 +488,37 @@ class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     )
 
     # Part IV
-    q4_1 = CamcopsColumn(
+    q4_1 = camcops_column(
         "q4_1",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part IV, Q4.1 " + main_cmt,
     )
-    q4_2 = CamcopsColumn(
+    q4_2 = camcops_column(
         "q4_2",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part IV, Q4.2 " + main_cmt,
     )
-    q4_3 = CamcopsColumn(
+    q4_3 = camcops_column(
         "q4_3",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part IV, Q4.3 " + main_cmt,
     )
-    q4_4 = CamcopsColumn(
+    q4_4 = camcops_column(
         "q4_4",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part IV, Q4.4 " + main_cmt,
     )
-    q4_5 = CamcopsColumn(
+    q4_5 = camcops_column(
         "q4_5",
         Integer,
         permitted_value_checker=main_pv,
         comment="Part IV, Q4.5 " + main_cmt,
     )
-    q4_6 = CamcopsColumn(
+    q4_6 = camcops_column(
         "q4_6",
         Integer,
         permitted_value_checker=main_pv,
