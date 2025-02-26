@@ -34,7 +34,7 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    camcops_column,
+    mapped_camcops_column,
     ZERO_TO_FOUR_CHECKER,
 )
 from camcops_server.cc_modules.cc_string import AS
@@ -57,7 +57,7 @@ class AbstractSatisfaction(object):
     )
 
     # noinspection PyMethodParameters
-    rating: Mapped[Optional[int]] = camcops_column(
+    rating: Mapped[Optional[int]] = mapped_camcops_column(
         "rating",
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment="Rating (0 very poor - 4 excellent)",

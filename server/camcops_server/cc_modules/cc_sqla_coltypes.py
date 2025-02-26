@@ -1446,8 +1446,67 @@ def camcops_column(
     blob_relationship_attr_name: str = "",
     permitted_value_checker: PermittedValueChecker = None,
     **kwargs,
+) -> Column[Any]:
+    """
+    Args:
+        *args:
+            Arguments to the :class:`Column` constructor.
+        include_in_anon_staging_db:
+            Ensure this is marked for inclusion in data dictionaries for an
+            anonymisation staging database.
+        exempt_from_anonymisation:
+            If true: though this field might be text, it is guaranteed not
+            to contain identifiers (e.g. it might contain only predefined
+            disease severity descriptions) and does not require
+            anonymisation.
+        identifies_patient:
+            If true: contains a patient identifier (e.g. name).
+        is_blob_id_field:
+            If true: this field contains a reference (client FK) to the
+            BLOB table.
+        blob_relationship_attr_name:
+            For BLOB ID fields: the name of the associated relationship
+            attribute (which, when accessed, yields the BLOB itself) in
+            the owning class/object.
+        permitted_value_checker:
+            If specified, a :class:`PermittedValueChecker` that allows
+            soft constraints to be specified on the field's contents. (That
+            is, no constraints are specified at the database level, but we
+            can moan if incorrect data are present.)
+        **kwargs:
+            Arguments to the :class:`Column` constructor.
+    """
+    if is_blob_id_field:
+        assert blob_relationship_attr_name, (
+            "If specifying a BLOB ID field, must give the attribute name "
+            "of the relationship too"
+        )
+    info = dict(
+        is_camcops_column=True,
+        include_in_anon_staging_db=include_in_anon_staging_db,
+        exempt_from_anonymisation=exempt_from_anonymisation,
+        identifies_patient=identifies_patient,
+        is_blob_id_field=is_blob_id_field,
+        blob_relationship_attr_name=blob_relationship_attr_name,
+        permitted_value_checker=permitted_value_checker,
+    )
+    return Column(*args, info=info, **kwargs)
+
+
+def mapped_camcops_column(
+    *args,
+    include_in_anon_staging_db: bool = False,
+    exempt_from_anonymisation: bool = False,
+    identifies_patient: bool = False,
+    is_blob_id_field: bool = False,
+    blob_relationship_attr_name: str = "",
+    permitted_value_checker: PermittedValueChecker = None,
+    **kwargs,
 ) -> MappedColumn[Any]:
     """
+    As :func:`camcops_server.cc_modules.cc_sqla_coltypes.camcops_column` but
+    returns a python typing-compatible MappedColumn.
+
     Args:
         *args:
             Arguments to the :class:`Column` constructor.
@@ -1520,7 +1579,7 @@ def gen_columns_matching_attrnames(
 
 def gen_camcops_columns(
     obj,
-) -> Generator[Tuple[str, MappedColumn], None, None]:
+) -> Generator[Tuple[str, Column], None, None]:
     """
     Finds all columns of an object that are
     :func:`camcops_server.cc_modules.cc_sqla_coltypes.camcops_column` columns.
@@ -1538,7 +1597,7 @@ def gen_camcops_columns(
 
 def gen_camcops_blob_columns(
     obj,
-) -> Generator[Tuple[str, MappedColumn], None, None]:
+) -> Generator[Tuple[str, Column], None, None]:
     """
     Finds all columns of an object that are
     :func:`camcops_server.cc_modules.cc_sqla_coltypes.camcops_column` columns
@@ -1671,7 +1730,7 @@ def gen_blob_relationships(
 # =============================================================================
 
 
-def bool_column(name: str, *args, **kwargs) -> MappedColumn[bool]:
+def bool_column(name: str, *args, **kwargs) -> Column[bool]:
     constraint_name = kwargs.pop(
         "constraint_name", None
     )  # type: Optional[str]
