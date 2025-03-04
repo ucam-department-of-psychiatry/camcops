@@ -25,6 +25,8 @@ camcops_server/cc_modules/tests/cc_dump_tests.py
 
 """
 
+from typing import TYPE_CHECKING
+
 import pytest
 from sqlalchemy import select
 from sqlalchemy.sql.expression import table, text
@@ -41,6 +43,7 @@ from camcops_server.cc_modules.cc_dump import (
     DumpController,
     copy_tasks_and_summaries,
 )
+from camcops_server.cc_modules.cc_db import FN_PK, FN_ADDITION_PENDING
 from camcops_server.cc_modules.cc_patientidnum import extra_id_colname
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_summaryelement import ExtraSummaryTable
@@ -54,10 +57,15 @@ from camcops_server.tasks.tests.factories import (
     PhotoSequenceFactory,
 )
 
+if TYPE_CHECKING:
+    from sqlalchemy import Engine
+    from sqlalchemy.orm import Session
+
 
 @pytest.mark.usefixtures("setup_temp_session")
 class DumpTestCase(DemoRequestTestCase):
-    pass
+    temp_engine: "Engine"
+    temp_session: "Session"
 
 
 class GetDestTableForSrcObjectTests(DumpTestCase):
@@ -371,15 +379,9 @@ class GenAllDestColumnsTests(DumpTestCase):
             self.temp_engine, self.temp_session, options, self.req
         )
 
-        table_column_names = {}
-        columns = controller.gen_all_dest_columns()
+        column_names = [c.name for c in controller.gen_all_dest_columns()]
 
-        for column in columns:
-            table_column_names.setdefault(column.table.name, []).append(
-                column.name
-            )
-
-        self.assertNotIn(
-            "_addition_pending", table_column_names[column.table.name]
-        )
-        self.assertNotIn("blobs", table_column_names)
+        self.assertIn(FN_PK, column_names)
+        self.assertNotIn(FN_ADDITION_PENDING, column_names)
+        # assumes column is unique to blobs
+        self.assertNotIn("theblob", column_names)
