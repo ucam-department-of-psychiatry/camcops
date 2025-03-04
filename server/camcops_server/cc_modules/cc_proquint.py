@@ -65,6 +65,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """
 
+from typing import List
 import uuid
 
 CONSONANTS = "bdfghjklmnprstvz"
@@ -133,7 +134,7 @@ def proquint_from_int(int_value: int, size_in_bits: int) -> str:
     Returns:
         proquint string identifier
     """
-    proquint = []
+    proquint: List[str] = []
 
     if size_in_bits % 16 != 0:
         raise ValueError(
