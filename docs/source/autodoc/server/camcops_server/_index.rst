@@ -243,6 +243,7 @@ server/camcops_server
     cc_modules/tests/cc_validator_tests.py.rst
     cc_modules/tests/cc_view_classes_tests.py.rst
     cc_modules/tests/client_api_tests.py.rst
+    cc_modules/tests/merge_db_tests.py.rst
     cc_modules/tests/webview_tests.py.rst
     cc_modules/webview.py.rst
     conftest.py.rst
