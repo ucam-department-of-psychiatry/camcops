@@ -36,32 +36,35 @@ from unittest import TestCase
 from cardinal_pythonlib.classes import all_subclasses
 from cardinal_pythonlib.httpconst import MimeType
 from cardinal_pythonlib.sqlalchemy.session import make_sqlite_url
+from pendulum import now as pendulum_now
 from sqlalchemy.orm.session import Session, sessionmaker
 
 from camcops_server.cc_modules.cc_alembic import (
     create_database_from_scratch,
     upgrade_database_to_head,
 )
+from camcops_server.cc_modules.cc_blob import Blob
 from camcops_server.cc_modules.cc_config import CamcopsConfig, get_demo_config
 from camcops_server.cc_modules.cc_constants import (
     CONFIG_FILE_SITE_SECTION,
     ConfigParamSite,
+    ERA_NOW,
 )
+from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
+from camcops_server.cc_modules.cc_patient import Patient
+from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 from camcops_server.cc_modules.cc_testfactories import (
+    AnyIdNumGroupFactory,
     BaseFactory,
-    GroupFactory,
-    ID_OFFSET,
-    NHSIdNumDefinitionFactory,
-    NHSPatientIdNumFactory,
-    PatientFactory,
-    RioIdNumDefinitionFactory,
-    RioPatientIdNumFactory,
+    DeviceFactory,
+    IpUseFactory,
+    UserFactory,
 )
 from camcops_server.cc_modules.merge_db import merge_camcops_db
 from camcops_server.cc_modules.cc_unittest import DEMO_PNG_BYTES
-from camcops_server.tasks.tests import factories as task_factories
+from camcops_server.tasks.photo import Photo
 
 log = logging.getLogger(__name__)
 
@@ -73,12 +76,15 @@ log = logging.getLogger(__name__)
 
 @dataclass
 class MergeTestDbInfo:
+    # ID numbers:
     nhs_which_idnum: int
     nhs_desc: str
     nhs_shortdesc: str
     rio_which_idnum: int
     rio_desc: str
     rio_shortdesc: str
+    # Groups:
+    groupnum: int
 
 
 class MergeDbTests(TestCase):
@@ -94,58 +100,164 @@ class MergeDbTests(TestCase):
                 config_filename="", config_text=buffer.getvalue()
             )
 
-    def _populate_src_db(self, session: Session) -> MergeTestDbInfo:
+    @staticmethod
+    def _populate_src_db(session: Session) -> MergeTestDbInfo:
         # Insert some linked data into database 1.
-        # ... taken from DemoDatabaseTestCase
+        # I have failed to achieve this with the test factory classes in full,
+        # e.g. NHSIdNumDefinitionFactory, PatientFactory, etc. The ordering is
+        # currently such that multiple spurious groups seem to get generated.
+
         log.info("Inserting data into source database...")
         for factory in all_subclasses(BaseFactory):
             factory._meta.sqlalchemy_session = session
+        # Objects created via the factory classes will be auto-added to the
+        # session. But manually add groups and ID number definitions.
 
-        self.demo_database_group = GroupFactory()
-
-        patient_with_two_idnums = PatientFactory(
-            _group=self.demo_database_group
+        # Group
+        group = Group(
+            id=777,
+            name="src_group",
+            description="source group",
+            upload_policy=AnyIdNumGroupFactory.upload_policy,
+            finalize_policy=AnyIdNumGroupFactory.finalize_policy,
+            ip_use=IpUseFactory(),
         )
-        NHSPatientIdNumFactory(patient=patient_with_two_idnums)
-        RioPatientIdNumFactory(patient=patient_with_two_idnums)
+        session.add(group)
 
-        patient_with_one_idnum = PatientFactory(
-            _group=self.demo_database_group
+        # Device
+        device = DeviceFactory()
+
+        # Demo user
+        user = UserFactory()
+
+        # All sorts of things need this (see GenericTabletRecordMixin):
+        now = pendulum_now()
+        default_tablet_args = dict(
+            _adding_user=user,
+            _current=True,
+            _device=device,
+            _era=ERA_NOW,
+            _group=group,
+            _group_id=group.id,
+            _when_added_batch_utc=now,
+            _when_added_exact=now,
         )
-        NHSPatientIdNumFactory(patient=patient_with_one_idnum)
 
-        for cls in Task.all_subclasses_by_tablename():
-            factory_class = getattr(task_factories, f"{cls.__name__}Factory")
+        # ID definitions
+        nhs_iddef = IdNumDefinition(
+            which_idnum=1000,
+            short_description="NHS#",
+            description="NHS number",
+        )
+        session.add(nhs_iddef)
+        rio_iddef = IdNumDefinition(
+            which_idnum=1001,
+            short_description="RiO",
+            description="RiO number",
+        )
+        session.add(rio_iddef)
 
-            t1_kwargs: Dict[str, Any] = dict(_group=self.demo_database_group)
-            t2_kwargs = t1_kwargs
-            if issubclass(cls, TaskHasPatientMixin):
-                t1_kwargs.update(patient=patient_with_two_idnums)
-                t2_kwargs.update(patient=patient_with_one_idnum)
+        # Patients with ID numbers
+        patient_with_one_idnum = Patient(
+            id=1,
+            forename="Forename1",
+            surname="Surname1",
+            sex="M",
+            **default_tablet_args,
+        )
+        session.add(patient_with_one_idnum)
+        session.add(
+            PatientIdNum(
+                id=1,
+                patient_id=patient_with_one_idnum.id,
+                which_idnum=nhs_iddef.which_idnum,
+                idnum_value=555,
+                **default_tablet_args,
+            )
+        )
 
-            if cls.__name__ == "Photo":
-                t1_kwargs.update(
-                    create_blob__fieldname="photo_blobid",
-                    create_blob__filename="some_picture.png",
-                    create_blob__mimetype=MimeType.PNG,
-                    create_blob__image_rotation_deg_cw=0,
-                    create_blob__theblob=DEMO_PNG_BYTES,
-                )
-
-            factory_class(**t1_kwargs)
-            factory_class(**t2_kwargs)
+        patient_with_two_idnums = Patient(
+            id=2,
+            forename="Forename2",
+            surname="Surname2",
+            sex="F",
+            **default_tablet_args,
+        )
+        session.add(patient_with_two_idnums)
+        session.add(
+            PatientIdNum(
+                id=2,
+                patient_id=patient_with_two_idnums.id,
+                which_idnum=nhs_iddef.which_idnum,
+                idnum_value=666,
+                **default_tablet_args,
+            )
+        )
+        session.add(
+            PatientIdNum(
+                id=3,
+                patient_id=patient_with_two_idnums.id,
+                which_idnum=rio_iddef.which_idnum,
+                idnum_value=222,
+                **default_tablet_args,
+            )
+        )
 
         session.commit()  # just in case
 
+        blobargs = dict(
+            tablename=Photo.tablename,
+            fieldname="photo_blobid",
+            filename="some_picture.png",
+            mimetype=MimeType.PNG,
+            image_rotation_deg_cw=0,
+            theblob=DEMO_PNG_BYTES,
+            **default_tablet_args,
+        )
+        default_task_args = default_tablet_args.copy()
+        default_task_args.update(when_created=now)
+        for cls in Task.all_subclasses_by_tablename():
+            # Make one task from each class for both test patients.
+            # Beware the factory classes, because they are making new groups.
+            t1_kwargs: Dict[str, Any] = default_task_args.copy()
+            t2_kwargs = default_task_args.copy()
+            t1_kwargs.update(id=1)
+            t2_kwargs.update(id=2)
+
+            if issubclass(cls, TaskHasPatientMixin):
+                t1_kwargs.update(patient_id=patient_with_one_idnum.id)
+                t2_kwargs.update(patient_id=patient_with_two_idnums.id)
+
+            is_photo = cls.__name__ == "Photo"
+            if is_photo:
+                # We'll set tablepk=0 temporarily, then fix it in a moment.
+                blob1 = Blob(id=1, tablepk=0, **blobargs)
+                session.add(blob1)
+                blob2 = Blob(id=2, tablepk=0, **blobargs)
+                session.add(blob2)
+
+            task1 = cls(**t1_kwargs)
+            task2 = cls(**t2_kwargs)
+            session.add(task1)
+            session.add(task2)
+
+            if is_photo:
+                task1.photo_blobid = blob1.id
+                task2.photo_blobid = blob2.id
+                blob1.tablepk = task1.id
+                blob2.tablepk = task2.id
+
+        session.commit()  # just in case
+        log.info("... source data inserted")
+
         return MergeTestDbInfo(
-            # Not sure why, but the source ones start at 1002.
-            # Delayed factory operation somehow?
-            nhs_which_idnum=ID_OFFSET + 2,
-            nhs_desc=NHSIdNumDefinitionFactory.description,
-            nhs_shortdesc=NHSIdNumDefinitionFactory.short_description,
-            rio_which_idnum=ID_OFFSET + 3,
-            rio_desc=RioIdNumDefinitionFactory.description,
-            rio_shortdesc=RioIdNumDefinitionFactory.short_description,
+            nhs_which_idnum=nhs_iddef.which_idnum,
+            nhs_desc=nhs_iddef.description,
+            nhs_shortdesc=nhs_iddef.short_description,
+            rio_which_idnum=rio_iddef.which_idnum,
+            rio_desc=rio_iddef.description,
+            rio_shortdesc=rio_iddef.short_description,
+            groupnum=group.id,
         )
 
     @staticmethod
@@ -153,7 +265,10 @@ class MergeDbTests(TestCase):
         session: Session, srcinfo: MergeTestDbInfo
     ) -> MergeTestDbInfo:
         log.info("Inserting basic data only into destination database...")
-        dstinfo = replace(srcinfo, nhs_which_idnum=1, rio_which_idnum=2)
+        dstinfo = replace(
+            srcinfo, nhs_which_idnum=1, rio_which_idnum=2, groupnum=9
+        )
+        assert dstinfo.nhs_which_idnum != dstinfo.rio_which_idnum
         # Hacky...
         dst_iddef_nhs = IdNumDefinition(
             which_idnum=dstinfo.nhs_which_idnum,
@@ -167,7 +282,14 @@ class MergeDbTests(TestCase):
             short_description=dstinfo.rio_shortdesc,
         )
         session.add(dst_iddef_rio)
+        dst_group = Group(
+            id=dstinfo.groupnum,
+            name="dest_group",
+            description="destination group",
+        )
+        session.add(dst_group)
         session.commit()
+        log.info("... destination data inserted")
         return dstinfo
 
     def setUp(self) -> None:
@@ -190,16 +312,25 @@ class MergeDbTests(TestCase):
         # Create table structure in each.
         log.info("Creating source database (from-scratch method)...")
         create_database_from_scratch(self.cfg1)
-        log.info("Creating destination database (incremental method)...")
-        upgrade_database_to_head(self.cfg2)
+        log.info("... source database created")
+        alembic_currently_working_with_this_sqla_version = False  # todo: fix
+        # 2025-02-27: There is an internal Alembic failure with alembic==1.4.2
+        # and SQLAlchemy==1.4.49.
+        if alembic_currently_working_with_this_sqla_version:
+            log.info("Creating destination database (incremental method)...")
+            upgrade_database_to_head(self.cfg2)
+        else:
+            log.info("Creating destination database (from-scratch method)...")
+            create_database_from_scratch(self.cfg2)
+        log.info("... destination database created")
 
         # Create a session for each database
-        self.db1session = sessionmaker()(
+        self.db1session: Session = sessionmaker()(
             bind=self.cfg1.get_sqla_engine()
-        )  # type: Session
-        self.db2session = sessionmaker()(
+        )
+        self.db2session: Session = sessionmaker()(
             bind=self.cfg2.get_sqla_engine()
-        )  # type: Session
+        )
 
         # ---------------------------------------------------------------------
         # Data setup
@@ -209,6 +340,15 @@ class MergeDbTests(TestCase):
         self.dstinfo = self._populate_dst_db(self.db2session, self.srcinfo)
 
     def test_merge_db(self) -> None:
+        # import pdb; pdb.set_trace()
+        whichidnum_map = {
+            self.srcinfo.nhs_which_idnum: self.dstinfo.nhs_which_idnum,
+            self.srcinfo.rio_which_idnum: self.dstinfo.rio_which_idnum,
+        }
+        groupnum_map = {
+            self.srcinfo.groupnum: self.dstinfo.groupnum,
+        }
+        log.info("Merging test databases...")
         merge_camcops_db(
             src=self.dburl1,
             dst_url=self.dburl2,
@@ -217,11 +357,9 @@ class MergeDbTests(TestCase):
             info_only=False,
             default_group_id=1,
             default_group_name="testgroup",
-            groupnum_map={},
-            whichidnum_map={
-                self.srcinfo.nhs_which_idnum: self.dstinfo.nhs_which_idnum,
-                self.srcinfo.rio_which_idnum: self.dstinfo.rio_which_idnum,
-            },
+            groupnum_map=groupnum_map,
+            whichidnum_map=whichidnum_map,
             skip_export_logs=True,
             skip_audit_logs=True,
         )
+        log.info("... test databases merged.")

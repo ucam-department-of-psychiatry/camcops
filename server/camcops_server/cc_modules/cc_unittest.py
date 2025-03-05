@@ -271,7 +271,7 @@ class DemoDatabaseTestCase(BasicDatabaseTestCase):
             factory_class = getattr(task_factories, f"{cls.__name__}Factory")
 
             t1_kwargs: Dict[str, Any] = dict(_group=self.demo_database_group)
-            t2_kwargs = t1_kwargs
+            t2_kwargs = t1_kwargs.copy()
             if issubclass(cls, TaskHasPatientMixin):
                 t1_kwargs.update(patient=patient_with_two_idnums)
                 t2_kwargs.update(patient=patient_with_one_idnum)

@@ -170,7 +170,7 @@ def create_database_from_scratch(camcops_cfg: "CamcopsConfig") -> None:
 
     safe_url = get_safe_url_from_url(camcops_cfg.db_url)
 
-    log.warning(f"Performing one-step database creation for: {safe_url}")
+    log.info(f"Performing one-step database creation for: {safe_url}")
 
     # Create the tables:
     metadata = Base.metadata  # type: MetaData

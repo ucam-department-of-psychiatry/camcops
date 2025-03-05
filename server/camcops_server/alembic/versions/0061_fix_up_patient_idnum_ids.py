@@ -70,7 +70,7 @@ depends_on = None
 Base = declarative_base()  # not the same metadata as the rest; we redefine
 
 
-class PatientIdNum(Base):
+class TmpPatientIdNum(Base):
     __tablename__ = "patient_idnum"
 
     _pk = Column("_pk", Integer, primary_key=True, autoincrement=True)
@@ -100,7 +100,7 @@ def upgrade():
         return
     session = orm.Session(bind=bind)
 
-    for idnum in session.query(PatientIdNum):
+    for idnum in session.query(TmpPatientIdNum):
         if idnum.id == 0:
             save_with_next_available_id(idnum, session)
 
