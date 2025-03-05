@@ -25,7 +25,7 @@ camcops_server/cc_modules/tests/cc_dump_tests.py
 
 """
 
-from typing import TYPE_CHECKING
+from typing import List, TYPE_CHECKING
 
 import pytest
 from sqlalchemy import select
@@ -379,9 +379,15 @@ class GenAllDestColumnsTests(DumpTestCase):
             self.temp_engine, self.temp_session, options, self.req
         )
 
-        column_names = [c.name for c in controller.gen_all_dest_columns()]
+        table_column_names: dict[str, List[str]] = {}
+        columns = controller.gen_all_dest_columns()
 
-        self.assertIn(FN_PK, column_names)
-        self.assertNotIn(FN_ADDITION_PENDING, column_names)
-        # assumes column is unique to blobs
-        self.assertNotIn("theblob", column_names)
+        for column in columns:
+            table_column_names.setdefault(column.table.name, []).append(
+                column.name
+            )
+
+        self.assertIn("bmi", table_column_names)
+        self.assertNotIn("blobs", table_column_names)
+        self.assertIn(FN_PK, table_column_names["bmi"])
+        self.assertNotIn(FN_ADDITION_PENDING, table_column_names["bmi"])
