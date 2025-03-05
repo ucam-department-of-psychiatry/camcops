@@ -32,9 +32,9 @@ from operator import attrgetter
 from typing import Any, List, Sequence, Tuple, Type, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.classes import classproperty
-from cardinal_pythonlib.sqlalchemy.orm_query import (
-    get_rows_fieldnames_from_query,
-)  # when this crashes with cardinal_pythonlib==1.0.28, replace with cardinal_pythonlib.core_query.get_rows_fieldnames_from_select  # noqa: E501
+from cardinal_pythonlib.sqlalchemy.core_query import (
+    get_rows_fieldnames_from_select,
+)
 from cardinal_pythonlib.sqlalchemy.sqlfunc import (
     extract_month,
     extract_year,
@@ -219,7 +219,7 @@ class TaskCountReport(Report):
                 # Restrict to accessible groups
                 # noinspection PyProtectedMember
                 query = query.where(TaskIndexEntry.group_id.in_(group_ids))
-            rows, colnames = get_rows_fieldnames_from_query(dbsession, query)
+            rows, colnames = get_rows_fieldnames_from_select(dbsession, query)
             # noinspection PyTypeChecker
             final_rows = rows
         else:
@@ -309,7 +309,7 @@ class TaskCountReport(Report):
                     # Restrict to accessible groups
                     # noinspection PyProtectedMember
                     query = query.where(cls._group_id.in_(group_ids))
-                rows, colnames = get_rows_fieldnames_from_query(
+                rows, colnames = get_rows_fieldnames_from_select(
                     dbsession, query
                 )
                 if by_task:
