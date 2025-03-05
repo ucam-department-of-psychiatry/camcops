@@ -96,7 +96,7 @@ def upgrade():
     uuid_col = patient_table.columns.uuid  # type: Column
 
     # SELECT patient._pk FROM patient WHERE patient.uuid IS NULL:
-    pk_query = select([pk_col]).where(uuid_col.is_(None))
+    pk_query = select(pk_col).where(uuid_col.is_(None))
     rows = dbsession.execute(pk_query)
     pks_needing_uuid = [row[0] for row in rows]
 

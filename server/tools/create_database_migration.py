@@ -78,22 +78,21 @@ def main() -> None:
     ``env.py``.
     """  # noqa
     desc = (
-        "Create database revision. Note:\n"
-        "- The config used will be that from the environment variable {} "
-        "(currently {!r}).\n"
-        "- Alembic compares (a) the current state of the DATABASE to (b) "
-        "the state of the SQLAlchemy metadata (i.e. the CODE). It creates a "
-        "migration file to change the database to match the code.\n"
-        "- Accordingly, in the rare event of wanting to do a fresh start, you "
-        "need an *empty* database.\n"
-        "- More commonly, you want a database that is synced to a specific "
-        "Alembic version (with the correct structure, and the correct version "
-        "in the alembic_version table). If you have made manual changes, such "
-        "that the actual database structure doesn't match the structure that "
-        "Alembic expects based on that version, there's likely to be "
-        "trouble.\n".format(
-            ENVVAR_CONFIG_FILE, environ.get(ENVVAR_CONFIG_FILE, None)
-        )
+        f"Create database revision. Note:\n"
+        f"- The config used will be that from the environment variable "
+        f"{ENVVAR_CONFIG_FILE} (currently "
+        f"{environ.get(ENVVAR_CONFIG_FILE, None)!r}).\n"
+        f"- Alembic compares (a) the current state of the DATABASE to (b) "
+        f"the state of the SQLAlchemy metadata (i.e. the CODE). It creates a "
+        f"migration file to change the database to match the code.\n"
+        f"- Accordingly, in the rare event of wanting to do a fresh start, "
+        f"you need an *empty* database.\n"
+        f"- More commonly, you want a database that is synced to a specific "
+        f"Alembic version (with the correct structure, and the correct "
+        f"version in the alembic_version table). If you have made manual "
+        f"changes, such that the actual database structure doesn't match the "
+        f"structure that Alembic expects based on that version, there's "
+        f"likely to be trouble.\n"
     )
     wrapped = "\n\n".join(
         textwrap.fill(x, width=79, initial_indent="", subsequent_indent="  ")

@@ -237,7 +237,10 @@ class Patient(GenericTabletRecordMixin, Base):
     )  # type: List[PatientIdNum]
 
     task_schedules = relationship(
-        "PatientTaskSchedule", back_populates="patient", cascade="all, delete"
+        "PatientTaskSchedule",
+        back_populates="patient",
+        cascade="all, delete",
+        cascade_backrefs=False,
     )  # type: List[PatientTaskSchedule]
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1370,7 +1373,7 @@ class DistinctPatientReport(Report):
             Patient.sex,
         ]
         query = (
-            select(select_fields)
+            select(*select_fields)
             .select_from(select_from)
             .where(and_(*wheres))
             .order_by(*order_by)

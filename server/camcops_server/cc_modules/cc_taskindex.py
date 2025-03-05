@@ -34,6 +34,7 @@ it caches ``is_complete()`` information).
 import logging
 from typing import List, Optional, Type, TYPE_CHECKING
 
+from cardinal_pythonlib.datetimefunc import pendulum_to_datetime
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
 from cardinal_pythonlib.sqlalchemy.session import get_engine_from_session
@@ -240,6 +241,7 @@ class PatientIdNumIndexEntry(Base):
             indexed_at_utc: current time in UTC
         """
         log.info("Rebuilding patient ID number index")
+
         # noinspection PyUnresolvedReferences
         indextable = PatientIdNumIndexEntry.__table__  # type: Table
         indexcols = indextable.columns
@@ -257,6 +259,8 @@ class PatientIdNumIndexEntry(Base):
             session.execute(indextable.delete())
 
         # Create new ones
+        indexed_at_utc = pendulum_to_datetime(indexed_at_utc)
+        # ... SQLite has trouble otherwise
         # noinspection PyProtectedMember,PyPep8
         session.execute(
             indextable.insert().from_select(
@@ -271,13 +275,11 @@ class PatientIdNumIndexEntry(Base):
                 # Source:
                 (
                     select(
-                        [
-                            idnumcols._pk,
-                            literal(indexed_at_utc),
-                            patientcols._pk,
-                            idnumcols.which_idnum,
-                            idnumcols.idnum_value,
-                        ]
+                        idnumcols._pk,
+                        literal(indexed_at_utc),
+                        patientcols._pk,
+                        idnumcols.which_idnum,
+                        idnumcols.idnum_value,
                     )
                     .select_from(
                         join(
