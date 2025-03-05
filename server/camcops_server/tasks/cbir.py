@@ -25,10 +25,9 @@ camcops_server/tasks/cbir.py
 
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Float, Integer, UnicodeText
 
@@ -43,7 +42,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    camcops_column,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
@@ -107,14 +106,20 @@ QUESTION_SNIPPETS = [
 ]
 
 
-class CbiRMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["CbiR"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class CbiR(
+    TaskHasPatientMixin,
+    TaskHasRespondentMixin,
+    Task,
+):
+    """
+    Server implementation of the CBI-R task.
+    """
+
+    __tablename__ = "cbir"
+    shortname = "CBI-R"
+
+    @classmethod
+    def extend_table(cls: Type["CbiR"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "frequency",
@@ -135,20 +140,8 @@ class CbiRMetaclass(DeclarativeMeta):
             maximum=cls.MAX_SCORE,
             comment_strings=QUESTION_SNIPPETS,
         )
-        super().__init__(name, bases, classdict)
 
-
-class CbiR(
-    TaskHasPatientMixin, TaskHasRespondentMixin, Task, metaclass=CbiRMetaclass
-):
-    """
-    Server implementation of the CBI-R task.
-    """
-
-    __tablename__ = "cbir"
-    shortname = "CBI-R"
-
-    confirm_blanks = CamcopsColumn(
+    confirm_blanks = camcops_column(
         "confirm_blanks",
         Integer,
         permitted_value_checker=BIT_CHECKER,

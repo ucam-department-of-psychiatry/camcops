@@ -25,9 +25,8 @@ camcops_server/tasks/cope.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import List, Type
 
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
@@ -36,7 +35,7 @@ from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     BIT_CHECKER,
     PermittedValueChecker,
 )
@@ -53,14 +52,27 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 
-class CopeBriefMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["CopeBrief"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class CopeBrief(
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the COPE-Brief task.
+    """
+
+    __tablename__ = "cope_brief"
+    shortname = "COPE-Brief"
+    extrastring_taskname = "cope"
+    info_filename_stem = "cope"
+
+    NQUESTIONS = 28
+    RELATIONSHIP_OTHER_CODE = 0
+    RELATIONSHIPS_FIRST = 0
+    RELATIONSHIPS_FIRST_NON_OTHER = 1
+    RELATIONSHIPS_LAST = 9
+
+    @classmethod
+    def extend_table(cls: Type["CopeBrief"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -100,26 +112,8 @@ class CopeBriefMetaclass(DeclarativeMeta):
                 "making fun of the situation",  # 28
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class CopeBrief(TaskHasPatientMixin, Task, metaclass=CopeBriefMetaclass):
-    """
-    Server implementation of the COPE-Brief task.
-    """
-
-    __tablename__ = "cope_brief"
-    shortname = "COPE-Brief"
-    extrastring_taskname = "cope"
-    info_filename_stem = "cope"
-
-    NQUESTIONS = 28
-    RELATIONSHIP_OTHER_CODE = 0
-    RELATIONSHIPS_FIRST = 0
-    RELATIONSHIPS_FIRST_NON_OTHER = 1
-    RELATIONSHIPS_LAST = 9
-
-    completed_by_patient = CamcopsColumn(
+    completed_by_patient = camcops_column(
         "completed_by_patient",
         Integer,
         permitted_value_checker=BIT_CHECKER,
@@ -130,7 +124,7 @@ class CopeBrief(TaskHasPatientMixin, Task, metaclass=CopeBriefMetaclass):
         UnicodeText,
         comment="Name of person task completed by (if not by patient)",
     )
-    relationship_to_patient = CamcopsColumn(
+    relationship_to_patient = camcops_column(
         "relationship_to_patient",
         Integer,
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=9),

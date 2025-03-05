@@ -47,7 +47,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    camcops_column,
     PendulumDateTimeAsIsoTextColType,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
@@ -101,7 +101,7 @@ class IDED3DTrial(GenericTabletRecordMixin, TaskDescendant, Base):
     correct_shape = Column(
         "correct_shape", Integer, comment="Shape# of correct stimulus"
     )
-    correct_colour = CamcopsColumn(
+    correct_colour = camcops_column(
         "correct_colour",
         Text,
         exempt_from_anonymisation=True,
@@ -115,7 +115,7 @@ class IDED3DTrial(GenericTabletRecordMixin, TaskDescendant, Base):
     incorrect_shape = Column(
         "incorrect_shape", Integer, comment="Shape# of incorrect stimulus"
     )
-    incorrect_colour = CamcopsColumn(
+    incorrect_colour = camcops_column(
         "incorrect_colour",
         Text,
         exempt_from_anonymisation=True,
@@ -135,7 +135,7 @@ class IDED3DTrial(GenericTabletRecordMixin, TaskDescendant, Base):
     )
 
     # Response
-    responded = CamcopsColumn(
+    responded = camcops_column(
         "responded",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -149,13 +149,13 @@ class IDED3DTrial(GenericTabletRecordMixin, TaskDescendant, Base):
     response_latency_ms = Column(
         "response_latency_ms", Integer, comment="Response latency (ms)"
     )
-    correct = CamcopsColumn(
+    correct = camcops_column(
         "correct",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Response was correct",
     )
-    incorrect = CamcopsColumn(
+    incorrect = camcops_column(
         "incorrect",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -229,66 +229,66 @@ class IDED3DStage(GenericTabletRecordMixin, TaskDescendant, Base):
     )
 
     # Config
-    stage_name = CamcopsColumn(
+    stage_name = camcops_column(
         "stage_name",
         Text,
         exempt_from_anonymisation=True,
         comment="Name of the stage (e.g. SD, EDr)",
     )
-    relevant_dimension = CamcopsColumn(
+    relevant_dimension = camcops_column(
         "relevant_dimension",
         Text,
         exempt_from_anonymisation=True,
         comment="Relevant dimension (e.g. shape, colour, number)",
     )
-    correct_exemplar = CamcopsColumn(
+    correct_exemplar = camcops_column(
         "correct_exemplar",
         Text,
         exempt_from_anonymisation=True,
         comment="Correct exemplar (from relevant dimension)",
     )
-    incorrect_exemplar = CamcopsColumn(
+    incorrect_exemplar = camcops_column(
         "incorrect_exemplar",
         Text,
         exempt_from_anonymisation=True,
         comment="Incorrect exemplar (from relevant dimension)",
     )
-    correct_stimulus_shapes = CamcopsColumn(
+    correct_stimulus_shapes = camcops_column(
         "correct_stimulus_shapes",
         Text,
         exempt_from_anonymisation=True,
         comment="Possible shapes for correct stimulus "
         "(CSV list of shape numbers)",
     )
-    correct_stimulus_colours = CamcopsColumn(
+    correct_stimulus_colours = camcops_column(
         "correct_stimulus_colours",
         Text,
         exempt_from_anonymisation=True,
         comment="Possible colours for correct stimulus "
         "(CSV list of HTML colours)",
     )
-    correct_stimulus_numbers = CamcopsColumn(
+    correct_stimulus_numbers = camcops_column(
         "correct_stimulus_numbers",
         Text,
         exempt_from_anonymisation=True,
         comment="Possible numbers for correct stimulus "
         "(CSV list of numbers)",
     )
-    incorrect_stimulus_shapes = CamcopsColumn(
+    incorrect_stimulus_shapes = camcops_column(
         "incorrect_stimulus_shapes",
         Text,
         exempt_from_anonymisation=True,
         comment="Possible shapes for incorrect stimulus "
         "(CSV list of shape numbers)",
     )
-    incorrect_stimulus_colours = CamcopsColumn(
+    incorrect_stimulus_colours = camcops_column(
         "incorrect_stimulus_colours",
         Text,
         exempt_from_anonymisation=True,
         comment="Possible colours for incorrect stimulus "
         "(CSV list of HTML colours)",
     )
-    incorrect_stimulus_numbers = CamcopsColumn(
+    incorrect_stimulus_numbers = camcops_column(
         "incorrect_stimulus_numbers",
         Text,
         exempt_from_anonymisation=True,
@@ -313,13 +313,13 @@ class IDED3DStage(GenericTabletRecordMixin, TaskDescendant, Base):
         Integer,
         comment="Number of trials performed incorrectly",
     )
-    stage_passed = CamcopsColumn(
+    stage_passed = camcops_column(
         "stage_passed",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Subject met criterion and passed stage",
     )
-    stage_failed = CamcopsColumn(
+    stage_failed = camcops_column(
         "stage_failed",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -437,13 +437,13 @@ class IDED3D(TaskHasPatientMixin, Task):
         comment="Dimensional counterbalancing condition (0-5)",
     )
     volume = Column("volume", Float, comment="Sound volume (0.0-1.0)")
-    offer_abort = CamcopsColumn(
+    offer_abort = camcops_column(
         "offer_abort",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Offer an abort button?",
     )
-    debug_display_stimuli_only = CamcopsColumn(
+    debug_display_stimuli_only = camcops_column(
         "debug_display_stimuli_only",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -451,7 +451,7 @@ class IDED3D(TaskHasPatientMixin, Task):
     )
 
     # Intrinsic config
-    shape_definitions_svg = CamcopsColumn(
+    shape_definitions_svg = camcops_column(
         "shape_definitions_svg",
         Text,
         exempt_from_anonymisation=True,
@@ -459,7 +459,7 @@ class IDED3D(TaskHasPatientMixin, Task):
         " array in SVG format (with arbitrary scale of -60 to"
         " +60 in both X and Y dimensions)",
     )
-    colour_definitions_rgb = CamcopsColumn(  # v2.0.0
+    colour_definitions_rgb = camcops_column(  # v2.0.0
         "colour_definitions_rgb",
         Text,
         exempt_from_anonymisation=True,

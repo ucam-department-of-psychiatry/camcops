@@ -35,6 +35,7 @@ import pprint
 import sys
 import tracemalloc
 from typing import Dict, List, Optional, Type, TYPE_CHECKING
+import warnings
 
 from cardinal_pythonlib.argparse_func import (
     ShowAllSubparserHelpAction,
@@ -60,7 +61,7 @@ from rich_argparse import (
     ArgumentDefaultsRichHelpFormatter,
     RawDescriptionRichHelpFormatter,
 )
-
+from sqlalchemy import exc
 from camcops_server.cc_modules.cc_baseconstants import (
     ENVVAR_CONFIG_FILE,
     EXIT_SUCCESS,
@@ -89,6 +90,9 @@ if TYPE_CHECKING:
     # noinspection PyProtectedMember,PyUnresolvedReferences
     from argparse import _SubParsersAction
     from pyramid.router import Router
+
+warnings.filterwarnings("error", category=exc.MovedIn20Warning)
+warnings.filterwarnings("error", category=exc.SADeprecationWarning)
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 

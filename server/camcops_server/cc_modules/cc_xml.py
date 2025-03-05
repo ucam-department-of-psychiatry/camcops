@@ -253,7 +253,7 @@ def make_xml_branches_from_blobs(
         colname = column.name
         if colname in skip_fields:
             continue
-        relationship_attr = column.blob_relationship_attr_name
+        relationship_attr = column.info.get("blob_relationship_attr_name", "")
         blob = getattr(obj, relationship_attr)
         branches.append(
             XmlElement(

@@ -56,7 +56,7 @@ class {factory_name}({sub_class_name}):
     class Meta:
         model = {task_class_name}
 
-    id = factory.Sequence(lambda n: n)
+    id = factory.Sequence(lambda n: n + 1)
 """
             )
 

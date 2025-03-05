@@ -25,10 +25,9 @@ camcops_server/tasks/moca.py
 
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, String, UnicodeText
 
@@ -52,8 +51,7 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
-    ZERO_TO_THREE_CHECKER,
+    camcops_column,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
@@ -77,21 +75,31 @@ WORDLIST = ["FACE", "VELVET", "CHURCH", "DAISY", "RED"]
 # =============================================================================
 
 
-class MocaMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Moca"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Moca(
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
+):
+    """
+    Server implementation of the MoCA task.
+    """
+
+    __tablename__ = "moca"
+    shortname = "MoCA"
+    provides_trackers = True
+
+    prohibits_commercial = True
+    prohibits_research = True
+
+    @classmethod
+    def extend_table(cls: Type["Moca"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
             1,
-            cls.NQUESTIONS,
+            11,
             minimum=0,
-            maximum=1,  # see below
+            maximum=1,
             comment_fmt="{s}",
             comment_strings=[
                 "Q1 (VSE/path) (0-1)",
@@ -105,7 +113,29 @@ class MocaMetaclass(DeclarativeMeta):
                 "Q9 (attention/5 digits) (0-1)",
                 "Q10 (attention/3 digits) (0-1)",
                 "Q11 (attention/tapping) (0-1)",
-                "Q12 (attention/serial 7s) (0-3)",  # different max
+            ],
+        )
+        add_multiple_columns(
+            cls,
+            "q",
+            12,
+            12,
+            minimum=0,
+            maximum=3,
+            comment_fmt="{s}",
+            comment_strings=[
+                "Q12 (attention/serial 7s) (0-3)",
+            ],
+        )
+        add_multiple_columns(
+            cls,
+            "q",
+            13,
+            cls.NQUESTIONS,
+            minimum=0,
+            maximum=1,  # see below
+            comment_fmt="{s}",
+            comment_strings=[
                 "Q13 (language/sentence 1) (0-1)",
                 "Q14 (language/sentence 2) (0-1)",
                 "Q15 (language/fluency) (0-1)",
@@ -124,9 +154,6 @@ class MocaMetaclass(DeclarativeMeta):
                 "Q28 (orientation/city) (0-1)",
             ],
         )
-        # Fix maximum for Q12:
-        # noinspection PyUnresolvedReferences
-        cls.q12.set_permitted_value_checker(ZERO_TO_THREE_CHECKER)
 
         add_multiple_columns(
             cls,
@@ -168,44 +195,28 @@ class MocaMetaclass(DeclarativeMeta):
             "{n}: {s} (0 or 1)",
             comment_strings=WORDLIST,
         )
-        super().__init__(name, bases, classdict)
 
-
-class Moca(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=MocaMetaclass
-):
-    """
-    Server implementation of the MoCA task.
-    """
-
-    __tablename__ = "moca"
-    shortname = "MoCA"
-    provides_trackers = True
-
-    prohibits_commercial = True
-    prohibits_research = True
-
-    education12y_or_less = CamcopsColumn(
+    education12y_or_less = camcops_column(
         "education12y_or_less",
         Integer,
         permitted_value_checker=BIT_CHECKER,
         comment="<=12 years of education (0 no, 1 yes)",
     )
-    trailpicture_blobid = CamcopsColumn(
+    trailpicture_blobid = camcops_column(
         "trailpicture_blobid",
         Integer,
         is_blob_id_field=True,
         blob_relationship_attr_name="trailpicture",
         comment="BLOB ID of trail picture",
     )
-    cubepicture_blobid = CamcopsColumn(
+    cubepicture_blobid = camcops_column(
         "cubepicture_blobid",
         Integer,
         is_blob_id_field=True,
         blob_relationship_attr_name="cubepicture",
         comment="BLOB ID of cube picture",
     )
-    clockpicture_blobid = CamcopsColumn(
+    clockpicture_blobid = camcops_column(
         "clockpicture_blobid",
         Integer,
         is_blob_id_field=True,

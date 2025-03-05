@@ -279,3 +279,48 @@ class PatientPermissionTests(BasicDatabaseTestCase):
 
         self.req._debugging_user = ugm.user
         self.assertFalse(patient.user_may_edit(self.req))
+
+
+class EquivalenceTests(DemoRequestTestCase):
+    """
+    Tests for the __eq__ method on Patient.
+    """
+
+    def test_same_object_true(self) -> None:
+        patient = PatientFactory()
+
+        self.assertEqual(patient, patient)
+
+    def test_same_id_device_era_true(self) -> None:
+        patient_1 = PatientFactory()
+        patient_2 = PatientFactory(
+            id=patient_1.id, _device=patient_1._device, _era=patient_1._era
+        )
+
+        self.assertEqual(patient_1, patient_2)
+
+    def test_same_idnum_true(self) -> None:
+        patient_1 = PatientFactory()
+        patient_2 = PatientFactory()
+
+        idnum_1 = NHSPatientIdNumFactory(patient=patient_1)
+        NHSPatientIdNumFactory(
+            patient=patient_2,
+            which_idnum=idnum_1.which_idnum,
+            idnum_value=idnum_1.idnum_value,
+        )
+
+        self.assertEqual(patient_1, patient_2)
+
+    def test_different_idnum_false(self) -> None:
+        patient_1 = PatientFactory()
+        patient_2 = PatientFactory()
+
+        NHSPatientIdNumFactory(patient=patient_1)
+        NHSPatientIdNumFactory(patient=patient_2)
+
+        self.assertNotEqual(patient_1, patient_2)
+
+    def test_not_a_patient_false(self) -> None:
+        patient = PatientFactory()
+        self.assertNotEqual(patient, "not a patient")

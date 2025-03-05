@@ -36,7 +36,7 @@ import tempfile
 from typing import Generator, TYPE_CHECKING
 
 import pytest
-from sqlalchemy import event
+from sqlalchemy import event, MetaData
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import Session
 
@@ -217,7 +217,7 @@ def create_engine_mysql(db_url: str, create_db: bool, echo: bool):
     # mysql> CREATE DATABASE <db_name>;
     # mysql> GRANT ALL PRIVILEGES ON <db_name>.*
     #        TO <db_user>@localhost IDENTIFIED BY '<db_password>';
-    engine = create_engine(db_url, echo=echo, pool_pre_ping=True)
+    engine = create_engine(db_url, echo=echo, pool_pre_ping=True, future=True)
 
     if create_db:
         Base.metadata.drop_all(engine)
@@ -272,7 +272,7 @@ def dbsession(
     # begin the nested transaction
     transaction = connection.begin()
     # use the connection with the already started transaction
-    session = Session(bind=connection)
+    session = Session(bind=connection, future=True)
 
     yield session
 
@@ -304,3 +304,76 @@ def setup(
     request.cls.db_filename = TEST_DATABASE_FILENAME
     request.cls.mysql = mysql
     request.cls.config_file = config_file
+
+
+@pytest.fixture(scope="session")
+def temp_engine(
+    request: "FixtureRequest", echo: bool
+) -> Generator["Engine", None, None]:
+    """
+    An in-memory database for testing export via the temp_session fixture.
+    """
+    engine = make_memory_sqlite_engine(echo=echo)
+
+    yield engine
+
+    engine.dispose()
+
+
+# noinspection PyUnusedLocal
+@pytest.fixture
+def temp_tables(
+    request: "FixtureRequest", temp_engine: "Engine"
+) -> Generator[None, None, None]:
+
+    # Unlike the tables fixture, we don't create any tables as they are created
+    # in the tests themselves and the columns change between tests. So the
+    # scope here is the default 'function', which means they are dropped after
+    # each test, rather than 'session', which would only drop them at the end
+    # of the test run.
+
+    yield
+
+    metadata = MetaData()
+    metadata.reflect(temp_engine)
+    metadata.drop_all(temp_engine)
+
+
+# noinspection PyUnusedLocal
+@pytest.fixture
+def temp_session(
+    request: "FixtureRequest",
+    temp_engine: "Engine",
+    temp_tables: None,
+) -> Generator[Session, None, None]:
+    """
+    Returns an sqlalchemy session, and after the test tears down everything
+    properly.
+    """
+    connection = temp_engine.connect()
+    # begin the nested transaction
+    transaction = connection.begin()
+    # use the connection with the already started transaction
+    session = Session(bind=connection)
+
+    yield session
+
+    session.close()
+    # roll back the broader transaction
+    transaction.rollback()
+    # put back the connection to the connection pool
+    connection.close()
+
+
+@pytest.fixture
+def setup_temp_session(
+    request: "FixtureRequest",
+    temp_engine: "Engine",
+    temp_session: Session,
+) -> None:
+    """
+    Use this fixture where a second, in-memory database is required.
+    Slow, so use sparingly.
+    """
+    request.cls.temp_session = temp_session
+    request.cls.temp_engine = temp_engine

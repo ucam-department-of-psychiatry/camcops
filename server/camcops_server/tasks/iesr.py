@@ -25,10 +25,9 @@ camcops_server/tasks/iesr.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
@@ -57,14 +56,20 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class IesrMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Iesr"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Iesr(
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the IES-R task.
+    """
+
+    __tablename__ = "iesr"
+    shortname = "IES-R"
+    provides_trackers = True
+
+    @classmethod
+    def extend_table(cls: Type["Iesr"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -98,17 +103,6 @@ class IesrMetaclass(DeclarativeMeta):
                 "avoided talking",
             ],
         )
-        super().__init__(name, bases, classdict)
-
-
-class Iesr(TaskHasPatientMixin, Task, metaclass=IesrMetaclass):
-    """
-    Server implementation of the IES-R task.
-    """
-
-    __tablename__ = "iesr"
-    shortname = "IES-R"
-    provides_trackers = True
 
     event = Column("event", UnicodeText, comment="Relevant event")
 

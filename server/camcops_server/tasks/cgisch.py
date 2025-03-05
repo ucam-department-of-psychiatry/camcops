@@ -25,10 +25,9 @@ camcops_server/tasks/cgisch.py
 
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
@@ -62,18 +61,21 @@ QUESTION_FRAGMENTS = [
 ]
 
 
-class CgiSchMetaclass(DeclarativeMeta):
+class CgiSch(
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
+):
     """
-    Metaclass for :class:`CgiSch`.
+    Server implementation of the CGI-SCH task.
     """
 
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["CgiSch"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+    __tablename__ = "cgisch"
+    shortname = "CGI-SCH"
+    provides_trackers = True
+
+    @classmethod
+    def extend_table(cls: Type["CgiSch"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "severity",
@@ -93,19 +95,6 @@ class CgiSchMetaclass(DeclarativeMeta):
             comment_fmt="Change Q{n}, {s} (1-7, higher worse, or 9 N/A)",
             comment_strings=QUESTION_FRAGMENTS,
         )
-        super().__init__(name, bases, classdict)
-
-
-class CgiSch(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=CgiSchMetaclass
-):
-    """
-    Server implementation of the CGI-SCH task.
-    """
-
-    __tablename__ = "cgisch"
-    shortname = "CGI-SCH"
-    provides_trackers = True
 
     TASK_FIELDS = strseq("severity", 1, 5) + strseq("change", 1, 5)
 

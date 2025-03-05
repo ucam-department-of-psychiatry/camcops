@@ -25,10 +25,9 @@ camcops_server/tasks/wsas.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Integer
 
@@ -56,14 +55,20 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class WsasMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Wsas"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Wsas(
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the WSAS task.
+    """
+
+    __tablename__ = "wsas"
+    shortname = "WSAS"
+    provides_trackers = True
+
+    @classmethod
+    def extend_table(cls: Type["Wsas"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -80,17 +85,6 @@ class WsasMetaclass(DeclarativeMeta):
                 "relationships",
             ],
         )
-        super().__init__(name, bases, classdict)
-
-
-class Wsas(TaskHasPatientMixin, Task, metaclass=WsasMetaclass):
-    """
-    Server implementation of the WSAS task.
-    """
-
-    __tablename__ = "wsas"
-    shortname = "WSAS"
-    provides_trackers = True
 
     retired_etc = Column(
         "retired_etc",

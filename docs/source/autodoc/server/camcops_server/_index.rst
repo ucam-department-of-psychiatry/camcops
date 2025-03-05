@@ -117,6 +117,7 @@ server/camcops_server
     alembic/versions/0083_delete_isaaq.py.rst
     alembic/versions/0084_compulsive_exercise_test_cet.py.rst
     alembic/versions/0085_aq.py.rst
+    alembic/versions/0086_hamd_specific_comments.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -216,6 +217,7 @@ server/camcops_server
     cc_modules/tests/cc_blob_tests.py.rst
     cc_modules/tests/cc_config_tests.py.rst
     cc_modules/tests/cc_device_tests.py.rst
+    cc_modules/tests/cc_dump_tests.py.rst
     cc_modules/tests/cc_export_tests.py.rst
     cc_modules/tests/cc_fhir_tests.py.rst
     cc_modules/tests/cc_formatter_tests.py.rst
@@ -484,6 +486,7 @@ server/camcops_server
     tasks/tests/core10_tests.py.rst
     tasks/tests/cpft_covid_medical_tests.py.rst
     tasks/tests/cpft_research_preferences_tests.py.rst
+    tasks/tests/diagnosis_tests.py.rst
     tasks/tests/edeq_tests.py.rst
     tasks/tests/factories.py.rst
     tasks/tests/maas_tests.py.rst
@@ -652,4 +655,5 @@ server/camcops_server
     tools/fetch_snomed_codes.py.rst
     tools/generate_task_factories.py.rst
     tools/print_latest_github_version.py.rst
+    tools/replace_task_metaclasses.py.rst
     tools/run_server_self_tests.py.rst

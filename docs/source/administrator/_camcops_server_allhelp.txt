@@ -316,8 +316,8 @@ OPTIONS:
   -v, --verbose      Be verbose (default: False)
   --config CONFIG    Configuration file (if not specified, the environment
                      variable CAMCOPS_CONFIG_FILE is checked) (default: None)
-  --dialect DIALECT  SQL dialect (options: firebird, mssql, mysql, oracle,
-                     postgresql, sqlite, sybase) (default: mysql)
+  --dialect DIALECT  SQL dialect (options: databricks, firebird, mssql, mysql,
+                     oracle, postgresql, sqlite, sybase) (default: mysql)
 
 ===============================================================================
 Help for command 'reindex'

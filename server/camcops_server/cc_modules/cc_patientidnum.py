@@ -44,7 +44,7 @@ from typing import List, Tuple, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import MappedColumn, relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import BigInteger, Integer
 
@@ -56,7 +56,7 @@ from camcops_server.cc_modules.cc_constants import (
 from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
 from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
-from camcops_server.cc_modules.cc_sqla_coltypes import CamcopsColumn
+from camcops_server.cc_modules.cc_sqla_coltypes import camcops_column
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 
 if TYPE_CHECKING:
@@ -99,7 +99,7 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         nullable=False,
         comment="Which of the server's ID numbers is this?",
     )
-    idnum_value = CamcopsColumn(
+    idnum_value = camcops_column(
         "idnum_value",
         BigInteger,
         identifies_patient=True,
@@ -329,7 +329,7 @@ def extra_id_colname(which_idnum: int) -> str:
     return f"{EXTRA_IDNUM_FIELD_PREFIX}{which_idnum}"
 
 
-def extra_id_column(req: "CamcopsRequest", which_idnum: int) -> CamcopsColumn:
+def extra_id_column(req: "CamcopsRequest", which_idnum: int) -> MappedColumn:
     """
     The column definition used for the extra ID number columns provided by the
     ``DB_PATIENT_ID_PER_ROW`` export option.
@@ -343,7 +343,7 @@ def extra_id_column(req: "CamcopsRequest", which_idnum: int) -> CamcopsColumn:
 
     """
     desc = req.get_id_desc(which_idnum)
-    return CamcopsColumn(
+    return camcops_column(
         extra_id_colname(which_idnum),
         BigInteger,
         identifies_patient=True,
@@ -351,7 +351,7 @@ def extra_id_column(req: "CamcopsRequest", which_idnum: int) -> CamcopsColumn:
     )
 
 
-def all_extra_id_columns(req: "CamcopsRequest") -> List[CamcopsColumn]:
+def all_extra_id_columns(req: "CamcopsRequest") -> List[MappedColumn]:
     """
     Returns all column definitions used for the extra ID number columns
     provided by the ``DB_PATIENT_ID_PER_ROW`` export option.
