@@ -46,13 +46,13 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 log = BraceStyleAdapter(logging.getLogger(__name__))
 log.info("Imports starting")
 
-# Main imports
+# Main imports (E402 relates to imports not at the top of the file)
 
 import os  # noqa: E402
 import platform  # noqa: E402
 import sys  # noqa: E402
 import subprocess  # noqa: E402
-from typing import Any, Dict, List, Optional, TYPE_CHECKING  # noqa: E402
+from typing import Any, Dict, List, TYPE_CHECKING  # noqa: E402
 
 import cherrypy  # noqa: E402
 
@@ -70,6 +70,7 @@ from cardinal_pythonlib.ui_commandline import (  # noqa: E402
     ask_user,
     ask_user_password,
 )
+from cardinal_pythonlib.wsgi.constants import WsgiEnvVar  # noqa: E402
 from cardinal_pythonlib.wsgi.request_logging_mw import (  # noqa: E402
     RequestLoggingMiddleware,
 )
@@ -335,34 +336,55 @@ def ensure_ok_for_webserver(config: CamcopsConfig) -> None:
     precache(config)
 
 
+def make_wsgi_app_from_config(cfg: "CamcopsConfig") -> "Router":
+    """
+    Creates a WSGI application from the config.
+    """
+    reverse_proxied_config = ReverseProxiedConfig(
+        trusted_proxy_headers=cfg.trusted_proxy_headers,
+        http_host=cfg.proxy_http_host,
+        remote_addr=cfg.proxy_remote_addr,
+        script_name=(
+            cfg.proxy_script_name or os.environ.get(WsgiEnvVar.SCRIPT_NAME, "")
+        ),
+        server_port=cfg.proxy_server_port,
+        server_name=cfg.proxy_server_name,
+        url_scheme=cfg.proxy_url_scheme,
+        rewrite_path_info=cfg.proxy_rewrite_path_info,
+    )
+    return make_wsgi_app(
+        debug_toolbar=cfg.debug_toolbar,
+        reverse_proxied_config=reverse_proxied_config,
+        debug_reverse_proxy=cfg.debug_reverse_proxy,
+        show_requests=cfg.show_requests,
+        show_request_immediately=cfg.show_request_immediately,
+        show_response=cfg.show_response,
+        show_timing=cfg.show_timing,
+        static_cache_duration_s=cfg.static_cache_duration_s,
+    )
+
+
 def test_serve_pyramid(
-    application: "Router", host: str = None, port: int = None
+    cfg: CamcopsConfig,
 ) -> None:
     """
     Launches an extremely simple Pyramid web server (via
     ``wsgiref.make_server``).
     """
+    ensure_ok_for_webserver(cfg)
+    application = make_wsgi_app_from_config(cfg)
+
     cd = ConfigDefaults()
-    host = host or cd.HOST
-    port = port or cd.PORT
-    ensure_ok_for_webserver()
+    host = cfg.host or cd.HOST
+    port = cfg.port or cd.PORT
+
     server = make_server(host, port, application)
     log.info("Serving on host={}, port={}", host, port)
     server.serve_forever()
 
 
 def serve_cherrypy(
-    application: "Router",
-    host: str,
-    port: int,
-    unix_domain_socket_filename: str,
-    threads_start: int,
-    threads_max: int,  # -1 for no limit
-    server_name: str,
-    log_screen: bool,
-    ssl_certificate: Optional[str],
-    ssl_private_key: Optional[str],
-    root_path: str,
+    cfg: CamcopsConfig,
 ) -> None:
     """
     Start CherryPy server.
@@ -370,7 +392,19 @@ def serve_cherrypy(
     - Multithreading.
     - Any platform.
     """
-    ensure_ok_for_webserver()
+    ensure_ok_for_webserver(cfg)
+    application = make_wsgi_app_from_config(cfg)
+
+    host = cfg.host
+    port = cfg.port
+    unix_domain_socket_filename = cfg.unix_domain_socket
+    threads_start = cfg.cherrypy_threads_start
+    threads_max = cfg.cherrypy_threads_max  # -1 for no limit
+    server_name = cfg.cherrypy_server_name
+    log_screen = cfg.cherrypy_root_path
+    ssl_certificate = cfg.ssl_certificate
+    ssl_private_key = cfg.ssl_private_key
+    root_path = cfg.cherrypy_root_path
 
     # Report on options
     if unix_domain_socket_filename:
@@ -431,16 +465,7 @@ def serve_cherrypy(
 
 
 def serve_gunicorn(
-    application: "Router",
-    host: str,
-    port: int,
-    unix_domain_socket_filename: str,
-    num_workers: int,
-    ssl_certificate: Optional[str],
-    ssl_private_key: Optional[str],
-    reload: bool = False,
-    timeout_s: int = 30,
-    debug_show_gunicorn_options: bool = False,
+    cfg: CamcopsConfig,
 ) -> None:
     """
     Start Gunicorn server
@@ -461,7 +486,18 @@ def serve_gunicorn(
             "(It relies on the UNIX fork() facility.)"
         )
 
-    ensure_ok_for_webserver()
+    ensure_ok_for_webserver(cfg)
+    application = make_wsgi_app_from_config(cfg)
+
+    host = cfg.host
+    port = cfg.port
+    unix_domain_socket_filename = cfg.unix_domain_socket
+    num_workers = cfg.gunicorn_num_workers
+    ssl_certificate = cfg.ssl_certificate
+    ssl_private_key = cfg.ssl_private_key
+    reload = cfg.gunicorn_debug_reload
+    timeout_s = cfg.gunicorn_timeout_s
+    debug_show_gunicorn_options = cfg.debug_show_gunicorn_options
 
     # Report on options, and calculate Gunicorn versions
     if unix_domain_socket_filename:
@@ -1015,7 +1051,7 @@ def dev_cli(config: CamcopsConfig) -> None:
         # There must be a line below this, or the context is not available;
         # maybe a pdb bug; see
         # https://stackoverflow.com/questions/51743057/custom-context-manager-is-left-when-running-pdb-set-trace  # noqa
-        pass  # this does the job
+        pass  # This line shown when entering developer CLI.
 
 
 def print_tasklist() -> None:

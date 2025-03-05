@@ -54,8 +54,6 @@ from cardinal_pythonlib.sqlalchemy.dialect import (
     ALL_SQLA_DIALECTS,
     SqlaDialectName,
 )
-from cardinal_pythonlib.wsgi.constants import WsgiEnvVar
-from cardinal_pythonlib.wsgi.reverse_proxied_mw import ReverseProxiedConfig
 from rich_argparse import (
     ArgumentDefaultsRichHelpFormatter,
     RawDescriptionRichHelpFormatter,
@@ -88,7 +86,6 @@ from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 if TYPE_CHECKING:
     # noinspection PyProtectedMember,PyUnresolvedReferences
     from argparse import _SubParsersAction
-    from pyramid.router import Router
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -424,47 +421,12 @@ def _cmd_cris_dd(filename: str, recipient_name: str) -> None:
 # -----------------------------------------------------------------------------
 
 
-def make_wsgi_app_from_config(cfg: "CamcopsConfig") -> "Router":
-    """
-    Creates a WSGI application from the config.
-    """
-    import camcops_server.camcops_server_core as core
-
-    # ... delayed import; import side effects
-
-    reverse_proxied_config = ReverseProxiedConfig(
-        trusted_proxy_headers=cfg.trusted_proxy_headers,
-        http_host=cfg.proxy_http_host,
-        remote_addr=cfg.proxy_remote_addr,
-        script_name=(
-            cfg.proxy_script_name or os.environ.get(WsgiEnvVar.SCRIPT_NAME, "")
-        ),
-        server_port=cfg.proxy_server_port,
-        server_name=cfg.proxy_server_name,
-        url_scheme=cfg.proxy_url_scheme,
-        rewrite_path_info=cfg.proxy_rewrite_path_info,
-    )
-    return core.make_wsgi_app(
-        debug_toolbar=cfg.debug_toolbar,
-        reverse_proxied_config=reverse_proxied_config,
-        debug_reverse_proxy=cfg.debug_reverse_proxy,
-        show_requests=cfg.show_requests,
-        show_request_immediately=cfg.show_request_immediately,
-        show_response=cfg.show_response,
-        show_timing=cfg.show_timing,
-        static_cache_duration_s=cfg.static_cache_duration_s,
-    )
-
-
 def _test_serve_pyramid(cfg: "CamcopsConfig") -> None:
     import camcops_server.camcops_server_core as core
 
     # ... delayed import; import side effects
 
-    application = make_wsgi_app_from_config(cfg)
-    core.test_serve_pyramid(
-        application=application, host=cfg.host, port=cfg.port
-    )
+    core.test_serve_pyramid(cfg)
 
 
 def _serve_cherrypy(cfg: "CamcopsConfig") -> None:
@@ -472,20 +434,7 @@ def _serve_cherrypy(cfg: "CamcopsConfig") -> None:
 
     # ... delayed import; import side effects
 
-    application = make_wsgi_app_from_config(cfg)
-    core.serve_cherrypy(
-        application=application,
-        host=cfg.host,
-        port=cfg.port,
-        unix_domain_socket_filename=cfg.unix_domain_socket,
-        threads_start=cfg.cherrypy_threads_start,
-        threads_max=cfg.cherrypy_threads_max,
-        server_name=cfg.cherrypy_server_name,
-        log_screen=cfg.cherrypy_root_path,
-        ssl_certificate=cfg.ssl_certificate,
-        ssl_private_key=cfg.ssl_private_key,
-        root_path=cfg.cherrypy_root_path,
-    )
+    core.serve_cherrypy(cfg)
 
 
 def _serve_gunicorn(cfg: "CamcopsConfig") -> None:
@@ -493,19 +442,7 @@ def _serve_gunicorn(cfg: "CamcopsConfig") -> None:
 
     # ... delayed import; import side effects
 
-    application = make_wsgi_app_from_config(cfg)
-    core.serve_gunicorn(
-        application=application,
-        host=cfg.host,
-        port=cfg.port,
-        unix_domain_socket_filename=cfg.unix_domain_socket,
-        num_workers=cfg.gunicorn_num_workers,
-        ssl_certificate=cfg.ssl_certificate,
-        ssl_private_key=cfg.ssl_private_key,
-        reload=cfg.gunicorn_debug_reload,
-        timeout_s=cfg.gunicorn_timeout_s,
-        debug_show_gunicorn_options=cfg.debug_show_gunicorn_options,
-    )
+    core.serve_gunicorn(cfg)
 
 
 # -----------------------------------------------------------------------------
