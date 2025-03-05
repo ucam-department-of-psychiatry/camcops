@@ -48,7 +48,7 @@ from cardinal_pythonlib.sqlalchemy.session import SQLITE_MEMORY_URL
 from sqlalchemy.dialects.mysql.base import MySQLDialect
 from sqlalchemy.engine import create_engine
 from sqlalchemy.engine.interfaces import Dialect
-from sqlalchemy.orm import MappedColumn, Session as SqlASession, sessionmaker
+from sqlalchemy.orm import Session as SqlASession, sessionmaker
 from sqlalchemy.sql.schema import Column
 
 from camcops_server.cc_modules.cc_constants import TABLET_ID_FIELD
@@ -82,7 +82,7 @@ MIN_STRING_LENGTH_TO_CONSIDER_SCRUBBING = 256
 
 def _gen_columns_for_anon_staging_db(
     req: "CamcopsRequest", recipient: "ExportRecipientInfo"
-) -> Generator[Union[Column, MappedColumn], None, None]:
+) -> Generator[Column, None, None]:
     """
     Generates all columns for an anonymisation staging database.
     """
@@ -129,7 +129,7 @@ def _get_type_size_as_text_from_sqltype(sqltype: str) -> Tuple[str, str]:
 
 # noinspection PyUnusedLocal
 def _get_cris_dd_row(
-    column: Union[Column, MappedColumn, None],
+    column: Union[Column, None],
     recipient: "ExportRecipientInfo",
     dest_dialect: Dialect = None,
 ) -> Dict:
@@ -296,7 +296,7 @@ def write_cris_data_dictionary(
 
 
 def _get_crate_dd_row(
-    column: Union[Column, MappedColumn, None],
+    column: Union[Column, None],
     recipient: "ExportRecipientInfo",
     dest_dialect: Dialect = None,
     src_db: str = "camcops",

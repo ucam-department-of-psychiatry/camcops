@@ -39,7 +39,6 @@ from typing import (
     Tuple,
     Type,
     TYPE_CHECKING,
-    Union,
 )
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -51,7 +50,7 @@ from cardinal_pythonlib.sqlalchemy.orm_inspect import (
 from sqlalchemy import insert, Integer
 from sqlalchemy.exc import CompileError
 from sqlalchemy.engine.base import Engine
-from sqlalchemy.orm import MappedColumn, Session as SqlASession
+from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column, MetaData, Table
 
 from camcops_server.cc_modules.cc_blob import Blob
@@ -231,9 +230,7 @@ class DumpController(object):
                     est, add_extra_id_cols=add_extra_id_cols
                 )
 
-    def gen_all_dest_columns(
-        self,
-    ) -> Generator[Union[Column, MappedColumn], None, None]:
+    def gen_all_dest_columns(self) -> Generator[Column, None, None]:
         """
         Generates all destination columns.
         """
