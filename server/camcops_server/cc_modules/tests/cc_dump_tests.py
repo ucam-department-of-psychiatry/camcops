@@ -41,6 +41,7 @@ from camcops_server.cc_modules.cc_dump import (
     DumpController,
     copy_tasks_and_summaries,
 )
+from camcops_server.cc_modules.cc_db import FN_PK, FN_ADDITION_PENDING
 from camcops_server.cc_modules.cc_patientidnum import extra_id_colname
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_summaryelement import ExtraSummaryTable
@@ -379,7 +380,7 @@ class GenAllDestColumnsTests(DumpTestCase):
                 column.name
             )
 
-        self.assertNotIn(
-            "_addition_pending", table_column_names[column.table.name]
-        )
+        self.assertIn("bmi", table_column_names)
         self.assertNotIn("blobs", table_column_names)
+        self.assertIn(FN_PK, table_column_names["bmi"])
+        self.assertNotIn(FN_ADDITION_PENDING, table_column_names["bmi"])
