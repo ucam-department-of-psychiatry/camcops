@@ -171,12 +171,14 @@ def _get_cris_dd_row(
         identifies_patient = False
 
         if column.info.get("is_camcops_column", False):
-            exempt_from_anonymisation = column.exempt_from_anonymisation
-            identifies_patient = column.identifies_patient
-            if column.permitted_value_checker:
-                valid_values = (
-                    column.permitted_value_checker.permitted_values_csv()
-                )
+            exempt_from_anonymisation = column.info[
+                "exempt_from_anonymisation"
+            ]
+            identifies_patient = column.info["identifies_patient"]
+            if column.info["permitted_value_checker"]:
+                valid_values = column.info[
+                    "permitted_value_checker"
+                ].permitted_values_csv()
 
         needs_scrubbing = is_free_text and not exempt_from_anonymisation
 
@@ -344,9 +346,11 @@ def _get_crate_dd_row(
         )
 
         if column.info.get("is_camcops_column", False):
-            exempt_from_anonymisation = column.exempt_from_anonymisation
-            identifies_patient = column.identifies_patient
-            force_include = column.include_in_anon_staging_db
+            exempt_from_anonymisation = column.info[
+                "exempt_from_anonymisation"
+            ]
+            identifies_patient = column.info["identifies_patient"]
+            force_include = column.info["include_in_anon_staging_db"]
 
         needs_scrubbing = is_free_text and not exempt_from_anonymisation
         desttype = convert_sqla_type_for_dialect(
