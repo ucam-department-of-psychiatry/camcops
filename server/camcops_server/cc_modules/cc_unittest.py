@@ -277,13 +277,15 @@ class DemoDatabaseTestCase(BasicDatabaseTestCase):
                 t2_kwargs.update(patient=patient_with_one_idnum)
 
             if cls.__name__ == "Photo":
-                t1_kwargs.update(
+                blobargs = dict(
                     create_blob__fieldname="photo_blobid",
                     create_blob__filename="some_picture.png",
                     create_blob__mimetype=MimeType.PNG,
                     create_blob__image_rotation_deg_cw=0,
                     create_blob__theblob=DEMO_PNG_BYTES,
                 )
+                t1_kwargs.update(blobargs)
+                t2_kwargs.update(blobargs)
 
             factory_class(**t1_kwargs)
             factory_class(**t2_kwargs)
