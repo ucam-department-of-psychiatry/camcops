@@ -1390,10 +1390,10 @@ class CamcopsConfig(object):
                     f"Duplicate restricted task specification "
                     f"for {xml_taskname!r}"
                 )
-            groupnames = [x.strip() for x in groupnames.split(",")]
-            for gn in groupnames:
+            groupnames_list = [x.strip() for x in groupnames.split(",")]
+            for gn in groupnames_list:
                 validate_group_name(gn)
-            self.restricted_tasks[xml_taskname] = groupnames
+            self.restricted_tasks[xml_taskname] = groupnames_list
 
         self.session_timeout_minutes = _get_int(
             s, cs.SESSION_TIMEOUT_MINUTES, cd.SESSION_TIMEOUT_MINUTES
@@ -1633,7 +1633,7 @@ class CamcopsConfig(object):
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Other attributes
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        self._sqla_engine = None
+        self._sqla_engine: Optional[Engine] = None
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Docker checks
@@ -1919,7 +1919,6 @@ class CamcopsConfig(object):
         Args:
             parser: optional :class:`configparser.ConfigParser` object.
         """
-        self._export_recipients = []  # type: List[ExportRecipientInfo]
         for recip_name in self.export_recipient_names:
             log.debug("Loading export config for recipient {!r}", recip_name)
             try:
