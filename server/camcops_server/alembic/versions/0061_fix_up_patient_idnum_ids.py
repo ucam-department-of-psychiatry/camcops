@@ -46,7 +46,7 @@ from alembic import op
 from sqlalchemy import orm
 from sqlalchemy.engine.strategies import MockEngineStrategy
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import DeclarativeBaseNoMeta
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column
@@ -68,7 +68,8 @@ branch_labels = None
 depends_on = None
 
 
-Base = declarative_base()
+class Base(DeclarativeBaseNoMeta):
+    pass
 
 
 class PatientIdNum(Base):
@@ -94,7 +95,7 @@ class PatientIdNum(Base):
 
 
 # noinspection PyPep8,PyTypeChecker
-def upgrade():
+def upgrade() -> None:
     bind = op.get_bind()
     if isinstance(bind, MockEngineStrategy.MockConnection):
         log.warning("Using mock connection; skipping step")
@@ -109,7 +110,7 @@ def upgrade():
 
 
 # noinspection PyPep8,PyTypeChecker
-def downgrade():
+def downgrade() -> None:
     pass
 
 

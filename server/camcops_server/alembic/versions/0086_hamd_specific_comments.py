@@ -57,7 +57,7 @@ depends_on = None
 
 
 # noinspection PyPep8,PyTypeChecker
-def upgrade():
+def upgrade() -> None:
     with op.batch_alter_table("hamd", schema=None) as batch_op:
         batch_op.alter_column(
             "q1",
@@ -318,7 +318,7 @@ def upgrade():
 
 
 # noinspection PyPep8,PyTypeChecker
-def downgrade():
+def downgrade() -> None:
     with op.batch_alter_table("hamd7", schema=None) as batch_op:
         batch_op.alter_column(
             "q7",
