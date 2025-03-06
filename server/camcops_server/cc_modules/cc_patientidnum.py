@@ -44,7 +44,7 @@ from typing import List, Tuple, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
-from sqlalchemy.orm import MappedColumn, relationship
+from sqlalchemy.orm import mapped_column, Mapped, MappedColumn, relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import BigInteger, Integer
 
@@ -80,16 +80,10 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
 
     __tablename__ = "patient_idnum"
 
-    id = Column(
-        "id",
-        Integer,
-        nullable=False,
+    id: Mapped[int] = mapped_column(
         comment="Primary key on the source tablet device",
     )
-    patient_id = Column(
-        "patient_id",
-        Integer,
-        nullable=False,
+    patient_id: Mapped[int] = mapped_column(
         comment="FK to patient.id (for this device/era)",
     )
     which_idnum = Column(
