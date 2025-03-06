@@ -210,10 +210,14 @@ class DummyDataInserter:
                 return self.faker.random.choice(value_checker.permitted_values)
         text = self.faker.text()
 
-        if column.type.length is None:
+        column_type = column.type
+
+        assert isinstance(column_type, String)
+
+        if column_type.length is None:
             return text
 
-        return text[: column.type.length]
+        return text[: column_type.length]
 
 
 # =============================================================================
@@ -359,7 +363,7 @@ class DummyDataFactory(DummyDataInserter):
 
         self.dbsession.add(patient_idnum)
 
-    def add_tasks(self, patient_id: int):
+    def add_tasks(self, patient_id: int) -> None:
         for cls in Task.all_subclasses_by_tablename():
             task = cls()
             task.id = self.next_id(cls.id)
