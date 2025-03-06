@@ -60,14 +60,13 @@ from fhirclient.models.patient import Patient as FhirPatient
 import hl7
 import pendulum
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.expression import and_, ClauseElement, select
-from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.selectable import SelectBase
 from sqlalchemy.sql import sqltypes
-from sqlalchemy.sql.sqltypes import Integer, UnicodeText
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_audit import audit
 from camcops_server.cc_modules.cc_constants import (
@@ -86,7 +85,6 @@ from camcops_server.cc_modules.cc_dataclasses import SummarySchemaInfo
 from camcops_server.cc_modules.cc_db import (
     GenericTabletRecordMixin,
     PFN_UUID,
-    TABLET_ID_FIELD,
 )
 from camcops_server.cc_modules.cc_fhir import (
     fhir_pk_identifier,
@@ -148,10 +146,7 @@ class Patient(GenericTabletRecordMixin, Base):
 
     __tablename__ = "patient"
 
-    id = Column(
-        TABLET_ID_FIELD,
-        Integer,
-        nullable=False,
+    id: Mapped[int] = mapped_column(
         comment="Primary key (patient ID) on the source tablet device",
         # client PK
     )
