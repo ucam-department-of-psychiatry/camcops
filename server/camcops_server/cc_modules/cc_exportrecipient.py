@@ -39,7 +39,12 @@ from cardinal_pythonlib.sqlalchemy.list_types import (
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
 from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_url
 from sqlalchemy.event.api import listens_for
-from sqlalchemy.orm import reconstructor, Session as SqlASession
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_column,
+    reconstructor,
+    Session as SqlASession,
+)
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import (
     BigInteger,
@@ -191,11 +196,8 @@ class ExportRecipient(ExportRecipientInfo, Base):
     end_datetime_utc = Column(
         "end_datetime_utc", DateTime, comment="End date/time for tasks (UTC)"
     )
-    finalized_only = Column(
-        "finalized_only",
-        Boolean,
+    finalized_only: Mapped[bool] = mapped_column(
         default=True,
-        nullable=False,
         comment="Send only finalized tasks",
     )
     include_anonymous = Column(
