@@ -757,7 +757,7 @@ class PerinatalPoemReport(
 
         # noinspection PyUnresolvedReferences
         query = (
-            select([column("general_comments")])
+            select(column("general_comments"))
             .select_from(self.task.__table__)
             .where(and_(*wheres))
         )

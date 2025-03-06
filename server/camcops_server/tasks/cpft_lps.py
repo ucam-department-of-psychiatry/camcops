@@ -966,7 +966,7 @@ class LPSReportReferredNotDischarged(Report):
         p2 = Patient.__table__.alias("p2")
         i2 = PatientIdNum.__table__.alias("i2")
         discharge = (
-            select(["*"])
+            select("*")
             .select_from(
                 p2.join(
                     CPFTLPSDischarge.__table__,
@@ -1015,7 +1015,7 @@ class LPSReportReferredNotDischarged(Report):
             CPFTLPSReferral.referral_priority,
         ]
         query = (
-            select(select_fields)
+            select(*select_fields)
             .select_from(select_from)
             .where(and_(*wheres))
             .order_by(*order_by)
@@ -1101,7 +1101,7 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
         i2 = PatientIdNum.__table__.alias("i2")
         # noinspection PyUnresolvedReferences
         discharge = (
-            select(["*"])
+            select("*")
             .select_from(
                 p2.join(
                     CPFTLPSDischarge.__table__,
@@ -1149,7 +1149,7 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
         i3 = PatientIdNum.__table__.alias("i3")
         # noinspection PyUnresolvedReferences
         clerking = (
-            select(["*"])
+            select("*")
             .select_from(
                 p3.join(
                     PsychiatricClerking.__table__,
@@ -1197,7 +1197,7 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
             CPFTLPSReferral.referral_priority,
         ]
         query = (
-            select(select_fields)
+            select(*select_fields)
             .select_from(select_from)
             .where(and_(*wheres))
             .order_by(*order_by)

@@ -244,6 +244,7 @@ server/camcops_server
     cc_modules/tests/cc_validator_tests.py.rst
     cc_modules/tests/cc_view_classes_tests.py.rst
     cc_modules/tests/client_api_tests.py.rst
+    cc_modules/tests/merge_db_tests.py.rst
     cc_modules/tests/webview_tests.py.rst
     cc_modules/webview.py.rst
     conftest.py.rst
@@ -485,6 +486,7 @@ server/camcops_server
     tasks/tests/core10_tests.py.rst
     tasks/tests/cpft_covid_medical_tests.py.rst
     tasks/tests/cpft_research_preferences_tests.py.rst
+    tasks/tests/diagnosis_tests.py.rst
     tasks/tests/edeq_tests.py.rst
     tasks/tests/factories.py.rst
     tasks/tests/maas_tests.py.rst
