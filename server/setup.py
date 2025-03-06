@@ -69,7 +69,7 @@ INSTALL_REQUIRES = [
     # "libraryname @ git+https://github.com/owner/reponame@commitsignature#egg==libraryname-version"  # noqa: E501
     "alembic==1.4.2",  # database migrations
     "asteval==0.9.25",  # safe-ish alternative to eval
-    "cardinal_pythonlib @ git+https://github.com/rudolfcardinal/pythonlib@a2f6546d23f1030027f38748b8b76cb9967b9c02#egg==cardinal_pythonlib-2.0.2.dev0a",  # RNC libraries  # noqa: E501
+    "cardinal_pythonlib==2.0.2",  # RNC libraries
     "celery==5.3.6",  # background tasks
     "colander==1.7.0",  # serialization/deserialization from web forms
     "CherryPy==18.6.0",  # web server
