@@ -46,8 +46,7 @@ from alembic import op
 from sqlalchemy import orm
 from sqlalchemy.engine.strategies import MockEngineStrategy
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import Session as SqlASession
+from sqlalchemy.orm import declarative_base, Session as SqlASession
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer
@@ -68,10 +67,10 @@ branch_labels = None
 depends_on = None
 
 
-Base = declarative_base()
+Base = declarative_base()  # not the same metadata as the rest; we redefine
 
 
-class PatientIdNum(Base):
+class TmpPatientIdNum(Base):
     __tablename__ = "patient_idnum"
 
     _pk = Column("_pk", Integer, primary_key=True, autoincrement=True)
@@ -101,7 +100,7 @@ def upgrade():
         return
     session = orm.Session(bind=bind)
 
-    for idnum in session.query(PatientIdNum):
+    for idnum in session.query(TmpPatientIdNum):
         if idnum.id == 0:
             save_with_next_available_id(idnum, session)
 

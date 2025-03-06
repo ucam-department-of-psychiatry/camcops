@@ -946,19 +946,17 @@ def get_server_live_records(
     )
     query = (
         select(
-            [
-                client_pk_clause,  # 0: client PK (or None)
-                table.c[FN_PK],  # 1: server PK
-                table.c[
-                    CLIENT_DATE_FIELD
-                ],  # 2: when last modified (on the server)
-                table.c[MOVE_OFF_TABLET_FIELD],  # 3: move_off_tablet
-                table.c[FN_CURRENT],  # 4: current
-                table.c[FN_ADDITION_PENDING],  # 5
-                table.c[FN_REMOVAL_PENDING],  # 6
-                table.c[FN_PREDECESSOR_PK],  # 7
-                table.c[FN_SUCCESSOR_PK],  # 8
-            ]
+            client_pk_clause,  # 0: client PK (or None)
+            table.c[FN_PK],  # 1: server PK
+            table.c[
+                CLIENT_DATE_FIELD
+            ],  # 2: when last modified (on the server)
+            table.c[MOVE_OFF_TABLET_FIELD],  # 3: move_off_tablet
+            table.c[FN_CURRENT],  # 4: current
+            table.c[FN_ADDITION_PENDING],  # 5
+            table.c[FN_REMOVAL_PENDING],  # 6
+            table.c[FN_PREDECESSOR_PK],  # 7
+            table.c[FN_SUCCESSOR_PK],  # 8
         )
         .where(table.c[FN_DEVICE_ID] == device_id)
         .where(table.c[FN_ERA] == ERA_NOW)
