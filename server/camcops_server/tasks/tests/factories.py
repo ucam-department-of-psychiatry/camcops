@@ -155,7 +155,11 @@ from camcops_server.tasks.pcl5 import Pcl5
 from camcops_server.tasks.pcl import PclC, PclM, PclS
 from camcops_server.tasks.pdss import Pdss
 from camcops_server.tasks.perinatalpoem import PerinatalPoem
-from camcops_server.tasks.photo import Photo, PhotoSequence
+from camcops_server.tasks.photo import (
+    Photo,
+    PhotoSequence,
+    PhotoSequenceSinglePhoto,
+)
 from camcops_server.tasks.phq15 import Phq15
 from camcops_server.tasks.phq8 import Phq8
 from camcops_server.tasks.phq9 import Phq9
@@ -1104,9 +1108,16 @@ class PhotoFactory(TaskHasPatientFactory):
         if not create:
             return
 
-        obj.photo = BlobFactory.create(
-            tablename=obj.tablename, tablepk=obj.id, **kwargs
-        )
+        if "fieldname" not in kwargs:
+            kwargs["fieldname"] = "photo_blobid"
+
+        if "tablename" not in kwargs:
+            kwargs["tablename"] = "photo"
+
+        if "tablepk" not in kwargs:
+            kwargs["tablepk"] = obj.id
+
+        obj.photo = BlobFactory.create(**kwargs)
 
 
 class PhotoSequenceFactory(TaskHasPatientFactory):
@@ -1114,6 +1125,39 @@ class PhotoSequenceFactory(TaskHasPatientFactory):
         model = PhotoSequence
 
     id = factory.Sequence(lambda n: n + 1)
+
+    @factory.post_generation
+    def photos(
+        obj: "Resolver", create: bool, num_photos: int, **kwargs
+    ) -> None:
+        if not create:
+            return
+
+        if num_photos:
+            PhotoSequenceSinglePhotoFactory.create_batch(
+                size=num_photos,
+                photosequence_id=obj.id,
+                _device=obj._device,
+                photo__patient=obj.patient,
+            )
+
+
+class PhotoSequenceSinglePhotoFactory(GenericTabletRecordFactory):
+    class Meta:
+        model = PhotoSequenceSinglePhoto
+
+    id = factory.Sequence(lambda n: n + 1)
+    seqnum = factory.Sequence(lambda n: n + 1)
+
+    @factory.post_generation
+    def photo(
+        obj: "Resolver", create: bool, num_photos: int, **kwargs
+    ) -> None:
+        if not create:
+            return
+
+        patient = kwargs["patient"]
+        obj.photo = PhotoFactory(patient=patient)
 
 
 class Phq15Factory(TaskHasPatientFactory):
