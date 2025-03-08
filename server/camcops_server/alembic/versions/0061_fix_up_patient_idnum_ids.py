@@ -68,11 +68,12 @@ branch_labels = None
 depends_on = None
 
 
+# not the same metadata as the rest; we redefine
 class Base(DeclarativeBaseNoMeta):
     pass
 
 
-class PatientIdNum(Base):
+class TmpPatientIdNum(Base):
     __tablename__ = "patient_idnum"
 
     _pk = Column("_pk", Integer, primary_key=True, autoincrement=True)
@@ -102,7 +103,7 @@ def upgrade() -> None:
         return
     session = orm.Session(bind=bind, future=True)
 
-    for idnum in session.query(PatientIdNum):
+    for idnum in session.query(TmpPatientIdNum):
         if idnum.id == 0:
             save_with_next_available_id(idnum, session)
 

@@ -313,7 +313,6 @@ class TaskCountReport(Report):
                     # Restrict to accessible groups
                     # noinspection PyProtectedMember
                     statement = statement.where(cls._group_id.in_(group_ids))
-
                 rows, colnames = get_rows_fieldnames_from_select(
                     dbsession, statement
                 )
