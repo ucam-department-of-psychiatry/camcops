@@ -44,7 +44,7 @@ from typing import List, Tuple, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
-from sqlalchemy.orm import mapped_column, Mapped, MappedColumn, relationship
+from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import BigInteger, Integer
 
@@ -323,7 +323,7 @@ def extra_id_colname(which_idnum: int) -> str:
     return f"{EXTRA_IDNUM_FIELD_PREFIX}{which_idnum}"
 
 
-def extra_id_column(req: "CamcopsRequest", which_idnum: int) -> MappedColumn:
+def extra_id_column(req: "CamcopsRequest", which_idnum: int) -> Column:
     """
     The column definition used for the extra ID number columns provided by the
     ``DB_PATIENT_ID_PER_ROW`` export option.
@@ -345,7 +345,7 @@ def extra_id_column(req: "CamcopsRequest", which_idnum: int) -> MappedColumn:
     )
 
 
-def all_extra_id_columns(req: "CamcopsRequest") -> List[MappedColumn]:
+def all_extra_id_columns(req: "CamcopsRequest") -> List[Column]:
     """
     Returns all column definitions used for the extra ID number columns
     provided by the ``DB_PATIENT_ID_PER_ROW`` export option.
