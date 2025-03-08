@@ -68,14 +68,14 @@ depends_on = None
 
 
 # noinspection PyPep8,PyTypeChecker
-def upgrade():
+def upgrade() -> None:
     bind = op.get_bind()
     if isinstance(bind, MockEngineStrategy.MockConnection):
         log.warning("Using mock connection; skipping step")
         return
     # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)  # for echo
     # bind._echo = True  # echo on, in a hacky way
-    dbsession = orm.Session(bind=bind)
+    dbsession = orm.Session(bind=bind, future=True)
 
     # Some shorthand:
     # noinspection PyUnresolvedReferences
@@ -95,5 +95,5 @@ def upgrade():
 
 
 # noinspection PyPep8,PyTypeChecker
-def downgrade():
+def downgrade() -> None:
     pass

@@ -92,6 +92,7 @@ SKIP_GLOBS = [
     "*/static/*",
     "__init__.py",
     "*_plugin_import.cpp",
+    "*/htmlcov/*",
 ]
 
 PYGMENTS_OVERRIDE = {

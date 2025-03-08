@@ -26,10 +26,9 @@ camcops_server/tasks/cet.py
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Dict, List, Optional, Type, Union
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Float
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -79,14 +78,34 @@ Taranis et al. (2011), {pmid(21584918)}; Meyer et al. (2016), {pmid(27547403)}.
 # =============================================================================
 
 
-class CetMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Cet"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Cet(
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the CET task.
+    """
+
+    __tablename__ = "cet"
+    shortname = "CET"
+    provides_trackers = True
+
+    FIRST_Q = 1
+    N_QUESTIONS = 24
+    MIN_ANSWER = 0
+    MAX_ANSWER = 5
+    MAX_SUBSCALE_SCORE = MAX_ANSWER
+    N_SUBSCALES = 5
+    MAX_TOTAL_SCORE = MAX_SUBSCALE_SCORE * N_SUBSCALES
+    Q_REVERSE_SCORED = [8, 12]
+    Q_SUBSCALE_1_AVOID_RULE = [9, 10, 11, 15, 16, 20, 22, 23]
+    Q_SUBSCALE_2_WT_CONTROL = [2, 6, 8, 13, 18]
+    Q_SUBSCALE_3_MOOD = [1, 4, 14, 17, 24]
+    Q_SUBSCALE_4_LACK_EX_ENJOY = [5, 12, 21]
+    Q_SUBSCALE_5_EX_RIGIDITY = [3, 7, 19]
+
+    @classmethod
+    def extend_table(cls: Type["Cet"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -122,31 +141,7 @@ class CetMetaclass(DeclarativeMeta):
                 "less depressed/low after exercise",  # 24
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Cet(TaskHasPatientMixin, Task, metaclass=CetMetaclass):
-    """
-    Server implementation of the CET task.
-    """
-
-    __tablename__ = "cet"
-    shortname = "CET"
-    provides_trackers = True
-
-    FIRST_Q = 1
-    N_QUESTIONS = 24
-    MIN_ANSWER = 0
-    MAX_ANSWER = 5
-    MAX_SUBSCALE_SCORE = MAX_ANSWER
-    N_SUBSCALES = 5
-    MAX_TOTAL_SCORE = MAX_SUBSCALE_SCORE * N_SUBSCALES
-    Q_REVERSE_SCORED = [8, 12]
-    Q_SUBSCALE_1_AVOID_RULE = [9, 10, 11, 15, 16, 20, 22, 23]
-    Q_SUBSCALE_2_WT_CONTROL = [2, 6, 8, 13, 18]
-    Q_SUBSCALE_3_MOOD = [1, 4, 14, 17, 24]
-    Q_SUBSCALE_4_LACK_EX_ENJOY = [5, 12, 21]
-    Q_SUBSCALE_5_EX_RIGIDITY = [3, 7, 19]
     QUESTIONS = strseq("q", FIRST_Q, N_QUESTIONS)  # fields and string names
     SUBSCALE_LOOKUP = {
         1: Q_SUBSCALE_1_AVOID_RULE,

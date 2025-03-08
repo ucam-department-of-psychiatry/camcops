@@ -48,7 +48,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    camcops_column,
 )
 from camcops_server.cc_modules.cc_string import AS
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -73,42 +73,42 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     shortname = "ICD10-SZ"
     info_filename_stem = "icd"
 
-    passivity_bodily = CamcopsColumn(
+    passivity_bodily = camcops_column(
         "passivity_bodily",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Passivity: delusions of control, influence, or "
         "passivity, clearly referred to body or limb movements...",
     )
-    passivity_mental = CamcopsColumn(
+    passivity_mental = camcops_column(
         "passivity_mental",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="(passivity) ... or to specific thoughts, actions, or "
         "sensations.",
     )
-    hv_commentary = CamcopsColumn(
+    hv_commentary = camcops_column(
         "hv_commentary",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Hallucinatory voices giving a running commentary on the "
         "patient's behaviour",
     )
-    hv_discussing = CamcopsColumn(
+    hv_discussing = camcops_column(
         "hv_discussing",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Hallucinatory voices discussing the patient among "
         "themselves",
     )
-    hv_from_body = CamcopsColumn(
+    hv_from_body = camcops_column(
         "hv_from_body",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Other types of hallucinatory voices coming from some "
         "part of the body",
     )
-    delusions = CamcopsColumn(
+    delusions = camcops_column(
         "delusions",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -118,35 +118,35 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "abilities (e.g. being able to control the weather, or being "
         "in communication with aliens from another world).",
     )
-    delusional_perception = CamcopsColumn(
+    delusional_perception = camcops_column(
         "delusional_perception",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Delusional perception [a normal perception, "
         "delusionally interpreted]",
     )
-    thought_echo = CamcopsColumn(
+    thought_echo = camcops_column(
         "thought_echo",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Thought echo [hearing one's own thoughts aloud, just "
         "before, just after, or simultaneously with the thought]",
     )
-    thought_withdrawal = CamcopsColumn(
+    thought_withdrawal = camcops_column(
         "thought_withdrawal",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Thought withdrawal [the feeling that one's thoughts "
         "have been removed by an outside agency]",
     )
-    thought_insertion = CamcopsColumn(
+    thought_insertion = camcops_column(
         "thought_insertion",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Thought insertion [the feeling that one's thoughts have "
         "been placed there from outside]",
     )
-    thought_broadcasting = CamcopsColumn(
+    thought_broadcasting = camcops_column(
         "thought_broadcasting",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -155,7 +155,7 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "others, or that others think the same thoughts in unison]",
     )
 
-    hallucinations_other = CamcopsColumn(
+    hallucinations_other = camcops_column(
         "hallucinations_other",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -165,7 +165,7 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "over-valued ideas, or when occurring every day for weeks or "
         "months on end.",
     )
-    thought_disorder = CamcopsColumn(
+    thought_disorder = camcops_column(
         "thought_disorder",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -173,7 +173,7 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "of thought, resulting in incoherence or irrelevant speech, "
         "or neologisms.",
     )
-    catatonia = CamcopsColumn(
+    catatonia = camcops_column(
         "catatonia",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -182,7 +182,7 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "stupor.",
     )
 
-    negative = CamcopsColumn(
+    negative = camcops_column(
         "negative",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -194,7 +194,7 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "medication.",
     )
 
-    present_one_month = CamcopsColumn(
+    present_one_month = camcops_column(
         "present_one_month",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -203,19 +203,19 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "one month (or at some time during most of the days).",
     )
 
-    also_manic = CamcopsColumn(
+    also_manic = camcops_column(
         "also_manic",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Also meets criteria for manic episode (F30)?",
     )
-    also_depressive = CamcopsColumn(
+    also_depressive = camcops_column(
         "also_depressive",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Also meets criteria for depressive episode (F32)?",
     )
-    if_mood_psychosis_first = CamcopsColumn(
+    if_mood_psychosis_first = camcops_column(
         "if_mood_psychosis_first",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -224,7 +224,7 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "must have been met before the disturbance of mood developed.",
     )
 
-    not_organic_or_substance = CamcopsColumn(
+    not_organic_or_substance = camcops_column(
         "not_organic_or_substance",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -233,7 +233,7 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "intoxication, dependence or withdrawal.",
     )
 
-    behaviour_change = CamcopsColumn(
+    behaviour_change = camcops_column(
         "behaviour_change",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -242,7 +242,7 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "loss of interest, aimlessness, idleness, a self-absorbed "
         "attitude, and social withdrawal.",
     )
-    performance_decline = CamcopsColumn(
+    performance_decline = camcops_column(
         "performance_decline",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -250,13 +250,13 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "performance.",
     )
 
-    subtype_paranoid = CamcopsColumn(
+    subtype_paranoid = camcops_column(
         "subtype_paranoid",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="PARANOID (F20.0): dominated by delusions or hallucinations.",
     )
-    subtype_hebephrenic = CamcopsColumn(
+    subtype_hebephrenic = camcops_column(
         "subtype_hebephrenic",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -265,7 +265,7 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "either pronounced thought disorder or aimless, disjointed "
         "behaviour is present.",
     )
-    subtype_catatonic = CamcopsColumn(
+    subtype_catatonic = camcops_column(
         "subtype_catatonic",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -274,7 +274,7 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "rigidity, waxy flexibility, command automatisms, or verbal "
         "perseveration).",
     )
-    subtype_undifferentiated = CamcopsColumn(
+    subtype_undifferentiated = camcops_column(
         "subtype_undifferentiated",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -282,7 +282,7 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "psychosis fitting none or more than one of the above three "
         "types.",
     )
-    subtype_postschizophrenic_depression = CamcopsColumn(
+    subtype_postschizophrenic_depression = camcops_column(
         "subtype_postschizophrenic_depression",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -292,7 +292,7 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "schizophrenic symptoms persist but are not as prominent as "
         "the depression.",
     )
-    subtype_residual = CamcopsColumn(
+    subtype_residual = camcops_column(
         "subtype_residual",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -300,7 +300,7 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "of schizophrenia have given way to a chronic condition with "
         "'negative' symptoms of schizophrenia for at least 1 year.",
     )
-    subtype_simple = CamcopsColumn(
+    subtype_simple = camcops_column(
         "subtype_simple",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -311,7 +311,7 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "well-formed delusions), and with a marked decline in social, "
         "scholastic, or occupational performance.",
     )
-    subtype_cenesthopathic = CamcopsColumn(
+    subtype_cenesthopathic = camcops_column(
         "subtype_cenesthopathic",
         Boolean,
         permitted_value_checker=BIT_CHECKER,

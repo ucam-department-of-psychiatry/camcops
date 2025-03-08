@@ -46,7 +46,7 @@ from camcops_server.cc_modules.cc_snomed import (
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     PermittedValueChecker,
 )
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
@@ -79,19 +79,19 @@ class Bmi(TaskHasPatientMixin, Task):
     shortname = "BMI"
     provides_trackers = True
 
-    height_m = CamcopsColumn(
+    height_m = camcops_column(
         "height_m",
         Float,
         permitted_value_checker=PermittedValueChecker(minimum=0),
         comment="height (m)",
     )
-    mass_kg = CamcopsColumn(
+    mass_kg = camcops_column(
         "mass_kg",
         Float,
         permitted_value_checker=PermittedValueChecker(minimum=0),
         comment="mass (kg)",
     )
-    waist_cm = CamcopsColumn(
+    waist_cm = camcops_column(
         "waist_cm",
         Float,
         permitted_value_checker=PermittedValueChecker(minimum=0),

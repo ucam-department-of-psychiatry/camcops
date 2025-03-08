@@ -25,10 +25,9 @@ camcops_server/tasks/phq15.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -56,14 +55,23 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Phq15Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Phq15"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Phq15(
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the PHQ-15 task.
+    """
+
+    __tablename__ = "phq15"
+    shortname = "PHQ-15"
+    provides_trackers = True
+
+    NQUESTIONS = 15
+    MAX_TOTAL = 30
+
+    @classmethod
+    def extend_table(cls: Type["Phq15"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -91,20 +99,6 @@ class Phq15Metaclass(DeclarativeMeta):
                 "sleep",
             ],
         )
-        super().__init__(name, bases, classdict)
-
-
-class Phq15(TaskHasPatientMixin, Task, metaclass=Phq15Metaclass):
-    """
-    Server implementation of the PHQ-15 task.
-    """
-
-    __tablename__ = "phq15"
-    shortname = "PHQ-15"
-    provides_trackers = True
-
-    NQUESTIONS = 15
-    MAX_TOTAL = 30
 
     ONE_TO_THREE = strseq("q", 1, 3)
     FIVE_TO_END = strseq("q", 5, NQUESTIONS)

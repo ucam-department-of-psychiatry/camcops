@@ -170,7 +170,7 @@ class DummyDataInserter:
         min_value = self.DEFAULT_MIN_INTEGER
         max_value = self.DEFAULT_MAX_INTEGER
 
-        value_checker = getattr(column, COLATTR_PERMITTED_VALUE_CHECKER, None)
+        value_checker = column.info.get(COLATTR_PERMITTED_VALUE_CHECKER)
 
         if value_checker is not None:
             if value_checker.permitted_values is not None:
@@ -188,7 +188,7 @@ class DummyDataInserter:
         min_value = self.DEFAULT_MIN_FLOAT
         max_value = self.DEFAULT_MAX_FLOAT
 
-        value_checker = getattr(column, COLATTR_PERMITTED_VALUE_CHECKER, None)
+        value_checker = column.info.get(COLATTR_PERMITTED_VALUE_CHECKER)
 
         if value_checker is not None:
             if value_checker.permitted_values is not None:
@@ -203,17 +203,21 @@ class DummyDataInserter:
         return self.faker.random.uniform(min_value, max_value)
 
     def get_valid_string_for_field(self, column: Column) -> str:
-        value_checker = getattr(column, COLATTR_PERMITTED_VALUE_CHECKER, None)
+        value_checker = column.info.get(COLATTR_PERMITTED_VALUE_CHECKER)
 
         if value_checker is not None:
             if value_checker.permitted_values is not None:
                 return self.faker.random.choice(value_checker.permitted_values)
         text = self.faker.text()
 
-        if column.type.length is None:
+        column_type = column.type
+
+        assert isinstance(column_type, String)
+
+        if column_type.length is None:
             return text
 
-        return text[: column.type.length]
+        return text[: column_type.length]
 
 
 # =============================================================================
@@ -234,7 +238,9 @@ class DummyDataFactory(DummyDataInserter):
     def __init__(self, cfg: "CamcopsConfig") -> None:
         super().__init__()
         engine = cfg.get_sqla_engine()
-        self.dbsession = sessionmaker()(bind=engine)  # type: SqlASession
+        self.dbsession = sessionmaker()(
+            bind=engine, future=True
+        )  # type: SqlASession
 
         self.era_time = pendulum.now()
         self.era_time_utc = convert_datetime_to_utc(self.era_time)
@@ -357,7 +363,7 @@ class DummyDataFactory(DummyDataInserter):
 
         self.dbsession.add(patient_idnum)
 
-    def add_tasks(self, patient_id: int):
+    def add_tasks(self, patient_id: int) -> None:
         for cls in Task.all_subclasses_by_tablename():
             task = cls()
             task.id = self.next_id(cls.id)

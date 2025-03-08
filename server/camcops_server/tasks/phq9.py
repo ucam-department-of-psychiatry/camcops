@@ -26,10 +26,9 @@ camcops_server/tasks/phq9.py
 """
 
 import logging
-from typing import Any, Dict, List, Tuple, Type
+from typing import Dict, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -44,7 +43,7 @@ from camcops_server.cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     SummaryCategoryColType,
     ZERO_TO_THREE_CHECKER,
 )
@@ -69,14 +68,20 @@ log = logging.getLogger(__name__)
 # =============================================================================
 
 
-class Phq9Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Phq9"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Phq9(
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the PHQ9 task.
+    """
+
+    __tablename__ = "phq9"
+    shortname = "PHQ-9"
+    provides_trackers = True
+
+    @classmethod
+    def extend_table(cls: Type["Phq9"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -97,19 +102,8 @@ class Phq9Metaclass(DeclarativeMeta):
                 "death/self-harm",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Phq9(TaskHasPatientMixin, Task, metaclass=Phq9Metaclass):
-    """
-    Server implementation of the PHQ9 task.
-    """
-
-    __tablename__ = "phq9"
-    shortname = "PHQ-9"
-    provides_trackers = True
-
-    q10 = CamcopsColumn(
+    q10 = camcops_column(
         "q10",
         Integer,
         permitted_value_checker=ZERO_TO_THREE_CHECKER,

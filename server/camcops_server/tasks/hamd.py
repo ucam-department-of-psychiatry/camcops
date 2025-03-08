@@ -25,10 +25,10 @@ camcops_server/tasks/hamd.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.orm import MappedColumn
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -38,7 +38,7 @@ from camcops_server.cc_modules.cc_html import answer, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     SummaryCategoryColType,
     ZERO_TO_ONE_CHECKER,
     ZERO_TO_TWO_CHECKER,
@@ -69,69 +69,10 @@ MAX_SCORE = (
 )  # ... and not scored beyond Q17... total 52
 
 
-class HamdMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Hamd"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
-        add_multiple_columns(
-            cls,
-            "q",
-            1,
-            15,
-            comment_fmt="Q{n}, {s} (scored 0-4, except 0-2 for "
-            "Q4-6/12-14, higher worse)",
-            minimum=0,
-            maximum=4,  # amended below
-            comment_strings=[
-                "depressed mood",
-                "guilt",
-                "suicide",
-                "early insomnia",
-                "middle insomnia",
-                "late insomnia",
-                "work/activities",
-                "psychomotor retardation",
-                "agitation",
-                "anxiety, psychological",
-                "anxiety, somatic",
-                "somatic symptoms, gastointestinal",
-                "somatic symptoms, general",
-                "genital symptoms",
-                "hypochondriasis",
-            ],
-        )
-        add_multiple_columns(
-            cls,
-            "q",
-            19,
-            21,
-            comment_fmt="Q{n} (not scored), {s} (0-4 for Q19, "
-            "0-3 for Q20, 0-2 for Q21, higher worse)",
-            minimum=0,
-            maximum=4,  # below
-            comment_strings=[
-                "depersonalization/derealization",
-                "paranoid symptoms",
-                "obsessional/compulsive symptoms",
-            ],
-        )
-        # Now fix the wrong bits. Hardly elegant!
-        for qnum in (4, 5, 6, 12, 13, 14, 21):
-            qname = "q" + str(qnum)
-            col = getattr(cls, qname)
-            col.set_permitted_value_checker(ZERO_TO_TWO_CHECKER)
-        # noinspection PyUnresolvedReferences
-        cls.q20.set_permitted_value_checker(ZERO_TO_THREE_CHECKER)
-
-        super().__init__(name, bases, classdict)
-
-
 class Hamd(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=HamdMetaclass
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
 ):
     """
     Server implementation of the HAM-D task.
@@ -143,6 +84,116 @@ class Hamd(
 
     NSCOREDQUESTIONS = 17
     NQUESTIONS = 21
+
+    @classmethod
+    def extend_table(cls: Type["Hamd"], **kwargs) -> None:
+        add_multiple_columns(
+            cls,
+            "q",
+            1,
+            3,
+            comment_fmt="Q{n}, {s} (scored 0-4, higher worse)",
+            minimum=0,
+            maximum=4,
+            comment_strings=[
+                "depressed mood",
+                "guilt",
+                "suicide",
+            ],
+        )
+        add_multiple_columns(
+            cls,
+            "q",
+            4,
+            6,
+            comment_fmt="Q{n}, {s} (scored 0-2, higher worse)",
+            minimum=0,
+            maximum=2,
+            comment_strings=[
+                "early insomnia",
+                "middle insomnia",
+                "late insomnia",
+            ],
+        )
+        add_multiple_columns(
+            cls,
+            "q",
+            7,
+            11,
+            comment_fmt="Q{n}, {s} (scored 0-4, higher worse)",
+            minimum=0,
+            maximum=4,
+            comment_strings=[
+                "work/activities",
+                "psychomotor retardation",
+                "agitation",
+                "anxiety, psychological",
+                "anxiety, somatic",
+            ],
+        )
+        add_multiple_columns(
+            cls,
+            "q",
+            12,
+            14,
+            comment_fmt="Q{n}, {s} (scored 0-2, higher worse)",
+            minimum=0,
+            maximum=2,
+            comment_strings=[
+                "somatic symptoms, gastointestinal",
+                "somatic symptoms, general",
+                "genital symptoms",
+            ],
+        )
+        add_multiple_columns(
+            cls,
+            "q",
+            15,
+            15,
+            comment_fmt="Q{n}, {s} (scored 0-4, higher worse)",
+            minimum=0,
+            maximum=4,
+            comment_strings=[
+                "hypochondriasis",
+            ],
+        )
+        add_multiple_columns(
+            cls,
+            "q",
+            19,
+            19,
+            comment_fmt="Q{n} (not scored), {s} (0-4, higher worse)",
+            minimum=0,
+            maximum=4,
+            comment_strings=[
+                "depersonalization/derealization",
+            ],
+        )
+        add_multiple_columns(
+            cls,
+            "q",
+            20,
+            20,
+            comment_fmt="Q{n} (not scored), {s} (0-3, higher worse)",
+            minimum=0,
+            maximum=3,
+            comment_strings=[
+                "paranoid symptoms",
+            ],
+        )
+        add_multiple_columns(
+            cls,
+            "q",
+            21,
+            21,
+            comment_fmt="Q{n} (not scored), {s} (0-2, higher worse)",
+            minimum=0,
+            maximum=2,
+            comment_strings=[
+                "obsessional/compulsive symptoms",
+            ],
+        )
+
     TASK_FIELDS = strseq("q", 1, NQUESTIONS) + [
         "whichq16",
         "q16a",
@@ -152,41 +203,41 @@ class Hamd(
         "q18b",
     ]
 
-    whichq16 = CamcopsColumn(
+    whichq16 = camcops_column(
         "whichq16",
         Integer,
         permitted_value_checker=ZERO_TO_ONE_CHECKER,
         comment="Method of assessing weight loss (0 = A, by history; "
         "1 = B, by measured change)",
     )
-    q16a = CamcopsColumn(
+    q16a = camcops_column(
         "q16a",
         Integer,
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment="Q16A, weight loss, by history (0 none - 2 definite,"
         " or 3 not assessed [not scored])",
     )
-    q16b = CamcopsColumn(
+    q16b = camcops_column(
         "q16b",
         Integer,
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment="Q16B, weight loss, by measurement (0 none - "
         "2 more than 2lb, or 3 not assessed [not scored])",
     )
-    q17 = CamcopsColumn(
+    q17 = camcops_column(
         "q17",
         Integer,
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q17, lack of insight (0-2, higher worse)",
     )
-    q18a = CamcopsColumn(
+    q18a = camcops_column(
         "q18a",
         Integer,
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q18A (not scored), diurnal variation, presence "
         "(0 none, 1 worse AM, 2 worse PM)",
     )
-    q18b = CamcopsColumn(
+    q18b = camcops_column(
         "q18b",
         Integer,
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
@@ -345,10 +396,10 @@ class Hamd(
                 if q == "q16a" or q == "q16b":
                     rangestr = " <sup>range 0–2; ‘3’ not scored</sup>"
                 else:
-                    col = getattr(self.__class__, q)  # type: CamcopsColumn
+                    col = getattr(self.__class__, q)  # type: MappedColumn
                     rangestr = " <sup>range {}–{}</sup>".format(
-                        col.permitted_value_checker.minimum,
-                        col.permitted_value_checker.maximum,
+                        col.info["permitted_value_checker"].minimum,
+                        col.info["permitted_value_checker"].maximum,
                     )
                 qstr = self.wxstring(req, "" + q + "_s") + rangestr
             q_a += tr_qa(

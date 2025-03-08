@@ -39,7 +39,6 @@ from typing import (
     Tuple,
     Type,
     TYPE_CHECKING,
-    Union,
 )
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -75,7 +74,7 @@ from camcops_server.cc_modules.cc_patientidnum import (
     all_extra_id_columns,
     PatientIdNum,
 )
-from camcops_server.cc_modules.cc_sqla_coltypes import CamcopsColumn
+from camcops_server.cc_modules.cc_sqla_coltypes import camcops_column
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_user import User
 
@@ -231,9 +230,7 @@ class DumpController(object):
                     est, add_extra_id_cols=add_extra_id_cols
                 )
 
-    def gen_all_dest_columns(
-        self,
-    ) -> Generator[Union[Column, CamcopsColumn], None, None]:
+    def gen_all_dest_columns(self) -> Generator[Column, None, None]:
         """
         Generates all destination columns.
         """
@@ -353,7 +350,7 @@ class DumpController(object):
             if isinstance(src_obj, GenericTabletRecordMixin):
                 for summary_element in src_obj.get_summaries(self.req):
                     changed_columns.append(
-                        CamcopsColumn(
+                        camcops_column(
                             summary_element.name,
                             summary_element.coltype,
                             exempt_from_anonymisation=True,

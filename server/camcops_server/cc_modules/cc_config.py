@@ -1390,10 +1390,10 @@ class CamcopsConfig(object):
                     f"Duplicate restricted task specification "
                     f"for {xml_taskname!r}"
                 )
-            groupnames = [x.strip() for x in groupnames.split(",")]
-            for gn in groupnames:
+            groupnames_list = [x.strip() for x in groupnames.split(",")]
+            for gn in groupnames_list:
                 validate_group_name(gn)
-            self.restricted_tasks[xml_taskname] = groupnames
+            self.restricted_tasks[xml_taskname] = groupnames_list
 
         self.session_timeout_minutes = _get_int(
             s, cs.SESSION_TIMEOUT_MINUTES, cd.SESSION_TIMEOUT_MINUTES
@@ -1633,7 +1633,7 @@ class CamcopsConfig(object):
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Other attributes
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        self._sqla_engine = None
+        self._sqla_engine: Optional[Engine] = None
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Docker checks
@@ -1767,6 +1767,7 @@ class CamcopsConfig(object):
                 self.db_url,
                 echo=self.db_echo,
                 pool_pre_ping=True,
+                future=True,
                 # pool_size=0,  # no limit (for parallel testing, which failed)
             )
             log.debug(
@@ -1792,7 +1793,7 @@ class CamcopsConfig(object):
         """
         engine = self.get_sqla_engine()
         maker = sessionmaker(bind=engine)
-        dbsession = maker()  # type: SqlASession
+        dbsession = maker(future=True)  # type: SqlASession
         return dbsession
 
     @contextlib.contextmanager
@@ -1918,7 +1919,6 @@ class CamcopsConfig(object):
         Args:
             parser: optional :class:`configparser.ConfigParser` object.
         """
-        self._export_recipients = []  # type: List[ExportRecipientInfo]
         for recip_name in self.export_recipient_names:
             log.debug("Loading export config for recipient {!r}", recip_name)
             try:

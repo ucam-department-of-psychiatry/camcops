@@ -38,7 +38,7 @@ from camcops_server.cc_modules.cc_html import answer, tr
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     PermittedValueChecker,
 )
 from camcops_server.cc_modules.cc_string import AS
@@ -65,7 +65,7 @@ class Gaf(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     shortname = "GAF"
     provides_trackers = True
 
-    score = CamcopsColumn(
+    score = camcops_column(
         "score",
         Integer,
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=100),

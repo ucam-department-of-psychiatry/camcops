@@ -25,10 +25,9 @@ camcops_server/tasks/ciwa.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Float, Integer
 
@@ -44,7 +43,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     MIN_ZERO_CHECKER,
     PermittedValueChecker,
     SummaryCategoryColType,
@@ -68,14 +67,23 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class CiwaMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Ciwa"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Ciwa(
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
+):
+    """
+    Server implementation of the CIWA-Ar task.
+    """
+
+    __tablename__ = "ciwa"
+    shortname = "CIWA-Ar"
+    provides_trackers = True
+
+    NSCOREDQUESTIONS = 10
+
+    @classmethod
+    def extend_table(cls: Type["Ciwa"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -96,49 +104,35 @@ class CiwaMetaclass(DeclarativeMeta):
                 "headache/fullness in head",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Ciwa(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=CiwaMetaclass
-):
-    """
-    Server implementation of the CIWA-Ar task.
-    """
-
-    __tablename__ = "ciwa"
-    shortname = "CIWA-Ar"
-    provides_trackers = True
-
-    NSCOREDQUESTIONS = 10
     SCORED_QUESTIONS = strseq("q", 1, NSCOREDQUESTIONS)
 
-    q10 = CamcopsColumn(
+    q10 = camcops_column(
         "q10",
         Integer,
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=4),
         comment="Q10, orientation/clouding of sensorium (0-4, higher worse)",
     )
     t = Column("t", Float, comment="Temperature (degrees C)")
-    hr = CamcopsColumn(
+    hr = camcops_column(
         "hr",
         Integer,
         permitted_value_checker=MIN_ZERO_CHECKER,
         comment="Heart rate (beats/minute)",
     )
-    sbp = CamcopsColumn(
+    sbp = camcops_column(
         "sbp",
         Integer,
         permitted_value_checker=MIN_ZERO_CHECKER,
         comment="Systolic blood pressure (mmHg)",
     )
-    dbp = CamcopsColumn(
+    dbp = camcops_column(
         "dbp",
         Integer,
         permitted_value_checker=MIN_ZERO_CHECKER,
         comment="Diastolic blood pressure (mmHg)",
     )
-    rr = CamcopsColumn(
+    rr = camcops_column(
         "rr",
         Integer,
         permitted_value_checker=MIN_ZERO_CHECKER,

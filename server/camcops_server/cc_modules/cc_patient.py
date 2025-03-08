@@ -60,14 +60,13 @@ from fhirclient.models.patient import Patient as FhirPatient
 import hl7
 import pendulum
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.expression import and_, ClauseElement, select
-from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.selectable import SelectBase
 from sqlalchemy.sql import sqltypes
-from sqlalchemy.sql.sqltypes import Integer, UnicodeText
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_audit import audit
 from camcops_server.cc_modules.cc_constants import (
@@ -86,7 +85,6 @@ from camcops_server.cc_modules.cc_dataclasses import SummarySchemaInfo
 from camcops_server.cc_modules.cc_db import (
     GenericTabletRecordMixin,
     PFN_UUID,
-    TABLET_ID_FIELD,
 )
 from camcops_server.cc_modules.cc_fhir import (
     fhir_pk_identifier,
@@ -111,7 +109,7 @@ from camcops_server.cc_modules.cc_simpleobjects import (
 )
 from camcops_server.cc_modules.cc_specialnote import SpecialNote
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     EmailAddressColType,
     PatientNameColType,
     SexColType,
@@ -148,20 +146,17 @@ class Patient(GenericTabletRecordMixin, Base):
 
     __tablename__ = "patient"
 
-    id = Column(
-        TABLET_ID_FIELD,
-        Integer,
-        nullable=False,
+    id: Mapped[int] = mapped_column(
         comment="Primary key (patient ID) on the source tablet device",
         # client PK
     )
-    uuid = CamcopsColumn(
+    uuid = camcops_column(
         PFN_UUID,
         UuidColType,
         comment="UUID",
         default=uuid.uuid4,  # generates a random UUID
     )  # type: Optional[uuid.UUID]
-    forename = CamcopsColumn(
+    forename = camcops_column(
         "forename",
         PatientNameColType,
         index=True,
@@ -169,7 +164,7 @@ class Patient(GenericTabletRecordMixin, Base):
         include_in_anon_staging_db=True,
         comment="Forename",
     )  # type: Optional[str]
-    surname = CamcopsColumn(
+    surname = camcops_column(
         "surname",
         PatientNameColType,
         index=True,
@@ -177,7 +172,7 @@ class Patient(GenericTabletRecordMixin, Base):
         include_in_anon_staging_db=True,
         comment="Surname",
     )  # type: Optional[str]
-    dob = CamcopsColumn(
+    dob = camcops_column(
         "dob",
         sqltypes.Date,  # verified: merge_db handles this correctly
         index=True,
@@ -186,29 +181,29 @@ class Patient(GenericTabletRecordMixin, Base):
         comment="Date of birth",
         # ... e.g. "2013-02-04"
     )
-    sex = CamcopsColumn(
+    sex = camcops_column(
         "sex",
         SexColType,
         index=True,
         include_in_anon_staging_db=True,
         comment="Sex (M, F, X)",
     )
-    address = CamcopsColumn(
+    address = camcops_column(
         "address", UnicodeText, identifies_patient=True, comment="Address"
     )
-    email = CamcopsColumn(
+    email = camcops_column(
         "email",
         EmailAddressColType,
         identifies_patient=True,
         comment="Patient's e-mail address",
     )
-    gp = CamcopsColumn(
+    gp = camcops_column(
         "gp",
         UnicodeText,
         identifies_patient=True,
         comment="General practitioner (GP)",
     )
-    other = CamcopsColumn(
+    other = camcops_column(
         "other", UnicodeText, identifies_patient=True, comment="Other details"
     )
     idnums = relationship(
@@ -464,24 +459,31 @@ class Patient(GenericTabletRecordMixin, Base):
             # log.debug("... same object; equal")
             return True
         # Same device/era/patient ID (client PK)? Test int before str for speed
-        if (
-            self.id == other.id
-            and self._device_id == other._device_id
-            and self._era == other._era
-            and self.id is not None
-            and self._device_id is not None
-            and self._era is not None
-        ):
-            # log.debug("... same device/era/id; equal")
-            return True
-        # Shared ID number?
-        for sid in self.idnums:
-            if sid in other.idnums:
-                # log.debug("... share idnum {}; equal", sid)
+        try:
+            if (
+                self.id == other.id
+                and self._device_id == other._device_id
+                and self._era == other._era
+                and self.id is not None
+                and self._device_id is not None
+                and self._era is not None
+            ):
+                # log.debug("... same device/era/id; equal")
                 return True
-        # Otherwise...
-        # log.debug("... unequal")
-        return False
+            # Shared ID number?
+            for sid in self.idnums:
+                if sid in other.idnums:
+                    # log.debug("... share idnum {}; equal", sid)
+                    return True
+            # Otherwise...
+            # log.debug("... unequal")
+            return False
+        except AttributeError:
+            # Since SQLAlchemy 2.0, when lazy-loading from related objects
+            # (e.g. Task.patient) the patient will be compared with
+            # non-patient SQLA internal status codes so we need to cater for
+            # this. It is probably good practice anyway.
+            return False
 
     def __hash__(self) -> int:
         """

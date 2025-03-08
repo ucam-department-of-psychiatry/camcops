@@ -46,7 +46,8 @@ from alembic import op
 from sqlalchemy import orm
 from sqlalchemy.engine.strategies import MockEngineStrategy
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import declarative_base, Session as SqlASession
+from sqlalchemy.orm import DeclarativeBaseNoMeta
+from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer
@@ -67,7 +68,9 @@ branch_labels = None
 depends_on = None
 
 
-Base = declarative_base()  # not the same metadata as the rest; we redefine
+# not the same metadata as the rest; we redefine
+class Base(DeclarativeBaseNoMeta):
+    pass
 
 
 class TmpPatientIdNum(Base):
@@ -93,12 +96,12 @@ class TmpPatientIdNum(Base):
 
 
 # noinspection PyPep8,PyTypeChecker
-def upgrade():
+def upgrade() -> None:
     bind = op.get_bind()
     if isinstance(bind, MockEngineStrategy.MockConnection):
         log.warning("Using mock connection; skipping step")
         return
-    session = orm.Session(bind=bind)
+    session = orm.Session(bind=bind, future=True)
 
     for idnum in session.query(TmpPatientIdNum):
         if idnum.id == 0:
@@ -108,7 +111,7 @@ def upgrade():
 
 
 # noinspection PyPep8,PyTypeChecker
-def downgrade():
+def downgrade() -> None:
     pass
 
 

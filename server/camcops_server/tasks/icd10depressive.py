@@ -48,7 +48,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    camcops_column,
     SummaryCategoryColType,
 )
 from camcops_server.cc_modules.cc_string import AS
@@ -75,7 +75,7 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     shortname = "ICD10-DEPR"
     info_filename_stem = "icd"
 
-    mood = CamcopsColumn(
+    mood = camcops_column(
         "mood",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -84,61 +84,61 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "every day, largely uninfluenced by circumstances, and "
         "sustained for at least 2 weeks.",
     )
-    anhedonia = CamcopsColumn(
+    anhedonia = camcops_column(
         "anhedonia",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Loss of interest or pleasure in activities  that are "
         "normally pleasurable.",
     )
-    energy = CamcopsColumn(
+    energy = camcops_column(
         "energy",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Decreased energy or increased fatiguability.",
     )
 
-    sleep = CamcopsColumn(
+    sleep = camcops_column(
         "sleep",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Sleep disturbance of any type.",
     )
-    worth = CamcopsColumn(
+    worth = camcops_column(
         "worth",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Loss of confidence and self-esteem.",
     )
-    appetite = CamcopsColumn(
+    appetite = camcops_column(
         "appetite",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Change in appetite (decrease or increase) with "
         "corresponding weight change.",
     )
-    guilt = CamcopsColumn(
+    guilt = camcops_column(
         "guilt",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Unreasonable feelings of self-reproach or excessive and "
         "inappropriate guilt.",
     )
-    concentration = CamcopsColumn(
+    concentration = camcops_column(
         "concentration",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Complaints or evidence of diminished ability to think "
         "or concentrate, such as indecisiveness or vacillation.",
     )
-    activity = CamcopsColumn(
+    activity = camcops_column(
         "activity",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Change in psychomotor activity, with agitation or "
         "retardation (either subjective or objective).",
     )
-    death = CamcopsColumn(
+    death = camcops_column(
         "death",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -146,47 +146,47 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "suicidal behaviour.",
     )
 
-    somatic_anhedonia = CamcopsColumn(
+    somatic_anhedonia = camcops_column(
         "somatic_anhedonia",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Marked loss of interest or pleasure in activities that "
         "are normally pleasurable",
     )
-    somatic_emotional_unreactivity = CamcopsColumn(
+    somatic_emotional_unreactivity = camcops_column(
         "somatic_emotional_unreactivity",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Lack of emotional reactions to events or "
         "activities that normally produce an emotional response",
     )
-    somatic_early_morning_waking = CamcopsColumn(
+    somatic_early_morning_waking = camcops_column(
         "somatic_early_morning_waking",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Waking in the morning 2 hours or more before "
         "the usual time",
     )
-    somatic_mood_worse_morning = CamcopsColumn(
+    somatic_mood_worse_morning = camcops_column(
         "somatic_mood_worse_morning",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Depression worse in the morning",
     )
-    somatic_psychomotor = CamcopsColumn(
+    somatic_psychomotor = camcops_column(
         "somatic_psychomotor",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Objective evidence of marked psychomotor retardation or "
         "agitation (remarked on or reported by other people)",
     )
-    somatic_appetite = CamcopsColumn(
+    somatic_appetite = camcops_column(
         "somatic_appetite",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Marked loss of appetite",
     )
-    somatic_weight = CamcopsColumn(
+    somatic_weight = camcops_column(
         "somatic_weight",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -195,14 +195,14 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         # 2017-08-24: AVOID A PERCENT SYMBOL (%) FOR NOW; SEE THIS BUG:
         # https://bitbucket.org/zzzeek/sqlalchemy/issues/4052/comment-attribute-causes-crash-during  # noqa
     )
-    somatic_libido = CamcopsColumn(
+    somatic_libido = camcops_column(
         "somatic_libido",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Marked loss of libido",
     )
 
-    hallucinations_schizophrenic = CamcopsColumn(
+    hallucinations_schizophrenic = camcops_column(
         "hallucinations_schizophrenic",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -212,13 +212,13 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "or other types of hallucinatory voices coming from some part "
         "of the body).",
     )
-    hallucinations_other = CamcopsColumn(
+    hallucinations_other = camcops_column(
         "hallucinations_other",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Hallucinations (of any other kind).",
     )
-    delusions_schizophrenic = CamcopsColumn(
+    delusions_schizophrenic = camcops_column(
         "delusions_schizophrenic",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -229,30 +229,30 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "other kinds that are culturally inappropriate and completely "
         "impossible).",
     )
-    delusions_other = CamcopsColumn(
+    delusions_other = camcops_column(
         "delusions_other",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Delusions (of any other kind).",
     )
-    stupor = CamcopsColumn(
+    stupor = camcops_column(
         "stupor",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Depressive stupor.",
     )
 
-    date_pertains_to = CamcopsColumn(
+    date_pertains_to = camcops_column(
         "date_pertains_to", Date, comment="Date the assessment pertains to"
     )
     comments = Column("comments", UnicodeText, comment="Clinician's comments")
-    duration_at_least_2_weeks = CamcopsColumn(
+    duration_at_least_2_weeks = camcops_column(
         "duration_at_least_2_weeks",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Depressive episode lasts at least 2 weeks?",
     )
-    severe_clinically = CamcopsColumn(
+    severe_clinically = camcops_column(
         "severe_clinically",
         Boolean,
         permitted_value_checker=BIT_CHECKER,

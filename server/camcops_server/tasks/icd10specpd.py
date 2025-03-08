@@ -25,13 +25,12 @@ camcops_server/tasks/icd10specpd.py
 
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import List, Optional, Type
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.stringfunc import strseq
 from cardinal_pythonlib.typetests import is_false
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Date, UnicodeText
 
@@ -53,7 +52,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    camcops_column,
 )
 from camcops_server.cc_modules.cc_string import AS
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -75,14 +74,21 @@ def ctv_info_pd(
     return CtvInfo(content=condition + ": " + get_yes_no_unknown(req, has_it))
 
 
-class Icd10SpecPDMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Icd10SpecPD"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Icd10SpecPD(
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the ICD10-PD task.
+    """
+
+    __tablename__ = "icd10specpd"
+    shortname = "ICD10-PD"
+    info_filename_stem = "icd"
+
+    @classmethod
+    def extend_table(cls: Type["Icd10SpecPD"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "g",
@@ -260,76 +266,60 @@ class Icd10SpecPDMetaclass(DeclarativeMeta):
                 "everyday decisions require advice/reassurance",
             ],
         )
-        super().__init__(name, bases, classdict)
-
-
-class Icd10SpecPD(
-    TaskHasClinicianMixin,
-    TaskHasPatientMixin,
-    Task,
-    metaclass=Icd10SpecPDMetaclass,
-):
-    """
-    Server implementation of the ICD10-PD task.
-    """
-
-    __tablename__ = "icd10specpd"
-    shortname = "ICD10-PD"
-    info_filename_stem = "icd"
 
     date_pertains_to = Column(
         "date_pertains_to", Date, comment="Date the assessment pertains to"
     )
     comments = Column("comments", UnicodeText, comment="Clinician's comments")
-    skip_paranoid = CamcopsColumn(
+    skip_paranoid = camcops_column(
         "skip_paranoid",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for paranoid PD?",
     )
-    skip_schizoid = CamcopsColumn(
+    skip_schizoid = camcops_column(
         "skip_schizoid",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for schizoid PD?",
     )
-    skip_dissocial = CamcopsColumn(
+    skip_dissocial = camcops_column(
         "skip_dissocial",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for dissocial PD?",
     )
-    skip_eu = CamcopsColumn(
+    skip_eu = camcops_column(
         "skip_eu",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for emotionally unstable PD?",
     )
-    skip_histrionic = CamcopsColumn(
+    skip_histrionic = camcops_column(
         "skip_histrionic",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for histrionic PD?",
     )
-    skip_anankastic = CamcopsColumn(
+    skip_anankastic = camcops_column(
         "skip_anankastic",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for anankastic PD?",
     )
-    skip_anxious = CamcopsColumn(
+    skip_anxious = camcops_column(
         "skip_anxious",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for anxious PD?",
     )
-    skip_dependent = CamcopsColumn(
+    skip_dependent = camcops_column(
         "skip_dependent",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for dependent PD?",
     )
-    other_pd_present = CamcopsColumn(
+    other_pd_present = camcops_column(
         "other_pd_present",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
