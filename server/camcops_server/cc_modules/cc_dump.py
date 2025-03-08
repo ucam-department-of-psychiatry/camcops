@@ -96,7 +96,8 @@ DUMP_ONLY_COLNAMES = {  # mapping of tablename : list_of_column_names
     User.__tablename__: ["fullname", "id", "username"],
 }
 # Drop specific columns from certain tables:
-DUMP_DROP_COLNAMES = {}  # mapping of tablename : list_of_column_names
+# mapping of tablename : list_of_column_names
+DUMP_DROP_COLNAMES: dict[str, list[str]] = {}
 # List of columns to be skipped regardless of table:
 DUMP_SKIP_COLNAMES = [
     # We restrict to current records only, so many of these are irrelevant:
