@@ -54,6 +54,7 @@ from camcops_server.cc_modules.cc_testfactories import (
 from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
 from camcops_server.tasks.tests.factories import (
     BmiFactory,
+    CardinalExpectationDetectionFactory,
     PhotoSequenceFactory,
 )
 
@@ -363,6 +364,48 @@ class CopyTasksAndSummariesTests(DumpTestCase):
 
         self.assertEqual(
             getattr(row, EXTRA_TASK_TABLENAME_FIELD), "photosequence"
+        )
+
+    def test_has_extra_summary_tables(self) -> None:
+        export_options = TaskExportOptions(
+            include_blobs=False,
+            db_patient_id_per_row=True,
+            db_include_summaries=False,
+        )
+
+        patient = PatientFactory()
+        cardinal_expdet = CardinalExpectationDetectionFactory(
+            patient=patient, trials=1, groupspecs=1
+        )
+
+        copy_tasks_and_summaries(
+            tasks=[cardinal_expdet],
+            dst_engine=self.temp_engine,
+            dst_session=self.temp_session,
+            export_options=export_options,
+            req=self.req,
+        )
+
+        query = select(text("*")).select_from(
+            table("cardinal_expdet_blockprobs")
+        )
+        result = self.temp_session.execute(query)
+
+        row = next(result)
+
+        self.assertEqual(
+            getattr(row, EXTRA_TASK_TABLENAME_FIELD), "cardinal_expdet"
+        )
+
+        query = select(text("*")).select_from(
+            table("cardinal_expdet_halfprobs")
+        )
+        result = self.temp_session.execute(query)
+
+        row = next(result)
+
+        self.assertEqual(
+            getattr(row, EXTRA_TASK_TABLENAME_FIELD), "cardinal_expdet"
         )
 
 

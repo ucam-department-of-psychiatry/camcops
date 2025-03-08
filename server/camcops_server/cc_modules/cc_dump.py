@@ -507,7 +507,9 @@ class DumpController(object):
                     if adding_extra_ids:
                         est.add_extra_task_xref_info_to_row(row)
                     try:
-                        self.dst_session.execute(dst_summary_table.insert(row))
+                        self.dst_session.execute(
+                            insert(dst_summary_table).values(row)
+                        )
                     except CompileError:
                         log.critical(
                             "\ndst_summary_table:\n{}\nrow:\n{}",
