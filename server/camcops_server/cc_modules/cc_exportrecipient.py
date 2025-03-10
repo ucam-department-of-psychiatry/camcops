@@ -122,10 +122,8 @@ class ExportRecipient(ExportRecipientInfo, Base):
         index=True,
         comment="Export recipient ID (arbitrary primary key)",
     )
-    recipient_name = Column(
-        "recipient_name",
+    recipient_name: Mapped[str] = mapped_column(
         ExportRecipientNameColType,
-        nullable=False,
         comment="Name of export recipient",
     )
     current = Column(
@@ -224,37 +222,24 @@ class ExportRecipient(ExportRecipientInfo, Base):
     # -------------------------------------------------------------------------
     # Database
     # -------------------------------------------------------------------------
-    db_url = Column(
-        "db_url",
+    db_url: Mapped[Optional[str]] = mapped_column(
         UrlColType,
         comment="(DATABASE) SQLAlchemy database URL for export",
     )
-    db_echo = Column(
-        "db_echo",
-        Boolean,
+    db_echo: Mapped[bool] = mapped_column(
         default=False,
-        nullable=False,
         comment="(DATABASE) Echo SQL applied to destination database?",
     )
-    db_include_blobs = Column(
-        "db_include_blobs",
-        Boolean,
+    db_include_blobs: Mapped[bool] = mapped_column(
         default=True,
-        nullable=False,
         comment="(DATABASE) Include BLOBs?",
     )
-    db_add_summaries = Column(
-        "db_add_summaries",
-        Boolean,
+    db_add_summaries: Mapped[bool] = mapped_column(
         default=True,
-        nullable=False,
         comment="(DATABASE) Add summary information?",
     )
-    db_patient_id_per_row = Column(
-        "db_patient_id_per_row",
-        Boolean,
+    db_patient_id_per_row: Mapped[bool] = mapped_column(
         default=True,
-        nullable=False,
         comment="(DATABASE) Add patient ID information per row?",
     )
 
@@ -489,11 +474,8 @@ class ExportRecipient(ExportRecipientInfo, Base):
         Text,
         comment="(FHIR) FHIR app ID, identifying CamCOPS as the data source",
     )
-    fhir_concurrent = Column(
-        "fhir_concurrent",
-        Boolean,
+    fhir_concurrent: Mapped[Optional[bool]] = mapped_column(
         default=False,
-        nullable=True,
         comment="(FHIR) Server supports concurrency (parallel processing)?",
     )
 
