@@ -1123,11 +1123,11 @@ QStringList Cisr::summaryForResult(const Cisr::CisrResult& result) const
 
     if (!result.incomplete) {
         addLine(
-            "Probable primary diagnosis",
+            "[CIS-R suggestion ONLY:] Probable primary diagnosis",
             result.diagnosisName(result.diagnosis_1)
         );
         addLine(
-            "Probable secondary diagnosis",
+            "[CIS-R suggestion ONLY:] Probable secondary diagnosis",
             result.diagnosisName(result.diagnosis_1)
         );
 
@@ -3625,17 +3625,21 @@ QVector<QString> Cisr::panicSymptomFieldnames() const
     return fieldnames;
 }
 
+/*
 QString Cisr::diagnosisNameLong(int diagnosis_code) const
 {
     QString xstring_name = QString("diag_%1_desc").arg(diagnosis_code);
     return xstring(xstring_name);
 }
+*/
 
+/*
 QString Cisr::diagnosisReason(int diagnosis_code) const
 {
     QString xstring_name = QString("diag_%1_explan").arg(diagnosis_code);
     return xstring(xstring_name);
 }
+*/
 
 QString Cisr::suicideIntent(
     const Cisr::CisrResult& result, bool with_warning
@@ -4067,11 +4071,12 @@ void Cisr::CisrResult::finalize()
     SHOWBOOL(phobia_specific);
     SHOWBOOL(panic_disorder);
 
-    decide("--- Final diagnoses:");
-    decide(QString("Probable primary diagnosis: %1")
-               .arg(diagnosisName(diagnosis_1)));
-    decide(QString("Probable secondary diagnosis: %1")
-               .arg(diagnosisName(diagnosis_2)));
+    const QString cv = caveat();
+    decide("--- [CIS-R suggestion ONLY:] Final diagnoses:");
+    decide(QString("%1Probable primary diagnosis: %2")
+               .arg(cv, diagnosisName(diagnosis_1)));
+    decide(QString("%1Probable secondary diagnosis: %2")
+               .arg(cv, diagnosisName(diagnosis_2)));
 }
 
 QString Cisr::CisrResult::diagnosisName(int diagnosis_code) const
@@ -4112,4 +4117,9 @@ QString Cisr::CisrResult::diagnosisName(int diagnosis_code) const
         default:
             return "[INTERNAL ERROR: BAD DIAGNOSIS CODE]";
     }
+}
+
+QString Cisr::CisrResult::caveat() const
+{
+    return QString("[%1:] ").arg(tr("CIS-R suggestion ONLY"));
 }
