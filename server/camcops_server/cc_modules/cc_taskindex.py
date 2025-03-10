@@ -44,7 +44,12 @@ from cardinal_pythonlib.sqlalchemy.sqlserver import (
 )
 from pendulum import DateTime as Pendulum
 import pyramid.httpexceptions as exc
-from sqlalchemy.orm import relationship, Session as SqlASession
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_column,
+    relationship,
+    Session as SqlASession,
+)
 from sqlalchemy.sql.expression import and_, exists, join, literal, select
 from sqlalchemy.sql.schema import Column, ForeignKey, Table
 from sqlalchemy.sql.sqltypes import BigInteger, Boolean, DateTime, Integer
@@ -514,9 +519,7 @@ class TaskIndexEntry(Base):
         index=True,
         comment="Table name of the task's base table",
     )
-    task_pk = Column(
-        "task_pk",
-        Integer,
+    task_pk: Mapped[int] = mapped_column(
         index=True,
         comment="Server primary key of the task",
     )
