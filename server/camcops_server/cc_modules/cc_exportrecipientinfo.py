@@ -49,6 +49,8 @@ from cardinal_pythonlib.datetimefunc import (
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
 
+from sqlalchemy.orm import Mapped
+
 from camcops_server.cc_modules.cc_constants import (
     CAMCOPS_DEFAULT_FHIR_APP_ID,
     CONFIG_FILE_SITE_SECTION,
@@ -159,108 +161,120 @@ class ExportRecipientInfo(object):
         "redcap_api_key",
     ]
 
-    def __init__(self, other: "ExportRecipientInfo" = None) -> None:
+    def __init__(
+        self, *args, other: "ExportRecipientInfo" = None, **kwargs
+    ) -> None:
         """
         Initializes, optionally copying attributes from ``other``.
         """
         cd = ConfigDefaults()
 
-        self.recipient_name = ""
+        self.recipient_name: Mapped[str] = ""
 
         # How to export
 
-        self.transmission_method = ExportTransmissionMethod.EMAIL
-        self.push = cd.PUSH
-        self.task_format = cd.TASK_FORMAT
-        self.xml_field_comments = cd.XML_FIELD_COMMENTS
+        self.transmission_method: Mapped[str] = ExportTransmissionMethod.EMAIL
+        self.push: Mapped[bool] = cd.PUSH
+        self.task_format: Mapped[str] = cd.TASK_FORMAT
+        self.xml_field_comments: Mapped[bool] = cd.XML_FIELD_COMMENTS
 
         # What to export
 
-        self.all_groups = cd.ALL_GROUPS
+        self.all_groups: Mapped[bool] = cd.ALL_GROUPS
         self.group_names = (
             []
         )  # type: List[str]  # not in database; see group_ids
-        self.group_ids = []  # type: List[int]
-        self.tasks = []  # type: List[str]
-        self.start_datetime_utc = None  # type: Optional[datetime.datetime]
-        self.end_datetime_utc = None  # type: Optional[datetime.datetime]
-        self.finalized_only = cd.FINALIZED_ONLY
-        self.include_anonymous = cd.INCLUDE_ANONYMOUS
-        self.primary_idnum = None  # type: Optional[int]
-        self.require_idnum_mandatory = (
+        self.group_ids: Mapped[list[int]] = []
+        self.tasks: Mapped[list[str]] = []
+        self.start_datetime_utc: Mapped[Optional[datetime.datetime]] = None
+        self.end_datetime_utc: Mapped[Optional[datetime.datetime]] = None
+        self.finalized_only: Mapped[bool] = cd.FINALIZED_ONLY
+        self.include_anonymous: Mapped[bool] = cd.INCLUDE_ANONYMOUS
+        self.primary_idnum: Mapped[Optional[int]] = None
+        self.require_idnum_mandatory: Mapped[bool] = (
             cd.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY
         )
 
         # Database
 
-        self.db_url = ""
-        self.db_echo = cd.DB_ECHO
-        self.db_include_blobs = cd.DB_INCLUDE_BLOBS
-        self.db_add_summaries = cd.DB_ADD_SUMMARIES
-        self.db_patient_id_per_row = cd.DB_PATIENT_ID_PER_ROW
+        self.db_url: Mapped[Optional[str]] = ""
+        self.db_echo: Mapped[bool] = cd.DB_ECHO
+        self.db_include_blobs: Mapped[bool] = cd.DB_INCLUDE_BLOBS
+        self.db_add_summaries: Mapped[bool] = cd.DB_ADD_SUMMARIES
+        self.db_patient_id_per_row: Mapped[bool] = cd.DB_PATIENT_ID_PER_ROW
 
         # Email
 
-        self.email_host = ""
-        self.email_port = cd.EMAIL_PORT
-        self.email_use_tls = cd.EMAIL_USE_TLS
-        self.email_host_username = ""
+        self.email_host: Mapped[str] = ""
+        self.email_port: Mapped[int] = cd.EMAIL_PORT
+        self.email_use_tls: Mapped[bool] = cd.EMAIL_USE_TLS
+        self.email_host_username: Mapped[str] = ""
         self.email_host_password = ""  # not in database for security
-        self.email_from = ""
-        self.email_sender = ""
-        self.email_reply_to = ""
-        self.email_to = ""  # CSV list
-        self.email_cc = ""  # CSV list
-        self.email_bcc = ""  # CSV list
-        self.email_patient_spec = ""
-        self.email_patient_spec_if_anonymous = cd.PATIENT_SPEC_IF_ANONYMOUS
-        self.email_subject = ""
-        self.email_body_as_html = cd.EMAIL_BODY_IS_HTML
-        self.email_body = ""
-        self.email_keep_message = cd.EMAIL_KEEP_MESSAGE
+        self.email_from: Mapped[Optional[str]] = ""
+        self.email_sender: Mapped[Optional[str]] = ""
+        self.email_reply_to: Mapped[Optional[str]] = ""
+        self.email_to: Mapped[Optional[str]] = ""  # CSV list
+        self.email_cc: Mapped[Optional[str]] = ""  # CSV list
+        self.email_bcc: Mapped[Optional[str]] = ""  # CSV list
+        self.email_patient_spec: Mapped[Optional[str]] = ""
+        self.email_patient_spec_if_anonymous: Mapped[Optional[str]] = (
+            cd.PATIENT_SPEC_IF_ANONYMOUS
+        )
+        self.email_subject: Mapped[Optional[str]] = ""
+        self.email_body_as_html: Mapped[bool] = cd.EMAIL_BODY_IS_HTML
+        self.email_body: Mapped[Optional[str]] = ""
+        self.email_keep_message: Mapped[bool] = cd.EMAIL_KEEP_MESSAGE
 
         # HL7
 
-        self.hl7_host = ""
-        self.hl7_port = cd.HL7_PORT
-        self.hl7_ping_first = cd.HL7_PING_FIRST
-        self.hl7_network_timeout_ms = cd.HL7_NETWORK_TIMEOUT_MS
-        self.hl7_keep_message = cd.HL7_KEEP_MESSAGE
-        self.hl7_keep_reply = cd.HL7_KEEP_REPLY
-        self.hl7_debug_divert_to_file = cd.HL7_DEBUG_DIVERT_TO_FILE
-        self.hl7_debug_treat_diverted_as_sent = (
+        self.hl7_host: Mapped[Optional[str]] = ""
+        self.hl7_port: Mapped[Optional[int]] = cd.HL7_PORT
+        self.hl7_ping_first: Mapped[bool] = cd.HL7_PING_FIRST
+        self.hl7_network_timeout_ms: Mapped[Optional[int]] = (
+            cd.HL7_NETWORK_TIMEOUT_MS
+        )
+        self.hl7_keep_message: Mapped[bool] = cd.HL7_KEEP_MESSAGE
+        self.hl7_keep_reply: Mapped[bool] = cd.HL7_KEEP_REPLY
+        self.hl7_debug_divert_to_file: Mapped[bool] = (
+            cd.HL7_DEBUG_DIVERT_TO_FILE
+        )
+        self.hl7_debug_treat_diverted_as_sent: Mapped[bool] = (
             cd.HL7_DEBUG_TREAT_DIVERTED_AS_SENT
         )
 
         # File
 
-        self.file_patient_spec = ""
-        self.file_patient_spec_if_anonymous = cd.PATIENT_SPEC_IF_ANONYMOUS
-        self.file_filename_spec = ""
-        self.file_make_directory = cd.FILE_MAKE_DIRECTORY
-        self.file_overwrite_files = cd.FILE_OVERWRITE_FILES
-        self.file_export_rio_metadata = cd.FILE_EXPORT_RIO_METADATA
-        self.file_script_after_export = ""
+        self.file_patient_spec: Mapped[Optional[str]] = ""
+        self.file_patient_spec_if_anonymous: Mapped[Optional[str]] = (
+            cd.PATIENT_SPEC_IF_ANONYMOUS
+        )
+        self.file_filename_spec: Mapped[Optional[str]] = ""
+        self.file_make_directory: Mapped[bool] = cd.FILE_MAKE_DIRECTORY
+        self.file_overwrite_files: Mapped[bool] = cd.FILE_OVERWRITE_FILES
+        self.file_export_rio_metadata: Mapped[bool] = (
+            cd.FILE_EXPORT_RIO_METADATA
+        )
+        self.file_script_after_export: Mapped[str] = ""
 
         # File/RiO
 
-        self.rio_idnum = None  # type: Optional[int]
-        self.rio_uploading_user = ""
-        self.rio_document_type = ""
+        self.rio_idnum: Mapped[Optional[int]] = None
+        self.rio_uploading_user: Mapped[Optional[str]] = ""
+        self.rio_document_type: Mapped[Optional[str]] = ""
 
         # REDCap
 
         self.redcap_api_key = ""  # not in database for security
-        self.redcap_api_url = ""
-        self.redcap_fieldmap_filename = ""
+        self.redcap_api_url: Mapped[Optional[str]] = ""
+        self.redcap_fieldmap_filename: Mapped[Optional[str]] = ""
 
         # FHIR
 
-        self.fhir_app_id = ""
-        self.fhir_api_url = ""
+        self.fhir_app_id: Mapped[Optional[str]] = ""
+        self.fhir_api_url: Mapped[Optional[str]] = ""
         self.fhir_app_secret = ""  # not in database for security
         self.fhir_launch_token = ""  # not in database for security
-        self.fhir_concurrent = False
+        self.fhir_concurrent: Mapped[Optional[bool]] = False
 
         # Copy from other?
         if other is not None:
@@ -270,6 +284,8 @@ class ExportRecipientInfo(object):
                 # rather than an ExportRecipientInfo.
                 if hasattr(other, attrname):
                     setattr(self, attrname, getattr(other, attrname))
+
+        super().__init__(*args, **kwargs)
 
     def get_attrnames(self) -> List[str]:
         """

@@ -42,6 +42,7 @@ from camcops_server.cc_modules.cc_constants import DateFormat, ERA_NOW
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_dirtytables import DirtyTable
 from camcops_server.cc_modules.cc_email import Email
+from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
 from camcops_server.cc_modules.cc_ipuse import IpUse
@@ -440,3 +441,14 @@ class SpecialNoteFactory(BaseFactory):
                 kwargs["era"] = task._era
 
         return super().create(*args, **kwargs)
+
+
+class ExportRecipientFactory(BaseFactory):
+    class Meta:
+        exclude = ("iddef",)
+        model = ExportRecipient
+
+    id = factory.Sequence(lambda n: n + ID_OFFSET)
+
+    iddef = factory.SubFactory(IdNumDefinitionFactory)
+    primary_idnum = factory.SelfAttribute("iddef.which_idnum")
