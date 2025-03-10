@@ -436,8 +436,8 @@ class User(Base):
         comment="User name",
     )  # type: str
     fullname = Column("fullname", FullNameColType, comment="User's full name")
-    email = Column(
-        "email", EmailAddressColType, comment="User's e-mail address"
+    email: Mapped[Optional[str]] = mapped_column(
+        EmailAddressColType, comment="User's e-mail address"
     )
     phone_number = Column(
         "phone_number", PhoneNumberColType, comment="User's phone number"
