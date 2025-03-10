@@ -44,7 +44,6 @@ from typing import (
     Set,
     Tuple,
     TYPE_CHECKING,
-    Union,
 )
 import urllib.parse
 
@@ -150,9 +149,6 @@ if TYPE_CHECKING:
     from matplotlib.axes import Axes
     from matplotlib.text import Text
     from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
-    from camcops_server.cc_modules.cc_exportrecipientinfo import (
-        ExportRecipientInfo,
-    )
     from camcops_server.cc_modules.cc_session import CamcopsSession
     from camcops_server.cc_modules.cc_snomed import SnomedConcept
 
@@ -1785,7 +1781,7 @@ class CamcopsRequest(Request):
         all_push_recipients: bool = False,
         save: bool = True,
         database_versions: bool = True,
-    ) -> List[Union["ExportRecipient", "ExportRecipientInfo"]]:
+    ) -> List["ExportRecipient"]:
         """
         Returns a list of export recipients, with some filtering if desired.
         Validates them against the database.
