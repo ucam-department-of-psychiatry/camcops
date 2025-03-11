@@ -27,6 +27,7 @@ camcops_server/cc_modules/cc_patient.py
 
 """
 
+import datetime
 import logging
 from typing import (
     Any,
@@ -39,7 +40,7 @@ from typing import (
     TYPE_CHECKING,
     Union,
 )
-import uuid
+import uuid as python_uuid
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.datetimefunc import (
@@ -65,7 +66,6 @@ from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.expression import and_, ClauseElement, select
 from sqlalchemy.sql.selectable import SelectBase
-from sqlalchemy.sql import sqltypes
 from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_audit import audit
@@ -82,10 +82,7 @@ from camcops_server.cc_modules.cc_constants import (
     SPREADSHEET_PATIENT_FIELD_PREFIX,
 )
 from camcops_server.cc_modules.cc_dataclasses import SummarySchemaInfo
-from camcops_server.cc_modules.cc_db import (
-    GenericTabletRecordMixin,
-    PFN_UUID,
-)
+from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
 from camcops_server.cc_modules.cc_fhir import (
     fhir_pk_identifier,
     make_fhir_bundle_entry,
@@ -109,8 +106,8 @@ from camcops_server.cc_modules.cc_simpleobjects import (
 )
 from camcops_server.cc_modules.cc_specialnote import SpecialNote
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    camcops_column,
     EmailAddressColType,
+    mapped_camcops_column,
     PatientNameColType,
     SexColType,
     UuidColType,
@@ -150,61 +147,53 @@ class Patient(GenericTabletRecordMixin, Base):
         comment="Primary key (patient ID) on the source tablet device",
         # client PK
     )
-    uuid = camcops_column(
-        PFN_UUID,
+    uuid: Mapped[Optional[python_uuid.UUID]] = mapped_camcops_column(
         UuidColType,
         comment="UUID",
-        default=uuid.uuid4,  # generates a random UUID
-    )  # type: Optional[uuid.UUID]
-    forename = camcops_column(
-        "forename",
+        default=python_uuid.uuid4,  # generates a random UUID
+    )
+    forename: Mapped[Optional[str]] = mapped_camcops_column(
         PatientNameColType,
         index=True,
         identifies_patient=True,
         include_in_anon_staging_db=True,
         comment="Forename",
-    )  # type: Optional[str]
-    surname = camcops_column(
-        "surname",
+    )
+    surname: Mapped[Optional[str]] = mapped_camcops_column(
         PatientNameColType,
         index=True,
         identifies_patient=True,
         include_in_anon_staging_db=True,
         comment="Surname",
-    )  # type: Optional[str]
-    dob = camcops_column(
-        "dob",
-        sqltypes.Date,  # verified: merge_db handles this correctly
+    )
+    dob: Mapped[Optional[datetime.date]] = mapped_camcops_column(
         index=True,
         identifies_patient=True,
         include_in_anon_staging_db=True,
         comment="Date of birth",
         # ... e.g. "2013-02-04"
     )
-    sex = camcops_column(
-        "sex",
+    sex: Mapped[Optional[str]] = mapped_camcops_column(
         SexColType,
         index=True,
         include_in_anon_staging_db=True,
         comment="Sex (M, F, X)",
     )
-    address = camcops_column(
-        "address", UnicodeText, identifies_patient=True, comment="Address"
+    address: Mapped[Optional[str]] = mapped_camcops_column(
+        UnicodeText, identifies_patient=True, comment="Address"
     )
-    email = camcops_column(
-        "email",
+    email: Mapped[Optional[str]] = mapped_camcops_column(
         EmailAddressColType,
         identifies_patient=True,
         comment="Patient's e-mail address",
     )
-    gp = camcops_column(
-        "gp",
+    gp: Mapped[Optional[str]] = mapped_camcops_column(
         UnicodeText,
         identifies_patient=True,
         comment="General practitioner (GP)",
     )
-    other = camcops_column(
-        "other", UnicodeText, identifies_patient=True, comment="Other details"
+    other: Mapped[Optional[str]] = mapped_camcops_column(
+        UnicodeText, identifies_patient=True, comment="Other details"
     )
     idnums = relationship(
         # https://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#relationship-custom-foreign
@@ -431,7 +420,7 @@ class Patient(GenericTabletRecordMixin, Base):
     # Equality
     # -------------------------------------------------------------------------
 
-    def __eq__(self, other: "Patient") -> bool:
+    def __eq__(self, other: object) -> bool:
         """
         Is this patient the same as another?
 
@@ -458,32 +447,35 @@ class Patient(GenericTabletRecordMixin, Base):
         if self is other:
             # log.debug("... same object; equal")
             return True
-        # Same device/era/patient ID (client PK)? Test int before str for speed
-        try:
-            if (
-                self.id == other.id
-                and self._device_id == other._device_id
-                and self._era == other._era
-                and self.id is not None
-                and self._device_id is not None
-                and self._era is not None
-            ):
-                # log.debug("... same device/era/id; equal")
-                return True
-            # Shared ID number?
-            for sid in self.idnums:
-                if sid in other.idnums:
-                    # log.debug("... share idnum {}; equal", sid)
-                    return True
-            # Otherwise...
-            # log.debug("... unequal")
-            return False
-        except AttributeError:
+
+        if not isinstance(other, Patient):
             # Since SQLAlchemy 2.0, when lazy-loading from related objects
             # (e.g. Task.patient) the patient will be compared with
             # non-patient SQLA internal status codes so we need to cater for
             # this. It is probably good practice anyway.
+
+            # MyPy does not recognise try... except AttributeError
             return False
+
+        # Same device/era/patient ID (client PK)? Test int before str for speed
+        if (
+            self.id == other.id
+            and self._device_id == other._device_id
+            and self._era == other._era
+            and self.id is not None
+            and self._device_id is not None
+            and self._era is not None
+        ):
+            # log.debug("... same device/era/id; equal")
+            return True
+        # Shared ID number?
+        for sid in self.idnums:
+            if sid in other.idnums:
+                # log.debug("... share idnum {}; equal", sid)
+                return True
+        # Otherwise...
+        # log.debug("... unequal")
+        return False
 
     def __hash__(self) -> int:
         """
