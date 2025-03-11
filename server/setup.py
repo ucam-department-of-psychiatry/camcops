@@ -70,7 +70,7 @@ INSTALL_REQUIRES = [
     "alembic==1.14.1",  # database migrations
     "asteval==1.0.6",  # safe-ish alternative to eval
     "black==24.4.2",  # auto code formatter, keep in sync with .pre-commit-config.yaml  # noqa: E501
-    "cardinal_pythonlib==2.0.2",  # RNC libraries
+    "cardinal_pythonlib @ git+https://github.com/RudolfCardinal/pythonlib@883070d4371a2cb49aa1aa1a3a44c959907b432d#egg=cardinal_pythonlib-2.0.3-rc2",  # RNC libraries  # noqa: E501
     "celery==5.3.6",  # background tasks
     "colander==1.7.0",  # serialization/deserialization from web forms
     "CherryPy==18.6.0",  # web server
