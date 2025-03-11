@@ -76,7 +76,7 @@ def main() -> None:
     We deal with these via
     :func:`camcops_server.alembic.env.process_revision_directives` in
     ``env.py``.
-    """  # noqa
+    """  # noqa: E501
     desc = (
         f"Create database revision. Note:\n"
         f"- The config used will be that from the environment variable "
@@ -98,7 +98,6 @@ def main() -> None:
         textwrap.fill(x, width=79, initial_indent="", subsequent_indent="  ")
         for x in desc.splitlines()
     )
-    # noinspection PyTypeChecker
     parser = ArgumentParser(
         description=wrapped, formatter_class=RawDescriptionRichHelpFormatter
     )
@@ -120,6 +119,7 @@ def main() -> None:
         alembic_versions_dir=ALEMBIC_VERSIONS_DIR,
         message=args.message,
         n_sequence_chars=N_SEQUENCE_CHARS,
+        db_url=config.db_url,
     )
     print(
         r"""
