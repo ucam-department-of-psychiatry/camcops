@@ -146,7 +146,7 @@ class ExportRecipient(ExportRecipientInfo, Base):
         default=False,
         comment="Push (support auto-export on upload)?",
     )
-    task_format: Mapped[str] = mapped_column(
+    task_format: Mapped[Optional[str]] = mapped_column(
         ExportTransmissionMethodColType,
         comment="Format that task information should be sent in (e.g. PDF), "
         "if not predetermined by the transmission method",
@@ -163,11 +163,11 @@ class ExportRecipient(ExportRecipientInfo, Base):
         default=False,
         comment="Export all groups? (If not, see group_ids.)",
     )
-    group_ids: Mapped[list[int]] = mapped_column(
+    group_ids: Mapped[Optional[list[int]]] = mapped_column(
         IntListType,
         comment="Integer IDs of CamCOPS group to export data from (as CSV)",
     )
-    tasks: Mapped[list[str]] = mapped_column(
+    tasks: Mapped[Optional[list[str]]] = mapped_column(
         StringListType,
         comment="Base table names of CamCOPS tasks to export data from "
         "(as CSV)",
@@ -234,7 +234,7 @@ class ExportRecipient(ExportRecipientInfo, Base):
         default=True,
         comment="(EMAIL) Use explicit TLS connection?",
     )
-    email_host_username: Mapped[str] = mapped_column(
+    email_host_username: Mapped[Optional[str]] = mapped_column(
         UserNameExternalColType,
         comment="(EMAIL) Username on e-mail server",
     )
@@ -278,7 +278,7 @@ class ExportRecipient(ExportRecipientInfo, Base):
         default=False,
         comment="(EMAIL) Is the body HTML, rather than plain text?",
     )
-    email_body: Mapped[str] = mapped_column(
+    email_body: Mapped[Optional[str]] = mapped_column(
         Text, comment="(EMAIL) Body contents"
     )
     email_keep_message: Mapped[bool] = mapped_column(

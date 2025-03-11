@@ -519,7 +519,7 @@ class TaskIndexEntry(Base):
         index=True,
         comment="Table name of the task's base table",
     )
-    task_pk: Mapped[int] = mapped_column(
+    task_pk: Mapped[Optional[int]] = mapped_column(
         index=True,
         comment="Server primary key of the task",
     )
