@@ -1216,13 +1216,13 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     </message>
     <message>
         <location line="+5"/>
-        <source>Structured diagnostic interview, yielding ICD-10 diagnoses for depressive and anxiety disorders.</source>
-        <translation>Struktureret diagnostisk interview, der giver ICD-10 diagnoser for depressive og angstlidelser.</translation>
+        <source>Structured interview, yielding suggested possible ICD-10 diagnoses for depressive and anxiety disorders. (May be wrong. Not a substitute for diagnosis by a qualified clinician.)</source>
+        <translation>Struktureret interview, der giver forslag til mulige ICD-10-diagnoser for depressive lidelser og angstlidelser. (Kan være forkert. Er ikke en erstatning for en diagnose stillet af en kvalificeret kliniker.)</translation>
     </message>
     <message>
-        <location line="+3078"/>
+        <location line="+3081"/>
         <source>CIS-R suggestion ONLY</source>
-        <translation type="unfinished"></translation>
+        <translation>Kun forslag fra CIS-R</translation>
     </message>
 </context>
 <context>

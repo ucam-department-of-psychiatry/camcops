@@ -1044,8 +1044,10 @@ QString Cisr::longname() const
 QString Cisr::description() const
 {
     return tr(
-        "Structured diagnostic interview, yielding ICD-10 diagnoses for "
-        "depressive and anxiety disorders."
+        "Structured interview, yielding suggested possible ICD-10 diagnoses "
+        "for depressive and anxiety disorders. "
+        "(May be wrong. "
+        "Not a substitute for diagnosis by a qualified clinician.)"
     );
 }
 
@@ -1122,12 +1124,13 @@ QStringList Cisr::summaryForResult(const Cisr::CisrResult& result) const
     };
 
     if (!result.incomplete) {
+        const QString cv = result.caveat();
         addLine(
-            "[CIS-R suggestion ONLY:] Probable primary diagnosis",
+            QString("%1Possible primary diagnosis").arg(cv),
             result.diagnosisName(result.diagnosis_1)
         );
         addLine(
-            "[CIS-R suggestion ONLY:] Probable secondary diagnosis",
+            QString("%2Possible secondary diagnosis").arg(cv),
             result.diagnosisName(result.diagnosis_1)
         );
 
@@ -3647,7 +3650,7 @@ QString Cisr::suicideIntent(
 {
     QString intent;
     if (result.incomplete) {
-        intent = "TASK INCOMPLETE. SO FAR: ";
+        intent = "TASK INCOMPLETE; SO FAR: ";
     }
     intent += xstring(QString("suicid_%1").arg(result.suicidality));
     if (with_warning
@@ -4072,17 +4075,17 @@ void Cisr::CisrResult::finalize()
     SHOWBOOL(panic_disorder);
 
     const QString cv = caveat();
-    decide("--- [CIS-R suggestion ONLY:] Final diagnoses:");
-    decide(QString("%1Probable primary diagnosis: %2")
+    decide(QString("--- %1Final possible diagnoses:").arg(cv));
+    decide(QString("%1Possible primary diagnosis: %2")
                .arg(cv, diagnosisName(diagnosis_1)));
-    decide(QString("%1Probable secondary diagnosis: %2")
+    decide(QString("%1Possible secondary diagnosis: %2")
                .arg(cv, diagnosisName(diagnosis_2)));
 }
 
 QString Cisr::CisrResult::diagnosisName(int diagnosis_code) const
 {
     if (incomplete) {
-        // Do NOT offer diagnostic information based on partial data.
+        // Do NOT offer suggested diagnostic information based on partial data.
         // Might be dangerous (e.g. say "mild depressive episode" when it's
         // severe + incomplete information).
         return "INFORMATION INCOMPLETE";

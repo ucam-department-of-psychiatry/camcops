@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CamCOPS 2.3.3\n"
 "Report-Msgid-Bugs-To: rnc1001@cam.ac.uk\n"
-"POT-Creation-Date: 2024-06-25 16:58+0100\n"
-"PO-Revision-Date: 2024-06-25 16:58+0100\n"
+"POT-Creation-Date: 2025-03-11 09:20+0000\n"
+"PO-Revision-Date: 2025-03-11 09:20+0000\n"
 "Last-Translator: \n"
 "Language: da_DK\n"
 "Language-Team: da_DK <LL@li.org>\n"
@@ -22,25 +22,25 @@ msgstr ""
 msgid "(Server) Devices registered with the server"
 msgstr "(Server) Enheder, der er registreret på serveren"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:881
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:956
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:885
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:960
 msgid "CamCOPS research data dump"
 msgstr "CamCOPS forskningsdata dump"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:882
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:886
 msgid "The research data dump you requested is attached."
 msgstr "Den forskningsdata-dump, du har anmodet om, er vedhæftet."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:922
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:926
 msgid "You do not have enough space to create this download. You are allowed {total_permitted} bytes and you are have {space} bytes free. This download would need {size} bytes."
 msgstr "Du har ikke tilstrækkelig plads til at oprette denne overførsel. Du har tilladelse {total_permitted} byte, og du har {space} byte gratis. Denne overførsel skal bruge {size} byte."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:936
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:940
 #, python-format
 msgid "The research data dump you requested is ready to be downloaded. You will find it in your download area. It is called %s"
 msgstr "Den forskningsdata dump, du har anmodet om, er klar til at blive hentet. Du finder det i dit download område. Det kaldes %s"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:945
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:949
 msgid "Failed to create file {filename}. Error was: {message}"
 msgstr "Filen {filename} kunne ikke oprettes. Fejlen var: {message}"
 
@@ -1149,15 +1149,15 @@ msgstr "Ukendt valideringsmetode"
 msgid "Default:"
 msgstr "Standard:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:691
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:694
 msgid "Date of birth:"
 msgstr "Fødselsdato:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:694
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:697
 msgid "DOB:"
 msgstr "Født:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:1321
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:1324
 msgid "(Server) Patients, distinct by name, sex, DOB, all ID numbers"
 msgstr "(Server) Patienter, særskilt efter navn, køn, DOB, alle ID-numre"
 
@@ -1165,43 +1165,47 @@ msgstr "(Server) Patienter, særskilt efter navn, køn, DOB, alle ID-numre"
 msgid "ID number fails basic checks"
 msgstr "Id-nummer fejler grundlæggende kontroller"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1739
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1740
 msgid "Page $page of $page_count; total $item_count records"
 msgstr "Side $page af $page_count; samlede $item_count poster"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:807
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:805
 msgid "Number of initial records"
 msgstr "Antal indledende poster"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:808
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:806
 msgid "Number of latest subsequent records"
 msgstr "Antal seneste efterfølgende poster"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:840
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:838
 msgid "Date filters"
 msgstr "Datofiltre"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:841
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:839
 msgid "Start date"
 msgstr "Startdato"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:841
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:839
 msgid "End date"
 msgstr "Slutdato"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_reportschema.py:55
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_reportschema.py:56
 msgid "Split by year?"
 msgstr "Opdelt efter år?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_reportschema.py:69
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_reportschema.py:70
 msgid "Split by month?"
 msgstr "Opdelt efter måned?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_reportschema.py:83
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_reportschema.py:84
+msgid "Split by day of month?"
+msgstr "Opdelt efter dag i måneden?"
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_reportschema.py:98
 msgid "Split by task type?"
 msgstr "Opdelt efter opgavetype?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_reportschema.py:97
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_reportschema.py:112
 msgid "Split by user?"
 msgstr "Opdelt efter bruger?"
 
@@ -1213,11 +1217,11 @@ msgstr "Definitionen af id-nummer kan ikke hentes"
 msgid "Anonymous"
 msgstr "Anonym"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskreports.py:103
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskreports.py:112
 msgid "(Server) Count current task instances"
 msgstr "(Server) Tæl aktuelle opgaveforekomster"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskschedule.py:547
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskschedule.py:556
 msgid "{task_name} @ {due_days} days"
 msgstr "{task_name} @ {due_days} dage"
 
@@ -1538,12 +1542,12 @@ msgstr "Hent filnavne skal (1) begynde med et alfanumerisk/understregningstegn; 
 msgid "Cannot find {object_class} with {server_pk_name}:{pk_value}"
 msgstr "{object_class} blev ikke fundet med {server_pk_name}:{pk_value}"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2406
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2429
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2401
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2424
 msgid "There is no patient with access key '{access_key}'. Have you entered the key correctly?"
 msgstr "Der er ingen patient med adgangsnøglen '{access_key}'. Har du indtastet nøglen korrekt?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2440
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2435
 msgid "Patient has no ID numbers"
 msgstr "Patienten har ingen id-numre"
 
@@ -1952,7 +1956,7 @@ msgstr "Assessment Patient Experience Questionnaire for Psychological Therapies 
 msgid "Adult Autism Spectrum Quotient"
 msgstr "Adult Autism Spectrum Quotient [voksen autismespektrum kvotienten]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/aq.py:354
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/aq.py:411
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/isaaq10.py:134
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/isaaqed.py:110
 msgid "Score"
@@ -2052,11 +2056,14 @@ msgstr "Cambridge–Chicago Compulsivity Trait Scale [Cambridge–Chicago kompul
 
 # | msgid "The Clinical Impairment Assessment questionnaire"
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cia.py:102
-#, fuzzy
 msgid "Clinical Impairment Assessment questionnaire"
-msgstr "Clinical Impairment Assessment (spørgeskemaet til vurdering af klinisk svækkelse)"
+msgstr "Clinical Impairment Assessment questionnaire [spørgeskema til vurdering af klinisk funktionsnedsættelse]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cisr.py:3040
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cisr.py:1297
+msgid "CIS-R suggestion ONLY"
+msgstr "Kun forslag fra CIS-R"
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cisr.py:3053
 msgid "Clinical Interview Schedule, Revised"
 msgstr "Clinical Interview Schedule – Revised [klinisk interviewplan - revideret]"
 
@@ -2152,64 +2159,64 @@ msgstr "Diagnostisk kodning (ICD-10)"
 msgid "Diagnostic codes, ICD-9-CM (DSM-IV-TR)"
 msgstr "Diagnostisk kodning, ICD-9-CM (DSM-IV-TR)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:639
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:641
 msgid "Diagnosis – ICD-9-CM (DSM-IV-TR) diagnoses for all patients"
 msgstr "Diagnose – ICD-9-CM (DSM-IV-TR) diagnoser for alle patienter"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:669
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:671
 msgid "Diagnosis – ICD-10 diagnoses for all patients"
 msgstr "Diagnose – ICD-10 diagnoser for alle patienter"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:697
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:699
 msgid "Diagnosis – All diagnoses for all patients"
 msgstr "Diagnose – alle diagnoser for alle patienter"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:740
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:742
 msgid "Diagnostic code"
 msgstr "Diagnostisk kode"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:741
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:743
 #, python-format
 msgid "Type in a diagnostic code; you may use SQL 'LIKE' syntax for wildcards, i.e. _ for one character and % for zero/one/lots"
 msgstr "Indtast en diagnostik kode. Du kan bruge SQL 'LIKE' syntaks for jokertegn, dvs _ for et tegn og % for nul/en/partier"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:766
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:768
 msgid "Diagnostic codes"
 msgstr "Diagnostiske koder"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:768
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:770
 msgid "Use % as a wildcard (e.g. F32 matches only F32, but F32% matches F32, F32.1, F32.2...)."
 msgstr "Brug % som jokertegn (f. eks. F32 matcher kun F32, men F32% matcher F32, F 32.1, F 32.2...)."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:782
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:784
 msgid "You must specify at least"
 msgstr "Du skal angive mindst"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:785
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:787
 msgid "You have specified duplicate diagnoses"
 msgstr "Du har angivet identiske diagnoser"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:803
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:805
 msgid "Inclusion diagnoses (lifetime)"
 msgstr "Inklusions diagnoser (levetid)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:805
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:807
 msgid "Exclusion diagnoses (lifetime)"
 msgstr "Udelukkelses diagnoser (levetid)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:807
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:809
 msgid "Minimum age (years) (optional)"
 msgstr "Minimumsalder (år) (valgfrit)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:809
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:811
 msgid "Maximum age (years) (optional)"
 msgstr "Maksimal alder (år) (valgfrit)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:1056
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:1060
 msgid "Diagnosis – Find patients by ICD-10 diagnosis ± age"
 msgstr "Diagnose – Find patienter ved ICD-10 diagnose ± alder"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:1107
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:1111
 msgid "Diagnosis – Find patients by ICD-9-CM (DSM-IV-TR) diagnosis ± age"
 msgstr "Diagnose – Find patienter ved ICD-9-CM (DSM-IV-TR) diagnose ± alder"
 
