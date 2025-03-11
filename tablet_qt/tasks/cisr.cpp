@@ -66,58 +66,10 @@ LABEL_B1
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ===============================================================================
-IMPLEMENTATION: EARLY THOUGHTS -- NOT USED
+IMPLEMENTATION
 ===============================================================================
 
-We could in principle do this with a Questionnaire interface, but to be honest
-it's going to be easiest to translate with a "direct" interface. Maybe
-something like:
-
-
-void start()
-{
-    goto_question(1);
-}
-
-void goto_question(int question)
-{
-    m_current_question = question;
-    offer_question();
-}
-
-bool offer_question()
-{
-    // do interesting things
-    connect(answer_1, answered, 1);
-    return true;
-}
-
-bool answered(int answer)
-{
-    // returns: something we don't care about
-    switch (m_current_question) {
-    case 1:
-        if (answer == 1) {
-            m_diagnosis_blah = true;
-            return goto_question(2);
-            // C++11: can't do "return goto_question(2);" if goto_question() is
-            // of void type, as you're not allowed to return anything from a
-            // void function, even of void type:
-            // http://stackoverflow.com/questions/35987493/return-void-type-in-c-and-c
-            // ... so just make them bool or something.
-            // It would be OK in C++14.
-        }
-        break;
-    // ...
-    }
-}
-
-
-===============================================================================
-IMPLEMENTATION: FURTHER THOUGHTS
-===============================================================================
-
-FURTHER THOUGHTS: we'll implement a DynamicQuestionnaire class; q.v.
+We'll implement a DynamicQuestionnaire class; q.v.
 
 */
 
@@ -3627,22 +3579,6 @@ QVector<QString> Cisr::panicSymptomFieldnames() const
     }
     return fieldnames;
 }
-
-/*
-QString Cisr::diagnosisNameLong(int diagnosis_code) const
-{
-    QString xstring_name = QString("diag_%1_desc").arg(diagnosis_code);
-    return xstring(xstring_name);
-}
-*/
-
-/*
-QString Cisr::diagnosisReason(int diagnosis_code) const
-{
-    QString xstring_name = QString("diag_%1_explan").arg(diagnosis_code);
-    return xstring(xstring_name);
-}
-*/
 
 QString Cisr::suicideIntent(
     const Cisr::CisrResult& result, bool with_warning

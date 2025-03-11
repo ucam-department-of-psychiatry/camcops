@@ -431,8 +431,6 @@ protected:
     QVector<QString> panicSymptomFieldnames() const;
     CisrQuestion nextQ(CisrQuestion q, CisrResult& getResult) const;
     CisrResult getResult() const;
-    // QString diagnosisNameLong(int diagnosis_code) const;
-    // QString diagnosisReason(int diagnosis_code) const;
     QString suicideIntent(
         const Cisr::CisrResult& result, bool with_warning = true
     ) const;
