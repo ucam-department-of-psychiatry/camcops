@@ -1128,7 +1128,7 @@ QUESTIONS_YN_SPECIFIC_TEXT = [
     CQ.OBSESS2_TRIED_TO_STOP,
     CQ.OBSESS3_UPSETTING,
 ]
-# Demographics questions (optional for diagnosis)
+# Demographics questions (not used by algorithm)
 QUESTIONS_DEMOGRAPHICS = [
     CQ.ETHNIC,
     CQ.MARRIED,
@@ -1290,13 +1290,25 @@ def int_to_enum(qi: int) -> CisrQuestion:
     return CisrQuestion(qi)
 
 
+def get_caveat(req: Optional[CamcopsRequest]) -> str:
+    if req is None:
+        return ""
+    _ = req.gettext
+    return _("CIS-R suggestion ONLY")
+
+
 # =============================================================================
 # CisrResult
 # =============================================================================
 
 
 class CisrResult(object):
-    def __init__(self, record_decisions: bool = False) -> None:
+    def __init__(
+        self, req: Optional[CamcopsRequest], record_decisions: bool = False
+    ) -> None:
+        caveat = get_caveat(req)
+        self.caveat_prefix = f"[{caveat}:] " if caveat else ""
+        self.caveat_suffix = f" [{caveat}]" if caveat else ""
         self.incomplete = False
         self.record_decisions = record_decisions
         self.decisions = []  # type: List[str]
@@ -1364,7 +1376,7 @@ class CisrResult(object):
         self.phobia_specific = False  # PHOBSPEC in original
         self.panic_disorder = False  # PANICD in original
 
-        # Final diagnoses
+        # Final "diagnoses" (suggestions)
         self.diagnosis_1 = DIAG_0_NO_DIAGNOSIS  # DIAG1 in original
         self.diagnosis_2 = DIAG_0_NO_DIAGNOSIS  # DIAG2 in original
 
@@ -1925,13 +1937,14 @@ class CisrResult(object):
         self._showbool("phobia_specific", self.phobia_specific)
         self._showbool("panic_disorder", self.panic_disorder)
 
-        self.decide("--- Final diagnoses:")
+        caveat_prefix = self.caveat_prefix
+        self.decide(f"--- {caveat_prefix}Final possible diagnoses:")
         self.decide(
-            "Probable primary diagnosis: "
+            f"{caveat_prefix}Possible primary diagnosis: "
             + self.diagnosis_name(self.diagnosis_1)
         )
         self.decide(
-            "Probable secondary diagnosis: "
+            f"{caveat_prefix}Possible secondary diagnosis: "
             + self.diagnosis_name(self.diagnosis_2)
         )
 
@@ -3086,7 +3099,10 @@ class Cisr(TaskHasPatientMixin, Task):
         self, req: CamcopsRequest, q: CisrQuestion
     ) -> Optional[str]:
         value = self.value_for_question(q)
-        if value is None or value == V_MISSING:
+        if value is None:
+            return None
+        if value == V_MISSING and q != CisrQuestion.GP_YEAR:
+            # Note that 0 is a legitimate answer value for GP_YEAR.
             return None
         if q in QUESTIONS_1_NO_2_YES:
             return get_yes_no(req, value == 2)
@@ -4547,10 +4563,14 @@ class Cisr(TaskHasPatientMixin, Task):
 
         return int_to_enum(next_q)
 
-    def get_result(self, record_decisions: bool = False) -> CisrResult:
+    def get_result(
+        self,
+        req: Optional[CamcopsRequest] = None,
+        record_decisions: bool = False,
+    ) -> CisrResult:
         # internal_q = CQ.START_MARKER
         internal_q = CQ.APPETITE1_LOSS_PAST_MONTH  # skip the preamble etc.
-        result = CisrResult(record_decisions)
+        result = CisrResult(req, record_decisions)
         while (not result.incomplete) and internal_q != CQ.END_MARKER:
             internal_q = self.next_q(internal_q, result)
             # loop until we reach the end or have incomplete data
@@ -4558,20 +4578,20 @@ class Cisr(TaskHasPatientMixin, Task):
         return result
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
-        res = self.get_result()
+        res = self.get_result(req)
         if res.incomplete:
             return CTV_INCOMPLETE
         return [
             CtvInfo(
                 content=(
-                    f"Probable primary diagnosis: "
+                    f"Possible primary diagnosis: "
                     f"{bold(res.diagnosis_1_name())} "
                     f"({res.diagnosis_1_icd10_code()})"
                 )
             ),
             CtvInfo(
                 content=(
-                    f"Probable secondary diagnosis: "
+                    f"Possible secondary diagnosis: "
                     f"{bold(res.diagnosis_2_name())} "
                     f"({res.diagnosis_2_icd10_code()})"
                 )
@@ -4585,44 +4605,44 @@ class Cisr(TaskHasPatientMixin, Task):
         ]
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
-        result = self.get_result()
+        result = self.get_result(req)
         return self.standard_task_summary_fields() + [
             # Diagnoses
             SummaryElement(
                 name="diagnosis_1_code",
                 coltype=Integer(),
                 value=result.diagnosis_1,
-                comment="Probable primary diagnosis (CIS-R code)",
+                comment="Possible primary diagnosis (CIS-R code)",
             ),
             SummaryElement(
                 name="diagnosis_1_text",
                 coltype=UnicodeText(),
                 value=result.diagnosis_1_name(),
-                comment="Probable primary diagnosis (text)",
+                comment="Possible primary diagnosis (text)",
             ),
             SummaryElement(
                 name="diagnosis_1_icd10",
                 coltype=UnicodeText(),
                 value=result.diagnosis_1_icd10_code(),
-                comment="Probable primary diagnosis (ICD-10 code/codes)",
+                comment="Possible primary diagnosis (ICD-10 code/codes)",
             ),
             SummaryElement(
                 name="diagnosis_2_code",
                 coltype=Integer(),
                 value=result.diagnosis_2,
-                comment="Probable secondary diagnosis (CIS-R code)",
+                comment="Possible secondary diagnosis (CIS-R code)",
             ),
             SummaryElement(
                 name="diagnosis_2_text",
                 coltype=UnicodeText(),
                 value=result.diagnosis_2_icd10_code(),
-                comment="Probable secondary diagnosis (text)",
+                comment="Possible secondary diagnosis (text)",
             ),
             SummaryElement(
                 name="diagnosis_2_icd10",
                 coltype=UnicodeText(),
                 value=result.diagnosis_2_icd10_code(),
-                comment="Probable secondary diagnosis (ICD-10 code/codes)",
+                comment="Possible secondary diagnosis (ICD-10 code/codes)",
             ),
             # Suicidality/doctell: directly encoded in data
             # Total score
@@ -4896,7 +4916,7 @@ class Cisr(TaskHasPatientMixin, Task):
         demographics_html_list = []  # type: List[str]
         question_html_list = []  # type: List[str]
         q = CQ.ETHNIC  # type: CisrQuestion
-        result = CisrResult(record_decisions=True)
+        result = CisrResult(req, record_decisions=True)
         while (not result.incomplete) and q != CQ.END_MARKER:
             # Iterate until we get to the end or the result declares itself
             # incomplete.
@@ -4934,6 +4954,8 @@ class Cisr(TaskHasPatientMixin, Task):
             q = self.next_q(q, result)
             # loop until we reach the end or have incomplete data
         result.finalize()
+        caveat_p = result.caveat_prefix
+        caveat_s = result.caveat_suffix
 
         is_complete = not result.incomplete
         is_complete_html_td = """{}<b>{}</b></td>""".format(
@@ -4946,9 +4968,9 @@ class Cisr(TaskHasPatientMixin, Task):
         )
 
         summary_rows = [
-            subheading_spanning_two_columns("Diagnoses"),
+            subheading_spanning_two_columns(f"Possible diagnoses{caveat_s}"),
             tr(
-                "Probable primary diagnosis",
+                f"{caveat_p}Possible primary diagnosis",
                 (
                     bold(self.diagnosis_name(req, result.diagnosis_1))
                     + (
@@ -4959,11 +4981,13 @@ class Cisr(TaskHasPatientMixin, Task):
                 ),
             ),
             tr(
-                italic("... summary of reasons/description"),
-                italic(self.diagnosis_reason(req, result.diagnosis_1)),
+                italic(f"... {caveat_p}summary of reasons/description"),
+                italic(
+                    caveat_p + self.diagnosis_reason(req, result.diagnosis_1)
+                ),
             ),
             tr(
-                "Probable secondary diagnosis",
+                f"{caveat_p}Possible secondary diagnosis",
                 (
                     bold(self.diagnosis_name(req, result.diagnosis_2))
                     + (
@@ -4974,8 +4998,10 @@ class Cisr(TaskHasPatientMixin, Task):
                 ),
             ),
             tr(
-                italic("... summary of reasons/description"),
-                italic(self.diagnosis_reason(req, result.diagnosis_2)),
+                italic(f"... {caveat_p}summary of reasons/description"),
+                italic(
+                    caveat_p + self.diagnosis_reason(req, result.diagnosis_2)
+                ),
             ),
             subheading_spanning_two_columns("Suicidality"),
             tr(
@@ -5060,7 +5086,7 @@ class Cisr(TaskHasPatientMixin, Task):
             tr(DESC_DEPCRIT3, result.depr_crit_3_somatic_synd),
             tr(DESC_DEPCRIT3_MET, result.has_somatic_syndrome()),  # RNC
             tr(DESC_NEURASTHENIA_SCORE, result.neurasthenia),
-            subheading_spanning_two_columns("Disorder flags"),
+            subheading_spanning_two_columns(f"Disorder flags{caveat_s}"),
             tr(DISORDER_OCD, result.obsessive_compulsive_disorder),
             tr(DISORDER_DEPR_MILD, result.depression_mild),
             tr(DISORDER_DEPR_MOD, result.depression_moderate),
@@ -5075,6 +5101,16 @@ class Cisr(TaskHasPatientMixin, Task):
 
         return f"""
             <div class="{CssClass.HEADING}">{self.wxstring(req, "results_1")}</div>
+            <div>
+                <b>Important note:</b> The CIS-R is a structured automated
+                interview, yielding suggested possible ICD-10 diagnoses for
+                depressive and anxiety disorders. These suggestions may be
+                wrong; for example, the algorithm fails to consider many
+                exclusion criteria (e.g. relating to psychoactive substance use
+                or organic mental disorder). The suggestions are not a
+                substitute for diagnosis by a qualified clinician. Original
+                CIS-R warning:
+            </div>
             <div>{self.wxstring(req, "results_2")}</div>
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
@@ -5092,7 +5128,7 @@ class Cisr(TaskHasPatientMixin, Task):
             </div>
 
             <div class="{CssClass.HEADING}">
-                Preamble/demographics (not contributing to diagnosis)
+                Preamble/demographics (not contributing to algorithm)
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>

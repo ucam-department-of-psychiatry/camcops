@@ -69,7 +69,7 @@ MAPPING_FILE = join(CURRENT_DIR, "babel.cfg")
 SOURCE_DIRS = [CAMCOPS_SERVER_DIRECTORY]  # it recurses below this directory
 
 PROJECT_NAME = "CamCOPS"
-COPYRIGHT_HOLDER = "Rudolf Cardinal"
+COPYRIGHT_HOLDER = "University of Cambridge, Department of Psychiatry"
 MSGID_BUGS_ADDR = "rnc1001@cam.ac.uk"
 CHARSET = "utf-8"
 
