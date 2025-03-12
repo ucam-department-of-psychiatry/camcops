@@ -301,7 +301,7 @@ class ExportRecipientInfo(object):
             if x not in self.IGNORE_FOR_EQ_ATTRNAMES
         ]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return simple_repr(self, self.get_attrnames())
 
     def __str__(self) -> str:
