@@ -344,38 +344,6 @@ class ExportRecipientInfo(object):
         return True
 
     @classmethod
-    def create_dummy_recipient(cls) -> "ExportRecipientInfo":
-        """
-        Creates and returns a dummy :class:`ExportRecipientInfo`.
-        """
-        d = cls()
-
-        d.recipient_name = "_dummy_export_recipient_"
-        d.current = True
-
-        d.transmission_method = ExportTransmissionMethod.FILE
-
-        d.all_groups = True
-        d.primary_idnum = 1
-        d.require_idnum_mandatory = False
-        d.finalized_only = False
-        d.task_format = FileType.XML
-
-        # File
-        d.include_anonymous = True
-        d.file_patient_spec_if_anonymous = "anonymous"
-        d.file_patient_spec = "{surname}_{forename}_{idshortdesc1}{idnum1}"
-        d.file_filename_spec = (
-            "/tmp/camcops_debug_testing/"
-            "TestCamCOPS_{patient}_{created}_{tasktype}-{serverpk}"
-            ".{filetype}"
-        )
-        d.file_overwrite_files = False
-        d.file_make_directory = True
-
-        return d
-
-    @classmethod
     def read_from_config(
         cls,
         cfg: "CamcopsConfig",
