@@ -40,7 +40,7 @@ Thus, always complete and contemporaneous.
 """
 
 import logging
-from typing import List, Tuple, TYPE_CHECKING
+from typing import List, Optional, Tuple, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
@@ -93,7 +93,7 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         ForeignKey(IdNumDefinition.which_idnum),
         comment="Which of the server's ID numbers is this?",
     )
-    idnum_value: Mapped[int] = mapped_camcops_column(
+    idnum_value: Mapped[Optional[int]] = mapped_camcops_column(
         "idnum_value",
         BigInteger,
         identifies_patient=True,
