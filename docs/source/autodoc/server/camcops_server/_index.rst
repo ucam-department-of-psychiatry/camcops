@@ -220,6 +220,7 @@ server/camcops_server
     cc_modules/tests/cc_dump_tests.py.rst
     cc_modules/tests/cc_export_tests.py.rst
     cc_modules/tests/cc_exportrecipient_tests.py.rst
+    cc_modules/tests/cc_exportrecipientinfo_tests.py.rst
     cc_modules/tests/cc_fhir_tests.py.rst
     cc_modules/tests/cc_formatter_tests.py.rst
     cc_modules/tests/cc_forms_tests.py.rst
