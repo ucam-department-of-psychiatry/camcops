@@ -312,6 +312,9 @@ class ExportRecipientInfo(object):
         Does this object equal another -- meaning "sufficiently equal that we
         can use the same one, rather than making a new database copy"?
         """
+        if not isinstance(other, ExportRecipientInfo):
+            return NotImplemented
+
         for attrname in self.get_attrnames():
             if attrname not in self.IGNORE_FOR_EQ_ATTRNAMES:
                 selfattr = getattr(self, attrname)
