@@ -312,7 +312,7 @@ class ExportRecipientInfo(object):
     def __str__(self) -> str:
         return repr(self.recipient_name)
 
-    def __eq__(self, other: "ExportRecipientInfo") -> bool:
+    def __eq__(self, other: object) -> bool:
         """
         Does this object equal another -- meaning "sufficiently equal that we
         can use the same one, rather than making a new database copy"?
@@ -816,7 +816,6 @@ class ExportRecipientInfo(object):
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Set group IDs from group names
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        self.group_ids = []  # type: List[int]
         for groupname in self.group_names:
             group = Group.get_group_by_name(dbsession, groupname)
             if not group:
