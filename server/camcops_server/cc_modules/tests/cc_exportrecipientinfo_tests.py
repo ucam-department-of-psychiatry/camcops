@@ -35,7 +35,7 @@ from camcops_server.cc_modules.cc_exportrecipientinfo import (
 class ExportRecipientInfoTests(TestCase):
     def test_objects_with_same_attributes_equal(self) -> None:
         info_1 = ExportRecipientInfo()
-        info_2 = ExportRecipientInfo(info_1)
+        info_2 = ExportRecipientInfo(other=info_1)
 
         self.assertEqual(info_1, info_2)
 
@@ -50,7 +50,7 @@ class ExportRecipientInfoTests(TestCase):
     def test_objects_with_different_ignored_attributes_equal(self) -> None:
         info_1 = ExportRecipientInfo()
         info_1.email_host_password = "password 1"
-        info_2 = ExportRecipientInfo(info_1)
+        info_2 = ExportRecipientInfo(other=info_1)
         info_2.email_host_password = "password 2"
 
         self.assertEqual(info_1, info_2)

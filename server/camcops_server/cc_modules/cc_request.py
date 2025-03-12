@@ -1870,7 +1870,7 @@ class CamcopsRequest(Request):
 
         # Convert to SQLAlchemy ORM ExportRecipient objects:
         recipients = [
-            ExportRecipient(x) for x in recipientinfolist
+            ExportRecipient(other=x) for x in recipientinfolist
         ]  # type: List[ExportRecipient]
 
         final_recipients = []  # type: List[ExportRecipient]

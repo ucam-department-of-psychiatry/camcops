@@ -35,7 +35,7 @@ uses this, as it needs to be readable in the absence of a database connection
 import configparser
 import datetime
 import logging
-from typing import List, NoReturn, Optional, TYPE_CHECKING
+from typing import Any, List, NoReturn, Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.configfiles import (
     get_config_parameter,
@@ -161,10 +161,13 @@ class ExportRecipientInfo(object):
         "redcap_api_key",
     ]
 
-    def __init__(self, other: "ExportRecipientInfo" = None) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """
         Initializes, optionally copying attributes from ``other``.
         """
+
+        other = kwargs.pop("other", None)
+
         cd = ConfigDefaults()
 
         self.recipient_name: Mapped[str] = ""
@@ -282,6 +285,8 @@ class ExportRecipientInfo(object):
                 # rather than an ExportRecipientInfo.
                 if hasattr(other, attrname):
                     setattr(self, attrname, getattr(other, attrname))
+
+        super().__init__(*args, **kwargs)
 
     def get_attrnames(self) -> List[str]:
         """
