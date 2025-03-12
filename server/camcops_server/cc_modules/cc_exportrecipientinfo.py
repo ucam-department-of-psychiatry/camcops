@@ -161,9 +161,7 @@ class ExportRecipientInfo(object):
         "redcap_api_key",
     ]
 
-    def __init__(
-        self, *args, other: "ExportRecipientInfo" = None, **kwargs
-    ) -> None:
+    def __init__(self, other: "ExportRecipientInfo" = None) -> None:
         """
         Initializes, optionally copying attributes from ``other``.
         """
@@ -284,8 +282,6 @@ class ExportRecipientInfo(object):
                 # rather than an ExportRecipientInfo.
                 if hasattr(other, attrname):
                     setattr(self, attrname, getattr(other, attrname))
-
-        super().__init__(*args, **kwargs)
 
     def get_attrnames(self) -> List[str]:
         """

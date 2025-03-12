@@ -29,7 +29,7 @@ camcops_server/cc_modules/cc_exportrecipient.py
 
 import datetime
 import logging
-from typing import Any, List, Optional, TYPE_CHECKING
+from typing import List, Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
@@ -403,15 +403,6 @@ class ExportRecipient(ExportRecipientInfo, Base):
         default=False,
         comment="(FHIR) Server supports concurrency (parallel processing)?",
     )
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        """
-        Creates a blank :class:`ExportRecipient` object.
-
-        NB not called when SQLAlchemy objects loaded from database; see
-        :meth:`init_on_load` instead.
-        """
-        super().__init__(*args, **kwargs)
 
     def __hash__(self) -> int:
         """
