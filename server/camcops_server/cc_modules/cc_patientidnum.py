@@ -46,7 +46,7 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import BigInteger, Integer
+from sqlalchemy.sql.sqltypes import BigInteger
 
 from camcops_server.cc_modules.cc_constants import (
     EXTRA_COMMENT_PREFIX,
@@ -56,7 +56,10 @@ from camcops_server.cc_modules.cc_constants import (
 from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
 from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
-from camcops_server.cc_modules.cc_sqla_coltypes import camcops_column
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    mapped_camcops_column,
+    camcops_column,
+)
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 
 if TYPE_CHECKING:
@@ -86,14 +89,11 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
     patient_id: Mapped[int] = mapped_column(
         comment="FK to patient.id (for this device/era)",
     )
-    which_idnum = Column(
-        "which_idnum",
-        Integer,
+    which_idnum: Mapped[int] = mapped_column(
         ForeignKey(IdNumDefinition.which_idnum),
-        nullable=False,
         comment="Which of the server's ID numbers is this?",
     )
-    idnum_value = camcops_column(
+    idnum_value: Mapped[int] = mapped_camcops_column(
         "idnum_value",
         BigInteger,
         identifies_patient=True,
