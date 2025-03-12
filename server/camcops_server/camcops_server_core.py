@@ -401,7 +401,7 @@ def serve_cherrypy(
     threads_start = cfg.cherrypy_threads_start
     threads_max = cfg.cherrypy_threads_max  # -1 for no limit
     server_name = cfg.cherrypy_server_name
-    log_screen = cfg.cherrypy_root_path
+    log_screen = cfg.cherrypy_log_screen
     ssl_certificate = cfg.ssl_certificate
     ssl_private_key = cfg.ssl_private_key
     root_path = cfg.cherrypy_root_path

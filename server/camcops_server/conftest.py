@@ -217,7 +217,7 @@ def create_engine_mysql(db_url: str, create_db: bool, echo: bool):
     # mysql> CREATE DATABASE <db_name>;
     # mysql> GRANT ALL PRIVILEGES ON <db_name>.*
     #        TO <db_user>@localhost IDENTIFIED BY '<db_password>';
-    engine = create_engine(db_url, echo=echo, pool_pre_ping=True)
+    engine = create_engine(db_url, echo=echo, pool_pre_ping=True, future=True)
 
     if create_db:
         Base.metadata.drop_all(engine)
@@ -272,7 +272,7 @@ def dbsession(
     # begin the nested transaction
     transaction = connection.begin()
     # use the connection with the already started transaction
-    session = Session(bind=connection)
+    session = Session(bind=connection, future=True)
 
     yield session
 
@@ -307,11 +307,11 @@ def setup(
 
 
 @pytest.fixture(scope="session")
-def dest_engine(
+def temp_engine(
     request: "FixtureRequest", echo: bool
 ) -> Generator["Engine", None, None]:
     """
-    An in-memory database for testing export via the dest_session fixture.
+    An in-memory database for testing export via the temp_session fixture.
     """
     engine = make_memory_sqlite_engine(echo=echo)
 
@@ -322,8 +322,8 @@ def dest_engine(
 
 # noinspection PyUnusedLocal
 @pytest.fixture
-def dest_tables(
-    request: "FixtureRequest", dest_engine: "Engine"
+def temp_tables(
+    request: "FixtureRequest", temp_engine: "Engine"
 ) -> Generator[None, None, None]:
 
     # Unlike the tables fixture, we don't create any tables as they are created
@@ -335,22 +335,22 @@ def dest_tables(
     yield
 
     metadata = MetaData()
-    metadata.reflect(dest_engine)
-    metadata.drop_all(dest_engine)
+    metadata.reflect(temp_engine)
+    metadata.drop_all(temp_engine)
 
 
 # noinspection PyUnusedLocal
 @pytest.fixture
-def dest_session(
+def temp_session(
     request: "FixtureRequest",
-    dest_engine: "Engine",
-    dest_tables: None,
+    temp_engine: "Engine",
+    temp_tables: None,
 ) -> Generator[Session, None, None]:
     """
     Returns an sqlalchemy session, and after the test tears down everything
     properly.
     """
-    connection = dest_engine.connect()
+    connection = temp_engine.connect()
     # begin the nested transaction
     transaction = connection.begin()
     # use the connection with the already started transaction
@@ -366,14 +366,14 @@ def dest_session(
 
 
 @pytest.fixture
-def setup_dest_session(
+def setup_temp_session(
     request: "FixtureRequest",
-    dest_engine: "Engine",
-    dest_session: Session,
+    temp_engine: "Engine",
+    temp_session: Session,
 ) -> None:
     """
     Use this fixture where a second, in-memory database is required.
     Slow, so use sparingly.
     """
-    request.cls.dest_session = dest_session
-    request.cls.dest_engine = dest_engine
+    request.cls.temp_session = temp_session
+    request.cls.temp_engine = temp_engine

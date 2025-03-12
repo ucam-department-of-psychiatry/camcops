@@ -28,7 +28,7 @@ camcops_server/tasks/das28.py
 """
 
 import math
-from typing import Any, Dict, List, Optional, Type, Tuple
+from typing import Any, List, Optional, Type
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import (
@@ -41,8 +41,8 @@ from camcops_server.cc_modules.cc_html import (
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    BoolColumn,
-    CamcopsColumn,
+    bool_column,
+    camcops_column,
     PermittedValueChecker,
     SummaryCategoryColType,
 )
@@ -60,26 +60,28 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy import Column, Float, Integer
-from sqlalchemy.ext.declarative import DeclarativeMeta
 
 
-class Das28Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Das28"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Das28(
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
+):
+    __tablename__ = "das28"
+    shortname = "DAS28"
+    provides_trackers = True
+
+    @classmethod
+    def extend_table(cls: Type["Das28"], **kwargs) -> None:
         for field_name in cls.get_joint_field_names():
             setattr(
-                cls, field_name, BoolColumn(field_name, comment="0 no, 1 yes")
+                cls, field_name, bool_column(field_name, comment="0 no, 1 yes")
             )
 
         setattr(
             cls,
             "vas",
-            CamcopsColumn(
+            camcops_column(
                 "vas",
                 Integer,
                 comment="Patient assessment of health (0-100mm)",
@@ -92,16 +94,6 @@ class Das28Metaclass(DeclarativeMeta):
         setattr(cls, "crp", Column("crp", Float, comment="CRP (0-300 mg/L)"))
 
         setattr(cls, "esr", Column("esr", Float, comment="ESR (1-300 mm/h)"))
-
-        super().__init__(name, bases, classdict)
-
-
-class Das28(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=Das28Metaclass
-):
-    __tablename__ = "das28"
-    shortname = "DAS28"
-    provides_trackers = True
 
     JOINTS = (
         ["shoulder", "elbow", "wrist"]

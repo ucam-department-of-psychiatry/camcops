@@ -43,7 +43,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    camcops_column,
     ONE_TO_FIVE_CHECKER,
     PermittedValueChecker,
     ZERO_TO_FIVE_CHECKER,
@@ -70,44 +70,44 @@ class GMCPQ(Task):
     AGREE_TEXT = " (1 strongly disagree - 5 strongly agree, 0 does not apply)"
 
     doctor = Column("doctor", UnicodeText, comment="Doctor's name")
-    q1 = CamcopsColumn(
+    q1 = camcops_column(
         "q1",
         Integer,
         permitted_value_checker=PermittedValueChecker(minimum=1, maximum=4),
         comment="Filling in questionnaire for... (1 yourself, "
         "2 child, 3 spouse/partner, 4 other relative/friend)",
     )
-    q2a = CamcopsColumn(
+    q2a = camcops_column(
         "q2a",
         Integer,
         permitted_value_checker=BIT_CHECKER,
         comment="Reason: advice? (0 no, 1 yes)",
     )
-    q2b = CamcopsColumn(
+    q2b = camcops_column(
         "q2b",
         Integer,
         permitted_value_checker=BIT_CHECKER,
         comment="Reason: one-off problem? (0 no, 1 yes)",
     )
-    q2c = CamcopsColumn(
+    q2c = camcops_column(
         "q2c",
         Integer,
         permitted_value_checker=BIT_CHECKER,
         comment="Reason: ongoing problem? (0 no, 1 yes)",
     )
-    q2d = CamcopsColumn(
+    q2d = camcops_column(
         "q2d",
         Integer,
         permitted_value_checker=BIT_CHECKER,
         comment="Reason: routine check? (0 no, 1 yes)",
     )
-    q2e = CamcopsColumn(
+    q2e = camcops_column(
         "q2e",
         Integer,
         permitted_value_checker=BIT_CHECKER,
         comment="Reason: treatment? (0 no, 1 yes)",
     )
-    q2f = CamcopsColumn(
+    q2f = camcops_column(
         "q2f",
         Integer,
         permitted_value_checker=BIT_CHECKER,
@@ -116,88 +116,88 @@ class GMCPQ(Task):
     q2f_details = Column(
         "q2f_details", UnicodeText, comment="Reason, other, details"
     )
-    q3 = CamcopsColumn(
+    q3 = camcops_column(
         "q3",
         Integer,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="How important to health/wellbeing was the reason "
         "(1 not very - 5 very)",
     )
-    q4a = CamcopsColumn(
+    q4a = camcops_column(
         "q4a",
         Integer,
         permitted_value_checker=ZERO_TO_FIVE_CHECKER,
         comment="How good: being polite" + RATING_TEXT,
     )
-    q4b = CamcopsColumn(
+    q4b = camcops_column(
         "q4b",
         Integer,
         permitted_value_checker=ZERO_TO_FIVE_CHECKER,
         comment="How good: making you feel at ease" + RATING_TEXT,
     )
-    q4c = CamcopsColumn(
+    q4c = camcops_column(
         "q4c",
         Integer,
         permitted_value_checker=ZERO_TO_FIVE_CHECKER,
         comment="How good: listening" + RATING_TEXT,
     )
-    q4d = CamcopsColumn(
+    q4d = camcops_column(
         "q4d",
         Integer,
         permitted_value_checker=ZERO_TO_FIVE_CHECKER,
         comment="How good: assessing medical condition" + RATING_TEXT,
     )
-    q4e = CamcopsColumn(
+    q4e = camcops_column(
         "q4e",
         Integer,
         permitted_value_checker=ZERO_TO_FIVE_CHECKER,
         comment="How good: explaining" + RATING_TEXT,
     )
-    q4f = CamcopsColumn(
+    q4f = camcops_column(
         "q4f",
         Integer,
         permitted_value_checker=ZERO_TO_FIVE_CHECKER,
         comment="How good: involving you in decisions" + RATING_TEXT,
     )
-    q4g = CamcopsColumn(
+    q4g = camcops_column(
         "q4g",
         Integer,
         permitted_value_checker=ZERO_TO_FIVE_CHECKER,
         comment="How good: providing/arranging treatment" + RATING_TEXT,
     )
-    q5a = CamcopsColumn(
+    q5a = camcops_column(
         "q5a",
         Integer,
         permitted_value_checker=ZERO_TO_FIVE_CHECKER,
         comment="Agree/disagree: will keep info confidential" + AGREE_TEXT,
     )
-    q5b = CamcopsColumn(
+    q5b = camcops_column(
         "q5b",
         Integer,
         permitted_value_checker=ZERO_TO_FIVE_CHECKER,
         comment="Agree/disagree: honest/trustworthy" + AGREE_TEXT,
     )
-    q6 = CamcopsColumn(
+    q6 = camcops_column(
         "q6",
         Integer,
         permitted_value_checker=BIT_CHECKER,
         comment="Confident in doctor's ability to provide care (0 no, 1 yes)",
     )
-    q7 = CamcopsColumn(
+    q7 = camcops_column(
         "q7",
         Integer,
         permitted_value_checker=BIT_CHECKER,
         comment="Would be completely happy to see this doctor again "
         "(0 no, 1 yes)",
     )
-    q8 = CamcopsColumn(
+    q8 = camcops_column(
         "q8",
         Integer,
         permitted_value_checker=BIT_CHECKER,
         comment="Was this visit with your usual doctor (0 no, 1 yes)",
     )
     q9 = Column("q9", UnicodeText, comment="Other comments")
-    q10 = CamcopsColumn(
+    q10 = camcops_column(
         "q10",
         SexColType,
         permitted_value_checker=PermittedValueChecker(
@@ -205,14 +205,14 @@ class GMCPQ(Task):
         ),
         comment="Sex of rater (M, F, X)",
     )
-    q11 = CamcopsColumn(
+    q11 = camcops_column(
         "q11",
         Integer,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Age (1 = under 15, 2 = 15-20, 3 = 21-40, "
         "4 = 40-60, 5 = 60 or over",  # yes, I know it's daft
     )
-    q12 = CamcopsColumn(
+    q12 = camcops_column(
         "q12",
         Integer,
         permitted_value_checker=PermittedValueChecker(minimum=1, maximum=16),

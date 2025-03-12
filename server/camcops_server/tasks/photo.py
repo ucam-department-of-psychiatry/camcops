@@ -46,7 +46,7 @@ from camcops_server.cc_modules.cc_db import (
 from camcops_server.cc_modules.cc_html import answer, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
-from camcops_server.cc_modules.cc_sqla_coltypes import CamcopsColumn
+from camcops_server.cc_modules.cc_sqla_coltypes import camcops_column
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_task import (
     Task,
@@ -72,7 +72,7 @@ class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     description = Column(
         "description", UnicodeText, comment="Description of the photograph"
     )
-    photo_blobid = CamcopsColumn(
+    photo_blobid = camcops_column(
         "photo_blobid",
         Integer,
         is_blob_id_field=True,
@@ -159,7 +159,7 @@ class PhotoSequenceSinglePhoto(GenericTabletRecordMixin, TaskDescendant, Base):
     description = Column(
         "description", UnicodeText, comment="Description of the photograph"
     )
-    photo_blobid = CamcopsColumn(
+    photo_blobid = camcops_column(
         "photo_blobid",
         Integer,
         is_blob_id_field=True,

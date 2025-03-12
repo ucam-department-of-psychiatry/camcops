@@ -27,13 +27,12 @@ camcops_server/tasks/chit.py
 
 """
 
-from typing import List, Type, Tuple, Dict, Any
+from typing import List, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
 from semantic_version import Version
 from sqlalchemy import Integer
-from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
@@ -52,14 +51,20 @@ from camcops_server.cc_modules.cc_task import (
 from camcops_server.cc_modules.cc_text import SS
 
 
-class ChitMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Chit"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Chit(
+    TaskHasPatientMixin,
+    Task,
+):
+    __tablename__ = "chit"
+    shortname = "CHI-T"
+
+    N_SCORED_QUESTIONS = 15
+    MIN_ANSWER = 0
+    MAX_ANSWER = 4
+    MAX_SCORE_MAIN = MAX_ANSWER * N_SCORED_QUESTIONS
+
+    @classmethod
+    def extend_table(cls: Type["Chit"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -87,17 +92,6 @@ class ChitMetaclass(DeclarativeMeta):
             ],
         )
 
-        super().__init__(name, bases, classdict)
-
-
-class Chit(TaskHasPatientMixin, Task, metaclass=ChitMetaclass):
-    __tablename__ = "chit"
-    shortname = "CHI-T"
-
-    N_SCORED_QUESTIONS = 15
-    MIN_ANSWER = 0
-    MAX_ANSWER = 4
-    MAX_SCORE_MAIN = MAX_ANSWER * N_SCORED_QUESTIONS
     SCORED_QUESTIONS = strseq("q", 1, N_SCORED_QUESTIONS)
 
     @staticmethod

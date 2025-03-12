@@ -120,6 +120,7 @@ def main() -> None:
         alembic_versions_dir=ALEMBIC_VERSIONS_DIR,
         message=args.message,
         n_sequence_chars=N_SEQUENCE_CHARS,
+        db_url=config.db_url,
     )
     print(
         r"""

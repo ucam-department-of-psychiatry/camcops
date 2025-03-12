@@ -38,7 +38,7 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    camcops_column,
     PendulumDateTimeAsIsoTextColType,
     ZERO_TO_ONE_CHECKER,
 )
@@ -68,7 +68,7 @@ class QolSG(TaskHasPatientMixin, Task):
         PendulumDateTimeAsIsoTextColType,
         comment="Time categories were offered (ISO-8601)",
     )
-    category_responded = CamcopsColumn(
+    category_responded = camcops_column(
         "category_responded",
         Integer,
         permitted_value_checker=BIT_CHECKER,
@@ -102,13 +102,13 @@ class QolSG(TaskHasPatientMixin, Task):
         comment="Gamble: option corresponding to q  "
         "(current, healthy, dead) (q = 1 - p)",
     )
-    gamble_lottery_on_left = CamcopsColumn(
+    gamble_lottery_on_left = camcops_column(
         "gamble_lottery_on_left",
         Integer,
         permitted_value_checker=BIT_CHECKER,
         comment="Gamble: lottery shown on the left (0 no, 1 yes)",
     )
-    gamble_starting_p = CamcopsColumn(
+    gamble_starting_p = camcops_column(
         "gamble_starting_p",
         Float,
         permitted_value_checker=ZERO_TO_ONE_CHECKER,
@@ -119,7 +119,7 @@ class QolSG(TaskHasPatientMixin, Task):
         PendulumDateTimeAsIsoTextColType,
         comment="Time gamble was offered (ISO-8601)",
     )
-    gamble_responded = CamcopsColumn(
+    gamble_responded = camcops_column(
         "gamble_responded",
         Integer,
         permitted_value_checker=BIT_CHECKER,
@@ -130,7 +130,7 @@ class QolSG(TaskHasPatientMixin, Task):
         PendulumDateTimeAsIsoTextColType,
         comment="Time subject responded to gamble (ISO-8601)",
     )
-    gamble_p = CamcopsColumn(
+    gamble_p = camcops_column(
         "gamble_p",
         Float,
         permitted_value_checker=ZERO_TO_ONE_CHECKER,

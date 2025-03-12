@@ -43,7 +43,7 @@ from camcops_server.cc_modules.cc_html import get_true_false_none, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    camcops_column,
 )
 from camcops_server.cc_modules.cc_string import AS
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -73,7 +73,7 @@ class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "date_pertains_to", Date, comment="Date the assessment pertains to"
     )
     comments = Column("comments", UnicodeText, comment="Clinician's comments")
-    mixture_or_rapid_alternation = CamcopsColumn(
+    mixture_or_rapid_alternation = camcops_column(
         "mixture_or_rapid_alternation",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -81,7 +81,7 @@ class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "a rapid alternation (i.e. within a few hours) of hypomanic, "
         "manic and depressive symptoms.",
     )
-    duration_at_least_2_weeks = CamcopsColumn(
+    duration_at_least_2_weeks = camcops_column(
         "duration_at_least_2_weeks",
         Boolean,
         permitted_value_checker=BIT_CHECKER,

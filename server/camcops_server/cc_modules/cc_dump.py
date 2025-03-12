@@ -39,7 +39,6 @@ from typing import (
     Tuple,
     Type,
     TYPE_CHECKING,
-    Union,
 )
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -75,7 +74,7 @@ from camcops_server.cc_modules.cc_patientidnum import (
     all_extra_id_columns,
     PatientIdNum,
 )
-from camcops_server.cc_modules.cc_sqla_coltypes import CamcopsColumn
+from camcops_server.cc_modules.cc_sqla_coltypes import camcops_column
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_user import User
 
@@ -97,7 +96,8 @@ DUMP_ONLY_COLNAMES = {  # mapping of tablename : list_of_column_names
     User.__tablename__: ["fullname", "id", "username"],
 }
 # Drop specific columns from certain tables:
-DUMP_DROP_COLNAMES = {}  # mapping of tablename : list_of_column_names
+# mapping of tablename : list_of_column_names
+DUMP_DROP_COLNAMES: dict[str, list[str]] = {}
 # List of columns to be skipped regardless of table:
 DUMP_SKIP_COLNAMES = [
     # We restrict to current records only, so many of these are irrelevant:
@@ -231,9 +231,7 @@ class DumpController(object):
                     est, add_extra_id_cols=add_extra_id_cols
                 )
 
-    def gen_all_dest_columns(
-        self,
-    ) -> Generator[Union[Column, CamcopsColumn], None, None]:
+    def gen_all_dest_columns(self) -> Generator[Column, None, None]:
         """
         Generates all destination columns.
         """
@@ -353,7 +351,7 @@ class DumpController(object):
             if isinstance(src_obj, GenericTabletRecordMixin):
                 for summary_element in src_obj.get_summaries(self.req):
                     changed_columns.append(
-                        CamcopsColumn(
+                        camcops_column(
                             summary_element.name,
                             summary_element.coltype,
                             exempt_from_anonymisation=True,
@@ -510,7 +508,9 @@ class DumpController(object):
                     if adding_extra_ids:
                         est.add_extra_task_xref_info_to_row(row)
                     try:
-                        self.dst_session.execute(dst_summary_table.insert(row))
+                        self.dst_session.execute(
+                            insert(dst_summary_table).values(row)
+                        )
                     except CompileError:
                         log.critical(
                             "\ndst_summary_table:\n{}\nrow:\n{}",

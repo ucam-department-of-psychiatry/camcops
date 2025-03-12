@@ -28,7 +28,7 @@ camcops_server/cc_modules/cc_simpleobjects.py
 """
 
 import copy
-from typing import List, TYPE_CHECKING
+from typing import List, Optional, TYPE_CHECKING
 
 from pendulum import Date
 
@@ -136,7 +136,7 @@ class BarePatientInfo(object):
         forename: str = None,
         surname: str = None,
         sex: str = None,
-        dob: Date = None,
+        dob: Optional[Date] = None,
         address: str = None,
         email: str = None,
         gp: str = None,

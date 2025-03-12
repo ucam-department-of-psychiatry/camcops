@@ -50,7 +50,7 @@ from camcops_server.cc_modules.cc_html import answer, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    BoolColumn,
+    bool_column,
     CurrencyColType,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -192,11 +192,11 @@ class KirbyTrial(GenericTabletRecordMixin, TaskDescendant, Base):
     ldr = Column("ldr", Integer, comment="Large delayed reward")
     delay_days = Column("delay_days", Integer, comment="Delay in days")
     currency = Column("currency", CurrencyColType, comment="Currency symbol")
-    currency_symbol_first = BoolColumn(
+    currency_symbol_first = bool_column(
         "currency_symbol_first",
         comment="Does the currency symbol come before the amount?",
     )
-    chose_ldr = BoolColumn(
+    chose_ldr = bool_column(
         "chose_ldr", comment="Did the subject choose the large delayed reward?"
     )
 

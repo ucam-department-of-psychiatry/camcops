@@ -48,7 +48,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    camcops_column,
     SummaryCategoryColType,
 )
 from camcops_server.cc_modules.cc_string import AS
@@ -75,7 +75,7 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     shortname = "ICD10-MANIC"
     info_filename_stem = "icd"
 
-    mood_elevated = CamcopsColumn(
+    mood_elevated = camcops_column(
         "mood_elevated",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -83,7 +83,7 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "elevated [or] expansive' [mania] to a degree that is "
         "definitely abnormal for the individual concerned.",
     )
-    mood_irritable = CamcopsColumn(
+    mood_irritable = camcops_column(
         "mood_irritable",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -92,7 +92,7 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "for the individual concerned.",
     )
 
-    distractible = CamcopsColumn(
+    distractible = camcops_column(
         "distractible",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -100,25 +100,25 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "the criteria for hypomania]; distractibility or constant "
         "changes in activity or plans [from the criteria for mania].",
     )
-    activity = CamcopsColumn(
+    activity = camcops_column(
         "activity",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Increased activity or physical restlessness.",
     )
-    sleep = CamcopsColumn(
+    sleep = camcops_column(
         "sleep",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Decreased need for sleep.",
     )
-    talkativeness = CamcopsColumn(
+    talkativeness = camcops_column(
         "talkativeness",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Increased talkativeness (pressure of speech).",
     )
-    recklessness = CamcopsColumn(
+    recklessness = camcops_column(
         "recklessness",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -128,7 +128,7 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "recognize e.g. spending sprees, foolish enterprises, "
         "reckless driving [mania].",
     )
-    social_disinhibition = CamcopsColumn(
+    social_disinhibition = camcops_column(
         "social_disinhibition",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -136,7 +136,7 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "loss of normal social inhibitions resulting in behaviour "
         "which is inappropriate to the circumstances [mania].",
     )
-    sexual = CamcopsColumn(
+    sexual = camcops_column(
         "sexual",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -144,13 +144,13 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "energy or sexual indiscretions [mania].",
     )
 
-    grandiosity = CamcopsColumn(
+    grandiosity = camcops_column(
         "grandiosity",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Inflated self-esteem or grandiosity.",
     )
-    flight_of_ideas = CamcopsColumn(
+    flight_of_ideas = camcops_column(
         "flight_of_ideas",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -158,33 +158,33 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "thoughts racing.",
     )
 
-    sustained4days = CamcopsColumn(
+    sustained4days = camcops_column(
         "sustained4days",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Elevated/irritable mood sustained for at least 4 days.",
     )
-    sustained7days = CamcopsColumn(
+    sustained7days = camcops_column(
         "sustained7days",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Elevated/irritable mood sustained for at least 7 days.",
     )
-    admission_required = CamcopsColumn(
+    admission_required = camcops_column(
         "admission_required",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Elevated/irritable mood severe enough to require "
         "hospital admission.",
     )
-    some_interference_functioning = CamcopsColumn(
+    some_interference_functioning = camcops_column(
         "some_interference_functioning",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Some interference with personal functioning "
         "in daily living.",
     )
-    severe_interference_functioning = CamcopsColumn(
+    severe_interference_functioning = camcops_column(
         "severe_interference_functioning",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -192,14 +192,14 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "functioning in daily living.",
     )
 
-    perceptual_alterations = CamcopsColumn(
+    perceptual_alterations = camcops_column(
         "perceptual_alterations",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Perceptual alterations (e.g. subjective hyperacusis, "
         "appreciation of colours as specially vivid, etc.).",
     )  # ... not psychotic
-    hallucinations_schizophrenic = CamcopsColumn(
+    hallucinations_schizophrenic = camcops_column(
         "hallucinations_schizophrenic",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -209,13 +209,13 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "or other types of hallucinatory voices coming from some part "
         "of the body).",
     )
-    hallucinations_other = CamcopsColumn(
+    hallucinations_other = camcops_column(
         "hallucinations_other",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Hallucinations (of any other kind).",
     )
-    delusions_schizophrenic = CamcopsColumn(
+    delusions_schizophrenic = camcops_column(
         "delusions_schizophrenic",
         Boolean,
         permitted_value_checker=BIT_CHECKER,
@@ -226,7 +226,7 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "other kinds that are culturally inappropriate and completely "
         "impossible).",
     )
-    delusions_other = CamcopsColumn(
+    delusions_other = camcops_column(
         "delusions_other",
         Boolean,
         permitted_value_checker=BIT_CHECKER,

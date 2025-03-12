@@ -45,7 +45,13 @@ import phonenumbers
 import pyotp
 from sqlalchemy import text
 from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.orm import relationship, Session as SqlASession, Query
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_column,
+    relationship,
+    Session as SqlASession,
+    Query,
+)
 from sqlalchemy.sql import false
 from sqlalchemy.sql.expression import and_, exists, not_
 from sqlalchemy.sql.functions import func
@@ -120,7 +126,7 @@ class SecurityAccountLockout(Base):
     __tablename__ = "_security_account_lockouts"
 
     id = Column("id", Integer, primary_key=True, autoincrement=True)
-    username = Column(
+    username: Mapped[str] = mapped_column(
         "username",
         UserNameCamcopsColType,
         nullable=False,
@@ -430,8 +436,8 @@ class User(Base):
         comment="User name",
     )  # type: str
     fullname = Column("fullname", FullNameColType, comment="User's full name")
-    email = Column(
-        "email", EmailAddressColType, comment="User's e-mail address"
+    email: Mapped[Optional[str]] = mapped_column(
+        EmailAddressColType, comment="User's e-mail address"
     )
     phone_number = Column(
         "phone_number", PhoneNumberColType, comment="User's phone number"

@@ -489,7 +489,7 @@ class RedcapExportTestCase(DemoRequestTestCase):
 
         recipientinfo = ExportRecipientInfo()
 
-        self.recipient = ExportRecipient(recipientinfo)
+        self.recipient = ExportRecipient(other=recipientinfo)
         self.recipient.primary_idnum = self.patient_idnum.which_idnum
 
         # auto increment doesn't work for BigInteger with SQLite

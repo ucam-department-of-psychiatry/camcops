@@ -34,7 +34,7 @@ from cardinal_pythonlib.httpconst import MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from pendulum import DateTime as Pendulum
 from sqlalchemy.orm import relationship
-from sqlalchemy.orm import Session as SqlASession
+from sqlalchemy.orm import Mapped, mapped_column, Session as SqlASession
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, Text
@@ -50,7 +50,7 @@ from camcops_server.cc_modules.cc_html import (
 )
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     MimeTypeColType,
     TableNameColType,
 )
@@ -93,10 +93,7 @@ class Blob(GenericTabletRecordMixin, TaskDescendant, Base):
     """
 
     __tablename__ = "blobs"
-    id = Column(
-        "id",
-        Integer,
-        nullable=False,
+    id: Mapped[int] = mapped_column(
         comment="BLOB (binary large object) primary key on the source "
         "tablet device",
     )
@@ -119,7 +116,7 @@ class Blob(GenericTabletRecordMixin, TaskDescendant, Base):
         nullable=False,
         comment="Field name of the field referring to this BLOB by ID",
     )
-    filename = CamcopsColumn(
+    filename = camcops_column(
         "filename",
         Text,  # Text is correct; filenames can be long
         exempt_from_anonymisation=True,
@@ -127,20 +124,20 @@ class Blob(GenericTabletRecordMixin, TaskDescendant, Base):
         "the source device, BLOBs are stored in files, not in "
         "the database)",
     )
-    mimetype = Column(
-        "mimetype", MimeTypeColType, comment="MIME type of the BLOB"
+    mimetype: Mapped[Optional[str]] = mapped_column(
+        MimeTypeColType, comment="MIME type of the BLOB"
     )
     image_rotation_deg_cw = Column(
         "image_rotation_deg_cw",
         Integer,
         comment="For images: rotation to be applied, clockwise, in degrees",
     )
-    theblob = Column(
+    theblob: Mapped[Optional[bytes]] = mapped_column(
         "theblob",
         LongBlob,
         comment="The BLOB itself, a binary object containing arbitrary "
         "information (such as a picture)",
-    )  # type: Optional[bytes]
+    )
 
     @classmethod
     def get_current_blob_by_client_info(
@@ -285,7 +282,7 @@ def blob_relationship(
 
         class Something(Base):
 
-            photo_blobid = CamcopsColumn(
+            photo_blobid = camcops_column(
                 "photo_blobid", Integer,
                 is_blob_id_field=True, blob_field_xml_name="photo_blob"
             )

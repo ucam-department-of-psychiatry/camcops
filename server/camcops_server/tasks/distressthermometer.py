@@ -25,10 +25,9 @@ camcops_server/tasks/distressthermometer.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
@@ -42,7 +41,7 @@ from camcops_server.cc_modules.cc_html import (
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     PermittedValueChecker,
 )
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
@@ -53,14 +52,19 @@ from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 # =============================================================================
 
 
-class DistressThermometerMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["DistressThermometer"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class DistressThermometer(
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the DistressThermometer task.
+    """
+
+    __tablename__ = "distressthermometer"
+    shortname = "Distress Thermometer"
+
+    @classmethod
+    def extend_table(cls: Type["DistressThermometer"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -107,20 +111,8 @@ class DistressThermometerMetaclass(DeclarativeMeta):
                 "tingling in hands/feet",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class DistressThermometer(
-    TaskHasPatientMixin, Task, metaclass=DistressThermometerMetaclass
-):
-    """
-    Server implementation of the DistressThermometer task.
-    """
-
-    __tablename__ = "distressthermometer"
-    shortname = "Distress Thermometer"
-
-    distress = CamcopsColumn(
+    distress = camcops_column(
         "distress",
         Integer,
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=10),

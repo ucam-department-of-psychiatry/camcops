@@ -72,7 +72,7 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     PermittedValueChecker,
     permitted_value_failure_msgs,
     permitted_values_ok,
@@ -320,7 +320,7 @@ class ComplexTask(
     __tablename__ = "table_for_complex_task"
     some_pk = Column("some_pk", Integer, primary_key=True)
 
-    checkme = CamcopsColumn(
+    checkme = camcops_column(
         "checkme_internal",
         Integer,
         # NB: different SQL name from attr name (this tests whether we have

@@ -37,7 +37,7 @@ from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     ONE_TO_FIVE_CHECKER,
     ZERO_TO_100_CHECKER,
 )
@@ -75,42 +75,42 @@ class Eq5d5l(TaskHasPatientMixin, Task):
     shortname = "EQ-5D-5L"
     provides_trackers = True
 
-    q1 = CamcopsColumn(
+    q1 = camcops_column(
         "q1",
         Integer,
         comment="Q1 (mobility) (1 no problems - 5 unable)",
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
-    q2 = CamcopsColumn(
+    q2 = camcops_column(
         "q2",
         Integer,
         comment="Q2 (self-care) (1 no problems - 5 unable)",
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
-    q3 = CamcopsColumn(
+    q3 = camcops_column(
         "q3",
         Integer,
         comment="Q3 (usual activities) (1 no problems - 5 unable)",
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
-    q4 = CamcopsColumn(
+    q4 = camcops_column(
         "q4",
         Integer,
         comment="Q4 (pain/discomfort) (1 none - 5 extreme)",
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
-    q5 = CamcopsColumn(
+    q5 = camcops_column(
         "q5",
         Integer,
         comment="Q5 (anxiety/depression) (1 not - 5 extremely)",
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
-    health_vas = CamcopsColumn(
+    health_vas = camcops_column(
         "health_vas",
         Integer,
         comment="Visual analogue scale for overall health (0 worst - 100 best)",  # noqa

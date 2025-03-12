@@ -25,9 +25,8 @@ camcops_server/tasks/ifs.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Dict, List, Type
 
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer
 
 from camcops_server.cc_modules.cc_constants import (
@@ -46,7 +45,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    camcops_column,
     ZERO_TO_ONE_CHECKER,
     ZERO_TO_TWO_CHECKER,
     ZERO_TO_THREE_CHECKER,
@@ -65,21 +64,28 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class IfsMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Ifs"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Ifs(
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
+):
+    """
+    Server implementation of the IFS task.
+    """
+
+    __tablename__ = "ifs"
+    shortname = "IFS"
+    provides_trackers = True
+
+    @classmethod
+    def extend_table(cls: Type["Ifs"], **kwargs) -> None:
         for seqlen in cls.Q4_DIGIT_LENGTHS:
             fname1 = f"q4_len{seqlen}_1"
             fname2 = f"q4_len{seqlen}_2"
             setattr(
                 cls,
                 fname1,
-                CamcopsColumn(
+                camcops_column(
                     fname1,
                     Boolean,
                     permitted_value_checker=BIT_CHECKER,
@@ -89,7 +95,7 @@ class IfsMetaclass(DeclarativeMeta):
             setattr(
                 cls,
                 fname2,
-                CamcopsColumn(
+                camcops_column(
                     fname2,
                     Boolean,
                     permitted_value_checker=BIT_CHECKER,
@@ -101,7 +107,7 @@ class IfsMetaclass(DeclarativeMeta):
             setattr(
                 cls,
                 fname,
-                CamcopsColumn(
+                camcops_column(
                     fname,
                     Integer,
                     permitted_value_checker=BIT_CHECKER,
@@ -113,7 +119,7 @@ class IfsMetaclass(DeclarativeMeta):
             setattr(
                 cls,
                 fname,
-                CamcopsColumn(
+                camcops_column(
                     fname,
                     Float,
                     permitted_value_checker=ZERO_TO_ONE_CHECKER,
@@ -126,46 +132,33 @@ class IfsMetaclass(DeclarativeMeta):
             setattr(
                 cls,
                 fname,
-                CamcopsColumn(
+                camcops_column(
                     fname,
                     Integer,
                     permitted_value_checker=ZERO_TO_TWO_CHECKER,
                     comment=f"Q8. Hayling, sentence {n}",
                 ),
             )
-        super().__init__(name, bases, classdict)
 
-
-class Ifs(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=IfsMetaclass
-):
-    """
-    Server implementation of the IFS task.
-    """
-
-    __tablename__ = "ifs"
-    shortname = "IFS"
-    provides_trackers = True
-
-    q1 = CamcopsColumn(
+    q1 = camcops_column(
         "q1",
         Integer,
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment="Q1. Motor series (motor programming)",
     )
-    q2 = CamcopsColumn(
+    q2 = camcops_column(
         "q2",
         Integer,
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment="Q2. Conflicting instructions (interference sensitivity)",
     )
-    q3 = CamcopsColumn(
+    q3 = camcops_column(
         "q3",
         Integer,
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment="Q3. Go/no-go (inhibitory control)",
     )
-    q5 = CamcopsColumn(
+    q5 = camcops_column(
         "q5",
         Integer,
         permitted_value_checker=ZERO_TO_TWO_CHECKER,

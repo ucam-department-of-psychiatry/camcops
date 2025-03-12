@@ -37,7 +37,7 @@ from camcops_server.cc_modules.cc_db import (
 )
 from camcops_server.cc_modules.cc_html import answer, tr_qa
 from camcops_server.cc_modules.cc_sqlalchemy import Base
-from camcops_server.cc_modules.cc_sqla_coltypes import CamcopsColumn
+from camcops_server.cc_modules.cc_sqla_coltypes import camcops_column
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 if TYPE_CHECKING:
@@ -84,33 +84,35 @@ class KhandakerMojoTableItem(GenericTabletRecordMixin, TaskDescendant, Base):
 class KhandakerMojoMedicationItem(KhandakerMojoTableItem):
     __tablename__ = "khandaker_mojo_medication_item"
 
-    medicationtable_id = CamcopsColumn(
+    medicationtable_id = camcops_column(
         "medicationtable_id",
         Integer,
         nullable=False,
         comment="FK to medicationtable",
     )
-    seqnum = CamcopsColumn(
+    seqnum = camcops_column(
         "seqnum",
         Integer,
         nullable=False,
         comment="Sequence number of this medication",
     )
-    brand_name = CamcopsColumn("brand_name", UnicodeText, comment="Brand name")
-    chemical_name = CamcopsColumn(
+    brand_name = camcops_column(
+        "brand_name", UnicodeText, comment="Brand name"
+    )
+    chemical_name = camcops_column(
         "chemical_name", UnicodeText, comment="Chemical name for study team"
     )
-    dose = CamcopsColumn("dose", UnicodeText, comment="Dose")
-    frequency = CamcopsColumn("frequency", UnicodeText, comment="Frequency")
-    duration_months = CamcopsColumn(
+    dose = camcops_column("dose", UnicodeText, comment="Dose")
+    frequency = camcops_column("frequency", UnicodeText, comment="Frequency")
+    duration_months = camcops_column(
         "duration_months", Float, comment="Duration (months)"
     )
-    indication = CamcopsColumn(
+    indication = camcops_column(
         "indication",
         UnicodeText,
         comment="Indication (what is the medication used for?)",
     )
-    response = CamcopsColumn(
+    response = camcops_column(
         "response",
         Integer,
         comment=(
@@ -150,32 +152,32 @@ class KhandakerMojoMedicationItem(KhandakerMojoTableItem):
 class KhandakerMojoTherapyItem(KhandakerMojoTableItem):
     __tablename__ = "khandaker_mojo_therapy_item"
 
-    medicationtable_id = CamcopsColumn(
+    medicationtable_id = camcops_column(
         "medicationtable_id",
         Integer,
         nullable=False,
         comment="FK to medicationtable",
     )
-    seqnum = CamcopsColumn(
+    seqnum = camcops_column(
         "seqnum",
         Integer,
         nullable=False,
         comment="Sequence number of this therapy",
     )
-    therapy = CamcopsColumn("therapy", UnicodeText, comment="Therapy")
-    frequency = CamcopsColumn("frequency", UnicodeText, comment="Frequency")
-    sessions_completed = CamcopsColumn(
+    therapy = camcops_column("therapy", UnicodeText, comment="Therapy")
+    frequency = camcops_column("frequency", UnicodeText, comment="Frequency")
+    sessions_completed = camcops_column(
         "sessions_completed", Integer, comment="Sessions completed"
     )
-    sessions_planned = CamcopsColumn(
+    sessions_planned = camcops_column(
         "sessions_planned", Integer, comment="Sessions planned"
     )
-    indication = CamcopsColumn(
+    indication = camcops_column(
         "indication",
         UnicodeText,
         comment="Indication (what is the medication used for?)",
     )
-    response = CamcopsColumn(
+    response = camcops_column(
         "response",
         Integer,
         comment=(

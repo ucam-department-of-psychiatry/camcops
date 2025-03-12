@@ -25,12 +25,11 @@ camcops_server/tasks/cesdr.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import List, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
 from semantic_version import Version
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -59,18 +58,42 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class CesdrMetaclass(DeclarativeMeta):
+class Cesdr(
+    TaskHasPatientMixin,
+    Task,
+):
     """
-    There is a multilayer metaclass problem; see hads.py for discussion.
+    Server implementation of the CESD task.
     """
 
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Cesdr"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+    __tablename__ = "cesdr"
+    shortname = "CESD-R"
+    info_filename_stem = "cesd"
+    provides_trackers = True
+
+    CAT_NONCLINICAL = 0
+    CAT_SUB = 1
+    CAT_POSS_MAJOR = 2
+    CAT_PROB_MAJOR = 3
+    CAT_MAJOR = 4
+
+    DEPRESSION_RISK_THRESHOLD = 16
+
+    FREQ_NOT_AT_ALL = 0
+    FREQ_1_2_DAYS_LAST_WEEK = 1
+    FREQ_3_4_DAYS_LAST_WEEK = 2
+    FREQ_5_7_DAYS_LAST_WEEK = 3
+    FREQ_DAILY_2_WEEKS = 4
+
+    N_QUESTIONS = 20
+    N_ANSWERS = 5
+
+    POSS_MAJOR_THRESH = 2
+    PROB_MAJOR_THRESH = 3
+    MAJOR_THRESH = 4
+
+    @classmethod
+    def extend_table(cls: Type["Cesdr"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -105,39 +128,6 @@ class CesdrMetaclass(DeclarativeMeta):
                 "lack of focus",
             ],
         )
-        super().__init__(name, bases, classdict)
-
-
-class Cesdr(TaskHasPatientMixin, Task, metaclass=CesdrMetaclass):
-    """
-    Server implementation of the CESD task.
-    """
-
-    __tablename__ = "cesdr"
-    shortname = "CESD-R"
-    info_filename_stem = "cesd"
-    provides_trackers = True
-
-    CAT_NONCLINICAL = 0
-    CAT_SUB = 1
-    CAT_POSS_MAJOR = 2
-    CAT_PROB_MAJOR = 3
-    CAT_MAJOR = 4
-
-    DEPRESSION_RISK_THRESHOLD = 16
-
-    FREQ_NOT_AT_ALL = 0
-    FREQ_1_2_DAYS_LAST_WEEK = 1
-    FREQ_3_4_DAYS_LAST_WEEK = 2
-    FREQ_5_7_DAYS_LAST_WEEK = 3
-    FREQ_DAILY_2_WEEKS = 4
-
-    N_QUESTIONS = 20
-    N_ANSWERS = 5
-
-    POSS_MAJOR_THRESH = 2
-    PROB_MAJOR_THRESH = 3
-    MAJOR_THRESH = 4
 
     SCORED_FIELDS = strseq("q", 1, N_QUESTIONS)
     TASK_FIELDS = SCORED_FIELDS

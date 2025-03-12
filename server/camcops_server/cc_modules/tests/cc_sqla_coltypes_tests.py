@@ -31,29 +31,42 @@ from cardinal_pythonlib.datetimefunc import coerce_to_pendulum
 import pendulum
 from pendulum import DateTime as Pendulum, Duration
 import phonenumbers
+import pytest
 from semantic_version import Version
 from sqlalchemy import insert
+from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.sql.expression import select
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import DateTime, Integer
 
 from camcops_server.cc_modules.cc_sqla_coltypes import (
+    bool_column,
+    camcops_column,
+    gen_camcops_blob_columns,
+    gen_camcops_columns,
+    gen_columns_matching_attrnames,
     isotzdatetime_to_utcdatetime,
+    ONE_TO_THREE_CHECKER,
     PendulumDateTimeAsIsoTextColType,
     PendulumDurationAsIsoTextColType,
+    permitted_value_failure_msgs,
+    permitted_values_ok,
     PhoneNumberColType,
     SemanticVersionColType,
     unknown_field_to_utcdatetime,
 )
-from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
+
+
+class TestColTypeBase(DeclarativeBase):
+    pass
 
 
 # =============================================================================
 # Unit testing
 # =============================================================================
-class TestColType(Base):
+class TestColType(TestColTypeBase):
     __tablename__ = "test_coltype"
 
     id = Column("id", Integer, primary_key=True)
@@ -63,9 +76,27 @@ class TestColType(Base):
     duration_iso = Column("duration_iso", PendulumDurationAsIsoTextColType)
     version = Column("version", SemanticVersionColType)
     phone_number = Column("phone_number", PhoneNumberColType)
+    number_1_to_3 = camcops_column(
+        "number_1_to_3", Integer, permitted_value_checker=ONE_TO_THREE_CHECKER
+    )
+    flag = bool_column("flag")
+    blob_id = camcops_column(
+        "blob_id",
+        Integer,
+        is_blob_id_field=True,
+        blob_relationship_attr_name="picture",
+    )
 
 
-class SqlaColtypesTest(DemoRequestTestCase):
+@pytest.mark.usefixtures("setup_temp_session")
+class SqlaColtypesTestCase(DemoRequestTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        TestColType.metadata.create_all(self.temp_engine)
+
+
+class SqlaColtypesTest(SqlaColtypesTestCase):
     def _assert_dt_equal(
         self,
         a: Union[datetime.datetime, Pendulum],
@@ -86,7 +117,7 @@ class SqlaColtypesTest(DemoRequestTestCase):
 
         table = TestColType.__table__
 
-        self.dbsession.execute(
+        self.temp_session.execute(
             insert(table).values(
                 [
                     {
@@ -128,7 +159,7 @@ class SqlaColtypesTest(DemoRequestTestCase):
             .order_by(table.c.id)
         )
 
-        rows = list(self.dbsession.execute(statement).mappings())
+        rows = list(self.temp_session.execute(statement).mappings())
 
         self._assert_dt_equal(rows[0].dt_local, now)
         self._assert_dt_equal(rows[0].dt_utc, now_utc)
@@ -154,7 +185,7 @@ class SqlaColtypesTest(DemoRequestTestCase):
 
         table = TestColType.__table__
 
-        self.dbsession.execute(
+        self.temp_session.execute(
             insert(table).values(
                 [
                     {"id": 1, "duration_iso": d1},
@@ -170,7 +201,7 @@ class SqlaColtypesTest(DemoRequestTestCase):
             .order_by(table.c.id)
         )
 
-        rows = list(self.dbsession.execute(statement).mappings())
+        rows = list(self.temp_session.execute(statement).mappings())
 
         self._assert_duration_equal(rows[0].duration_iso, d1)
         self._assert_duration_equal(rows[1].duration_iso, d2)
@@ -183,7 +214,7 @@ class SqlaColtypesTest(DemoRequestTestCase):
 
         table = TestColType.__table__
 
-        self.dbsession.execute(
+        self.temp_session.execute(
             insert(table).values(
                 [
                     {"id": 1, "version": v1},
@@ -199,7 +230,7 @@ class SqlaColtypesTest(DemoRequestTestCase):
             .order_by(table.c.id)
         )
 
-        rows = list(self.dbsession.execute(statement).mappings())
+        rows = list(self.temp_session.execute(statement).mappings())
 
         self.assertEqual(rows[0]["version"], v1)
         self.assertEqual(rows[1]["version"], v2)
@@ -214,7 +245,7 @@ class SqlaColtypesTest(DemoRequestTestCase):
 
         table = TestColType.__table__
 
-        self.dbsession.execute(
+        self.temp_session.execute(
             insert(table).values(
                 [
                     {"id": 1, "phone_number": p1},
@@ -231,9 +262,70 @@ class SqlaColtypesTest(DemoRequestTestCase):
             .order_by(table.c.id)
         )
 
-        rows = list(self.dbsession.execute(statement).mappings())
+        rows = list(self.temp_session.execute(statement).mappings())
 
         self.assertEqual(rows[0]["phone_number"], p1)
         self.assertEqual(rows[1]["phone_number"], p2)
         self.assertEqual(rows[2]["phone_number"], p3)
         self.assertIsNone(rows[3]["phone_number"])
+
+
+class GenCamcopsColumnsTests(SqlaColtypesTestCase):
+    def test_returns_camcops_columns(self) -> None:
+        obj = TestColType(id=1, number_1_to_3=1, flag=True)
+
+        for name, column in gen_camcops_columns(obj):
+            if name not in ["number_1_to_3", "flag", "blob_id"]:
+                self.fail(
+                    f"Unexpected camcops column returned with name '{name}'"
+                )
+            self.assertTrue(column.info.get("is_camcops_column"))
+
+
+class GenCamcopsBlobColumnsTests(SqlaColtypesTestCase):
+    def test_returns_camcops_columns(self) -> None:
+        obj = TestColType(id=1, blob_id=2)
+
+        for name, column in gen_camcops_blob_columns(obj):
+            if name not in ["blob_id"]:
+                self.fail(
+                    f"Unexpected blob column returned with name '{name}'"
+                )
+            self.assertTrue(column.info.get("is_blob_id_field"))
+
+
+class GenColumnsMatchingAttrnamesTests(SqlaColtypesTestCase):
+    def test_returns_matching_columns(self) -> None:
+        obj = TestColType(id=1, number_1_to_3=1, flag=True)
+
+        attrnames = ["phone_number", "number_1_to_3", "flag"]
+
+        for name, column in gen_columns_matching_attrnames(obj, attrnames):
+            if name not in attrnames:
+                self.fail(f"Unexpected column returned with name '{name}'")
+            attrnames.remove(name)
+            self.assertIsInstance(column, Column)
+
+        self.assertEqual(attrnames, [])
+
+
+class PermittedValueFailureMsgsTests(SqlaColtypesTestCase):
+    def test_returns_failure_messages(self) -> None:
+        obj = TestColType(id=1, number_1_to_3=123)
+
+        messages = permitted_value_failure_msgs(obj)
+        self.assertEqual(len(messages), 1)
+
+        self.assertIn("Invalid value", messages[0])
+
+
+class PermittedValuesOkTests(SqlaColtypesTestCase):
+    def test_returns_false_if_not_ok(self) -> None:
+        obj = TestColType(id=1, number_1_to_3=123)
+
+        self.assertFalse(permitted_values_ok(obj))
+
+    def test_returns_true_if_ok(self) -> None:
+        obj = TestColType(id=1, number_1_to_3=1)
+
+        self.assertTrue(permitted_values_ok(obj))

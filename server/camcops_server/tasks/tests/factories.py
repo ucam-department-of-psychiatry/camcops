@@ -59,6 +59,8 @@ from camcops_server.tasks.cardinal_expdetthreshold import (
 )
 from camcops_server.tasks.cardinal_expectationdetection import (
     CardinalExpectationDetection,
+    ExpDetTrial,
+    ExpDetTrialGroupSpec,
 )
 from camcops_server.tasks.cbir import CbiR
 from camcops_server.tasks.ceca import CecaQ3
@@ -498,6 +500,51 @@ class CardinalExpectationDetectionFactory(TaskHasPatientFactory):
         model = CardinalExpectationDetection
 
     id = factory.Sequence(lambda n: n + 1)
+    num_blocks = factory.LazyFunction(Fake.en_gb.pyint)
+
+    @factory.post_generation
+    def trials(
+        obj: "Resolver", create: bool, num_trials: int, **kwargs
+    ) -> None:
+        if not create:
+            return
+
+        if num_trials:
+            ExpDetTrialFactory.create_batch(
+                size=num_trials,
+                cardinal_expdet_id=obj.id,
+                _device=obj._device,
+            )
+
+    @factory.post_generation
+    def groupspecs(
+        obj: "Resolver", create: bool, num_groupspecs: int, **kwargs
+    ) -> None:
+        if not create:
+            return
+
+        if num_groupspecs:
+            ExpDetTrialGroupSpecFactory.create_batch(
+                size=num_groupspecs,
+                cardinal_expdet_id=obj.id,
+                _device=obj._device,
+            )
+
+
+class ExpDetTrialFactory(GenericTabletRecordFactory):
+    class Meta:
+        model = ExpDetTrial
+
+    id = factory.Sequence(lambda n: n + 1)
+    trial = factory.Sequence(lambda n: n + 1)
+
+
+class ExpDetTrialGroupSpecFactory(GenericTabletRecordFactory):
+    class Meta:
+        model = ExpDetTrialGroupSpec
+
+    id = factory.Sequence(lambda n: n + 1)
+    group_num = factory.Sequence(lambda n: n + 1)
 
 
 class CardinalExpDetThresholdFactory(TaskHasPatientFactory):

@@ -25,12 +25,11 @@ camcops_server/tasks/pcl5.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import List, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
 from semantic_version import Version
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -65,18 +64,22 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Pcl5Metaclass(DeclarativeMeta):
+class Pcl5(
+    TaskHasPatientMixin,
+    Task,
+):
     """
-    There is a multilayer metaclass problem; see hads.py for discussion.
+    Server implementation of the PCL-5 task.
     """
 
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Pcl5"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+    __tablename__ = "pcl5"
+    shortname = "PCL-5"
+    provides_trackers = True
+    extrastring_taskname = "pcl5"
+    N_QUESTIONS = 20
+
+    @classmethod
+    def extend_table(cls: Type["Pcl5"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -108,19 +111,7 @@ class Pcl5Metaclass(DeclarativeMeta):
                 "hard to sleep",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Pcl5(TaskHasPatientMixin, Task, metaclass=Pcl5Metaclass):
-    """
-    Server implementation of the PCL-5 task.
-    """
-
-    __tablename__ = "pcl5"
-    shortname = "PCL-5"
-    provides_trackers = True
-    extrastring_taskname = "pcl5"
-    N_QUESTIONS = 20
     SCORED_FIELDS = strseq("q", 1, N_QUESTIONS)
     TASK_FIELDS = SCORED_FIELDS  # may be overridden
     MIN_SCORE = 0

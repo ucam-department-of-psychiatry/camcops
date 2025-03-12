@@ -42,12 +42,14 @@ from camcops_server.cc_modules.cc_constants import DateFormat, ERA_NOW
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_dirtytables import DirtyTable
 from camcops_server.cc_modules.cc_email import Email
+from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
 from camcops_server.cc_modules.cc_ipuse import IpUse
 from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+from camcops_server.cc_modules.cc_specialnote import SpecialNote
 from camcops_server.cc_modules.cc_testproviders import register_all_providers
 from camcops_server.cc_modules.cc_taskschedule import (
     PatientTaskSchedule,
@@ -413,3 +415,40 @@ class BlobFactory(GenericTabletRecordFactory):
 class DirtyTableFactory(BaseFactory):
     class Meta:
         model = DirtyTable
+
+
+class SpecialNoteFactory(BaseFactory):
+    class Meta:
+        model = SpecialNote
+
+    @classmethod
+    def create(cls, *args, **kwargs) -> SpecialNote:
+        task = kwargs.pop("task", None)
+        if task is not None:
+            if "task_id" in kwargs:
+                raise TypeError(
+                    "Both 'task' and 'task_id' keyword arguments "
+                    f"unexpectedly passed to {cls.__name__}. Use one or the "
+                    "other."
+                )
+            kwargs["task_id"] = task.id
+
+            if "basetable" not in kwargs:
+                kwargs["basetable"] = task.__tablename__
+            if "device_id" not in kwargs:
+                kwargs["device_id"] = task._device.id
+            if "era" not in kwargs:
+                kwargs["era"] = task._era
+
+        return super().create(*args, **kwargs)
+
+
+class ExportRecipientFactory(BaseFactory):
+    class Meta:
+        exclude = ("iddef",)
+        model = ExportRecipient
+
+    id = factory.Sequence(lambda n: n + ID_OFFSET)
+
+    iddef = factory.SubFactory(IdNumDefinitionFactory)
+    primary_idnum = factory.SelfAttribute("iddef.which_idnum")

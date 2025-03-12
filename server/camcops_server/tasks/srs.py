@@ -35,7 +35,7 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     ZERO_TO_10_CHECKER,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -62,27 +62,27 @@ class Srs(TaskHasPatientMixin, Task):
     VAS_MIN_INT = 0
     VAS_MAX_INT = 10
 
-    q_session = CamcopsColumn("q_session", Integer, comment="Session number")
-    q_date = CamcopsColumn("q_date", Date, comment="Session date")
-    q_relationship = CamcopsColumn(
+    q_session = camcops_column("q_session", Integer, comment="Session number")
+    q_date = camcops_column("q_date", Date, comment="Session date")
+    q_relationship = camcops_column(
         "q_relationship",
         Float,
         comment="Rating of patient-therapist relationship (0-10, 10 better)",
         permitted_value_checker=ZERO_TO_10_CHECKER,
     )
-    q_goals = CamcopsColumn(
+    q_goals = camcops_column(
         "q_goals",
         Float,
         comment="Rating for topics discussed (0-10, 10 better)",
         permitted_value_checker=ZERO_TO_10_CHECKER,
     )
-    q_approach = CamcopsColumn(
+    q_approach = camcops_column(
         "q_approach",
         Float,
         comment="Rating for therapist's approach (0-10, 10 better)",
         permitted_value_checker=ZERO_TO_10_CHECKER,
     )
-    q_overall = CamcopsColumn(
+    q_overall = camcops_column(
         "q_overall",
         Float,
         comment="Overall rating (0-10, 10 better)",

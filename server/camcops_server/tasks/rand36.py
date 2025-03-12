@@ -25,11 +25,10 @@ camcops_server/tasks/rand36.py
 
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.maths_py import mean
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Float, Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -38,7 +37,7 @@ from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, identity, tr, tr_span_col
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     ONE_TO_FIVE_CHECKER,
     ONE_TO_SIX_CHECKER,
 )
@@ -52,14 +51,22 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Rand36Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Rand36"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Rand36(
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the RAND-36 task.
+    """
+
+    __tablename__ = "rand36"
+    shortname = "RAND-36"
+    provides_trackers = True
+
+    NQUESTIONS = 36
+
+    @classmethod
+    def extend_table(cls: Type["Rand36"], **kwargs) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -149,34 +156,21 @@ class Rand36Metaclass(DeclarativeMeta):
                 "My health is excellent",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Rand36(TaskHasPatientMixin, Task, metaclass=Rand36Metaclass):
-    """
-    Server implementation of the RAND-36 task.
-    """
-
-    __tablename__ = "rand36"
-    shortname = "RAND-36"
-    provides_trackers = True
-
-    NQUESTIONS = 36
-
-    q1 = CamcopsColumn(
+    q1 = camcops_column(
         "q1",
         Integer,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Q1 (general health) (1 excellent - 5 poor)",
     )
-    q2 = CamcopsColumn(
+    q2 = camcops_column(
         "q2",
         Integer,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Q2 (health cf. 1y ago) (1 much better - 5 much worse)",
     )
 
-    q20 = CamcopsColumn(
+    q20 = camcops_column(
         "q20",
         Integer,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
@@ -184,13 +178,13 @@ class Rand36(TaskHasPatientMixin, Task, metaclass=Rand36Metaclass):
         "emotional problems interfered with social activity) "
         "(1 not at all - 5 extremely)",
     )
-    q21 = CamcopsColumn(
+    q21 = camcops_column(
         "q21",
         Integer,
         permitted_value_checker=ONE_TO_SIX_CHECKER,
         comment="Q21 (past 4 weeks, how much pain (1 none - 6 very severe)",
     )
-    q22 = CamcopsColumn(
+    q22 = camcops_column(
         "q22",
         Integer,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
@@ -198,7 +192,7 @@ class Rand36(TaskHasPatientMixin, Task, metaclass=Rand36Metaclass):
         "(1 not at all - 5 extremely)",
     )
 
-    q32 = CamcopsColumn(
+    q32 = camcops_column(
         "q32",
         Integer,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
