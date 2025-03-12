@@ -455,7 +455,7 @@ class Patient(GenericTabletRecordMixin, Base):
             # this. It is probably good practice anyway.
 
             # MyPy does not recognise try... except AttributeError
-            return False
+            return NotImplemented
 
         # Same device/era/patient ID (client PK)? Test int before str for speed
         if (
