@@ -1737,6 +1737,19 @@ def gen_blob_relationships(
 
 
 def bool_column(name: str, *args, **kwargs) -> Column[bool]:
+    type_arg = _get_bool_column_args(name, kwargs)
+
+    return camcops_column(name, type_arg, *args, **kwargs)
+
+
+def mapped_bool_column(name: str, *args, **kwargs) -> MappedColumn[bool]:
+
+    type_arg = _get_bool_column_args(name, kwargs)
+
+    return mapped_camcops_column(name, type_arg, *args, **kwargs)
+
+
+def _get_bool_column_args(name: str, kwargs: dict[str, Any]) -> Boolean:
     constraint_name = kwargs.pop(
         "constraint_name", None
     )  # type: Optional[str]
@@ -1756,4 +1769,4 @@ def bool_column(name: str, *args, **kwargs) -> Column[bool]:
             name,
         )
 
-    return camcops_column(name, type_arg, *args, **kwargs)
+    return type_arg
