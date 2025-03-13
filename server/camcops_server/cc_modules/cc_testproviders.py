@@ -50,7 +50,7 @@ class NhsNumberProvider(BaseProvider):
 
 
 class ChoiceProvider(BaseProvider):
-    def random_choice(self, choices: List, **kwargs) -> Any:
+    def random_choice(self, choices: List, **kwargs: Any) -> Any:
         """
         Given a list of choices return a random value
         """
