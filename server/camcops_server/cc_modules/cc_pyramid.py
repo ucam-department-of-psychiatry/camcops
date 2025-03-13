@@ -660,9 +660,7 @@ class UrlParam(object):
 
     """
 
-    def __init__(
-        self, name: str, paramtype: UrlParamType == UrlParamType.PLAIN_STRING
-    ) -> None:
+    def __init__(self, name: str, paramtype: UrlParamType) -> None:
         """
         Args:
             name: the name of the parameter
@@ -1653,7 +1651,7 @@ class CamcopsPage(Page):
         item_count: int = None,
         wrapper_class: Type[Any] = None,
         ellipsis: str = "&hellip;",
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         """
         See :class:`paginate.Page`. Additional arguments:
@@ -1703,7 +1701,7 @@ class CamcopsPage(Page):
         curpage_attr: Dict[str, str] = None,
         dotdot_attr: Dict[str, str] = None,
         link_tag: Callable[[Dict[str, str]], str] = None,
-    ):
+    ) -> str:
         """
         See :func:`paginate.Page.pager`.
 
@@ -1757,7 +1755,7 @@ class CamcopsPage(Page):
         link_attr: Dict[str, str] = None,
         curpage_attr: Dict[str, str] = None,
         dotdot_attr: Dict[str, str] = None,
-    ):
+    ) -> dict[str, Any]:
         """
         See equivalent in superclass.
 
@@ -1911,7 +1909,7 @@ class SqlalchemyOrmPage(CamcopsPage):
         page: int = 1,
         items_per_page: int = DEFAULT_ROWS_PER_PAGE,
         item_count: int = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         # Since views may accidentally throw strings our way:
         assert isinstance(page, int)
@@ -2029,6 +2027,6 @@ class HTTPFoundDebugVersion(HTTPFound):
     A debugging version of :class:`HTTPFound`, for debugging redirections.
     """
 
-    def __init__(self, location: str = "", **kwargs) -> None:
+    def __init__(self, location: str = "", **kwargs: Any) -> None:
         log.debug("Redirecting to {!r}", location)
         super().__init__(location, **kwargs)
