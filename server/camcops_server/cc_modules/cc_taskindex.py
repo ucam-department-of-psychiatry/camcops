@@ -31,6 +31,7 @@ it caches ``is_complete()`` information).
 
 """
 
+import datetime
 import logging
 from typing import List, Optional, Type, TYPE_CHECKING
 
@@ -51,8 +52,8 @@ from sqlalchemy.orm import (
     Session as SqlASession,
 )
 from sqlalchemy.sql.expression import and_, exists, join, literal, select
-from sqlalchemy.sql.schema import Column, ForeignKey, Table
-from sqlalchemy.sql.sqltypes import BigInteger, Boolean, DateTime, Integer
+from sqlalchemy.sql.schema import ForeignKey, Table
+from sqlalchemy.sql.sqltypes import BigInteger
 
 from camcops_server.cc_modules.cc_client_api_core import (
     BatchDetails,
@@ -132,39 +133,29 @@ class PatientIdNumIndexEntry(Base):
 
     __tablename__ = "_idnum_index"
 
-    idnum_pk = Column(
-        "idnum_pk",
-        Integer,
+    idnum_pk: Mapped[int] = mapped_column(
         primary_key=True,
         index=True,
         comment="Server primary key of the PatientIdNum "
         "(and of the PatientIdNumIndexEntry)",
     )
-    indexed_at_utc = Column(
-        "indexed_at_utc",
-        DateTime,
-        nullable=False,
+    indexed_at_utc: Mapped[datetime.datetime] = mapped_column(
         comment="When this index entry was created",
     )
 
     # noinspection PyProtectedMember
-    patient_pk = Column(
-        "patient_pk",
-        Integer,
+    patient_pk: Mapped[Optional[int]] = mapped_column(
         ForeignKey(Patient._pk),
         index=True,
         comment="Server primary key of the Patient",
     )
-    which_idnum = Column(
-        "which_idnum",
-        Integer,
+    which_idnum: Mapped[int] = mapped_column(
         ForeignKey(IdNumDefinition.which_idnum),
-        nullable=False,
         index=True,
         comment="Which of the server's ID numbers is this?",
     )
-    idnum_value = Column(
-        "idnum_value", BigInteger, comment="The value of the ID number"
+    idnum_value: Mapped[Optional[int]] = mapped_column(
+        BigInteger, comment="The value of the ID number"
     )
 
     # Relationships:
@@ -498,23 +489,17 @@ class TaskIndexEntry(Base):
 
     __tablename__ = "_task_index"
 
-    index_entry_pk = Column(
-        "index_entry_pk",
-        Integer,
+    index_entry_pk: Mapped[int] = mapped_column(
         primary_key=True,
         autoincrement=True,
         comment="Arbitrary primary key of this index entry",
     )
-    indexed_at_utc = Column(
-        "indexed_at_utc",
-        DateTime,
-        nullable=False,
+    indexed_at_utc: Mapped[datetime.datetime] = mapped_column(
         comment="When this index entry was created",
     )
 
     # The next two fields link to our task:
-    task_table_name = Column(
-        "task_table_name",
+    task_table_name: Mapped[Optional[str]] = mapped_column(
         TableNameColType,
         index=True,
         comment="Table name of the task's base table",
@@ -533,69 +518,46 @@ class TaskIndexEntry(Base):
 
     # This links to the task's patient, if there is one:
     # noinspection PyProtectedMember
-    patient_pk = Column(
-        "patient_pk",
-        Integer,
+    patient_pk: Mapped[Optional[int]] = mapped_column(
         ForeignKey(Patient._pk),
         index=True,
         comment="Server primary key of the patient (if applicable)",
     )
 
     # These fields allow us to filter tasks efficiently:
-    device_id = Column(
-        "device_id",
-        Integer,
+    device_id: Mapped[int] = mapped_column(
         ForeignKey("_security_devices.id"),
-        nullable=False,
         index=True,
         comment="ID of the source tablet device",
     )
-    era = Column(
-        "era",
+    era: Mapped[str] = mapped_column(
         EraColType,
-        nullable=False,
         index=True,
         comment="Era (_era) field of the source record",
     )
-    when_created_utc = Column(
-        "when_created_utc",
-        DateTime,
-        nullable=False,
+    when_created_utc: Mapped[datetime.datetime] = mapped_column(
         index=True,
         comment="Date/time this task instance was created (UTC)",
     )
-    when_created_iso = Column(
-        "when_created_iso",
+    when_created_iso: Mapped[Pendulum] = mapped_column(
         PendulumDateTimeAsIsoTextColType,
-        nullable=False,
         index=True,
         comment="Date/time this task instance was created (ISO 8601)",
     )  # Pendulum on the Python side
-    when_added_batch_utc = Column(
-        "when_added_batch_utc",
-        DateTime,
-        nullable=False,
+    when_added_batch_utc: Mapped[datetime.datetime] = mapped_column(
         index=True,
         comment="Date/time this task index was uploaded (UTC)",
     )
-    adding_user_id = Column(
-        "adding_user_id",
-        Integer,
+    adding_user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("_security_users.id"),
         comment="ID of user that added this task",
     )
-    group_id = Column(
-        "group_id",
-        Integer,
+    group_id: Mapped[int] = mapped_column(
         ForeignKey("_security_groups.id"),
-        nullable=False,
         index=True,
         comment="ID of group to which this task belongs",
     )
-    task_is_complete = Column(
-        "task_is_complete",
-        Boolean,
-        nullable=False,
+    task_is_complete: Mapped[bool] = mapped_column(
         comment="Is the task complete (as judged by the server when the index "
         "entry was created)?",
     )
