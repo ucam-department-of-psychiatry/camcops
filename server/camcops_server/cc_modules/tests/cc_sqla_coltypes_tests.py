@@ -25,7 +25,7 @@ camcops_server/cc_modules/tests/cc_sqla_coltypes_tests.py
 """
 
 import datetime
-from typing import Union
+from typing import Optional, Union
 
 from cardinal_pythonlib.datetimefunc import coerce_to_pendulum
 import pendulum
@@ -34,19 +34,18 @@ import phonenumbers
 import pytest
 from semantic_version import Version
 from sqlalchemy import insert
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.sql.expression import select
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import DateTime, Integer
 
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    bool_column,
-    camcops_column,
     gen_camcops_blob_columns,
     gen_camcops_columns,
     gen_columns_matching_attrnames,
     isotzdatetime_to_utcdatetime,
+    mapped_bool_column,
+    mapped_camcops_column,
     ONE_TO_THREE_CHECKER,
     PendulumDateTimeAsIsoTextColType,
     PendulumDurationAsIsoTextColType,
@@ -69,20 +68,24 @@ class TestColTypeBase(DeclarativeBase):
 class TestColType(TestColTypeBase):
     __tablename__ = "test_coltype"
 
-    id = Column("id", Integer, primary_key=True)
-    dt_local = Column("dt_local", DateTime)
-    dt_utc = Column("dt_utc", DateTime)
-    dt_iso = Column("dt_iso", PendulumDateTimeAsIsoTextColType)
-    duration_iso = Column("duration_iso", PendulumDurationAsIsoTextColType)
-    version = Column("version", SemanticVersionColType)
-    phone_number = Column("phone_number", PhoneNumberColType)
-    number_1_to_3 = camcops_column(
-        "number_1_to_3", Integer, permitted_value_checker=ONE_TO_THREE_CHECKER
+    id: Mapped[int] = mapped_column(primary_key=True)
+    dt_local: Mapped[Optional[datetime.datetime]] = mapped_column()
+    dt_utc: Mapped[Optional[datetime.datetime]] = mapped_column()
+    dt_iso: Mapped[Optional[Pendulum]] = mapped_column(
+        PendulumDateTimeAsIsoTextColType
     )
-    flag = bool_column("flag")
-    blob_id = camcops_column(
-        "blob_id",
-        Integer,
+    duration_iso: Mapped[Optional[Duration]] = mapped_column(
+        PendulumDurationAsIsoTextColType
+    )
+    version: Mapped[Optional[Version]] = mapped_column(SemanticVersionColType)
+    phone_number: Mapped[Optional[phonenumbers.PhoneNumber]] = mapped_column(
+        PhoneNumberColType
+    )
+    number_1_to_3: Mapped[Optional[int]] = mapped_camcops_column(
+        permitted_value_checker=ONE_TO_THREE_CHECKER
+    )
+    flag: Mapped[Optional[bool]] = mapped_bool_column("flag")
+    blob_id: Mapped[Optional[int]] = mapped_camcops_column(
         is_blob_id_field=True,
         blob_relationship_attr_name="picture",
     )
