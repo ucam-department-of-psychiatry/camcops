@@ -41,17 +41,16 @@ from cardinal_pythonlib.sqlalchemy.list_types import (
     StringListType,
 )
 from pendulum import DateTime as Pendulum
-from sqlalchemy.orm import Query, reconstructor
+from sqlalchemy.orm import Mapped, mapped_column, Query, reconstructor
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.expression import and_, or_
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, Date, Integer
 
 from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     PendulumDateTimeAsIsoTextColType,
     IdNumReferenceListColType,
@@ -69,7 +68,6 @@ from camcops_server.cc_modules.cc_user import User
 if TYPE_CHECKING:
     from sqlalchemy.sql.elements import ColumnElement
     from camcops_server.cc_modules.cc_request import CamcopsRequest
-    from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -190,81 +188,74 @@ class TaskFilter(Base):
     # - end_datetime: single only
     # - text_contents: might as well make it a list
     # - ID numbers: a list, joined with OR.
-    id = Column(
-        "id",
-        Integer,
+    id: Mapped[int] = mapped_column(
         primary_key=True,
         autoincrement=True,
         index=True,
         comment="Task filter ID (arbitrary integer)",
     )
     # Task type filters
-    task_types = Column(
-        "task_types",
+    task_types: Mapped[Optional[list[str]]] = mapped_column(
         StringListType,
         comment="Task filter: task type(s), as CSV list of table names",
     )
-    tasks_offering_trackers_only = Column(
-        "tasks_offering_trackers_only",
-        Boolean,
+    tasks_offering_trackers_only: Mapped[Optional[bool]] = mapped_column(
         comment="Task filter: restrict to tasks offering trackers only?",
     )
-    tasks_with_patient_only = Column(
-        "tasks_with_patient_only",
-        Boolean,
+    tasks_with_patient_only: Mapped[Optional[bool]] = mapped_column(
         comment="Task filter: restrict to tasks with a patient (non-anonymous "
         "tasks) only?",
     )
     # Patient-related filters
-    surname = Column(
-        "surname", PatientNameColType, comment="Task filter: surname"
+    surname: Mapped[Optional[str]] = mapped_column(
+        PatientNameColType, comment="Task filter: surname"
     )
-    forename = Column(
-        "forename", PatientNameColType, comment="Task filter: forename"
+    forename: Mapped[Optional[str]] = mapped_column(
+        PatientNameColType, comment="Task filter: forename"
     )
-    dob = Column(
-        "dob", Date, comment="Task filter: DOB"
-    )  # type: Optional[datetime.date]
-    sex = Column("sex", SexColType, comment="Task filter: sex")
-    idnum_criteria = Column(  # new in v2.0.1
-        "idnum_criteria",
+    dob: Mapped[Optional[datetime.date]] = mapped_column(
+        comment="Task filter: DOB"
+    )
+    sex: Mapped[Optional[str]] = mapped_column(
+        SexColType, comment="Task filter: sex"
+    )
+    # new in v2.0.1
+    idnum_criteria: Mapped[Optional[List[IdNumReference]]] = mapped_column(
         IdNumReferenceListColType,
         comment="ID filters as JSON; the ID number definitions are joined "
         "with OR",
     )
     # Other filters
-    device_ids = Column(
-        "device_ids",
+    device_ids: Mapped[Optional[List[int]]] = mapped_column(
         IntListType,
         comment="Task filter: source device ID(s), as CSV",
     )
-    adding_user_ids = Column(
+    adding_user_ids: Mapped[Optional[List[int]]] = mapped_column(
         "user_ids",
         IntListType,
         comment="Task filter: adding (uploading) user ID(s), as CSV",
     )
-    group_ids = Column(
-        "group_ids", IntListType, comment="Task filter: group ID(s), as CSV"
+    group_ids: Mapped[Optional[List[int]]] = mapped_column(
+        IntListType, comment="Task filter: group ID(s), as CSV"
     )
-    start_datetime = Column(
+    start_datetime: Mapped[Optional[Pendulum]] = mapped_column(
         "start_datetime_iso8601",
         PendulumDateTimeAsIsoTextColType,
         comment="Task filter: start date/time (UTC as ISO8601)",
     )  # type: Union[None, Pendulum, datetime.datetime]
-    end_datetime = Column(
+    end_datetime: Mapped[Optional[Pendulum]] = mapped_column(
         "end_datetime_iso8601",
         PendulumDateTimeAsIsoTextColType,
         comment="Task filter: end date/time (UTC as ISO8601)",
     )  # type: Union[None, Pendulum, datetime.datetime]
     # Implemented on the Python side for indexed lookup:
-    text_contents = Column(
-        "text_contents",
+    text_contents: Mapped[Optional[List[str]]] = mapped_column(
         StringListType,
         comment="Task filter: filter text fields",
     )  # task must contain ALL the strings in AT LEAST ONE of its text columns
     # Implemented on the Python side for non-indexed lookup:
-    complete_only = Column(
-        "complete_only", Boolean, comment="Task filter: task complete?"
+    complete_only: Mapped[Optional[bool]] = mapped_column(
+        comment="Task filter: task complete?"
     )
 
     def __init__(self) -> None:
