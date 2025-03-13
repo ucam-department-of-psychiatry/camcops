@@ -55,8 +55,7 @@ from sqlalchemy.orm import (
 from sqlalchemy.sql import false
 from sqlalchemy.sql.expression import and_, exists, not_
 from sqlalchemy.sql.functions import func
-from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
+from sqlalchemy.sql.schema import ForeignKey
 
 from camcops_server.cc_modules.cc_audit import audit
 from camcops_server.cc_modules.cc_constants import (
@@ -125,19 +124,15 @@ class SecurityAccountLockout(Base):
 
     __tablename__ = "_security_account_lockouts"
 
-    id = Column("id", Integer, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     username: Mapped[str] = mapped_column(
         "username",
         UserNameCamcopsColType,
-        nullable=False,
         index=True,
         comment="User name (which may be a non-existent user, to prevent "
         "subtle username discovery by careful timing)",
     )
-    locked_until = Column(
-        "locked_until",
-        DateTime,
-        nullable=False,
+    locked_until: Mapped[datetime.datetime] = mapped_column(
         index=True,
         comment="Account is locked until (UTC)",
     )
@@ -248,19 +243,14 @@ class SecurityLoginFailure(Base):
 
     __tablename__ = "_security_login_failures"
 
-    id = Column("id", Integer, primary_key=True, autoincrement=True)
-    username = Column(
-        "username",
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    username: Mapped[str] = mapped_column(
         UserNameCamcopsColType,
-        nullable=False,
         index=True,
         comment="User name (which may be a non-existent user, to prevent "
         "subtle username discovery by careful timing)",
     )
-    login_failure_at = Column(
-        "login_failure_at",
-        DateTime,
-        nullable=False,
+    login_failure_at: Mapped[datetime.datetime] = mapped_column(
         index=True,
         comment="Login failure occurred at (UTC)",
     )
@@ -419,103 +409,79 @@ class User(Base):
     # Columns
     # -------------------------------------------------------------------------
 
-    id = Column(
-        "id",
-        Integer,
+    id: Mapped[int] = mapped_column(
         primary_key=True,
         autoincrement=True,
         index=True,
         comment="User ID",
     )
-    username = Column(
-        "username",
+    username: Mapped[str] = mapped_column(
         UserNameCamcopsColType,
-        nullable=False,
         index=True,
         unique=True,
         comment="User name",
-    )  # type: str
-    fullname = Column("fullname", FullNameColType, comment="User's full name")
+    )
+    fullname: Mapped[Optional[str]] = mapped_column(
+        FullNameColType, comment="User's full name"
+    )
     email: Mapped[Optional[str]] = mapped_column(
         EmailAddressColType, comment="User's e-mail address"
     )
-    phone_number = Column(
-        "phone_number", PhoneNumberColType, comment="User's phone number"
+    phone_number: Mapped[Optional[phonenumbers.PhoneNumber]] = mapped_column(
+        PhoneNumberColType, comment="User's phone number"
     )
-    hashedpw = Column(
-        "hashedpw",
+    hashedpw: Mapped[str] = mapped_column(
         HashedPasswordColType,
-        nullable=False,
         comment="Password hash",
     )
-    mfa_secret_key = Column(
-        "mfa_secret_key",
+    mfa_secret_key: Mapped[Optional[str]] = mapped_column(
         Base32ColType,
-        nullable=True,
         comment="Secret key used for multi-factor authentication",
     )
-    mfa_method = Column(
-        "mfa_method",
+    mfa_method: Mapped[str] = mapped_column(
         MfaMethodColType,
-        nullable=False,
         server_default=MfaMethod.NO_MFA,
         comment="Preferred method of multi-factor authentication",
     )
-    hotp_counter = Column(
-        "hotp_counter",
-        Integer,
-        nullable=False,
+    hotp_counter: Mapped[int] = mapped_column(
         server_default=text("0"),
         comment="Counter used for HOTP authentication",
     )
-    last_login_at_utc = Column(
-        "last_login_at_utc",
-        DateTime,
+    last_login_at_utc: Mapped[Optional[datetime.datetime]] = mapped_column(
         comment="Date/time this user last logged in (UTC)",
     )
-    last_password_change_utc = Column(
-        "last_password_change_utc",
-        DateTime,
-        comment="Date/time this user last changed their password (UTC)",
+    last_password_change_utc: Mapped[Optional[datetime.datetime]] = (
+        mapped_column(
+            comment="Date/time this user last changed their password (UTC)",
+        )
     )
-    superuser = Column(
-        "superuser", Boolean, default=False, comment="Superuser?"
+    superuser: Mapped[Optional[bool]] = mapped_column(
+        default=False, comment="Superuser?"
     )
-    must_change_password = Column(
-        "must_change_password",
-        Boolean,
+    must_change_password: Mapped[Optional[bool]] = mapped_column(
         default=False,
         comment="Must change password at next webview login",
     )
-    when_agreed_terms_of_use = Column(
-        "when_agreed_terms_of_use",
+    when_agreed_terms_of_use: Mapped[Optional[Pendulum]] = mapped_column(
         PendulumDateTimeAsIsoTextColType,
         comment="Date/time this user acknowledged the Terms and "
         "Conditions of Use (ISO 8601)",
     )
-    upload_group_id = Column(
-        "upload_group_id",
-        Integer,
+    upload_group_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("_security_groups.id"),
         comment="ID of the group to which this user uploads at present",
         # OK to be NULL in the database, but the user will not be able to
         # upload while it is.
     )
-    language = Column(
-        "language",
+    language: Mapped[Optional[str]] = mapped_column(
         LanguageCodeColType,
         comment="Language code preferred by this user",
     )
-    auto_generated = Column(
-        "auto_generated",
-        Boolean,
-        nullable=False,
+    auto_generated: Mapped[bool] = mapped_column(
         default=False,
         comment="Is automatically generated user with random password",
     )
-    single_patient_pk = Column(
-        "single_patient_pk",
-        Integer,
+    single_patient_pk: Mapped[Optional[int]] = mapped_column(
         ForeignKey("patient._pk", ondelete="SET NULL", use_alter=True),
         comment="For users locked to a single patient, the server PK of the "
         "server-created patient with which they are associated",
