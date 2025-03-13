@@ -102,6 +102,7 @@ from typing import (
     Any,
     Generator,
     List,
+    NoReturn,
     Optional,
     Sequence,
     Tuple,
@@ -166,6 +167,7 @@ from camcops_server.cc_modules.cc_version import make_version
 if TYPE_CHECKING:
     from sqlalchemy.sql.elements import ClauseElement
     from sqlalchemy.sql.compiler import SQLCompiler
+    from sqlalchemy.sql.type_api import _CT, ColumnElement, OperatorType
     from camcops_server.cc_modules.cc_db import (
         GenericTabletRecordMixin,
     )
@@ -357,7 +359,7 @@ class isotzdatetime_to_utcdatetime(FunctionElement):
 # noinspection PyUnusedLocal
 @compiles(isotzdatetime_to_utcdatetime)
 def isotzdatetime_to_utcdatetime_default(
-    element: "ClauseElement", compiler: "SQLCompiler", **kw
+    element: "ClauseElement", compiler: "SQLCompiler", **kw: Any
 ) -> None:
     """
     Default implementation for :class:`isotzdatetime_to_utcdatetime`: fail.
@@ -368,7 +370,7 @@ def isotzdatetime_to_utcdatetime_default(
 # noinspection PyUnusedLocal
 @compiles(isotzdatetime_to_utcdatetime, SqlaDialectName.MYSQL)
 def isotzdatetime_to_utcdatetime_mysql(
-    element: "ClauseElement", compiler: "SQLCompiler", **kw
+    element: "ClauseElement", compiler: "SQLCompiler", **kw: Any
 ) -> str:
     """
     Implementation of :class:`isotzdatetime_to_utcdatetime` for MySQL.
@@ -403,7 +405,7 @@ def isotzdatetime_to_utcdatetime_mysql(
 # noinspection PyUnusedLocal
 @compiles(isotzdatetime_to_utcdatetime, SqlaDialectName.SQLITE)
 def isotzdatetime_to_utcdatetime_sqlite(
-    element: "ClauseElement", compiler: "SQLCompiler", **kw
+    element: "ClauseElement", compiler: "SQLCompiler", **kw: Any
 ) -> str:
     """
     Implementation of :class:`isotzdatetime_to_utcdatetime` for SQLite.
@@ -457,7 +459,7 @@ def isotzdatetime_to_utcdatetime_sqlite(
 # noinspection PyUnusedLocal
 @compiles(isotzdatetime_to_utcdatetime, SqlaDialectName.SQLSERVER)
 def isotzdatetime_to_utcdatetime_sqlserver(
-    element: "ClauseElement", compiler: "SQLCompiler", **kw
+    element: "ClauseElement", compiler: "SQLCompiler", **kw: Any
 ) -> str:
     """
     Implementation of :class:`isotzdatetime_to_utcdatetime` for SQL Server.
@@ -599,7 +601,7 @@ class unknown_field_to_utcdatetime(FunctionElement):
 # noinspection PyUnusedLocal
 @compiles(unknown_field_to_utcdatetime)
 def unknown_field_to_utcdatetime_default(
-    element: "ClauseElement", compiler: "SQLCompiler", **kw
+    element: "ClauseElement", compiler: "SQLCompiler", **kw: Any
 ) -> None:
     """
     Default implementation for :class:`unknown_field_to_utcdatetime`: fail.
@@ -610,7 +612,7 @@ def unknown_field_to_utcdatetime_default(
 # noinspection PyUnusedLocal
 @compiles(unknown_field_to_utcdatetime, SqlaDialectName.MYSQL)
 def unknown_field_to_utcdatetime_mysql(
-    element: "ClauseElement", compiler: "SQLCompiler", **kw
+    element: "ClauseElement", compiler: "SQLCompiler", **kw: Any
 ) -> str:
     """
     Implementation of :class:`unknown_field_to_utcdatetime` for MySQL.
@@ -628,7 +630,7 @@ def unknown_field_to_utcdatetime_mysql(
 # noinspection PyUnusedLocal
 @compiles(unknown_field_to_utcdatetime, SqlaDialectName.SQLITE)
 def unknown_field_to_utcdatetime_sqlite(
-    element: "ClauseElement", compiler: "SQLCompiler", **kw
+    element: "ClauseElement", compiler: "SQLCompiler", **kw: Any
 ) -> str:
     """
     Implementation of :class:`unknown_field_to_utcdatetime` for SQLite.
@@ -643,7 +645,7 @@ def unknown_field_to_utcdatetime_sqlite(
 # noinspection PyUnusedLocal
 @compiles(unknown_field_to_utcdatetime, SqlaDialectName.SQLSERVER)
 def unknown_field_to_utcdatetime_sqlserver(
-    element: "ClauseElement", compiler: "SQLCompiler", **kw
+    element: "ClauseElement", compiler: "SQLCompiler", **kw: Any
 ) -> str:
     """
     Implementation of :class:`unknown_field_to_utcdatetime` for SQL Server.
@@ -802,7 +804,9 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
         information about the dialect.
         """
 
-        def operate(self, op, *other, **kwargs):
+        def operate(
+            self, op: OperatorType, *other: Any, **kwargs: Any
+        ) -> ColumnElement[_CT]:
             assert len(other) == 1
             assert not kwargs
             other = other[0]
@@ -832,7 +836,9 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
                 # traceback.print_stack()
             return op(isotzdatetime_to_utcdatetime(self.expr), processed_other)
 
-        def reverse_operate(self, op, *other, **kwargs):
+        def reverse_operate(
+            self, op: OperatorType, *other: Any, **kwargs: Any
+        ) -> NoReturn:
             assert False, "I don't think this is ever being called"
 
 
@@ -888,7 +894,7 @@ class PendulumDurationAsIsoTextColType(TypeDecorator):
             return None
 
     def process_bind_param(
-        self, value: Optional[Pendulum], dialect: Dialect
+        self, value: Optional[Duration], dialect: Dialect
     ) -> Optional[str]:
         """
         Convert parameters on the way from Python to the database.
@@ -907,7 +913,7 @@ class PendulumDurationAsIsoTextColType(TypeDecorator):
         return retval
 
     def process_literal_param(
-        self, value: Optional[Pendulum], dialect: Dialect
+        self, value: Optional[Duration], dialect: Dialect
     ) -> Optional[str]:
         """
         Convert literals on the way from Python to the database.
@@ -1377,7 +1383,7 @@ class PermittedValueChecker(object):
             return f"value {value!r} more than maximum of {self.maximum!r}"
         return ""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return auto_repr(self)
 
     def permitted_values_inc_minmax(self) -> Tuple:
