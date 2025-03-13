@@ -46,10 +46,8 @@ from sqlalchemy.orm import (
     reconstructor,
     Session as SqlASession,
 )
-from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import (
     BigInteger,
-    Boolean,
     DateTime,
     Text,
 )
@@ -114,8 +112,7 @@ class ExportRecipient(ExportRecipientInfo, Base):
     # -------------------------------------------------------------------------
     # Identifying this object, and whether it's the "live" version
     # -------------------------------------------------------------------------
-    id = Column(
-        "id",
+    id: Mapped[int] = mapped_column(
         BigInteger,
         primary_key=True,
         autoincrement=True,
@@ -126,11 +123,8 @@ class ExportRecipient(ExportRecipientInfo, Base):
         ExportRecipientNameColType,
         comment="Name of export recipient",
     )
-    current = Column(
-        "current",
-        Boolean,
+    current: Mapped[bool] = mapped_column(
         default=False,
-        nullable=False,
         comment="Is this the current record for this recipient? (If not, it's "
         "a historical record for audit purposes.)",
     )
