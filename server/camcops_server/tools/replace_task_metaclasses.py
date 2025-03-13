@@ -52,6 +52,9 @@ class State(Enum):
 
 
 class MetaclassReplacer:
+    state: State
+    output: list[str]
+
     def replace_files(self) -> None:
         for filename in glob.glob(os.path.join(TASKS_DIR, "*.py")):
             self.state = State.FINDING_METACLASS
@@ -63,7 +66,6 @@ class MetaclassReplacer:
                         if self.find_declarative_meta():
                             print("Found declarative meta")
                             self.state = State.FINDING_INIT_DEF
-                            self.pre_metaclass_init = []
                             continue
                         self.output.append(self.line)
                     if self.state == State.FINDING_INIT_DEF:
@@ -154,11 +156,8 @@ class MetaclassReplacer:
     def find_end_class(self) -> bool:
         return "):" in self.line
 
-    def find_end_globals(self):
+    def find_end_globals(self) -> bool:
         return "@" in self.line or "(" in self.line
-
-    def write_output(self):
-        pass
 
 
 def main() -> None:
