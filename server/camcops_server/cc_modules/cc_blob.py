@@ -36,7 +36,6 @@ from pendulum import DateTime as Pendulum
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Mapped, mapped_column, Session as SqlASession
 from sqlalchemy.orm.relationships import RelationshipProperty
-from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, Text
 import wand.image
 
@@ -50,7 +49,7 @@ from camcops_server.cc_modules.cc_html import (
 )
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    camcops_column,
+    mapped_camcops_column,
     MimeTypeColType,
     TableNameColType,
 )
@@ -97,27 +96,19 @@ class Blob(GenericTabletRecordMixin, TaskDescendant, Base):
         comment="BLOB (binary large object) primary key on the source "
         "tablet device",
     )
-    tablename = Column(
-        "tablename",
+    tablename: Mapped[str] = mapped_column(
         TableNameColType,
-        nullable=False,
         comment="Name of the table referring to this BLOB",
     )
-    tablepk = Column(
-        "tablepk",
-        Integer,
-        nullable=False,
+    tablepk: Mapped[int] = mapped_column(
         comment="Client-perspective primary key (id field) of the row "
         "referring to this BLOB",
     )
-    fieldname = Column(
-        "fieldname",
+    fieldname: Mapped[str] = mapped_column(
         TableNameColType,
-        nullable=False,
         comment="Field name of the field referring to this BLOB by ID",
     )
-    filename = camcops_column(
-        "filename",
+    filename: Mapped[Optional[str]] = mapped_camcops_column(
         Text,  # Text is correct; filenames can be long
         exempt_from_anonymisation=True,
         comment="Filename of the BLOB on the source tablet device (on "
@@ -127,7 +118,7 @@ class Blob(GenericTabletRecordMixin, TaskDescendant, Base):
     mimetype: Mapped[Optional[str]] = mapped_column(
         MimeTypeColType, comment="MIME type of the BLOB"
     )
-    image_rotation_deg_cw = Column(
+    image_rotation_deg_cw: Mapped[Optional[int]] = mapped_column(
         "image_rotation_deg_cw",
         Integer,
         comment="For images: rotation to be applied, clockwise, in degrees",
