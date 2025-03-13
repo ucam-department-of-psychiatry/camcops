@@ -805,8 +805,8 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
         """
 
         def operate(
-            self, op: OperatorType, *other: Any, **kwargs: Any
-        ) -> ColumnElement[_CT]:
+            self, op: "OperatorType", *other: Any, **kwargs: Any
+        ) -> "ColumnElement[_CT]":
             assert len(other) == 1
             assert not kwargs
             other = other[0]
@@ -837,7 +837,7 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
             return op(isotzdatetime_to_utcdatetime(self.expr), processed_other)
 
         def reverse_operate(
-            self, op: OperatorType, *other: Any, **kwargs: Any
+            self, op: "OperatorType", *other: Any, **kwargs: Any
         ) -> NoReturn:
             assert False, "I don't think this is ever being called"
 
