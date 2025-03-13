@@ -205,7 +205,7 @@ def _proquint_from_int16(int16_value: int) -> str:
     """
     Convert 16-bit integer into proquint.
     """
-    proquint = []
+    proquint: list[str] = []
     for i in range(5):
         if i & 1:
             letters = VOWELS
