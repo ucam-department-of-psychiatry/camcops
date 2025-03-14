@@ -25,10 +25,10 @@ camcops_server/tasks/distressthermometer.py
 
 """
 
-from typing import List, Type
+from typing import List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass, PV
@@ -118,7 +118,9 @@ class DistressThermometer(
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=10),
         comment="Distress (0 none - 10 extreme)",
     )
-    other = Column("other", UnicodeText, comment="Other problems")
+    other: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Other problems"
+    )
 
     NQUESTIONS = 36
     COMPLETENESS_FIELDS = strseq("q", 1, NQUESTIONS) + ["distress"]

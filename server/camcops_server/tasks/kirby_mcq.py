@@ -32,8 +32,8 @@ from typing import Dict, List, Optional, Type
 import numpy as np
 from numpy.linalg.linalg import LinAlgError
 from scipy.stats.mstats import gmean
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Float, Integer
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import Float
 import statsmodels.api as sm
 
 # noinspection PyProtectedMember
@@ -182,16 +182,16 @@ class KirbyRewardPair(object):
 class KirbyTrial(GenericTabletRecordMixin, TaskDescendant, Base):
     __tablename__ = "kirby_mcq_trials"
 
-    kirby_mcq_id = Column(
-        "kirby_mcq_id", Integer, nullable=False, comment="FK to kirby_mcq"
+    kirby_mcq_id: Mapped[int] = mapped_column(comment="FK to kirby_mcq")
+    trial: Mapped[int] = mapped_column(comment="Trial number (1-based)")
+    sir: Mapped[Optional[int]] = mapped_column(
+        comment="Small immediate reward"
     )
-    trial = Column(
-        "trial", Integer, nullable=False, comment="Trial number (1-based)"
+    ldr: Mapped[Optional[int]] = mapped_column(comment="Large delayed reward")
+    delay_days: Mapped[Optional[int]] = mapped_column(comment="Delay in days")
+    currency: Mapped[Optional[str]] = mapped_column(
+        CurrencyColType, comment="Currency symbol"
     )
-    sir = Column("sir", Integer, comment="Small immediate reward")
-    ldr = Column("ldr", Integer, comment="Large delayed reward")
-    delay_days = Column("delay_days", Integer, comment="Delay in days")
-    currency = Column("currency", CurrencyColType, comment="Currency symbol")
     currency_symbol_first = bool_column(
         "currency_symbol_first",
         comment="Does the currency symbol come before the amount?",

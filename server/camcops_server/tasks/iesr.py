@@ -25,10 +25,10 @@ camcops_server/tasks/iesr.py
 
 """
 
-from typing import List, Type
+from typing import List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import (
@@ -104,7 +104,9 @@ class Iesr(
             ],
         )
 
-    event = Column("event", UnicodeText, comment="Relevant event")
+    event: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Relevant event"
+    )
 
     NQUESTIONS = 22
     MIN_SCORE = 0  # per question

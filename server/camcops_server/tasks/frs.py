@@ -30,7 +30,7 @@ from typing import Dict, List, Optional, Type
 from cardinal_pythonlib.betweendict import BetweenDict
 from cardinal_pythonlib.stringfunc import strseq
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Float, Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -226,7 +226,9 @@ class Frs(
                 ),
             )
 
-    comments = Column("comments", UnicodeText, comment="Clinician's comments")
+    comments: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Clinician's comments"
+    )
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 

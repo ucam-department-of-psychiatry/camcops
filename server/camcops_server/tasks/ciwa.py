@@ -25,11 +25,11 @@ camcops_server/tasks/ciwa.py
 
 """
 
-from typing import List, Type
+from typing import List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Float, Integer
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
@@ -113,7 +113,9 @@ class Ciwa(
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=4),
         comment="Q10, orientation/clouding of sensorium (0-4, higher worse)",
     )
-    t = Column("t", Float, comment="Temperature (degrees C)")
+    t: Mapped[Optional[float]] = mapped_column(
+        comment="Temperature (degrees C)"
+    )
     hr = camcops_column(
         "hr",
         Integer,

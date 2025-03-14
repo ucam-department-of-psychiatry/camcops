@@ -25,7 +25,9 @@ camcops_server/tasks/fft.py
 
 """
 
-from sqlalchemy.sql.schema import Column
+from typing import Optional
+
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -56,8 +58,8 @@ class Fft(TaskHasPatientMixin, Task):
     __tablename__ = "fft"
     shortname = "FFT"
 
-    service = Column(
-        "service", UnicodeText, comment="Clinical service being rated"
+    service: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Clinical service being rated"
     )
     rating = camcops_column(
         "rating",

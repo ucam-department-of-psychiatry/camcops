@@ -31,8 +31,8 @@ from cardinal_pythonlib.classes import classproperty
 
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.expression import and_, column, select
-from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -115,12 +115,13 @@ class APEQCPFTPerinatal(Task):
         "(0 don't know, 1 extremely unlikely, 2 unlikely, "
         "3 neither likely nor unlikely, 4 likely, 5 extremely likely)",
     )
-    ff_why = Column(
-        "ff_why",
+    ff_why: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Why was friends/family rating given as it was?",
     )
-    comments = Column("comments", UnicodeText, comment="General comments")
+    comments: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="General comments"
+    )
 
     REQUIRED_FIELDS = ["q1", "q2", "q3", "q4", "q5", "q6", "ff_rating"]
 

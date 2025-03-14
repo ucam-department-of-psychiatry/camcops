@@ -26,10 +26,10 @@ camcops_server/tasks/pcl.py
 """
 
 from abc import ABC
-from typing import List, Type
+from typing import List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Boolean, Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -333,8 +333,10 @@ class PclS(PclCommon):
     __tablename__ = "pcls"
     shortname = "PCL-S"
 
-    event = Column("event", UnicodeText, comment="Traumatic event")
-    eventdate = Column(
+    event: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Traumatic event"
+    )
+    eventdate: Mapped[Optional[str]] = mapped_column(
         "eventdate", UnicodeText, comment="Date of traumatic event (free text)"
     )
 

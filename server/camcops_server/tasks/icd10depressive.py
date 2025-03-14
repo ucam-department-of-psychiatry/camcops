@@ -29,7 +29,7 @@ from typing import List, Optional
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Boolean, Date, Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import (
@@ -245,7 +245,9 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     date_pertains_to = camcops_column(
         "date_pertains_to", Date, comment="Date the assessment pertains to"
     )
-    comments = Column("comments", UnicodeText, comment="Clinician's comments")
+    comments: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Clinician's comments"
+    )
     duration_at_least_2_weeks = camcops_column(
         "duration_at_least_2_weeks",
         Boolean,

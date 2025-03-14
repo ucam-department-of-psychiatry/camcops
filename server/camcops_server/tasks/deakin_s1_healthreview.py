@@ -25,7 +25,9 @@ camcops_server/tasks/deakin_s1_healthreview.py
 
 """
 
-from sqlalchemy.sql.schema import Column
+from typing import Optional
+
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Integer, String, Text, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -71,8 +73,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         exempt_from_anonymisation=True,
         comment="Ethnicity, description",
     )  # Seems to be unused by the client!
-    ethnicity_other_details = Column(
-        "ethnicity_other_details",
+    ethnicity_other_details: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Ethnicity, other, details",
     )
@@ -96,10 +97,10 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
     allergy_food = bool_column("allergy_food")
     allergy_dander = bool_column("allergy_dander")
     allergy_other = bool_column("allergy_other")
-    allergy_details = Column("allergy_details", Text)
+    allergy_details: Mapped[Optional[str]] = mapped_column(Text)
 
     vaccinations_last3months = bool_column("vaccinations_last3months")
-    vaccination_details = Column("vaccination_details", Text)
+    vaccination_details: Mapped[Optional[str]] = mapped_column(Text)
 
     infections_last3months = bool_column("infections_last3months")
     infection_recent_respiratory = bool_column("infection_recent_respiratory")
@@ -111,7 +112,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
     infection_recent_sexual = bool_column("infection_recent_sexual")
     infection_recent_hepatitis = bool_column("infection_recent_hepatitis")
     infection_recent_other = bool_column("infection_recent_other")
-    infection_recent_details = Column("infection_recent_details", Text)
+    infection_recent_details: Mapped[Optional[str]] = mapped_column(Text)
 
     infections_chronic = bool_column("infections_chronic")
     infection_chronic_respiratory = bool_column(
@@ -125,7 +126,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
     infection_chronic_sexual = bool_column("infection_chronic_sexual")
     infection_chronic_hepatitis = bool_column("infection_chronic_hepatitis")
     infection_chronic_other = bool_column("infection_chronic_other")
-    infection_chronic_details = Column("infection_chronic_details", Text)
+    infection_chronic_details: Mapped[Optional[str]] = mapped_column(Text)
 
     immune_disorders = bool_column("immune_disorders")
     immunity_ms = bool_column("immunity_ms")
@@ -135,7 +136,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
     immunity_graves = bool_column("immunity_graves")
     immunity_diabetes = bool_column("immunity_diabetes")
     immunity_other = bool_column("immunity_other")
-    immunity_details = Column("immunity_details", Text)
+    immunity_details: Mapped[Optional[str]] = mapped_column(Text)
 
     family_history = bool_column("family_history")
     familyhistory_ms = bool_column("familyhistory_ms")
@@ -145,16 +146,16 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
     familyhistory_diabetes = bool_column("familyhistory_diabetes")
     familyhistory_psychosis_sz = bool_column("familyhistory_psychosis_sz")
     familyhistory_bipolar = bool_column("familyhistory_bipolar")
-    familyhistory_details = Column("familyhistory_details", Text)
+    familyhistory_details: Mapped[Optional[str]] = mapped_column(Text)
 
     health_anything_else = bool_column("health_anything_else")
-    health_anything_else_details = Column(
-        "health_anything_else_details", UnicodeText
+    health_anything_else_details: Mapped[Optional[str]] = mapped_column(
+        UnicodeText
     )
 
-    drug_history = Column("drug_history", UnicodeText)
-    first_antipsychotic_medication = Column(
-        "first_antipsychotic_medication", UnicodeText
+    drug_history: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    first_antipsychotic_medication: Mapped[Optional[str]] = mapped_column(
+        UnicodeText
     )
 
     recreational_drug_in_last_3_months = bool_column(
@@ -301,11 +302,11 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         constraint_name="ck_deakin_1_healthreview_hallucinogenprevheavy",
     )
 
-    recdrug_details = Column("recdrug_details", UnicodeText)
+    recdrug_details: Mapped[Optional[str]] = mapped_column(UnicodeText)
 
     recdrug_prevheavy = bool_column("recdrug_prevheavy")
-    recdrug_prevheavy_details = Column(
-        "recdrug_prevheavy_details", UnicodeText
+    recdrug_prevheavy_details: Mapped[Optional[str]] = mapped_column(
+        UnicodeText
     )
 
     mri_claustrophobic = bool_column("mri_claustrophobic")
@@ -315,12 +316,12 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
     mri_tattoos_nicotine_patches = bool_column("mri_tattoos_nicotine_patches")
     mri_worked_with_metal = bool_column("mri_worked_with_metal")
     mri_previous_brain_scan = bool_column("mri_previous_brain_scan")
-    mri_previous_brain_scan_details = Column(
-        "mri_previous_brain_scan_details", UnicodeText
+    mri_previous_brain_scan_details: Mapped[Optional[str]] = mapped_column(
+        UnicodeText
     )
     other_relevant_things = bool_column("other_relevant_things")
-    other_relevant_things_details = Column(
-        "other_relevant_things_details", UnicodeText
+    other_relevant_things_details: Mapped[Optional[str]] = mapped_column(
+        UnicodeText
     )
 
     willing_to_participate_in_further_studies = bool_column(

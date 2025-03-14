@@ -25,11 +25,12 @@ camcops_server/tasks/contactlog.py
 
 """
 
-from typing import List
+from typing import List, Optional
 
 from cardinal_pythonlib.datetimefunc import format_datetime, get_duration_h_m
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.sql.schema import Column
+from pendulum import DateTime as Pendulum
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass, DateFormat
@@ -67,13 +68,14 @@ class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     shortname = "ContactLog"
     info_filename_stem = "clinical"
 
-    location = Column("location", UnicodeText, comment="Location")
-    start = Column(
-        "start",
+    location: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Location"
+    )
+    start: Mapped[Optional[Pendulum]] = mapped_column(
         PendulumDateTimeAsIsoTextColType,
         comment="Date/time that contact started",
     )
-    end = Column(
+    end: Mapped[Optional[Pendulum]] = mapped_column(
         "end",
         PendulumDateTimeAsIsoTextColType,
         comment="Date/time that contact ended",
@@ -96,7 +98,9 @@ class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         permitted_value_checker=BIT_CHECKER,
         comment="Liaison with others (e.g. family) involved (0 no, 1 yes)?",
     )
-    comment = Column("comment", UnicodeText, comment="Comment")
+    comment: Mapped[Optional[str]] = mapped_column(
+        "comment", UnicodeText, comment="Comment"
+    )
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

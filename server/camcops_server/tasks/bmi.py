@@ -31,7 +31,7 @@ import cardinal_pythonlib.rnc_web as ws
 from fhirclient.models.codeableconcept import CodeableConcept
 from fhirclient.models.coding import Coding
 from fhirclient.models.quantity import Quantity
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Float, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass, FHIRConst as Fc
@@ -97,7 +97,9 @@ class Bmi(TaskHasPatientMixin, Task):
         permitted_value_checker=PermittedValueChecker(minimum=0),
         comment="waist circumference (cm)",
     )
-    comment = Column("comment", UnicodeText, comment="Clinician's comment")
+    comment: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Clinician's comment"
+    )
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

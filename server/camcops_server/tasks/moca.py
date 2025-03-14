@@ -28,7 +28,7 @@ camcops_server/tasks/moca.py
 from typing import List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Integer, String, UnicodeText
 
 from camcops_server.cc_modules.cc_blob import (
@@ -223,7 +223,9 @@ class Moca(
         blob_relationship_attr_name="clockpicture",
         comment="BLOB ID of clock picture",
     )
-    comments = Column("comments", UnicodeText, comment="Clinician's comments")
+    comments: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Clinician's comments"
+    )
 
     trailpicture = blob_relationship(
         "Moca", "trailpicture_blobid"

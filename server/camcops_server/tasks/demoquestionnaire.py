@@ -25,10 +25,12 @@ camcops_server/tasks/demoquestionnaire.py
 
 """
 
+import datetime
 from typing import Optional, Type
 
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Date, Float, Integer, Time, UnicodeText
+from pendulum import DateTime as Pendulum
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import Float, Integer, Time, UnicodeText
 
 from camcops_server.cc_modules.cc_blob import Blob, blob_relationship
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -81,28 +83,34 @@ class DemoQuestionnaire(
         add_multiple_columns(cls, "picker", 1, N_PICKER)
         add_multiple_columns(cls, "slider", 1, N_SLIDER, Float)
 
-    mcqtext_1a = Column("mcqtext_1a", UnicodeText)
-    mcqtext_1b = Column("mcqtext_1b", UnicodeText)
-    mcqtext_2a = Column("mcqtext_2a", UnicodeText)
-    mcqtext_2b = Column("mcqtext_2b", UnicodeText)
-    mcqtext_3a = Column("mcqtext_3a", UnicodeText)
-    mcqtext_3b = Column("mcqtext_3b", UnicodeText)
-    typedvar_text = Column("typedvar_text", UnicodeText)
-    typedvar_text_multiline = Column("typedvar_text_multiline", UnicodeText)
-    typedvar_text_rich = Column("typedvar_text_rich", UnicodeText)  # v2
-    typedvar_int = Column("typedvar_int", Integer)
-    typedvar_real = Column("typedvar_real", Float)
-    date_only = Column("date_only", Date)
-    date_time = Column("date_time", PendulumDateTimeAsIsoTextColType)
-    thermometer = Column("thermometer", Integer)
-    diagnosticcode_code = Column("diagnosticcode_code", DiagnosticCodeColType)
+    mcqtext_1a: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    mcqtext_1b: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    mcqtext_2a: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    mcqtext_2b: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    mcqtext_3a: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    mcqtext_3b: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    typedvar_text: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    typedvar_text_multiline: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    typedvar_text_rich: Mapped[Optional[str]] = mapped_column(
+        UnicodeText
+    )  # v2
+    typedvar_int: Mapped[Optional[int]] = mapped_column()
+    typedvar_real: Mapped[Optional[float]] = mapped_column()
+    date_only: Mapped[Optional[datetime.date]] = mapped_column()
+    date_time: Mapped[Optional[Pendulum]] = mapped_column(
+        PendulumDateTimeAsIsoTextColType
+    )
+    thermometer: Mapped[Optional[int]] = mapped_column()
+    diagnosticcode_code: Mapped[Optional[str]] = mapped_column(
+        DiagnosticCodeColType
+    )
     diagnosticcode_description = camcops_column(
         "diagnosticcode_description",
         UnicodeText,
         exempt_from_anonymisation=True,
     )
-    diagnosticcode2_code = Column(
-        "diagnosticcode2_code", DiagnosticCodeColType
+    diagnosticcode2_code: Mapped[Optional[str]] = mapped_column(
+        DiagnosticCodeColType
     )  # v2
     diagnosticcode2_description = camcops_column(
         "diagnosticcode2_description",
@@ -116,7 +124,9 @@ class DemoQuestionnaire(
         blob_relationship_attr_name="photo",
     )
     # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
-    photo_rotation = Column("photo_rotation", Integer)  # DEFUNCT as of v2.0.0
+    photo_rotation: Mapped[Optional[int]] = (
+        mapped_column()
+    )  # DEFUNCT as of v2.0.0
     canvas_blobid = camcops_column(
         "canvas_blobid",
         Integer,
@@ -129,9 +139,11 @@ class DemoQuestionnaire(
         is_blob_id_field=True,
         blob_relationship_attr_name="canvas2",
     )
-    spinbox_int = Column("spinbox_int", Integer)  # v2
-    spinbox_real = Column("spinbox_real", Float)  # v2
-    time_only = Column("time_only", Time)  # v2
+    spinbox_int: Mapped[Optional[int]] = mapped_column()  # v2
+    spinbox_real: Mapped[Optional[float]] = mapped_column()  # v2
+    time_only: Mapped[Optional[datetime.time]] = mapped_column(
+        "time_only", Time
+    )  # v2
 
     photo = blob_relationship(
         "DemoQuestionnaire", "photo_blobid"

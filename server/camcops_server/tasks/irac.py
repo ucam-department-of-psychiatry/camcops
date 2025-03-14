@@ -25,9 +25,10 @@ camcops_server/tasks/irac.py
 
 """
 
+from typing import Optional
 import cardinal_pythonlib.rnc_web as ws
 
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -57,7 +58,9 @@ class Irac(TaskHasPatientMixin, Task):
     __tablename__ = "irac"
     shortname = "IRAC"
 
-    aim = Column("aim", UnicodeText, comment="Main aim of the contact")
+    aim: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Main aim of the contact"
+    )
     achieved = camcops_column(
         "achieved",
         Integer,

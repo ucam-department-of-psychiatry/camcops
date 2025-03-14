@@ -27,7 +27,7 @@ camcops_server/tasks/slums.py
 
 from typing import List, Optional
 
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_blob import (
@@ -237,7 +237,9 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         blob_relationship_attr_name="shapespicture",
         comment="BLOB ID of shapes picture",
     )
-    comments = Column("comments", UnicodeText, comment="Clinician's comments")
+    comments: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Clinician's comments"
+    )
 
     clockpicture = blob_relationship(
         "Slums", "clockpicture_blobid"

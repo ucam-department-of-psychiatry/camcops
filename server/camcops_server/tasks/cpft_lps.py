@@ -25,6 +25,7 @@ camcops_server/tasks/cpft_lps.py
 
 """
 
+import datetime
 import logging
 from typing import Any, List, Optional, Type
 
@@ -32,11 +33,12 @@ from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
+from pendulum import DateTime as Pendulum
 import pyramid.httpexceptions as exc
 from sqlalchemy.sql.expression import and_, exists, select
 from sqlalchemy.sql.selectable import SelectBase
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Date, Integer, UnicodeText
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import (
     CssClass,
@@ -99,8 +101,8 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
     shortname = "CPFT_LPS_Referral"
     info_filename_stem = "clinical"
 
-    referral_date_time = Column(
-        "referral_date_time", PendulumDateTimeAsIsoTextColType
+    referral_date_time: Mapped[Optional[Pendulum]] = mapped_column(
+        PendulumDateTimeAsIsoTextColType
     )
     lps_division = camcops_column(
         "lps_division", UnicodeText, exempt_from_anonymisation=True
@@ -111,18 +113,20 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
     referral_method = camcops_column(
         "referral_method", UnicodeText, exempt_from_anonymisation=True
     )
-    referrer_name = Column("referrer_name", UnicodeText)
-    referrer_contact_details = Column("referrer_contact_details", UnicodeText)
-    referring_consultant = Column("referring_consultant", UnicodeText)
+    referrer_name: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    referrer_contact_details: Mapped[Optional[str]] = mapped_column(
+        UnicodeText
+    )
+    referring_consultant: Mapped[Optional[str]] = mapped_column(UnicodeText)
     referring_specialty = camcops_column(
         "referring_specialty", UnicodeText, exempt_from_anonymisation=True
     )
-    referring_specialty_other = Column(
-        "referring_specialty_other", UnicodeText
+    referring_specialty_other: Mapped[Optional[str]] = mapped_column(
+        UnicodeText
     )
-    patient_location = Column("patient_location", UnicodeText)
-    admission_date = Column("admission_date", Date)
-    estimated_discharge_date = Column("estimated_discharge_date", Date)
+    patient_location: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    admission_date: Mapped[Optional[datetime.date]] = mapped_column()
+    estimated_discharge_date: Mapped[Optional[datetime.date]] = mapped_column()
     patient_aware_of_referral = bool_column("patient_aware_of_referral")
     interpreter_required = bool_column("interpreter_required")
     sensory_impairment = bool_column("sensory_impairment")
@@ -154,12 +158,12 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
         constraint_name="ck_cpft_lps_referral_adpa",
     )
     admission_reason_other = bool_column("admission_reason_other")
-    existing_psychiatric_teams = Column(
-        "existing_psychiatric_teams", UnicodeText
+    existing_psychiatric_teams: Mapped[Optional[str]] = mapped_column(
+        UnicodeText
     )
-    care_coordinator = Column("care_coordinator", UnicodeText)
-    other_contact_details = Column("other_contact_details", UnicodeText)
-    referral_reason = Column("referral_reason", UnicodeText)
+    care_coordinator: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    other_contact_details: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    referral_reason: Mapped[Optional[str]] = mapped_column(UnicodeText)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -386,10 +390,10 @@ class CPFTLPSResetResponseClock(
     shortname = "CPFT_LPS_ResetResponseClock"
     info_filename_stem = "clinical"
 
-    reset_start_time_to = Column(
-        "reset_start_time_to", PendulumDateTimeAsIsoTextColType
+    reset_start_time_to: Mapped[Optional[Pendulum]] = mapped_column(
+        PendulumDateTimeAsIsoTextColType
     )
-    reason = Column("reason", UnicodeText)
+    reason: Mapped[Optional[str]] = mapped_column(UnicodeText)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -446,7 +450,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     shortname = "CPFT_LPS_Discharge"
     info_filename_stem = "clinical"
 
-    discharge_date = Column("discharge_date", Date)
+    discharge_date: Mapped[Optional[datetime.date]] = mapped_column()
     discharge_reason_code = camcops_column(
         "discharge_reason_code", UnicodeText, exempt_from_anonymisation=True
     )
@@ -538,50 +542,50 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         UnicodeText,
         exempt_from_anonymisation=True,
     )
-    referral_reason_other_detail = Column(
-        "referral_reason_other_detail", UnicodeText
+    referral_reason_other_detail: Mapped[Optional[str]] = mapped_column(
+        UnicodeText
     )
 
     diagnosis_no_active_mental_health_problem = bool_column(
         "diagnosis_no_active_mental_health_problem",
         constraint_name="ck_cpft_lps_discharge_nomhprob",
     )
-    diagnosis_psych_1_icd10code = Column(
-        "diagnosis_psych_1_icd10code", DiagnosticCodeColType
+    diagnosis_psych_1_icd10code: Mapped[Optional[str]] = mapped_column(
+        DiagnosticCodeColType
     )
     diagnosis_psych_1_description = camcops_column(
         "diagnosis_psych_1_description",
         UnicodeText,
         exempt_from_anonymisation=True,
     )
-    diagnosis_psych_2_icd10code = Column(
-        "diagnosis_psych_2_icd10code", DiagnosticCodeColType
+    diagnosis_psych_2_icd10code: Mapped[Optional[str]] = mapped_column(
+        DiagnosticCodeColType
     )
     diagnosis_psych_2_description = camcops_column(
         "diagnosis_psych_2_description",
         UnicodeText,
         exempt_from_anonymisation=True,
     )
-    diagnosis_psych_3_icd10code = Column(
-        "diagnosis_psych_3_icd10code", DiagnosticCodeColType
+    diagnosis_psych_3_icd10code: Mapped[Optional[str]] = mapped_column(
+        DiagnosticCodeColType
     )
     diagnosis_psych_3_description = camcops_column(
         "diagnosis_psych_3_description",
         UnicodeText,
         exempt_from_anonymisation=True,
     )
-    diagnosis_psych_4_icd10code = Column(
-        "diagnosis_psych_4_icd10code", DiagnosticCodeColType
+    diagnosis_psych_4_icd10code: Mapped[Optional[str]] = mapped_column(
+        DiagnosticCodeColType
     )
     diagnosis_psych_4_description = camcops_column(
         "diagnosis_psych_4_description",
         UnicodeText,
         exempt_from_anonymisation=True,
     )
-    diagnosis_medical_1 = Column("diagnosis_medical_1", UnicodeText)
-    diagnosis_medical_2 = Column("diagnosis_medical_2", UnicodeText)
-    diagnosis_medical_3 = Column("diagnosis_medical_3", UnicodeText)
-    diagnosis_medical_4 = Column("diagnosis_medical_4", UnicodeText)
+    diagnosis_medical_1: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    diagnosis_medical_2: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    diagnosis_medical_3: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    diagnosis_medical_4: Mapped[Optional[str]] = mapped_column(UnicodeText)
 
     management_assessment_diagnostic = bool_column(
         "management_assessment_diagnostic",
@@ -629,15 +633,15 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         constraint_name="ck_cpft_lps_discharge_caseconf",
     )
     management_other = bool_column("management_other")
-    management_other_detail = Column("management_other_detail", UnicodeText)
+    management_other_detail: Mapped[Optional[str]] = mapped_column(UnicodeText)
 
     outcome = camcops_column(
         "outcome", UnicodeText, exempt_from_anonymisation=True
     )
-    outcome_hospital_transfer_detail = Column(
-        "outcome_hospital_transfer_detail", UnicodeText
+    outcome_hospital_transfer_detail: Mapped[Optional[str]] = mapped_column(
+        UnicodeText
     )
-    outcome_other_detail = Column("outcome_other_detail", UnicodeText)
+    outcome_other_detail: Mapped[Optional[str]] = mapped_column(UnicodeText)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

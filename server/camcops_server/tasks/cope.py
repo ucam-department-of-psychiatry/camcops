@@ -25,9 +25,9 @@ camcops_server/tasks/cope.py
 
 """
 
-from typing import List, Type
+from typing import List, Optional, Type
 
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -119,8 +119,7 @@ class CopeBrief(
         permitted_value_checker=BIT_CHECKER,
         comment="Task completed by patient? (0 no, 1 yes)",
     )
-    completed_by = Column(
-        "completed_by",
+    completed_by: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Name of person task completed by (if not by patient)",
     )
@@ -132,8 +131,7 @@ class CopeBrief(
         "2 husband, 3 daughter, 4 son, 5 sister, 6 brother, "
         "7 mother, 8 father, 9 friend)",
     )
-    relationship_to_patient_other = Column(
-        "relationship_to_patient_other",
+    relationship_to_patient_other: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Relationship of responder to patient (if OTHER chosen)",
     )

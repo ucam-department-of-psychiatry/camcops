@@ -25,8 +25,10 @@ camcops_server/tasks/gmcpq.py
 
 """
 
+from typing import Optional
+
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import (
@@ -69,7 +71,9 @@ class GMCPQ(Task):
     RATING_TEXT = " (1 poor - 5 very good, 0 does not apply)"
     AGREE_TEXT = " (1 strongly disagree - 5 strongly agree, 0 does not apply)"
 
-    doctor = Column("doctor", UnicodeText, comment="Doctor's name")
+    doctor: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Doctor's name"
+    )
     q1 = camcops_column(
         "q1",
         Integer,
@@ -113,8 +117,8 @@ class GMCPQ(Task):
         permitted_value_checker=BIT_CHECKER,
         comment="Reason: other? (0 no, 1 yes)",
     )
-    q2f_details = Column(
-        "q2f_details", UnicodeText, comment="Reason, other, details"
+    q2f_details: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Reason, other, details"
     )
     q3 = camcops_column(
         "q3",
@@ -196,7 +200,9 @@ class GMCPQ(Task):
         permitted_value_checker=BIT_CHECKER,
         comment="Was this visit with your usual doctor (0 no, 1 yes)",
     )
-    q9 = Column("q9", UnicodeText, comment="Other comments")
+    q9: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Other comments"
+    )
     q10 = camcops_column(
         "q10",
         SexColType,
@@ -224,8 +230,8 @@ class GMCPQ(Task):
         "12 = Black/Black British - Caribbean, 13 = B/BB - African, "
         "14 = B/BB - other, 15 = Chinese, 16 = other)",
     )
-    q12_details = Column(
-        "q12_details", UnicodeText, comment="Ethnic group, other, details"
+    q12_details: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Ethnic group, other, details"
     )
 
     @staticmethod

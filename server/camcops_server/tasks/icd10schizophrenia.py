@@ -25,13 +25,14 @@ camcops_server/tasks/icd10schizophrenia.py
 
 """
 
+import datetime
 from typing import List, Optional
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.typetests import is_false
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, Date, UnicodeText
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import Boolean, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import (
     CssClass,
@@ -324,10 +325,12 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "touched) dominate.",
     )
 
-    date_pertains_to = Column(
-        "date_pertains_to", Date, comment="Date the assessment pertains to"
+    date_pertains_to: Mapped[Optional[datetime.date]] = mapped_column(
+        comment="Date the assessment pertains to"
     )
-    comments = Column("comments", UnicodeText, comment="Clinician's comments")
+    comments: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Clinician's comments"
+    )
 
     A_NAMES = [
         "passivity_bodily",

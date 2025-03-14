@@ -32,7 +32,7 @@ from typing import List, Optional, Type, TYPE_CHECKING
 from cardinal_pythonlib.stringfunc import strseq
 import cardinal_pythonlib.rnc_web as ws
 import numpy
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Boolean, Integer, String, UnicodeText
 from typing import Iterable
 
@@ -422,12 +422,12 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         comment="Task performed using remote (videoconferencing) "
         "administration?",
     )
-    age_at_leaving_full_time_education = Column(
-        "age_at_leaving_full_time_education",
-        Integer,
+    age_at_leaving_full_time_education: Mapped[Optional[int]] = mapped_column(
         comment="Age at leaving full time education",
     )
-    occupation = Column("occupation", UnicodeText, comment="Occupation")
+    occupation: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Occupation"
+    )
     handedness = camcops_column(
         "handedness",
         String(length=1),  # was Text
@@ -436,9 +436,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
             permitted_values=["L", "R"]
         ),
     )
-    attn_num_registration_trials = Column(
-        "attn_num_registration_trials",
-        Integer,
+    attn_num_registration_trials: Mapped[Optional[int]] = mapped_column(
         comment="Attention, repetition, number of trials (not scored)",
     )
     fluency_letters_score = camcops_column(
@@ -497,7 +495,9 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         is_blob_id_field=True,
         blob_relationship_attr_name="picture2",
     )
-    comments = Column("comments", UnicodeText, comment="Clinician's comments")
+    comments: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Clinician's comments"
+    )
 
     picture1 = blob_relationship(
         "Ace3", "picture1_blobid"
@@ -1352,12 +1352,12 @@ class MiniAce(
         comment="Task performed using remote (videoconferencing) "
         "administration?",
     )
-    age_at_leaving_full_time_education = Column(
-        "age_at_leaving_full_time_education",
-        Integer,
+    age_at_leaving_full_time_education: Mapped[Optional[int]] = mapped_column(
         comment="Age at leaving full time education",
     )
-    occupation = Column("occupation", UnicodeText, comment=OCCUPATION)
+    occupation: Mapped[Optional[str]] = mapped_column(
+        "occupation", UnicodeText, comment=OCCUPATION
+    )
     handedness = camcops_column(
         "handedness",
         String(length=1),  # was Text
@@ -1392,7 +1392,9 @@ class MiniAce(
         is_blob_id_field=True,
         blob_relationship_attr_name="picture2",
     )
-    comments = Column("comments", UnicodeText, comment="Clinician's comments")
+    comments: Mapped[Optional[str]] = mapped_column(
+        "comments", UnicodeText, comment="Clinician's comments"
+    )
 
     picture1 = blob_relationship(
         "MiniAce", "picture1_blobid"

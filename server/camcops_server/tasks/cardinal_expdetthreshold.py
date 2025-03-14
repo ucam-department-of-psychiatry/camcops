@@ -33,8 +33,9 @@ from cardinal_pythonlib.maths_numpy import inv_logistic, logistic
 import cardinal_pythonlib.rnc_web as ws
 from matplotlib.figure import Figure
 import numpy as np
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Float, Integer, Text, UnicodeText
+from pendulum import DateTime as Pendulum
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import Text, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import (
     CssClass,
@@ -80,61 +81,49 @@ class CardinalExpDetThresholdTrial(
 ):
     __tablename__ = "cardinal_expdetthreshold_trials"
 
-    cardinal_expdetthreshold_id = Column(
-        "cardinal_expdetthreshold_id",
-        Integer,
-        nullable=False,
+    cardinal_expdetthreshold_id: Mapped[int] = mapped_column(
         comment="FK to CardinalExpDetThreshold",
     )
-    trial = Column(
-        "trial", Integer, nullable=False, comment="Trial number (0-based)"
-    )
+    trial: Mapped[int] = mapped_column(comment="Trial number (0-based)")
 
     # Results
-    trial_ignoring_catch_trials = Column(
-        "trial_ignoring_catch_trials",
-        Integer,
+    trial_ignoring_catch_trials: Mapped[Optional[int]] = mapped_column(
         comment="Trial number, ignoring catch trials (0-based)",
     )
-    target_presented = Column(
-        "target_presented", Integer, comment="Target presented? (0 no, 1 yes)"
+    target_presented: Mapped[Optional[int]] = mapped_column(
+        comment="Target presented? (0 no, 1 yes)"
     )
-    target_time = Column(
-        "target_time",
+    target_time: Mapped[Optional[Pendulum]] = mapped_column(
         PendulumDateTimeAsIsoTextColType,
         comment="Target presentation time (ISO-8601)",
     )
-    intensity = Column(
-        "intensity", Float, comment="Target intensity (0.0-1.0)"
+    intensity: Mapped[Optional[float]] = mapped_column(
+        comment="Target intensity (0.0-1.0)"
     )
-    choice_time = Column(
-        "choice_time",
+    choice_time: Mapped[Optional[Pendulum]] = mapped_column(
         PendulumDateTimeAsIsoTextColType,
         comment="Time choice offered (ISO-8601)",
     )
-    responded = Column(
-        "responded", Integer, comment="Responded? (0 no, 1 yes)"
+    responded: Mapped[Optional[int]] = mapped_column(
+        comment="Responded? (0 no, 1 yes)"
     )
-    response_time = Column(
-        "response_time",
+    response_time: Mapped[Optional[Pendulum]] = mapped_column(
         PendulumDateTimeAsIsoTextColType,
         comment="Time of response (ISO-8601)",
     )
-    response_latency_ms = Column(
-        "response_latency_ms", Integer, comment="Response latency (ms)"
+    response_latency_ms: Mapped[Optional[int]] = mapped_column(
+        comment="Response latency (ms)"
     )
-    yes = Column(
-        "yes", Integer, comment="Subject chose YES? (0 didn't, 1 did)"
+    yes: Mapped[Optional[int]] = mapped_column(
+        comment="Subject chose YES? (0 didn't, 1 did)"
     )
-    no = Column("no", Integer, comment="Subject chose NO? (0 didn't, 1 did)")
-    caught_out_reset = Column(
-        "caught_out_reset",
-        Integer,
+    no: Mapped[Optional[int]] = mapped_column(
+        comment="Subject chose NO? (0 didn't, 1 did)"
+    )
+    caught_out_reset: Mapped[Optional[int]] = mapped_column(
         comment="Caught out on catch trial, thus reset? (0 no, 1 yes)",
     )
-    trial_num_in_calculation_sequence = Column(
-        "trial_num_in_calculation_sequence",
-        Integer,
+    trial_num_in_calculation_sequence: Mapped[Optional[int]] = mapped_column(
         comment="Trial number as used for threshold calculation",
     )
 
@@ -200,12 +189,10 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
     use_landscape_for_pdf = True
 
     # Config
-    modality = Column(
-        "modality", Integer, comment="Modality (0 auditory, 1 visual)"
+    modality: Mapped[Optional[int]] = mapped_column(
+        comment="Modality (0 auditory, 1 visual)"
     )
-    target_number = Column(
-        "target_number",
-        Integer,
+    target_number: Mapped[Optional[int]] = mapped_column(
         comment="Target number (within available targets of that modality)",
     )
     background_filename = camcops_column(
@@ -220,41 +207,29 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
         exempt_from_anonymisation=True,
         comment="Filename of media used for target",
     )
-    visual_target_duration_s = Column(
-        "visual_target_duration_s", Float, comment="Visual target duration (s)"
+    visual_target_duration_s: Mapped[Optional[float]] = mapped_column(
+        comment="Visual target duration (s)"
     )
-    background_intensity = Column(
-        "background_intensity",
-        Float,
+    background_intensity: Mapped[Optional[float]] = mapped_column(
         comment="Intensity of background (0.0-1.0)",
     )
-    start_intensity_min = Column(
-        "start_intensity_min",
-        Float,
+    start_intensity_min: Mapped[Optional[float]] = mapped_column(
         comment="Minimum starting intensity (0.0-1.0)",
     )
-    start_intensity_max = Column(
-        "start_intensity_max",
-        Float,
+    start_intensity_max: Mapped[Optional[float]] = mapped_column(
         comment="Maximum starting intensity (0.0-1.0)",
     )
-    initial_large_intensity_step = Column(
-        "initial_large_intensity_step",
-        Float,
+    initial_large_intensity_step: Mapped[Optional[float]] = mapped_column(
         comment="Initial, large, intensity step (0.0-1.0)",
     )
-    main_small_intensity_step = Column(
-        "main_small_intensity_step",
-        Float,
+    main_small_intensity_step: Mapped[Optional[float]] = mapped_column(
         comment="Main, small, intensity step (0.0-1.0)",
     )
-    num_trials_in_main_sequence = Column(
-        "num_trials_in_main_sequence",
-        Integer,
+    num_trials_in_main_sequence: Mapped[Optional[int]] = mapped_column(
         comment="Number of trials required in main sequence",
     )
-    p_catch_trial = Column(
-        "p_catch_trial", Float, comment="Probability of catch trial"
+    p_catch_trial: Mapped[Optional[float]] = mapped_column(
+        comment="Probability of catch trial"
     )
     prompt = camcops_column(
         "prompt",
@@ -262,20 +237,22 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
         exempt_from_anonymisation=True,
         comment="Prompt given to subject",
     )
-    iti_s = Column("iti_s", Float, comment="Intertrial interval (s)")
+    iti_s: Mapped[Optional[float]] = mapped_column(
+        comment="Intertrial interval (s)"
+    )
 
     # Results
-    finished = Column(
-        "finished",
-        Integer,
+    finished: Mapped[Optional[int]] = mapped_column(
         comment="Subject finished successfully (0 no, 1 yes)",
     )
-    intercept = Column("intercept", Float, comment=EQUATION_COMMENT)
-    slope = Column("slope", Float, comment=EQUATION_COMMENT)
-    k = Column("k", Float, comment=EQUATION_COMMENT + "; k = slope")
-    theta = Column(
-        "theta",
-        Float,
+    intercept: Mapped[Optional[float]] = mapped_column(
+        comment=EQUATION_COMMENT
+    )
+    slope: Mapped[Optional[float]] = mapped_column(comment=EQUATION_COMMENT)
+    k: Mapped[Optional[float]] = mapped_column(
+        comment=EQUATION_COMMENT + "; k = slope"
+    )
+    theta: Mapped[Optional[float]] = mapped_column(
         comment=EQUATION_COMMENT + "; theta = -intercept/k = -intercept/slope",
     )
 

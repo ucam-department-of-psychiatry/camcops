@@ -25,11 +25,11 @@ camcops_server/tasks/wsas.py
 
 """
 
-from typing import List, Type
+from typing import List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, Integer
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import (
     CssClass,
@@ -86,9 +86,7 @@ class Wsas(
             ],
         )
 
-    retired_etc = Column(
-        "retired_etc",
-        Boolean,
+    retired_etc: Mapped[Optional[bool]] = mapped_column(
         comment="Retired or choose not to have job for reason unrelated "
         "to problem",
     )

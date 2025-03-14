@@ -55,8 +55,7 @@ from sqlalchemy.sql.expression import (
     union,
 )
 from sqlalchemy.sql.selectable import SelectBase
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Date, Integer, UnicodeText
+from sqlalchemy.sql.sqltypes import Date, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass, FHIRConst as Fc
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo
@@ -321,9 +320,7 @@ class DiagnosisBase(
 class DiagnosisIcd10Item(DiagnosisItemBase, TaskDescendant):
     __tablename__ = "diagnosis_icd10_item"
 
-    diagnosis_icd10_id = Column(
-        "diagnosis_icd10_id", Integer, nullable=False, comment=FK_COMMENT
-    )
+    diagnosis_icd10_id: Mapped[int] = mapped_column(comment=FK_COMMENT)
 
     # -------------------------------------------------------------------------
     # TaskDescendant overrides
@@ -439,9 +436,7 @@ class DiagnosisIcd10(DiagnosisBase):
 class DiagnosisIcd9CMItem(DiagnosisItemBase, TaskDescendant):
     __tablename__ = "diagnosis_icd9cm_item"
 
-    diagnosis_icd9cm_id = Column(
-        "diagnosis_icd9cm_id", Integer, nullable=False, comment=FK_COMMENT
-    )
+    diagnosis_icd9cm_id: Mapped[int] = mapped_column(comment=FK_COMMENT)
 
     # -------------------------------------------------------------------------
     # TaskDescendant overrides

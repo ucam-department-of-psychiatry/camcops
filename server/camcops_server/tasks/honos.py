@@ -28,7 +28,7 @@ camcops_server/tasks/honos.py
 from typing import List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -81,8 +81,8 @@ class HonosBase(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     __abstract__ = True
     provides_trackers = True
 
-    period_rated = Column(
-        "period_rated", UnicodeText, comment="Period being rated"
+    period_rated: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Period being rated"
     )
 
     COPYRIGHT_DIV = f"""
@@ -204,8 +204,8 @@ class Honos(
         "E dissociative; F somatoform; G eating; H sleep; "
         "I sexual; J other, specify)",
     )
-    q8otherproblem = Column(
-        "q8otherproblem", UnicodeText, comment="Q8: other problem: specify"
+    q8otherproblem: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Q8: other problem: specify"
     )
 
     NQUESTIONS = 12
@@ -416,8 +416,8 @@ class Honos65(
         "E dissociative; F somatoform; G eating; H sleep; "
         "I sexual; J other, specify)",
     )
-    q8otherproblem = Column(
-        "q8otherproblem", UnicodeText, comment="Q8: other problem: specify"
+    q8otherproblem: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Q8: other problem: specify"
     )
 
     NQUESTIONS = 12

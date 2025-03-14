@@ -28,7 +28,7 @@ camcops_server/tasks/ceca.py
 from typing import Any, Dict, List, Optional, Sequence
 
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -97,10 +97,11 @@ class CecaQ3(TaskHasPatientMixin, Task):
         permitted_value_checker=BIT_CHECKER,
         comment="Raised by, maternal, female relative?",
     )
-    s1a_motherfigure_femalerelative_detail = Column(
-        "s1a_motherfigure_femalerelative_detail",
-        UnicodeText,
-        comment="Raised by, maternal, female relative, detail",
+    s1a_motherfigure_femalerelative_detail: Mapped[Optional[str]] = (
+        mapped_column(
+            UnicodeText,
+            comment="Raised by, maternal, female relative, detail",
+        )
     )
     s1a_motherfigure_familyfriend = camcops_column(
         "s1a_motherfigure_familyfriend",
@@ -126,8 +127,7 @@ class CecaQ3(TaskHasPatientMixin, Task):
         permitted_value_checker=BIT_CHECKER,
         comment="Raised by, maternal, other?",
     )
-    s1a_motherfigure_other_detail = Column(
-        "s1a_motherfigure_other_detail",
+    s1a_motherfigure_other_detail: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Raised by, maternal, other, detail",
     )
@@ -149,10 +149,11 @@ class CecaQ3(TaskHasPatientMixin, Task):
         permitted_value_checker=BIT_CHECKER,
         comment="Raised by, paternal, male relative?",
     )
-    s1a_fatherfigure_malerelative_detail = Column(
-        "s1a_fatherfigure_malerelative_detail",
-        UnicodeText,
-        comment="Raised by, paternal, male relative, detail",
+    s1a_fatherfigure_malerelative_detail: Mapped[Optional[str]] = (
+        mapped_column(
+            UnicodeText,
+            comment="Raised by, paternal, male relative, detail",
+        )
     )
     s1a_fatherfigure_familyfriend = camcops_column(
         "s1a_fatherfigure_familyfriend",
@@ -178,8 +179,7 @@ class CecaQ3(TaskHasPatientMixin, Task):
         permitted_value_checker=BIT_CHECKER,
         comment="Raised by, paternal, other?",
     )
-    s1a_fatherfigure_other_detail = Column(
-        "s1a_fatherfigure_other_detail",
+    s1a_fatherfigure_other_detail: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Raised by, paternal, other, detail",
     )
@@ -279,8 +279,7 @@ class CecaQ3(TaskHasPatientMixin, Task):
         "(1 illness, 2 work, 3 divorce/separation, 4 never knew, "
         "5 abandoned, 6 other)",
     )
-    s1c_describe_experience = Column(
-        "s1c_describe_experience",
+    s1c_describe_experience: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Loss of/separation from parent, description",
     )
@@ -296,10 +295,11 @@ class CecaQ3(TaskHasPatientMixin, Task):
         "2 stepmother, 3 other relative, 4 other non-relative, "
         "5 other)",
     )
-    s2a_which_mother_figure_other_detail = Column(
-        "s2a_which_mother_figure_other_detail",
-        UnicodeText,
-        comment="Mother figure, other, detail",
+    s2a_which_mother_figure_other_detail: Mapped[Optional[str]] = (
+        mapped_column(
+            UnicodeText,
+            comment="Mother figure, other, detail",
+        )
     )
     s2a_q1 = camcops_column(
         "s2a_q1",
@@ -397,8 +397,8 @@ class CecaQ3(TaskHasPatientMixin, Task):
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Mother figure, preferred siblings (1 no - 5 yes)",
     )
-    s2a_extra = Column(
-        "s2a_extra", UnicodeText, comment="Mother figure, extra detail"
+    s2a_extra: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Mother figure, extra detail"
     )
 
     # -------------------------------------------------------------------------
@@ -615,7 +615,9 @@ class CecaQ3(TaskHasPatientMixin, Task):
         permitted_value_checker=MIN_ZERO_CHECKER,
         comment="Age these experienced began (years)",
     )
-    s2b_extra = Column("s2b_extra", UnicodeText, comment="Extra detail")
+    s2b_extra: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Extra detail"
+    )
 
     # -------------------------------------------------------------------------
     # Section 3(A)
@@ -628,10 +630,11 @@ class CecaQ3(TaskHasPatientMixin, Task):
         "2 stepfather, 3 other relative, 4 other non-relative, "
         "5 other)",
     )
-    s3a_which_father_figure_other_detail = Column(
-        "s3a_which_father_figure_other_detail",
-        UnicodeText,
-        comment="Father figure, other, detail",
+    s3a_which_father_figure_other_detail: Mapped[Optional[str]] = (
+        mapped_column(
+            UnicodeText,
+            comment="Father figure, other, detail",
+        )
     )
     s3a_q1 = camcops_column(
         "s3a_q1",
@@ -729,8 +732,8 @@ class CecaQ3(TaskHasPatientMixin, Task):
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Father figure, preferred siblings (1 no - 5 yes)",
     )
-    s3a_extra = Column(
-        "s3a_extra", UnicodeText, comment="Father figure, extra detail"
+    s3a_extra: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Father figure, extra detail"
     )
 
     # -------------------------------------------------------------------------
@@ -947,7 +950,9 @@ class CecaQ3(TaskHasPatientMixin, Task):
         permitted_value_checker=MIN_ZERO_CHECKER,
         comment="Age these experienced began (years)",
     )
-    s3b_extra = Column("s3b_extra", UnicodeText, comment="Extra detail")
+    s3b_extra: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Extra detail"
+    )
 
     # -------------------------------------------------------------------------
     # Section 3(C)
@@ -1121,13 +1126,11 @@ class CecaQ3(TaskHasPatientMixin, Task):
         permitted_value_checker=BIT_CHECKER,
         comment="Adult confidant, other?",
     )
-    s4a_adultconfidant_other_detail = Column(
-        "s4a_adultconfidant_other_detail",
+    s4a_adultconfidant_other_detail: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Adult confidant, other, detail",
     )
-    s4a_adultconfidant_additional = Column(
-        "s4a_adultconfidant_additional",
+    s4a_adultconfidant_additional: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Adult confidant, additional notes",
     )
@@ -1177,13 +1180,11 @@ class CecaQ3(TaskHasPatientMixin, Task):
         permitted_value_checker=BIT_CHECKER,
         comment="Child confidant, other person?",
     )
-    s4b_childconfidant_other_detail = Column(
-        "s4b_childconfidant_other_detail",
+    s4b_childconfidant_other_detail: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Child confidant, other person, detail",
     )
-    s4b_childconfidant_additional = Column(
-        "s4b_childconfidant_additional",
+    s4b_childconfidant_additional: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Child confidant, additional notes",
     )
@@ -1233,13 +1234,11 @@ class CecaQ3(TaskHasPatientMixin, Task):
         permitted_value_checker=BIT_CHECKER,
         comment="Two closest people include: other?",
     )
-    s4c_closest_other_detail = Column(
-        "s4c_closest_other_detail",
+    s4c_closest_other_detail: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Two closest people include: other, detail",
     )
-    s4c_closest_additional = Column(
-        "s4c_closest_additional",
+    s4c_closest_additional: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Two closest people include: additional notes",
     )
@@ -1325,8 +1324,7 @@ class CecaQ3(TaskHasPatientMixin, Task):
         permitted_value_checker=BIT_CHECKER,
         comment="Physical abuse, by father, out of control?",
     )
-    s5c_parental_abuse_description = Column(
-        "s5c_parental_abuse_description",
+    s5c_parental_abuse_description: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Physical abuse, description",
     )
@@ -1336,8 +1334,7 @@ class CecaQ3(TaskHasPatientMixin, Task):
         permitted_value_checker=BIT_CHECKER,
         comment="Physical abuse, by anyone else in household?",
     )
-    s5c_nonparent_abuse_description = Column(
-        "s5c_nonparent_abuse_description",
+    s5c_nonparent_abuse_description: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Physical abuse, nonparent, description",
     )
@@ -1466,8 +1463,7 @@ class CecaQ3(TaskHasPatientMixin, Task):
         permitted_value_checker=BIT_CHECKER,
         comment="Sexual abuse, other experience, sexual intercourse?",
     )
-    s6_unwanted_sexual_description = Column(
-        "s6_unwanted_sexual_description",
+    s6_unwanted_sexual_description: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Sexual abuse, description",
     )

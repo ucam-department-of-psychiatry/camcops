@@ -28,7 +28,7 @@ camcops_server/tasks/photo.py
 from typing import List, Optional, Type
 
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_blob import (
@@ -69,8 +69,8 @@ class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     shortname = "Photo"
     info_filename_stem = "clinical"
 
-    description = Column(
-        "description", UnicodeText, comment="Description of the photograph"
+    description: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Description of the photograph"
     )
     photo_blobid = camcops_column(
         "photo_blobid",
@@ -81,9 +81,7 @@ class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "matching device and current/frozen record status)",
     )
     # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
-    rotation = Column(  # DEFUNCT as of v2.0.0
-        "rotation",
-        Integer,
+    rotation: Mapped[Optional[int]] = mapped_column(  # DEFUNCT as of v2.0.0
         comment="Rotation (clockwise, in degrees) to be applied for viewing",
     )
 
@@ -143,21 +141,15 @@ class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 class PhotoSequenceSinglePhoto(GenericTabletRecordMixin, TaskDescendant, Base):
     __tablename__ = "photosequence_photos"
 
-    photosequence_id = Column(
-        "photosequence_id",
-        Integer,
-        nullable=False,
+    photosequence_id: Mapped[int] = mapped_column(
         comment="Tablet FK to photosequence",
     )
-    seqnum = Column(
-        "seqnum",
-        Integer,
-        nullable=False,
+    seqnum: Mapped[int] = mapped_column(
         comment="Sequence number of this photo "
         "(consistently 1-based as of 2018-12-01)",
     )
-    description = Column(
-        "description", UnicodeText, comment="Description of the photograph"
+    description: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Description of the photograph"
     )
     photo_blobid = camcops_column(
         "photo_blobid",
@@ -168,9 +160,7 @@ class PhotoSequenceSinglePhoto(GenericTabletRecordMixin, TaskDescendant, Base):
         "matching device and current/frozen record status)",
     )
     # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
-    rotation = Column(  # DEFUNCT as of v2.0.0
-        "rotation",
-        Integer,
+    rotation: Mapped[Optional[int]] = mapped_column(  # DEFUNCT as of v2.0.0
         comment="(DEFUNCT COLUMN) "
         "Rotation (clockwise, in degrees) to be applied for viewing",
     )
@@ -212,8 +202,7 @@ class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     shortname = "PhotoSequence"
     info_filename_stem = "clinical"
 
-    sequence_description = Column(
-        "sequence_description",
+    sequence_description: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Description of the sequence of photographs",
     )

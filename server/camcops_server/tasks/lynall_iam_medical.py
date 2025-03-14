@@ -27,7 +27,7 @@ camcops_server/tasks/lynall_iam_medical.py
 
 from typing import Any, Dict, List, Optional, Union
 
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -70,9 +70,7 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
     Q7B_MIN = 1
     Q7B_MAX = 10
 
-    q1_age_first_inflammatory_sx = Column(
-        "q1_age_first_inflammatory_sx",
-        Integer,
+    q1_age_first_inflammatory_sx: Mapped[Optional[int]] = mapped_column(
         comment="Age (y) at onset of first symptoms of inflammatory disease",
     )
     q2_when_psych_sx_started = camcops_column(
@@ -107,15 +105,11 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         "before physical, 2 = brain after physical, 3 = same time, "
         "4 = no relationship, 5 = none of the above)",
     )
-    q4b_days_psych_before_phys = Column(
-        "q4b_days_psych_before_phys",
-        Integer,
+    q4b_days_psych_before_phys: Mapped[Optional[int]] = mapped_column(
         comment="If Q4a == 1, number of days that brain Sx typically begin "
         "before physical Sx",
     )
-    q4c_days_psych_after_phys = Column(
-        "q4c_days_psych_after_phys",
-        Integer,
+    q4c_days_psych_after_phys: Mapped[Optional[int]] = mapped_column(
         comment="If Q4a == 2, number of days that brain Sx typically begin "
         "after physical Sx",
     )
@@ -128,9 +122,7 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         "q6a_inpatient_last_y",
         comment="Inpatient in the last year? (0 = no, 1 = yes)",
     )
-    q6b_inpatient_weeks = Column(
-        "q6b_inpatient_weeks",
-        Integer,
+    q6b_inpatient_weeks: Mapped[Optional[int]] = mapped_column(
         comment="If Q6a is true, approximate number of weeks spent as an "
         "inpatient in the past year",
     )
@@ -138,29 +130,23 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         "q7a_sx_last_2y",
         comment="Symptoms within the last 2 years? (0 = no, 1 = yes)",
     )
-    q7b_variability = Column(
-        "q7b_variability",
-        Integer,
+    q7b_variability: Mapped[Optional[int]] = mapped_column(
         comment="If Q7a is true, degree of variability of symptoms (1-10 "
         "where 1 = highly variable [from none to severe], 10 = "
         "there all the time)",
     )
-    q8_smoking = Column(
-        "q8_smoking",
-        Integer,
+    q8_smoking: Mapped[Optional[int]] = mapped_column(
         comment="Current smoking status (0 = no, 1 = yes but not every day, "
         "2 = every day)",
     )
     q9_pregnant = bool_column(
         "q9_pregnant", comment="Currently pregnant (0 = no or N/A, 1 = yes)"
     )
-    q10a_effective_rx_physical = Column(
-        "q10a_effective_rx_physical",
+    q10a_effective_rx_physical: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Most effective treatments for physical Sx",
     )
-    q10b_effective_rx_psych = Column(
-        "q10b_effective_rx_psych",
+    q10b_effective_rx_psych: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Most effective treatments for brain/psychiatric Sx",
     )
@@ -192,8 +178,7 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         "q11h_ph_other_psych",
         comment="Personal history of other psychiatric disorder(s)?",
     )
-    q11h_ph_other_detail = Column(
-        "q11h_ph_other_detail",
+    q11h_ph_other_detail: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="If q11h_ph_other_psych is true, this is the free-text "
         "details field",
@@ -226,8 +211,7 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         "q12h_fh_other_psych",
         comment="Family history of other psychiatric disorder(s)?",
     )
-    q12h_fh_other_detail = Column(
-        "q12h_fh_other_detail",
+    q12h_fh_other_detail: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="If q12h_fh_other_psych is true, this is the free-text "
         "details field",
@@ -239,9 +223,7 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         "q13b_oral_ulcers",
         comment="(If Behçet’s) Oral ulcers? (0 = no, 1 = yes)",
     )
-    q13c_oral_age_first = Column(
-        "q13c_oral_age_first",
-        Integer,
+    q13c_oral_age_first: Mapped[Optional[int]] = mapped_column(
         comment="(If Behçet’s + oral) Age (y) at first oral ulcers",
     )
     q13d_oral_scarring = bool_column(
@@ -252,8 +234,7 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         "q13e_genital_ulcers",
         comment="(If Behçet’s) Genital ulcers? (0 = no, 1 = yes)",
     )
-    q13f_genital_age_first = Column(
-        "q13f_genital_age_first",
+    q13f_genital_age_first: Mapped[Optional[int]] = mapped_column(
         Integer,
         comment="(If Behçet’s + genital) Age (y) at first genital ulcers",
     )

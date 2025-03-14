@@ -26,13 +26,13 @@ camcops_server/tasks/perinatalpoem.py
 """
 
 import re
-from typing import Dict, List, Tuple, Type
+from typing import Dict, List, Optional, Tuple, Type
 
 from cardinal_pythonlib.classes import classproperty
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.expression import and_, column, select
-from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -285,7 +285,7 @@ class PerinatalPoem(Task):
         comment=f"Q3f: Food not acceptable {_AGREE_KEY} {_INPATIENT_ONLY}",
     )
 
-    general_comments = Column(
+    general_comments: Mapped[Optional[str]] = mapped_column(
         FN_GENERAL_COMMENTS, UnicodeText, comment="General comments"
     )
     future_participation = camcops_column(
@@ -295,7 +295,7 @@ class PerinatalPoem(Task):
         comment=f"Willing to participate in future studies "
         f"({YES_INT} yes, {NO_INT} no)",
     )
-    contact_details = Column(
+    contact_details: Mapped[Optional[str]] = mapped_column(
         FN_CONTACT_DETAILS, UnicodeText, comment="Contact details"
     )
 

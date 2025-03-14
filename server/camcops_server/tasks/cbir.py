@@ -28,7 +28,7 @@ camcops_server/tasks/cbir.py
 from typing import List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Float, Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -148,7 +148,9 @@ class CbiR(
         comment="Respondent confirmed that blanks are deliberate (N/A) "
         "(0/NULL no, 1 yes)",
     )
-    comments = Column("comments", UnicodeText, comment="Additional comments")
+    comments: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Additional comments"
+    )
 
     MIN_SCORE = 0
     MAX_SCORE = 4
