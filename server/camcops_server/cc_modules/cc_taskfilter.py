@@ -242,12 +242,12 @@ class TaskFilter(Base):
         "start_datetime_iso8601",
         PendulumDateTimeAsIsoTextColType,
         comment="Task filter: start date/time (UTC as ISO8601)",
-    )  # type: Union[None, Pendulum, datetime.datetime]
+    )
     end_datetime: Mapped[Optional[Pendulum]] = mapped_column(
         "end_datetime_iso8601",
         PendulumDateTimeAsIsoTextColType,
         comment="Task filter: end date/time (UTC as ISO8601)",
-    )  # type: Union[None, Pendulum, datetime.datetime]
+    )
     # Implemented on the Python side for indexed lookup:
     text_contents: Mapped[Optional[List[str]]] = mapped_column(
         StringListType,
