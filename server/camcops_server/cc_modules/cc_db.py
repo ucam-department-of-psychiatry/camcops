@@ -40,6 +40,7 @@ from typing import (
     List,
     NoReturn,
     Optional,
+    Sequence,
     Set,
     Tuple,
     Type,
@@ -1223,7 +1224,7 @@ def add_multiple_columns(
     comment_strings: List[str] = None,
     minimum: Union[int, float] = None,
     maximum: Union[int, float] = None,
-    pv: List[Any] = None,
+    pv: Sequence[Any] = None,
     suffix: str = "",
 ) -> None:
     """
