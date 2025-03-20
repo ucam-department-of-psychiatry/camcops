@@ -27,14 +27,13 @@ ACE-III and Mini-ACE.
 
 """
 
-from typing import List, Optional, Type, TYPE_CHECKING
+from typing import Any, cast, Iterable, List, Optional, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.stringfunc import strseq
 import cardinal_pythonlib.rnc_web as ws
 import numpy
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Integer, String, UnicodeText
-from typing import Iterable
 
 from camcops_server.cc_modules.cc_blob import (
     blob_relationship,
@@ -185,7 +184,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     prohibits_commercial = True
 
     @classmethod
-    def extend_table(cls: Type["Ace3"], **kwargs) -> None:
+    def extend_table(cls: Type["Ace3"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "attn_time",
@@ -478,12 +477,12 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         UnicodeText, comment="Clinician's comments"
     )
 
-    picture1 = blob_relationship(
+    picture1: Mapped[Optional[Blob]] = blob_relationship(
         "Ace3", "picture1_blobid"
-    )  # type: Optional[Blob]
-    picture2 = blob_relationship(
+    )
+    picture2: Mapped[Optional[Blob]] = blob_relationship(
         "Ace3", "picture2_blobid"
-    )  # type: Optional[Blob]
+    )
 
     ATTN_SCORE_FIELDS = (
         strseq("attn_time", 1, N_ATTN_TIME_ACE)
@@ -626,7 +625,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         ]
 
     def attn_score(self) -> int:
-        return self.sum_fields(self.ATTN_SCORE_FIELDS)
+        return cast(int, self.sum_fields(self.ATTN_SCORE_FIELDS))
 
     @staticmethod
     def get_recog_score(
@@ -668,7 +667,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
 
     def mem_score(self) -> int:
         return (
-            self.sum_fields(self.MEM_NON_RECOG_SCORE_FIELDS)
+            cast(int, self.sum_fields(self.MEM_NON_RECOG_SCORE_FIELDS))
             + self.get_mem_recognition_score()
         )
 
@@ -680,7 +679,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     def get_follow_command_score(self) -> int:
         if self.lang_follow_command_practice != 1:
             return 0
-        return self.sum_fields(self.LANG_FOLLOW_CMD_FIELDS)
+        return cast(int, self.sum_fields(self.LANG_FOLLOW_CMD_FIELDS))
 
     def get_repeat_word_score(self) -> int:
         n = self.sum_fields(self.LANG_REPEAT_WORD_FIELDS)
@@ -688,7 +687,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
 
     def lang_score(self) -> int:
         return (
-            self.sum_fields(self.LANG_SIMPLE_SCORE_FIELDS)
+            cast(int, self.sum_fields(self.LANG_SIMPLE_SCORE_FIELDS))
             + self.get_follow_command_score()
             + self.get_repeat_word_score()
             + score_zero_for_absent(self.lang_read_words_aloud)
@@ -696,7 +695,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
 
     def vsp_score(self) -> int:
         return (
-            self.sum_fields(self.VSP_SIMPLE_SCORE_FIELDS)
+            cast(int, self.sum_fields(self.VSP_SIMPLE_SCORE_FIELDS))
             + score_zero_for_absent(self.vsp_copy_infinity)
             + score_zero_for_absent(self.vsp_copy_cube)
             + score_zero_for_absent(self.vsp_draw_clock)
@@ -712,7 +711,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         )
 
     def mini_ace_score(self) -> int:
-        return self.sum_fields(self.MINI_ACE_FIELDS)
+        return cast(int, self.sum_fields(self.MINI_ACE_FIELDS))
 
     # noinspection PyUnresolvedReferences
     def is_recognition_complete(self) -> bool:
@@ -1261,7 +1260,7 @@ class MiniAce(
     prohibits_commercial = True
 
     @classmethod
-    def extend_table(cls: Type["MiniAce"], **kwargs) -> None:
+    def extend_table(cls: Type["MiniAce"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "attn_time",
@@ -1428,19 +1427,19 @@ class MiniAce(
         ]
 
     def attn_score(self) -> int:
-        return self.sum_fields(self.MACE_ATTN_FIELDS)
+        return cast(int, self.sum_fields(self.MACE_ATTN_FIELDS))
 
     def mem_score(self) -> int:
-        return self.sum_fields(self.MACE_MEMORY_FIELDS)
+        return cast(int, self.sum_fields(self.MACE_MEMORY_FIELDS))
 
     def fluency_score(self) -> int:
-        return self.sum_fields(self.MACE_FLUENCY_FIELDS)
+        return cast(int, self.sum_fields(self.MACE_FLUENCY_FIELDS))
 
     def vsp_score(self) -> int:
-        return self.sum_fields(self.MACE_VSP_FIELDS)
+        return cast(int, self.sum_fields(self.MACE_VSP_FIELDS))
 
     def mini_ace_score(self) -> int:
-        return self.sum_fields(self.MINI_ACE_FIELDS)
+        return cast(int, self.sum_fields(self.MINI_ACE_FIELDS))
 
     def is_complete(self) -> bool:
         return (
