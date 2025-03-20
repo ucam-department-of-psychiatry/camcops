@@ -29,7 +29,8 @@ from typing import List, Optional, Tuple, Type, Union
 
 from cardinal_pythonlib.stringfunc import strseq
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.sql.sqltypes import Float, Integer
+from sqlalchemy.orm import Mapped
+from sqlalchemy.sql.sqltypes import Float
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
@@ -42,7 +43,7 @@ from camcops_server.cc_modules.cc_html import (
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    camcops_column,
+    mapped_camcops_column,
     PermittedValueChecker,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -140,9 +141,7 @@ class Demqol(
             ],
         )
 
-    q29 = camcops_column(
-        "q29",
-        Integer,
+    q29: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(
             permitted_values=PERMITTED_VALUES
         ),
@@ -344,9 +343,7 @@ class DemqolProxy(
             ],
         )
 
-    q32 = camcops_column(
-        "q32",
-        Integer,
+    q32: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(
             permitted_values=PERMITTED_VALUES
         ),

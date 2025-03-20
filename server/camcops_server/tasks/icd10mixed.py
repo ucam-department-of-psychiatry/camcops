@@ -44,7 +44,7 @@ from camcops_server.cc_modules.cc_html import get_true_false_none, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    camcops_column,
+    mapped_camcops_column,
 )
 from camcops_server.cc_modules.cc_string import AS
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -76,17 +76,15 @@ class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     comments: Mapped[Optional[str]] = mapped_column(
         UnicodeText, comment="Clinician's comments"
     )
-    mixture_or_rapid_alternation = camcops_column(
-        "mixture_or_rapid_alternation",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="The episode is characterized by either a mixture or "
-        "a rapid alternation (i.e. within a few hours) of hypomanic, "
-        "manic and depressive symptoms.",
+    mixture_or_rapid_alternation: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="The episode is characterized by either a mixture or "
+            "a rapid alternation (i.e. within a few hours) of hypomanic, "
+            "manic and depressive symptoms.",
+        )
     )
-    duration_at_least_2_weeks = camcops_column(
-        "duration_at_least_2_weeks",
-        Boolean,
+    duration_at_least_2_weeks: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Both manic and depressive symptoms must be prominent"
         " most of the time during a period of at least two weeks.",

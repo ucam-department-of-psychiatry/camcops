@@ -46,7 +46,7 @@ from camcops_server.cc_modules.cc_html import get_yes_no_none, td, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    camcops_column,
+    mapped_camcops_column,
 )
 from camcops_server.cc_modules.cc_string import AS
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -105,9 +105,7 @@ class Icd10Schizotypal(
     comments: Mapped[Optional[str]] = mapped_column(
         UnicodeText, comment="Clinician's comments"
     )
-    b = camcops_column(
-        "b",
-        Boolean,
+    b: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Criterion (B). True if: the subject has never met "
         "the criteria for any disorder in F20 (Schizophrenia).",

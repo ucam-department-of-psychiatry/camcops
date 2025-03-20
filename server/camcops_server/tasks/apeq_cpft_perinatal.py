@@ -33,7 +33,7 @@ from pyramid.renderers import render_to_response
 from pyramid.response import Response
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.expression import and_, column, select
-from sqlalchemy.sql.sqltypes import Integer, UnicodeText
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
@@ -45,7 +45,7 @@ from camcops_server.cc_modules.cc_report import (
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    camcops_column,
+    mapped_camcops_column,
     ZERO_TO_FIVE_CHECKER,
     ZERO_TO_TWO_CHECKER,
 )
@@ -71,45 +71,31 @@ class APEQCPFTPerinatal(Task):
     FN_QPREFIX = "q"
     MAIN_EXPLANATION = " (0 no, 1 yes to some extent, 2 yes)"
 
-    q1 = camcops_column(
-        "q1",
-        Integer,
+    q1: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q1. Treated with respect/dignity" + MAIN_EXPLANATION,
     )
-    q2 = camcops_column(
-        "q2",
-        Integer,
+    q2: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q2. Felt listened to" + MAIN_EXPLANATION,
     )
-    q3 = camcops_column(
-        "q3",
-        Integer,
+    q3: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q3. Needs were understood" + MAIN_EXPLANATION,
     )
-    q4 = camcops_column(
-        "q4",
-        Integer,
+    q4: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q4. Given info about team" + MAIN_EXPLANATION,
     )
-    q5 = camcops_column(
-        "q5",
-        Integer,
+    q5: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q5. Family considered/included" + MAIN_EXPLANATION,
     )
-    q6 = camcops_column(
-        "q6",
-        Integer,
+    q6: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q6. Views on treatment taken into account" + MAIN_EXPLANATION,
     )
-    ff_rating = camcops_column(
-        "ff_rating",
-        Integer,
+    ff_rating: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FIVE_CHECKER,
         comment="How likely to recommend service to friends and family "
         "(0 don't know, 1 extremely unlikely, 2 unlikely, "

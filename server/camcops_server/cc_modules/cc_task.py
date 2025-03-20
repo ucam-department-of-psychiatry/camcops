@@ -136,12 +136,6 @@ from camcops_server.cc_modules.cc_db import (
     SFN_IS_COMPLETE,
     SFN_SECONDS_CREATION_TO_FIRST_FINISH,
     TASK_FREQUENT_FIELDS,
-    TFN_CLINICIAN_CONTACT_DETAILS,
-    TFN_CLINICIAN_NAME,
-    TFN_CLINICIAN_POST,
-    TFN_CLINICIAN_PROFESSIONAL_REGISTRATION,
-    TFN_CLINICIAN_SERVICE,
-    TFN_CLINICIAN_SPECIALTY,
     TFN_EDITING_TIME_S,
     TFN_FIRSTEXIT_IS_ABORT,
     TFN_FIRSTEXIT_IS_FINISH,
@@ -182,6 +176,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     gen_ancillary_relationships,
     get_camcops_blob_column_attr_names,
     get_column_attr_names,
+    mapped_camcops_column,
     PendulumDateTimeAsIsoTextColType,
     permitted_value_failure_msgs,
     permitted_values_ok,
@@ -350,8 +345,7 @@ class TaskHasClinicianMixin(object):
     """
 
     # noinspection PyMethodParameters
-    clinician_specialty: Mapped[Optional[str]] = camcops_column(
-        TFN_CLINICIAN_SPECIALTY,
+    clinician_specialty: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="(CLINICIAN) Clinician's specialty "
@@ -359,8 +353,7 @@ class TaskHasClinicianMixin(object):
     )
 
     # noinspection PyMethodParameters
-    clinician_name: Mapped[Optional[str]] = camcops_column(
-        TFN_CLINICIAN_NAME,
+    clinician_name: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="(CLINICIAN) Clinician's name (e.g. Dr X)",
@@ -368,8 +361,7 @@ class TaskHasClinicianMixin(object):
 
     # noinspection PyMethodParameters
     clinician_professional_registration: Mapped[Optional[str]] = (
-        camcops_column(
-            TFN_CLINICIAN_PROFESSIONAL_REGISTRATION,
+        mapped_camcops_column(
             Text,
             exempt_from_anonymisation=True,
             comment="(CLINICIAN) Clinician's professional registration (e.g. "
@@ -378,16 +370,14 @@ class TaskHasClinicianMixin(object):
     )
 
     # noinspection PyMethodParameters
-    clinician_post: Mapped[Optional[str]] = camcops_column(
-        TFN_CLINICIAN_POST,
+    clinician_post: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="(CLINICIAN) Clinician's post (e.g. Consultant)",
     )
 
     # noinspection PyMethodParameters
-    clinician_service: Mapped[Optional[str]] = camcops_column(
-        TFN_CLINICIAN_SERVICE,
+    clinician_service: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="(CLINICIAN) Clinician's service (e.g. Liaison Psychiatry "
@@ -395,8 +385,7 @@ class TaskHasClinicianMixin(object):
     )
 
     # noinspection PyMethodParameters
-    clinician_contact_details: Mapped[Optional[str]] = camcops_column(
-        TFN_CLINICIAN_CONTACT_DETAILS,
+    clinician_contact_details: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="(CLINICIAN) Clinician's contact details (e.g. bleep, "

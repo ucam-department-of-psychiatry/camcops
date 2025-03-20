@@ -29,6 +29,7 @@ from typing import List, Optional
 
 from cardinal_pythonlib.maths_py import mean
 import cardinal_pythonlib.rnc_web as ws
+from sqlalchemy.orm import Mapped
 from sqlalchemy.sql.sqltypes import Float
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -37,7 +38,7 @@ from camcops_server.cc_modules.cc_html import answer, identity, tr
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    camcops_column,
+    mapped_camcops_column,
     PermittedValueChecker,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -62,17 +63,13 @@ class QolBasic(TaskHasPatientMixin, Task):
     info_filename_stem = "qol"
     provides_trackers = True
 
-    tto = camcops_column(
-        "tto",
-        Float,
+    tto: Mapped[Optional[float]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=10),
         comment="Time trade-off (QoL * 10). Prompt: ... Indicate... the "
         "number of years in full health [0-10] that you think is "
         "of equal value to 10 years in your current health state.",
     )
-    rs = camcops_column(
-        "rs",
-        Float,
+    rs: Mapped[Optional[float]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=100),
         comment="Rating scale (QoL * 100). Prompt: Mark the point on the "
         "scale [0-100] that you feel best illustrates your current "

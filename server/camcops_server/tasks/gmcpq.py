@@ -45,7 +45,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    camcops_column,
+    mapped_camcops_column,
     ONE_TO_FIVE_CHECKER,
     PermittedValueChecker,
     ZERO_TO_FIVE_CHECKER,
@@ -74,153 +74,110 @@ class GMCPQ(Task):
     doctor: Mapped[Optional[str]] = mapped_column(
         UnicodeText, comment="Doctor's name"
     )
-    q1 = camcops_column(
-        "q1",
-        Integer,
+    q1: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(minimum=1, maximum=4),
         comment="Filling in questionnaire for... (1 yourself, "
         "2 child, 3 spouse/partner, 4 other relative/friend)",
     )
-    q2a = camcops_column(
-        "q2a",
-        Integer,
+    q2a: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Reason: advice? (0 no, 1 yes)",
     )
-    q2b = camcops_column(
-        "q2b",
-        Integer,
+    q2b: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Reason: one-off problem? (0 no, 1 yes)",
     )
-    q2c = camcops_column(
-        "q2c",
-        Integer,
+    q2c: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Reason: ongoing problem? (0 no, 1 yes)",
     )
-    q2d = camcops_column(
-        "q2d",
-        Integer,
+    q2d: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Reason: routine check? (0 no, 1 yes)",
     )
-    q2e = camcops_column(
-        "q2e",
-        Integer,
+    q2e: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Reason: treatment? (0 no, 1 yes)",
     )
-    q2f = camcops_column(
-        "q2f",
-        Integer,
+    q2f: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Reason: other? (0 no, 1 yes)",
     )
     q2f_details: Mapped[Optional[str]] = mapped_column(
         UnicodeText, comment="Reason, other, details"
     )
-    q3 = camcops_column(
-        "q3",
-        Integer,
+    q3: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="How important to health/wellbeing was the reason "
         "(1 not very - 5 very)",
     )
-    q4a = camcops_column(
-        "q4a",
-        Integer,
+    q4a: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FIVE_CHECKER,
         comment="How good: being polite" + RATING_TEXT,
     )
-    q4b = camcops_column(
+    q4b: Mapped[Optional[int]] = mapped_camcops_column(
         "q4b",
         Integer,
         permitted_value_checker=ZERO_TO_FIVE_CHECKER,
         comment="How good: making you feel at ease" + RATING_TEXT,
     )
-    q4c = camcops_column(
-        "q4c",
-        Integer,
+    q4c: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FIVE_CHECKER,
         comment="How good: listening" + RATING_TEXT,
     )
-    q4d = camcops_column(
-        "q4d",
-        Integer,
+    q4d: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FIVE_CHECKER,
         comment="How good: assessing medical condition" + RATING_TEXT,
     )
-    q4e = camcops_column(
-        "q4e",
-        Integer,
+    q4e: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FIVE_CHECKER,
         comment="How good: explaining" + RATING_TEXT,
     )
-    q4f = camcops_column(
-        "q4f",
-        Integer,
+    q4f: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FIVE_CHECKER,
         comment="How good: involving you in decisions" + RATING_TEXT,
     )
-    q4g = camcops_column(
-        "q4g",
-        Integer,
+    q4g: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FIVE_CHECKER,
         comment="How good: providing/arranging treatment" + RATING_TEXT,
     )
-    q5a = camcops_column(
-        "q5a",
-        Integer,
+    q5a: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FIVE_CHECKER,
         comment="Agree/disagree: will keep info confidential" + AGREE_TEXT,
     )
-    q5b = camcops_column(
-        "q5b",
-        Integer,
+    q5b: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FIVE_CHECKER,
         comment="Agree/disagree: honest/trustworthy" + AGREE_TEXT,
     )
-    q6 = camcops_column(
-        "q6",
-        Integer,
+    q6: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Confident in doctor's ability to provide care (0 no, 1 yes)",
     )
-    q7 = camcops_column(
-        "q7",
-        Integer,
+    q7: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Would be completely happy to see this doctor again "
         "(0 no, 1 yes)",
     )
-    q8 = camcops_column(
-        "q8",
-        Integer,
+    q8: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Was this visit with your usual doctor (0 no, 1 yes)",
     )
     q9: Mapped[Optional[str]] = mapped_column(
         UnicodeText, comment="Other comments"
     )
-    q10 = camcops_column(
-        "q10",
+    q10: Mapped[Optional[str]] = mapped_camcops_column(
         SexColType,
         permitted_value_checker=PermittedValueChecker(
             permitted_values=POSSIBLE_SEX_VALUES
         ),
         comment="Sex of rater (M, F, X)",
     )
-    q11 = camcops_column(
-        "q11",
-        Integer,
+    q11: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Age (1 = under 15, 2 = 15-20, 3 = 21-40, "
         "4 = 40-60, 5 = 60 or over",  # yes, I know it's daft
     )
-    q12 = camcops_column(
-        "q12",
-        Integer,
+    q12: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(minimum=1, maximum=16),
         comment="Ethnicity (1 = White British, 2 = White Irish, "
         "3 = White other, 4 = Mixed W/B Caribbean, "

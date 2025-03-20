@@ -31,7 +31,7 @@ from cardinal_pythonlib.datetimefunc import format_datetime, get_duration_h_m
 import cardinal_pythonlib.rnc_web as ws
 from pendulum import DateTime as Pendulum
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql.sqltypes import Integer, UnicodeText
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass, DateFormat
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
@@ -43,7 +43,7 @@ from camcops_server.cc_modules.cc_html import (
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    camcops_column,
+    mapped_camcops_column,
     BIT_CHECKER,
     PendulumDateTimeAsIsoTextColType,
 )
@@ -80,21 +80,15 @@ class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         PendulumDateTimeAsIsoTextColType,
         comment="Date/time that contact ended",
     )
-    patient_contact = camcops_column(
-        "patient_contact",
-        Integer,
+    patient_contact: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Patient contact involved (0 no, 1 yes)?",
     )
-    staff_liaison = camcops_column(
-        "staff_liaison",
-        Integer,
+    staff_liaison: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Liaison with staff involved (0 no, 1 yes)?",
     )
-    other_liaison = camcops_column(
-        "other_liaison",
-        Integer,
+    other_liaison: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Liaison with others (e.g. family) involved (0 no, 1 yes)?",
     )

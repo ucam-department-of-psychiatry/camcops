@@ -43,7 +43,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    camcops_column,
+    mapped_camcops_column,
     MIN_ZERO_CHECKER,
     PermittedValueChecker,
     SummaryCategoryColType,
@@ -107,36 +107,26 @@ class Ciwa(
 
     SCORED_QUESTIONS = strseq("q", 1, NSCOREDQUESTIONS)
 
-    q10 = camcops_column(
-        "q10",
-        Integer,
+    q10: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=4),
         comment="Q10, orientation/clouding of sensorium (0-4, higher worse)",
     )
     t: Mapped[Optional[float]] = mapped_column(
         comment="Temperature (degrees C)"
     )
-    hr = camcops_column(
-        "hr",
-        Integer,
+    hr: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=MIN_ZERO_CHECKER,
         comment="Heart rate (beats/minute)",
     )
-    sbp = camcops_column(
-        "sbp",
-        Integer,
+    sbp: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=MIN_ZERO_CHECKER,
         comment="Systolic blood pressure (mmHg)",
     )
-    dbp = camcops_column(
-        "dbp",
-        Integer,
+    dbp: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=MIN_ZERO_CHECKER,
         comment="Diastolic blood pressure (mmHg)",
     )
-    rr = camcops_column(
-        "rr",
-        Integer,
+    rr: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=MIN_ZERO_CHECKER,
         comment="Respiratory rate (breaths/minute)",
     )

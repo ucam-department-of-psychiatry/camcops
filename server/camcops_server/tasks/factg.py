@@ -27,10 +27,11 @@
 
 """
 
-from typing import List, Type
+from typing import List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.sql.sqltypes import Boolean, Float
+from sqlalchemy.orm import Mapped
+from sqlalchemy.sql.sqltypes import Float
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
@@ -43,7 +44,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    camcops_column,
+    mapped_camcops_column,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
@@ -271,8 +272,8 @@ class Factg(TaskHasPatientMixin, Task):
             ],
         )
 
-    ignore_s_q7 = camcops_column(
-        "ignore_s_q7", Boolean, permitted_value_checker=BIT_CHECKER
+    ignore_s_q7: Mapped[Optional[bool]] = mapped_camcops_column(
+        permitted_value_checker=BIT_CHECKER
     )
 
     @staticmethod

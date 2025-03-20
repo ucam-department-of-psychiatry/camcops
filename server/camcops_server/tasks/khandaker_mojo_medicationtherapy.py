@@ -27,7 +27,8 @@ camcops_server/tasks/khandaker_mojo_medicationtherapy.py
 
 from typing import List, Optional, Type, TYPE_CHECKING
 
-from sqlalchemy.sql.sqltypes import Float, Integer, UnicodeText
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import (
@@ -37,7 +38,6 @@ from camcops_server.cc_modules.cc_db import (
 )
 from camcops_server.cc_modules.cc_html import answer, tr_qa
 from camcops_server.cc_modules.cc_sqlalchemy import Base
-from camcops_server.cc_modules.cc_sqla_coltypes import camcops_column
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 if TYPE_CHECKING:
@@ -84,37 +84,30 @@ class KhandakerMojoTableItem(GenericTabletRecordMixin, TaskDescendant, Base):
 class KhandakerMojoMedicationItem(KhandakerMojoTableItem):
     __tablename__ = "khandaker_mojo_medication_item"
 
-    medicationtable_id = camcops_column(
-        "medicationtable_id",
-        Integer,
-        nullable=False,
+    medicationtable_id: Mapped[int] = mapped_column(
         comment="FK to medicationtable",
     )
-    seqnum = camcops_column(
-        "seqnum",
-        Integer,
-        nullable=False,
+    seqnum: Mapped[int] = mapped_column(
         comment="Sequence number of this medication",
     )
-    brand_name = camcops_column(
-        "brand_name", UnicodeText, comment="Brand name"
+    brand_name: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Brand name"
     )
-    chemical_name = camcops_column(
-        "chemical_name", UnicodeText, comment="Chemical name for study team"
+    chemical_name: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Chemical name for study team"
     )
-    dose = camcops_column("dose", UnicodeText, comment="Dose")
-    frequency = camcops_column("frequency", UnicodeText, comment="Frequency")
-    duration_months = camcops_column(
-        "duration_months", Float, comment="Duration (months)"
+    dose: Mapped[Optional[str]] = mapped_column(UnicodeText, comment="Dose")
+    frequency: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Frequency"
     )
-    indication = camcops_column(
-        "indication",
+    duration_months: Mapped[Optional[float]] = mapped_column(
+        comment="Duration (months)"
+    )
+    indication: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Indication (what is the medication used for?)",
     )
-    response = camcops_column(
-        "response",
-        Integer,
+    response: Mapped[Optional[int]] = mapped_column(
         comment=(
             "1 = treats all symptoms, "
             "2 = most symptoms, "
@@ -152,34 +145,29 @@ class KhandakerMojoMedicationItem(KhandakerMojoTableItem):
 class KhandakerMojoTherapyItem(KhandakerMojoTableItem):
     __tablename__ = "khandaker_mojo_therapy_item"
 
-    medicationtable_id = camcops_column(
-        "medicationtable_id",
-        Integer,
-        nullable=False,
+    medicationtable_id: Mapped[int] = mapped_column(
         comment="FK to medicationtable",
     )
-    seqnum = camcops_column(
-        "seqnum",
-        Integer,
-        nullable=False,
+    seqnum: Mapped[int] = mapped_column(
         comment="Sequence number of this therapy",
     )
-    therapy = camcops_column("therapy", UnicodeText, comment="Therapy")
-    frequency = camcops_column("frequency", UnicodeText, comment="Frequency")
-    sessions_completed = camcops_column(
-        "sessions_completed", Integer, comment="Sessions completed"
+    therapy: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Therapy"
     )
-    sessions_planned = camcops_column(
-        "sessions_planned", Integer, comment="Sessions planned"
+    frequency: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Frequency"
     )
-    indication = camcops_column(
-        "indication",
+    sessions_completed: Mapped[Optional[int]] = mapped_column(
+        comment="Sessions completed"
+    )
+    sessions_planned: Mapped[Optional[int]] = mapped_column(
+        comment="Sessions planned"
+    )
+    indication: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Indication (what is the medication used for?)",
     )
-    response = camcops_column(
-        "response",
-        Integer,
+    response: Mapped[Optional[int]] = mapped_column(
         comment=(
             "1 = treats all symptoms, "
             "2 = most symptoms, "

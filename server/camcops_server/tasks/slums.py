@@ -48,7 +48,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    camcops_column,
+    mapped_camcops_column,
     PermittedValueChecker,
     SummaryCategoryColType,
     ZERO_TO_THREE_CHECKER,
@@ -82,157 +82,107 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     shortname = "SLUMS"
     provides_trackers = True
 
-    alert = camcops_column(
-        "alert",
-        Integer,
+    alert: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Is the patient alert? (0 no, 1 yes)",
     )
-    highschooleducation = camcops_column(
-        "highschooleducation",
-        Integer,
+    highschooleducation: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Does that patient have at least a high-school level of "
         "education? (0 no, 1 yes)",
     )
 
-    q1 = camcops_column(
-        "q1",
-        Integer,
+    q1: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Q1 (day) (0-1)",
     )
-    q2 = camcops_column(
-        "q2",
-        Integer,
+    q2: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Q2 (year) (0-1)",
     )
-    q3 = camcops_column(
-        "q3",
-        Integer,
+    q3: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Q3 (state) (0-1)",
     )
-    q5a = camcops_column(
-        "q5a",
-        Integer,
+    q5a: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Q5a (money spent) (0-1)",
     )
-    q5b = camcops_column(
-        "q5b",
-        Integer,
+    q5b: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_OR_TWO_CHECKER,
         comment="Q5b (money left) (0 or 2)",
     )  # worth 2 points
-    q6 = camcops_column(
-        "q6",
-        Integer,
+    q6: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment="Q6 (animal naming) (0-3)",
     )  # from 0 to 3 points
-    q7a = camcops_column(
-        "q7a",
-        Integer,
+    q7a: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Q7a (recall apple) (0-1)",
     )
-    q7b = camcops_column(
-        "q7b",
-        Integer,
+    q7b: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Q7b (recall pen) (0-1)",
     )
-    q7c = camcops_column(
-        "q7c",
-        Integer,
+    q7c: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Q7c (recall tie) (0-1)",
     )
-    q7d = camcops_column(
-        "q7d",
-        Integer,
+    q7d: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Q7d (recall house) (0-1)",
     )
-    q7e = camcops_column(
-        "q7e",
-        Integer,
+    q7e: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Q7e (recall car) (0-1)",
     )
-    q8b = camcops_column(
-        "q8b",
-        Integer,
+    q8b: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Q8b (reverse 648) (0-1)",
     )
-    q8c = camcops_column(
-        "q8c",
-        Integer,
+    q8c: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Q8c (reverse 8537) (0-1)",
     )
-    q9a = camcops_column(
-        "q9a",
-        Integer,
+    q9a: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_OR_TWO_CHECKER,
         comment="Q9a (clock - hour markers) (0 or 2)",
     )  # worth 2 points
-    q9b = camcops_column(
-        "q9b",
-        Integer,
+    q9b: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_OR_TWO_CHECKER,
         comment="Q9b (clock - time) (0 or 2)",
     )  # worth 2 points
-    q10a = camcops_column(
-        "q10a",
-        Integer,
+    q10a: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Q10a (X in triangle) (0-1)",
     )
-    q10b = camcops_column(
-        "q10b",
-        Integer,
+    q10b: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Q10b (biggest figure) (0-1)",
     )
-    q11a = camcops_column(
-        "q11a",
-        Integer,
+    q11a: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_OR_TWO_CHECKER,
         comment="Q11a (story - name) (0 or 2)",
     )  # worth 2 points
-    q11b = camcops_column(
-        "q11b",
-        Integer,
+    q11b: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_OR_TWO_CHECKER,
         comment="Q11b (story - occupation) (0 or 2)",
     )  # worth 2 points
-    q11c = camcops_column(
-        "q11c",
-        Integer,
+    q11c: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_OR_TWO_CHECKER,
         comment="Q11c (story - back to work) (0 or 2)",
     )  # worth 2 points
-    q11d = camcops_column(
-        "q11d",
-        Integer,
+    q11d: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_OR_TWO_CHECKER,
         comment="Q11d (story - state) (0 or 2)",
     )  # worth 2 points
 
-    clockpicture_blobid = camcops_column(
-        "clockpicture_blobid",
-        Integer,
+    clockpicture_blobid: Mapped[Optional[int]] = mapped_camcops_column(
         is_blob_id_field=True,
         blob_relationship_attr_name="clockpicture",
         comment="BLOB ID of clock picture",
     )
-    shapespicture_blobid = camcops_column(
-        "shapespicture_blobid",
-        Integer,
+    shapespicture_blobid: Mapped[Optional[int]] = mapped_camcops_column(
         is_blob_id_field=True,
         blob_relationship_attr_name="shapespicture",
         comment="BLOB ID of shapes picture",

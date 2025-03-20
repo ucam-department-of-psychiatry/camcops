@@ -30,7 +30,7 @@ from typing import Optional, Type
 
 from pendulum import DateTime as Pendulum
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql.sqltypes import Float, Integer, Time, UnicodeText
+from sqlalchemy.sql.sqltypes import Float, Time, UnicodeText
 
 from camcops_server.cc_modules.cc_blob import Blob, blob_relationship
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -38,7 +38,7 @@ from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    camcops_column,
+    mapped_camcops_column,
     PendulumDateTimeAsIsoTextColType,
     DiagnosticCodeColType,
 )
@@ -104,22 +104,18 @@ class DemoQuestionnaire(
     diagnosticcode_code: Mapped[Optional[str]] = mapped_column(
         DiagnosticCodeColType
     )
-    diagnosticcode_description = camcops_column(
-        "diagnosticcode_description",
+    diagnosticcode_description: Mapped[Optional[str]] = mapped_camcops_column(
         UnicodeText,
         exempt_from_anonymisation=True,
     )
     diagnosticcode2_code: Mapped[Optional[str]] = mapped_column(
         DiagnosticCodeColType
     )  # v2
-    diagnosticcode2_description = camcops_column(
-        "diagnosticcode2_description",
+    diagnosticcode2_description: Mapped[Optional[str]] = mapped_camcops_column(
         UnicodeText,
         exempt_from_anonymisation=True,
     )  # v2
-    photo_blobid = camcops_column(
-        "photo_blobid",
-        Integer,
+    photo_blobid: Mapped[Optional[int]] = mapped_camcops_column(
         is_blob_id_field=True,
         blob_relationship_attr_name="photo",
     )
@@ -127,15 +123,11 @@ class DemoQuestionnaire(
     photo_rotation: Mapped[Optional[int]] = (
         mapped_column()
     )  # DEFUNCT as of v2.0.0
-    canvas_blobid = camcops_column(
-        "canvas_blobid",
-        Integer,
+    canvas_blobid: Mapped[Optional[int]] = mapped_camcops_column(
         is_blob_id_field=True,
         blob_relationship_attr_name="canvas",
     )
-    canvas2_blobid = camcops_column(
-        "canvas2_blobid",
-        Integer,
+    canvas2_blobid: Mapped[Optional[int]] = mapped_camcops_column(
         is_blob_id_field=True,
         blob_relationship_attr_name="canvas2",
     )

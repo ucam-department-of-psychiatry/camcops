@@ -30,7 +30,7 @@ from typing import List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql.sqltypes import Float, Integer, String
+from sqlalchemy.sql.sqltypes import String
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
@@ -39,7 +39,7 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    camcops_column,
+    mapped_camcops_column,
     PendulumDateTimeAsIsoTextColType,
     ZERO_TO_ONE_CHECKER,
 )
@@ -68,9 +68,7 @@ class QolSG(TaskHasPatientMixin, Task):
         PendulumDateTimeAsIsoTextColType,
         comment="Time categories were offered (ISO-8601)",
     )
-    category_responded = camcops_column(
-        "category_responded",
-        Integer,
+    category_responded: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Responded to category choice? (0 no, 1 yes)",
     )
@@ -97,15 +95,11 @@ class QolSG(TaskHasPatientMixin, Task):
         comment="Gamble: option corresponding to q  "
         "(current, healthy, dead) (q = 1 - p)",
     )
-    gamble_lottery_on_left = camcops_column(
-        "gamble_lottery_on_left",
-        Integer,
+    gamble_lottery_on_left: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Gamble: lottery shown on the left (0 no, 1 yes)",
     )
-    gamble_starting_p = camcops_column(
-        "gamble_starting_p",
-        Float,
+    gamble_starting_p: Mapped[Optional[float]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_ONE_CHECKER,
         comment="Gamble: starting value of p",
     )
@@ -113,9 +107,7 @@ class QolSG(TaskHasPatientMixin, Task):
         PendulumDateTimeAsIsoTextColType,
         comment="Time gamble was offered (ISO-8601)",
     )
-    gamble_responded = camcops_column(
-        "gamble_responded",
-        Integer,
+    gamble_responded: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Gamble was responded to? (0 no, 1 yes)",
     )
@@ -123,9 +115,7 @@ class QolSG(TaskHasPatientMixin, Task):
         PendulumDateTimeAsIsoTextColType,
         comment="Time subject responded to gamble (ISO-8601)",
     )
-    gamble_p = camcops_column(
-        "gamble_p",
-        Float,
+    gamble_p: Mapped[Optional[float]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_ONE_CHECKER,
         comment="Final value of p",
     )

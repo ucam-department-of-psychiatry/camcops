@@ -29,7 +29,7 @@ from typing import List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql.sqltypes import Float, Integer, UnicodeText
+from sqlalchemy.sql.sqltypes import Float, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
@@ -42,7 +42,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    camcops_column,
+    mapped_camcops_column,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
@@ -141,9 +141,7 @@ class CbiR(
             comment_strings=QUESTION_SNIPPETS,
         )
 
-    confirm_blanks = camcops_column(
-        "confirm_blanks",
-        Integer,
+    confirm_blanks: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Respondent confirmed that blanks are deliberate (N/A) "
         "(0/NULL no, 1 yes)",

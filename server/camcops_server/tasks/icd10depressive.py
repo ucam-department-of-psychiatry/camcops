@@ -25,12 +25,13 @@ camcops_server/tasks/icd10depressive.py
 
 """
 
+import datetime
 from typing import List, Optional
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql.sqltypes import Boolean, Date, Integer, UnicodeText
+from sqlalchemy.sql.sqltypes import Boolean, Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import (
     CssClass,
@@ -48,7 +49,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    camcops_column,
+    mapped_camcops_column,
     SummaryCategoryColType,
 )
 from camcops_server.cc_modules.cc_string import AS
@@ -75,152 +76,116 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     shortname = "ICD10-DEPR"
     info_filename_stem = "icd"
 
-    mood = camcops_column(
-        "mood",
-        Boolean,
+    mood: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Depressed mood to a degree that is definitely abnormal "
         "for the individual, present for most of the day and  almost "
         "every day, largely uninfluenced by circumstances, and "
         "sustained for at least 2 weeks.",
     )
-    anhedonia = camcops_column(
-        "anhedonia",
-        Boolean,
+    anhedonia: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Loss of interest or pleasure in activities  that are "
         "normally pleasurable.",
     )
-    energy = camcops_column(
-        "energy",
-        Boolean,
+    energy: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Decreased energy or increased fatiguability.",
     )
 
-    sleep = camcops_column(
-        "sleep",
-        Boolean,
+    sleep: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Sleep disturbance of any type.",
     )
-    worth = camcops_column(
-        "worth",
-        Boolean,
+    worth: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Loss of confidence and self-esteem.",
     )
-    appetite = camcops_column(
-        "appetite",
-        Boolean,
+    appetite: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Change in appetite (decrease or increase) with "
         "corresponding weight change.",
     )
-    guilt = camcops_column(
-        "guilt",
-        Boolean,
+    guilt: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Unreasonable feelings of self-reproach or excessive and "
         "inappropriate guilt.",
     )
-    concentration = camcops_column(
-        "concentration",
-        Boolean,
+    concentration: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Complaints or evidence of diminished ability to think "
         "or concentrate, such as indecisiveness or vacillation.",
     )
-    activity = camcops_column(
-        "activity",
-        Boolean,
+    activity: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Change in psychomotor activity, with agitation or "
         "retardation (either subjective or objective).",
     )
-    death = camcops_column(
-        "death",
-        Boolean,
+    death: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Recurrent thoughts of death or suicide, or any "
         "suicidal behaviour.",
     )
 
-    somatic_anhedonia = camcops_column(
-        "somatic_anhedonia",
-        Boolean,
+    somatic_anhedonia: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Marked loss of interest or pleasure in activities that "
         "are normally pleasurable",
     )
-    somatic_emotional_unreactivity = camcops_column(
-        "somatic_emotional_unreactivity",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Lack of emotional reactions to events or "
-        "activities that normally produce an emotional response",
+    somatic_emotional_unreactivity: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="Lack of emotional reactions to events or "
+            "activities that normally produce an emotional response",
+        )
     )
-    somatic_early_morning_waking = camcops_column(
-        "somatic_early_morning_waking",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Waking in the morning 2 hours or more before "
-        "the usual time",
+    somatic_early_morning_waking: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="Waking in the morning 2 hours or more before "
+            "the usual time",
+        )
     )
-    somatic_mood_worse_morning = camcops_column(
-        "somatic_mood_worse_morning",
-        Boolean,
+    somatic_mood_worse_morning: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Depression worse in the morning",
     )
-    somatic_psychomotor = camcops_column(
-        "somatic_psychomotor",
-        Boolean,
+    somatic_psychomotor: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Objective evidence of marked psychomotor retardation or "
         "agitation (remarked on or reported by other people)",
     )
-    somatic_appetite = camcops_column(
-        "somatic_appetite",
-        Boolean,
+    somatic_appetite: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Marked loss of appetite",
     )
-    somatic_weight = camcops_column(
-        "somatic_weight",
-        Boolean,
+    somatic_weight: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Weight loss (5 percent or more of body weight in the past "
         "month)",
         # 2017-08-24: AVOID A PERCENT SYMBOL (%) FOR NOW; SEE THIS BUG:
         # https://bitbucket.org/zzzeek/sqlalchemy/issues/4052/comment-attribute-causes-crash-during  # noqa
     )
-    somatic_libido = camcops_column(
-        "somatic_libido",
-        Boolean,
+    somatic_libido: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Marked loss of libido",
     )
 
-    hallucinations_schizophrenic = camcops_column(
-        "hallucinations_schizophrenic",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Hallucinations that are 'typically schizophrenic' "
-        "(hallucinatory voices giving a running commentary on the "
-        "patient's behaviour, or discussing him between themselves, "
-        "or other types of hallucinatory voices coming from some part "
-        "of the body).",
+    hallucinations_schizophrenic: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="Hallucinations that are 'typically schizophrenic' "
+            "(hallucinatory voices giving a running commentary on the "
+            "patient's behaviour, or discussing him between themselves, "
+            "or other types of hallucinatory voices coming from some part "
+            "of the body).",
+        )
     )
-    hallucinations_other = camcops_column(
-        "hallucinations_other",
-        Boolean,
+    hallucinations_other: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Hallucinations (of any other kind).",
     )
-    delusions_schizophrenic = camcops_column(
-        "delusions_schizophrenic",
-        Boolean,
+    delusions_schizophrenic: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Delusions that are 'typically schizophrenic' (delusions "
         "of control, influence or passivity, clearly referred to body "
@@ -229,34 +194,26 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "other kinds that are culturally inappropriate and completely "
         "impossible).",
     )
-    delusions_other = camcops_column(
-        "delusions_other",
-        Boolean,
+    delusions_other: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Delusions (of any other kind).",
     )
-    stupor = camcops_column(
-        "stupor",
-        Boolean,
+    stupor: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Depressive stupor.",
     )
 
-    date_pertains_to = camcops_column(
-        "date_pertains_to", Date, comment="Date the assessment pertains to"
+    date_pertains_to: Mapped[Optional[datetime.date]] = mapped_camcops_column(
+        comment="Date the assessment pertains to"
     )
     comments: Mapped[Optional[str]] = mapped_column(
         UnicodeText, comment="Clinician's comments"
     )
-    duration_at_least_2_weeks = camcops_column(
-        "duration_at_least_2_weeks",
-        Boolean,
+    duration_at_least_2_weeks: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Depressive episode lasts at least 2 weeks?",
     )
-    severe_clinically = camcops_column(
-        "severe_clinically",
-        Boolean,
+    severe_clinically: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Clinical impression of severe depression, in a "
         "patient unwilling or unable to describe many symptoms in "

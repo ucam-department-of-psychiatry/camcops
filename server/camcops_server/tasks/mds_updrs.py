@@ -25,9 +25,9 @@ camcops_server/tasks/mds_updrs.py
 
 """
 
-from typing import List
+from typing import List, Optional
 
-from sqlalchemy.sql.sqltypes import Boolean, Float, Integer
+from sqlalchemy.orm import Mapped
 
 from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
 from camcops_server.cc_modules.cc_constants import (
@@ -39,9 +39,9 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    camcops_column,
     gen_camcops_columns,
     get_camcops_column_attr_names,
+    mapped_camcops_column,
     ZERO_TO_TWO_CHECKER,
     ZERO_TO_FOUR_CHECKER,
     ZERO_TO_FIVE_CHECKER,
@@ -77,450 +77,304 @@ class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     hy_pv = ZERO_TO_FIVE_CHECKER
 
     # Part I
-    q1a = camcops_column(
-        "q1a",
-        Integer,
+    q1a: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=informant_pv,
         comment="Part I: informant for Q1.1-1.6" + informant_cmt,
     )
-    q1_1 = camcops_column(
-        "q1_1",
-        Integer,
+    q1_1: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part I, Q1.1 " + main_cmt,
     )
-    q1_2 = camcops_column(
-        "q1_2",
-        Integer,
+    q1_2: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part I, Q1.2 " + main_cmt,
     )
-    q1_3 = camcops_column(
-        "q1_3",
-        Integer,
+    q1_3: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part I, Q1.3 " + main_cmt,
     )
-    q1_4 = camcops_column(
-        "q1_4",
-        Integer,
+    q1_4: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part I, Q1.4 " + main_cmt,
     )
-    q1_5 = camcops_column(
-        "q1_5",
-        Integer,
+    q1_5: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part I, Q1.5 " + main_cmt,
     )
-    q1_6 = camcops_column(
-        "q1_6",
-        Integer,
+    q1_6: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part I, Q1.6 " + main_cmt,
     )
-    q1_6a = camcops_column(
-        "q1_6a",
-        Integer,
+    q1_6a: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=informant_pv,
         comment="Part I, Q1.6a: informant for Q1.7-1.13" + informant_cmt,
     )
-    q1_7 = camcops_column(
-        "q1_7",
-        Integer,
+    q1_7: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part I, Q1.7 " + main_cmt,
     )
-    q1_8 = camcops_column(
-        "q1_8",
-        Integer,
+    q1_8: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part I, Q1.8 " + main_cmt,
     )
-    q1_9 = camcops_column(
-        "q1_9",
-        Integer,
+    q1_9: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part I, Q1.9 " + main_cmt,
     )
-    q1_10 = camcops_column(
-        "q1_10",
-        Integer,
+    q1_10: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part I, Q1.10 " + main_cmt,
     )
-    q1_11 = camcops_column(
-        "q1_11",
-        Integer,
+    q1_11: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part I, Q1.11 " + main_cmt,
     )
-    q1_12 = camcops_column(
-        "q1_12",
-        Integer,
+    q1_12: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part I, Q1.12 " + main_cmt,
     )
-    q1_13 = camcops_column(
-        "q1_13",
-        Integer,
+    q1_13: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part I, Q1.13 " + main_cmt,
     )
 
     # Part II
-    q2_1 = camcops_column(
-        "q2_1",
-        Integer,
+    q2_1: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part II, Q2.1 " + main_cmt,
     )
-    q2_2 = camcops_column(
-        "q2_2",
-        Integer,
+    q2_2: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part II, Q2.2 " + main_cmt,
     )
-    q2_3 = camcops_column(
-        "q2_3",
-        Integer,
+    q2_3: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part II, Q2.3 " + main_cmt,
     )
-    q2_4 = camcops_column(
-        "q2_4",
-        Integer,
+    q2_4: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part II, Q2.4 " + main_cmt,
     )
-    q2_5 = camcops_column(
-        "q2_5",
-        Integer,
+    q2_5: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part II, Q2.5 " + main_cmt,
     )
-    q2_6 = camcops_column(
-        "q2_6",
-        Integer,
+    q2_6: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part II, Q2.6 " + main_cmt,
     )
-    q2_7 = camcops_column(
-        "q2_7",
-        Integer,
+    q2_7: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part II, Q2.7 " + main_cmt,
     )
-    q2_8 = camcops_column(
-        "q2_8",
-        Integer,
+    q2_8: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part II, Q2.8 " + main_cmt,
     )
-    q2_9 = camcops_column(
-        "q2_9",
-        Integer,
+    q2_9: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part II, Q2.9 " + main_cmt,
     )
-    q2_10 = camcops_column(
-        "q2_10",
-        Integer,
+    q2_10: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part II, Q2.10 " + main_cmt,
     )
-    q2_11 = camcops_column(
-        "q2_11",
-        Integer,
+    q2_11: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part II, Q2.11 " + main_cmt,
     )
-    q2_12 = camcops_column(
-        "q2_12",
-        Integer,
+    q2_12: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part II, Q2.12 " + main_cmt,
     )
-    q2_13 = camcops_column(
-        "q2_13",
-        Integer,
+    q2_13: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part II, Q2.13 " + main_cmt,
     )
 
     # Part III
-    q3a = camcops_column(
-        "q3a",
-        Boolean,
+    q3a: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Part III, Q3a (medication) " + yn_cmt,
     )
-    q3b = camcops_column(
-        "q3b",
-        Boolean,
+    q3b: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Part III, Q3b (clinical state) " + on_off_cmt,
     )
-    q3c = camcops_column(
-        "q3c",
-        Boolean,
+    q3c: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Part III, Q3c (levodopa) " + yn_cmt,
     )
-    q3c1 = camcops_column(
-        "q3c1", Float, comment="Part III, Q3c.1 (minutes since last dose)"
+    q3c1: Mapped[Optional[float]] = mapped_camcops_column(
+        comment="Part III, Q3c.1 (minutes since last dose)"
     )
-    q3_1 = camcops_column(
-        "q3_1",
-        Integer,
+    q3_1: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.1 " + main_cmt,
     )
-    q3_2 = camcops_column(
-        "q3_2",
-        Integer,
+    q3_2: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.2 " + main_cmt,
     )
-    q3_3a = camcops_column(
-        "q3_3a",
-        Integer,
+    q3_3a: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.3a " + main_cmt,
     )
-    q3_3b = camcops_column(
-        "q3_3b",
-        Integer,
+    q3_3b: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.3b " + main_cmt,
     )
-    q3_3c = camcops_column(
-        "q3_3c",
-        Integer,
+    q3_3c: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.3c " + main_cmt,
     )
-    q3_3d = camcops_column(
-        "q3_3d",
-        Integer,
+    q3_3d: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.3d " + main_cmt,
     )
-    q3_3e = camcops_column(
-        "q3_3e",
-        Integer,
+    q3_3e: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.3e " + main_cmt,
     )
-    q3_4a = camcops_column(
-        "q3_4a",
-        Integer,
+    q3_4a: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.4a " + main_cmt,
     )
-    q3_4b = camcops_column(
-        "q3_4b",
-        Integer,
+    q3_4b: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.4b " + main_cmt,
     )
-    q3_5a = camcops_column(
-        "q3_5a",
-        Integer,
+    q3_5a: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.5a " + main_cmt,
     )
-    q3_5b = camcops_column(
-        "q3_5b",
-        Integer,
+    q3_5b: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.5b " + main_cmt,
     )
-    q3_6a = camcops_column(
-        "q3_6a",
-        Integer,
+    q3_6a: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.6a " + main_cmt,
     )
-    q3_6b = camcops_column(
-        "q3_6b",
-        Integer,
+    q3_6b: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.6b " + main_cmt,
     )
-    q3_7a = camcops_column(
-        "q3_7a",
-        Integer,
+    q3_7a: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.7a " + main_cmt,
     )
-    q3_7b = camcops_column(
-        "q3_7b",
-        Integer,
+    q3_7b: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.7b " + main_cmt,
     )
-    q3_8a = camcops_column(
-        "q3_8a",
-        Integer,
+    q3_8a: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.8a " + main_cmt,
     )
-    q3_8b = camcops_column(
-        "q3_8b",
-        Integer,
+    q3_8b: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.8b " + main_cmt,
     )
-    q3_9 = camcops_column(
-        "q3_9",
-        Integer,
+    q3_9: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.9 " + main_cmt,
     )
-    q3_10 = camcops_column(
-        "q3_10",
-        Integer,
+    q3_10: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.10 " + main_cmt,
     )
-    q3_11 = camcops_column(
-        "q3_11",
-        Integer,
+    q3_11: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.11 " + main_cmt,
     )
-    q3_12 = camcops_column(
-        "q3_12",
-        Integer,
+    q3_12: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.12 " + main_cmt,
     )
-    q3_13 = camcops_column(
-        "q3_13",
-        Integer,
+    q3_13: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.13 " + main_cmt,
     )
-    q3_14 = camcops_column(
-        "q3_14",
-        Integer,
+    q3_14: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.14 " + main_cmt,
     )
-    q3_15a = camcops_column(
-        "q3_15a",
-        Integer,
+    q3_15a: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.15a " + main_cmt,
     )
-    q3_15b = camcops_column(
-        "q3_15b",
-        Integer,
+    q3_15b: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.15b " + main_cmt,
     )
-    q3_16a = camcops_column(
-        "q3_16a",
-        Integer,
+    q3_16a: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.16a " + main_cmt,
     )
-    q3_16b = camcops_column(
-        "q3_16b",
-        Integer,
+    q3_16b: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.16b " + main_cmt,
     )
-    q3_17a = camcops_column(
-        "q3_17a",
-        Integer,
+    q3_17a: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.17a " + main_cmt,
     )
-    q3_17b = camcops_column(
-        "q3_17b",
-        Integer,
+    q3_17b: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.17b " + main_cmt,
     )
-    q3_17c = camcops_column(
-        "q3_17c",
-        Integer,
+    q3_17c: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.17c " + main_cmt,
     )
-    q3_17d = camcops_column(
-        "q3_17d",
-        Integer,
+    q3_17d: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.17d " + main_cmt,
     )
-    q3_17e = camcops_column(
-        "q3_17e",
-        Integer,
+    q3_17e: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.17e " + main_cmt,
     )
-    q3_18 = camcops_column(
-        "q3_18",
-        Integer,
+    q3_18: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part III, Q3.18 " + main_cmt,
     )
-    q3_dyskinesia_present = camcops_column(
-        "q3_dyskinesia_present",
-        Boolean,
+    q3_dyskinesia_present: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Part III, q3_dyskinesia_present " + yn_cmt,
     )
-    q3_dyskinesia_interfered = camcops_column(
-        "q3_dyskinesia_interfered",
-        Boolean,
+    q3_dyskinesia_interfered: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Part III, q3_dyskinesia_interfered " + yn_cmt,
     )
-    q3_hy_stage = camcops_column(
-        "q3_hy_stage",
-        Integer,
+    q3_hy_stage: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=hy_pv,
         comment="Part III, q3_hy_stage (0-5)",
     )
 
     # Part IV
-    q4_1 = camcops_column(
-        "q4_1",
-        Integer,
+    q4_1: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part IV, Q4.1 " + main_cmt,
     )
-    q4_2 = camcops_column(
-        "q4_2",
-        Integer,
+    q4_2: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part IV, Q4.2 " + main_cmt,
     )
-    q4_3 = camcops_column(
-        "q4_3",
-        Integer,
+    q4_3: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part IV, Q4.3 " + main_cmt,
     )
-    q4_4 = camcops_column(
-        "q4_4",
-        Integer,
+    q4_4: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part IV, Q4.4 " + main_cmt,
     )
-    q4_5 = camcops_column(
-        "q4_5",
-        Integer,
+    q4_5: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part IV, Q4.5 " + main_cmt,
     )
-    q4_6 = camcops_column(
-        "q4_6",
-        Integer,
+    q4_6: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=main_pv,
         comment="Part IV, Q4.6 " + main_cmt,
     )

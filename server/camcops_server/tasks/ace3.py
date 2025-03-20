@@ -33,7 +33,7 @@ from cardinal_pythonlib.stringfunc import strseq
 import cardinal_pythonlib.rnc_web as ws
 import numpy
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql.sqltypes import Boolean, Integer, String, UnicodeText
+from sqlalchemy.sql.sqltypes import Integer, String, UnicodeText
 from typing import Iterable
 
 from camcops_server.cc_modules.cc_blob import (
@@ -57,7 +57,7 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    camcops_column,
+    mapped_camcops_column,
     PermittedValueChecker,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -400,24 +400,20 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
             comment_strings=["name", "number", "street", "town", "county"],
         )
 
-    task_edition = camcops_column(
-        "task_edition",
+    task_edition: Mapped[Optional[str]] = mapped_camcops_column(
         String(length=255),
         comment="Task edition. Older task instances will have NULL and that "
         "indicates UK English, 2012 version.",
     )
-    task_address_version = camcops_column(
-        "task_address_version",
+    task_address_version: Mapped[Optional[str]] = mapped_camcops_column(
         String(length=1),
         comment="Task version, determining the address for recall (A/B/C). "
         "Older task instances will have NULL and that indicates version A.",
         permitted_value_checker=PermittedValueChecker(
             permitted_values=["A", "B", "C"]
         ),
-    )  # type: str
-    remote_administration = camcops_column(
-        "remote_administration",
-        Boolean,
+    )
+    remote_administration: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Task performed using remote (videoconferencing) "
         "administration?",
@@ -428,8 +424,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     occupation: Mapped[Optional[str]] = mapped_column(
         UnicodeText, comment="Occupation"
     )
-    handedness = camcops_column(
-        "handedness",
+    handedness: Mapped[Optional[str]] = mapped_camcops_column(
         String(length=1),  # was Text
         comment="Handedness (L or R)",
         permitted_value_checker=PermittedValueChecker(
@@ -439,58 +434,42 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     attn_num_registration_trials: Mapped[Optional[int]] = mapped_column(
         comment="Attention, repetition, number of trials (not scored)",
     )
-    fluency_letters_score = camcops_column(
-        "fluency_letters_score",
-        Integer,
+    fluency_letters_score: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Fluency, words beginning with P, score 0-7",
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=7),
     )  # type: Optional[int]
-    fluency_animals_score = camcops_column(
-        "fluency_animals_score",
-        Integer,
+    fluency_animals_score: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Fluency, animals, score 0-7",
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=7),
     )  # type: Optional[int]
-    lang_follow_command_practice = camcops_column(
-        "lang_follow_command_practice",
-        Integer,
-        comment="Language, command, practice trial (not scored)",
-        permitted_value_checker=BIT_CHECKER,
+    lang_follow_command_practice: Mapped[Optional[int]] = (
+        mapped_camcops_column(
+            comment="Language, command, practice trial (not scored)",
+            permitted_value_checker=BIT_CHECKER,
+        )
     )
-    lang_read_words_aloud = camcops_column(
-        "lang_read_words_aloud",
-        Integer,
+    lang_read_words_aloud: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Language, read five irregular words (0 or 1)",
         permitted_value_checker=BIT_CHECKER,
     )  # type: Optional[int]
-    vsp_copy_infinity = camcops_column(
-        "vsp_copy_infinity",
-        Integer,
+    vsp_copy_infinity: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Visuospatial, copy infinity (0-1)",
         permitted_value_checker=BIT_CHECKER,
     )  # type: Optional[int]
-    vsp_copy_cube = camcops_column(
-        "vsp_copy_cube",
-        Integer,
+    vsp_copy_cube: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Visuospatial, copy cube (0-2)",
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=2),
     )  # type: Optional[int]
-    vsp_draw_clock = camcops_column(
-        "vsp_draw_clock",
-        Integer,
+    vsp_draw_clock: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Visuospatial, draw clock (0-5)",
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=5),
     )  # type: Optional[int]
-    picture1_blobid = camcops_column(
-        "picture1_blobid",
-        Integer,
+    picture1_blobid: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Photo 1/2 PNG BLOB ID",
         is_blob_id_field=True,
         blob_relationship_attr_name="picture1",
     )
-    picture2_blobid = camcops_column(
-        "picture2_blobid",
-        Integer,
+    picture2_blobid: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Photo 2/2 PNG BLOB ID",
         is_blob_id_field=True,
         blob_relationship_attr_name="picture2",
@@ -1332,22 +1311,18 @@ class MiniAce(
             comment_strings=ADDRESS_PARTS,
         )
 
-    task_edition = camcops_column(
-        "task_edition",
+    task_edition: Mapped[Optional[str]] = mapped_camcops_column(
         String(length=255),
         comment="Task edition.",
     )
-    task_address_version = camcops_column(
-        "task_address_version",
+    task_address_version: Mapped[Optional[str]] = mapped_camcops_column(
         String(length=1),
         comment="Task version, determining the address for recall (A/B/C).",
         permitted_value_checker=PermittedValueChecker(
             permitted_values=["A", "B", "C"]
         ),
-    )  # type: str
-    remote_administration = camcops_column(
-        "remote_administration",
-        Boolean,
+    )
+    remote_administration: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Task performed using remote (videoconferencing) "
         "administration?",
@@ -1358,36 +1333,27 @@ class MiniAce(
     occupation: Mapped[Optional[str]] = mapped_column(
         "occupation", UnicodeText, comment=OCCUPATION
     )
-    handedness = camcops_column(
-        "handedness",
+    handedness: Mapped[Optional[str]] = mapped_camcops_column(
         String(length=1),  # was Text
         comment="Handedness (L or R)",
         permitted_value_checker=PermittedValueChecker(
             permitted_values=["L", "R"]
         ),
     )
-    fluency_animals_score = camcops_column(
-        "fluency_animals_score",
-        Integer,
+    fluency_animals_score: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Fluency, animals, score 0-7",
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=7),
-    )  # type: Optional[int]
-    vsp_draw_clock = camcops_column(
-        "vsp_draw_clock",
-        Integer,
+    )
+    vsp_draw_clock: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Visuospatial, draw clock (0-5)",
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=5),
-    )  # type: Optional[int]
-    picture1_blobid = camcops_column(
-        "picture1_blobid",
-        Integer,
+    )
+    picture1_blobid: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Photo 1/2 PNG BLOB ID",
         is_blob_id_field=True,
         blob_relationship_attr_name="picture1",
     )
-    picture2_blobid = camcops_column(
-        "picture2_blobid",
-        Integer,
+    picture2_blobid: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Photo 2/2 PNG BLOB ID",
         is_blob_id_field=True,
         blob_relationship_attr_name="picture2",

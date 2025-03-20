@@ -29,7 +29,8 @@ from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.maths_py import mean
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.sql.sqltypes import Float, Integer
+from sqlalchemy.orm import Mapped
+from sqlalchemy.sql.sqltypes import Float
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
@@ -37,7 +38,7 @@ from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, identity, tr, tr_span_col
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    camcops_column,
+    mapped_camcops_column,
     ONE_TO_FIVE_CHECKER,
     ONE_TO_SIX_CHECKER,
 )
@@ -157,44 +158,32 @@ class Rand36(
             ],
         )
 
-    q1 = camcops_column(
-        "q1",
-        Integer,
+    q1: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Q1 (general health) (1 excellent - 5 poor)",
     )
-    q2 = camcops_column(
-        "q2",
-        Integer,
+    q2: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Q2 (health cf. 1y ago) (1 much better - 5 much worse)",
     )
 
-    q20 = camcops_column(
-        "q20",
-        Integer,
+    q20: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Q20 (past 4 weeks, to what extent physical health/"
         "emotional problems interfered with social activity) "
         "(1 not at all - 5 extremely)",
     )
-    q21 = camcops_column(
-        "q21",
-        Integer,
+    q21: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_SIX_CHECKER,
         comment="Q21 (past 4 weeks, how much pain (1 none - 6 very severe)",
     )
-    q22 = camcops_column(
-        "q22",
-        Integer,
+    q22: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Q22 (past 4 weeks, pain interfered with normal activity "
         "(1 not at all - 5 extremely)",
     )
 
-    q32 = camcops_column(
-        "q32",
-        Integer,
+    q32: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Q32 (past 4 weeks, how much of the time has physical "
         "health/emotional problems interfered with social activities "

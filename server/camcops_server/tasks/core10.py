@@ -31,6 +31,7 @@ from typing import Dict, List, Optional, Type
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
 from semantic_version import Version
+from sqlalchemy.orm import Mapped
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -43,7 +44,7 @@ from camcops_server.cc_modules.cc_report import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    camcops_column,
+    mapped_camcops_column,
     ZERO_TO_FOUR_CHECKER,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -77,63 +78,43 @@ class Core10(TaskHasPatientMixin, Task):
     COMMENT_NORMAL = " (0 not at all - 4 most or all of the time)"
     COMMENT_REVERSED = " (0 most or all of the time - 4 not at all)"
 
-    q1 = camcops_column(
-        "q1",
-        Integer,
+    q1: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment="Q1 (tension/anxiety)" + COMMENT_NORMAL,
     )
-    q2 = camcops_column(
-        "q2",
-        Integer,
+    q2: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment="Q2 (support)" + COMMENT_REVERSED,
     )
-    q3 = camcops_column(
-        "q3",
-        Integer,
+    q3: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment="Q3 (coping)" + COMMENT_REVERSED,
     )
-    q4 = camcops_column(
-        "q4",
-        Integer,
+    q4: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment="Q4 (talking is too much)" + COMMENT_NORMAL,
     )
-    q5 = camcops_column(
-        "q5",
-        Integer,
+    q5: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment="Q5 (panic)" + COMMENT_NORMAL,
     )
-    q6 = camcops_column(
-        "q6",
-        Integer,
+    q6: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment="Q6 (suicidality)" + COMMENT_NORMAL,
     )
-    q7 = camcops_column(
-        "q7",
-        Integer,
+    q7: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment="Q7 (sleep problems)" + COMMENT_NORMAL,
     )
-    q8 = camcops_column(
-        "q8",
-        Integer,
+    q8: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment="Q8 (despair/hopelessness)" + COMMENT_NORMAL,
     )
-    q9 = camcops_column(
-        "q9",
-        Integer,
+    q9: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment="Q9 (unhappy)" + COMMENT_NORMAL,
     )
-    q10 = camcops_column(
-        "q10",
-        Integer,
+    q10: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment="Q10 (unwanted images)" + COMMENT_NORMAL,
     )

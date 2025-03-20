@@ -29,13 +29,13 @@ from typing import Optional
 import cardinal_pythonlib.rnc_web as ws
 
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql.sqltypes import Integer, UnicodeText
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    camcops_column,
+    mapped_camcops_column,
     ZERO_TO_TWO_CHECKER,
 )
 from camcops_server.cc_modules.cc_task import (
@@ -61,9 +61,7 @@ class Irac(TaskHasPatientMixin, Task):
     aim: Mapped[Optional[str]] = mapped_column(
         UnicodeText, comment="Main aim of the contact"
     )
-    achieved = camcops_column(
-        "achieved",
-        Integer,
+    achieved: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Was the aim achieved? (0 not, 1 partially, 2 fully)",
     )

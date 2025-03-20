@@ -48,7 +48,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    camcops_column,
+    mapped_camcops_column,
     PendulumDateTimeAsIsoTextColType,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
@@ -96,8 +96,7 @@ class IDED3DTrial(GenericTabletRecordMixin, TaskDescendant, Base):
     correct_shape: Mapped[Optional[int]] = mapped_column(
         comment="Shape# of correct stimulus"
     )
-    correct_colour = camcops_column(
-        "correct_colour",
+    correct_colour: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="HTML colour of correct stimulus",
@@ -108,8 +107,7 @@ class IDED3DTrial(GenericTabletRecordMixin, TaskDescendant, Base):
     incorrect_shape: Mapped[Optional[int]] = mapped_column(
         comment="Shape# of incorrect stimulus"
     )
-    incorrect_colour = camcops_column(
-        "incorrect_colour",
+    incorrect_colour: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="HTML colour of incorrect stimulus",
@@ -125,9 +123,7 @@ class IDED3DTrial(GenericTabletRecordMixin, TaskDescendant, Base):
     )
 
     # Response
-    responded = camcops_column(
-        "responded",
-        Boolean,
+    responded: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Did the subject respond?",
     )
@@ -138,15 +134,11 @@ class IDED3DTrial(GenericTabletRecordMixin, TaskDescendant, Base):
     response_latency_ms: Mapped[Optional[int]] = mapped_column(
         comment="Response latency (ms)"
     )
-    correct = camcops_column(
-        "correct",
-        Boolean,
+    correct: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Response was correct",
     )
-    incorrect = camcops_column(
-        "incorrect",
-        Boolean,
+    incorrect: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Response was incorrect",
     )
@@ -214,67 +206,57 @@ class IDED3DStage(GenericTabletRecordMixin, TaskDescendant, Base):
     stage: Mapped[int] = mapped_column(comment="Stage number (1-based)")
 
     # Config
-    stage_name = camcops_column(
-        "stage_name",
+    stage_name: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="Name of the stage (e.g. SD, EDr)",
     )
-    relevant_dimension = camcops_column(
-        "relevant_dimension",
+    relevant_dimension: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="Relevant dimension (e.g. shape, colour, number)",
     )
-    correct_exemplar = camcops_column(
-        "correct_exemplar",
+    correct_exemplar: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="Correct exemplar (from relevant dimension)",
     )
-    incorrect_exemplar = camcops_column(
-        "incorrect_exemplar",
+    incorrect_exemplar: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="Incorrect exemplar (from relevant dimension)",
     )
-    correct_stimulus_shapes = camcops_column(
-        "correct_stimulus_shapes",
+    correct_stimulus_shapes: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="Possible shapes for correct stimulus "
         "(CSV list of shape numbers)",
     )
-    correct_stimulus_colours = camcops_column(
-        "correct_stimulus_colours",
+    correct_stimulus_colours: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="Possible colours for correct stimulus "
         "(CSV list of HTML colours)",
     )
-    correct_stimulus_numbers = camcops_column(
-        "correct_stimulus_numbers",
+    correct_stimulus_numbers: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="Possible numbers for correct stimulus "
         "(CSV list of numbers)",
     )
-    incorrect_stimulus_shapes = camcops_column(
-        "incorrect_stimulus_shapes",
+    incorrect_stimulus_shapes: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="Possible shapes for incorrect stimulus "
         "(CSV list of shape numbers)",
     )
-    incorrect_stimulus_colours = camcops_column(
-        "incorrect_stimulus_colours",
+    incorrect_stimulus_colours: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="Possible colours for incorrect stimulus "
         "(CSV list of HTML colours)",
     )
-    incorrect_stimulus_numbers = camcops_column(
-        "incorrect_stimulus_numbers",
+    incorrect_stimulus_numbers: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="Possible numbers for incorrect stimulus "
@@ -294,14 +276,12 @@ class IDED3DStage(GenericTabletRecordMixin, TaskDescendant, Base):
     n_incorrect: Mapped[Optional[int]] = mapped_column(
         comment="Number of trials performed incorrectly",
     )
-    stage_passed = camcops_column(
-        "stage_passed",
+    stage_passed: Mapped[Optional[bool]] = mapped_camcops_column(
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Subject met criterion and passed stage",
     )
-    stage_failed = camcops_column(
-        "stage_failed",
+    stage_failed: Mapped[Optional[bool]] = mapped_camcops_column(
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Subject took too many trials and failed stage",
@@ -408,33 +388,29 @@ class IDED3D(TaskHasPatientMixin, Task):
     volume: Mapped[Optional[float]] = mapped_column(
         comment="Sound volume (0.0-1.0)"
     )
-    offer_abort = camcops_column(
-        "offer_abort",
-        Boolean,
+    offer_abort: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Offer an abort button?",
     )
-    debug_display_stimuli_only = camcops_column(
-        "debug_display_stimuli_only",
-        Boolean,
+    debug_display_stimuli_only: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="DEBUG: show stimuli only, don't run task",
     )
 
     # Intrinsic config
-    shape_definitions_svg = camcops_column(
-        "shape_definitions_svg",
+    shape_definitions_svg: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="JSON-encoded version of shape definition"
         " array in SVG format (with arbitrary scale of -60 to"
         " +60 in both X and Y dimensions)",
     )
-    colour_definitions_rgb = camcops_column(  # v2.0.0
-        "colour_definitions_rgb",
-        Text,
-        exempt_from_anonymisation=True,
-        comment="JSON-encoded version of colour RGB definitions",
+    colour_definitions_rgb: Mapped[Optional[str]] = (
+        mapped_camcops_column(  # v2.0.0
+            Text,
+            exempt_from_anonymisation=True,
+            comment="JSON-encoded version of colour RGB definitions",
+        )
     )
 
     # Results

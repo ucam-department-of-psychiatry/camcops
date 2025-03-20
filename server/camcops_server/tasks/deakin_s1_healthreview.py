@@ -28,14 +28,14 @@ camcops_server/tasks/deakin_s1_healthreview.py
 from typing import Optional
 
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql.sqltypes import Integer, String, Text, UnicodeText
+from sqlalchemy.sql.sqltypes import String, Text, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     bool_column,
-    camcops_column,
+    mapped_camcops_column,
     MIN_ZERO_CHECKER,
     PermittedValueChecker,
     ZERO_TO_FOUR_CHECKER,
@@ -61,14 +61,11 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
     shortname = "Deakin_S1_HealthReview"
     info_filename_stem = "deakin_s1_healthreview"
 
-    ethnicity = camcops_column(
-        "ethnicity",
-        Integer,
+    ethnicity: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(minimum=1, maximum=16),
         comment="Ethnicity code, per GMC Patient Questionnaire (1-16)",
     )
-    ethnicity_text = camcops_column(
-        "ethnicity_text",
+    ethnicity_text: Mapped[Optional[str]] = mapped_camcops_column(
         UnicodeText,
         exempt_from_anonymisation=True,
         comment="Ethnicity, description",
@@ -78,16 +75,15 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         comment="Ethnicity, other, details",
     )
 
-    handedness = camcops_column(
-        "handedness",
+    handedness: Mapped[Optional[str]] = mapped_camcops_column(
         String(length=1),  # was Text
         permitted_value_checker=PermittedValueChecker(
             permitted_values=["L", "R"]
         ),
         comment="Handedness (L, R)",
     )
-    education = camcops_column(
-        "education", Text, exempt_from_anonymisation=True
+    education: Mapped[Optional[str]] = mapped_camcops_column(
+        Text, exempt_from_anonymisation=True
     )
 
     allergies = bool_column("allergies")
@@ -163,139 +159,117 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         constraint_name="ck_deakin_1_healthreview_recdruglast3mo",
     )
 
-    recdrug_tobacco_frequency = camcops_column(
-        "recdrug_tobacco_frequency",
-        Integer,
+    recdrug_tobacco_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    recdrug_tobacco_cigsperweek = camcops_column(
-        "recdrug_tobacco_cigsperweek",
-        Integer,
+    recdrug_tobacco_cigsperweek: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=MIN_ZERO_CHECKER,
         comment="Tobacco: cigarettes per week",
     )
     recdrug_tobacco_prevheavy = bool_column("recdrug_tobacco_prevheavy")
 
-    recdrug_cannabis_frequency = camcops_column(
-        "recdrug_cannabis_frequency",
-        Integer,
+    recdrug_cannabis_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    recdrug_cannabis_jointsperweek = camcops_column(
-        "recdrug_cannabis_jointsperweek",
-        Integer,
-        permitted_value_checker=MIN_ZERO_CHECKER,
-        comment="Cannabis: joints per week",
+    recdrug_cannabis_jointsperweek: Mapped[Optional[int]] = (
+        mapped_camcops_column(
+            permitted_value_checker=MIN_ZERO_CHECKER,
+            comment="Cannabis: joints per week",
+        )
     )
     recdrug_cannabis_prevheavy = bool_column("recdrug_cannabis_prevheavy")
 
-    recdrug_alcohol_frequency = camcops_column(
-        "recdrug_alcohol_frequency",
-        Integer,
+    recdrug_alcohol_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    recdrug_alcohol_unitsperweek = camcops_column(
-        "recdrug_alcohol_unitsperweek",
-        Integer,
-        permitted_value_checker=MIN_ZERO_CHECKER,
-        comment="Alcohol: units per week",
+    recdrug_alcohol_unitsperweek: Mapped[Optional[int]] = (
+        mapped_camcops_column(
+            permitted_value_checker=MIN_ZERO_CHECKER,
+            comment="Alcohol: units per week",
+        )
     )
     recdrug_alcohol_prevheavy = bool_column("recdrug_alcohol_prevheavy")
 
-    recdrug_mdma_frequency = camcops_column(
-        "recdrug_mdma_frequency",
-        Integer,
+    recdrug_mdma_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
     recdrug_mdma_prevheavy = bool_column("recdrug_mdma_prevheavy")
 
-    recdrug_cocaine_frequency = camcops_column(
-        "recdrug_cocaine_frequency",
-        Integer,
+    recdrug_cocaine_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
     recdrug_cocaine_prevheavy = bool_column("recdrug_cocaine_prevheavy")
 
-    recdrug_crack_frequency = camcops_column(
-        "recdrug_crack_frequency",
-        Integer,
+    recdrug_crack_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
     recdrug_crack_prevheavy = bool_column("recdrug_crack_prevheavy")
 
-    recdrug_heroin_frequency = camcops_column(
-        "recdrug_heroin_frequency",
-        Integer,
+    recdrug_heroin_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
     recdrug_heroin_prevheavy = bool_column("recdrug_heroin_prevheavy")
 
-    recdrug_methadone_frequency = camcops_column(
-        "recdrug_methadone_frequency",
-        Integer,
+    recdrug_methadone_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
     recdrug_methadone_prevheavy = bool_column("recdrug_methadone_prevheavy")
 
-    recdrug_amphetamines_frequency = camcops_column(
-        "recdrug_amphetamines_frequency",
-        Integer,
-        permitted_value_checker=ZERO_TO_FOUR_CHECKER,
-        comment=FREQUENCY_COMMENT,
+    recdrug_amphetamines_frequency: Mapped[Optional[int]] = (
+        mapped_camcops_column(
+            permitted_value_checker=ZERO_TO_FOUR_CHECKER,
+            comment=FREQUENCY_COMMENT,
+        )
     )
     recdrug_amphetamines_prevheavy = bool_column(
         "recdrug_amphetamines_prevheavy",
         constraint_name="ck_deakin_1_healthreview_amphetprevheavy",
     )
 
-    recdrug_benzodiazepines_frequency = camcops_column(
-        "recdrug_benzodiazepines_frequency",
-        Integer,
-        permitted_value_checker=ZERO_TO_FOUR_CHECKER,
-        comment=FREQUENCY_COMMENT,
+    recdrug_benzodiazepines_frequency: Mapped[Optional[int]] = (
+        mapped_camcops_column(
+            permitted_value_checker=ZERO_TO_FOUR_CHECKER,
+            comment=FREQUENCY_COMMENT,
+        )
     )
     recdrug_benzodiazepines_prevheavy = bool_column(
         "recdrug_benzodiazepines_prevheavy",
         constraint_name="ck_deakin_1_healthreview_benzoprevheavy",
     )
 
-    recdrug_ketamine_frequency = camcops_column(
-        "recdrug_ketamine_frequency",
-        Integer,
+    recdrug_ketamine_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
     recdrug_ketamine_prevheavy = bool_column("recdrug_ketamine_prevheavy")
 
-    recdrug_legalhighs_frequency = camcops_column(
-        "recdrug_legalhighs_frequency",
-        Integer,
-        permitted_value_checker=ZERO_TO_FOUR_CHECKER,
-        comment=FREQUENCY_COMMENT,
+    recdrug_legalhighs_frequency: Mapped[Optional[int]] = (
+        mapped_camcops_column(
+            permitted_value_checker=ZERO_TO_FOUR_CHECKER,
+            comment=FREQUENCY_COMMENT,
+        )
     )
     recdrug_legalhighs_prevheavy = bool_column("recdrug_legalhighs_prevheavy")
 
-    recdrug_inhalants_frequency = camcops_column(
-        "recdrug_inhalants_frequency",
-        Integer,
+    recdrug_inhalants_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
     recdrug_inhalants_prevheavy = bool_column("recdrug_inhalants_prevheavy")
 
-    recdrug_hallucinogens_frequency = camcops_column(
-        "recdrug_hallucinogens_frequency",
-        Integer,
-        permitted_value_checker=ZERO_TO_FOUR_CHECKER,
-        comment=FREQUENCY_COMMENT,
+    recdrug_hallucinogens_frequency: Mapped[Optional[int]] = (
+        mapped_camcops_column(
+            permitted_value_checker=ZERO_TO_FOUR_CHECKER,
+            comment=FREQUENCY_COMMENT,
+        )
     )
     recdrug_hallucinogens_prevheavy = bool_column(
         "recdrug_hallucinogens_prevheavy",

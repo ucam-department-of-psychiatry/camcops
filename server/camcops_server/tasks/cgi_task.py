@@ -25,8 +25,9 @@ camcops_server/tasks/cgi_task.py
 
 """
 
-from typing import Dict, List
+from typing import Dict, List, Optional
 
+from sqlalchemy.orm import Mapped
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -34,7 +35,7 @@ from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import answer, italic, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    camcops_column,
+    mapped_camcops_column,
     PermittedValueChecker,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -61,33 +62,23 @@ class Cgi(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     shortname = "CGI"
     provides_trackers = True
 
-    q1 = camcops_column(
-        "q1",
-        Integer,
+    q1: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=7),
         comment="Q1. Severity (1-7, higher worse, 0 not assessed)",
     )
-    q2 = camcops_column(
-        "q2",
-        Integer,
+    q2: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=7),
         comment="Q2. Global improvement (1-7, higher worse, 0 not assessed)",
     )
-    q3t = camcops_column(
-        "q3t",
-        Integer,
+    q3t: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=4),
         comment="Q3T. Therapeutic effects (1-4, higher worse, 0 not assessed)",
     )
-    q3s = camcops_column(
-        "q3s",
-        Integer,
+    q3s: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=4),
         comment="Q3S. Side effects (1-4, higher worse, 0 not assessed)",
     )
-    q3 = camcops_column(
-        "q3",
-        Integer,
+    q3: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=16),
         comment="Q3 (calculated). Efficacy index [(Q3T - 1) * 4 + Q3S].",
     )
@@ -249,9 +240,7 @@ class CgiI(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     extrastring_taskname = "cgi"  # shares with CGI
     info_filename_stem = "cgi"
 
-    q = camcops_column(
-        "q",
-        Integer,
+    q: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=7),
         comment="Global improvement (1-7, higher worse)",
     )

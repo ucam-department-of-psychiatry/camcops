@@ -33,6 +33,7 @@ from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
 from semantic_version import Version
+from sqlalchemy.orm import Mapped
 from sqlalchemy.sql.sqltypes import Boolean, Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -50,7 +51,7 @@ from camcops_server.cc_modules.cc_html import (
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    camcops_column,
+    mapped_camcops_column,
     ZERO_TO_FOUR_CHECKER,
     ONE_TO_TWO_CHECKER,
     ONE_TO_THREE_CHECKER,
@@ -1952,9 +1953,7 @@ class Cisr(TaskHasPatientMixin, Task):
 
     # Demographics
 
-    ethnic = camcops_column(
-        FN_ETHNIC,
-        Integer,
+    ethnic: Mapped[Optional[int]] = mapped_camcops_column(
         comment=(
             CMT_DEMOGRAPHICS
             + "Ethnicity (1 white, 2 mixed, 3 Asian/British Asian, "
@@ -1962,9 +1961,7 @@ class Cisr(TaskHasPatientMixin, Task):
         ),
         permitted_value_checker=ONE_TO_SEVEN_CHECKER,
     )
-    married = camcops_column(
-        FN_MARRIED,
-        Integer,
+    married: Mapped[Optional[int]] = mapped_camcops_column(
         comment=(
             CMT_DEMOGRAPHICS
             + "Marital status (1 married/living as married, 2 single, "
@@ -1972,9 +1969,7 @@ class Cisr(TaskHasPatientMixin, Task):
         ),
         permitted_value_checker=ONE_TO_SIX_CHECKER,
     )
-    empstat = camcops_column(
-        FN_EMPSTAT,
-        Integer,
+    empstat: Mapped[Optional[int]] = mapped_camcops_column(
         comment=(
             CMT_DEMOGRAPHICS
             + "Current employment status (1 working full time, "
@@ -1984,9 +1979,7 @@ class Cisr(TaskHasPatientMixin, Task):
         ),
         permitted_value_checker=ONE_TO_EIGHT_CHECKER,
     )
-    emptype = camcops_column(
-        FN_EMPTYPE,
-        Integer,
+    emptype: Mapped[Optional[int]] = mapped_camcops_column(
         comment=(
             CMT_DEMOGRAPHICS + "Current/last paid employment "
             "(1 self-employed with paid employees, "
@@ -1996,9 +1989,7 @@ class Cisr(TaskHasPatientMixin, Task):
         ),
         permitted_value_checker=ONE_TO_SEVEN_CHECKER,
     )
-    home = camcops_column(
-        FN_HOME,
-        Integer,
+    home: Mapped[Optional[int]] = mapped_camcops_column(
         comment=(
             CMT_DEMOGRAPHICS
             + "Housing situation (1 home owner, 2 tenant, 3 living with "
@@ -2010,373 +2001,263 @@ class Cisr(TaskHasPatientMixin, Task):
 
     # Appetite/weight
 
-    appetite1 = camcops_column(
-        FN_APPETITE1,
-        Integer,
+    appetite1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Marked appetite loss in past month" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    weight1 = camcops_column(
-        FN_WEIGHT1,
-        Integer,
+    weight1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Weight loss in past month" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    weight2 = camcops_column(
-        FN_WEIGHT2,
-        Integer,
+    weight2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Weight loss: trying to lose weight?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    weight3 = camcops_column(
-        FN_WEIGHT3,
-        Integer,
+    weight3: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Weight loss amount (1: ≥0.5 stones; 2: <0.5 stones)",
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    appetite2 = camcops_column(
-        FN_APPETITE2,
-        Integer,
+    appetite2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Marked increase in appetite in past month" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    weight4 = camcops_column(
+    weight4: Mapped[Optional[int]] = mapped_camcops_column(
         # male/female responses unified (no "weight4a")
-        FN_WEIGHT4,
-        Integer,
         comment="Weight gain in past month (1 yes, 2 no, 3 yes but pregnant)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    weight5 = camcops_column(
-        FN_WEIGHT5,
-        Integer,
+    weight5: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Weight gain amount (1: ≥0.5 stones; 2: <0.5 stones)",
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
 
     # Somatic problems
 
-    gp_year = camcops_column(
-        FN_GP_YEAR,
-        Integer,
+    gp_year: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Consultations with GP in past year (0: none, 1: 1–2, 2: 3–4, "
         "3: 6–10; 4: >10",
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
     )
-    disable = camcops_column(
-        FN_DISABLE,
-        Integer,
+    disable: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Longstanding illness/disability/infirmity" + CMT_1_YES_2_NO,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    illness = camcops_column(
-        FN_ILLNESS,
-        Integer,
+    illness: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Conditions (1 diabetes, 2 asthma, 3 arthritis, 4 heart "
         "disease, 5 high blood pressure, 6 lung disease, 7 more than "
         "one of the above, 8 none of the above)",
         permitted_value_checker=ONE_TO_EIGHT_CHECKER,
     )
 
-    somatic_mand1 = camcops_column(
-        FN_SOMATIC_MAND1,
-        Integer,
+    somatic_mand1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Any aches/pains in past month?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    somatic_pain1 = camcops_column(
-        FN_SOMATIC_PAIN1,
-        Integer,
+    somatic_pain1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Pain/ache brought on or made worse because low/anxious/"
         "stressed" + CMT_NEVER_SOMETIMES_ALWAYS,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    somatic_pain2 = camcops_column(
-        FN_SOMATIC_PAIN2,
-        Integer,
+    somatic_pain2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Pain: days in past week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    somatic_pain3 = camcops_column(
-        FN_SOMATIC_PAIN3,
-        Integer,
+    somatic_pain3: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Pain: lasted >3h on any day in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    somatic_pain4 = camcops_column(
-        FN_SOMATIC_PAIN4,
-        Integer,
+    somatic_pain4: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Pain: unpleasant in past week?" + CMT_UNPLEASANT,
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
-    somatic_pain5 = camcops_column(
-        FN_SOMATIC_PAIN5,
-        Integer,
+    somatic_pain5: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Pain: bothersome whilst doing something interesting in past "
         "week?" + CMT_BOTHERSOME_INTERESTING,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    somatic_mand2 = camcops_column(
-        FN_SOMATIC_MAND2,
-        Integer,
+    somatic_mand2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Bodily discomfort in past month?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    somatic_dis1 = camcops_column(
-        FN_SOMATIC_DIS1,
-        Integer,
+    somatic_dis1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Discomfort brought on or made worse because low/anxious/"
         "stressed" + CMT_NEVER_SOMETIMES_ALWAYS,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    somatic_dis2 = camcops_column(
-        FN_SOMATIC_DIS2,
-        Integer,
+    somatic_dis2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Discomfort: days in past week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    somatic_dis3 = camcops_column(
-        FN_SOMATIC_DIS3,
-        Integer,
+    somatic_dis3: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Discomfort: lasted >3h on any day in past week"
         + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    somatic_dis4 = camcops_column(
-        FN_SOMATIC_DIS4,
-        Integer,
+    somatic_dis4: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Discomfort: unpleasant in past week?" + CMT_UNPLEASANT,
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
-    somatic_dis5 = camcops_column(
-        FN_SOMATIC_DIS5,
-        Integer,
+    somatic_dis5: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Discomfort: bothersome whilst doing something interesting in "
         "past week?" + CMT_BOTHERSOME_INTERESTING,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    somatic_dur = camcops_column(
-        FN_SOMATIC_DUR,
-        Integer,
+    somatic_dur: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Duration of ache/pain/discomfort" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
     # Fatigue/lacking energy
 
-    fatigue_mand1 = camcops_column(
-        FN_FATIGUE_MAND1,
-        Integer,
+    fatigue_mand1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Tired in past month" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    fatigue_cause1 = camcops_column(
-        FN_FATIGUE_CAUSE1,
-        Integer,
+    fatigue_cause1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Main reason for feeling tired" + CMT_FATIGUE_CAUSE,
         permitted_value_checker=ONE_TO_EIGHT_CHECKER,
     )
-    fatigue_tired1 = camcops_column(
-        FN_FATIGUE_TIRED1,
-        Integer,
+    fatigue_tired1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Tired: days in past week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    fatigue_tired2 = camcops_column(
-        FN_FATIGUE_TIRED2,
-        Integer,
+    fatigue_tired2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Tired: >3h on any one day in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    fatigue_tired3 = camcops_column(
-        FN_FATIGUE_TIRED3,
-        Integer,
+    fatigue_tired3: Mapped[Optional[int]] = mapped_camcops_column(
         comment="So tired you've had to push yourself to get things done in "
         "past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    fatigue_tired4 = camcops_column(
-        FN_FATIGUE_TIRED4,
-        Integer,
+    fatigue_tired4: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Tired during an enjoyable activity" + CMT_DURING_ENJOYABLE,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    fatigue_mand2 = camcops_column(
-        FN_FATIGUE_MAND2,
-        Integer,
+    fatigue_mand2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Lacking in energy in past month" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    fatigue_cause2 = camcops_column(
-        FN_FATIGUE_CAUSE2,
-        Integer,
+    fatigue_cause2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Main reason for lacking energy" + CMT_FATIGUE_CAUSE,
         permitted_value_checker=ONE_TO_EIGHT_CHECKER,
     )
-    fatigue_energy1 = camcops_column(
-        FN_FATIGUE_ENERGY1,
-        Integer,
+    fatigue_energy1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Lacking energy: days in past week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    fatigue_energy2 = camcops_column(
-        FN_FATIGUE_ENERGY2,
-        Integer,
+    fatigue_energy2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Lacking energy: for >3h on any one day in past week"
         + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    fatigue_energy3 = camcops_column(
-        FN_FATIGUE_ENERGY3,
-        Integer,
+    fatigue_energy3: Mapped[Optional[int]] = mapped_camcops_column(
         comment="So lacking in energy you've had to push yourself to get "
         "things done in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    fatigue_energy4 = camcops_column(
-        FN_FATIGUE_ENERGY4,
-        Integer,
+    fatigue_energy4: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Lacking energy during an enjoyable activity"
         + CMT_DURING_ENJOYABLE,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    fatigue_dur = camcops_column(
-        FN_FATIGUE_DUR,
-        Integer,
+    fatigue_dur: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Feeling tired/lacking energy for how long?" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
     # Concentration/memory
 
-    conc_mand1 = camcops_column(
-        FN_CONC_MAND1,
-        Integer,
+    conc_mand1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Problems in concentrating during past monnth?"
         + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    conc_mand2 = camcops_column(
-        FN_CONC_MAND2,
-        Integer,
+    conc_mand2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Problems with forgetting things during past month?"
         + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    conc1 = camcops_column(
-        FN_CONC1,
-        Integer,
+    conc1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Concentration/memory problems: days in past week"
         + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    conc2 = camcops_column(
-        FN_CONC2,
-        Integer,
+    conc2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="In past week, could concentrate on all of: TV, newspaper, "
         "conversation" + CMT_1_YES_2_NO,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    conc3 = camcops_column(
-        FN_CONC3,
-        Integer,
+    conc3: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Problems with concentration have stopped you from getting on "
         "with things in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    conc_dur = camcops_column(
-        FN_CONC_DUR,
-        Integer,
+    conc_dur: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Problems with concentration: for how long?" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
-    conc4 = camcops_column(
-        FN_CONC4,
-        Integer,
+    conc4: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Forgotten anything important in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    forget_dur = camcops_column(
-        FN_FORGET_DUR,
-        Integer,
+    forget_dur: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Problems with memory: for how long?" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
     # Sleep
 
-    sleep_mand1 = camcops_column(
-        FN_SLEEP_MAND1,
-        Integer,
+    sleep_mand1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Problems with sleep loss in past month" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    sleep_lose1 = camcops_column(
-        FN_SLEEP_LOSE1,
-        Integer,
+    sleep_lose1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Sleep loss: nights in past week with problems"
         + CMT_NIGHTS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    sleep_lose2 = camcops_column(
-        FN_SLEEP_LOSE2,
-        Integer,
+    sleep_lose2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="On night with least sleep in past week, how long trying to "
         "get to sleep?" + CMT_SLEEP_CHANGE,
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
-    sleep_lose3 = camcops_column(
-        FN_SLEEP_LOSE3,
-        Integer,
+    sleep_lose3: Mapped[Optional[int]] = mapped_camcops_column(
         comment="On how many nights in past week did you spend >=3h trying to "
         "get to sleep?" + CMT_NIGHTS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    sleep_emw = camcops_column(
-        FN_SLEEP_EMW,
-        Integer,
+    sleep_emw: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Woken >2h earlier (and couldn't return to sleep) in past "
         "week?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    sleep_cause = camcops_column(
-        FN_SLEEP_CAUSE,
-        Integer,
+    sleep_cause: Mapped[Optional[int]] = mapped_camcops_column(
         comment="What are your sleep difficulties caused by? (1 noise, "
         "2 shift work, 3 pain/illness, 4 worries, 5 unknown, 6 other",
         permitted_value_checker=ONE_TO_SIX_CHECKER,
     )
-    sleep_mand2 = camcops_column(
-        FN_SLEEP_MAND2,
-        Integer,
+    sleep_mand2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Problems with excess sleep in past month (1 no, 2 slept more "
         "than usual but not a problem, 3 yes)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    sleep_gain1 = camcops_column(
-        FN_SLEEP_GAIN1,
-        Integer,
+    sleep_gain1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Sleep gain: how many nights in past week"
         + CMT_NIGHTS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    sleep_gain2 = camcops_column(
-        FN_SLEEP_GAIN2,
-        Integer,
+    sleep_gain2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="On night with most sleep in past week, how much more than "
         "usual?" + CMT_SLEEP_CHANGE,
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
-    sleep_gain3 = camcops_column(
-        FN_SLEEP_GAIN3,
-        Integer,
+    sleep_gain3: Mapped[Optional[int]] = mapped_camcops_column(
         comment="On how many nights in past week did you sleep >3h longer "
         "than usual?" + CMT_NIGHTS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    sleep_dur = camcops_column(
-        FN_SLEEP_DUR,
-        Integer,
+    sleep_dur: Mapped[Optional[int]] = mapped_camcops_column(
         comment="How long have you had these problems with sleep?"
         + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
@@ -2384,235 +2265,167 @@ class Cisr(TaskHasPatientMixin, Task):
 
     # Irritability
 
-    irrit_mand1 = camcops_column(
-        FN_IRRIT_MAND1,
-        Integer,
+    irrit_mand1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Irritable with those around you in past month?"
         + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    irrit_mand2 = camcops_column(
-        FN_IRRIT_MAND2,
-        Integer,
+    irrit_mand2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Short-tempered/angry over trivial things in past month? "
         "(1 no, 2 sometimes, 3 yes)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    irrit1 = camcops_column(
-        FN_IRRIT1,
-        Integer,
+    irrit1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Irritable/short-tempered/angry: days in past week"
         + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    irrit2 = camcops_column(
-        FN_IRRIT2,
-        Integer,
+    irrit2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Irritable/short-tempered/angry: for >1h on any day in past "
         "week?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    irrit3 = camcops_column(
-        FN_IRRIT3,
-        Integer,
+    irrit3: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Irritable/short-tempered/angry: wanted to shout at someone? "
         "(1 no; yes but didn't shout; 3 yes and did shout)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    irrit4 = camcops_column(
-        FN_IRRIT4,
-        Integer,
+    irrit4: Mapped[Optional[int]] = mapped_camcops_column(
         comment="In past week, have you had arguments/rows/lost temper? "
         "(1 no; 2 yes but justified; 3 yes)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    irrit_dur = camcops_column(
-        FN_IRRIT_DUR,
-        Integer,
+    irrit_dur: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Irritable/short-tempered/angry: for how long?" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
     # Hypochondriasis
 
-    hypo_mand1 = camcops_column(
-        FN_HYPO_MAND1,
-        Integer,
+    hypo_mand1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Worried about physical health in past month?"
         + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    hypo_mand2 = camcops_column(
-        FN_HYPO_MAND2,
-        Integer,
+    hypo_mand2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Do you worry you have a serious illness?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    hypo1 = camcops_column(
-        FN_HYPO1,
-        Integer,
+    hypo1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Worrying about health/having a serious illness: how many "
         "days in past week?" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    hypo2 = camcops_column(
-        FN_HYPO2,
-        Integer,
+    hypo2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Worrying too much about physical health?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    hypo3 = camcops_column(
-        FN_HYPO3,
-        Integer,
+    hypo3: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Worrying about health: how unpleasant?" + CMT_UNPLEASANT,
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
-    hypo4 = camcops_column(
-        FN_HYPO4,
-        Integer,
+    hypo4: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Able to take mind off health worries in past week?"
         + CMT_1_YES_2_NO,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    hypo_dur = camcops_column(
-        FN_HYPO_DUR,
-        Integer,
+    hypo_dur: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Worrying about physical health: for how long?" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
     # Depression
 
-    depr_mand1 = camcops_column(
-        FN_DEPR_MAND1,
-        Integer,
+    depr_mand1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Sad/miserable/depressed in past month?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    depr1 = camcops_column(
-        FN_DEPR1,
-        Integer,
+    depr1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Sad/miserable/depressed in past week?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    depr_mand2 = camcops_column(
-        FN_DEPR_MAND2,
-        Integer,
+    depr_mand2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="In the past month, able to enjoy/take an interest in things "
         "as much as usual?" + CMT_ANHEDONIA,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    depr2 = camcops_column(
-        FN_DEPR2,
-        Integer,
+    depr2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="In the past week, able to enjoy/take an interest in things "
         "as much as usual?" + CMT_ANHEDONIA,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    depr3 = camcops_column(
-        FN_DEPR3,
-        Integer,
+    depr3: Mapped[Optional[int]] = mapped_camcops_column(
         comment="[Depressed mood] or [anhedonia] on how many days in past "
         "week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    depr4 = camcops_column(
-        FN_DEPR4,
-        Integer,
+    depr4: Mapped[Optional[int]] = mapped_camcops_column(
         comment="[Depressed mood] or [anhedonia] for >3h on any day in past "
         "week?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    depr_content = camcops_column(
-        FN_DEPR_CONTENT,
-        Integer,
+    depr_content: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Main reason for [depressed mood] or [anhedonia]?"
         + CMT_STRESSORS,
         permitted_value_checker=ONE_TO_NINE_CHECKER,
     )
-    depr5 = camcops_column(
-        FN_DEPR5,
-        Integer,
+    depr5: Mapped[Optional[int]] = mapped_camcops_column(
         comment="In past week, during [depressed mood] or [anhedonia], did "
         "nice things/company make you happier? "
         "(1 always, 2 sometimes, 3 no)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    depr_dur = camcops_column(
-        FN_DEPR_DUR,
-        Integer,
+    depr_dur: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Depressed mood/anhedonia: for how long?" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
-    depth1 = camcops_column(
-        FN_DEPTH1,
-        Integer,
+    depth1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Diurnal mood variation in past week (1 worse in the morning, "
         "2 worse in the evening, 3 varies, 4 no difference)",
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
-    depth2 = camcops_column(
-        FN_DEPTH2,
-        Integer,
+    depth2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Libido in past month (1 not applicable, 2 no change, "
         "3 increased, 4 decreased)",
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
-    depth3 = camcops_column(
-        FN_DEPTH3,
-        Integer,
+    depth3: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Restlessness in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    depth4 = camcops_column(
-        FN_DEPTH4,
-        Integer,
+    depth4: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Psychomotor retardation in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    depth5 = camcops_column(
-        FN_DEPTH5,
-        Integer,
+    depth5: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Guilt/blamed self in past week (1 never, 2 only when it was "
         "my fault, 3 sometimes, 4 often)",
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
-    depth6 = camcops_column(
-        FN_DEPTH6,
-        Integer,
+    depth6: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Feeling not as good as other people in past week"
         + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    depth7 = camcops_column(
-        FN_DEPTH7,
-        Integer,
+    depth7: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Hopeless in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    depth8 = camcops_column(
-        FN_DEPTH8,
-        Integer,
+    depth8: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Life not worth living in past week (1 no, 2 sometimes, "
         "3 always)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    depth9 = camcops_column(
-        FN_DEPTH9,
-        Integer,
+    depth9: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Thoughts of suicide in past week (1 no; 2 yes, but would "
         "never commit suicide; 3 yes)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    depth10 = camcops_column(
-        FN_DEPTH10,
-        Integer,
+    depth10: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Thoughts of way to kill self in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    doctor = camcops_column(
-        FN_DOCTOR,
-        Integer,
+    doctor: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Have you spoken to your doctor about these thoughts of "
         "killing yourself (1 yes; 2 no, but have talked to other "
         "people; 3 no)",
@@ -2621,240 +2434,170 @@ class Cisr(TaskHasPatientMixin, Task):
 
     # Worry/generalized anxiety
 
-    worry_mand1 = camcops_column(
-        FN_WORRY_MAND1,
-        Integer,
+    worry_mand1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Excessive worry in past month?" + CMT_NO_SOMETIMES_OFTEN,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    worry_mand2 = camcops_column(
-        FN_WORRY_MAND2,
-        Integer,
+    worry_mand2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Any worries at all in past month?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    worry_cont1 = camcops_column(
-        FN_WORRY_CONT1,
-        Integer,
+    worry_cont1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Main source of worry in past week?" + CMT_STRESSORS,
         permitted_value_checker=ONE_TO_NINE_CHECKER,
     )
-    worry2 = camcops_column(
-        FN_WORRY2,
-        Integer,
+    worry2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Worries (about things other than physical health) on how "
         "many days in past week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    worry3 = camcops_column(
-        FN_WORRY3,
-        Integer,
+    worry3: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Worrying too much?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    worry4 = camcops_column(
-        FN_WORRY4,
-        Integer,
+    worry4: Mapped[Optional[int]] = mapped_camcops_column(
         comment="How unpleasant is worry (about things other than physical "
         "health)" + CMT_UNPLEASANT,
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
-    worry5 = camcops_column(
-        FN_WORRY5,
-        Integer,
+    worry5: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Worry (about things other than physical health) for >3h on "
         "any day in past week?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    worry_dur = camcops_column(
-        FN_WORRY_DUR,
-        Integer,
+    worry_dur: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Worry (about things other than physical health): for how "
         "long?" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
-    anx_mand1 = camcops_column(
-        FN_ANX_MAND1,
-        Integer,
+    anx_mand1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Anxious/nervous in past month?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    anx_mand2 = camcops_column(
-        FN_ANX_MAND2,
-        Integer,
+    anx_mand2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Muscle tension/couldn't relax in past month?"
         + CMT_NO_SOMETIMES_OFTEN,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    anx_phobia1 = camcops_column(
-        FN_ANX_PHOBIA1,
-        Integer,
+    anx_phobia1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Phobic anxiety in past month?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    anx_phobia2 = camcops_column(
-        FN_ANX_PHOBIA2,
-        Integer,
+    anx_phobia2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Phobic anxiety: always specific? (1 always specific, "
         "2 sometimes general)",
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    anx2 = camcops_column(
-        FN_ANX2,
-        Integer,
+    anx2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Anxiety/nervousness/tension: how many days in past week"
         + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    anx3 = camcops_column(
-        FN_ANX3,
-        Integer,
+    anx3: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Anxiety/nervousness/tension: how unpleasant in past week"
         + CMT_UNPLEASANT,
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
     )
-    anx4 = camcops_column(
-        FN_ANX4,
-        Integer,
+    anx4: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Anxiety/nervousness/tension: physical symptoms in past "
         "week?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    anx5 = camcops_column(
-        FN_ANX5,
-        Integer,
+    anx5: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Anxiety/nervousness/tension: for >3h on any day in past "
         "week?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    anx_dur = camcops_column(
-        FN_ANX_DUR,
-        Integer,
+    anx_dur: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Anxiety/nervousness/tension: for how long?" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
     # Specific phobias
 
-    phobias_mand = camcops_column(
-        FN_PHOBIAS_MAND,
-        Integer,
+    phobias_mand: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Phobic avoidance in past month?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    phobias_type1 = camcops_column(
-        FN_PHOBIAS_TYPE1,
-        Integer,
+    phobias_type1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Which phobia? (1 travelling alone by bus/train; 2 being far "
         "from home; 3 public eating/speaking; 4 sight of blood; "
         "5 crowded shops; 6 insects/spiders/animals; 7 being watched; "
         "8 enclosed spaces or heights; 9 something else)",
         permitted_value_checker=ONE_TO_NINE_CHECKER,
     )
-    phobias1 = camcops_column(
-        FN_PHOBIAS1,
-        Integer,
+    phobias1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Phobic anxiety: days in past week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    phobias2 = camcops_column(
-        FN_PHOBIAS2,
-        Integer,
+    phobias2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Phobic anxiety: physical symptoms in past week?"
         + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    phobias3 = camcops_column(
-        FN_PHOBIAS3,
-        Integer,
+    phobias3: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Phobic avoidance in past week?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    phobias4 = camcops_column(
-        FN_PHOBIAS4,
-        Integer,
+    phobias4: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Phobic avoidance: how many times in past week? (1: none, "
         "2: 1–3, 3: >=4)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    phobias_dur = camcops_column(
-        FN_PHOBIAS_DUR,
-        Integer,
+    phobias_dur: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Phobic anxiety: for how long?" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
     # Panic
 
-    panic_mand = camcops_column(
-        FN_PANIC_MAND,
-        Integer,
+    panic_mand: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Panic in past month (1: no, my anxiety never got that bad; "
         "2: yes, sometimes; 3: yes, often)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    panic1 = camcops_column(
-        FN_PANIC1,
-        Integer,
+    panic1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Panic: how often in past week (1 not in past seven days, "
         "2 once, 3 more than once)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    panic2 = camcops_column(
-        FN_PANIC2,
-        Integer,
+    panic2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Panic: how unpleasant in past week (1 a little "
         "uncomfortable; 2 unpleasant; 3 unbearable, or very "
         "unpleasant)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    panic3 = camcops_column(
-        FN_PANIC3,
-        Integer,
+    panic3: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Panic: in the past week, did the worst panic last >10min "
         "(1: <10min; 2 >=10min)",
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    panic4 = camcops_column(
-        FN_PANIC4,
-        Integer,
+    panic4: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Do panics start suddenly?" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    pansym_a = camcops_column(
-        FN_PANSYM_A,
-        Integer,
+    pansym_a: Mapped[Optional[int]] = mapped_camcops_column(
         comment=CMT_PANIC_SYMPTOM + "heart racing" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    pansym_b = camcops_column(
-        FN_PANSYM_B,
-        Integer,
+    pansym_b: Mapped[Optional[int]] = mapped_camcops_column(
         comment=CMT_PANIC_SYMPTOM + "hands sweaty/clammy" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    pansym_c = camcops_column(
-        FN_PANSYM_C,
-        Integer,
+    pansym_c: Mapped[Optional[int]] = mapped_camcops_column(
         comment=CMT_PANIC_SYMPTOM + "trembling/shaking" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    pansym_d = camcops_column(
-        FN_PANSYM_D,
-        Integer,
+    pansym_d: Mapped[Optional[int]] = mapped_camcops_column(
         comment=CMT_PANIC_SYMPTOM + "short of breath" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    pansym_e = camcops_column(
-        FN_PANSYM_E,
-        Integer,
+    pansym_e: Mapped[Optional[int]] = mapped_camcops_column(
         comment=CMT_PANIC_SYMPTOM + "choking sensation" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    pansym_f = camcops_column(
-        FN_PANSYM_F,
-        Integer,
+    pansym_f: Mapped[Optional[int]] = mapped_camcops_column(
         comment=(
             CMT_PANIC_SYMPTOM
             + "chest pain/pressure/discomfort"
@@ -2862,15 +2605,11 @@ class Cisr(TaskHasPatientMixin, Task):
         ),
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    pansym_g = camcops_column(
-        FN_PANSYM_G,
-        Integer,
+    pansym_g: Mapped[Optional[int]] = mapped_camcops_column(
         comment=CMT_PANIC_SYMPTOM + "nausea" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    pansym_h = camcops_column(
-        FN_PANSYM_H,
-        Integer,
+    pansym_h: Mapped[Optional[int]] = mapped_camcops_column(
         comment=(
             CMT_PANIC_SYMPTOM
             + "dizzy/unsteady/lightheaded/faint"
@@ -2878,9 +2617,7 @@ class Cisr(TaskHasPatientMixin, Task):
         ),
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    pansym_i = camcops_column(
-        FN_PANSYM_I,
-        Integer,
+    pansym_i: Mapped[Optional[int]] = mapped_camcops_column(
         comment=(
             CMT_PANIC_SYMPTOM
             + "derealization/depersonalization"
@@ -2888,141 +2625,101 @@ class Cisr(TaskHasPatientMixin, Task):
         ),
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    pansym_j = camcops_column(
-        FN_PANSYM_J,
-        Integer,
+    pansym_j: Mapped[Optional[int]] = mapped_camcops_column(
         comment=(
             CMT_PANIC_SYMPTOM + "losing control/going crazy" + CMT_1_NO_2_YES
         ),
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    pansym_k = camcops_column(
-        FN_PANSYM_K,
-        Integer,
+    pansym_k: Mapped[Optional[int]] = mapped_camcops_column(
         comment=CMT_PANIC_SYMPTOM + "fear were dying" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    pansym_l = camcops_column(
-        FN_PANSYM_L,
-        Integer,
+    pansym_l: Mapped[Optional[int]] = mapped_camcops_column(
         comment=CMT_PANIC_SYMPTOM + "tingling/numbness" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    pansym_m = camcops_column(
-        FN_PANSYM_M,
-        Integer,
+    pansym_m: Mapped[Optional[int]] = mapped_camcops_column(
         comment=CMT_PANIC_SYMPTOM + "hot flushes/chills" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    panic5 = camcops_column(
-        FN_PANIC5,
-        Integer,
+    panic5: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Is panic always brought on by specific things?"
         + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    panic_dur = camcops_column(
-        FN_PANIC_DUR,
-        Integer,
+    panic_dur: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Panic: for how long?" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
     # Compulsions
 
-    comp_mand1 = camcops_column(
-        FN_COMP_MAND1,
-        Integer,
+    comp_mand1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Compulsions in past month" + CMT_NO_SOMETIMES_OFTEN,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    comp1 = camcops_column(
-        FN_COMP1,
-        Integer,
+    comp1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Compulsions: how many days in past week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    comp2 = camcops_column(
-        FN_COMP2,
-        Integer,
+    comp2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Compulsions: tried to stop in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    comp3 = camcops_column(
-        FN_COMP3,
-        Integer,
+    comp3: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Compulsions: upsetting/annoying in past week"
         + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    comp4 = camcops_column(
-        FN_COMP4,
-        Integer,
+    comp4: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Compulsions: greatest number of repeats in past week "
         "(1: once, i.e. two times altogether; 2: two repeats; "
         "3: three or more repeats)",
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    comp_dur = camcops_column(
-        FN_COMP_DUR,
-        Integer,
+    comp_dur: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Compulsions: for how long?" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
     # Obsessions
 
-    obsess_mand1 = camcops_column(
-        FN_OBSESS_MAND1,
-        Integer,
+    obsess_mand1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Obsessions in past month" + CMT_NO_SOMETIMES_OFTEN,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    obsess_mand2 = camcops_column(
-        FN_OBSESS_MAND2,
-        Integer,
+    obsess_mand2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Obsessions: same thoughts repeating or general worries (1 "
         "same thoughts over and over, 2 worrying about something in "
         "general)",
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    obsess1 = camcops_column(
-        FN_OBSESS1,
-        Integer,
+    obsess1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Obsessions: how many days in past week" + CMT_DAYS_PER_WEEK,
         permitted_value_checker=ONE_TO_THREE_CHECKER,
     )
-    obsess2 = camcops_column(
-        FN_OBSESS2,
-        Integer,
+    obsess2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Obsessions: tried to stop in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    obsess3 = camcops_column(
-        FN_OBSESS3,
-        Integer,
+    obsess3: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Obsessions: upsetting/annoying in past week" + CMT_1_NO_2_YES,
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    obsess4 = camcops_column(
-        FN_OBSESS4,
-        Integer,
+    obsess4: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Obsessions: longest time spent thinking these thoughts, in "
         "past week (1: <15min; 2: >=15min)",
         permitted_value_checker=ONE_TO_TWO_CHECKER,
     )
-    obsess_dur = camcops_column(
-        FN_OBSESS_DUR,
-        Integer,
+    obsess_dur: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Obsessions: for how long?" + CMT_DURATION,
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
     # Overall impact
 
-    overall2 = camcops_column(
-        FN_OVERALL2,
-        Integer,
+    overall2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Overall impact on normal activities in past week (1 not at "
         "all; 2 they have made things more difficult but I get "
         "everything done; 3 they have stopped one activity; 4 they "

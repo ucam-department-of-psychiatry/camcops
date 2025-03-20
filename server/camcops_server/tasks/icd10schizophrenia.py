@@ -49,7 +49,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    camcops_column,
+    mapped_camcops_column,
 )
 from camcops_server.cc_modules.cc_string import AS
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -74,44 +74,32 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     shortname = "ICD10-SZ"
     info_filename_stem = "icd"
 
-    passivity_bodily = camcops_column(
-        "passivity_bodily",
-        Boolean,
+    passivity_bodily: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Passivity: delusions of control, influence, or "
         "passivity, clearly referred to body or limb movements...",
     )
-    passivity_mental = camcops_column(
-        "passivity_mental",
-        Boolean,
+    passivity_mental: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="(passivity) ... or to specific thoughts, actions, or "
         "sensations.",
     )
-    hv_commentary = camcops_column(
-        "hv_commentary",
-        Boolean,
+    hv_commentary: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Hallucinatory voices giving a running commentary on the "
         "patient's behaviour",
     )
-    hv_discussing = camcops_column(
-        "hv_discussing",
-        Boolean,
+    hv_discussing: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Hallucinatory voices discussing the patient among "
         "themselves",
     )
-    hv_from_body = camcops_column(
-        "hv_from_body",
-        Boolean,
+    hv_from_body: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Other types of hallucinatory voices coming from some "
         "part of the body",
     )
-    delusions = camcops_column(
-        "delusions",
-        Boolean,
+    delusions: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Delusions: persistent delusions of other kinds that are "
         "culturally inappropriate and completely impossible, such as "
@@ -119,46 +107,34 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "abilities (e.g. being able to control the weather, or being "
         "in communication with aliens from another world).",
     )
-    delusional_perception = camcops_column(
-        "delusional_perception",
-        Boolean,
+    delusional_perception: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Delusional perception [a normal perception, "
         "delusionally interpreted]",
     )
-    thought_echo = camcops_column(
-        "thought_echo",
-        Boolean,
+    thought_echo: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Thought echo [hearing one's own thoughts aloud, just "
         "before, just after, or simultaneously with the thought]",
     )
-    thought_withdrawal = camcops_column(
-        "thought_withdrawal",
-        Boolean,
+    thought_withdrawal: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Thought withdrawal [the feeling that one's thoughts "
         "have been removed by an outside agency]",
     )
-    thought_insertion = camcops_column(
-        "thought_insertion",
-        Boolean,
+    thought_insertion: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Thought insertion [the feeling that one's thoughts have "
         "been placed there from outside]",
     )
-    thought_broadcasting = camcops_column(
-        "thought_broadcasting",
-        Boolean,
+    thought_broadcasting: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Thought broadcasting [the feeling that one's thoughts "
         "leave oneself and are diffused widely, or are audible to "
         "others, or that others think the same thoughts in unison]",
     )
 
-    hallucinations_other = camcops_column(
-        "hallucinations_other",
-        Boolean,
+    hallucinations_other: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Hallucinations: persistent hallucinations in any "
         "modality, when accompanied either by fleeting or half-formed "
@@ -166,26 +142,20 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "over-valued ideas, or when occurring every day for weeks or "
         "months on end.",
     )
-    thought_disorder = camcops_column(
-        "thought_disorder",
-        Boolean,
+    thought_disorder: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Thought disorder: breaks or interpolations in the train "
         "of thought, resulting in incoherence or irrelevant speech, "
         "or neologisms.",
     )
-    catatonia = camcops_column(
-        "catatonia",
-        Boolean,
+    catatonia: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Catatonia: catatonic behaviour, such as excitement, "
         "posturing, or waxy flexibility, negativism, mutism, and "
         "stupor.",
     )
 
-    negative = camcops_column(
-        "negative",
-        Boolean,
+    negative: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Negative symptoms: 'negative' symptoms such as marked "
         "apathy, paucity of speech, and blunting or incongruity of "
@@ -195,115 +165,89 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "medication.",
     )
 
-    present_one_month = camcops_column(
-        "present_one_month",
-        Boolean,
+    present_one_month: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Symptoms in groups A-C present for most of the time "
         "during an episode of psychotic illness lasting for at least "
         "one month (or at some time during most of the days).",
     )
 
-    also_manic = camcops_column(
-        "also_manic",
-        Boolean,
+    also_manic: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Also meets criteria for manic episode (F30)?",
     )
-    also_depressive = camcops_column(
-        "also_depressive",
-        Boolean,
+    also_depressive: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Also meets criteria for depressive episode (F32)?",
     )
-    if_mood_psychosis_first = camcops_column(
-        "if_mood_psychosis_first",
-        Boolean,
+    if_mood_psychosis_first: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="If the patient also meets criteria for manic episode "
         "(F30) or depressive episode (F32), the criteria listed above "
         "must have been met before the disturbance of mood developed.",
     )
 
-    not_organic_or_substance = camcops_column(
-        "not_organic_or_substance",
-        Boolean,
+    not_organic_or_substance: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="The disorder is not attributable to organic brain "
         "disease (in the sense of F0), or to alcohol- or drug-related "
         "intoxication, dependence or withdrawal.",
     )
 
-    behaviour_change = camcops_column(
-        "behaviour_change",
-        Boolean,
+    behaviour_change: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="A significant and consistent change in the overall "
         "quality of some aspects of personal behaviour, manifest as "
         "loss of interest, aimlessness, idleness, a self-absorbed "
         "attitude, and social withdrawal.",
     )
-    performance_decline = camcops_column(
-        "performance_decline",
-        Boolean,
+    performance_decline: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Marked decline in social, scholastic, or occupational "
         "performance.",
     )
 
-    subtype_paranoid = camcops_column(
-        "subtype_paranoid",
-        Boolean,
+    subtype_paranoid: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="PARANOID (F20.0): dominated by delusions or hallucinations.",
     )
-    subtype_hebephrenic = camcops_column(
-        "subtype_hebephrenic",
-        Boolean,
+    subtype_hebephrenic: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="HEBEPHRENIC (F20.1): dominated by affective changes "
         "(shallow, flat, incongruous, or inappropriate affect) and "
         "either pronounced thought disorder or aimless, disjointed "
         "behaviour is present.",
     )
-    subtype_catatonic = camcops_column(
-        "subtype_catatonic",
-        Boolean,
+    subtype_catatonic: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="CATATONIC (F20.2): psychomotor disturbances dominate "
         "(such as stupor, mutism, excitement, posturing, negativism, "
         "rigidity, waxy flexibility, command automatisms, or verbal "
         "perseveration).",
     )
-    subtype_undifferentiated = camcops_column(
-        "subtype_undifferentiated",
-        Boolean,
+    subtype_undifferentiated: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="UNDIFFERENTIATED (F20.3): schizophrenia with active "
         "psychosis fitting none or more than one of the above three "
         "types.",
     )
-    subtype_postschizophrenic_depression = camcops_column(
-        "subtype_postschizophrenic_depression",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="POST-SCHIZOPHRENIC DEPRESSION (F20.4): in which a depressive "
-        "episode has developed for at least 2 weeks following a "
-        "schizophrenic episode within the last 12 months and in which "
-        "schizophrenic symptoms persist but are not as prominent as "
-        "the depression.",
+    subtype_postschizophrenic_depression: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="POST-SCHIZOPHRENIC DEPRESSION (F20.4): in which a "
+            "depressive episode has developed for at least 2 weeks following "
+            "a schizophrenic episode within the last 12 months and in which "
+            "schizophrenic symptoms persist but are not as prominent as "
+            "the depression.",
+        )
     )
-    subtype_residual = camcops_column(
-        "subtype_residual",
-        Boolean,
+    subtype_residual: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="RESIDUAL (F20.5): in which previous psychotic episodes "
         "of schizophrenia have given way to a chronic condition with "
         "'negative' symptoms of schizophrenia for at least 1 year.",
     )
-    subtype_simple = camcops_column(
-        "subtype_simple",
-        Boolean,
+    subtype_simple: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="SIMPLE SCHIZOPHRENIA (F20.6), in which 'negative' "
         "symptoms (C) with a change in personal behaviour (D) develop "
@@ -312,9 +256,7 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "well-formed delusions), and with a marked decline in social, "
         "scholastic, or occupational performance.",
     )
-    subtype_cenesthopathic = camcops_column(
-        "subtype_cenesthopathic",
-        Boolean,
+    subtype_cenesthopathic: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="CENESTHOPATHIC (within OTHER F20.8): body image "
         "aberration (e.g. desomatization, loss of bodily boundaries, "

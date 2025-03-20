@@ -29,7 +29,7 @@ from typing import List, Optional, Type
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql.sqltypes import Integer, UnicodeText
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_blob import (
     Blob,
@@ -46,7 +46,7 @@ from camcops_server.cc_modules.cc_db import (
 from camcops_server.cc_modules.cc_html import answer, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
-from camcops_server.cc_modules.cc_sqla_coltypes import camcops_column
+from camcops_server.cc_modules.cc_sqla_coltypes import mapped_camcops_column
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_task import (
     Task,
@@ -72,9 +72,7 @@ class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     description: Mapped[Optional[str]] = mapped_column(
         UnicodeText, comment="Description of the photograph"
     )
-    photo_blobid = camcops_column(
-        "photo_blobid",
-        Integer,
+    photo_blobid: Mapped[Optional[int]] = mapped_camcops_column(
         is_blob_id_field=True,
         blob_relationship_attr_name="photo",
         comment="ID of the BLOB (foreign key to blobs.id, given "
@@ -151,9 +149,7 @@ class PhotoSequenceSinglePhoto(GenericTabletRecordMixin, TaskDescendant, Base):
     description: Mapped[Optional[str]] = mapped_column(
         UnicodeText, comment="Description of the photograph"
     )
-    photo_blobid = camcops_column(
-        "photo_blobid",
-        Integer,
+    photo_blobid: Mapped[Optional[int]] = mapped_camcops_column(
         is_blob_id_field=True,
         blob_relationship_attr_name="photo",
         comment="ID of the BLOB (foreign key to blobs.id, given "

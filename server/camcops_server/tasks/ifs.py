@@ -25,8 +25,9 @@ camcops_server/tasks/ifs.py
 
 """
 
-from typing import Dict, List, Type
+from typing import Dict, List, Optional, Type
 
+from sqlalchemy.orm import Mapped
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer
 
 from camcops_server.cc_modules.cc_constants import (
@@ -46,6 +47,7 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
     camcops_column,
+    mapped_camcops_column,
     ZERO_TO_ONE_CHECKER,
     ZERO_TO_TWO_CHECKER,
     ZERO_TO_THREE_CHECKER,
@@ -140,27 +142,19 @@ class Ifs(
                 ),
             )
 
-    q1 = camcops_column(
-        "q1",
-        Integer,
+    q1: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment="Q1. Motor series (motor programming)",
     )
-    q2 = camcops_column(
-        "q2",
-        Integer,
+    q2: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment="Q2. Conflicting instructions (interference sensitivity)",
     )
-    q3 = camcops_column(
-        "q3",
-        Integer,
+    q3: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment="Q3. Go/no-go (inhibitory control)",
     )
-    q5 = camcops_column(
-        "q5",
-        Integer,
+    q5: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q5. Verbal working memory",
     )

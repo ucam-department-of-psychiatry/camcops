@@ -25,10 +25,10 @@ camcops_server/tasks/hamd.py
 
 """
 
-from typing import List, Type
+from typing import List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.orm import MappedColumn
+from sqlalchemy.orm import Mapped, MappedColumn
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -38,7 +38,7 @@ from camcops_server.cc_modules.cc_html import answer, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    camcops_column,
+    mapped_camcops_column,
     SummaryCategoryColType,
     ZERO_TO_ONE_CHECKER,
     ZERO_TO_TWO_CHECKER,
@@ -203,43 +203,31 @@ class Hamd(
         "q18b",
     ]
 
-    whichq16 = camcops_column(
-        "whichq16",
-        Integer,
+    whichq16: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_ONE_CHECKER,
         comment="Method of assessing weight loss (0 = A, by history; "
         "1 = B, by measured change)",
     )
-    q16a = camcops_column(
-        "q16a",
-        Integer,
+    q16a: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment="Q16A, weight loss, by history (0 none - 2 definite,"
         " or 3 not assessed [not scored])",
     )
-    q16b = camcops_column(
-        "q16b",
-        Integer,
+    q16b: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment="Q16B, weight loss, by measurement (0 none - "
         "2 more than 2lb, or 3 not assessed [not scored])",
     )
-    q17 = camcops_column(
-        "q17",
-        Integer,
+    q17: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q17, lack of insight (0-2, higher worse)",
     )
-    q18a = camcops_column(
-        "q18a",
-        Integer,
+    q18a: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q18A (not scored), diurnal variation, presence "
         "(0 none, 1 worse AM, 2 worse PM)",
     )
-    q18b = camcops_column(
-        "q18b",
-        Integer,
+    q18b: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q18B (not scored), diurnal variation, severity "
         "(0-2, higher more severe)",

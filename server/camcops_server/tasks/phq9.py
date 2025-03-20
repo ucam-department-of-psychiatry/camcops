@@ -26,9 +26,10 @@ camcops_server/tasks/phq9.py
 """
 
 import logging
-from typing import Dict, List, Type
+from typing import Dict, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.orm import Mapped
 from sqlalchemy.sql.sqltypes import Boolean, Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -43,7 +44,7 @@ from camcops_server.cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    camcops_column,
+    mapped_camcops_column,
     SummaryCategoryColType,
     ZERO_TO_THREE_CHECKER,
 )
@@ -103,9 +104,7 @@ class Phq9(
             ],
         )
 
-    q10 = camcops_column(
-        "q10",
-        Integer,
+    q10: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment="Q10 (difficulty in activities) (0 not difficult at "
         "all - 3 extremely difficult)",

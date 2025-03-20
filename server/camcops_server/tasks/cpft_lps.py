@@ -38,7 +38,7 @@ import pyramid.httpexceptions as exc
 from sqlalchemy.sql.expression import and_, exists, select
 from sqlalchemy.sql.selectable import SelectBase
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql.sqltypes import Integer, UnicodeText
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_constants import (
     CssClass,
@@ -71,7 +71,7 @@ from camcops_server.cc_modules.cc_report import Report
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     bool_column,
-    camcops_column,
+    mapped_camcops_column,
     CharColType,
     PendulumDateTimeAsIsoTextColType,
     DiagnosticCodeColType,
@@ -104,22 +104,22 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
     referral_date_time: Mapped[Optional[Pendulum]] = mapped_column(
         PendulumDateTimeAsIsoTextColType
     )
-    lps_division = camcops_column(
-        "lps_division", UnicodeText, exempt_from_anonymisation=True
+    lps_division: Mapped[Optional[str]] = mapped_camcops_column(
+        UnicodeText, exempt_from_anonymisation=True
     )
-    referral_priority = camcops_column(
-        "referral_priority", UnicodeText, exempt_from_anonymisation=True
+    referral_priority: Mapped[Optional[str]] = mapped_camcops_column(
+        UnicodeText, exempt_from_anonymisation=True
     )
-    referral_method = camcops_column(
-        "referral_method", UnicodeText, exempt_from_anonymisation=True
+    referral_method: Mapped[Optional[str]] = mapped_camcops_column(
+        UnicodeText, exempt_from_anonymisation=True
     )
     referrer_name: Mapped[Optional[str]] = mapped_column(UnicodeText)
     referrer_contact_details: Mapped[Optional[str]] = mapped_column(
         UnicodeText
     )
     referring_consultant: Mapped[Optional[str]] = mapped_column(UnicodeText)
-    referring_specialty = camcops_column(
-        "referring_specialty", UnicodeText, exempt_from_anonymisation=True
+    referring_specialty: Mapped[Optional[str]] = mapped_camcops_column(
+        UnicodeText, exempt_from_anonymisation=True
     )
     referring_specialty_other: Mapped[Optional[str]] = mapped_column(
         UnicodeText
@@ -130,15 +130,13 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
     patient_aware_of_referral = bool_column("patient_aware_of_referral")
     interpreter_required = bool_column("interpreter_required")
     sensory_impairment = bool_column("sensory_impairment")
-    marital_status_code = camcops_column(
-        "marital_status_code",
+    marital_status_code: Mapped[Optional[str]] = mapped_camcops_column(
         CharColType,
         permitted_value_checker=PermittedValueChecker(
             permitted_values=PV_NHS_MARITAL_STATUS
         ),
     )
-    ethnic_category_code = camcops_column(
-        "ethnic_category_code",
+    ethnic_category_code: Mapped[Optional[str]] = mapped_camcops_column(
         CharColType,
         permitted_value_checker=PermittedValueChecker(
             permitted_values=PV_NHS_ETHNIC_CATEGORY
@@ -451,8 +449,8 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     info_filename_stem = "clinical"
 
     discharge_date: Mapped[Optional[datetime.date]] = mapped_column()
-    discharge_reason_code = camcops_column(
-        "discharge_reason_code", UnicodeText, exempt_from_anonymisation=True
+    discharge_reason_code: Mapped[Optional[str]] = mapped_camcops_column(
+        UnicodeText, exempt_from_anonymisation=True
     )
 
     leaflet_or_discharge_card_given = bool_column(
@@ -464,14 +462,10 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         # Was previously text! That wasn't right.
         "patient_wanted_copy_of_letter"
     )
-    gaf_at_first_assessment = camcops_column(
-        "gaf_at_first_assessment",
-        Integer,
+    gaf_at_first_assessment: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=100),
     )
-    gaf_at_discharge = camcops_column(
-        "gaf_at_discharge",
-        Integer,
+    gaf_at_discharge: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=100),
     )
 
@@ -537,10 +531,11 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         constraint_name="ck_cpft_lps_discharge_substanceother",
     )
     referral_reason_other = bool_column("referral_reason_other")
-    referral_reason_transplant_organ = camcops_column(
-        "referral_reason_transplant_organ",
-        UnicodeText,
-        exempt_from_anonymisation=True,
+    referral_reason_transplant_organ: Mapped[Optional[str]] = (
+        mapped_camcops_column(
+            UnicodeText,
+            exempt_from_anonymisation=True,
+        )
     )
     referral_reason_other_detail: Mapped[Optional[str]] = mapped_column(
         UnicodeText
@@ -553,34 +548,38 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     diagnosis_psych_1_icd10code: Mapped[Optional[str]] = mapped_column(
         DiagnosticCodeColType
     )
-    diagnosis_psych_1_description = camcops_column(
-        "diagnosis_psych_1_description",
-        UnicodeText,
-        exempt_from_anonymisation=True,
+    diagnosis_psych_1_description: Mapped[Optional[str]] = (
+        mapped_camcops_column(
+            UnicodeText,
+            exempt_from_anonymisation=True,
+        )
     )
     diagnosis_psych_2_icd10code: Mapped[Optional[str]] = mapped_column(
         DiagnosticCodeColType
     )
-    diagnosis_psych_2_description = camcops_column(
-        "diagnosis_psych_2_description",
-        UnicodeText,
-        exempt_from_anonymisation=True,
+    diagnosis_psych_2_description: Mapped[Optional[str]] = (
+        mapped_camcops_column(
+            UnicodeText,
+            exempt_from_anonymisation=True,
+        )
     )
     diagnosis_psych_3_icd10code: Mapped[Optional[str]] = mapped_column(
         DiagnosticCodeColType
     )
-    diagnosis_psych_3_description = camcops_column(
-        "diagnosis_psych_3_description",
-        UnicodeText,
-        exempt_from_anonymisation=True,
+    diagnosis_psych_3_description: Mapped[Optional[str]] = (
+        mapped_camcops_column(
+            UnicodeText,
+            exempt_from_anonymisation=True,
+        )
     )
     diagnosis_psych_4_icd10code: Mapped[Optional[str]] = mapped_column(
         DiagnosticCodeColType
     )
-    diagnosis_psych_4_description = camcops_column(
-        "diagnosis_psych_4_description",
-        UnicodeText,
-        exempt_from_anonymisation=True,
+    diagnosis_psych_4_description: Mapped[Optional[str]] = (
+        mapped_camcops_column(
+            UnicodeText,
+            exempt_from_anonymisation=True,
+        )
     )
     diagnosis_medical_1: Mapped[Optional[str]] = mapped_column(UnicodeText)
     diagnosis_medical_2: Mapped[Optional[str]] = mapped_column(UnicodeText)
@@ -635,8 +634,8 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     management_other = bool_column("management_other")
     management_other_detail: Mapped[Optional[str]] = mapped_column(UnicodeText)
 
-    outcome = camcops_column(
-        "outcome", UnicodeText, exempt_from_anonymisation=True
+    outcome: Mapped[Optional[str]] = mapped_camcops_column(
+        UnicodeText, exempt_from_anonymisation=True
     )
     outcome_hospital_transfer_detail: Mapped[Optional[str]] = mapped_column(
         UnicodeText

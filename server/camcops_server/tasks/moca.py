@@ -51,7 +51,7 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    camcops_column,
+    mapped_camcops_column,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
@@ -196,29 +196,21 @@ class Moca(
             comment_strings=WORDLIST,
         )
 
-    education12y_or_less = camcops_column(
-        "education12y_or_less",
-        Integer,
+    education12y_or_less: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="<=12 years of education (0 no, 1 yes)",
     )
-    trailpicture_blobid = camcops_column(
-        "trailpicture_blobid",
-        Integer,
+    trailpicture_blobid: Mapped[Optional[int]] = mapped_camcops_column(
         is_blob_id_field=True,
         blob_relationship_attr_name="trailpicture",
         comment="BLOB ID of trail picture",
     )
-    cubepicture_blobid = camcops_column(
-        "cubepicture_blobid",
-        Integer,
+    cubepicture_blobid: Mapped[Optional[int]] = mapped_camcops_column(
         is_blob_id_field=True,
         blob_relationship_attr_name="cubepicture",
         comment="BLOB ID of cube picture",
     )
-    clockpicture_blobid = camcops_column(
-        "clockpicture_blobid",
-        Integer,
+    clockpicture_blobid: Mapped[Optional[int]] = mapped_camcops_column(
         is_blob_id_field=True,
         blob_relationship_attr_name="clockpicture",
         comment="BLOB ID of clock picture",

@@ -33,7 +33,7 @@ from pyramid.renderers import render_to_response
 from pyramid.response import Response
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.expression import and_, column, select
-from sqlalchemy.sql.sqltypes import Integer, UnicodeText
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
 
@@ -49,7 +49,7 @@ from camcops_server.cc_modules.cc_report import (
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    camcops_column,
+    mapped_camcops_column,
     ZERO_TO_ONE_CHECKER,
     ONE_TO_TWO_CHECKER,
     ONE_TO_FIVE_CHECKER,
@@ -136,18 +136,14 @@ class PerinatalPoem(Task):
     # -------------------------------------------------------------------------
     # Fields
     # -------------------------------------------------------------------------
-    qa = camcops_column(
-        FN_QA_RESPONDENT,
-        Integer,
+    qa: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_TWO_CHECKER,
         comment=(
             f"Question A: Is the respondent the patient ({VAL_QA_PATIENT}) "
             f"or other ({VAL_QA_PARTNER_OTHER})?"
         ),
     )
-    qb = camcops_column(
-        FN_QB_SERVICE_TYPE,
-        Integer,
+    qb: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_TWO_CHECKER,
         comment=(
             f"Question B: Was the service type inpatient [mother-and-baby "
@@ -156,131 +152,91 @@ class PerinatalPoem(Task):
         ),
     )
 
-    q1a = camcops_column(
-        FN_Q1A_MH_FIRST_CONTACT,
-        Integer,
+    q1a: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment=f"Q1A: mental health at first contact {_MH_KEY}",
     )
-    q1b = camcops_column(
-        FN_Q1B_MH_DISCHARGE,
-        Integer,
+    q1b: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment=f"Q1B: mental health at discharge {_MH_KEY}",
     )
 
-    q2a = camcops_column(
-        FN_Q2A_STAFF_DID_NOT_COMMUNICATE,
-        Integer,
+    q2a: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
         comment=f"Q2a: staff didn't communicate with others {_AGREE_KEY}",
     )
-    q2b = camcops_column(
-        FN_Q2B_STAFF_GAVE_RIGHT_SUPPORT,
-        Integer,
+    q2b: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
         comment=f"Q2b: Staff gave right amount of support {_AGREE_KEY}",
     )
-    q2c = camcops_column(
-        FN_Q2C_HELP_NOT_QUICK_ENOUGH,
-        Integer,
+    q2c: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
         comment=f"Q2c: Help not quick enough after referral {_AGREE_KEY}",
     )
-    q2d = camcops_column(
-        FN_Q2D_STAFF_LISTENED,
-        Integer,
+    q2d: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
         comment=f"Q2d: Staff listened/understood {_AGREE_KEY}",
     )
 
-    q2e = camcops_column(
-        FN_Q2E_STAFF_DID_NOT_INVOLVE_ME,
-        Integer,
+    q2e: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
         comment=f"Q2e: Staff didn't involve pt enough {_AGREE_KEY}",
     )
-    q2f = camcops_column(
-        FN_Q2F_SERVICE_PROVIDED_INFO,
-        Integer,
+    q2f: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
         comment=f"Q2f: Service provided information {_AGREE_KEY}",
     )
-    q2g = camcops_column(
-        FN_Q2G_STAFF_NOT_SENSITIVE_TO_ME,
-        Integer,
+    q2g: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
         comment=f"Q2g: Staff not very sensitive to pt {_AGREE_KEY}",
     )
-    q2h = camcops_column(
-        FN_Q2H_STAFF_HELPED_ME_UNDERSTAND,
-        Integer,
+    q2h: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
         comment=f"Q2h: Staff helped understanding of illness {_AGREE_KEY}",
     )
 
-    q2i = camcops_column(
-        FN_Q2I_STAFF_NOT_SENSITIVE_TO_BABY,
-        Integer,
+    q2i: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
         comment=f"Q2i: Staff not very sensitive to baby {_AGREE_KEY}",
     )
-    q2j = camcops_column(
-        FN_Q2J_STAFF_HELPED_MY_CONFIDENCE,
-        Integer,
+    q2j: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
         comment=f"Q2j: Staff helped confidence re baby {_AGREE_KEY}",
     )
-    q2k = camcops_column(
-        FN_Q2K_SERVICE_INVOLVED_OTHERS_HELPFULLY,
-        Integer,
+    q2k: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
         comment=f"Q2k: Service involved others helpfully {_AGREE_KEY}",
     )
-    q2l = camcops_column(
-        FN_Q2L_I_WOULD_RECOMMEND_SERVICE,
-        Integer,
+    q2l: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
         comment=f"Q2l: Would recommend service {_AGREE_KEY}",
     )
 
-    q3a = camcops_column(
-        FN_Q3A_UNIT_CLEAN,
-        Integer,
+    q3a: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
         comment=f"Q3a: MBU clean {_AGREE_KEY} {_INPATIENT_ONLY}",
     )
-    q3b = camcops_column(
-        FN_Q3B_UNIT_NOT_GOOD_PLACE_TO_RECOVER,
-        Integer,
+    q3b: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
         comment=f"Q3b: MBU not a good place to recover "
         f"{_AGREE_KEY} {_INPATIENT_ONLY}",
     )
-    q3c = camcops_column(
-        FN_Q3C_UNIT_DID_NOT_PROVIDE_ACTIVITIES,
-        Integer,
+    q3c: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
         comment=f"Q3c: MBU did not provide helpful activities "
         f"{_AGREE_KEY} {_INPATIENT_ONLY}",
     )
-    q3d = camcops_column(
-        FN_Q3D_UNIT_GOOD_PLACE_FOR_BABY,
-        Integer,
+    q3d: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
         comment=f"Q3d: MBU a good place for baby to be with pt "
         f"{_AGREE_KEY} {_INPATIENT_ONLY}",
     )
-    q3e = camcops_column(
-        FN_Q3E_UNIT_SUPPORTED_FAMILY_FRIENDS_CONTACT,
-        Integer,
+    q3e: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
         comment=f"Q3e: MBU supported contact with family/friends "
         f"{_AGREE_KEY} {_INPATIENT_ONLY}",
     )
-    q3f = camcops_column(
-        FN_Q3F_FOOD_NOT_ACCEPTABLE,
-        Integer,
+    q3f: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
         comment=f"Q3f: Food not acceptable {_AGREE_KEY} {_INPATIENT_ONLY}",
     )
@@ -288,9 +244,7 @@ class PerinatalPoem(Task):
     general_comments: Mapped[Optional[str]] = mapped_column(
         FN_GENERAL_COMMENTS, UnicodeText, comment="General comments"
     )
-    future_participation = camcops_column(
-        FN_FUTURE_PARTICIPATION,
-        Integer,
+    future_participation: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_ONE_CHECKER,
         comment=f"Willing to participate in future studies "
         f"({YES_INT} yes, {NO_INT} no)",

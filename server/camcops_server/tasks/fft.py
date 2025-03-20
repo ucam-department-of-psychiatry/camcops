@@ -28,13 +28,13 @@ camcops_server/tasks/fft.py
 from typing import Optional
 
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql.sqltypes import Integer, UnicodeText
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    camcops_column,
+    mapped_camcops_column,
     PermittedValueChecker,
 )
 from camcops_server.cc_modules.cc_string import AS
@@ -61,9 +61,7 @@ class Fft(TaskHasPatientMixin, Task):
     service: Mapped[Optional[str]] = mapped_column(
         UnicodeText, comment="Clinical service being rated"
     )
-    rating = camcops_column(
-        "rating",
-        Integer,
+    rating: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(minimum=1, maximum=6),
         comment="Likelihood of recommendation to friends/family (1 "
         "extremely likely - 5 extremely unlikely, 6 don't know)",

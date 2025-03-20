@@ -31,6 +31,7 @@ from cardinal_pythonlib.datetimefunc import format_datetime
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.stringfunc import strseq
 from cardinal_pythonlib.typetests import is_false
+from sqlalchemy.orm import Mapped
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Date, UnicodeText
 
@@ -52,7 +53,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    camcops_column,
+    mapped_camcops_column,
 )
 from camcops_server.cc_modules.cc_string import AS
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -271,57 +272,39 @@ class Icd10SpecPD(
         "date_pertains_to", Date, comment="Date the assessment pertains to"
     )
     comments = Column("comments", UnicodeText, comment="Clinician's comments")
-    skip_paranoid = camcops_column(
-        "skip_paranoid",
-        Boolean,
+    skip_paranoid: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for paranoid PD?",
     )
-    skip_schizoid = camcops_column(
-        "skip_schizoid",
-        Boolean,
+    skip_schizoid: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for schizoid PD?",
     )
-    skip_dissocial = camcops_column(
-        "skip_dissocial",
-        Boolean,
+    skip_dissocial: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for dissocial PD?",
     )
-    skip_eu = camcops_column(
-        "skip_eu",
-        Boolean,
+    skip_eu: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for emotionally unstable PD?",
     )
-    skip_histrionic = camcops_column(
-        "skip_histrionic",
-        Boolean,
+    skip_histrionic: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for histrionic PD?",
     )
-    skip_anankastic = camcops_column(
-        "skip_anankastic",
-        Boolean,
+    skip_anankastic: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for anankastic PD?",
     )
-    skip_anxious = camcops_column(
-        "skip_anxious",
-        Boolean,
+    skip_anxious: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for anxious PD?",
     )
-    skip_dependent = camcops_column(
-        "skip_dependent",
-        Boolean,
+    skip_dependent: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for dependent PD?",
     )
-    other_pd_present = camcops_column(
-        "other_pd_present",
-        Boolean,
+    other_pd_present: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Is another personality disorder present?",
     )

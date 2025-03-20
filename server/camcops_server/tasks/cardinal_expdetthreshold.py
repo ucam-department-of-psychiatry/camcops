@@ -50,7 +50,7 @@ from camcops_server.cc_modules.cc_db import (
 from camcops_server.cc_modules.cc_html import get_yes_no_none, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    camcops_column,
+    mapped_camcops_column,
     PendulumDateTimeAsIsoTextColType,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
@@ -195,13 +195,12 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
     target_number: Mapped[Optional[int]] = mapped_column(
         comment="Target number (within available targets of that modality)",
     )
-    background_filename = camcops_column(
-        "background_filename",
+    background_filename: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="Filename of media used for background",
     )
-    target_filename = camcops_column(
+    target_filename: Mapped[Optional[str]] = mapped_camcops_column(
         "target_filename",
         Text,
         exempt_from_anonymisation=True,
@@ -231,8 +230,7 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
     p_catch_trial: Mapped[Optional[float]] = mapped_column(
         comment="Probability of catch trial"
     )
-    prompt = camcops_column(
-        "prompt",
+    prompt: Mapped[Optional[str]] = mapped_camcops_column(
         UnicodeText,
         exempt_from_anonymisation=True,
         comment="Prompt given to subject",
