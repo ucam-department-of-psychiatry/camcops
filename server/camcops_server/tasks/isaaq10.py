@@ -28,7 +28,7 @@ camcops_server/tasks/isaaq10.py
 
 """
 
-from typing import Type
+from typing import Any, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -53,7 +53,7 @@ class Isaaq10(
     LAST_B_Q = 10
 
     @classmethod
-    def extend_table(cls: Type["Isaaq10"], **kwargs) -> None:
+    def extend_table(cls: Type["Isaaq10"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             cls.A_PREFIX,

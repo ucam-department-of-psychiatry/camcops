@@ -72,7 +72,7 @@ class Das28(
     provides_trackers = True
 
     @classmethod
-    def extend_table(cls: Type["Das28"], **kwargs) -> None:
+    def extend_table(cls: Type["Das28"], **kwargs: Any) -> None:
         for field_name in cls.get_joint_field_names():
             setattr(
                 cls, field_name, bool_column(field_name, comment="0 no, 1 yes")

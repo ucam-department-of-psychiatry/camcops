@@ -27,7 +27,7 @@ camcops_server/tasks/mfi20.py
 
 """
 
-from typing import List, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy import Integer
@@ -66,7 +66,7 @@ class Mfi20(
     MAX_SUBSCALE = MAX_SCORE_PER_Q * N_Q_PER_SUBSCALE
 
     @classmethod
-    def extend_table(cls: Type["Mfi20"], **kwargs) -> None:
+    def extend_table(cls: Type["Mfi20"], **kwargs: Any) -> None:
 
         comment_strings = [
             "feel fit",

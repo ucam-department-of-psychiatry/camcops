@@ -25,7 +25,7 @@ camcops_server/tasks/maas.py
 
 """
 
-from typing import List, Optional, Type
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strnumlist, strseq
@@ -141,7 +141,7 @@ class Maas(TaskHasPatientMixin, Task):
     MAX_TIME = N_TIME * MAX_SCORE_PER_Q
 
     @classmethod
-    def extend_table(cls: Type["Maas"], **kwargs) -> None:
+    def extend_table(cls: Type["Maas"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             cls.FN_QPREFIX,

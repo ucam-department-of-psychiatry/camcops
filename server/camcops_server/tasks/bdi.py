@@ -25,7 +25,7 @@ camcops_server/tasks/bdi.py
 
 """
 
-from typing import List, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 import cardinal_pythonlib.rnc_web as ws
@@ -165,7 +165,7 @@ class Bdi(
     provides_trackers = True
 
     @classmethod
-    def extend_table(cls: Type["Bdi"], **kwargs) -> None:
+    def extend_table(cls: Type["Bdi"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

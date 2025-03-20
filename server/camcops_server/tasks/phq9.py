@@ -26,7 +26,7 @@ camcops_server/tasks/phq9.py
 """
 
 import logging
-from typing import Dict, List, Optional, Type
+from typing import Any, Dict, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.orm import Mapped
@@ -82,7 +82,7 @@ class Phq9(
     provides_trackers = True
 
     @classmethod
-    def extend_table(cls: Type["Phq9"], **kwargs) -> None:
+    def extend_table(cls: Type["Phq9"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

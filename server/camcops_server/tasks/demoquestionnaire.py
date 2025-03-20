@@ -26,7 +26,7 @@ camcops_server/tasks/demoquestionnaire.py
 """
 
 import datetime
-from typing import Optional, Type
+from typing import Any, Optional, Type
 
 from pendulum import DateTime as Pendulum
 from sqlalchemy.orm import Mapped, mapped_column
@@ -74,7 +74,7 @@ class DemoQuestionnaire(
     is_anonymous = True
 
     @classmethod
-    def extend_table(cls: Type["DemoQuestionnaire"], **kwargs) -> None:
+    def extend_table(cls: Type["DemoQuestionnaire"], **kwargs: Any) -> None:
         add_multiple_columns(cls, "mcq", 1, N_MCQ)
         add_multiple_columns(cls, "mcqbool", 1, N_MCQBOOL)
         add_multiple_columns(cls, "multipleresponse", 1, N_MULTIPLERESPONSE)

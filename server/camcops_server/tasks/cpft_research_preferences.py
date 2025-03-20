@@ -27,7 +27,7 @@ camcops_server/tasks/cpft_research_preferences.py
 
 """
 
-from typing import Optional, Type
+from typing import Any, Optional, Type
 
 from camcops_server.cc_modules.cc_constants import CssClass, PV
 from camcops_server.cc_modules.cc_html import tr_qa, get_yes_no_unknown
@@ -64,7 +64,9 @@ class CpftResearchPreferences(
     ]
 
     @classmethod
-    def extend_table(cls: Type["CpftResearchPreferences"], **kwargs) -> None:
+    def extend_table(
+        cls: Type["CpftResearchPreferences"], **kwargs: Any
+    ) -> None:
         setattr(
             cls,
             cls.FN_CONTACT_PREFERENCE,

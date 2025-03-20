@@ -25,7 +25,7 @@ camcops_server/tasks/hamd7.py
 
 """
 
-from typing import List, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -74,7 +74,7 @@ class Hamd7(
     NQUESTIONS = 7
 
     @classmethod
-    def extend_table(cls: Type["Hamd7"], **kwargs) -> None:
+    def extend_table(cls: Type["Hamd7"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

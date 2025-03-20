@@ -25,7 +25,7 @@ camcops_server/tasks/iesr.py
 
 """
 
-from typing import List, Optional, Type
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.orm import Mapped, mapped_column
@@ -69,7 +69,7 @@ class Iesr(
     provides_trackers = True
 
     @classmethod
-    def extend_table(cls: Type["Iesr"], **kwargs) -> None:
+    def extend_table(cls: Type["Iesr"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

@@ -25,7 +25,7 @@ camcops_server/tasks/demqol.py
 
 """
 
-from typing import List, Optional, Tuple, Type, Union
+from typing import Any, List, Optional, Tuple, Type, Union
 
 from cardinal_pythonlib.stringfunc import strseq
 import cardinal_pythonlib.rnc_web as ws
@@ -98,7 +98,7 @@ class Demqol(
     provides_trackers = True
 
     @classmethod
-    def extend_table(cls: Type["Demqol"], **kwargs) -> None:
+    def extend_table(cls: Type["Demqol"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -297,7 +297,7 @@ class DemqolProxy(
     info_filename_stem = "demqol"
 
     @classmethod
-    def extend_table(cls: Type["DemqolProxy"], **kwargs) -> None:
+    def extend_table(cls: Type["DemqolProxy"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

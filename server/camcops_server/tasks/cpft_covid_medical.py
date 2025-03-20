@@ -27,7 +27,7 @@ camcops_server/tasks/cpft_covid_medical.py
 
 """
 
-from typing import Optional, Type
+from typing import Any, Optional, Type
 
 from sqlalchemy.sql.sqltypes import Integer
 
@@ -56,7 +56,7 @@ class CpftCovidMedical(
     FN_HOW_AND_WHEN_SYMPTOMS = "how_and_when_symptoms"
 
     @classmethod
-    def extend_table(cls: Type["CpftCovidMedical"], **kwargs) -> None:
+    def extend_table(cls: Type["CpftCovidMedical"], **kwargs: Any) -> None:
         setattr(
             cls,
             cls.FN_HOW_AND_WHEN_SYMPTOMS,

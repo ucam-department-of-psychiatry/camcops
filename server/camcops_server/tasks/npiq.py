@@ -25,7 +25,7 @@ camcops_server/tasks/npiq.py
 
 """
 
-from typing import List, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Boolean, Integer
@@ -71,7 +71,7 @@ class NpiQ(
     NQUESTIONS = 12
 
     @classmethod
-    def extend_table(cls: Type["NpiQ"], **kwargs) -> None:
+    def extend_table(cls: Type["NpiQ"], **kwargs: Any) -> None:
         question_snippets = [
             "delusions",  # 1
             "hallucinations",

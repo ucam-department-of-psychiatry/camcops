@@ -25,7 +25,7 @@ camcops_server/tasks/caps.py
 
 """
 
-from typing import List, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -102,7 +102,7 @@ class Caps(
     NQUESTIONS = 32
 
     @classmethod
-    def extend_table(cls: Type["Caps"], **kwargs) -> None:
+    def extend_table(cls: Type["Caps"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "endorse",

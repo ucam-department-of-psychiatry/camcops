@@ -26,7 +26,7 @@ camcops_server/tasks/phq8.py
 """
 
 import logging
-from typing import Dict, List, Type
+from typing import Any, Dict, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Boolean, Integer
@@ -81,7 +81,7 @@ class Phq8(
     MAX_SCORE = 3 * N_QUESTIONS
 
     @classmethod
-    def extend_table(cls: Type["Phq8"], **kwargs) -> None:
+    def extend_table(cls: Type["Phq8"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

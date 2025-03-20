@@ -25,7 +25,7 @@ camcops_server/tasks/honos.py
 
 """
 
-from typing import List, Optional, Type
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.orm import Mapped, mapped_column
@@ -169,7 +169,7 @@ class Honos(
     info_filename_stem = "honos"
 
     @classmethod
-    def extend_table(cls: Type["Honos"], **kwargs) -> None:
+    def extend_table(cls: Type["Honos"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -380,7 +380,7 @@ class Honos65(
     info_filename_stem = "honos"
 
     @classmethod
-    def extend_table(cls: Type["Honos65"], **kwargs) -> None:
+    def extend_table(cls: Type["Honos65"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -556,7 +556,7 @@ class Honosca(
     NQUESTIONS = 15
 
     @classmethod
-    def extend_table(cls: Type["Honosca"], **kwargs) -> None:
+    def extend_table(cls: Type["Honosca"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

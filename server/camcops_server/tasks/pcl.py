@@ -26,7 +26,7 @@ camcops_server/tasks/pcl.py
 """
 
 from abc import ABC
-from typing import List, Optional, Type
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.orm import Mapped, mapped_column
@@ -75,7 +75,7 @@ class PclCommon(TaskHasPatientMixin, Task, ABC):
     # noinspection PyInitNewSignature
 
     @classmethod
-    def extend_table(cls: Type["PclCommon"], **kwargs) -> None:
+    def extend_table(cls: Type["PclCommon"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

@@ -25,7 +25,7 @@ camcops_server/tasks/audit.py
 
 """
 
-from typing import List, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -68,7 +68,7 @@ class Audit(
     NQUESTIONS = 10
 
     @classmethod
-    def extend_table(cls: Type["Audit"], **kwargs) -> None:
+    def extend_table(cls: Type["Audit"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -253,7 +253,7 @@ class AuditC(TaskHasPatientMixin, Task):
     NQUESTIONS = 3
 
     @classmethod
-    def extend_table(cls: Type["AuditC"], **kwargs) -> None:
+    def extend_table(cls: Type["AuditC"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

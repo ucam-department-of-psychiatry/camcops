@@ -25,7 +25,7 @@ camcops_server/tasks/hamd.py
 
 """
 
-from typing import List, Optional, Type
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.orm import Mapped, MappedColumn
@@ -86,7 +86,7 @@ class Hamd(
     NQUESTIONS = 21
 
     @classmethod
-    def extend_table(cls: Type["Hamd"], **kwargs) -> None:
+    def extend_table(cls: Type["Hamd"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

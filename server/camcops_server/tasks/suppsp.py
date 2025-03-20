@@ -44,7 +44,7 @@ from camcops_server.cc_modules.cc_task import (
 from camcops_server.cc_modules.cc_text import SS
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy import Integer
-from typing import List, Type
+from typing import Any, List, Type
 
 
 class Suppsp(
@@ -64,7 +64,7 @@ class Suppsp(
     MAX_SUBSCALE = MAX_SCORE_PER_Q * N_Q_PER_SUBSCALE
 
     @classmethod
-    def extend_table(cls: Type["Suppsp"], **kwargs) -> None:
+    def extend_table(cls: Type["Suppsp"], **kwargs: Any) -> None:
 
         comment_strings = [
             "see to end",

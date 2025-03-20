@@ -27,7 +27,7 @@ camcops_server/tasks/shaps.py
 
 """
 
-from typing import List, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy import Integer
@@ -56,7 +56,7 @@ class Shaps(
     MAX_SCORE = 14
 
     @classmethod
-    def extend_table(cls: Type["Shaps"], **kwargs) -> None:
+    def extend_table(cls: Type["Shaps"], **kwargs: Any) -> None:
 
         add_multiple_columns(
             cls,

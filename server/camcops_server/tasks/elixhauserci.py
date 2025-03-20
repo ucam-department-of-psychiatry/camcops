@@ -27,7 +27,7 @@ camcops_server/tasks/elixhauserci.py
 
 """
 
-from typing import List, Type
+from typing import Any, List, Type
 
 from sqlalchemy.sql.sqltypes import Integer
 
@@ -100,7 +100,7 @@ class ElixhauserCI(
     shortname = "ElixhauserCI"
 
     @classmethod
-    def extend_table(cls: Type["ElixhauserCI"], **kwargs) -> None:
+    def extend_table(cls: Type["ElixhauserCI"], **kwargs: Any) -> None:
         for colname in FIELDNAMES:
             constraint_name = CONSTRAINT_NAME_MAP.get(colname)
             setattr(

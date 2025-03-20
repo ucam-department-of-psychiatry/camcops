@@ -27,7 +27,7 @@ camcops_server/tasks/chit.py
 
 """
 
-from typing import List, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
@@ -64,7 +64,7 @@ class Chit(
     MAX_SCORE_MAIN = MAX_ANSWER * N_SCORED_QUESTIONS
 
     @classmethod
-    def extend_table(cls: Type["Chit"], **kwargs) -> None:
+    def extend_table(cls: Type["Chit"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

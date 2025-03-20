@@ -25,7 +25,7 @@ camcops_server/tasks/fast.py
 
 """
 
-from typing import List, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Boolean, Integer
@@ -65,7 +65,7 @@ class Fast(
     NQUESTIONS = 4
 
     @classmethod
-    def extend_table(cls: Type["Fast"], **kwargs) -> None:
+    def extend_table(cls: Type["Fast"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

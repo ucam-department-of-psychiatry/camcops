@@ -25,7 +25,7 @@ camcops_server/tasks/cape42.py
 
 """
 
-from typing import List, Optional, Type
+from typing import Any, List, Optional, Type
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.sqltypes import Float, Integer
@@ -147,7 +147,7 @@ class Cape42(
     info_filename_stem = "cape"
 
     @classmethod
-    def extend_table(cls: Type["Cape42"], **kwargs) -> None:
+    def extend_table(cls: Type["Cape42"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "frequency",

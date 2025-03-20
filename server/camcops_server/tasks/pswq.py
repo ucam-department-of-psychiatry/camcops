@@ -25,7 +25,7 @@ camcops_server/tasks/pswq.py
 
 """
 
-from typing import List, Optional, Type
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -64,7 +64,7 @@ class Pswq(
     REVERSE_SCORE = [1, 3, 8, 10, 11]
 
     @classmethod
-    def extend_table(cls: Type["Pswq"], **kwargs) -> None:
+    def extend_table(cls: Type["Pswq"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

@@ -25,7 +25,7 @@ camcops_server/tasks/cope.py
 
 """
 
-from typing import List, Optional, Type
+from typing import Any, List, Optional, Type
 
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
@@ -72,7 +72,7 @@ class CopeBrief(
     RELATIONSHIPS_LAST = 9
 
     @classmethod
-    def extend_table(cls: Type["CopeBrief"], **kwargs) -> None:
+    def extend_table(cls: Type["CopeBrief"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

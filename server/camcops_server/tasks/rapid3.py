@@ -27,7 +27,7 @@ camcops_server/tasks/rapid3.py
 
 """
 
-from typing import List, Optional, Type, Tuple
+from typing import Any, List, Optional, Type, Tuple
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy import Float, Integer
@@ -77,7 +77,7 @@ class Rapid3(
     MAXIMUM = 30
 
     @classmethod
-    def extend_table(cls: Type["Rapid3"], **kwargs) -> None:
+    def extend_table(cls: Type["Rapid3"], **kwargs: Any) -> None:
 
         comment_strings = [
             "get dressed",

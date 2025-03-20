@@ -27,7 +27,7 @@ camcops_server/tasks/lynall_iam_life.py
 
 """
 
-from typing import List, Type
+from typing import Any, List, Type
 
 from sqlalchemy.sql.sqltypes import Integer
 
@@ -89,7 +89,7 @@ class LynallIamLifeEvents(
     prohibits_commercial = True
 
     @classmethod
-    def extend_table(cls: Type["LynallIamLifeEvents"], **kwargs) -> None:
+    def extend_table(cls: Type["LynallIamLifeEvents"], **kwargs: Any) -> None:
         comment_strings = [
             "illness/injury/assault (self)",  # 1
             "illness/injury/assault (relative)",

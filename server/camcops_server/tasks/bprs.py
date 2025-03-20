@@ -25,7 +25,7 @@ camcops_server/tasks/bprs.py
 
 """
 
-from typing import List, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -68,7 +68,7 @@ class Bprs(
     NQUESTIONS = 20
 
     @classmethod
-    def extend_table(cls: Type["Bprs"], **kwargs) -> None:
+    def extend_table(cls: Type["Bprs"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

@@ -26,7 +26,7 @@ camcops_server/tasks/cet.py
 """
 
 import logging
-from typing import Dict, List, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Float
@@ -105,7 +105,7 @@ class Cet(
     Q_SUBSCALE_5_EX_RIGIDITY = [3, 7, 19]
 
     @classmethod
-    def extend_table(cls: Type["Cet"], **kwargs) -> None:
+    def extend_table(cls: Type["Cet"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

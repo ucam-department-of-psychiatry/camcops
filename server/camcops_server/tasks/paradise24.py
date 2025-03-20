@@ -27,7 +27,7 @@ camcops_server/tasks/paradise24.py
 
 """
 
-from typing import Optional, Type
+from typing import Any, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -51,7 +51,7 @@ class Paradise24(
     LAST_Q = 24
 
     @classmethod
-    def extend_table(cls: Type["Paradise24"], **kwargs) -> None:
+    def extend_table(cls: Type["Paradise24"], **kwargs: Any) -> None:
 
         add_multiple_columns(
             cls,

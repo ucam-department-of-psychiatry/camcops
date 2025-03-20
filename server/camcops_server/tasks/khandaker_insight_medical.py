@@ -29,7 +29,7 @@ camcops_server/tasks/khandaker_insight_medical.py
 # Imports
 # =============================================================================
 
-from typing import Type
+from typing import Any, Type
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
@@ -108,7 +108,9 @@ class KhandakerInsightMedical(
     info_filename_stem = "khandaker_insight_medical"
 
     @classmethod
-    def extend_table(cls: Type["KhandakerInsightMedical"], **kwargs) -> None:
+    def extend_table(
+        cls: Type["KhandakerInsightMedical"], **kwargs: Any
+    ) -> None:
         for qinfo in QUESTIONS:
             setattr(cls, qinfo.fieldname_yn, bool_column(qinfo.fieldname_yn))
             setattr(

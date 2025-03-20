@@ -72,7 +72,7 @@ class Aq(
     # Questions where agreement indicates autistic-like traits.
 
     @classmethod
-    def extend_table(cls: Type["Aq"], **kwargs) -> None:
+    def extend_table(cls: Type["Aq"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             cls.PREFIX,

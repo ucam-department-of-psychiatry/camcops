@@ -25,7 +25,7 @@ camcops_server/tasks/zbi.py
 
 """
 
-from typing import List, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -71,7 +71,7 @@ class Zbi12(
     NQUESTIONS = 12
 
     @classmethod
-    def extend_table(cls: Type["Zbi12"], **kwargs) -> None:
+    def extend_table(cls: Type["Zbi12"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

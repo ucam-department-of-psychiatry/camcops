@@ -25,7 +25,7 @@ camcops_server/tasks/cesdr.py
 
 """
 
-from typing import List, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
@@ -93,7 +93,7 @@ class Cesdr(
     MAJOR_THRESH = 4
 
     @classmethod
-    def extend_table(cls: Type["Cesdr"], **kwargs) -> None:
+    def extend_table(cls: Type["Cesdr"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

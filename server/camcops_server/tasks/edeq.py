@@ -28,7 +28,7 @@ camcops_server/tasks/edeq.py
 """
 
 import statistics
-from typing import List, Optional, Type
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strnumlist, strseq
 from sqlalchemy import Column
@@ -56,7 +56,7 @@ class Edeq(
     MEASUREMENT_FIELD_NAMES = ["mass_kg", "height_m"]
 
     @classmethod
-    def extend_table(cls: Type["Edeq"], **kwargs) -> None:
+    def extend_table(cls: Type["Edeq"], **kwargs: Any) -> None:
 
         add_multiple_columns(
             cls,

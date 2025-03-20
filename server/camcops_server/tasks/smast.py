@@ -25,7 +25,7 @@ camcops_server/tasks/smast.py
 
 """
 
-from typing import List, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -74,7 +74,7 @@ class Smast(
     NQUESTIONS = 13
 
     @classmethod
-    def extend_table(cls: Type["Smast"], **kwargs) -> None:
+    def extend_table(cls: Type["Smast"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

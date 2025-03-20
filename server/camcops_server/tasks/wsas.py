@@ -25,7 +25,7 @@ camcops_server/tasks/wsas.py
 
 """
 
-from typing import List, Optional, Type
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.orm import Mapped, mapped_column
@@ -68,7 +68,7 @@ class Wsas(
     provides_trackers = True
 
     @classmethod
-    def extend_table(cls: Type["Wsas"], **kwargs) -> None:
+    def extend_table(cls: Type["Wsas"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

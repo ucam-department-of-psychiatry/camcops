@@ -25,7 +25,7 @@ camcops_server/tasks/pdss.py
 
 """
 
-from typing import List, Type
+from typing import Any, List, Type
 
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.stringfunc import strseq
@@ -69,7 +69,7 @@ class Pdss(
     NQUESTIONS = 7
 
     @classmethod
-    def extend_table(cls: Type["Pdss"], **kwargs) -> None:
+    def extend_table(cls: Type["Pdss"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

@@ -67,7 +67,7 @@ class Rand36(
     NQUESTIONS = 36
 
     @classmethod
-    def extend_table(cls: Type["Rand36"], **kwargs) -> None:
+    def extend_table(cls: Type["Rand36"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

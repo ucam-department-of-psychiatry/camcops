@@ -25,7 +25,7 @@ camcops_server/tasks/ciwa.py
 
 """
 
-from typing import List, Optional, Type
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.orm import Mapped, mapped_column
@@ -83,7 +83,7 @@ class Ciwa(
     NSCOREDQUESTIONS = 10
 
     @classmethod
-    def extend_table(cls: Type["Ciwa"], **kwargs) -> None:
+    def extend_table(cls: Type["Ciwa"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

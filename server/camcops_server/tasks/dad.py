@@ -25,7 +25,7 @@ camcops_server/tasks/dad.py
 
 """
 
-from typing import Dict, Iterable, List, Tuple, Type
+from typing import Any, Dict, Iterable, List, Tuple, Type
 
 from sqlalchemy.sql.sqltypes import Integer
 
@@ -131,7 +131,7 @@ class Dad(
     ]
 
     @classmethod
-    def extend_table(cls: Type["Dad"], **kwargs) -> None:
+    def extend_table(cls: Type["Dad"], **kwargs: Any) -> None:
         explan = f" ({YES} yes, {NO} no, {NA} not applicable)"
         for colname in cls.ITEMS:
             setattr(

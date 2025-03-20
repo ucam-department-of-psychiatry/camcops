@@ -40,7 +40,7 @@ from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, Task
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy import Float, Integer
-from typing import List, Type
+from typing import Any, List, Type
 
 
 class Esspri(
@@ -54,7 +54,7 @@ class Esspri(
     MAX_SCORE = 10  # Mean of 3 scores of 10
 
     @classmethod
-    def extend_table(cls: Type["Esspri"], **kwargs) -> None:
+    def extend_table(cls: Type["Esspri"], **kwargs: Any) -> None:
 
         comment_strings = ["dryness", "fatigue", "pain"]
 

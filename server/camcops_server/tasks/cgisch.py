@@ -25,7 +25,7 @@ camcops_server/tasks/cgisch.py
 
 """
 
-from typing import List, Optional, Type
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 
@@ -75,7 +75,7 @@ class CgiSch(
     provides_trackers = True
 
     @classmethod
-    def extend_table(cls: Type["CgiSch"], **kwargs) -> None:
+    def extend_table(cls: Type["CgiSch"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "severity",

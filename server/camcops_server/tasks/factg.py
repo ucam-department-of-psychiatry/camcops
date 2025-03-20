@@ -27,7 +27,7 @@
 
 """
 
-from typing import List, Optional, Type
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.orm import Mapped
@@ -196,7 +196,7 @@ class Factg(TaskHasPatientMixin, Task):
     OPTIONAL_Q = "s_q7"
 
     @classmethod
-    def extend_table(cls: Type["Factg"], **kwargs) -> None:
+    def extend_table(cls: Type["Factg"], **kwargs: Any) -> None:
         answer_stem = (
             " (0 not at all, 1 a little bit, 2 somewhat, 3 quite a bit, "
             "4 very much)"

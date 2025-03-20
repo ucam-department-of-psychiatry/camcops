@@ -27,7 +27,7 @@ camcops_server/tasks/cesd.py
 
 """
 
-from typing import List, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
@@ -77,7 +77,7 @@ class Cesd(
     DEPRESSION_RISK_THRESHOLD = 16
 
     @classmethod
-    def extend_table(cls: Type["Cesd"], **kwargs) -> None:
+    def extend_table(cls: Type["Cesd"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

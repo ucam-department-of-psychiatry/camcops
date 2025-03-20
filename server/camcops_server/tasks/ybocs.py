@@ -25,7 +25,7 @@ camcops_server/tasks/ybocs.py
 
 """
 
-from typing import List, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.schema import Column
@@ -108,7 +108,7 @@ class Ybocs(
     MAX_COM = 20
 
     @classmethod
-    def extend_table(cls: Type["Ybocs"], **kwargs) -> None:
+    def extend_table(cls: Type["Ybocs"], **kwargs: Any) -> None:
         cls.TARGET_COLUMNS = []  # type: List[Column]
         for target in ("obsession", "compulsion", "avoidance"):
             for n in range(1, cls.NTARGETS + 1):
@@ -401,7 +401,7 @@ class YbocsSc(
     ]
 
     @classmethod
-    def extend_table(cls: Type["YbocsSc"], **kwargs) -> None:
+    def extend_table(cls: Type["YbocsSc"], **kwargs: Any) -> None:
         for item in cls.ITEMS:
             setattr(
                 cls,

@@ -28,7 +28,7 @@ camcops_server/tasks/basdai.py
 """
 
 import statistics
-from typing import List, Optional, Type
+from typing import Any, List, Optional, Type
 
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.stringfunc import strseq
@@ -63,7 +63,7 @@ class Basdai(
     N_QUESTIONS = 6
 
     @classmethod
-    def extend_table(cls: Type["Basdai"], **kwargs) -> None:
+    def extend_table(cls: Type["Basdai"], **kwargs: Any) -> None:
 
         add_multiple_columns(
             cls,

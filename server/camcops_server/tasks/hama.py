@@ -25,7 +25,7 @@ camcops_server/tasks/hama.py
 
 """
 
-from typing import List, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -71,7 +71,7 @@ class Hama(
     NQUESTIONS = 14
 
     @classmethod
-    def extend_table(cls: Type["Hama"], **kwargs) -> None:
+    def extend_table(cls: Type["Hama"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

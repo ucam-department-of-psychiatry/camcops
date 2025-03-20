@@ -25,7 +25,7 @@ camcops_server/tasks/frs.py
 
 """
 
-from typing import Dict, List, Optional, Type
+from typing import Any, Dict, List, Optional, Type
 
 from cardinal_pythonlib.betweendict import BetweenDict
 from cardinal_pythonlib.stringfunc import strseq
@@ -201,7 +201,7 @@ class Frs(
     shortname = "FRS"
 
     @classmethod
-    def extend_table(cls: Type["Frs"], **kwargs) -> None:
+    def extend_table(cls: Type["Frs"], **kwargs: Any) -> None:
         for n in range(1, NQUESTIONS + 1):
             pv = [NEVER, ALWAYS]
             pc = [f"{NEVER} = never", f"{ALWAYS} = always"]

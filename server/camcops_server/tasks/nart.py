@@ -26,7 +26,7 @@ camcops_server/tasks/nart.py
 """
 
 import math
-from typing import List, Optional, Type
+from typing import Any, List, Optional, Type
 
 from sqlalchemy.sql.sqltypes import Boolean, Float
 
@@ -124,7 +124,7 @@ class Nart(
     shortname = "NART"
 
     @classmethod
-    def extend_table(cls: Type["Nart"], **kwargs) -> None:
+    def extend_table(cls: Type["Nart"], **kwargs: Any) -> None:
         for w in WORDLIST:
             setattr(
                 cls,

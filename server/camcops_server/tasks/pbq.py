@@ -25,7 +25,7 @@ camcops_server/tasks/pbq.py
 
 """
 
-from typing import List, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strnumlist, strseq
@@ -70,7 +70,7 @@ class Pbq(
     NQUESTIONS = 25
 
     @classmethod
-    def extend_table(cls: Type["Pbq"], **kwargs) -> None:
+    def extend_table(cls: Type["Pbq"], **kwargs: Any) -> None:
         comment_strings = [
             # This is the Brockington 2006 order; see XML for notes.
             # 1-5

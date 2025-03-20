@@ -25,7 +25,7 @@ camcops_server/tasks/ifs.py
 
 """
 
-from typing import Dict, List, Optional, Type
+from typing import Any, Dict, List, Optional, Type
 
 from sqlalchemy.orm import Mapped
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer
@@ -80,7 +80,7 @@ class Ifs(
     provides_trackers = True
 
     @classmethod
-    def extend_table(cls: Type["Ifs"], **kwargs) -> None:
+    def extend_table(cls: Type["Ifs"], **kwargs: Any) -> None:
         for seqlen in cls.Q4_DIGIT_LENGTHS:
             fname1 = f"q4_len{seqlen}_1"
             fname2 = f"q4_len{seqlen}_2"

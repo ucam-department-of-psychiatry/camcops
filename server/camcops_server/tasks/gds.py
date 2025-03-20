@@ -25,7 +25,7 @@ camcops_server/tasks/gds.py
 
 """
 
-from typing import List, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer, String
@@ -63,7 +63,7 @@ class Gds15(
     NQUESTIONS = 15
 
     @classmethod
-    def extend_table(cls: Type["Gds15"], **kwargs) -> None:
+    def extend_table(cls: Type["Gds15"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

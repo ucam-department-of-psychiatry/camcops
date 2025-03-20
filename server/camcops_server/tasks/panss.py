@@ -25,7 +25,7 @@ camcops_server/tasks/panss.py
 
 """
 
-from typing import List, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -73,7 +73,7 @@ class Panss(
     NUM_G = 16
 
     @classmethod
-    def extend_table(cls: Type["Panss"], **kwargs) -> None:
+    def extend_table(cls: Type["Panss"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "p",

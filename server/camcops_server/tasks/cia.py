@@ -27,7 +27,7 @@ camcops_server/tasks/cia.py
 
 """
 
-from typing import List, Optional, Type
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strnumlist, strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -55,7 +55,7 @@ class Cia(
     MAX_SCORE = 48
 
     @classmethod
-    def extend_table(cls: Type["Cia"], **kwargs) -> None:
+    def extend_table(cls: Type["Cia"], **kwargs: Any) -> None:
 
         add_multiple_columns(
             cls,

@@ -25,7 +25,7 @@ camcops_server/tasks/pcl5.py
 
 """
 
-from typing import List, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
@@ -79,7 +79,7 @@ class Pcl5(
     N_QUESTIONS = 20
 
     @classmethod
-    def extend_table(cls: Type["Pcl5"], **kwargs) -> None:
+    def extend_table(cls: Type["Pcl5"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

@@ -26,7 +26,7 @@ camcops_server/tasks/icd10schizotypal.py
 """
 
 import datetime
-from typing import List, Optional, Type
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 import cardinal_pythonlib.rnc_web as ws
@@ -77,7 +77,7 @@ class Icd10Schizotypal(
     info_filename_stem = "icd"
 
     @classmethod
-    def extend_table(cls: Type["Icd10Schizotypal"], **kwargs) -> None:
+    def extend_table(cls: Type["Icd10Schizotypal"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "a",

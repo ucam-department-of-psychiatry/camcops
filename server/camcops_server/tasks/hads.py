@@ -27,7 +27,7 @@ camcops_server/tasks/hads.py
 
 from abc import ABC
 import logging
-from typing import List, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.stringfunc import strseq
@@ -75,7 +75,7 @@ class HadsBase(TaskHasPatientMixin, Task, ABC):
     MAX_DEP_SCORE = 21
 
     @classmethod
-    def extend_table(cls: Type["HadsBase"], **kwargs) -> None:
+    def extend_table(cls: Type["HadsBase"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

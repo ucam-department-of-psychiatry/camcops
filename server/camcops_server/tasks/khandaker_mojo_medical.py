@@ -25,7 +25,7 @@ camcops_server/tasks/khandaker_mojo_medical.py
 
 """
 
-from typing import Type
+from typing import Any, Type
 
 from sqlalchemy.sql.sqltypes import Date, Float, Integer, UnicodeText
 
@@ -62,7 +62,7 @@ class KhandakerMojoMedical(
     FN_HAS_INFECTION_PAST_MONTH = "has_infection_past_month"
 
     @classmethod
-    def extend_table(cls: Type["KhandakerMojoMedical"], **kwargs) -> None:
+    def extend_table(cls: Type["KhandakerMojoMedical"], **kwargs: Any) -> None:
         setattr(
             cls,
             cls.FN_DIAGNOSIS,

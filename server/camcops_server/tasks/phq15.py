@@ -25,7 +25,7 @@ camcops_server/tasks/phq15.py
 
 """
 
-from typing import List, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -71,7 +71,7 @@ class Phq15(
     MAX_TOTAL = 30
 
     @classmethod
-    def extend_table(cls: Type["Phq15"], **kwargs) -> None:
+    def extend_table(cls: Type["Phq15"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
