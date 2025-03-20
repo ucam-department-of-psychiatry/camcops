@@ -437,11 +437,11 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     fluency_letters_score: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Fluency, words beginning with P, score 0-7",
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=7),
-    )  # type: Optional[int]
+    )
     fluency_animals_score: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Fluency, animals, score 0-7",
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=7),
-    )  # type: Optional[int]
+    )
     lang_follow_command_practice: Mapped[Optional[int]] = (
         mapped_camcops_column(
             comment="Language, command, practice trial (not scored)",
@@ -451,19 +451,19 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     lang_read_words_aloud: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Language, read five irregular words (0 or 1)",
         permitted_value_checker=BIT_CHECKER,
-    )  # type: Optional[int]
+    )
     vsp_copy_infinity: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Visuospatial, copy infinity (0-1)",
         permitted_value_checker=BIT_CHECKER,
-    )  # type: Optional[int]
+    )
     vsp_copy_cube: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Visuospatial, copy cube (0-2)",
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=2),
-    )  # type: Optional[int]
+    )
     vsp_draw_clock: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Visuospatial, draw clock (0-5)",
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=5),
-    )  # type: Optional[int]
+    )
     picture1_blobid: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Photo 1/2 PNG BLOB ID",
         is_blob_id_field=True,

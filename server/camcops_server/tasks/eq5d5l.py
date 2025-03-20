@@ -104,7 +104,7 @@ class Eq5d5l(TaskHasPatientMixin, Task):
     health_vas: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Visual analogue scale for overall health (0 worst - 100 best)",  # noqa
         permitted_value_checker=ZERO_TO_100_CHECKER,
-    )  # type: Optional[int]
+    )
 
     N_QUESTIONS = 5
     MISSING_ANSWER_VALUE = 9
