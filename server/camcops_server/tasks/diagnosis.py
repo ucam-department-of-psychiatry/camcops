@@ -28,7 +28,7 @@ camcops_server/tasks/diagnosis.py
 from abc import ABC, ABCMeta
 import datetime
 import logging
-from typing import Any, Dict, List, Optional, Type, TYPE_CHECKING
+from typing import Any, Dict, List, Optional, Sequence, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.colander_utils import get_child_node, OptionalIntNode
@@ -44,6 +44,7 @@ from fhirclient.models.condition import Condition
 import hl7
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
+from sqlalchemy import Select
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.expression import (
     and_,
@@ -54,7 +55,6 @@ from sqlalchemy.sql.expression import (
     select,
     union,
 )
-from sqlalchemy.sql.selectable import SelectBase
 from sqlalchemy.sql.sqltypes import Date, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass, FHIRConst as Fc
@@ -526,7 +526,7 @@ def get_diagnosis_report_query(
     item_class: Type[DiagnosisItemBase],
     item_fk_fieldname: str,
     system: str,
-) -> SelectBase:
+) -> Select[Any]:
     # SELECT surname, forename, dob, sex, ...
     select_fields = [
         Patient.surname.label("surname"),
@@ -606,7 +606,7 @@ def get_diagnosis_report(
     item_class: Type[DiagnosisItemBase],
     item_fk_fieldname: str,
     system: str,
-) -> SelectBase:
+) -> Select[Any]:
     query = get_diagnosis_report_query(
         req, diagnosis_class, item_class, item_fk_fieldname, system
     )
@@ -639,7 +639,7 @@ class DiagnosisICD9CMReport(Report):
     def superuser_only(cls) -> bool:
         return False
 
-    def get_query(self, req: CamcopsRequest) -> SelectBase:
+    def get_query(self, req: CamcopsRequest) -> Select[Any]:
         return get_diagnosis_report(
             req,
             diagnosis_class=DiagnosisIcd9CM,
@@ -667,7 +667,7 @@ class DiagnosisICD10Report(Report):
     def superuser_only(cls) -> bool:
         return False
 
-    def get_query(self, req: CamcopsRequest) -> SelectBase:
+    def get_query(self, req: CamcopsRequest) -> Select[Any]:
         return get_diagnosis_report(
             req,
             diagnosis_class=DiagnosisIcd10,
@@ -695,7 +695,7 @@ class DiagnosisAllReport(Report):
     def superuser_only(cls) -> bool:
         return False
 
-    def get_query(self, req: CamcopsRequest) -> SelectBase:
+    def get_query(self, req: CamcopsRequest) -> Select[Any]:
         sql_icd9cm = get_diagnosis_report_query(
             req,
             diagnosis_class=DiagnosisIcd9CM,
@@ -723,7 +723,7 @@ class DiagnosisAllReport(Report):
 class DiagnosisNode(SchemaNode, RequestAwareMixin):
     schema_type = String
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.description = ""  # for type checker
         super().__init__(*args, **kwargs)
@@ -747,7 +747,9 @@ class DiagnosisNode(SchemaNode, RequestAwareMixin):
 class DiagnosesSequence(SequenceSchema, RequestAwareMixin):
     diagnoses = DiagnosisNode()
 
-    def __init__(self, *args, minimum_number: int = 0, **kwargs) -> None:
+    def __init__(
+        self, *args: Any, minimum_number: int = 0, **kwargs: Any
+    ) -> None:
         self.minimum_number = minimum_number
         self.title = ""  # for type checker
         self.description = ""  # for type checker
@@ -815,7 +817,7 @@ def get_diagnosis_inc_exc_report_query(
     exclusion_dx: List[str],
     age_minimum_y: int,
     age_maximum_y: int,
-) -> SelectBase:
+) -> Select[Any]:
     """
     As for get_diagnosis_report_query, but this makes some modifications to
     do inclusion and exclusion criteria.
@@ -870,12 +872,13 @@ def get_diagnosis_inc_exc_report_query(
         )
     )
     wheres = [Patient._current == True]  # noqa: E712
+
+    group_ids: list[int] = []
+
     if not req.user.superuser:
         # Restrict to accessible groups
         group_ids = req.user.ids_of_groups_user_may_report_on
         wheres.append(diagnosis_class._group_id.in_(group_ids))
-    else:
-        group_ids = []  # type: List[int]  # to stop type-checker moaning below
 
     # Age limits are simple, as the same patient has the same age for
     # all diagnosis rows.
@@ -1005,7 +1008,10 @@ class DiagnosisFinderReportBase(Report):
         ]
 
     def render_single_page_html(
-        self, req: "CamcopsRequest", column_names: List[str], page: CamcopsPage
+        self,
+        req: "CamcopsRequest",
+        column_names: Sequence[str],
+        page: CamcopsPage,
     ) -> Response:
         which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
         inclusion_dx = req.get_str_list_param(
@@ -1051,7 +1057,7 @@ class DiagnosisICD10FinderReport(DiagnosisFinderReportBase):
         _ = req.gettext
         return _("Diagnosis – Find patients by ICD-10 diagnosis ± age")
 
-    def get_query(self, req: CamcopsRequest) -> SelectBase:
+    def get_query(self, req: CamcopsRequest) -> Select[Any]:
         which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
         inclusion_dx = req.get_str_list_param(
             ViewParam.DIAGNOSES_INCLUSION,
@@ -1104,7 +1110,7 @@ class DiagnosisICD9CMFinderReport(DiagnosisFinderReportBase):
             "Diagnosis – Find patients by ICD-9-CM (DSM-IV-TR) diagnosis ± age"
         )
 
-    def get_query(self, req: CamcopsRequest) -> SelectBase:
+    def get_query(self, req: CamcopsRequest) -> Select[Any]:
         which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
         inclusion_dx = req.get_str_list_param(
             ViewParam.DIAGNOSES_INCLUSION,
