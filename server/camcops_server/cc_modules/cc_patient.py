@@ -121,6 +121,8 @@ from camcops_server.cc_modules.cc_xml import (
 )
 
 if TYPE_CHECKING:
+    from sqlalchemy.sql.elements import ColumnElement
+
     from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
     from camcops_server.cc_modules.cc_group import Group
     from camcops_server.cc_modules.cc_policy import TokenizedPolicy
@@ -1326,7 +1328,7 @@ class DistinctPatientReport(Report):
 
     # noinspection PyProtectedMember
     def get_query(self, req: "CamcopsRequest") -> SelectBase:
-        select_fields = [
+        select_fields: list[ColumnElement[Any]] = [
             Patient.surname.label("surname"),
             Patient.forename.label("forename"),
             Patient.dob.label("dob"),

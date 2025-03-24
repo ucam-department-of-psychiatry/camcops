@@ -33,7 +33,7 @@ it caches ``is_complete()`` information).
 
 import datetime
 import logging
-from typing import List, Optional, Type, TYPE_CHECKING
+from typing import Any, List, Optional, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.datetimefunc import pendulum_to_datetime
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -79,6 +79,8 @@ from camcops_server.cc_modules.cc_task import (
 from camcops_server.cc_modules.cc_user import User
 
 if TYPE_CHECKING:
+    from sqlalchemy.sql.elements import ColumnElement
+
     from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -431,6 +433,14 @@ class PatientIdNumIndexEntry(Base):
         # Create the new
         addition_pks = tablechanges.idnum_add_index_pks
         if addition_pks:
+            select_fields: list[ColumnElement[Any]] = [
+                idnumcols._pk,
+                literal(indexed_at_utc),
+                patientcols._pk,
+                idnumcols.which_idnum,
+                idnumcols.idnum_value,
+            ]
+
             log.debug("Adding ID number indexes: server PKs {}", addition_pks)
             # noinspection PyPep8,PyProtectedMember
             session.execute(
@@ -445,15 +455,7 @@ class PatientIdNumIndexEntry(Base):
                     ],
                     # Source:
                     (
-                        select(
-                            [
-                                idnumcols._pk,
-                                literal(indexed_at_utc),
-                                patientcols._pk,
-                                idnumcols.which_idnum,
-                                idnumcols.idnum_value,
-                            ]
-                        )
+                        select(select_fields)
                         .select_from(
                             join(
                                 idnumtable,
