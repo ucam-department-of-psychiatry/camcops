@@ -27,7 +27,7 @@ ACE-III and Mini-ACE.
 
 """
 
-from typing import Any, cast, Iterable, List, Optional, Type, TYPE_CHECKING
+from typing import Any, cast, Iterable, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 import cardinal_pythonlib.rnc_web as ws
@@ -36,6 +36,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Integer, String, UnicodeText
 
 from camcops_server.cc_modules.cc_blob import (
+    Blob,
     blob_relationship,
     get_blob_img_html,
 )
@@ -66,9 +67,6 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasPatientMixin,
 )
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
-
-if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_blob import Blob
 
 
 # =============================================================================
