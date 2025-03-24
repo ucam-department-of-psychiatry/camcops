@@ -44,7 +44,7 @@ from fhirclient.models.condition import Condition
 import hl7
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
-from sqlalchemy import Select
+from sqlalchemy import CompoundSelect, Select
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.expression import (
     and_,
@@ -528,7 +528,7 @@ def get_diagnosis_report_query(
     system: str,
 ) -> Select[Any]:
     # SELECT surname, forename, dob, sex, ...
-    select_fields = [
+    select_fields: list[ColumnElement[Any]] = [
         Patient.surname.label("surname"),
         Patient.forename.label("forename"),
         Patient.dob.label("dob"),
@@ -695,7 +695,7 @@ class DiagnosisAllReport(Report):
     def superuser_only(cls) -> bool:
         return False
 
-    def get_query(self, req: CamcopsRequest) -> Select[Any]:
+    def get_query(self, req: CamcopsRequest) -> CompoundSelect[Any]:
         sql_icd9cm = get_diagnosis_report_query(
             req,
             diagnosis_class=DiagnosisIcd9CM,
@@ -828,7 +828,7 @@ def get_diagnosis_inc_exc_report_query(
     # The basics:
     desc = req.get_id_desc(which_idnum) or "BAD_IDNUM"
     # noinspection PyUnresolvedReferences
-    select_fields = [
+    select_fields: list[ColumnElement[Any]] = [
         Patient.surname.label("surname"),
         Patient.forename.label("forename"),
         Patient.dob.label("dob"),
