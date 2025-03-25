@@ -178,7 +178,7 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         """
         return hash(self.__members())
 
-    def __eq__(self, other: "PatientIdNum") -> bool:
+    def __eq__(self, other: object) -> bool:
         """
         Do ``self`` and ``other`` represent the same ID number?
 
@@ -193,12 +193,11 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
                 self.idnum_value is not None
             )
         """
+        if not isinstance(other, PatientIdNum):
+            return NotImplemented
+
         sm = self.__members()
-        return (
-            type(self) is type(other)
-            and (None not in sm)
-            and sm == other.__members()
-        )
+        return (None not in sm) and sm == other.__members()
 
     # -------------------------------------------------------------------------
     # Validity

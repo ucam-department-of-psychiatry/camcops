@@ -226,6 +226,7 @@ server/camcops_server
     cc_modules/tests/cc_forms_tests.py.rst
     cc_modules/tests/cc_hl7_tests.py.rst
     cc_modules/tests/cc_patient_tests.py.rst
+    cc_modules/tests/cc_patientidnum_tests.py.rst
     cc_modules/tests/cc_policy_tests.py.rst
     cc_modules/tests/cc_proquint_tests.py.rst
     cc_modules/tests/cc_pyramid_tests.py.rst
