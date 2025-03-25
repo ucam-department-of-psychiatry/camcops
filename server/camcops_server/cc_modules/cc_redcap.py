@@ -666,7 +666,7 @@ class RedcapUploader(object):
         return new_record_id
 
     def upload_record(
-        self, record: Dict[str, Any], **kwargs
+        self, record: Dict[str, Any], **kwargs: Any
     ) -> Union[Dict, List, str]:
         """
         Uploads a REDCap record via the pycap
