@@ -25,7 +25,7 @@ camcops_server/tasks/hamd.py
 
 """
 
-from typing import Any, List, Optional, Type
+from typing import Any, List, Optional, Type, Union
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.orm import Mapped, MappedColumn
@@ -317,7 +317,7 @@ class Hamd(
                     return False
         return True
 
-    def total_score(self) -> int:
+    def total_score(self) -> Union[int, float]:
         total = 0
         for i in range(1, self.NSCOREDQUESTIONS + 1):
             if i == 16:
