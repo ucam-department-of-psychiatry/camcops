@@ -1682,7 +1682,7 @@ def send_athena_icd_snomed_to_xml(
     athena_concept_tsv_filename: str,
     athena_concept_relationship_tsv_filename: str,
     icd9_xml_filename: str,
-    icd10_xml_filename,
+    icd10_xml_filename: str,
 ) -> None:
     """
     Reads SNOMED-CT codes for ICD-9-CM and ICD10 from Athena OHDSI files, and
