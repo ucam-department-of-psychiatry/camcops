@@ -515,7 +515,7 @@ class Task(GenericTabletRecordMixin, Base):
 
     # noinspection PyMethodParameters
     @declared_attr.directive
-    def __mapper_args__(cls):
+    def __mapper_args__(cls) -> dict[str, Any]:
         return {"polymorphic_identity": cls.__name__, "concrete": True}
 
     # =========================================================================
@@ -2986,7 +2986,7 @@ class Task(GenericTabletRecordMixin, Base):
         """
 
         try:
-            client_id = self.patient.get_idnum_value(which_idnum)
+            client_id = str(self.patient.get_idnum_value(which_idnum))
         except AttributeError:
             client_id = ""
         title = "CamCOPS_" + self.shortname
