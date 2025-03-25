@@ -38,7 +38,9 @@ from typing import Generator, TYPE_CHECKING
 import pytest
 from sqlalchemy import event, MetaData
 from sqlalchemy.engine import create_engine
+from sqlalchemy.interfaces import DBAPIConnection
 from sqlalchemy.orm import Session
+from sqlalchemy.pool import ConnectionPoolEntry
 
 import camcops_server.cc_modules.cc_all_models  # noqa: F401
 
@@ -66,7 +68,7 @@ TEST_DATABASE_FILENAME = os.path.join(
 )
 
 
-def pytest_addoption(parser: "Parser"):
+def pytest_addoption(parser: "Parser") -> None:
     parser.addoption(
         "--database-in-memory",
         action="store_false",
@@ -112,7 +114,9 @@ def pytest_addoption(parser: "Parser"):
 
 
 # noinspection PyUnusedLocal
-def set_sqlite_pragma(dbapi_connection, connection_record):
+def set_sqlite_pragma(
+    dbapi_connection: DBAPIConnection, connection_record: ConnectionPoolEntry
+):
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
@@ -124,7 +128,7 @@ def database_on_disk(request: "FixtureRequest") -> bool:
 
 
 @pytest.fixture(scope="session")
-def create_db(request: "FixtureRequest", database_on_disk) -> bool:
+def create_db(request: "FixtureRequest", database_on_disk: bool) -> bool:
     if not database_on_disk:
         return True
 
@@ -210,7 +214,7 @@ def engine(
     engine.dispose()
 
 
-def create_engine_mysql(db_url: str, create_db: bool, echo: bool):
+def create_engine_mysql(db_url: str, create_db: bool, echo: bool) -> Engine:
 
     # The database and the user with the given password from db_url
     # need to exist.
@@ -225,7 +229,9 @@ def create_engine_mysql(db_url: str, create_db: bool, echo: bool):
     return engine
 
 
-def create_engine_sqlite(create_db: bool, echo: bool, database_on_disk: bool):
+def create_engine_sqlite(
+    create_db: bool, echo: bool, database_on_disk: bool
+) -> Engine:
     if create_db and database_on_disk:
         try:
             os.remove(TEST_DATABASE_FILENAME)
