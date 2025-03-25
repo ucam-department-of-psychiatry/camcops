@@ -26,7 +26,7 @@ camcops_server/tasks/phq8.py
 """
 
 import logging
-from typing import Any, Dict, List, Type
+from typing import Any, Dict, List, Type, Union
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Boolean, Integer
@@ -202,7 +202,7 @@ class Phq8(
             ),
         ]
 
-    def total_score(self) -> int:
+    def total_score(self) -> Union[int, float]:
         return self.sum_fields(self.QUESTIONS)
 
     def reaches_threshold(self, qnum: int) -> int:
