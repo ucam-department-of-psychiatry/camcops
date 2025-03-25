@@ -124,7 +124,7 @@ def table(content: str, table_class: str = "") -> str:
     """
 
 
-def tr(*args, tr_class: str = "", literal: bool = False) -> str:
+def tr(*args: Any, tr_class: str = "", literal: bool = False) -> str:
     """
     Make simple HTML table data row.
 
