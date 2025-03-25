@@ -25,7 +25,7 @@ camcops_server/tasks/wemwbs.py
 
 """
 
-from typing import Any, List, Type
+from typing import Any, List, Type, Union
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -142,7 +142,7 @@ class Wemwbs(
             )
         ]
 
-    def total_score(self) -> int:
+    def total_score(self) -> Union[int, float]:
         return self.sum_fields(self.TASK_FIELDS)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
@@ -318,7 +318,7 @@ class Swemwbs(
             )
         ]
 
-    def total_score(self) -> int:
+    def total_score(self) -> Union[int, float]:
         return self.sum_fields(self.TASK_FIELDS)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
