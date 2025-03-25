@@ -498,7 +498,7 @@ class User(Base):
     upload_group: Mapped[Optional[Group]] = relationship(
         "Group", foreign_keys=[upload_group_id]
     )
-    single_patient: Mapped[Optional[Patient]] = relationship(
+    single_patient: Mapped[Optional["Patient"]] = relationship(
         "Patient", foreign_keys=[single_patient_pk]
     )
 
