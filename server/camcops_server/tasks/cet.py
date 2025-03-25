@@ -209,7 +209,7 @@ class Cet(
         ]
 
     def subscale_comment(
-        self, n: int, full=True, description: str = ""
+        self, n: int, full: bool = True, description: str = ""
     ) -> str:
         """
         Returns a comment describing the subscale.
@@ -329,7 +329,7 @@ class Cet(
     def subscale_5_rigidity(self) -> float:
         return self.mean_score(self.Q_SUBSCALE_5_EX_RIGIDITY)
 
-    def total_score(self) -> int:
+    def total_score(self) -> Union[int, float]:
         return self.sum_values(
             [
                 self.subscale_1_avoidance_rule_based(),
@@ -341,7 +341,7 @@ class Cet(
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        answerdict = {None: None}
+        answerdict: dict[Optional[int], Optional[str]] = {None: None}
         for a in range(self.MIN_ANSWER, self.MAX_ANSWER + 1):
             answerdict[a] = f"{a}: " + self.wxstring(req, f"a{a}")
         q_a = ""
