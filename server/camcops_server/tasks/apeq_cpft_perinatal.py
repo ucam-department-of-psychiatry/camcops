@@ -25,7 +25,7 @@ camcops_server/tasks/apeq_cpft_perinatal.py
 
 """
 
-from typing import Dict, List, Optional, Tuple, Type
+from typing import Any, Dict, List, Optional, Tuple, Type
 
 from cardinal_pythonlib.classes import classproperty
 
@@ -197,7 +197,7 @@ class APEQCPFTPerinatalReport(
 
     COL_FF_WHY = 1
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.task = APEQCPFTPerinatal()  # dummy task, never written to DB
 
