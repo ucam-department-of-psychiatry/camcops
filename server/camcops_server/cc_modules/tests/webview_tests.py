@@ -1376,7 +1376,7 @@ class AddPatientViewTests(BasicDatabaseTestCase):
         )
 
     def test_patient_takes_next_available_id(self) -> None:
-        patient = ServerCreatedPatientFactory(id=1234)
+        ServerCreatedPatientFactory(id=1234)
         nhs_iddef = NHSIdNumDefinitionFactory()
 
         view = AddPatientView(self.req)

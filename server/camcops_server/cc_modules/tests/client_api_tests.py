@@ -323,7 +323,7 @@ class OpRegisterPatientTests(ClientApiTestCase):
             self.device.name, self.patient._pk
         )
 
-        user = UserFactory(
+        UserFactory(
             username=single_user_username,
             password="old password",
             password__request=self.req,
