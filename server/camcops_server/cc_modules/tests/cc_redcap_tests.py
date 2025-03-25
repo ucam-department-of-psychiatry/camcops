@@ -872,7 +872,9 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
         # We can't just look at the call_args on the mock object because
         # the file will already have been closed by then
         # noinspection PyUnusedLocal
-        def read_pdf_bytes(*import_file_args, **import_file_kwargs) -> None:
+        def read_pdf_bytes(
+            *import_file_args: Any, **import_file_kwargs: Any
+        ) -> None:
             # record, field, fname, fobj
             file_obj = import_file_args[3]
             read_pdf_bytes.pdf_header = file_obj.read(5)
