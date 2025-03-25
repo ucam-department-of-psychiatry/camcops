@@ -219,12 +219,8 @@ class Email(Base):
         # -------------------------------------------------------------------------
         if not date:
             date = email.utils.format_datetime(now_local)
-        attachment_filenames = (
-            attachment_filenames or []
-        )  # type: Sequence[str]
-        attachments_binary = (
-            attachments_binary or []
-        )  # type: Sequence[Tuple[str, bytes]]
+        attachment_filenames = attachment_filenames or []
+        attachments_binary = attachments_binary or []
         if attachments_binary:
             attachment_binary_filenames, attachment_binaries = zip(
                 *attachments_binary
