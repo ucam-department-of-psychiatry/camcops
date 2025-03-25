@@ -25,7 +25,7 @@ camcops_server/tasks/ybocs.py
 
 """
 
-from typing import Any, List, Type
+from typing import Any, List, Type, Union
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.schema import Column
@@ -210,13 +210,13 @@ class Ybocs(
             )
         ]
 
-    def total_score(self) -> int:
+    def total_score(self) -> Union[int, float]:
         return self.sum_fields(self.SCORED_QUESTIONS)
 
-    def obsession_score(self) -> int:
+    def obsession_score(self) -> Union[int, float]:
         return self.sum_fields(self.OBSESSION_QUESTIONS)
 
-    def compulsion_score(self) -> int:
+    def compulsion_score(self) -> Union[int, float]:
         return self.sum_fields(self.COMPULSION_QUESTIONS)
 
     def is_complete(self) -> bool:
