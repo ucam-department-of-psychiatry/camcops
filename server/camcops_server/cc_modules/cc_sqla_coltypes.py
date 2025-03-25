@@ -933,7 +933,7 @@ class PendulumDurationAsIsoTextColType(TypeDecorator):
 
     def process_result_value(
         self, value: Optional[str], dialect: Dialect
-    ) -> Optional[Pendulum]:
+    ) -> Optional[Duration]:
         """
         Convert things on the way from the database to Python.
         """
@@ -1444,14 +1444,14 @@ COLATTR_PERMITTED_VALUE_CHECKER = "permitted_value_checker"
 
 
 def camcops_column(
-    *args,
+    *args: Any,
     include_in_anon_staging_db: bool = False,
     exempt_from_anonymisation: bool = False,
     identifies_patient: bool = False,
     is_blob_id_field: bool = False,
     blob_relationship_attr_name: str = "",
     permitted_value_checker: PermittedValueChecker = None,
-    **kwargs,
+    **kwargs: Any,
 ) -> Column[Any]:
     """
     Args:
