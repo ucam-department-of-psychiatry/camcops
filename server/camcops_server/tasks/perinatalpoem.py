@@ -26,11 +26,12 @@ camcops_server/tasks/perinatalpoem.py
 """
 
 import re
-from typing import Dict, List, Optional, Tuple, Type
+from typing import Any, Dict, List, Optional, Tuple, Type
 
 from cardinal_pythonlib.classes import classproperty
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
+from sqlalchemy import Select
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.expression import and_, column, select
 from sqlalchemy.sql.sqltypes import UnicodeText
@@ -525,7 +526,7 @@ class PerinatalPoemReport(
 
     HTML_TAG_RE = re.compile(r"<[^>]+>")
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self.task = PerinatalPoem()  # dummy task, never written to DB
 
@@ -710,7 +711,7 @@ class PerinatalPoemReport(
         self.add_task_report_filters(wheres)
 
         # noinspection PyUnresolvedReferences
-        query = (
+        query: Select[Any] = (
             select(column("general_comments"))
             .select_from(self.task.__table__)
             .where(and_(*wheres))
