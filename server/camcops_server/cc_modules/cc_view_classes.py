@@ -610,7 +610,7 @@ class FormWizardMixin(with_typehints(FormMixin, ProcessFormView)):
     wizard_templates: Dict[str, str] = {}
     wizard_extra_contexts: Dict[str, Dict[str, Any]] = {}
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """
         We prevent stale state from messing things up by clearing state when a
         form sequence starts. Form sequences start with HTTP GET and proceed
