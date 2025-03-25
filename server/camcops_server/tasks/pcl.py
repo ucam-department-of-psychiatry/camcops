@@ -26,7 +26,7 @@ camcops_server/tasks/pcl.py
 """
 
 from abc import ABC
-from typing import Any, List, Optional, Type
+from typing import Any, List, Optional, Type, Union
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.orm import Mapped, mapped_column
@@ -111,7 +111,7 @@ class PclCommon(TaskHasPatientMixin, Task, ABC):
             and self.field_contents_valid()
         )
 
-    def total_score(self) -> int:
+    def total_score(self) -> Union[int, float]:
         return self.sum_fields(self.SCORED_FIELDS)
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
@@ -211,7 +211,7 @@ class PclCommon(TaskHasPatientMixin, Task, ABC):
         num_symptomatic_c = self.num_symptomatic_c()
         num_symptomatic_d = self.num_symptomatic_d()
         ptsd = self.ptsd()
-        answer_dict = {None: None}
+        answer_dict: dict[Optional[int], Optional[str]] = {None: None}
         for option in range(1, 6):
             answer_dict[option] = (
                 str(option)
