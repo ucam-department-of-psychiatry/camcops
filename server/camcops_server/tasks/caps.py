@@ -25,7 +25,7 @@ camcops_server/tasks/caps.py
 
 """
 
-from typing import Any, List, Type
+from typing import Any, List, Type, Union
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -213,7 +213,7 @@ class Caps(
     def total_score(self) -> int:
         return self.count_booleans(self.ENDORSE_FIELDS)
 
-    def distress_score(self) -> int:
+    def distress_score(self) -> Union[int, float]:
         score = 0
         for q in range(1, Caps.NQUESTIONS + 1):
             if (
@@ -223,7 +223,7 @@ class Caps(
                 score += self.sum_fields(["distress" + str(q)])
         return score
 
-    def intrusiveness_score(self) -> int:
+    def intrusiveness_score(self) -> Union[int, float]:
         score = 0
         for q in range(1, Caps.NQUESTIONS + 1):
             if (
@@ -233,7 +233,7 @@ class Caps(
                 score += self.sum_fields(["intrusiveness" + str(q)])
         return score
 
-    def frequency_score(self) -> int:
+    def frequency_score(self) -> Union[int, float]:
         score = 0
         for q in range(1, Caps.NQUESTIONS + 1):
             if (
