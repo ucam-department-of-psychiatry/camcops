@@ -25,7 +25,7 @@ camcops_server/tasks/bprs.py
 
 """
 
-from typing import Any, List, Type
+from typing import Any, List, Type, Union
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -147,7 +147,7 @@ class Bprs(
             and self.field_contents_valid()
         )
 
-    def total_score(self) -> int:
+    def total_score(self) -> Union[int, float]:
         return self.sum_fields(Bprs.SCORED_FIELDS, ignorevalues=[0, None])
         # "0" means "not rated"
 
