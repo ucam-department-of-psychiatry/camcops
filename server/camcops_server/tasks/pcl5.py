@@ -25,7 +25,7 @@ camcops_server/tasks/pcl5.py
 
 """
 
-from typing import Any, List, Type
+from typing import Any, List, Optional, Union, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
@@ -133,7 +133,7 @@ class Pcl5(
             and self.field_contents_valid()
         )
 
-    def total_score(self) -> int:
+    def total_score(self) -> Union[int, float]:
         return self.sum_fields(self.SCORED_FIELDS)
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
@@ -263,7 +263,7 @@ class Pcl5(
         num_symptomatic_d = self.num_symptomatic_d()
         num_symptomatic_e = self.num_symptomatic_e()
         ptsd = self.ptsd()
-        answer_dict = {None: None}
+        answer_dict: dict[Optional[int], Optional[str]] = {None: None}
         for option in range(5):
             answer_dict[option] = (
                 str(option) + " – " + self.wxstring(req, "a" + str(option))
