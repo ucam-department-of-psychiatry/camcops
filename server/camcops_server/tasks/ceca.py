@@ -1389,7 +1389,7 @@ class CecaQ3(TaskHasPatientMixin, Task):
             return False
         return True
 
-    def complete_3a(self):
+    def complete_3a(self) -> bool:
         if self.s3a_which_father_figure is None:
             return False
         if self.s3a_which_father_figure == 0:
