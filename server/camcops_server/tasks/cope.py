@@ -25,7 +25,7 @@ camcops_server/tasks/cope.py
 
 """
 
-from typing import Any, List, Optional, Type
+from typing import Any, List, Optional, Type, Union
 
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
@@ -248,46 +248,46 @@ class CopeBrief(
             and self.field_contents_valid()
         )
 
-    def self_distraction(self) -> int:
+    def self_distraction(self) -> Union[int, float]:
         return self.sum_fields(["q1", "q19"])
 
-    def active_coping(self) -> int:
+    def active_coping(self) -> Union[int, float]:
         return self.sum_fields(["q2", "q7"])
 
-    def denial(self) -> int:
+    def denial(self) -> Union[int, float]:
         return self.sum_fields(["q3", "q8"])
 
-    def substance_use(self) -> int:
+    def substance_use(self) -> Union[int, float]:
         return self.sum_fields(["q4", "q11"])
 
-    def emotional_support(self) -> int:
+    def emotional_support(self) -> Union[int, float]:
         return self.sum_fields(["q5", "q15"])
 
-    def instrumental_support(self) -> int:
+    def instrumental_support(self) -> Union[int, float]:
         return self.sum_fields(["q10", "q23"])
 
-    def behavioural_disengagement(self) -> int:
+    def behavioural_disengagement(self) -> Union[int, float]:
         return self.sum_fields(["q6", "q16"])
 
-    def venting(self) -> int:
+    def venting(self) -> Union[int, float]:
         return self.sum_fields(["q9", "q21"])
 
-    def positive_reframing(self) -> int:
+    def positive_reframing(self) -> Union[int, float]:
         return self.sum_fields(["q12", "q17"])
 
-    def planning(self) -> int:
+    def planning(self) -> Union[int, float]:
         return self.sum_fields(["q14", "q25"])
 
-    def humour(self) -> int:
+    def humour(self) -> Union[int, float]:
         return self.sum_fields(["q18", "q28"])
 
-    def acceptance(self) -> int:
+    def acceptance(self) -> Union[int, float]:
         return self.sum_fields(["q20", "q24"])
 
-    def religion(self) -> int:
+    def religion(self) -> Union[int, float]:
         return self.sum_fields(["q22", "q27"])
 
-    def self_blame(self) -> int:
+    def self_blame(self) -> Union[int, float]:
         return self.sum_fields(["q13", "q26"])
 
     def get_task_html(self, req: CamcopsRequest) -> str:
