@@ -25,7 +25,7 @@ camcops_server/tasks/pdss.py
 
 """
 
-from typing import Any, List, Type
+from typing import Any, List, Type, Union
 
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.stringfunc import strseq
@@ -137,10 +137,10 @@ class Pdss(
             )
         ]
 
-    def total_score(self) -> int:
+    def total_score(self) -> Union[int, float]:
         return self.sum_fields(self.QUESTION_FIELDS)
 
-    def composite_score(self) -> int:
+    def composite_score(self) -> Union[int, float]:
         return self.mean_fields(self.QUESTION_FIELDS)
 
     def is_complete(self) -> bool:
