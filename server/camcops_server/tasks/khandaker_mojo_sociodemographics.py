@@ -25,7 +25,7 @@ camcops_server/tasks/khandaker_mojo_sociodemographics.py
 
 """
 
-from typing import Optional, Type
+from typing import Any, Optional, Type
 
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
@@ -90,7 +90,7 @@ class KhandakerMojoSociodemographics(
 
     @classmethod
     def extend_table(
-        cls: Type["KhandakerMojoSociodemographics"], **kwargs
+        cls: Type["KhandakerMojoSociodemographics"], **kwargs: Any
     ) -> None:
         setattr(
             cls,
@@ -297,7 +297,7 @@ class KhandakerMojoSociodemographics(
 
         return f"{answer} — {answer_text}"
 
-    def answered_other(self, field_name: str):
+    def answered_other(self, field_name: str) -> bool:
         if field_name not in self.OTHER_ANSWER_VALUES:
             return False
 
