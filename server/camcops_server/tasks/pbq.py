@@ -25,7 +25,7 @@ camcops_server/tasks/pbq.py
 
 """
 
-from typing import Any, List, Type
+from typing import Any, List, Type, Union
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strnumlist, strseq
@@ -225,19 +225,19 @@ class Pbq(
             )
         ]
 
-    def total_score(self) -> int:
+    def total_score(self) -> Union[int, float]:
         return self.sum_fields(self.QUESTION_FIELDS)
 
-    def factor_1_score(self) -> int:
+    def factor_1_score(self) -> Union[int, float]:
         return self.sum_fields(self.FACTOR_1_F)
 
-    def factor_2_score(self) -> int:
+    def factor_2_score(self) -> Union[int, float]:
         return self.sum_fields(self.FACTOR_2_F)
 
-    def factor_3_score(self) -> int:
+    def factor_3_score(self) -> Union[int, float]:
         return self.sum_fields(self.FACTOR_3_F)
 
-    def factor_4_score(self) -> int:
+    def factor_4_score(self) -> Union[int, float]:
         return self.sum_fields(self.FACTOR_4_F)
 
     def is_complete(self) -> bool:
