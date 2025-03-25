@@ -417,7 +417,7 @@ class Aq(
 
     def get_task_html_rows_for_range(
         self, req: CamcopsRequest, first_q: int, last_q: int
-    ):
+    ) -> str:
         rows = ""
         for q_num in range(first_q, last_q + 1):
             field = self.PREFIX + str(q_num)
