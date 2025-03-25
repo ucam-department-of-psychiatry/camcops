@@ -284,7 +284,7 @@ class TaskFilter(Base):
         self._task_classes = None  # type: Optional[List[Type[Task]]]
 
     @reconstructor
-    def init_on_load(self):
+    def init_on_load(self) -> None:
         """
         SQLAlchemy function to recreate after loading from the database.
         """
