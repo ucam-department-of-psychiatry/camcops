@@ -345,7 +345,7 @@ class CbiR(
         heading_motor = self.wxstring(req, "h_stereotypy_motor")
         heading_motivation = self.wxstring(req, "h_motivation")
 
-        def get_question_rows(first, last):
+        def get_question_rows(first: int, last: int) -> str:
             html = ""
             for q in range(first, last + 1):
                 f = getattr(self, "frequency" + str(q))
