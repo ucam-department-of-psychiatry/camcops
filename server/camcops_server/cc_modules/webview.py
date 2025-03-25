@@ -661,7 +661,7 @@ class MfaMixin(FormWizardMixin):
     KEY_INSTRUCTIONS = "instructions"
     KEY_MFA_TIME = "mfa_time"
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self._mfa_user: Optional[User] = None
         super().__init__(*args, **kwargs)
 
@@ -910,7 +910,7 @@ class LoggedInUserMfaMixin(MfaMixin):
     (everything except :class:`LoginView`).
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.mfa_user = self.request.user
 
@@ -956,7 +956,7 @@ class LoginView(MfaMixin, FormView):
         MfaMixin.STEP_MFA: "login_token.mako",
     }
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     # -------------------------------------------------------------------------
@@ -6098,7 +6098,7 @@ class SendPatientEmailBaseView(FormView):
     form_class = SendEmailForm
     template_name = "send_patient_email.mako"
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self._pts = None
 
         super().__init__(*args, **kwargs)
