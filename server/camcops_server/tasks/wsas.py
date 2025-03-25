@@ -25,7 +25,7 @@ camcops_server/tasks/wsas.py
 
 """
 
-from typing import Any, List, Optional, Type
+from typing import Any, List, Optional, Type, Union
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.orm import Mapped, mapped_column
@@ -137,7 +137,7 @@ class Wsas(
             )
         ]
 
-    def total_score(self) -> int:
+    def total_score(self) -> Union[float, int]:
         return self.sum_fields(
             self.Q2_TO_END if self.retired_etc else self.QUESTION_FIELDS
         )
@@ -154,7 +154,7 @@ class Wsas(
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        option_dict = {None: None}
+        option_dict: dict[Optional[int], Optional[str]] = {None: None}
         for a in range(self.MIN_PER_Q, self.MAX_PER_Q + 1):
             option_dict[a] = req.wappstring(AS.WSAS_A_PREFIX + str(a))
         q_a = ""
