@@ -41,7 +41,7 @@ configuration).
 import io
 import logging
 import tokenize
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from cardinal_pythonlib.dicts import reversedict
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -203,7 +203,7 @@ def quad_or(x: QuadState, y: QuadState) -> QuadState:
 
 
 def debug_wrapper(fn: Callable, name: str) -> Callable:
-    def wrap(*args, **kwargs) -> QuadState:
+    def wrap(*args: Any, **kwargs: Any) -> QuadState:
         result = fn(*args, **kwargs)
         arglist = [str(x) for x in args] + [
             f"{k}={v}" for k, v in kwargs.items()
