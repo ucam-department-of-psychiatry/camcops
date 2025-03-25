@@ -67,7 +67,7 @@ from camcops_server.tasks.tests.factories import (
 
 
 class MockProject(mock.Mock):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
         self.export_project_info = mock.Mock()
@@ -738,9 +738,6 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
   </instruments>
 </fieldmap>"""  # noqa: E501
 
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
     def setUp(self) -> None:
         super().setUp()
 
@@ -841,7 +838,7 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
   </instruments>
 </fieldmap>"""  # noqa: E501
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.id_sequence = self.get_id()
 
@@ -929,9 +926,6 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
   </instruments>
 </fieldmap>
 """  # noqa: E501
-
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
 
     def setUp(self) -> None:
         super().setUp()
@@ -1029,9 +1023,6 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
 
 
 class BadConfigurationRedcapTests(RedcapExportTestCase):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
     def setUp(self) -> None:
         super().setUp()
 
