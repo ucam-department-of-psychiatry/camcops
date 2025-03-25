@@ -25,7 +25,7 @@ camcops_server/tasks/phq15.py
 
 """
 
-from typing import Any, List, Type
+from typing import Any, List, Optional, Type, Union
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -169,7 +169,7 @@ class Phq15(
             ),
         ]
 
-    def total_score(self) -> int:
+    def total_score(self) -> Union[int, float]:
         return self.sum_fields(self.TASK_FIELDS)
 
     def num_severe(self) -> int:
@@ -196,7 +196,7 @@ class Phq15(
         nsevere = self.num_severe()
         somatoform_likely = nsevere >= 3
         severity = self.severity(req)
-        answer_dict = {None: None}
+        answer_dict: dict[Optional[int], Optional[str]] = {None: None}
         for option in range(0, 3):
             answer_dict[option] = (
                 str(option) + " – " + self.wxstring(req, "a" + str(option))
