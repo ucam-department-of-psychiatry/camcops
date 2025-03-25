@@ -214,7 +214,7 @@ def engine(
     engine.dispose()
 
 
-def create_engine_mysql(db_url: str, create_db: bool, echo: bool) -> Engine:
+def create_engine_mysql(db_url: str, create_db: bool, echo: bool) -> "Engine":
 
     # The database and the user with the given password from db_url
     # need to exist.
@@ -231,7 +231,7 @@ def create_engine_mysql(db_url: str, create_db: bool, echo: bool) -> Engine:
 
 def create_engine_sqlite(
     create_db: bool, echo: bool, database_on_disk: bool
-) -> Engine:
+) -> "Engine":
     if create_db and database_on_disk:
         try:
             os.remove(TEST_DATABASE_FILENAME)
