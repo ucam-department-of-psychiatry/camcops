@@ -182,7 +182,7 @@ def consistency_idnums(
             if idnum_value is not None:
                 which_idnum = idnum.which_idnum
                 if which_idnum not in known:
-                    known[which_idnum] = set()  # type: Set[int]
+                    known[which_idnum] = set()
                 known[which_idnum].add(idnum_value)
 
     # 2. For every observed which_idnum, was it observed in all tasks?
