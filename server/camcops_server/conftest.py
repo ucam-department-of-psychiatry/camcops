@@ -38,7 +38,7 @@ from typing import Generator, TYPE_CHECKING
 import pytest
 from sqlalchemy import event, MetaData
 from sqlalchemy.engine import create_engine
-from sqlalchemy.interfaces import DBAPIConnection
+from sqlalchemy.engine.interfaces import DBAPIConnection
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import ConnectionPoolEntry
 
@@ -116,7 +116,7 @@ def pytest_addoption(parser: "Parser") -> None:
 # noinspection PyUnusedLocal
 def set_sqlite_pragma(
     dbapi_connection: DBAPIConnection, connection_record: ConnectionPoolEntry
-):
+) -> None:
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
