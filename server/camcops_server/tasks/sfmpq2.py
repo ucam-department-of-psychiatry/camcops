@@ -40,7 +40,7 @@ from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, Task
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy import Float, Integer
-from typing import Any, List, Type
+from typing import Any, List, Optional, Type
 
 
 class Sfmpq2(
@@ -176,7 +176,7 @@ class Sfmpq2(
     def affective_pain(self) -> float:
         return self.mean_fields(self.AFFECTIVE_PAIN_QUESTIONS)
 
-    def format_average(self, value) -> str:
+    def format_average(self, value: Optional[float]) -> str:
         return "{} / {}".format(
             answer(ws.number_to_dp(value, 3, default="?")),
             self.MAX_SCORE_PER_Q,
