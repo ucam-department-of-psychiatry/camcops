@@ -31,7 +31,7 @@ from camcops_server.tasks.edeq import Edeq
 
 
 class EdeqTests(TestCase):
-    def test_restraint_subscale(self):
+    def test_restraint_subscale(self) -> None:
         edeq = Edeq()
 
         edeq.q1 = 1
@@ -45,7 +45,7 @@ class EdeqTests(TestCase):
 
         self.assertEqual(edeq.restraint(), 3.2)
 
-    def test_subscale_none_if_answer_none(self):
+    def test_subscale_none_if_answer_none(self) -> None:
         edeq = Edeq()
 
         edeq.q1 = None
@@ -56,7 +56,7 @@ class EdeqTests(TestCase):
 
         self.assertIsNone(edeq.restraint())
 
-    def test_eating_concern_subscale(self):
+    def test_eating_concern_subscale(self) -> None:
         edeq = Edeq()
 
         edeq.q7 = 1
@@ -70,7 +70,7 @@ class EdeqTests(TestCase):
 
         self.assertEqual(edeq.eating_concern(), 3.2)
 
-    def test_shape_concern_subscale(self):
+    def test_shape_concern_subscale(self) -> None:
         edeq = Edeq()
 
         edeq.q6 = 1
@@ -87,7 +87,7 @@ class EdeqTests(TestCase):
 
         self.assertEqual(edeq.shape_concern(), 3.5)
 
-    def test_weight_concern_subscale(self):
+    def test_weight_concern_subscale(self) -> None:
         edeq = Edeq()
 
         edeq.q8 = 1
