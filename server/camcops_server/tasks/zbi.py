@@ -25,7 +25,7 @@ camcops_server/tasks/zbi.py
 
 """
 
-from typing import Any, List, Type
+from typing import Any, List, Optional, Type, Union
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -124,7 +124,7 @@ class Zbi12(
             )
         ]
 
-    def total_score(self) -> int:
+    def total_score(self) -> Union[int, float]:
         return self.sum_fields(self.TASK_FIELDS)
 
     def is_complete(self) -> bool:
@@ -135,7 +135,7 @@ class Zbi12(
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        option_dict = {None: None}
+        option_dict: dict[Optional[int], Optional[str]] = {None: None}
         for a in range(self.MIN_PER_Q, self.MAX_PER_Q + 1):
             option_dict[a] = req.wappstring(AS.ZBI_A_PREFIX + str(a))
         h = f"""
