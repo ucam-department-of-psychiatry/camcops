@@ -40,6 +40,8 @@ from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 class IsaaqCommon(TaskHasPatientMixin, Task):
     __abstract__ = True
 
+    ALL_FIELD_NAMES: list[str] = []
+
     def is_complete(self) -> bool:
         # noinspection PyUnresolvedReferences
         if self.any_fields_none(self.ALL_FIELD_NAMES):
