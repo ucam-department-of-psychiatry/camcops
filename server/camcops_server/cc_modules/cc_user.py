@@ -30,7 +30,7 @@ camcops_server/cc_modules/cc_user.py
 import datetime
 import logging
 import re
-from typing import List, Optional, Set, Tuple, TYPE_CHECKING
+from typing import Any, List, Optional, Set, Tuple, TYPE_CHECKING
 
 import cardinal_pythonlib.crypto as rnc_crypto
 from cardinal_pythonlib.datetimefunc import convert_datetime_to_local
@@ -491,24 +491,22 @@ class User(Base):
     # Relationships
     # -------------------------------------------------------------------------
 
-    user_group_memberships = relationship(
+    user_group_memberships: Mapped[list[UserGroupMembership]] = relationship(
         "UserGroupMembership", back_populates="user"
-    )  # type: _TYPE_LUGM
-    groups = association_proxy(
-        "user_group_memberships", "group"
-    )  # type: List[Group]
-    upload_group = relationship(
+    )
+    groups = association_proxy("user_group_memberships", "group")
+    upload_group: Mapped[Optional[Group]] = relationship(
         "Group", foreign_keys=[upload_group_id]
-    )  # type: Optional[Group]
-    single_patient = relationship(
+    )
+    single_patient: Mapped[Optional[Patient]] = relationship(
         "Patient", foreign_keys=[single_patient_pk]
-    )  # type: Optional[Patient]
+    )
 
     # -------------------------------------------------------------------------
     # __init__
     # -------------------------------------------------------------------------
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         # Prevent Python None from being converted to database string 'none'.
         self.mfa_method = kwargs.get("mfa_method", MfaMethod.NO_MFA)
