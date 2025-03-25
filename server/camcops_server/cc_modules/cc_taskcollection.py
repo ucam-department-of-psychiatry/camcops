@@ -33,6 +33,7 @@ from enum import Enum
 import logging
 from threading import Thread
 from typing import (
+    Any,
     Dict,
     Generator,
     List,
@@ -170,7 +171,7 @@ class FetchThread(Thread):
         req: "CamcopsRequest",
         task_class: Type[Task],
         factory: "TaskCollection",
-        **kwargs
+        **kwargs: Any
     ) -> None:
         self.req = req
         self.task_class = task_class
