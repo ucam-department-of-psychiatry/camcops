@@ -27,6 +27,11 @@ camcops_server/tasks/suppsp.py
 
 """
 
+from typing import Any, List, Type, Union
+
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy import Integer
+
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa, tr, answer
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -42,9 +47,6 @@ from camcops_server.cc_modules.cc_task import (
     get_from_dict,
 )
 from camcops_server.cc_modules.cc_text import SS
-from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy import Integer
-from typing import Any, List, Type
 
 
 class Suppsp(
@@ -181,22 +183,22 @@ class Suppsp(
             return False
         return True
 
-    def total_score(self) -> int:
+    def total_score(self) -> Union[int, float]:
         return self.sum_fields(self.ALL_QUESTIONS)
 
-    def negative_urgency_score(self) -> int:
+    def negative_urgency_score(self) -> Union[int, float]:
         return self.sum_fields(self.NEGATIVE_URGENCY_QUESTIONS)
 
-    def lack_of_perseverance_score(self) -> int:
+    def lack_of_perseverance_score(self) -> Union[int, float]:
         return self.sum_fields(self.LACK_OF_PERSEVERANCE_QUESTIONS)
 
-    def lack_of_premeditation_score(self) -> int:
+    def lack_of_premeditation_score(self) -> Union[int, float]:
         return self.sum_fields(self.LACK_OF_PREMEDITATION_QUESTIONS)
 
-    def sensation_seeking_score(self) -> int:
+    def sensation_seeking_score(self) -> Union[int, float]:
         return self.sum_fields(self.SENSATION_SEEKING_QUESTIONS)
 
-    def positive_urgency_score(self) -> int:
+    def positive_urgency_score(self) -> Union[int, float]:
         return self.sum_fields(self.POSITIVE_URGENCY_QUESTIONS)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
