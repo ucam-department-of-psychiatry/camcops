@@ -119,7 +119,7 @@ class Das28(
     ESR_MODERATE_HIGH_CUTOFF = 5.1
 
     @classmethod
-    def field_name(cls, side, joint, state) -> str:
+    def field_name(cls, side: str, joint: str, state: str) -> str:
         return f"{side}_{joint}_{state}"
 
     @classmethod
@@ -250,12 +250,12 @@ class Das28(
             horizontal_labels=horizontal_labels,
         )
 
-    def swollen_joint_count(self):
+    def swollen_joint_count(self) -> int:
         return self.count_booleans(
             [n for n in self.get_joint_field_names() if n.endswith("swollen")]
         )
 
-    def tender_joint_count(self):
+    def tender_joint_count(self) -> int:
         return self.count_booleans(
             [n for n in self.get_joint_field_names() if n.endswith("tender")]
         )
