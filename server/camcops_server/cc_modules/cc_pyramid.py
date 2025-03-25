@@ -1270,7 +1270,7 @@ class CamcopsAuthenticationPolicy(object):
     # noinspection PyUnusedLocal
     @staticmethod
     def remember(
-        request: "CamcopsRequest", userid: int, **kw
+        request: "CamcopsRequest", userid: int, **kw: Any
     ) -> List[Tuple[str, str]]:
         return []
 
@@ -1762,10 +1762,10 @@ class CamcopsPage(Page):
         Fixes bugs (e.g. mutable default arguments) and nasties (e.g.
         enforcing ".." for the ellipsis) in the original.
         """
-        self.curpage_attr = curpage_attr or {}  # type: Dict[str, str]
+        self.curpage_attr = curpage_attr or {}
         self.separator = separator
-        self.link_attr = link_attr or {}  # type: Dict[str, str]
-        self.dotdot_attr = dotdot_attr or {}  # type: Dict[str, str]
+        self.link_attr = link_attr or {}
+        self.dotdot_attr = dotdot_attr or {}
         self.url = url
 
         regex_res = re.search(r"~(\d+)~", format)
