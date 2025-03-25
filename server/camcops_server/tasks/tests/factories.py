@@ -29,7 +29,7 @@ camcops_server/tasks/tests/factories.py
 
 import factory
 import pendulum
-from typing import cast, TYPE_CHECKING
+from typing import Any, cast, TYPE_CHECKING
 
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_testfactories import (
@@ -212,7 +212,7 @@ class TaskHasPatientFactory(TaskFactory):
     patient_id = None
 
     @classmethod
-    def create(cls, *args, **kwargs) -> Task:
+    def create(cls, *args: Any, **kwargs: Any) -> Task:
         patient = kwargs.pop("patient", None)
         if patient is not None:
             if "patient_id" in kwargs:
@@ -301,7 +301,7 @@ class DiagnosisIcd10ItemFactory(DiagnosisItemFactory):
     seqnum = factory.Sequence(lambda n: n + 1)
 
     @classmethod
-    def create(cls, *args, **kwargs) -> DiagnosisIcd10Item:
+    def create(cls, *args: Any, **kwargs: Any) -> DiagnosisIcd10Item:
         diagnosis_icd10 = kwargs.pop("diagnosis_icd10", None)
         if diagnosis_icd10 is not None:
             if "diagnosis_icd10_id" in kwargs:
@@ -339,7 +339,7 @@ class DiagnosisIcd9CMItemFactory(DiagnosisItemFactory):
     seqnum = factory.Sequence(lambda n: n + 1)
 
     @classmethod
-    def create(cls, *args, **kwargs) -> DiagnosisIcd9CMItem:
+    def create(cls, *args: Any, **kwargs: Any) -> DiagnosisIcd9CMItem:
         diagnosis_icd9cm = kwargs.pop("diagnosis_icd9cm", None)
         if diagnosis_icd9cm is not None:
             if "diagnosis_icd9cm_id" in kwargs:
