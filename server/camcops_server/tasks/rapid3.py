@@ -199,7 +199,7 @@ class Rapid3(
             TrackerAxisTick(n, str(n)) for n in range(0, int(axis_max) + 1, 2)
         ]
 
-        horizontal_lines = [
+        horizontal_lines: list[float] = [
             self.MAXIMUM,
             self.MODERATE_SEVERITY_MAX,
             self.LOW_SEVERITY_MAX,
