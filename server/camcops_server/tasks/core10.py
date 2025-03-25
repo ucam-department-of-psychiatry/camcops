@@ -26,7 +26,7 @@ camcops_server/tasks/core10.py
 """
 
 import logging
-from typing import Dict, List, Optional, Type
+from typing import Dict, List, Optional, Type, Union
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
@@ -182,7 +182,7 @@ class Core10(TaskHasPatientMixin, Task):
             )
         ]
 
-    def total_score(self) -> int:
+    def total_score(self) -> Union[int, float]:
         return self.sum_fields(self.QUESTION_FIELDNAMES)
 
     def n_questions_complete(self) -> int:
