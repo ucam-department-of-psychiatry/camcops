@@ -26,7 +26,7 @@ camcops_server/tasks/phq9.py
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Dict, List, Optional, Type, Union
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.orm import Mapped
@@ -215,7 +215,7 @@ class Phq9(
             ),
         ]
 
-    def total_score(self) -> int:
+    def total_score(self) -> Union[int, float]:
         return self.sum_fields(self.MAIN_QUESTIONS)
 
     def one_if_q_ge(self, qnum: int, threshold: int) -> int:
