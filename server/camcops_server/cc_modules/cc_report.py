@@ -562,7 +562,7 @@ class PercentageSummaryReportMixin(object):
 
 
 class DateTimeFilteredReportMixin(object):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self.start_datetime = None  # type: Optional[str]
         self.end_datetime = None  # type: Optional[str]
@@ -674,7 +674,9 @@ class AverageScoreReport(DateTimeFilteredReportMixin, Report, ABC):
 
     template_name = "average_score_report.mako"
 
-    def __init__(self, *args, via_index: bool = True, **kwargs) -> None:
+    def __init__(
+        self, *args: Any, via_index: bool = True, **kwargs: Any
+    ) -> None:
         """
         Args:
             via_index:
