@@ -519,7 +519,7 @@ class TaskScheduleItem(Base):
             # Should not be possible if created through the form
             due_days = "?"
         else:
-            due_days = self.due_from.in_days()
+            due_days = str(self.due_from.in_days())
 
         return _("{task_name} @ {due_days} days").format(
             task_name=self.task_shortname, due_days=due_days
