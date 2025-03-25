@@ -27,7 +27,7 @@ camcops_server/tasks/chit.py
 
 """
 
-from typing import Any, List, Type
+from typing import Any, List, Type, Union
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
@@ -121,7 +121,7 @@ class Chit(
             return False
         return True
 
-    def total_score(self) -> int:
+    def total_score(self) -> Union[int, float]:
         return self.sum_fields(self.SCORED_QUESTIONS)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
