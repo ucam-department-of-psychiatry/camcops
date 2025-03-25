@@ -34,7 +34,7 @@ import posixpath
 import socket
 import subprocess
 import sys
-from typing import Generator, List, Optional, Tuple, TYPE_CHECKING
+from typing import Any, Generator, List, Optional, Tuple, TYPE_CHECKING
 
 from cardinal_pythonlib.datetimefunc import (
     get_now_utc_datetime,
@@ -284,8 +284,8 @@ class ExportedTask(Base):
         task: "Task" = None,
         basetable: str = None,
         task_server_pk: int = None,
-        *args,
-        **kwargs,
+        *args: Any,
+        **kwargs: Any,
     ) -> None:
         """
         Can initialize with a task, or a basetable/task_server_pk combination.
@@ -890,7 +890,7 @@ class ExportedTaskFileGroup(Base):
         text: str = None,
         binary: bytes = None,
         text_encoding: str = UTF8,
-    ) -> False:
+    ) -> bool:
         """
         Exports the file.
 
