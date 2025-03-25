@@ -212,7 +212,7 @@ class CamcopsRequest(Request):
 
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """
         This is called as the Pyramid request factory; see
         ``config.set_request_factory(CamcopsRequest)``
@@ -1327,7 +1327,7 @@ class CamcopsRequest(Request):
         self.provide_png_fallback_for_svg = provide_png_fallback
 
     @staticmethod
-    def create_figure(**kwargs) -> Figure:
+    def create_figure(**kwargs: Any) -> Figure:
         """
         Creates and returns a :class:`matplotlib.figure.Figure` with a canvas.
         The canvas will be available as ``fig.canvas``.
