@@ -27,7 +27,7 @@ camcops_server/cc_modules/cc_testfactories.py
 
 """
 
-from typing import cast, Optional, TYPE_CHECKING
+from typing import Any, cast, Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.datetimefunc import (
     convert_datetime_to_utc,
@@ -136,7 +136,7 @@ class UserFactory(BaseFactory):
         create: bool,
         password: Optional[str],
         request: "CamcopsRequest" = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         if not create:
             return
@@ -375,7 +375,7 @@ class EmailFactory(BaseFactory):
     # be a SQLite thing.
     @factory.post_generation
     def sent_at_utc(
-        obj: Email, create: bool, sent_at_utc: pendulum.DateTime, **kwargs
+        obj: Email, create: bool, sent_at_utc: pendulum.DateTime, **kwargs: Any
     ) -> None:
         if not create:
             return
@@ -383,7 +383,7 @@ class EmailFactory(BaseFactory):
         obj.sent_at_utc = sent_at_utc
 
     @factory.post_generation
-    def sent(obj: Email, create: bool, sent: bool, **kwargs) -> None:
+    def sent(obj: Email, create: bool, sent: bool, **kwargs: Any) -> None:
         if not create:
             return
 
@@ -422,7 +422,7 @@ class SpecialNoteFactory(BaseFactory):
         model = SpecialNote
 
     @classmethod
-    def create(cls, *args, **kwargs) -> SpecialNote:
+    def create(cls, *args: Any, **kwargs: Any) -> SpecialNote:
         task = kwargs.pop("task", None)
         if task is not None:
             if "task_id" in kwargs:
