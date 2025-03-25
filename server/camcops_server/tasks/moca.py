@@ -25,7 +25,7 @@ camcops_server/tasks/moca.py
 
 """
 
-from typing import Any, cast, List, Optional, Type
+from typing import Any, List, Optional, Type, Union
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.orm import Mapped, mapped_column
@@ -298,7 +298,7 @@ class Moca(
             and self.field_contents_valid()
         )
 
-    def total_score(self) -> int:
+    def total_score(self) -> Union[int, float]:
         score = self.sum_fields(self.QFIELDS)
         # Interpretation of the educational extra point: see moca.cpp; we have
         # a choice of allowing 31/30 or capping at 30. I think the instructions
@@ -306,28 +306,28 @@ class Moca(
         if score < self.MAX_SCORE:
             score += self.sum_fields(["education12y_or_less"])
             # extra point for this
-        return cast(int, score)
+        return score
 
-    def score_vsp(self) -> int:
-        return cast(int, self.sum_fields(self.VSP_FIELDS))
+    def score_vsp(self) -> Union[int, float]:
+        return self.sum_fields(self.VSP_FIELDS)
 
-    def score_naming(self) -> int:
-        return cast(int, self.sum_fields(self.NAMING_FIELDS))
+    def score_naming(self) -> Union[int, float]:
+        return self.sum_fields(self.NAMING_FIELDS)
 
-    def score_attention(self) -> int:
-        return cast(int, self.sum_fields(self.ATTN_FIELDS))
+    def score_attention(self) -> Union[int, float]:
+        return self.sum_fields(self.ATTN_FIELDS)
 
-    def score_language(self) -> int:
-        return cast(int, self.sum_fields(self.LANG_FIELDS))
+    def score_language(self) -> Union[int, float]:
+        return self.sum_fields(self.LANG_FIELDS)
 
-    def score_abstraction(self) -> int:
-        return cast(int, self.sum_fields(self.ABSTRACTION_FIELDS))
+    def score_abstraction(self) -> Union[int, float]:
+        return self.sum_fields(self.ABSTRACTION_FIELDS)
 
-    def score_memory(self) -> int:
-        return cast(int, self.sum_fields(self.MEM_FIELDS))
+    def score_memory(self) -> Union[int, float]:
+        return self.sum_fields(self.MEM_FIELDS)
 
-    def score_orientation(self) -> int:
-        return cast(int, self.sum_fields(self.ORIENTATION_FIELDS))
+    def score_orientation(self) -> Union[int, float]:
+        return self.sum_fields(self.ORIENTATION_FIELDS)
 
     def category(self, req: CamcopsRequest) -> str:
         totalscore = self.total_score()
