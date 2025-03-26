@@ -27,7 +27,7 @@ camcops_server/tasks/paradise24.py
 
 """
 
-from typing import Any, Optional, Type
+from typing import Any, cast, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -109,7 +109,7 @@ class Paradise24(
         if not self.is_complete():
             return None
 
-        return self.sum_fields(self.ALL_FIELD_NAMES)
+        return cast(int, self.sum_fields(self.ALL_FIELD_NAMES))
 
     def metric_score(self) -> Optional[int]:
         total_score = self.total_score()

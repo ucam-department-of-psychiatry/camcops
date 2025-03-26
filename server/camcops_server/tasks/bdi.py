@@ -25,7 +25,7 @@ camcops_server/tasks/bdi.py
 
 """
 
-from typing import Any, List, Type, Union
+from typing import Any, cast, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 import cardinal_pythonlib.rnc_web as ws
@@ -235,8 +235,8 @@ class Bdi(
             )
         ]
 
-    def total_score(self) -> Union[int, float]:
-        return self.sum_fields(TASK_SCORED_FIELDS)
+    def total_score(self) -> int:
+        return cast(int, self.sum_fields(TASK_SCORED_FIELDS))
 
     def is_bdi_ii(self) -> bool:
         return self.bdi_scale == SCALE_BDI_II

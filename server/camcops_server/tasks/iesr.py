@@ -25,7 +25,7 @@ camcops_server/tasks/iesr.py
 
 """
 
-from typing import Any, List, Optional, Type, Union
+from typing import Any, cast, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.orm import Mapped, mapped_column
@@ -210,17 +210,17 @@ class Iesr(
             )
         ]
 
-    def total_score(self) -> Union[int, float]:
-        return self.sum_fields(self.QUESTION_FIELDS)
+    def total_score(self) -> int:
+        return cast(int, self.sum_fields(self.QUESTION_FIELDS))
 
-    def avoidance_score(self) -> Union[int, float]:
-        return self.sum_fields(self.AVOIDANCE_FIELDS)
+    def avoidance_score(self) -> int:
+        return cast(int, self.sum_fields(self.AVOIDANCE_FIELDS))
 
-    def intrusion_score(self) -> Union[int, float]:
-        return self.sum_fields(self.INTRUSION_FIELDS)
+    def intrusion_score(self) -> int:
+        return cast(int, self.sum_fields(self.INTRUSION_FIELDS))
 
-    def hyperarousal_score(self) -> Union[int, float]:
-        return self.sum_fields(self.HYPERAROUSAL_FIELDS)
+    def hyperarousal_score(self) -> int:
+        return cast(int, self.sum_fields(self.HYPERAROUSAL_FIELDS))
 
     def is_complete(self) -> bool:
         return bool(

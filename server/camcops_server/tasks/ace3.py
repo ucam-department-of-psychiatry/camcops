@@ -27,7 +27,7 @@ ACE-III and Mini-ACE.
 
 """
 
-from typing import Any, Iterable, List, Optional, Type, Union
+from typing import Any, cast, Iterable, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 import cardinal_pythonlib.rnc_web as ws
@@ -622,8 +622,8 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
             ),
         ]
 
-    def attn_score(self) -> Union[int, float]:
-        return self.sum_fields(self.ATTN_SCORE_FIELDS)
+    def attn_score(self) -> int:
+        return cast(int, self.sum_fields(self.ATTN_SCORE_FIELDS))
 
     @staticmethod
     def get_recog_score(
@@ -663,43 +663,50 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         )
         return score
 
-    def mem_score(self) -> Union[int, float]:
-        return (
-            self.sum_fields(self.MEM_NON_RECOG_SCORE_FIELDS)
-            + self.get_mem_recognition_score()
+    def mem_score(self) -> int:
+        return cast(
+            int,
+            (
+                self.sum_fields(self.MEM_NON_RECOG_SCORE_FIELDS)
+                + self.get_mem_recognition_score()
+            ),
         )
 
     def fluency_score(self) -> int:
-        return score_zero_for_absent(
-            self.fluency_letters_score
-        ) + score_zero_for_absent(self.fluency_animals_score)
+        return cast(
+            int,
+            (
+                score_zero_for_absent(self.fluency_letters_score)
+                + score_zero_for_absent(self.fluency_animals_score)
+            ),
+        )
 
-    def get_follow_command_score(self) -> Union[int, float]:
+    def get_follow_command_score(self) -> int:
         if self.lang_follow_command_practice != 1:
             return 0
-        return self.sum_fields(self.LANG_FOLLOW_CMD_FIELDS)
+        return cast(int, self.sum_fields(self.LANG_FOLLOW_CMD_FIELDS))
 
-    def get_repeat_word_score(self) -> Union[int, float]:
-        n = self.sum_fields(self.LANG_REPEAT_WORD_FIELDS)
+    def get_repeat_word_score(self) -> int:
+        n = cast(int, self.sum_fields(self.LANG_REPEAT_WORD_FIELDS))
         return 2 if n >= 4 else (1 if n == 3 else 0)
 
-    def lang_score(self) -> Union[int, float]:
+    def lang_score(self) -> int:
         return (
-            self.sum_fields(self.LANG_SIMPLE_SCORE_FIELDS)
+            cast(int, self.sum_fields(self.LANG_SIMPLE_SCORE_FIELDS))
             + self.get_follow_command_score()
             + self.get_repeat_word_score()
             + score_zero_for_absent(self.lang_read_words_aloud)
         )
 
-    def vsp_score(self) -> Union[int, float]:
+    def vsp_score(self) -> int:
         return (
-            self.sum_fields(self.VSP_SIMPLE_SCORE_FIELDS)
+            cast(int, self.sum_fields(self.VSP_SIMPLE_SCORE_FIELDS))
             + score_zero_for_absent(self.vsp_copy_infinity)
             + score_zero_for_absent(self.vsp_copy_cube)
             + score_zero_for_absent(self.vsp_draw_clock)
         )
 
-    def total_score(self) -> Union[int, float]:
+    def total_score(self) -> int:
         return (
             self.attn_score()
             + self.mem_score()
@@ -708,8 +715,8 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
             + self.vsp_score()
         )
 
-    def mini_ace_score(self) -> Union[int, float]:
-        return self.sum_fields(self.MINI_ACE_FIELDS)
+    def mini_ace_score(self) -> int:
+        return cast(int, self.sum_fields(self.MINI_ACE_FIELDS))
 
     # noinspection PyUnresolvedReferences
     def is_recognition_complete(self) -> bool:
@@ -1424,20 +1431,20 @@ class MiniAce(
             ),
         ]
 
-    def attn_score(self) -> Union[int, float]:
-        return self.sum_fields(self.MACE_ATTN_FIELDS)
+    def attn_score(self) -> int:
+        return cast(int, self.sum_fields(self.MACE_ATTN_FIELDS))
 
-    def mem_score(self) -> Union[int, float]:
-        return self.sum_fields(self.MACE_MEMORY_FIELDS)
+    def mem_score(self) -> int:
+        return cast(int, self.sum_fields(self.MACE_MEMORY_FIELDS))
 
-    def fluency_score(self) -> Union[int, float]:
-        return self.sum_fields(self.MACE_FLUENCY_FIELDS)
+    def fluency_score(self) -> int:
+        return cast(int, self.sum_fields(self.MACE_FLUENCY_FIELDS))
 
-    def vsp_score(self) -> Union[int, float]:
-        return self.sum_fields(self.MACE_VSP_FIELDS)
+    def vsp_score(self) -> int:
+        return cast(int, self.sum_fields(self.MACE_VSP_FIELDS))
 
-    def mini_ace_score(self) -> Union[int, float]:
-        return self.sum_fields(self.MINI_ACE_FIELDS)
+    def mini_ace_score(self) -> int:
+        return cast(int, self.sum_fields(self.MINI_ACE_FIELDS))
 
     def is_complete(self) -> bool:
         return (

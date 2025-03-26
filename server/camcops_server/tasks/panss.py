@@ -25,7 +25,7 @@ camcops_server/tasks/panss.py
 
 """
 
-from typing import Any, List, Type, Union
+from typing import Any, cast, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -253,20 +253,20 @@ class Panss(
             and self.field_contents_valid()
         )
 
-    def total_score(self) -> Union[int, float]:
-        return self.sum_fields(self.TASK_FIELDS)
+    def total_score(self) -> int:
+        return cast(int, self.sum_fields(self.TASK_FIELDS))
 
-    def score_p(self) -> Union[int, float]:
-        return self.sum_fields(self.P_FIELDS)
+    def score_p(self) -> int:
+        return cast(int, self.sum_fields(self.P_FIELDS))
 
-    def score_n(self) -> Union[int, float]:
-        return self.sum_fields(self.N_FIELDS)
+    def score_n(self) -> int:
+        return cast(int, self.sum_fields(self.N_FIELDS))
 
-    def score_g(self) -> Union[int, float]:
-        return self.sum_fields(self.G_FIELDS)
+    def score_g(self) -> int:
+        return cast(int, self.sum_fields(self.G_FIELDS))
 
-    def composite(self) -> Union[int, float]:
-        return self.score_p() - self.score_n()
+    def composite(self) -> int:
+        return cast(int, self.score_p() - self.score_n())
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         p = self.score_p()

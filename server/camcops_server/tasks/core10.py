@@ -26,7 +26,7 @@ camcops_server/tasks/core10.py
 """
 
 import logging
-from typing import Dict, List, Optional, Type, Union
+from typing import cast, Dict, List, Optional, Type, Union
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
@@ -182,13 +182,13 @@ class Core10(TaskHasPatientMixin, Task):
             )
         ]
 
-    def total_score(self) -> Union[int, float]:
-        return self.sum_fields(self.QUESTION_FIELDNAMES)
+    def total_score(self) -> int:
+        return cast(int, self.sum_fields(self.QUESTION_FIELDNAMES))
 
     def n_questions_complete(self) -> int:
         return self.n_fields_not_none(self.QUESTION_FIELDNAMES)
 
-    def clinical_score(self) -> float:
+    def clinical_score(self) -> Union[int, float, None]:
         n_q_completed = self.n_questions_complete()
         if n_q_completed == 0:
             # avoid division by zero

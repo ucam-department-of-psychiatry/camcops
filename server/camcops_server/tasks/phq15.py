@@ -25,7 +25,7 @@ camcops_server/tasks/phq15.py
 
 """
 
-from typing import Any, List, Optional, Type, Union
+from typing import Any, cast, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -169,8 +169,8 @@ class Phq15(
             ),
         ]
 
-    def total_score(self) -> Union[int, float]:
-        return self.sum_fields(self.TASK_FIELDS)
+    def total_score(self) -> int:
+        return cast(int, self.sum_fields(self.TASK_FIELDS))
 
     def num_severe(self) -> int:
         n = 0

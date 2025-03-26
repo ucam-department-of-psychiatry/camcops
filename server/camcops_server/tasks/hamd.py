@@ -25,7 +25,7 @@ camcops_server/tasks/hamd.py
 
 """
 
-from typing import Any, List, Optional, Type, Union
+from typing import Any, cast, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.orm import Mapped, MappedColumn
@@ -317,16 +317,16 @@ class Hamd(
                     return False
         return True
 
-    def total_score(self) -> Union[int, float]:
+    def total_score(self) -> int:
         total = 0
         for i in range(1, self.NSCOREDQUESTIONS + 1):
             if i == 16:
                 relevant_field = "q16a" if self.whichq16 == 0 else "q16b"
-                score = self.sum_fields([relevant_field])
+                score = cast(int, self.sum_fields([relevant_field]))
                 if score != 3:  # ... a value that's ignored
                     total += score
             else:
-                total += self.sum_fields(["q" + str(i)])
+                total += cast(int, self.sum_fields(["q" + str(i)]))
         return total
 
     def severity(self, req: CamcopsRequest) -> str:

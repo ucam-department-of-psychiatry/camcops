@@ -26,7 +26,7 @@ camcops_server/tasks/phq8.py
 """
 
 import logging
-from typing import Any, Dict, List, Type, Union
+from typing import Any, cast, Dict, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Boolean, Integer
@@ -202,8 +202,8 @@ class Phq8(
             ),
         ]
 
-    def total_score(self) -> Union[int, float]:
-        return self.sum_fields(self.QUESTIONS)
+    def total_score(self) -> int:
+        return cast(int, self.sum_fields(self.QUESTIONS))
 
     def reaches_threshold(self, qnum: int) -> int:
         # Checks if a symptom scores >=2, meaning "more than half the days".

@@ -25,7 +25,7 @@ camcops_server/tasks/hamd7.py
 
 """
 
-from typing import Any, List, Optional, Type, Union
+from typing import Any, cast, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -179,8 +179,8 @@ class Hamd7(
             and self.field_contents_valid()
         )
 
-    def total_score(self) -> Union[int, float]:
-        return self.sum_fields(self.TASK_FIELDS)
+    def total_score(self) -> int:
+        return cast(int, self.sum_fields(self.TASK_FIELDS))
 
     def severity(self, req: CamcopsRequest) -> str:
         score = self.total_score()

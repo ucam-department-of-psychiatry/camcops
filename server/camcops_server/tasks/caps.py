@@ -25,7 +25,7 @@ camcops_server/tasks/caps.py
 
 """
 
-from typing import Any, List, Type, Union
+from typing import Any, cast, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -213,34 +213,34 @@ class Caps(
     def total_score(self) -> int:
         return self.count_booleans(self.ENDORSE_FIELDS)
 
-    def distress_score(self) -> Union[int, float]:
+    def distress_score(self) -> int:
         score = 0
         for q in range(1, Caps.NQUESTIONS + 1):
             if (
                 getattr(self, "endorse" + str(q))
                 and getattr(self, "distress" + str(q)) is not None
             ):
-                score += self.sum_fields(["distress" + str(q)])
+                score += cast(int, self.sum_fields(["distress" + str(q)]))
         return score
 
-    def intrusiveness_score(self) -> Union[int, float]:
+    def intrusiveness_score(self) -> int:
         score = 0
         for q in range(1, Caps.NQUESTIONS + 1):
             if (
                 getattr(self, "endorse" + str(q))
                 and getattr(self, "intrusiveness" + str(q)) is not None
             ):
-                score += self.sum_fields(["intrusiveness" + str(q)])
+                score += cast(int, self.sum_fields(["intrusiveness" + str(q)]))
         return score
 
-    def frequency_score(self) -> Union[int, float]:
+    def frequency_score(self) -> int:
         score = 0
         for q in range(1, Caps.NQUESTIONS + 1):
             if (
                 getattr(self, "endorse" + str(q))
                 and getattr(self, "frequency" + str(q)) is not None
             ):
-                score += self.sum_fields(["frequency" + str(q)])
+                score += cast(int, self.sum_fields(["frequency" + str(q)]))
         return score
 
     def get_task_html(self, req: CamcopsRequest) -> str:

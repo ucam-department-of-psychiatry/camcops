@@ -25,7 +25,7 @@ camcops_server/tasks/fast.py
 
 """
 
-from typing import Any, List, Type, Union
+from typing import Any, cast, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Boolean, Integer
@@ -136,8 +136,8 @@ class Fast(
             and self.field_contents_valid()
         )
 
-    def total_score(self) -> Union[int, float]:
-        return self.sum_fields(self.TASK_FIELDS)
+    def total_score(self) -> int:
+        return cast(int, self.sum_fields(self.TASK_FIELDS))
 
     # noinspection PyUnresolvedReferences
     def is_positive(self) -> bool:

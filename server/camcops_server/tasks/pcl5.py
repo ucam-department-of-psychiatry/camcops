@@ -25,7 +25,7 @@ camcops_server/tasks/pcl5.py
 
 """
 
-from typing import Any, List, Optional, Union, Type
+from typing import Any, cast, List, Optional, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
@@ -133,8 +133,8 @@ class Pcl5(
             and self.field_contents_valid()
         )
 
-    def total_score(self) -> Union[int, float]:
-        return self.sum_fields(self.SCORED_FIELDS)
+    def total_score(self) -> int:
+        return cast(int, self.sum_fields(self.SCORED_FIELDS))
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         line_step = 20
