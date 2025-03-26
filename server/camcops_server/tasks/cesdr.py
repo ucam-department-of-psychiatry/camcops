@@ -25,7 +25,7 @@ camcops_server/tasks/cesdr.py
 
 """
 
-from typing import Any, List, Type, Union
+from typing import Any, List, Optional, Type, Union
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
@@ -273,7 +273,7 @@ class Cesdr(
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
-        answer_dict = {None: None}
+        answer_dict: dict[Optional[int], Optional[str]] = {None: None}
         for option in range(self.N_ANSWERS):
             answer_dict[option] = (
                 str(option) + " – " + self.wxstring(req, "a" + str(option))

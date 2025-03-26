@@ -27,7 +27,7 @@ camcops_server/tasks/epds.py
 
 """
 
-from typing import Any, List, Type, Union
+from typing import Any, List, Optional, Type, Union
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -130,7 +130,7 @@ class Epds(
         above_cutoff_2 = score >= 13
         answer_dicts = []
         for q in range(1, self.NQUESTIONS + 1):
-            d = {None: "?"}
+            d: dict[Optional[int], Optional[str]] = {None: "?"}
             for option in range(0, 4):
                 d[option] = (
                     str(option)

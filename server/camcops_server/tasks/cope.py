@@ -291,7 +291,7 @@ class CopeBrief(
         return self.sum_fields(["q13", "q26"])
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        answer_dict = {None: None}
+        answer_dict: dict[Optional[int], Optional[str]] = {None: None}
         for option in range(0, 3 + 1):
             answer_dict[option] = (
                 str(option) + " — " + self.wxstring(req, "a" + str(option))

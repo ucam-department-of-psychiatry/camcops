@@ -216,12 +216,12 @@ class GMCPQ(Task):
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        dict_q1 = {None: None}
-        dict_q3 = {None: None}
-        dict_q4 = {None: None}
-        dict_q5 = {None: None}
-        dict_q11 = {None: None}
-        dict_q12 = {None: None}
+        dict_q1: dict[Optional[int], Optional[str]] = {None: None}
+        dict_q3: dict[Optional[int], Optional[str]] = {None: None}
+        dict_q4: dict[Optional[int], Optional[str]] = {None: None}
+        dict_q5: dict[Optional[int], Optional[str]] = {None: None}
+        dict_q11: dict[Optional[int], Optional[str]] = {None: None}
+        dict_q12: dict[Optional[int], Optional[str]] = {None: None}
         for option in range(1, 5):
             dict_q1[option] = self.wxstring(req, "q1_option" + str(option))
         for option in range(1, 6):

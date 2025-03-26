@@ -230,7 +230,7 @@ class Iesr(
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        option_dict = {None: None}
+        option_dict: dict[Optional[int], Optional[str]] = {None: None}
         for a in range(self.MIN_SCORE, self.MAX_SCORE + 1):
             option_dict[a] = req.wappstring(AS.IESR_A_PREFIX + str(a))
         h = f"""

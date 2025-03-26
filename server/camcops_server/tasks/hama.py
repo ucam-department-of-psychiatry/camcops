@@ -25,7 +25,7 @@ camcops_server/tasks/hama.py
 
 """
 
-from typing import Any, List, Type, Union
+from typing import Any, List, Optional, Type, Union
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -177,7 +177,7 @@ class Hama(
         severity = self.severity(req)
         answer_dicts = []
         for q in range(1, self.NQUESTIONS + 1):
-            d = {None: None}
+            d: dict[Optional[int], Optional[str]] = {None: None}
             for option in range(0, 4 + 1):
                 d[option] = self.wxstring(
                     req, "q" + str(q) + "_option" + str(option)

@@ -25,7 +25,7 @@ camcops_server/tasks/audit.py
 
 """
 
-from typing import Any, List, Type, Union
+from typing import Any, List, Optional, Type, Union
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -151,10 +151,10 @@ class Audit(
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         exceeds_cutoff = score >= 8
-        q1_dict = {None: None}
-        q2_dict = {None: None}
-        q3_to_8_dict = {None: None}
-        q9_to_10_dict = {None: None}
+        q1_dict: dict[Optional[int], Optional[str]] = {None: None}
+        q2_dict: dict[Optional[int], Optional[str]] = {None: None}
+        q3_to_8_dict: dict[Optional[int], Optional[str]] = {None: None}
+        q9_to_10_dict: dict[Optional[int], Optional[str]] = {None: None}
         for option in range(0, 5):
             q1_dict[option] = (
                 str(option)
@@ -312,9 +312,9 @@ class AuditC(TaskHasPatientMixin, Task):
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
-        q1_dict = {None: None}
-        q2_dict = {None: None}
-        q3_dict = {None: None}
+        q1_dict: dict[Optional[int], Optional[str]] = {None: None}
+        q2_dict: dict[Optional[int], Optional[str]] = {None: None}
+        q3_dict: dict[Optional[int], Optional[str]] = {None: None}
         for option in range(0, 5):
             q1_dict[option] = (
                 str(option)

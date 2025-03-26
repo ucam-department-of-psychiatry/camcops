@@ -27,7 +27,7 @@ camcops_server/tasks/chit.py
 
 """
 
-from typing import Any, List, Type, Union
+from typing import Any, List, Optional, Type, Union
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
@@ -125,9 +125,7 @@ class Chit(
         return self.sum_fields(self.SCORED_QUESTIONS)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        score_dict = {
-            None: None,
-        }
+        score_dict: dict[Optional[int], Optional[str]] = {None: None}
 
         for i in range(self.MIN_ANSWER, self.MAX_ANSWER + 1):
             score_dict[i] = f"{i} — " + self.wxstring(req, f"a{i}")

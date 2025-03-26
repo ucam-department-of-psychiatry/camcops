@@ -208,7 +208,7 @@ class Ciwa(
         severity = self.severity(req)
         answer_dicts_dict = {}
         for q in self.SCORED_QUESTIONS:
-            d = {None: None}
+            d: dict[Optional[int], Optional[str]] = {None: None}
             for option in range(0, 8):
                 if option > 4 and q == "q10":
                     continue

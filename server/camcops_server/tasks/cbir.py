@@ -328,8 +328,8 @@ class CbiR(
         return self.all_fields_not_none(self.TASK_FIELDS)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        freq_dict = {None: None}
-        distress_dict = {None: None}
+        freq_dict: dict[Optional[int], Optional[str]] = {None: None}
+        distress_dict: dict[Optional[int], Optional[str]] = {None: None}
         for a in range(self.MIN_SCORE, self.MAX_SCORE + 1):
             freq_dict[a] = self.wxstring(req, "f" + str(a))
             distress_dict[a] = self.wxstring(req, "d" + str(a))

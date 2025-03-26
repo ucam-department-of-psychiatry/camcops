@@ -25,7 +25,7 @@ camcops_server/tasks/gad7.py
 
 """
 
-from typing import Any, List, Type, Union
+from typing import Any, List, Optional, Type, Union
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
@@ -168,7 +168,7 @@ class Gad7(
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         severity = self.severity(req)
-        answer_dict = {None: None}
+        answer_dict: dict[Optional[int], Optional[str]] = {None: None}
         for option in range(0, 4):
             answer_dict[option] = (
                 str(option) + " — " + self.wxstring(req, "a" + str(option))

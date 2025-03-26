@@ -358,7 +358,7 @@ class Hamd(
         )
         answer_dicts_dict = {}
         for q in task_field_list_for_display:
-            d = {None: None}
+            d: dict[Optional[int], Optional[str]] = {None: None}
             for option in range(0, 5):
                 if (
                     q == "q4"
