@@ -769,9 +769,9 @@ class AverageScoreReport(DateTimeFilteredReportMixin, Report, ABC):
         n_scoretypes = len(scoretypes)
 
         # Sum first/last/progress scores by patient
-        sum_first_by_score = [0] * n_scoretypes
-        sum_last_by_score = [0] * n_scoretypes
-        sum_improvement_by_score = [0] * n_scoretypes
+        sum_first_by_score: list[Union[int, float]] = [0] * n_scoretypes
+        sum_last_by_score: list[Union[int, float]] = [0] * n_scoretypes
+        sum_improvement_by_score: list[Union[int, float]] = [0] * n_scoretypes
         n_first = 0
         n_last = 0  # also n_progress
         for patient in patients:
