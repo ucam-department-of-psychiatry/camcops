@@ -504,7 +504,7 @@ class CardinalExpectationDetectionFactory(TaskHasPatientFactory):
 
     @factory.post_generation
     def trials(
-        obj: "Resolver", create: bool, num_trials: int, **kwargs
+        obj: "Resolver", create: bool, num_trials: int, **kwargs: Any
     ) -> None:
         if not create:
             return
@@ -518,7 +518,7 @@ class CardinalExpectationDetectionFactory(TaskHasPatientFactory):
 
     @factory.post_generation
     def groupspecs(
-        obj: "Resolver", create: bool, num_groupspecs: int, **kwargs
+        obj: "Resolver", create: bool, num_groupspecs: int, **kwargs: Any
     ) -> None:
         if not create:
             return
@@ -1150,7 +1150,7 @@ class PhotoFactory(TaskHasPatientFactory):
 
     @factory.post_generation
     def create_blob(
-        obj: "Resolver", create: bool, extracted: None, **kwargs
+        obj: "Resolver", create: bool, extracted: None, **kwargs: Any
     ) -> None:
         if not create:
             return
@@ -1175,7 +1175,7 @@ class PhotoSequenceFactory(TaskHasPatientFactory):
 
     @factory.post_generation
     def photos(
-        obj: "Resolver", create: bool, num_photos: int, **kwargs
+        obj: "Resolver", create: bool, num_photos: int, **kwargs: Any
     ) -> None:
         if not create:
             return
@@ -1198,7 +1198,7 @@ class PhotoSequenceSinglePhotoFactory(GenericTabletRecordFactory):
 
     @factory.post_generation
     def photo(
-        obj: "Resolver", create: bool, num_photos: int, **kwargs
+        obj: "Resolver", create: bool, num_photos: int, **kwargs: Any
     ) -> None:
         if not create:
             return
