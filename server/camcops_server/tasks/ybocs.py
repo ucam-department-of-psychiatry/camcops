@@ -106,10 +106,10 @@ class Ybocs(
     MAX_TOTAL = 40
     MAX_OBS = 20
     MAX_COM = 20
+    TARGET_COLUMNS: list[Column] = []
 
     @classmethod
     def extend_table(cls: Type["Ybocs"], **kwargs: Any) -> None:
-        cls.TARGET_COLUMNS = []  # type: List[Column]
         for target in ("obsession", "compulsion", "avoidance"):
             for n in range(1, cls.NTARGETS + 1):
                 fname = f"target_{target}_{n}"
