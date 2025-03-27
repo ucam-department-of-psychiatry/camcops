@@ -75,7 +75,7 @@ class IsaaqCommon(TaskHasPatientMixin, Task):
 
     def get_task_html_rows_for_range(
         self, req: CamcopsRequest, prefix: str, first_q: int, last_q: int
-    ):
+    ) -> str:
         rows = ""
         for q_num in range(first_q, last_q + 1):
             field = prefix + str(q_num)
