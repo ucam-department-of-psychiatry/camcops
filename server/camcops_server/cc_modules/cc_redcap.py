@@ -650,7 +650,7 @@ class RedcapUploader(object):
         }
         self.upload_record(patient_record)
 
-        file_dict = {}
+        file_dict: dict[str, Any] = {}
         self.transform_fields(file_dict, task, fieldmap.files[task.tablename])
 
         self.upload_files(
