@@ -531,7 +531,7 @@ class TaskScheduleEmailTemplateFormatter(SafeFormatter):
     Safe template formatter for task schedule e-mails.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             [
                 "access_key",
