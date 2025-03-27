@@ -25,7 +25,7 @@ camcops_server/tasks/maas.py
 
 """
 
-from typing import Any, List, Optional, Type, Union
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strnumlist, strseq
@@ -170,15 +170,15 @@ class Maas(TaskHasPatientMixin, Task):
             scorer.add_question(q, getattr(self, self.FN_QPREFIX + str(q)))
         return scorer
 
-    def get_quality_score(self) -> Union[int, float, None]:
+    def get_quality_score(self) -> int:
         scorer = self.get_score()
         return scorer.quality_score
 
-    def get_time_score(self) -> Union[int, float, None]:
+    def get_time_score(self) -> int:
         scorer = self.get_score()
         return scorer.time_score
 
-    def get_global_score(self) -> Union[int, float, None]:
+    def get_global_score(self) -> int:
         scorer = self.get_score()
         return scorer.global_score
 
