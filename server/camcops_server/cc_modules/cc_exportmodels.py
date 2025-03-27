@@ -314,7 +314,7 @@ class ExportedTask(Base):
         else:
             self.basetable = basetable
             self.task_server_pk = task_server_pk
-            self._task = None  # type: Optional[Task]
+            self._task = None
 
     @reconstructor
     def init_on_load(self) -> None:
@@ -322,7 +322,7 @@ class ExportedTask(Base):
         Called when SQLAlchemy recreates an object; see
         https://docs.sqlalchemy.org/en/latest/orm/constructors.html.
         """
-        self._task = None  # type: Optional[Task]
+        self._task = None
 
     @property
     def task(self) -> "Task":
@@ -565,7 +565,7 @@ class ExportedTaskHL7Message(Base):
     exported_task = relationship(ExportedTask)
 
     def __init__(
-        self, exported_task: ExportedTask = None, *args, **kwargs
+        self, exported_task: ExportedTask = None, *args: Any, **kwargs: Any
     ) -> None:
         """
         Must support parameter-free construction, not least for
