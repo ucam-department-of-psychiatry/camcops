@@ -153,15 +153,15 @@ class CgiSch(  # type: ignore[misc]
             CtvInfo(
                 content=(
                     f"CGI-SCH. Severity: positive {self.severity1}, "  # type: ignore[attr-defined]  # noqa: E501
-                    f"negative {self.severity2}, "
-                    f"depressive {self.severity3}, "
-                    f"cognitive {self.severity4}, "
+                    f"negative {self.severity2}, "  # type: ignore[attr-defined]  # noqa: E501
+                    f"depressive {self.severity3}, "  # type: ignore[attr-defined]  # noqa: E501
+                    f"cognitive {self.severity4}, "  # type: ignore[attr-defined]  # noqa: E501
                     f"overall {self.severity5}. "
-                    f"Change: positive {self.change1}, "
-                    f"negative {self.change2}, "
-                    f"depressive {self.change3}, "
-                    f"cognitive {self.change4}, "
-                    f"overall {self.change5}."
+                    f"Change: positive {self.change1}, "  # type: ignore[attr-defined]  # noqa: E501
+                    f"negative {self.change2}, "  # type: ignore[attr-defined]
+                    f"depressive {self.change3}, "  # type: ignore[attr-defined]  # noqa: E501
+                    f"cognitive {self.change4}, "  # type: ignore[attr-defined]
+                    f"overall {self.change5}."  # type: ignore[attr-defined]
                 )
             )
         ]
