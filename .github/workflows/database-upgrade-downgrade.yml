@@ -13,12 +13,12 @@ on:
             - 'server/setup.py'
 jobs:
     database-upgrade-downgrade:
-        runs-on: ubuntu-20.04
+        runs-on: ubuntu-22.04
         steps:
             - uses: actions/checkout@v4
             - uses: actions/setup-python@v5
               with:
-                  python-version: 3.9
+                  python-version: "3.10"
             - name: Set up MySQL
               run: |
                   ${GITHUB_WORKSPACE}/.github/scripts/mysql_local_setup.sh
