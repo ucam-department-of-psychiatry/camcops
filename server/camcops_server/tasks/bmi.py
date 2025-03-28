@@ -70,7 +70,7 @@ M_DP = 3
 CM_DP = 1
 
 
-class Bmi(TaskHasPatientMixin, Task):
+class Bmi(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the BMI task.
     """

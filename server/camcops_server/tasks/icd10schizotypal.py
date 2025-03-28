@@ -63,7 +63,7 @@ from camcops_server.cc_modules.cc_text import SS
 # =============================================================================
 
 
-class Icd10Schizotypal(
+class Icd10Schizotypal(  # type: ignore[misc]
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
     Task,

@@ -41,7 +41,7 @@ from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
-class Cia(
+class Cia(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

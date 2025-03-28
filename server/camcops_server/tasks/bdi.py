@@ -152,7 +152,7 @@ CUSTOM_SOMATIC_KHANDAKER_BDI_II_FIELDS = Task.fieldnames_from_list(
 # =============================================================================
 
 
-class Bdi(
+class Bdi(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):
@@ -239,7 +239,7 @@ class Bdi(
         return cast(int, self.sum_fields(TASK_SCORED_FIELDS))
 
     def is_bdi_ii(self) -> bool:
-        return self.bdi_scale == SCALE_BDI_II
+        return self.bdi_scale == SCALE_BDI_II  # type: ignore[return-value]
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
@@ -279,7 +279,7 @@ class Bdi(
 
         # Question rows:
         q_a = ""
-        qdict = TOPICS_BY_SCALE.get(self.bdi_scale)
+        qdict = TOPICS_BY_SCALE.get(self.bdi_scale)  # type: ignore[call-overload]  # noqa: E501
         topic = "?"
         for q in range(1, NQUESTIONS + 1):
             if qdict:

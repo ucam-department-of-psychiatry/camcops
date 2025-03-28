@@ -61,7 +61,7 @@ from camcops_server.cc_modules.cc_text import SS
 # =============================================================================
 
 
-class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):  # type: ignore[misc]  # noqa: E501
     """
     Server implementation of the ICD10-MIXED task.
     """

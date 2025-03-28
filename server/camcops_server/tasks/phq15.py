@@ -55,7 +55,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Phq15(
+class Phq15(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):
@@ -118,7 +118,7 @@ class Phq15(
         if self.any_fields_none(self.FIVE_TO_END):
             return False
         if self.is_female():
-            return self.q4 is not None
+            return self.q4 is not None  # type: ignore[attr-defined]
         else:
             return True
 

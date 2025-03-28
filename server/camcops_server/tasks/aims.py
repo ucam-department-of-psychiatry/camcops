@@ -57,7 +57,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Aims(
+class Aims(  # type: ignore[misc]
     TaskHasPatientMixin,
     TaskHasClinicianMixin,
     Task,
@@ -177,13 +177,13 @@ class Aims(
             )
         q_a += (
             tr_qa(
-                self.wxstring(req, "q10_s"), get_from_dict(q10_dict, self.q10)
+                self.wxstring(req, "q10_s"), get_from_dict(q10_dict, self.q10)  # type: ignore[attr-defined]  # noqa: E501
             )
             + tr_qa(
-                self.wxstring(req, "q11_s"), get_yes_no_none(req, self.q11)
+                self.wxstring(req, "q11_s"), get_yes_no_none(req, self.q11)  # type: ignore[attr-defined]  # noqa: E501
             )
             + tr_qa(
-                self.wxstring(req, "q12_s"), get_yes_no_none(req, self.q12)
+                self.wxstring(req, "q12_s"), get_yes_no_none(req, self.q12)  # type: ignore[attr-defined]  # noqa: E501
             )
         )
 

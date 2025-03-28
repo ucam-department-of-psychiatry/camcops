@@ -50,7 +50,7 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 
-class Irac(TaskHasPatientMixin, Task):
+class Irac(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the IRAC task.
     """

@@ -90,10 +90,10 @@ def _gen_columns_for_anon_staging_db(
     engine = create_engine(url, echo=False, future=True)
     session = sessionmaker(bind=engine)(future=True)  # type: SqlASession
     export_options = TaskExportOptions(
-        include_blobs=recipient.db_include_blobs,
-        db_patient_id_per_row=recipient.db_patient_id_per_row,
+        include_blobs=recipient.db_include_blobs,  # type: ignore[arg-type]
+        db_patient_id_per_row=recipient.db_patient_id_per_row,  # type: ignore[arg-type]  # noqa: E501
         db_make_all_tables_even_empty=True,
-        db_include_summaries=recipient.db_add_summaries,
+        db_include_summaries=recipient.db_add_summaries,  # type: ignore[arg-type]  # noqa: E501
     )
 
     dc = DumpController(
@@ -369,7 +369,7 @@ def _get_crate_dd_row(
     primary_pid = (
         recipient.db_patient_id_per_row
         and recipient.primary_idnum  # otherwise just in PatientIdNum
-        and colname == extra_id_colname(recipient.primary_idnum)
+        and colname == extra_id_colname(recipient.primary_idnum)  # type: ignore[arg-type]  # noqa: E501
     )
     if primary_pid:
         src_flags.append("P")

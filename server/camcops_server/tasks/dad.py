@@ -62,7 +62,7 @@ YN_NA_CHECKER = PermittedValueChecker(permitted_values=[YES, NO, NA])
 # =============================================================================
 
 
-class Dad(
+class Dad(  # type: ignore[misc]
     TaskHasPatientMixin,
     TaskHasRespondentMixin,
     TaskHasClinicianMixin,

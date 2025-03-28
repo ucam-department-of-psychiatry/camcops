@@ -69,7 +69,7 @@ log = logging.getLogger(__name__)
 # =============================================================================
 
 
-class Phq9(
+class Phq9(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

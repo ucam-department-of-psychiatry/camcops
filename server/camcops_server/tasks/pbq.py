@@ -53,7 +53,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Pbq(
+class Pbq(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):
@@ -353,35 +353,35 @@ class PBQReport(AverageScoreReport):
         return [
             ScoreDetails(
                 name=_("Total score"),
-                scorefunc=Pbq.total_score,
+                scorefunc=Pbq.total_score,  # type: ignore[arg-type]
                 minimum=0,
                 maximum=Pbq.MAX_TOTAL,
                 higher_score_is_better=False,
             ),
             ScoreDetails(
                 name=_("Factor 1 score"),
-                scorefunc=Pbq.factor_1_score,
+                scorefunc=Pbq.factor_1_score,  # type: ignore[arg-type]
                 minimum=0,
                 maximum=Pbq.FACTOR_1_MAX,
                 higher_score_is_better=False,
             ),
             ScoreDetails(
                 name=_("Factor 2 score"),
-                scorefunc=Pbq.factor_2_score,
+                scorefunc=Pbq.factor_2_score,  # type: ignore[arg-type]
                 minimum=0,
                 maximum=Pbq.FACTOR_2_MAX,
                 higher_score_is_better=False,
             ),
             ScoreDetails(
                 name=_("Factor 3 score"),
-                scorefunc=Pbq.factor_3_score,
+                scorefunc=Pbq.factor_3_score,  # type: ignore[arg-type]
                 minimum=0,
                 maximum=Pbq.FACTOR_3_MAX,
                 higher_score_is_better=False,
             ),
             ScoreDetails(
                 name=_("Factor 4 score"),
-                scorefunc=Pbq.factor_4_score,
+                scorefunc=Pbq.factor_4_score,  # type: ignore[arg-type]
                 minimum=0,
                 maximum=Pbq.FACTOR_4_MAX,
                 higher_score_is_better=False,

@@ -52,7 +52,7 @@ from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 # =============================================================================
 
 
-class DistressThermometer(
+class DistressThermometer(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

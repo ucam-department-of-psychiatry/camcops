@@ -48,7 +48,7 @@ from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 # =============================================================================
 
 
-class Srs(TaskHasPatientMixin, Task):
+class Srs(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the SRS task.
     """

@@ -247,7 +247,7 @@ class DumpController(object):
         want dumped, add this object to the dump.
         """
         # noinspection PyUnresolvedReferences
-        src_table = src_obj.__table__  # type: Table
+        src_table = src_obj.__table__  # type: ignore[attr-defined]
         src_tablename = src_table.name
         if src_tablename not in self.tablenames_seen:
             # If we encounter a table we've not seen, offer our "table decider"
@@ -319,7 +319,7 @@ class DumpController(object):
             an SQLAlchemy :class:`Table`
         """
         # noinspection PyUnresolvedReferences
-        src_table = src_obj.__table__  # type: Table
+        src_table = src_obj.__table__  # type: ignore[attr-defined]
         tablename = src_table.name
 
         # Don't create it twice in the SQLAlchemy metadata.
@@ -420,7 +420,7 @@ class DumpController(object):
                 :meth:`_get_or_insert_summary_table`.
         """
         # noinspection PyUnresolvedReferences
-        src_table = src_obj.__table__  # type: Table
+        src_table = src_obj.__table__  # type: ignore[attr-defined]
         tablename = src_table.name
         self.tablenames_seen.add(tablename)
 
@@ -457,7 +457,7 @@ class DumpController(object):
         Copy the SQLAlchemy ORM object to the dump.
         """
         # noinspection PyUnresolvedReferences
-        src_table = src_obj.__table__  # type: Table
+        src_table = src_obj.__table__  # type: ignore[attr-defined]
         adding_extra_ids = False
         patient = None  # type: Optional[Patient]
         if self.export_options.db_patient_id_in_each_row:

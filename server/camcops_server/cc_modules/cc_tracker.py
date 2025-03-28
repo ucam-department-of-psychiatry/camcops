@@ -193,7 +193,7 @@ def consistency_idnums(
             (
                 # "At least one ID number record relates to this which_idnum".
                 any(
-                    idnum.which_idnum == which_idnum
+                    idnum.which_idnum == which_idnum  # type: ignore[arg-type]
                     and idnum.idnum_value is not None
                 )
                 for idnum in task_idnum_list
@@ -371,9 +371,9 @@ class TrackerCtvCommon(object):
             self.latest = all_tasks[-1].when_created
             self.patient = all_tasks[0].patient
         else:
-            self.earliest = None  # type: Optional[Pendulum]
-            self.latest = None  # type: Optional[Pendulum]
-            self.patient = None  # type: Optional[Patient]
+            self.earliest = None  # type: ignore[no-redef]
+            self.latest = None  # type: ignore[no-redef]
+            self.patient = None  # type: ignore[no-redef]
 
         # Summary information
         self.summary = ""

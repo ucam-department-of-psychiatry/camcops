@@ -63,14 +63,14 @@ class Paradise24Tests(TestCase):
         # Not an exhaustive test of all values as that would not be
         # particularly useful. Enough to check the lookup
         # is working.
-        paradise24.total_score = mock.Mock(return_value=48)
+        paradise24.total_score = mock.Mock(return_value=48)  # type: ignore[method-assign]  # noqa: E501
         self.assertEqual(paradise24.metric_score(), 100)
 
-        paradise24.total_score = mock.Mock(return_value=24)
+        paradise24.total_score = mock.Mock(return_value=24)  # type: ignore[method-assign]  # noqa: E501
         self.assertEqual(paradise24.metric_score(), 64)
 
-        paradise24.total_score = mock.Mock(return_value=0)
+        paradise24.total_score = mock.Mock(return_value=0)  # type: ignore[method-assign]  # noqa: E501
         self.assertEqual(paradise24.metric_score(), 0)
 
-        paradise24.total_score = mock.Mock(return_value=None)
+        paradise24.total_score = mock.Mock(return_value=None)  # type: ignore[method-assign]  # noqa: E501
         self.assertIsNone(paradise24.metric_score())

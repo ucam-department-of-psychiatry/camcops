@@ -481,7 +481,7 @@ class RequestAwareMixin(object):
     # noinspection PyUnresolvedReferences
     @property
     def request(self) -> "CamcopsRequest":
-        return self.bindings[Binding.REQUEST]
+        return self.bindings[Binding.REQUEST]  # type: ignore[attr-defined]
 
     # noinspection PyUnresolvedReferences,PyPropertyDefinition
     @property
@@ -768,7 +768,7 @@ class HorizontalFormMixin(object):
         schema.widget = HorizontalFormWidget()
 
         # OK, proceed.
-        super().__init__(schema, *args, **kwargs)
+        super().__init__(schema, *args, **kwargs)  # type: ignore[call-arg]
 
 
 def add_css_class(
@@ -1478,7 +1478,7 @@ class UserFilterSchema(Schema, RequestAwareMixin):
         _ = self.gettext
         include_auto_generated = get_child_node(self, "include_auto_generated")
         include_auto_generated.title = _("Include auto-generated users")
-        include_auto_generated.label = None
+        include_auto_generated.label = None  # type: ignore[attr-defined]
 
 
 class UserFilterForm(InformativeNonceForm):
@@ -3085,7 +3085,7 @@ class EditTaskFilterWhatSchema(Schema, RequestAwareMixin):
         complete_only = get_child_node(self, "complete_only")
         only_completed_text = _("Only completed tasks?")
         complete_only.title = only_completed_text
-        complete_only.label = only_completed_text
+        complete_only.label = only_completed_text  # type: ignore[attr-defined]
 
 
 class EditTaskFilterAdminSchema(Schema):
@@ -3300,7 +3300,7 @@ class ChooseTrackerSchema(CSRFSchema):
         all_tasks = get_child_node(self, "all_tasks")
         text = _("Use all eligible task types?")
         all_tasks.title = text
-        all_tasks.label = text
+        all_tasks.label = text  # type: ignore[attr-defined]
 
 
 class ChooseTrackerForm(InformativeNonceForm):
@@ -3363,7 +3363,7 @@ class ReportOutputTypeSelector(SchemaNode, RequestAwareMixin):
     def get_choices(self) -> Tuple[Tuple[str, str]]:
         _ = self.gettext
         # noinspection PyTypeChecker
-        return (
+        return (  # type: ignore[return-value]
             (ViewArg.HTML, _("HTML")),
             (ViewArg.ODS, _("OpenOffice spreadsheet (ODS) file")),
             (ViewArg.TSV, _("TSV (tab-separated values)")),
@@ -3526,23 +3526,23 @@ class UserGroupPermissionsGroupAdminSchema(CSRFSchema):
         may_upload = get_child_node(self, "may_upload")
         mu_text = _("Permitted to upload from a tablet/device")
         may_upload.title = mu_text
-        may_upload.label = mu_text
+        may_upload.label = mu_text  # type: ignore[attr-defined]
         may_register_devices = get_child_node(self, "may_register_devices")
         mrd_text = _("Permitted to register tablet/client devices")
         may_register_devices.title = mrd_text
-        may_register_devices.label = mrd_text
+        may_register_devices.label = mrd_text  # type: ignore[attr-defined]
         may_use_webviewer = get_child_node(self, "may_use_webviewer")
         ml_text = _("May log in to web front end")
         may_use_webviewer.title = ml_text
-        may_use_webviewer.label = ml_text
+        may_use_webviewer.label = ml_text  # type: ignore[attr-defined]
         may_manage_patients = get_child_node(self, "may_manage_patients")
         mmp_text = _("May add, edit or delete patients created on the server")
         may_manage_patients.title = mmp_text
-        may_manage_patients.label = mmp_text
+        may_manage_patients.label = mmp_text  # type: ignore[attr-defined]
         may_email_patients = get_child_node(self, "may_email_patients")
         mep_text = _("May send emails to patients created on the server")
         may_email_patients.title = mep_text
-        may_email_patients.label = mep_text
+        may_email_patients.label = mep_text  # type: ignore[attr-defined]
         view_all_patients_when_unfiltered = get_child_node(
             self, "view_all_patients_when_unfiltered"
         )
@@ -3551,19 +3551,19 @@ class UserGroupPermissionsGroupAdminSchema(CSRFSchema):
             "filter set"
         )
         view_all_patients_when_unfiltered.title = vap_text
-        view_all_patients_when_unfiltered.label = vap_text
+        view_all_patients_when_unfiltered.label = vap_text  # type: ignore[attr-defined]  # noqa: E501
         may_dump_data = get_child_node(self, "may_dump_data")
         md_text = _("May perform bulk data dumps")
         may_dump_data.title = md_text
-        may_dump_data.label = md_text
+        may_dump_data.label = md_text  # type: ignore[attr-defined]
         may_run_reports = get_child_node(self, "may_run_reports")
         mrr_text = _("May run reports")
         may_run_reports.title = mrr_text
-        may_run_reports.label = mrr_text
+        may_run_reports.label = mrr_text  # type: ignore[attr-defined]
         may_add_notes = get_child_node(self, "may_add_notes")
         man_text = _("May add special notes to tasks")
         may_add_notes.title = man_text
-        may_add_notes.label = man_text
+        may_add_notes.label = man_text  # type: ignore[attr-defined]
 
 
 class UserGroupPermissionsFullSchema(UserGroupPermissionsGroupAdminSchema):
@@ -3582,7 +3582,7 @@ class UserGroupPermissionsFullSchema(UserGroupPermissionsGroupAdminSchema):
         groupadmin = get_child_node(self, "groupadmin")
         text = _("User is a privileged group administrator for this group")
         groupadmin.title = text
-        groupadmin.label = text
+        groupadmin.label = text  # type: ignore[attr-defined]
 
 
 class EditUserGroupAdminSchema(CSRFSchema):
@@ -3629,7 +3629,7 @@ class EditUserFullSchema(EditUserGroupAdminSchema):
         superuser = get_child_node(self, "superuser")
         text = _("Superuser (CAUTION!)")
         superuser.title = text
-        superuser.label = text
+        superuser.label = text  # type: ignore[attr-defined]
 
 
 class EditUserFullForm(ApplyCancelForm):
@@ -3990,7 +3990,7 @@ class EditGroupSchema(CSRFSchema):
     def validator(self, node: SchemaNode, value: Any) -> None:
         request = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
         q = (
-            CountStarSpecializedQuery(Group, session=request.dbsession)
+            CountStarSpecializedQuery(Group, session=request.dbsession)  # type: ignore[arg-type]  # noqa: E501
             .filter(Group.id != value[ViewParam.GROUP_ID])
             .filter(Group.name == value[ViewParam.NAME])
         )
@@ -4036,7 +4036,7 @@ class AddGroupSchema(CSRFSchema):
 
     def validator(self, node: SchemaNode, value: Any) -> None:
         request = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
-        q = CountStarSpecializedQuery(Group, session=request.dbsession).filter(
+        q = CountStarSpecializedQuery(Group, session=request.dbsession).filter(  # type: ignore[arg-type]  # noqa: E501
             Group.name == value[ViewParam.NAME]
         )
         if q.count_star() > 0:
@@ -4633,7 +4633,7 @@ class EditIdDefinitionSchema(CSRFSchema):
         _ = request.gettext
         qd = (
             CountStarSpecializedQuery(
-                IdNumDefinition, session=request.dbsession
+                IdNumDefinition, session=request.dbsession  # type: ignore[arg-type]  # noqa: E501
             )
             .filter(
                 IdNumDefinition.which_idnum != value[ViewParam.WHICH_IDNUM]
@@ -4646,7 +4646,7 @@ class EditIdDefinitionSchema(CSRFSchema):
             raise Invalid(node, _("Description is used by another ID number!"))
         qs = (
             CountStarSpecializedQuery(
-                IdNumDefinition, session=request.dbsession
+                IdNumDefinition, session=request.dbsession  # type: ignore[arg-type]  # noqa: E501
             )
             .filter(
                 IdNumDefinition.which_idnum != value[ViewParam.WHICH_IDNUM]
@@ -4705,17 +4705,17 @@ class AddIdDefinitionSchema(CSRFSchema):
         request = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
         _ = request.gettext
         qw = CountStarSpecializedQuery(
-            IdNumDefinition, session=request.dbsession
+            IdNumDefinition, session=request.dbsession  # type: ignore[arg-type]  # noqa: E501
         ).filter(IdNumDefinition.which_idnum == value[ViewParam.WHICH_IDNUM])
         if qw.count_star() > 0:
             raise Invalid(node, _("ID# clashes with another ID number!"))
         qd = CountStarSpecializedQuery(
-            IdNumDefinition, session=request.dbsession
+            IdNumDefinition, session=request.dbsession  # type: ignore[arg-type]  # noqa: E501
         ).filter(IdNumDefinition.description == value[ViewParam.DESCRIPTION])
         if qd.count_star() > 0:
             raise Invalid(node, _("Description is used by another ID number!"))
         qs = CountStarSpecializedQuery(
-            IdNumDefinition, session=request.dbsession
+            IdNumDefinition, session=request.dbsession  # type: ignore[arg-type]  # noqa: E501
         ).filter(
             IdNumDefinition.short_description
             == value[ViewParam.SHORT_DESCRIPTION]
@@ -5578,7 +5578,7 @@ class TaskScheduleItemSchema(CSRFSchema):
         )
         clinician_confirmation = get_child_node(self, "clinician_confirmation")
         clinician_confirmation.title = _("Allow clinician tasks")
-        clinician_confirmation.label = None
+        clinician_confirmation.label = None  # type: ignore[attr-defined]
         clinician_confirmation.description = _(
             "Tick this box to schedule a task that would normally be "
             "completed by (or with) a clinician"

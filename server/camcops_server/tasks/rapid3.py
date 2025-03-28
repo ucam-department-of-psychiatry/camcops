@@ -54,7 +54,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Rapid3(
+class Rapid3(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):
@@ -253,11 +253,11 @@ class Rapid3(
 
     def pain_tolerance(self) -> float:
         # noinspection PyUnresolvedReferences
-        return self.q2
+        return self.q2  # type: ignore[attr-defined]
 
     def global_estimate(self) -> float:
         # noinspection PyUnresolvedReferences
-        return self.q3
+        return self.q3  # type: ignore[attr-defined]
 
     def is_complete(self) -> bool:
         if self.any_fields_none(self.all_fieldnames()):

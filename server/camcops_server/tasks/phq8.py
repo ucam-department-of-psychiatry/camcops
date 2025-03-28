@@ -65,7 +65,7 @@ log = logging.getLogger(__name__)
 # =============================================================================
 
 
-class Phq8(
+class Phq8(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

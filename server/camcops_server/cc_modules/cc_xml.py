@@ -166,7 +166,7 @@ XML_COMMENT_STORED = XmlLiteral("<!-- Stored fields -->")
 # simple. Therefore, let's roll our own:
 
 
-def make_xml_branches_from_columns(
+def make_xml_branches_from_columns(  # type: ignore[no-untyped-def]
     obj, skip_fields: List[str] = None
 ) -> List[XmlElement]:
     """
@@ -231,7 +231,7 @@ def make_xml_branches_from_summaries(
     return branches
 
 
-def make_xml_branches_from_blobs(
+def make_xml_branches_from_blobs(  # type: ignore[no-untyped-def]
     req: "CamcopsRequest", obj, skip_fields: List[str] = None
 ) -> List[XmlElement]:
     """

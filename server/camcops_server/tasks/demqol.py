@@ -84,7 +84,7 @@ COPYRIGHT_DIV = f"""
 # =============================================================================
 
 
-class Demqol(
+class Demqol(  # type: ignore[misc]
     TaskHasPatientMixin,
     TaskHasClinicianMixin,
     Task,
@@ -285,7 +285,7 @@ class Demqol(
 # =============================================================================
 
 
-class DemqolProxy(
+class DemqolProxy(  # type: ignore[misc]
     TaskHasPatientMixin,
     TaskHasRespondentMixin,
     TaskHasClinicianMixin,

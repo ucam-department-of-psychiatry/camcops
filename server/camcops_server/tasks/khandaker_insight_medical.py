@@ -95,7 +95,7 @@ X_COMMENT_HINT = "comment_hint"
 # =============================================================================
 
 
-class KhandakerInsightMedical(
+class KhandakerInsightMedical(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

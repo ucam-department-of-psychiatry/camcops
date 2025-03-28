@@ -254,7 +254,7 @@ class Group(Base):
         """
         Does a particular group (specified by its integer ID) exist?
         """
-        return exists_orm(dbsession, cls, cls.id == group_id)
+        return exists_orm(dbsession, cls, cls.id == group_id)  # type: ignore[arg-type]  # noqa: E501
 
     def tokenized_upload_policy(self) -> TokenizedPolicy:
         """

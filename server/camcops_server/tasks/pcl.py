@@ -58,7 +58,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class PclCommon(TaskHasPatientMixin, Task, ABC):
+class PclCommon(TaskHasPatientMixin, Task, ABC):  # type: ignore[misc]
     __abstract__ = True
     provides_trackers = True
     extrastring_taskname = "pcl"

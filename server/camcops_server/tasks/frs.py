@@ -187,7 +187,7 @@ def get_tabular_logit(score: float) -> float:
 #     print(",".join(str(q) for q in (x, logit, severity)))
 
 
-class Frs(
+class Frs(  # type: ignore[misc]
     TaskHasPatientMixin,
     TaskHasRespondentMixin,
     TaskHasClinicianMixin,

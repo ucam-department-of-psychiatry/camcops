@@ -56,7 +56,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Gaf(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+class Gaf(TaskHasClinicianMixin, TaskHasPatientMixin, Task):  # type: ignore[misc]  # noqa: E501
     """
     Server implementation of the GAF task.
     """

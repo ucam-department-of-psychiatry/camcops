@@ -67,7 +67,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Ciwa(
+class Ciwa(  # type: ignore[misc]
     TaskHasPatientMixin,
     TaskHasClinicianMixin,
     Task,

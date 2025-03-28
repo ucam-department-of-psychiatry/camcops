@@ -47,24 +47,24 @@ class Rapid3Tests(unittest.TestCase):
 
         # a-j total 13
         # expected FN = 13/3 = 4.3 (1 dp)
-        rapid3.q1a = 1
-        rapid3.q1b = 2
-        rapid3.q1c = 3
-        rapid3.q1d = 0
-        rapid3.q1e = 1
-        rapid3.q1f = 0
-        rapid3.q1g = 3
-        rapid3.q1h = 0
-        rapid3.q1i = 1
-        rapid3.q1j = 2
+        rapid3.q1a = 1  # type: ignore[attr-defined]
+        rapid3.q1b = 2  # type: ignore[attr-defined]
+        rapid3.q1c = 3  # type: ignore[attr-defined]
+        rapid3.q1d = 0  # type: ignore[attr-defined]
+        rapid3.q1e = 1  # type: ignore[attr-defined]
+        rapid3.q1f = 0  # type: ignore[attr-defined]
+        rapid3.q1g = 3  # type: ignore[attr-defined]
+        rapid3.q1h = 0  # type: ignore[attr-defined]
+        rapid3.q1i = 1  # type: ignore[attr-defined]
+        rapid3.q1j = 2  # type: ignore[attr-defined]
 
         # k-m not scored formally
-        rapid3.q1k = 3
-        rapid3.q1l = 0
-        rapid3.q1m = 1
+        rapid3.q1k = 3  # type: ignore[attr-defined]
+        rapid3.q1l = 0  # type: ignore[attr-defined]
+        rapid3.q1m = 1  # type: ignore[attr-defined]
 
-        rapid3.q2 = 0.5
-        rapid3.q3 = 2.0
+        rapid3.q2 = 0.5  # type: ignore[attr-defined]
+        rapid3.q3 = 2.0  # type: ignore[attr-defined]
 
         # cumulative = 4.3 + 0.5 + 2.0 = 6.8
 
@@ -78,23 +78,23 @@ class Rapid3Tests(unittest.TestCase):
     def test_complete_when_all_answers_valid(self) -> None:
         rapid3 = Rapid3()
 
-        rapid3.q1a = 0
-        rapid3.q1b = 0
-        rapid3.q1c = 0
-        rapid3.q1d = 0
-        rapid3.q1e = 0
-        rapid3.q1f = 0
-        rapid3.q1g = 0
-        rapid3.q1h = 0
-        rapid3.q1i = 0
-        rapid3.q1j = 0
+        rapid3.q1a = 0  # type: ignore[attr-defined]
+        rapid3.q1b = 0  # type: ignore[attr-defined]
+        rapid3.q1c = 0  # type: ignore[attr-defined]
+        rapid3.q1d = 0  # type: ignore[attr-defined]
+        rapid3.q1e = 0  # type: ignore[attr-defined]
+        rapid3.q1f = 0  # type: ignore[attr-defined]
+        rapid3.q1g = 0  # type: ignore[attr-defined]
+        rapid3.q1h = 0  # type: ignore[attr-defined]
+        rapid3.q1i = 0  # type: ignore[attr-defined]
+        rapid3.q1j = 0  # type: ignore[attr-defined]
 
-        rapid3.q1k = 0
-        rapid3.q1l = 0
-        rapid3.q1m = 0
+        rapid3.q1k = 0  # type: ignore[attr-defined]
+        rapid3.q1l = 0  # type: ignore[attr-defined]
+        rapid3.q1m = 0  # type: ignore[attr-defined]
 
-        rapid3.q2 = 0.0
-        rapid3.q3 = 0.0
+        rapid3.q2 = 0.0  # type: ignore[attr-defined]
+        rapid3.q3 = 0.0  # type: ignore[attr-defined]
 
         self.assertTrue(rapid3.is_complete())
 

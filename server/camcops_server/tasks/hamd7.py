@@ -57,7 +57,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Hamd7(
+class Hamd7(  # type: ignore[misc]
     TaskHasPatientMixin,
     TaskHasClinicianMixin,
     Task,

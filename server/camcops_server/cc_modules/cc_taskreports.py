@@ -168,7 +168,7 @@ class TaskCountReport(Report):
 
     def _get_rows_colnames_via_index(self) -> Tuple[list[Row], list[str]]:
         final_rows = []
-        colnames = []
+        colnames = []  # type: ignore[var-annotated]
 
         selectors: list[ColumnElement[Any]] = []
         groupers = []
@@ -242,7 +242,7 @@ class TaskCountReport(Report):
 
     def _get_rows_colnames_without_index(self) -> Tuple[list[Row], list[str]]:
         final_rows = []
-        colnames = []
+        colnames = []  # type: ignore[var-annotated]
 
         groupers: list[str] = []
         sorters: list[Tuple[str, bool]] = []
@@ -338,10 +338,10 @@ class TaskCountReport(Report):
                     count = getattr(row, self.label_n)
                     counter.update({key: count})
         if not self.by_task:
-            PseudoRow = namedtuple("PseudoRow", groupers + [self.label_n])
+            PseudoRow = namedtuple("PseudoRow", groupers + [self.label_n])  # type: ignore[misc]  # noqa: E501
             for key, total in counter.items():
                 values = list(key) + [total]
-                final_rows.append(PseudoRow(*values))
+                final_rows.append(PseudoRow(*values))  # type: ignore[arg-type]
 
         self._sort_final_rows(final_rows, sorters)
         return final_rows, colnames

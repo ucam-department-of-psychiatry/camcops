@@ -45,7 +45,6 @@ import uuid
 from alembic import op
 from sqlalchemy import orm
 from sqlalchemy.engine.strategies import MockEngineStrategy
-from sqlalchemy.sql.schema import Column, Table
 from sqlalchemy.sql.expression import bindparam, select, update
 
 from camcops_server.cc_modules.cc_patient import Patient
@@ -90,10 +89,10 @@ def upgrade() -> None:
 
     # Some shorthand:
     # noinspection PyUnresolvedReferences
-    patient_table = Patient.__table__  # type: Table
+    patient_table = Patient.__table__  # type: ignore[assignment] # type: Table
     # noinspection PyProtectedMember
-    pk_col = patient_table.columns._pk  # type: Column
-    uuid_col = patient_table.columns.uuid  # type: Column
+    pk_col = patient_table.columns._pk  # type: ignore[assignment]
+    uuid_col = patient_table.columns.uuid  # type: ignore[assignment]
 
     # SELECT patient._pk FROM patient WHERE patient.uuid IS NULL:
     pk_query = select(pk_col).where(uuid_col.is_(None))
@@ -109,7 +108,7 @@ def upgrade() -> None:
     if update_values:
         # UPDATE patient SET uuid=%(uuid)s WHERE patient._pk = %(pk)s:
         update_statement = (
-            update(patient_table)
+            update(patient_table)  # type: ignore[arg-type]
             .where(pk_col == bindparam("pk"))
             .values(uuid=bindparam("uuid"))
         )

@@ -66,7 +66,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Ifs(
+class Ifs(  # type: ignore[misc]
     TaskHasPatientMixin,
     TaskHasClinicianMixin,
     Task,

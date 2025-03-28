@@ -125,7 +125,7 @@ class AqTests(TestCase):
         for q_num in self.ALL_QUESTIONS:
             setattr(aq, f"q{q_num}", self.DEFINITELY_AGREE)
 
-        aq.q1 = None
+        aq.q1 = None  # type: ignore[attr-defined]
 
         self.assertIsNone(aq.score())
 
@@ -148,7 +148,7 @@ class AqTests(TestCase):
         for q_num in self.SOCIAL_SKILL_QUESTIONS:
             setattr(aq, f"q{q_num}", self.non_scoring_answer(q_num))
 
-        aq.q1 = None
+        aq.q1 = None  # type: ignore[attr-defined]
 
         self.assertIsNone(aq.social_skill_score())
 

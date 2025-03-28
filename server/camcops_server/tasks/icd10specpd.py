@@ -75,7 +75,7 @@ def ctv_info_pd(
     return CtvInfo(content=condition + ": " + get_yes_no_unknown(req, has_it))
 
 
-class Icd10SpecPD(
+class Icd10SpecPD(  # type: ignore[misc]
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
     Task,
@@ -460,12 +460,12 @@ class Icd10SpecPD(
     # noinspection PyUnresolvedReferences
     def is_pd_excluded(self) -> bool:
         return (
-            is_false(self.g1)
-            or is_false(self.g2)
-            or is_false(self.g3)
-            or is_false(self.g4)
-            or is_false(self.g5)
-            or is_false(self.g6)
+            is_false(self.g1)  # type: ignore[attr-defined]
+            or is_false(self.g2)  # type: ignore[attr-defined]
+            or is_false(self.g3)  # type: ignore[attr-defined]
+            or is_false(self.g4)  # type: ignore[attr-defined]
+            or is_false(self.g5)  # type: ignore[attr-defined]
+            or is_false(self.g6)  # type: ignore[attr-defined]
             or (
                 self.all_fields_not_none(self.GENERAL_1_FIELDS)
                 and self.count_booleans(self.GENERAL_1_FIELDS) <= 1
@@ -543,7 +543,7 @@ class Icd10SpecPD(
             return hpd
         if not self.is_complete_eu():
             return None
-        return self.count_booleans(self.EUPD_I_FIELDS) >= 3 and self.eu2
+        return self.count_booleans(self.EUPD_I_FIELDS) >= 3 and self.eu2  # type: ignore[attr-defined]  # noqa: E501
 
     def has_eupd_b(self) -> Optional[bool]:
         hpd = self.has_pd()
@@ -658,7 +658,7 @@ class Icd10SpecPD(
         return html
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        h = self.get_standard_clinician_comments_block(req, self.comments)
+        h = self.get_standard_clinician_comments_block(req, self.comments)  # type: ignore[arg-type]  # noqa: E501
         h += f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
@@ -667,7 +667,7 @@ class Icd10SpecPD(
         h += tr_qa(
             req.wappstring(AS.DATE_PERTAINS_TO),
             format_datetime(
-                self.date_pertains_to, DateFormat.LONG_DATE, default=None
+                self.date_pertains_to, DateFormat.LONG_DATE, default=None  # type: ignore[arg-type]  # noqa: E501
             ),
         )
         h += tr_qa(

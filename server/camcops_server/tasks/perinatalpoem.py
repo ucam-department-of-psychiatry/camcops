@@ -708,7 +708,7 @@ class PerinatalPoemReport(
 
         wheres = [column("general_comments").isnot(None)]
 
-        self.add_task_report_filters(wheres)
+        self.add_task_report_filters(wheres)  # type: ignore[arg-type]
 
         # noinspection PyUnresolvedReferences
         query: Select[Any] = (

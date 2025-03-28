@@ -46,7 +46,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Pswq(
+class Pswq(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

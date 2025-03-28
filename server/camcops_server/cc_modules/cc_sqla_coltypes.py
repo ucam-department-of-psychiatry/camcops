@@ -826,7 +826,7 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
                 # or a PendulumDateTimeAsIsoTextColType field (or potentially
                 # something else that we don't really care about). If it's a
                 # DATETIME, then we assume it is already in UTC.
-                processed_other = unknown_field_to_utcdatetime(other)
+                processed_other = unknown_field_to_utcdatetime(other)  # type: ignore[assignment]  # noqa: E501
             if DEBUG_DATETIME_AS_ISO_TEXT:
                 log.debug(
                     "operate(self={!r}, op={!r}, other={!r})", self, op, other
@@ -1499,7 +1499,7 @@ def camcops_column(
     return Column(*args, info=info, **kwargs)
 
 
-def mapped_camcops_column(
+def mapped_camcops_column(  # type: ignore[no-untyped-def]
     *args,
     include_in_anon_staging_db: bool = False,
     exempt_from_anonymisation: bool = False,
@@ -1563,7 +1563,7 @@ def mapped_camcops_column(
 # =============================================================================
 
 
-def gen_columns_matching_attrnames(
+def gen_columns_matching_attrnames(  # type: ignore[no-untyped-def]
     obj, attrnames: List[str]
 ) -> Generator[Tuple[str, Column], None, None]:
     """
@@ -1583,7 +1583,7 @@ def gen_columns_matching_attrnames(
             yield attrname, column
 
 
-def gen_camcops_columns(
+def gen_camcops_columns(  # type: ignore[no-untyped-def]
     obj,
 ) -> Generator[Tuple[str, Column], None, None]:
     """
@@ -1601,7 +1601,7 @@ def gen_camcops_columns(
             yield attrname, column
 
 
-def gen_camcops_blob_columns(
+def gen_camcops_blob_columns(  # type: ignore[no-untyped-def]
     obj,
 ) -> Generator[Tuple[str, Column], None, None]:
     """
@@ -1627,14 +1627,14 @@ def gen_camcops_blob_columns(
             yield attrname, column
 
 
-def get_column_attr_names(obj) -> List[str]:
+def get_column_attr_names(obj) -> List[str]:  # type: ignore[no-untyped-def]
     """
     Get a list of column attribute names from an SQLAlchemy ORM object.
     """
     return [attrname for attrname, _ in gen_columns(obj)]
 
 
-def get_camcops_column_attr_names(obj) -> List[str]:
+def get_camcops_column_attr_names(obj) -> List[str]:  # type: ignore[no-untyped-def]  # noqa: E501
     """
     Get a list of
     :func:`camcops_server.cc_modules.cc_sqla_coltypes.camcops_column` column
@@ -1643,7 +1643,7 @@ def get_camcops_column_attr_names(obj) -> List[str]:
     return [attrname for attrname, _ in gen_camcops_columns(obj)]
 
 
-def get_camcops_blob_column_attr_names(obj) -> List[str]:
+def get_camcops_blob_column_attr_names(obj) -> List[str]:  # type: ignore[no-untyped-def]  # noqa: E501
     """
     Get a list of
     :func:`camcops_server.cc_modules.cc_sqla_coltypes.camcops_column` BLOB
@@ -1652,7 +1652,7 @@ def get_camcops_blob_column_attr_names(obj) -> List[str]:
     return [attrname for attrname, _ in gen_camcops_blob_columns(obj)]
 
 
-def permitted_value_failure_msgs(obj) -> List[str]:
+def permitted_value_failure_msgs(obj) -> List[str]:  # type: ignore[no-untyped-def]  # noqa: E501
     """
     Checks a SQLAlchemy ORM object instance against its permitted value checks
     (via its :func:`camcops_server.cc_modules.cc_sqla_coltypes.camcops_column`
@@ -1677,7 +1677,7 @@ def permitted_value_failure_msgs(obj) -> List[str]:
     return failure_msgs
 
 
-def permitted_values_ok(obj) -> bool:
+def permitted_values_ok(obj) -> bool:  # type: ignore[no-untyped-def]
     """
     Checks whether an instance passes its permitted value checks, if it has
     any.
@@ -1697,7 +1697,7 @@ def permitted_values_ok(obj) -> bool:
     return True
 
 
-def gen_ancillary_relationships(
+def gen_ancillary_relationships(  # type: ignore[no-untyped-def]
     obj,
 ) -> Generator[
     Tuple[str, RelationshipProperty, Type["GenericTabletRecordMixin"]],
@@ -1714,7 +1714,7 @@ def gen_ancillary_relationships(
             yield attrname, rel_prop, related_class
 
 
-def gen_blob_relationships(
+def gen_blob_relationships(  # type: ignore[no-untyped-def]
     obj,
 ) -> Generator[
     Tuple[str, RelationshipProperty, Type["GenericTabletRecordMixin"]],
@@ -1736,14 +1736,15 @@ def gen_blob_relationships(
 # =============================================================================
 
 
-def bool_column(name: str, *args, **kwargs) -> Column[bool]:
+def bool_column(name: str, *args: Any, **kwargs: Any) -> Column[bool]:
     type_arg = _get_bool_column_args(name, kwargs)
 
     return camcops_column(name, type_arg, *args, **kwargs)
 
 
-def mapped_bool_column(name: str, *args, **kwargs) -> MappedColumn[bool]:
-
+def mapped_bool_column(
+    name: str, *args: Any, **kwargs: Any
+) -> MappedColumn[bool]:
     type_arg = _get_bool_column_args(name, kwargs)
 
     return mapped_camcops_column(name, type_arg, *args, **kwargs)

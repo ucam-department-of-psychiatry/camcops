@@ -196,10 +196,10 @@ class TaskAssignmentReport(Report):
             func.sum(all_data.c.emails_sent).label(self.label_emails_sent),
         ]
         query = (
-            select(*selectors)
+            select(*selectors)  # type: ignore[arg-type]
             .select_from(all_data)
-            .group_by(*groupers)
-            .order_by(*sorters)
+            .group_by(*groupers)  # type: ignore[arg-type]
+            .order_by(*sorters)  # type: ignore[arg-type]
         )
 
         rows, colnames = get_rows_fieldnames_from_select(req.dbsession, query)
@@ -235,7 +235,7 @@ class TaskAssignmentReport(Report):
         ]
 
         query = self._build_query(
-            req, tables, by_year, by_month, date_column, count_selectors
+            req, tables, by_year, by_month, date_column, count_selectors  # type: ignore[arg-type]  # noqa: E501
         )
 
         return query
@@ -272,7 +272,7 @@ class TaskAssignmentReport(Report):
 
         # noinspection PyProtectedMember,PyTypeChecker
         return self._build_query(
-            req, tables, by_year, by_month, date_column, count_selectors
+            req, tables, by_year, by_month, date_column, count_selectors  # type: ignore[arg-type]  # noqa: E501
         ).where(patient.c._device_id == server_device.id)
 
     def _get_emails_sent_query(
@@ -310,7 +310,7 @@ class TaskAssignmentReport(Report):
 
         # noinspection PyTypeChecker
         return self._build_query(
-            req, tables, by_year, by_month, date_column, count_selectors
+            req, tables, by_year, by_month, date_column, count_selectors  # type: ignore[arg-type]  # noqa: E501
         ).where(
             email.c.sent == True  # noqa: E712
         )
@@ -365,7 +365,7 @@ class TaskAssignmentReport(Report):
         selectors.append(ts.c.name.label(self.label_schedule_name))
         selectors += count_selectors
         # noinspection PyUnresolvedReferences
-        query = select(*selectors).select_from(tables).group_by(*groupers)
+        query = select(*selectors).select_from(tables).group_by(*groupers)  # type: ignore[arg-type]  # noqa: E501
         if not superuser:
             # Restrict to accessible groups
             # noinspection PyProtectedMember

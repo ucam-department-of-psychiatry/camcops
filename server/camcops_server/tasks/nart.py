@@ -111,7 +111,7 @@ ACCENTED_WORDLIST[ACCENTED_WORDLIST.index("detente")] = "détente"
 # =============================================================================
 
 
-class Nart(
+class Nart(  # type: ignore[misc]
     TaskHasPatientMixin,
     TaskHasClinicianMixin,
     Task,

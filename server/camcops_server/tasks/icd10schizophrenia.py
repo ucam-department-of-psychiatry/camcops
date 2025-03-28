@@ -65,7 +65,7 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 
-class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):  # type: ignore[misc]  # noqa: E501
     """
     Server implementation of the ICD10-SZ task.
     """

@@ -174,12 +174,12 @@ class CardinalExpDetThresholdTrial(
         return CardinalExpDetThreshold
 
     def task_ancestor(self) -> Optional["CardinalExpDetThreshold"]:
-        return CardinalExpDetThreshold.get_linked(
+        return CardinalExpDetThreshold.get_linked(  # type: ignore[return-value]  # noqa: E501
             self.cardinal_expdetthreshold_id, self
         )
 
 
-class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
+class CardinalExpDetThreshold(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the Cardinal_ExpDetThreshold task.
     """
@@ -255,7 +255,7 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
     )
 
     # Relationships
-    trials = ancillary_relationship(
+    trials = ancillary_relationship(  # type: ignore[assignment]
         parent_class_name="CardinalExpDetThreshold",
         ancillary_class_name="CardinalExpDetThresholdTrial",
         ancillary_fk_to_parent_attr_name="cardinal_expdetthreshold_id",
@@ -422,10 +422,10 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
         fitfig = req.create_figure(figsize=figsize)
         fitax = fitfig.add_subplot(MatplotlibConstants.WHOLE_PANEL)
         detected_x = []
-        detected_x_approx = []
+        detected_x_approx = []  # type: ignore[var-annotated]
         detected_y = []
         missed_x = []
-        missed_x_approx = []
+        missed_x_approx = []  # type: ignore[var-annotated]
         missed_y = []
         all_x = []
         for t in trialarray:
@@ -477,7 +477,7 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
         )
         marker_points = []
         for y in (LOWER_MARKER, 0.5, UPPER_MARKER):
-            x = inv_logistic(y, self.k, self.theta)
+            x = inv_logistic(y, self.k, self.theta)  # type: ignore[assignment]
             marker_points.append((x, y))
         for p in marker_points:
             fitax.plot(

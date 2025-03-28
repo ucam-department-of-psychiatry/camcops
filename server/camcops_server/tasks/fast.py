@@ -51,7 +51,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Fast(
+class Fast(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):
@@ -141,10 +141,10 @@ class Fast(
 
     # noinspection PyUnresolvedReferences
     def is_positive(self) -> bool:
-        if self.q1 is not None:
-            if self.q1 == 0:
+        if self.q1 is not None:  # type: ignore[attr-defined]
+            if self.q1 == 0:  # type: ignore[attr-defined]
                 return False
-            if self.q1 >= 3:
+            if self.q1 >= 3:  # type: ignore[attr-defined]
                 return True
         return self.total_score() >= 3
 
@@ -165,15 +165,15 @@ class Fast(
             4: "4 — " + self.wxstring(req, "q4_option4"),
         }
         q_a = tr_qa(
-            self.wxstring(req, "q1"), get_from_dict(main_dict, self.q1)
+            self.wxstring(req, "q1"), get_from_dict(main_dict, self.q1)  # type: ignore[attr-defined]  # noqa: E501
         )
         q_a += tr_qa(
-            self.wxstring(req, "q2"), get_from_dict(main_dict, self.q2)
+            self.wxstring(req, "q2"), get_from_dict(main_dict, self.q2)  # type: ignore[attr-defined]  # noqa: E501
         )
         q_a += tr_qa(
-            self.wxstring(req, "q3"), get_from_dict(main_dict, self.q3)
+            self.wxstring(req, "q3"), get_from_dict(main_dict, self.q3)  # type: ignore[attr-defined]  # noqa: E501
         )
-        q_a += tr_qa(self.wxstring(req, "q4"), get_from_dict(q4_dict, self.q4))
+        q_a += tr_qa(self.wxstring(req, "q4"), get_from_dict(q4_dict, self.q4))  # type: ignore[attr-defined]  # noqa: E501
 
         tr_total_score = tr(
             req.sstring(SS.TOTAL_SCORE),

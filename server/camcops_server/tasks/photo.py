@@ -32,7 +32,6 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_blob import (
-    Blob,
     blob_relationship,
     get_blob_img_html,
 )
@@ -60,7 +59,7 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 
-class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):  # type: ignore[misc]  # noqa: E501
     """
     Server implementation of the Photo task.
     """
@@ -83,7 +82,7 @@ class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         comment="Rotation (clockwise, in degrees) to be applied for viewing",
     )
 
-    photo = blob_relationship("Photo", "photo_blobid")  # type: Optional[Blob]
+    photo = blob_relationship("Photo", "photo_blobid")  # type: ignore[assignment]  # noqa: E501
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -117,7 +116,7 @@ class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                 default_for_blank_strings=True,
             ),
             # ... xhtml2pdf crashes if the contents are empty...
-            photo=get_blob_img_html(self.photo),
+            photo=get_blob_img_html(self.photo),  # type: ignore[arg-type]
         )
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
@@ -174,7 +173,7 @@ class PhotoSequenceSinglePhoto(GenericTabletRecordMixin, TaskDescendant, Base):
             CssClass=CssClass,
             num=self.seqnum,
             description=ws.webify(self.description),
-            photo=get_blob_img_html(self.photo),
+            photo=get_blob_img_html(self.photo),  # type: ignore[arg-type]
         )
 
     # -------------------------------------------------------------------------
@@ -186,10 +185,10 @@ class PhotoSequenceSinglePhoto(GenericTabletRecordMixin, TaskDescendant, Base):
         return PhotoSequence
 
     def task_ancestor(self) -> Optional["PhotoSequence"]:
-        return PhotoSequence.get_linked(self.photosequence_id, self)
+        return PhotoSequence.get_linked(self.photosequence_id, self)  # type: ignore[return-value]  # noqa: E501
 
 
-class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task):  # type: ignore[misc]  # noqa: E501
     """
     Server implementation of the PhotoSequence task.
     """
@@ -203,7 +202,7 @@ class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         comment="Description of the sequence of photographs",
     )
 
-    photos = ancillary_relationship(
+    photos = ancillary_relationship(  # type: ignore[assignment]
         parent_class_name="PhotoSequence",
         ancillary_class_name="PhotoSequenceSinglePhoto",
         ancillary_fk_to_parent_attr_name="photosequence_id",

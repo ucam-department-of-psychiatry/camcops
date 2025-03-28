@@ -52,7 +52,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Rand36(
+class Rand36(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):
@@ -503,51 +503,51 @@ class Rand36(
         h += self.scoreline(
             self.wxstring(req, "score_overall"),
             1,
-            self.format_float_for_display(self.score_overall()),
+            self.format_float_for_display(self.score_overall()),  # type: ignore[arg-type]  # noqa: E501
         )
         h += self.scoreline(
             self.wxstring(req, "score_physical_functioning"),
             2,
-            self.format_float_for_display(self.score_physical_functioning()),
+            self.format_float_for_display(self.score_physical_functioning()),  # type: ignore[arg-type]  # noqa: E501
         )
         h += self.scoreline(
             self.wxstring(req, "score_role_limitations_physical"),
             3,
-            self.format_float_for_display(
+            self.format_float_for_display(  # type: ignore[arg-type]
                 self.score_role_limitations_physical()
             ),
         )
         h += self.scoreline(
             self.wxstring(req, "score_role_limitations_emotional"),
             4,
-            self.format_float_for_display(
+            self.format_float_for_display(  # type: ignore[arg-type]
                 self.score_role_limitations_emotional()
             ),
         )
         h += self.scoreline(
             self.wxstring(req, "score_energy"),
             5,
-            self.format_float_for_display(self.score_energy()),
+            self.format_float_for_display(self.score_energy()),  # type: ignore[arg-type]  # noqa: E501
         )
         h += self.scoreline(
             self.wxstring(req, "score_emotional_wellbeing"),
             6,
-            self.format_float_for_display(self.score_emotional_wellbeing()),
+            self.format_float_for_display(self.score_emotional_wellbeing()),  # type: ignore[arg-type]  # noqa: E501
         )
         h += self.scoreline(
             self.wxstring(req, "score_social_functioning"),
             7,
-            self.format_float_for_display(self.score_social_functioning()),
+            self.format_float_for_display(self.score_social_functioning()),  # type: ignore[arg-type]  # noqa: E501
         )
         h += self.scoreline(
             self.wxstring(req, "score_pain"),
             8,
-            self.format_float_for_display(self.score_pain()),
+            self.format_float_for_display(self.score_pain()),  # type: ignore[arg-type]  # noqa: E501
         )
         h += self.scoreline(
             self.wxstring(req, "score_general_health"),
             9,
-            self.format_float_for_display(self.score_general_health()),
+            self.format_float_for_display(self.score_general_health()),  # type: ignore[arg-type]  # noqa: E501
         )
         h += f"""
                 </table>

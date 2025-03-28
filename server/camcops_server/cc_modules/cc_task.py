@@ -304,7 +304,7 @@ class TaskHasPatientMixin(object):
                 " remote(Patient._device_id) == foreign({task}._device_id), "
                 " remote(Patient._era) == foreign({task}._era), "
                 " remote(Patient._current) == True "
-                ")".format(task=cls.__name__)
+                ")".format(task=cls.__name__)  # type: ignore[attr-defined]
             ),
             uselist=False,
             viewonly=True,
@@ -462,7 +462,7 @@ class TaskHasRespondentMixin(object):
     """
 
     # noinspection PyMethodParameters
-    respondent_name: Mapped[Optional[str]] = camcops_column(
+    respondent_name: Mapped[Optional[str]] = camcops_column(  # type: ignore[assignment]  # noqa: E501
         TFN_RESPONDENT_NAME,
         Text,
         identifies_patient=True,
@@ -516,7 +516,7 @@ class Task(GenericTabletRecordMixin, Base):
     # noinspection PyMethodParameters
     @declared_attr.directive
     def __mapper_args__(cls) -> dict[str, Any]:
-        return {"polymorphic_identity": cls.__name__, "concrete": True}
+        return {"polymorphic_identity": cls.__name__, "concrete": True}  # type: ignore[attr-defined]  # noqa: E501
 
     # =========================================================================
     # PART 0: COLUMNS COMMON TO ALL TASKS
@@ -594,7 +594,7 @@ class Task(GenericTabletRecordMixin, Base):
                 " remote(SpecialNote.era) == foreign({task}._era), "
                 " not_(SpecialNote.hidden)"
                 ")".format(
-                    task=cls.__name__,
+                    task=cls.__name__,  # type: ignore[attr-defined]
                     repr_task_tablename=repr(cls.__tablename__),
                 )
             ),
@@ -628,7 +628,7 @@ class Task(GenericTabletRecordMixin, Base):
     )  # type: str  # if None, tablename is used instead
     provides_trackers = False
     use_landscape_for_pdf = False
-    dependent_classes = []
+    dependent_classes = []  # type: ignore[var-annotated]
 
     prohibits_clinical = False
     prohibits_commercial = False
@@ -794,7 +794,7 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     @classmethod
-    def gen_all_subclasses(cls) -> Generator[Type[TASK_FWD_REF], None, None]:
+    def gen_all_subclasses(cls) -> Generator[Type[TASK_FWD_REF], None, None]:  # type: ignore[valid-type]  # noqa: E501
         """
         Generate all non-abstract SQLAlchemy ORM subclasses of :class:`Task` --
         that is, all task classes.
@@ -818,28 +818,28 @@ class Task(GenericTabletRecordMixin, Base):
 
     @classmethod
     @cache_region_static.cache_on_arguments(function_key_generator=fkg)
-    def all_subclasses_by_tablename(cls) -> List[Type[TASK_FWD_REF]]:
+    def all_subclasses_by_tablename(cls) -> List[Type[TASK_FWD_REF]]:  # type: ignore[valid-type]  # noqa: E501
         """
         Return all task classes, ordered by table name.
         """
         classes = list(cls.gen_all_subclasses())
-        classes.sort(key=lambda c: c.tablename)
+        classes.sort(key=lambda c: c.tablename)  # type: ignore[attr-defined]
         return classes
 
     @classmethod
     @cache_region_static.cache_on_arguments(function_key_generator=fkg)
-    def all_subclasses_by_shortname(cls) -> List[Type[TASK_FWD_REF]]:
+    def all_subclasses_by_shortname(cls) -> List[Type[TASK_FWD_REF]]:  # type: ignore[valid-type]  # noqa: E501
         """
         Return all task classes, ordered by short name.
         """
         classes = list(cls.gen_all_subclasses())
-        classes.sort(key=lambda c: c.shortname)
+        classes.sort(key=lambda c: c.shortname)  # type: ignore[attr-defined]
         return classes
 
     @classmethod
     def all_subclasses_by_longname(
         cls, req: "CamcopsRequest"
-    ) -> List[Type[TASK_FWD_REF]]:
+    ) -> List[Type[TASK_FWD_REF]]:  # type: ignore[valid-type]
         """
         Return all task classes, ordered by long name.
         """
@@ -940,8 +940,8 @@ class Task(GenericTabletRecordMixin, Base):
         Returns all table classes (primary table plus any ancillary tables).
         """
         # noinspection PyUnresolvedReferences
-        return [cls.__table__] + [
-            rel_cls.__table__
+        return [cls.__table__] + [  # type: ignore[return-value]
+            rel_cls.__table__  # type: ignore[attr-defined]
             for _, _, rel_cls in gen_ancillary_relationships(cls)
         ]
 
@@ -1202,7 +1202,7 @@ class Task(GenericTabletRecordMixin, Base):
         return ExtraSummaryTable(
             tablename=SNOMED_TABLENAME,
             xmlname=UNUSED_SNOMED_XML_NAME,  # though actual XML doesn't use this route  # noqa
-            columns=columns,
+            columns=columns,  # type: ignore[arg-type]
             rows=rows,
             task=self,
         )
@@ -1475,7 +1475,7 @@ class Task(GenericTabletRecordMixin, Base):
         # ... may raise FhirExportException
 
         # Sanity checks:
-        id_counter = Counter()
+        id_counter = Counter()  # type: ignore[var-annotated]
         for entry in bundle_entries:
             assert (
                 Fc.RESOURCE in entry
@@ -2109,7 +2109,7 @@ class Task(GenericTabletRecordMixin, Base):
         }
 
         if self.has_patient:
-            qr_jsondict[Fc.SUBJECT] = self._get_fhir_subject_ref(
+            qr_jsondict[Fc.SUBJECT] = self._get_fhir_subject_ref(  # type: ignore[assignment]  # noqa: E501
                 req, recipient
             )
 
@@ -2206,9 +2206,9 @@ class Task(GenericTabletRecordMixin, Base):
             if comment:
                 qtext_components.append(f"[{comment}]")
             if not qtext_components:
-                qtext_components = (attrname,)
+                qtext_components = (attrname,)  # type: ignore[assignment]
             if not qtext_components:
-                qtext_components = (FHIR_UNKNOWN_TEXT,)
+                qtext_components = (FHIR_UNKNOWN_TEXT,)  # type: ignore[assignment]  # noqa: E501
             qtext = " ".join(qtext_components)
             # Note that it's good to get the column comment in somewhere; these
             # often explain the meaning of the field quite well. It may or may
@@ -2316,7 +2316,7 @@ class Task(GenericTabletRecordMixin, Base):
 
         # noinspection PyUnresolvedReferences
         statement = (
-            update(ExportedTask.__table__)
+            update(ExportedTask.__table__)  # type: ignore[arg-type]
             .where(ExportedTask.basetable == self.tablename)
             .where(ExportedTask.task_server_pk == self._pk)
             .where(
@@ -2676,7 +2676,7 @@ class Task(GenericTabletRecordMixin, Base):
                         self, attrname
                     )  # type: List[GenericTabletRecordMixin]
                 else:
-                    ancillaries = [
+                    ancillaries = [  # type: ignore[no-redef]
                         getattr(self, attrname)
                     ]  # type: List[GenericTabletRecordMixin]
                 for ancillary in ancillaries:
@@ -2692,7 +2692,7 @@ class Task(GenericTabletRecordMixin, Base):
 
         # Completely separate additional summary tables
         if options.xml_include_calculated:
-            item_collections = []  # type: List[XmlElement]
+            item_collections = []  # type: ignore[no-redef]
             found_est = False
             for est in self.get_extra_summary_tables(req):
                 # ... not get_all_summary_tables(); we handled SNOMED
@@ -3517,7 +3517,7 @@ def all_task_tables_with_min_client_version() -> Dict[str, Version]:
     d = {}  # type: Dict[str, Version]
     classes = list(Task.gen_all_subclasses())
     for cls in classes:
-        d.update(cls.all_tables_with_min_client_version())
+        d.update(cls.all_tables_with_min_client_version())  # type: ignore[attr-defined]  # noqa: E501
     return d
 
 
@@ -3528,7 +3528,7 @@ def tablename_to_task_class_dict() -> Dict[str, Type[Task]]:
     """
     d = {}  # type: Dict[str, Type[Task]]
     for cls in Task.gen_all_subclasses():
-        d[cls.tablename] = cls
+        d[cls.tablename] = cls  # type: ignore[attr-defined]
     return d
 
 

@@ -52,7 +52,7 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 
-class PsychiatricClerking(
+class PsychiatricClerking(  # type: ignore[misc]
     TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base
 ):
     """
@@ -488,7 +488,7 @@ class PsychiatricClerking(
                 req.snomed(
                     SnomedLookup.DIAGNOSTIC_PSYCHIATRIC_INTERVIEW_PROCEDURE
                 ),
-                refinement=refinement or None,
+                refinement=refinement or None,  # type: ignore[arg-type]
             )
         ]
         return codes

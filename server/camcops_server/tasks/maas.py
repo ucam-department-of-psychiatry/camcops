@@ -102,7 +102,7 @@ class MaasScore(object):
         self.global_max += Maas.MAX_SCORE_PER_Q
 
 
-class Maas(TaskHasPatientMixin, Task):
+class Maas(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the MAAS task.
     """
@@ -303,21 +303,21 @@ class MaasReport(AverageScoreReport):
         return [
             ScoreDetails(
                 name=_("Global attachment score"),
-                scorefunc=Maas.get_global_score,
+                scorefunc=Maas.get_global_score,  # type: ignore[arg-type]
                 minimum=Maas.MIN_GLOBAL,
                 maximum=Maas.MAX_GLOBAL,
                 higher_score_is_better=True,
             ),
             ScoreDetails(
                 name=_("Quality of attachment score"),
-                scorefunc=Maas.get_quality_score,
+                scorefunc=Maas.get_quality_score,  # type: ignore[arg-type]
                 minimum=Maas.MIN_QUALITY,
                 maximum=Maas.MAX_QUALITY,
                 higher_score_is_better=True,
             ),
             ScoreDetails(
                 name=_("Time spent in attachment mode"),
-                scorefunc=Maas.get_time_score,
+                scorefunc=Maas.get_time_score,  # type: ignore[arg-type]
                 minimum=Maas.MIN_TIME,
                 maximum=Maas.MAX_TIME,
                 higher_score_is_better=True,

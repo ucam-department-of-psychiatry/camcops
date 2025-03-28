@@ -315,7 +315,7 @@ class ExpDetTrial(GenericTabletRecordMixin, TaskDescendant, Base):
         return CardinalExpectationDetection
 
     def task_ancestor(self) -> Optional["CardinalExpectationDetection"]:
-        return CardinalExpectationDetection.get_linked(
+        return CardinalExpectationDetection.get_linked(  # type: ignore[return-value]  # noqa: E501
             self.cardinal_expdet_id, self
         )
 
@@ -378,12 +378,12 @@ class ExpDetTrialGroupSpec(GenericTabletRecordMixin, TaskDescendant, Base):
         return CardinalExpectationDetection
 
     def task_ancestor(self) -> Optional["CardinalExpectationDetection"]:
-        return CardinalExpectationDetection.get_linked(
+        return CardinalExpectationDetection.get_linked(  # type: ignore[return-value]  # noqa: E501
             self.cardinal_expdet_id, self
         )
 
 
-class CardinalExpectationDetection(TaskHasPatientMixin, Task):
+class CardinalExpectationDetection(TaskHasPatientMixin, Task):  # type: ignore[misc]  # noqa: E501
     """
     Server implementation of the Cardinal_ExpDet task.
     """
@@ -461,13 +461,13 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
     )
 
     # Relationships
-    trials = ancillary_relationship(
+    trials = ancillary_relationship(  # type: ignore[assignment]
         parent_class_name="CardinalExpectationDetection",
         ancillary_class_name="ExpDetTrial",
         ancillary_fk_to_parent_attr_name="cardinal_expdet_id",
         ancillary_order_by_attr_name="trial",
     )  # type: List[ExpDetTrial]
-    groupspecs = ancillary_relationship(
+    groupspecs = ancillary_relationship(  # type: ignore[assignment]
         parent_class_name="CardinalExpectationDetection",
         ancillary_class_name="ExpDetTrialGroupSpec",
         ancillary_fk_to_parent_attr_name="cardinal_expdet_id",

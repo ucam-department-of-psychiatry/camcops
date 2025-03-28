@@ -40,7 +40,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
-class KhandakerMojoMedical(
+class KhandakerMojoMedical(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

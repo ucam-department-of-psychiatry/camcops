@@ -134,16 +134,16 @@ def save_with_next_available_id(obj: Base, dbsession: SqlASession) -> None:
         dbsession
         # func.max(cls.id) + 1 here will do the right thing for
         # backends that support select for update (maybe not for no rows)
-        .query(func.max(cls.id))
-        .filter(cls._device_id == obj._device_id)
-        .filter(cls._era == ERA_NOW)
+        .query(func.max(cls.id))  # type: ignore[attr-defined]
+        .filter(cls._device_id == obj._device_id)  # type: ignore[attr-defined]
+        .filter(cls._era == ERA_NOW)  # type: ignore[attr-defined]
         .scalar()
     ) or 0
 
     next_id = last_id + 1
 
     while not saved_ok:
-        obj.id = next_id
+        obj.id = next_id  # type: ignore[attr-defined]
 
         dbsession.add(obj)
 

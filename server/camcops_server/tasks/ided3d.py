@@ -196,7 +196,7 @@ class IDED3DTrial(GenericTabletRecordMixin, TaskDescendant, Base):
         return IDED3D
 
     def task_ancestor(self) -> Optional["IDED3D"]:
-        return IDED3D.get_linked(self.ided3d_id, self)
+        return IDED3D.get_linked(self.ided3d_id, self)  # type: ignore[return-value]  # noqa: E501
 
 
 class IDED3DStage(GenericTabletRecordMixin, TaskDescendant, Base):
@@ -342,10 +342,10 @@ class IDED3DStage(GenericTabletRecordMixin, TaskDescendant, Base):
         return IDED3D
 
     def task_ancestor(self) -> Optional["IDED3D"]:
-        return IDED3D.get_linked(self.ided3d_id, self)
+        return IDED3D.get_linked(self.ided3d_id, self)  # type: ignore[return-value]  # noqa: E501
 
 
-class IDED3D(TaskHasPatientMixin, Task):
+class IDED3D(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the ID/ED-3D task.
     """
@@ -425,13 +425,13 @@ class IDED3D(TaskHasPatientMixin, Task):
     )
 
     # Relationships
-    trials = ancillary_relationship(
+    trials = ancillary_relationship(  # type: ignore[assignment]
         parent_class_name="IDED3D",
         ancillary_class_name="IDED3DTrial",
         ancillary_fk_to_parent_attr_name="ided3d_id",
         ancillary_order_by_attr_name="trial",
     )  # type: List[IDED3DTrial]
-    stages = ancillary_relationship(
+    stages = ancillary_relationship(  # type: ignore[assignment]
         parent_class_name="IDED3D",
         ancillary_class_name="IDED3DStage",
         ancillary_fk_to_parent_attr_name="ided3d_id",

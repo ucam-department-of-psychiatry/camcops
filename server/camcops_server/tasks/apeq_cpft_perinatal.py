@@ -339,11 +339,11 @@ class APEQCPFTPerinatalReport(
             column("ff_why").isnot(None),
         ]
 
-        self.add_task_report_filters(wheres)
+        self.add_task_report_filters(wheres)  # type: ignore[arg-type]
 
         # noinspection PyUnresolvedReferences
         query = (
-            select(column("ff_rating"), column("ff_why"))
+            select(column("ff_rating"), column("ff_why"))  # type: ignore[var-annotated]  # noqa: E501
             .select_from(self.task.__table__)
             .where(and_(*wheres))
             .order_by("ff_why")
@@ -363,11 +363,11 @@ class APEQCPFTPerinatalReport(
 
         wheres = [column("comments").isnot(None)]
 
-        self.add_task_report_filters(wheres)
+        self.add_task_report_filters(wheres)  # type: ignore[arg-type]
 
         # noinspection PyUnresolvedReferences
         query = (
-            select(column("comments"))
+            select(column("comments"))  # type: ignore[var-annotated]
             .select_from(self.task.__table__)
             .where(and_(*wheres))
         )

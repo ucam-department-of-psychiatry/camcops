@@ -645,7 +645,7 @@ def make_dg1_segment(
     segment_id = "DG1"
     try:
         int(set_id)
-        set_id = str(set_id)
+        set_id = str(set_id)  # type: ignore[assignment]
     except Exception:
         raise AssertionError("make_dg1_segment: set_id invalid")
     diagnosis_coding_method = ""

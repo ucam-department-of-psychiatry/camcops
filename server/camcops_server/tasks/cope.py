@@ -52,7 +52,7 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 
-class CopeBrief(
+class CopeBrief(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

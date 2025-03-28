@@ -172,12 +172,12 @@ class GenericTabletRecordFactory(BaseFactory):
     @factory.lazy_attribute
     def _when_added_batch_utc(obj: "Resolver") -> pendulum.DateTime:
         era_time = pendulum.parse(obj.default_iso_datetime)
-        return convert_datetime_to_utc(era_time)
+        return convert_datetime_to_utc(era_time)  # type: ignore[arg-type]
 
     @factory.lazy_attribute
     def _era(obj: "Resolver") -> str:
         era_time = pendulum.parse(obj.default_iso_datetime)
-        return format_datetime(era_time, DateFormat.ISO8601)
+        return format_datetime(era_time, DateFormat.ISO8601)  # type: ignore[arg-type]  # noqa: E501
 
     @factory.lazy_attribute
     def _current(obj: "Resolver") -> bool:
@@ -187,7 +187,7 @@ class GenericTabletRecordFactory(BaseFactory):
     @factory.lazy_attribute
     def when_last_modified(obj: "Resolver") -> str:
         era_time = pendulum.parse(obj.default_iso_datetime)
-        return format_datetime(era_time, DateFormat.ISO8601)
+        return format_datetime(era_time, DateFormat.ISO8601)  # type: ignore[arg-type]  # noqa: E501
 
 
 class PatientFactory(GenericTabletRecordFactory):

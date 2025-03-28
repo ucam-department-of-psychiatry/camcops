@@ -53,7 +53,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 DP = 3
 
 
-class QolBasic(TaskHasPatientMixin, Task):
+class QolBasic(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the QoL-Basic task.
     """

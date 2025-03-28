@@ -52,7 +52,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Dast(
+class Dast(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

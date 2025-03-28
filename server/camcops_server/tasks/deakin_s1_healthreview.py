@@ -34,7 +34,7 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    bool_column,
+    mapped_bool_column,
     mapped_camcops_column,
     MIN_ZERO_CHECKER,
     PermittedValueChecker,
@@ -52,7 +52,7 @@ FREQUENCY_COMMENT = (
 )
 
 
-class DeakinS1HealthReview(TaskHasPatientMixin, Task):
+class DeakinS1HealthReview(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the DeakinS1HealthReview task.
     """
@@ -86,65 +86,129 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         Text, exempt_from_anonymisation=True
     )
 
-    allergies = bool_column("allergies")
-    allergy_asthma = bool_column("allergy_asthma")
-    allergy_pollen_dust = bool_column("allergy_pollen_dust")
-    allergy_dermatitis = bool_column("allergy_dermatitis")
-    allergy_food = bool_column("allergy_food")
-    allergy_dander = bool_column("allergy_dander")
-    allergy_other = bool_column("allergy_other")
+    allergies: Mapped[Optional[bool]] = mapped_bool_column("allergies")
+    allergy_asthma: Mapped[Optional[bool]] = mapped_bool_column(
+        "allergy_asthma"
+    )
+    allergy_pollen_dust: Mapped[Optional[bool]] = mapped_bool_column(
+        "allergy_pollen_dust"
+    )
+    allergy_dermatitis: Mapped[Optional[bool]] = mapped_bool_column(
+        "allergy_dermatitis"
+    )
+    allergy_food: Mapped[Optional[bool]] = mapped_bool_column("allergy_food")
+    allergy_dander: Mapped[Optional[bool]] = mapped_bool_column(
+        "allergy_dander"
+    )
+    allergy_other: Mapped[Optional[bool]] = mapped_bool_column("allergy_other")
     allergy_details: Mapped[Optional[str]] = mapped_column(Text)
 
-    vaccinations_last3months = bool_column("vaccinations_last3months")
+    vaccinations_last3months: Mapped[Optional[bool]] = mapped_bool_column(
+        "vaccinations_last3months"
+    )
     vaccination_details: Mapped[Optional[str]] = mapped_column(Text)
 
-    infections_last3months = bool_column("infections_last3months")
-    infection_recent_respiratory = bool_column("infection_recent_respiratory")
-    infection_recent_gastroenteritis = bool_column(
-        "infection_recent_gastroenteritis",
-        constraint_name="ck_deakin_1_healthreview_inf_recent_gastro",
+    infections_last3months: Mapped[Optional[bool]] = mapped_bool_column(
+        "infections_last3months"
     )
-    infection_recent_urinary = bool_column("infection_recent_urinary")
-    infection_recent_sexual = bool_column("infection_recent_sexual")
-    infection_recent_hepatitis = bool_column("infection_recent_hepatitis")
-    infection_recent_other = bool_column("infection_recent_other")
+    infection_recent_respiratory: Mapped[Optional[bool]] = mapped_bool_column(
+        "infection_recent_respiratory"
+    )
+    infection_recent_gastroenteritis: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "infection_recent_gastroenteritis",
+            constraint_name="ck_deakin_1_healthreview_inf_recent_gastro",
+        )
+    )
+    infection_recent_urinary: Mapped[Optional[bool]] = mapped_bool_column(
+        "infection_recent_urinary"
+    )
+    infection_recent_sexual: Mapped[Optional[bool]] = mapped_bool_column(
+        "infection_recent_sexual"
+    )
+    infection_recent_hepatitis: Mapped[Optional[bool]] = mapped_bool_column(
+        "infection_recent_hepatitis"
+    )
+    infection_recent_other: Mapped[Optional[bool]] = mapped_bool_column(
+        "infection_recent_other"
+    )
     infection_recent_details: Mapped[Optional[str]] = mapped_column(Text)
 
-    infections_chronic = bool_column("infections_chronic")
-    infection_chronic_respiratory = bool_column(
+    infections_chronic: Mapped[Optional[bool]] = mapped_bool_column(
+        "infections_chronic"
+    )
+    infection_chronic_respiratory: Mapped[Optional[bool]] = mapped_bool_column(
         "infection_chronic_respiratory"
     )
-    infection_chronic_gastroenteritis = bool_column(
-        "infection_chronic_gastroenteritis",
-        constraint_name="ck_deakin_1_healthreview_inf_chronic_gastro",
+    infection_chronic_gastroenteritis: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "infection_chronic_gastroenteritis",
+            constraint_name="ck_deakin_1_healthreview_inf_chronic_gastro",
+        )
     )
-    infection_chronic_urinary = bool_column("infection_chronic_urinary")
-    infection_chronic_sexual = bool_column("infection_chronic_sexual")
-    infection_chronic_hepatitis = bool_column("infection_chronic_hepatitis")
-    infection_chronic_other = bool_column("infection_chronic_other")
+    infection_chronic_urinary: Mapped[Optional[bool]] = mapped_bool_column(
+        "infection_chronic_urinary"
+    )
+    infection_chronic_sexual: Mapped[Optional[bool]] = mapped_bool_column(
+        "infection_chronic_sexual"
+    )
+    infection_chronic_hepatitis: Mapped[Optional[bool]] = mapped_bool_column(
+        "infection_chronic_hepatitis"
+    )
+    infection_chronic_other: Mapped[Optional[bool]] = mapped_bool_column(
+        "infection_chronic_other"
+    )
     infection_chronic_details: Mapped[Optional[str]] = mapped_column(Text)
 
-    immune_disorders = bool_column("immune_disorders")
-    immunity_ms = bool_column("immunity_ms")
-    immunity_sle = bool_column("immunity_sle")
-    immunity_arthritis = bool_column("immunity_arthritis")
-    immunity_hiv = bool_column("immunity_hiv")
-    immunity_graves = bool_column("immunity_graves")
-    immunity_diabetes = bool_column("immunity_diabetes")
-    immunity_other = bool_column("immunity_other")
+    immune_disorders: Mapped[Optional[bool]] = mapped_bool_column(
+        "immune_disorders"
+    )
+    immunity_ms: Mapped[Optional[bool]] = mapped_bool_column("immunity_ms")
+    immunity_sle: Mapped[Optional[bool]] = mapped_bool_column("immunity_sle")
+    immunity_arthritis: Mapped[Optional[bool]] = mapped_bool_column(
+        "immunity_arthritis"
+    )
+    immunity_hiv: Mapped[Optional[bool]] = mapped_bool_column("immunity_hiv")
+    immunity_graves: Mapped[Optional[bool]] = mapped_bool_column(
+        "immunity_graves"
+    )
+    immunity_diabetes: Mapped[Optional[bool]] = mapped_bool_column(
+        "immunity_diabetes"
+    )
+    immunity_other: Mapped[Optional[bool]] = mapped_bool_column(
+        "immunity_other"
+    )
     immunity_details: Mapped[Optional[str]] = mapped_column(Text)
 
-    family_history = bool_column("family_history")
-    familyhistory_ms = bool_column("familyhistory_ms")
-    familyhistory_sle = bool_column("familyhistory_sle")
-    familyhistory_arthritis = bool_column("familyhistory_arthritis")
-    familyhistory_graves = bool_column("familyhistory_graves")
-    familyhistory_diabetes = bool_column("familyhistory_diabetes")
-    familyhistory_psychosis_sz = bool_column("familyhistory_psychosis_sz")
-    familyhistory_bipolar = bool_column("familyhistory_bipolar")
+    family_history: Mapped[Optional[bool]] = mapped_bool_column(
+        "family_history"
+    )
+    familyhistory_ms: Mapped[Optional[bool]] = mapped_bool_column(
+        "familyhistory_ms"
+    )
+    familyhistory_sle: Mapped[Optional[bool]] = mapped_bool_column(
+        "familyhistory_sle"
+    )
+    familyhistory_arthritis: Mapped[Optional[bool]] = mapped_bool_column(
+        "familyhistory_arthritis"
+    )
+    familyhistory_graves: Mapped[Optional[bool]] = mapped_bool_column(
+        "familyhistory_graves"
+    )
+    familyhistory_diabetes: Mapped[Optional[bool]] = mapped_bool_column(
+        "familyhistory_diabetes"
+    )
+    familyhistory_psychosis_sz: Mapped[Optional[bool]] = mapped_bool_column(
+        "familyhistory_psychosis_sz"
+    )
+    familyhistory_bipolar: Mapped[Optional[bool]] = mapped_bool_column(
+        "familyhistory_bipolar"
+    )
     familyhistory_details: Mapped[Optional[str]] = mapped_column(Text)
 
-    health_anything_else = bool_column("health_anything_else")
+    health_anything_else: Mapped[Optional[bool]] = mapped_bool_column(
+        "health_anything_else"
+    )
     health_anything_else_details: Mapped[Optional[str]] = mapped_column(
         UnicodeText
     )
@@ -154,9 +218,11 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         UnicodeText
     )
 
-    recreational_drug_in_last_3_months = bool_column(
-        "recreational_drug_in_last_3_months",
-        constraint_name="ck_deakin_1_healthreview_recdruglast3mo",
+    recreational_drug_in_last_3_months: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "recreational_drug_in_last_3_months",
+            constraint_name="ck_deakin_1_healthreview_recdruglast3mo",
+        )
     )
 
     recdrug_tobacco_frequency: Mapped[Optional[int]] = mapped_camcops_column(
@@ -167,7 +233,9 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         permitted_value_checker=MIN_ZERO_CHECKER,
         comment="Tobacco: cigarettes per week",
     )
-    recdrug_tobacco_prevheavy = bool_column("recdrug_tobacco_prevheavy")
+    recdrug_tobacco_prevheavy: Mapped[Optional[bool]] = mapped_bool_column(
+        "recdrug_tobacco_prevheavy"
+    )
 
     recdrug_cannabis_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
@@ -179,7 +247,9 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
             comment="Cannabis: joints per week",
         )
     )
-    recdrug_cannabis_prevheavy = bool_column("recdrug_cannabis_prevheavy")
+    recdrug_cannabis_prevheavy: Mapped[Optional[bool]] = mapped_bool_column(
+        "recdrug_cannabis_prevheavy"
+    )
 
     recdrug_alcohol_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
@@ -191,37 +261,49 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
             comment="Alcohol: units per week",
         )
     )
-    recdrug_alcohol_prevheavy = bool_column("recdrug_alcohol_prevheavy")
+    recdrug_alcohol_prevheavy: Mapped[Optional[bool]] = mapped_bool_column(
+        "recdrug_alcohol_prevheavy"
+    )
 
     recdrug_mdma_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    recdrug_mdma_prevheavy = bool_column("recdrug_mdma_prevheavy")
+    recdrug_mdma_prevheavy: Mapped[Optional[bool]] = mapped_bool_column(
+        "recdrug_mdma_prevheavy"
+    )
 
     recdrug_cocaine_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    recdrug_cocaine_prevheavy = bool_column("recdrug_cocaine_prevheavy")
+    recdrug_cocaine_prevheavy: Mapped[Optional[bool]] = mapped_bool_column(
+        "recdrug_cocaine_prevheavy"
+    )
 
     recdrug_crack_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    recdrug_crack_prevheavy = bool_column("recdrug_crack_prevheavy")
+    recdrug_crack_prevheavy: Mapped[Optional[bool]] = mapped_bool_column(
+        "recdrug_crack_prevheavy"
+    )
 
     recdrug_heroin_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    recdrug_heroin_prevheavy = bool_column("recdrug_heroin_prevheavy")
+    recdrug_heroin_prevheavy: Mapped[Optional[bool]] = mapped_bool_column(
+        "recdrug_heroin_prevheavy"
+    )
 
     recdrug_methadone_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    recdrug_methadone_prevheavy = bool_column("recdrug_methadone_prevheavy")
+    recdrug_methadone_prevheavy: Mapped[Optional[bool]] = mapped_bool_column(
+        "recdrug_methadone_prevheavy"
+    )
 
     recdrug_amphetamines_frequency: Mapped[Optional[int]] = (
         mapped_camcops_column(
@@ -229,9 +311,11 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
             comment=FREQUENCY_COMMENT,
         )
     )
-    recdrug_amphetamines_prevheavy = bool_column(
-        "recdrug_amphetamines_prevheavy",
-        constraint_name="ck_deakin_1_healthreview_amphetprevheavy",
+    recdrug_amphetamines_prevheavy: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "recdrug_amphetamines_prevheavy",
+            constraint_name="ck_deakin_1_healthreview_amphetprevheavy",
+        )
     )
 
     recdrug_benzodiazepines_frequency: Mapped[Optional[int]] = (
@@ -240,16 +324,20 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
             comment=FREQUENCY_COMMENT,
         )
     )
-    recdrug_benzodiazepines_prevheavy = bool_column(
-        "recdrug_benzodiazepines_prevheavy",
-        constraint_name="ck_deakin_1_healthreview_benzoprevheavy",
+    recdrug_benzodiazepines_prevheavy: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "recdrug_benzodiazepines_prevheavy",
+            constraint_name="ck_deakin_1_healthreview_benzoprevheavy",
+        )
     )
 
     recdrug_ketamine_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    recdrug_ketamine_prevheavy = bool_column("recdrug_ketamine_prevheavy")
+    recdrug_ketamine_prevheavy: Mapped[Optional[bool]] = mapped_bool_column(
+        "recdrug_ketamine_prevheavy"
+    )
 
     recdrug_legalhighs_frequency: Mapped[Optional[int]] = (
         mapped_camcops_column(
@@ -257,13 +345,17 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
             comment=FREQUENCY_COMMENT,
         )
     )
-    recdrug_legalhighs_prevheavy = bool_column("recdrug_legalhighs_prevheavy")
+    recdrug_legalhighs_prevheavy: Mapped[Optional[bool]] = mapped_bool_column(
+        "recdrug_legalhighs_prevheavy"
+    )
 
     recdrug_inhalants_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    recdrug_inhalants_prevheavy = bool_column("recdrug_inhalants_prevheavy")
+    recdrug_inhalants_prevheavy: Mapped[Optional[bool]] = mapped_bool_column(
+        "recdrug_inhalants_prevheavy"
+    )
 
     recdrug_hallucinogens_frequency: Mapped[Optional[int]] = (
         mapped_camcops_column(
@@ -271,36 +363,58 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
             comment=FREQUENCY_COMMENT,
         )
     )
-    recdrug_hallucinogens_prevheavy = bool_column(
-        "recdrug_hallucinogens_prevheavy",
-        constraint_name="ck_deakin_1_healthreview_hallucinogenprevheavy",
+    recdrug_hallucinogens_prevheavy: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "recdrug_hallucinogens_prevheavy",
+            constraint_name="ck_deakin_1_healthreview_hallucinogenprevheavy",
+        )
     )
 
     recdrug_details: Mapped[Optional[str]] = mapped_column(UnicodeText)
 
-    recdrug_prevheavy = bool_column("recdrug_prevheavy")
+    recdrug_prevheavy: Mapped[Optional[bool]] = mapped_bool_column(
+        "recdrug_prevheavy"
+    )
     recdrug_prevheavy_details: Mapped[Optional[str]] = mapped_column(
         UnicodeText
     )
 
-    mri_claustrophobic = bool_column("mri_claustrophobic")
-    mri_difficulty_lying_1_hour = bool_column("mri_difficulty_lying_1_hour")
-    mri_nonremovable_metal = bool_column("mri_nonremovable_metal")
-    mri_metal_from_operations = bool_column("mri_metal_from_operations")
-    mri_tattoos_nicotine_patches = bool_column("mri_tattoos_nicotine_patches")
-    mri_worked_with_metal = bool_column("mri_worked_with_metal")
-    mri_previous_brain_scan = bool_column("mri_previous_brain_scan")
+    mri_claustrophobic: Mapped[Optional[bool]] = mapped_bool_column(
+        "mri_claustrophobic"
+    )
+    mri_difficulty_lying_1_hour: Mapped[Optional[bool]] = mapped_bool_column(
+        "mri_difficulty_lying_1_hour"
+    )
+    mri_nonremovable_metal: Mapped[Optional[bool]] = mapped_bool_column(
+        "mri_nonremovable_metal"
+    )
+    mri_metal_from_operations: Mapped[Optional[bool]] = mapped_bool_column(
+        "mri_metal_from_operations"
+    )
+    mri_tattoos_nicotine_patches: Mapped[Optional[bool]] = mapped_bool_column(
+        "mri_tattoos_nicotine_patches"
+    )
+    mri_worked_with_metal: Mapped[Optional[bool]] = mapped_bool_column(
+        "mri_worked_with_metal"
+    )
+    mri_previous_brain_scan: Mapped[Optional[bool]] = mapped_bool_column(
+        "mri_previous_brain_scan"
+    )
     mri_previous_brain_scan_details: Mapped[Optional[str]] = mapped_column(
         UnicodeText
     )
-    other_relevant_things = bool_column("other_relevant_things")
+    other_relevant_things: Mapped[Optional[bool]] = mapped_bool_column(
+        "other_relevant_things"
+    )
     other_relevant_things_details: Mapped[Optional[str]] = mapped_column(
         UnicodeText
     )
 
-    willing_to_participate_in_further_studies = bool_column(
-        "willing_to_participate_in_further_studies",
-        constraint_name="ck_deakin_1_healthreview_wtpifs",
+    willing_to_participate_in_further_studies: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "willing_to_participate_in_further_studies",
+            constraint_name="ck_deakin_1_healthreview_wtpifs",
+        )
     )
 
     @staticmethod
@@ -368,7 +482,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
         """ + (
             self.get_twocol_val_row("ethnicity")
             +
-            # UNUSED BY CLIENT! # self.get_twocol_string_row("ethnicity_text") +  # noqa
+            # UNUSED BY CLIENT! # self.get_twocol_string_row("ethnicity_text") +  # noqa: E501
             self.get_twocol_string_row("ethnicity_other_details")
             + self.get_twocol_string_row("handedness")
             + self.get_twocol_string_row("education")

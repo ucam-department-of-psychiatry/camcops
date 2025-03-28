@@ -77,7 +77,7 @@ class AbstractSatisfaction(object):
 
     def is_complete(self) -> bool:
         # noinspection PyUnresolvedReferences
-        return self.rating is not None and self.field_contents_valid()
+        return self.rating is not None and self.field_contents_valid()  # type: ignore[attr-defined]  # noqa: E501
         # ... self.field_contents_valid() is from Task, and we are a mixin
 
     def get_rating_text(self, req: CamcopsRequest) -> Optional[str]:
@@ -98,11 +98,14 @@ class AbstractSatisfaction(object):
             r = f"{self.rating}. {self.get_rating_text(req)}"
         else:
             r = None
+
+        is_complete_row = self.get_is_complete_tr(req)  # type: ignore[attr-defined]  # noqa: E501
+
         # noinspection PyUnresolvedReferences
         return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
-                    {self.get_is_complete_tr(req)}
+                    {is_complete_row}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -128,7 +131,7 @@ class AbstractSatisfaction(object):
 # =============================================================================
 
 
-class PatientSatisfaction(TaskHasPatientMixin, AbstractSatisfaction, Task):
+class PatientSatisfaction(TaskHasPatientMixin, AbstractSatisfaction, Task):  # type: ignore[misc]  # noqa: E501
     """
     Server implementation of the PatientSatisfaction task.
     """
@@ -184,7 +187,7 @@ class ReferrerSatisfactionGen(AbstractSatisfaction, Task):
 # =============================================================================
 
 
-class ReferrerSatisfactionSpec(
+class ReferrerSatisfactionSpec(  # type: ignore[misc]
     TaskHasPatientMixin, AbstractSatisfaction, Task
 ):
     """

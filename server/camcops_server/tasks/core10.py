@@ -66,7 +66,7 @@ log = logging.getLogger(__name__)
 # =============================================================================
 
 
-class Core10(TaskHasPatientMixin, Task):
+class Core10(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the CORE-10 task.
     """
@@ -301,7 +301,7 @@ class Core10Report(AverageScoreReport):
         return [
             ScoreDetails(
                 name=_("CORE-10 clinical score"),
-                scorefunc=Core10.clinical_score,
+                scorefunc=Core10.clinical_score,  # type: ignore[arg-type]
                 minimum=0,
                 maximum=Core10.MAX_SCORE,
                 higher_score_is_better=False,

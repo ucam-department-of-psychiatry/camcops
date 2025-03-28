@@ -50,8 +50,8 @@ from camcops_server.cc_modules.cc_html import answer, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    bool_column,
     CurrencyColType,
+    mapped_bool_column,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
@@ -192,11 +192,11 @@ class KirbyTrial(GenericTabletRecordMixin, TaskDescendant, Base):
     currency: Mapped[Optional[str]] = mapped_column(
         CurrencyColType, comment="Currency symbol"
     )
-    currency_symbol_first = bool_column(
+    currency_symbol_first: Mapped[Optional[bool]] = mapped_bool_column(
         "currency_symbol_first",
         comment="Does the currency symbol come before the amount?",
     )
-    chose_ldr = bool_column(
+    chose_ldr: Mapped[Optional[bool]] = mapped_bool_column(
         "chose_ldr", comment="Did the subject choose the large delayed reward?"
     )
 
@@ -228,7 +228,9 @@ class KirbyTrial(GenericTabletRecordMixin, TaskDescendant, Base):
         return Kirby
 
     def task_ancestor(self) -> Optional["Kirby"]:
-        return Kirby.get_linked(self.kirby_mcq_id, self)
+        return Kirby.get_linked(
+            self.kirby_mcq_id, self
+        )  # type: ignore[return-value]
 
 
 # =============================================================================
@@ -236,7 +238,7 @@ class KirbyTrial(GenericTabletRecordMixin, TaskDescendant, Base):
 # =============================================================================
 
 
-class Kirby(TaskHasPatientMixin, Task):
+class Kirby(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the Kirby Monetary Choice Questionnaire task.
     """
@@ -249,7 +251,7 @@ class Kirby(TaskHasPatientMixin, Task):
     # No fields beyond the basics.
 
     # Relationships
-    trials = ancillary_relationship(
+    trials = ancillary_relationship(  # type: ignore[assignment]
         parent_class_name="Kirby",
         ancillary_class_name="KirbyTrial",
         ancillary_fk_to_parent_attr_name="kirby_mcq_id",

@@ -47,7 +47,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Gds15(
+class Gds15(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

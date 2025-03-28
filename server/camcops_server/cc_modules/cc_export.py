@@ -1010,8 +1010,8 @@ class TaskCollectionExporter(object):
                 REMOVE_COLUMNS_FOR_SIMPLIFIED_SPREADSHEETS
             )
         else:
-            summary_exclusion_tables = EMPTY_SET
-            summary_exclusion_columns = EMPTY_SET
+            summary_exclusion_tables = EMPTY_SET  # type: ignore[assignment]
+            summary_exclusion_columns = EMPTY_SET  # type: ignore[assignment]
         # Task may return >1 sheet for output (e.g. for subtables).
         coll = SpreadsheetCollection()
 
@@ -1311,7 +1311,7 @@ for _cls in gen_all_subclasses(
     TaskCollectionExporter
 ):  # type: Type[TaskCollectionExporter]
     # noinspection PyTypeChecker
-    DOWNLOADER_CLASSES[_cls.viewtype] = _cls
+    DOWNLOADER_CLASSES[_cls.viewtype] = _cls  # type: ignore[index]
 
 
 def make_exporter(

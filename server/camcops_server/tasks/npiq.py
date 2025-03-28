@@ -56,7 +56,7 @@ SEVERITY = "severity"
 DISTRESS = "distress"
 
 
-class NpiQ(
+class NpiQ(  # type: ignore[misc]
     TaskHasPatientMixin,
     TaskHasRespondentMixin,
     Task,

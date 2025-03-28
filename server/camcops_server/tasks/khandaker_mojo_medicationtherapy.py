@@ -60,7 +60,7 @@ class KhandakerMojoTableItem(GenericTabletRecordMixin, TaskDescendant, Base):
     def get_response_option(self, req: "CamcopsRequest") -> Optional[str]:
         # Reads "self.response" from derived class.
         # noinspection PyUnresolvedReferences
-        response = self.response  # type: Optional[int]
+        response = self.response  # type: ignore[attr-defined]
         if response is None:
             return None
         return self.task_ancestor().xstring(req, f"response_{response}")
@@ -76,8 +76,8 @@ class KhandakerMojoTableItem(GenericTabletRecordMixin, TaskDescendant, Base):
     def task_ancestor(self) -> Optional["KhandakerMojoMedicationTherapy"]:
         # Reads "self.medicationtable_id" from derived class.
         # noinspection PyUnresolvedReferences
-        return KhandakerMojoMedicationTherapy.get_linked(
-            self.medicationtable_id, self
+        return KhandakerMojoMedicationTherapy.get_linked(  # type: ignore[return-value]  # noqa: E501
+            self.medicationtable_id, self  # type: ignore[attr-defined]
         )
 
 
@@ -200,7 +200,7 @@ class KhandakerMojoTherapyItem(KhandakerMojoTableItem):
         """
 
 
-class KhandakerMojoMedicationTherapy(TaskHasPatientMixin, Task):
+class KhandakerMojoMedicationTherapy(TaskHasPatientMixin, Task):  # type: ignore[misc]  # noqa: E501
     """
     Server implementation of the KhandakerMojoMedicationTherapy task
     """
@@ -210,14 +210,14 @@ class KhandakerMojoMedicationTherapy(TaskHasPatientMixin, Task):
     info_filename_stem = "khandaker_mojo"
     provides_trackers = False
 
-    medication_items = ancillary_relationship(
+    medication_items = ancillary_relationship(  # type: ignore[assignment]
         parent_class_name="KhandakerMojoMedicationTherapy",
         ancillary_class_name="KhandakerMojoMedicationItem",
         ancillary_fk_to_parent_attr_name="medicationtable_id",
         ancillary_order_by_attr_name="seqnum",
     )  # type: List[KhandakerMojoMedicationItem]
 
-    therapy_items = ancillary_relationship(
+    therapy_items = ancillary_relationship(  # type: ignore[assignment]
         parent_class_name="KhandakerMojoMedicationTherapy",
         ancillary_class_name="KhandakerMojoTherapyItem",
         ancillary_fk_to_parent_attr_name="medicationtable_id",

@@ -1942,7 +1942,7 @@ class CisrResult(object):
 # =============================================================================
 
 
-class Cisr(TaskHasPatientMixin, Task):
+class Cisr(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the CIS-R task.
     """

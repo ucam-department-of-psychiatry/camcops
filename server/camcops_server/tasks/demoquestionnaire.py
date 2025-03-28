@@ -71,7 +71,7 @@ class DemoQuestionnaire(
 
     __tablename__ = "demoquestionnaire"
     shortname = "Demo"
-    is_anonymous = True
+    is_anonymous = True  # type: ignore[assignment]
 
     @classmethod
     def extend_table(cls: Type["DemoQuestionnaire"], **kwargs: Any) -> None:
@@ -137,13 +137,13 @@ class DemoQuestionnaire(
         "time_only", Time
     )  # v2
 
-    photo = blob_relationship(
+    photo = blob_relationship(  # type: ignore[assignment]
         "DemoQuestionnaire", "photo_blobid"
     )  # type: Optional[Blob]
-    canvas = blob_relationship(
+    canvas = blob_relationship(  # type: ignore[assignment]
         "DemoQuestionnaire", "canvas_blobid"
     )  # type: Optional[Blob]
-    canvas2 = blob_relationship(
+    canvas2 = blob_relationship(  # type: ignore[assignment]
         "DemoQuestionnaire", "canvas2_blobid"
     )  # type: Optional[Blob]
 

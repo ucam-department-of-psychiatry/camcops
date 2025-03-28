@@ -64,7 +64,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Pcl5(
+class Pcl5(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

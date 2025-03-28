@@ -160,7 +160,7 @@ class SecurityAccountLockout(Base):
         dbsession = req.dbsession
         now = req.now_utc
         return exists_orm(
-            dbsession, cls, cls.username == username, cls.locked_until > now
+            dbsession, cls, cls.username == username, cls.locked_until > now  # type: ignore[arg-type]  # noqa: E501
         )
 
     @classmethod
@@ -326,7 +326,7 @@ class SecurityLoginFailure(Base):
             username: the user's username
         """
         dbsession = req.dbsession
-        q = CountStarSpecializedQuery(cls, session=dbsession).filter(
+        q = CountStarSpecializedQuery(cls, session=dbsession).filter(  # type: ignore[arg-type]  # noqa: E501
             cls.username == username
         )
         return q.count_star()
@@ -554,7 +554,7 @@ class User(Base):
         if not username:
             return False
         dbsession = req.dbsession
-        return exists_orm(dbsession, cls, cls.username == username)
+        return exists_orm(dbsession, cls, cls.username == username)  # type: ignore[arg-type]  # noqa: E501
 
     @classmethod
     def create_superuser(

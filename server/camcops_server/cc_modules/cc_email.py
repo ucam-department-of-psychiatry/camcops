@@ -30,7 +30,7 @@ camcops_server/cc_modules/cc_email.py
 import datetime
 import email.utils
 import logging
-from typing import List, Optional, Sequence, Tuple
+from typing import Optional, Sequence, Tuple
 
 from cardinal_pythonlib.datetimefunc import (
     convert_datetime_to_utc,
@@ -226,8 +226,8 @@ class Email(Base):
                 *attachments_binary
             )
         else:
-            attachment_binary_filenames = []  # type: List[str]
-            attachment_binaries = []  # type: List[bytes]
+            attachment_binary_filenames = []  # type: ignore[assignment] # type: ignore[no-redef]  # noqa: E501
+            attachment_binaries = []  # type: ignore[assignment] # type: ignore[no-redef]  # noqa: E501
         # ... https://stackoverflow.com/questions/13635032/what-is-the-inverse-function-of-zip-in-python  # noqa
         # Other checks performed by our e-mail function below
 

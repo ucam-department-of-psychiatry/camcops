@@ -481,7 +481,7 @@ class TokenizedPolicy(object):
         except tokenize.TokenError:
             # something went wrong
             return []
-        tokens = [cls.name_to_token(k) for k in tokenstrings]
+        tokens = [cls.name_to_token(k) for k in tokenstrings]  # type: ignore[arg-type]  # noqa: E501
         if any(t == BAD_TOKEN for t in tokens):
             # There's something bad in there.
             return []

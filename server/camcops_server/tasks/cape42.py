@@ -133,7 +133,7 @@ DEP_MAX = MAX_SCORE_PER_Q * len(DEPRESSIVE)
 DP = 2
 
 
-class Cape42(
+class Cape42(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

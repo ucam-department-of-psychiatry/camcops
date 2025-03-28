@@ -50,7 +50,7 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 
-class Fft(TaskHasPatientMixin, Task):
+class Fft(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the FFT task.
     """

@@ -73,7 +73,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 ZERO_OR_TWO_CHECKER = PermittedValueChecker(permitted_values=[0, 2])
 
 
-class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):  # type: ignore[misc]  # noqa: E501
     """
     Server implementation of the SLUMS task.
     """
@@ -191,10 +191,10 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         UnicodeText, comment="Clinician's comments"
     )
 
-    clockpicture = blob_relationship(
+    clockpicture = blob_relationship(  # type: ignore[assignment]
         "Slums", "clockpicture_blobid"
     )  # type: Optional[Blob]
-    shapespicture = blob_relationship(
+    shapespicture = blob_relationship(  # type: ignore[assignment]
         "Slums", "shapespicture_blobid"
     )  # type: Optional[Blob]
 

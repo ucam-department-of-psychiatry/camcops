@@ -137,7 +137,7 @@ def tr(*args: Any, tr_class: str = "", literal: bool = False) -> str:
     if literal:
         elements = args
     else:
-        elements = [td(x) for x in args]
+        elements = [td(x) for x in args]  # type: ignore[assignment]
     tr_class = f' class="{tr_class}"' if tr_class else ""
     contents = "".join(elements)
     return f"<tr{tr_class}>{contents}</tr>\n"

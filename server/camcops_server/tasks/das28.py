@@ -62,7 +62,7 @@ import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy import Column, Float, Integer
 
 
-class Das28(
+class Das28(  # type: ignore[misc]
     TaskHasPatientMixin,
     TaskHasClinicianMixin,
     Task,
@@ -175,7 +175,7 @@ class Das28(
             return False
 
         # noinspection PyUnresolvedReferences
-        if self.crp is None and self.esr is None:
+        if self.crp is None and self.esr is None:  # type: ignore[attr-defined]
             return False
 
         if not self.field_contents_valid():
@@ -262,29 +262,29 @@ class Das28(
 
     def das28_crp(self) -> Optional[float]:
         # noinspection PyUnresolvedReferences
-        if self.crp is None or self.vas is None:
+        if self.crp is None or self.vas is None:  # type: ignore[attr-defined]
             return None
 
         # noinspection PyUnresolvedReferences
         return (
             0.56 * math.sqrt(self.tender_joint_count())
             + 0.28 * math.sqrt(self.swollen_joint_count())
-            + 0.36 * math.log(self.crp + 1)
-            + 0.014 * self.vas
+            + 0.36 * math.log(self.crp + 1)  # type: ignore[attr-defined]
+            + 0.014 * self.vas  # type: ignore[attr-defined]
             + 0.96
         )
 
     def das28_esr(self) -> Optional[float]:
         # noinspection PyUnresolvedReferences
-        if self.esr is None or self.vas is None:
+        if self.esr is None or self.vas is None:  # type: ignore[attr-defined]
             return None
 
         # noinspection PyUnresolvedReferences
         return (
             0.56 * math.sqrt(self.tender_joint_count())
             + 0.28 * math.sqrt(self.swollen_joint_count())
-            + 0.70 * math.log(self.esr)
-            + 0.014 * self.vas
+            + 0.70 * math.log(self.esr)  # type: ignore[attr-defined]
+            + 0.014 * self.vas  # type: ignore[attr-defined]
         )
 
     def activity_state_crp(self, req: CamcopsRequest, measurement: Any) -> str:

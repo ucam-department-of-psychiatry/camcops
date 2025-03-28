@@ -184,7 +184,7 @@ class SpecialNote(Base):
 
         # noinspection PyUnresolvedReferences
         dbsession.execute(
-            update(cls.__table__)
+            update(cls.__table__)  # type: ignore[arg-type]
             .where(cls.device_id == device_id)
             .where(cls.era == ERA_NOW)
             .values(era=new_era)

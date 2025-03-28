@@ -91,7 +91,7 @@ CONSTRAINT_NAME_MAP = {
 }
 
 
-class ElixhauserCI(
+class ElixhauserCI(  # type: ignore[misc]
     TaskHasPatientMixin,
     TaskHasClinicianMixin,
     Task,

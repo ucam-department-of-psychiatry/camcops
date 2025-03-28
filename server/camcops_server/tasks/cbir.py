@@ -106,7 +106,7 @@ QUESTION_SNIPPETS = [
 ]
 
 
-class CbiR(
+class CbiR(  # type: ignore[misc]
     TaskHasPatientMixin,
     TaskHasRespondentMixin,
     Task,

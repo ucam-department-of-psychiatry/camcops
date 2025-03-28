@@ -48,7 +48,7 @@ from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy import Column, Float
 
 
-class Asdas(
+class Asdas(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

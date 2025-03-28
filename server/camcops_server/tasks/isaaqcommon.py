@@ -37,7 +37,7 @@ from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
 # noinspection PyAbstractClass
-class IsaaqCommon(TaskHasPatientMixin, Task):
+class IsaaqCommon(TaskHasPatientMixin, Task):  # type: ignore[misc]
     __abstract__ = True
 
     ALL_FIELD_NAMES: list[str] = []

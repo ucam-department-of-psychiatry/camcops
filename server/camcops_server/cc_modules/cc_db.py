@@ -640,29 +640,29 @@ class GenericTabletRecordMixin(object):
     # noinspection PyMethodParameters
     @declared_attr
     def _adding_user(cls) -> Mapped["User"]:
-        return relationship("User", foreign_keys=[cls._adding_user_id])
+        return relationship("User", foreign_keys=[cls._adding_user_id])  # type: ignore[list-item]  # noqa: E501
 
     # noinspection PyMethodParameters
     @declared_attr
     def _removing_user(cls) -> Mapped["User"]:
-        return relationship("User", foreign_keys=[cls._removing_user_id])
+        return relationship("User", foreign_keys=[cls._removing_user_id])  # type: ignore[list-item]  # noqa: E501
 
     # noinspection PyMethodParameters
     @declared_attr
     def _preserving_user(cls) -> Mapped["User"]:
-        return relationship("User", foreign_keys=[cls._preserving_user_id])
+        return relationship("User", foreign_keys=[cls._preserving_user_id])  # type: ignore[list-item]  # noqa: E501
 
     # noinspection PyMethodParameters
     @declared_attr
     def _manually_erasing_user(cls) -> Mapped["User"]:
         return relationship(
-            "User", foreign_keys=[cls._manually_erasing_user_id]
+            "User", foreign_keys=[cls._manually_erasing_user_id]  # type: ignore[list-item]  # noqa: E501
         )
 
     # noinspection PyMethodParameters
     @declared_attr
     def _group(cls) -> Mapped["Group"]:
-        return relationship("Group", foreign_keys=[cls._group_id])
+        return relationship("Group", foreign_keys=[cls._group_id])  # type: ignore[list-item]  # noqa: E501
 
     # -------------------------------------------------------------------------
     # Fetching attributes
@@ -905,7 +905,7 @@ class GenericTabletRecordMixin(object):
                     self, attrname
                 )  # type: List[GenericTabletRecordMixin]
             else:
-                ancillaries = [
+                ancillaries = [  # type: ignore[no-redef]
                     getattr(self, attrname)
                 ]  # type: List[GenericTabletRecordMixin]
             for ancillary in ancillaries:
@@ -949,7 +949,7 @@ class GenericTabletRecordMixin(object):
         """
         Generates all BLOBs owned by this object, even non-current ones.
         """
-        for lineage_member in self._gen_unique_lineage_objects(
+        for lineage_member in self._gen_unique_lineage_objects(  # type: ignore[assignment]  # noqa: E501
             self.gen_blobs()
         ):  # type: "Blob"
             yield lineage_member
@@ -1210,7 +1210,7 @@ def ancillary_relationship(
 # TypeEngineBase = TypeVar('TypeEngineBase', bound=TypeEngine)
 
 
-def add_multiple_columns(
+def add_multiple_columns(  # type: ignore[no-untyped-def]
     cls: Type,
     prefix: str,
     start: int,

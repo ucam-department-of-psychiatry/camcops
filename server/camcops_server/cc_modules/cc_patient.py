@@ -197,7 +197,7 @@ class Patient(GenericTabletRecordMixin, Base):
     other: Mapped[Optional[str]] = mapped_camcops_column(
         UnicodeText, identifies_patient=True, comment="Other details"
     )
-    idnums = relationship(
+    idnums = relationship(  # type: ignore[assignment]
         # https://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#relationship-custom-foreign
         # https://docs.sqlalchemy.org/en/latest/orm/relationship_api.html#sqlalchemy.orm.relationship  # noqa
         # https://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#relationship-primaryjoin  # noqa
@@ -222,7 +222,7 @@ class Patient(GenericTabletRecordMixin, Base):
         lazy="subquery",
     )  # type: List[PatientIdNum]
 
-    task_schedules = relationship(
+    task_schedules = relationship(  # type: ignore[assignment]
         "PatientTaskSchedule",
         back_populates="patient",
         cascade="all, delete",
@@ -267,7 +267,7 @@ class Patient(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     # noinspection PyMethodParameters
-    @declared_attr
+    @declared_attr  # type: ignore[arg-type]
     def special_notes(cls) -> RelationshipProperty:
         """
         Relationship to all :class:`SpecialNote` objects associated with this
@@ -322,7 +322,7 @@ class Patient(GenericTabletRecordMixin, Base):
             return []
         if idnum_value is None:
             return []
-        q = dbsession.query(cls).join(cls.idnums)
+        q = dbsession.query(cls).join(cls.idnums)  # type: ignore[arg-type]
         # ... the join pre-restricts to current ID numbers
         # https://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#using-custom-operators-in-join-conditions  # noqa
         q = q.filter(PatientIdNum.which_idnum == which_idnum)
@@ -912,7 +912,7 @@ class Patient(GenericTabletRecordMixin, Base):
             forename=self.forename,
             surname=self.surname,
             sex=self.sex,
-            dob=self.dob,
+            dob=self.dob,  # type: ignore[arg-type]
             address=self.address,
             email=self.email,
             gp=self.gp,
@@ -1146,7 +1146,7 @@ class Patient(GenericTabletRecordMixin, Base):
         sn.user_id = req.user_id
         sn.note = note
         req.dbsession.add(sn)
-        self.special_notes.append(sn)
+        self.special_notes.append(sn)  # type: ignore[attr-defined]
         self.audit(req, audit_msg)
         # HL7 deletion of corresponding tasks is done in camcops_server.py
 
@@ -1161,7 +1161,7 @@ class Patient(GenericTabletRecordMixin, Base):
         Generates all :class:`PatientIdNum` objects, including non-current
         ones.
         """
-        for lineage_member in self._gen_unique_lineage_objects(
+        for lineage_member in self._gen_unique_lineage_objects(  # type: ignore[assignment]  # noqa: E501
             self.idnums
         ):  # type: PatientIdNum
             yield lineage_member
@@ -1371,7 +1371,7 @@ class DistinctPatientReport(Report):
         query = (
             select(*select_fields)
             .select_from(select_from)
-            .where(and_(*wheres))
+            .where(and_(*wheres))  # type: ignore[arg-type]
             .order_by(*order_by)
             .distinct()
         )

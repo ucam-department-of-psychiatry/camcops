@@ -78,7 +78,7 @@ Taranis et al. (2011), {pmid(21584918)}; Meyer et al. (2016), {pmid(27547403)}.
 # =============================================================================
 
 
-class Cet(
+class Cet(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

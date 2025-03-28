@@ -288,12 +288,12 @@ class TaskFilter(Base):
         """
         SQLAlchemy function to recreate after loading from the database.
         """
-        self.era = None  # type: Optional[str]
+        self.era = None  # type: ignore[no-redef] # type: Optional[str]
         self.finalized_only = False
-        self.must_have_idnum_type = None  # type: Optional[int]
+        self.must_have_idnum_type = None  # type: ignore[no-redef]
 
         self._sort_method = TaskClassSortMethod.NONE
-        self._task_classes = None  # type: Optional[List[Type[Task]]]
+        self._task_classes = None  # type: ignore[no-redef]
 
     def __repr__(self) -> str:
         return auto_repr(self, with_addr=True)
@@ -316,7 +316,7 @@ class TaskFilter(Base):
         Uses caching, since the filter will be called repeatedly.
         """
         if self._task_classes is None:
-            self._task_classes = []  # type: List[Type[Task]]
+            self._task_classes = []  # type: ignore[no-redef]
             if self.task_types:
                 starting_classes = task_classes_from_table_names(
                     self.task_types
@@ -481,7 +481,7 @@ class TaskFilter(Base):
         returned?
         """
         return (
-            self.start_datetime
+            self.start_datetime  # type: ignore[return-value]
             and self.end_datetime
             and self.end_datetime < self.start_datetime
         )
@@ -546,7 +546,7 @@ class TaskFilter(Base):
                     )
             else:
                 # q = q.join(PatientIdNum) # fails
-                q = q.join(Patient.idnums)
+                q = q.join(Patient.idnums)  # type: ignore[arg-type]
                 # "Specify possible ID number values"
                 for iddef in self.idnum_criteria:
                     id_filter_parts.append(

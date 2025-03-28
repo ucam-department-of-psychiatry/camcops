@@ -51,7 +51,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Wemwbs(
+class Wemwbs(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):
@@ -226,7 +226,7 @@ class Wemwbs(
 # =============================================================================
 
 
-class Swemwbs(
+class Swemwbs(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

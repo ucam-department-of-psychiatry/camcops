@@ -59,7 +59,7 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 
-class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task):  # type: ignore[misc]  # noqa: E501
     """
     Server implementation of the ContactLog task.
     """

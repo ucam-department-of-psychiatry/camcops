@@ -75,7 +75,7 @@ def qfieldname_frequency(qnum: int) -> str:
     return f"{QPREFIX}{qnum}{QSUFFIX_FREQUENCY}"
 
 
-class LynallIamLifeEvents(
+class LynallIamLifeEvents(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

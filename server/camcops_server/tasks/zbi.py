@@ -53,7 +53,7 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 
-class Zbi12(
+class Zbi12(  # type: ignore[misc]
     TaskHasRespondentMixin,
     TaskHasPatientMixin,
     Task,

@@ -49,7 +49,7 @@ from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 # =============================================================================
 
 
-class Ors(TaskHasPatientMixin, Task):
+class Ors(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the PHQ9 task.
     """

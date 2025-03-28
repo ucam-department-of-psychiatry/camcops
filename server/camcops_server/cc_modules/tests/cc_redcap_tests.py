@@ -81,7 +81,7 @@ class MockProject(mock.Mock):
 class MockRedcapTaskExporter(RedcapTaskExporter):
     def __init__(self) -> None:
         mock_project = MockProject()
-        self.get_project = mock.Mock(return_value=mock_project)
+        self.get_project = mock.Mock(return_value=mock_project)  # type: ignore[method-assign]  # noqa: E501
 
         config = mock.Mock()
         self.req = mock.Mock(config=config)
@@ -496,7 +496,7 @@ class RedcapExportTestCase(DemoRequestTestCase):
         self.recipient.id = 1
         self.recipient.recipient_name = "test"
         self.recipient.redcap_fieldmap_filename = os.path.join(
-            self.tmpdir_obj.name, "redcap_fieldmap.xml"
+            self.tmpdir_obj.name, "redcap_fieldmap.xml"  # type: ignore[attr-defined]  # noqa: E501
         )
         self.write_fieldmaps(self.recipient.redcap_fieldmap_filename)
 
@@ -543,7 +543,7 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
         exporter = MockRedcapTaskExporter()
-        project = exporter.get_project()
+        project = exporter.get_project()  # type: ignore[call-arg]
         project.export_records.return_value = DataFrame({"patient_id": []})
         project.import_records.return_value = ["123,0"]
         project.export_project_info.return_value = {
@@ -593,7 +593,7 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
         exporter = MockRedcapTaskExporter()
-        project = exporter.get_project()
+        project = exporter.get_project()  # type: ignore[call-arg]
         project.export_records.return_value = DataFrame({"patient_id": []})
         project.import_records.return_value = ["15-123,0"]
         project.export_project_info.return_value = {
@@ -608,7 +608,7 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
         exporter = MockRedcapTaskExporter()
-        project = exporter.get_project()
+        project = exporter.get_project()  # type: ignore[call-arg]
         project.export_records.return_value = DataFrame({"patient_id": []})
         project.import_records.return_value = {"count": 1}
         project.export_project_info.return_value = {
@@ -630,7 +630,7 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
 
     def test_record_imported_when_no_existing_records(self) -> None:
         exporter = MockRedcapTaskExporter()
-        project = exporter.get_project()
+        project = exporter.get_project()  # type: ignore[call-arg]
         project.export_records.return_value = DataFrame()
         project.import_records.return_value = ["1,0"]
         project.export_project_info.return_value = {
@@ -659,7 +659,7 @@ class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
 
     def test_existing_record_id_used_for_update(self) -> None:
         exporter = MockRedcapTaskExporter()
-        project = exporter.get_project()
+        project = exporter.get_project()  # type: ignore[call-arg]
         project.export_records.return_value = DataFrame({"patient_id": []})
         project.import_records.return_value = ["123,0"]
         project.export_project_info.return_value = {
@@ -761,7 +761,7 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
         exporter = MockRedcapTaskExporter()
-        project = exporter.get_project()
+        project = exporter.get_project()  # type: ignore[call-arg]
         project.export_records.return_value = DataFrame({"patient_id": []})
         project.import_records.return_value = ["123,0"]
         project.export_project_info.return_value = {
@@ -862,7 +862,7 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
         exporter = MockRedcapTaskExporter()
-        project = exporter.get_project()
+        project = exporter.get_project()  # type: ignore[call-arg]
         project.export_records.return_value = DataFrame({"patient_id": []})
         project.import_records.return_value = ["123,0"]
         project.export_project_info.return_value = {
@@ -877,7 +877,7 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
         ) -> None:
             # record, field, fname, fobj
             file_obj = import_file_args[3]
-            read_pdf_bytes.pdf_header = file_obj.read(5)
+            read_pdf_bytes.pdf_header = file_obj.read(5)  # type: ignore[attr-defined]  # noqa: E501
 
         project.import_file.side_effect = read_pdf_bytes
 
@@ -903,7 +903,7 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
 
         self.assertEqual(kwargs["repeat_instance"], 1)
         # noinspection PyUnresolvedReferences
-        self.assertEqual(read_pdf_bytes.pdf_header, b"%PDF-")
+        self.assertEqual(read_pdf_bytes.pdf_header, b"%PDF-")  # type: ignore[attr-defined]  # noqa: E501
         self.assertEqual(kwargs["event"], "event_1_arm_1")
 
 
@@ -940,7 +940,7 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
 
     def test_instance_ids_on_different_tasks_in_same_record(self) -> None:
         exporter = MockRedcapTaskExporter()
-        project = exporter.get_project()
+        project = exporter.get_project()  # type: ignore[call-arg]
         project.export_records.return_value = DataFrame({"patient_id": []})
         project.import_records.return_value = ["123,0"]
         project.export_project_info.return_value = {
@@ -985,7 +985,7 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
 
     def test_imported_into_different_events(self) -> None:
         exporter = MockRedcapTaskExporter()
-        project = exporter.get_project()
+        project = exporter.get_project()  # type: ignore[call-arg]
 
         project.is_longitudinal = mock.Mock(return_value=True)
         project.export_records.return_value = DataFrame({"patient_id": []})
@@ -1049,7 +1049,7 @@ class MissingInstrumentRedcapTests(BadConfigurationRedcapTests):
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
         exporter = MockRedcapTaskExporter()
-        project = exporter.get_project()
+        project = exporter.get_project()  # type: ignore[call-arg]
         project.export_records.return_value = DataFrame({"patient_id": []})
         project.import_records.return_value = ["123,0"]
 
@@ -1080,7 +1080,7 @@ class IncorrectRecordIdRedcapTests(BadConfigurationRedcapTests):
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
         exporter = MockRedcapTaskExporter()
-        project = exporter.get_project()
+        project = exporter.get_project()  # type: ignore[call-arg]
         project.export_records.return_value = DataFrame(
             {
                 "record_id": ["123"],
@@ -1119,7 +1119,7 @@ class IncorrectPatientIdRedcapTests(BadConfigurationRedcapTests):
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
         exporter = MockRedcapTaskExporter()
-        project = exporter.get_project()
+        project = exporter.get_project()  # type: ignore[call-arg]
         project.export_records.return_value = DataFrame(
             {
                 "record_id": ["123"],
@@ -1160,7 +1160,7 @@ class MissingPatientInstrumentRedcapTests(BadConfigurationRedcapTests):
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
         exporter = MockRedcapTaskExporter()
-        project = exporter.get_project()
+        project = exporter.get_project()  # type: ignore[call-arg]
         project.export_records.side_effect = redcap.RedcapError(
             "Something went wrong"
         )
@@ -1190,7 +1190,7 @@ class MissingEventRedcapTests(BadConfigurationRedcapTests):
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
         exporter = MockRedcapTaskExporter()
-        project = exporter.get_project()
+        project = exporter.get_project()  # type: ignore[call-arg]
 
         project.is_longitudinal = mock.Mock(return_value=True)
 
@@ -1223,7 +1223,7 @@ class MissingInstrumentEventRedcapTests(BadConfigurationRedcapTests):
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
         exporter = MockRedcapTaskExporter()
-        project = exporter.get_project()
+        project = exporter.get_project()  # type: ignore[call-arg]
 
         project.is_longitudinal = mock.Mock(return_value=True)
 

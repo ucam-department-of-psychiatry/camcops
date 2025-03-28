@@ -77,7 +77,7 @@ FOOTNOTE_SCORING = """
 
 
 # noinspection PyAbstractClass
-class HonosBase(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
+class HonosBase(TaskHasPatientMixin, TaskHasClinicianMixin, Task):  # type: ignore[misc]  # noqa: E501
     __abstract__ = True
     provides_trackers = True
 
@@ -222,11 +222,11 @@ class Honos(
             return False
         if not self.field_contents_valid():
             return False
-        if self.q8 != 0 and self.q8 != 9 and self.q8problemtype is None:
+        if self.q8 != 0 and self.q8 != 9 and self.q8problemtype is None:  # type: ignore[attr-defined]  # noqa: E501
             return False
         if (
-            self.q8 != 0
-            and self.q8 != 9
+            self.q8 != 0  # type: ignore[attr-defined]
+            and self.q8 != 9  # type: ignore[attr-defined]
             and self.q8problemtype == "J"
             and self.q8otherproblem is None
         ):
@@ -323,40 +323,40 @@ class Honos(
                         ): self.total_score(),
                         req.snomed(
                             SnomedLookup.HONOSWA_1_OVERACTIVE_SCORE
-                        ): self.q1,
+                        ): self.q1,  # type: ignore[attr-defined]
                         req.snomed(
                             SnomedLookup.HONOSWA_2_SELFINJURY_SCORE
-                        ): self.q2,
+                        ): self.q2,  # type: ignore[attr-defined]
                         req.snomed(
                             SnomedLookup.HONOSWA_3_SUBSTANCE_SCORE
-                        ): self.q3,
+                        ): self.q3,  # type: ignore[attr-defined]
                         req.snomed(
                             SnomedLookup.HONOSWA_4_COGNITIVE_SCORE
-                        ): self.q4,
+                        ): self.q4,  # type: ignore[attr-defined]
                         req.snomed(
                             SnomedLookup.HONOSWA_5_PHYSICAL_SCORE
-                        ): self.q5,
+                        ): self.q5,  # type: ignore[attr-defined]
                         req.snomed(
                             SnomedLookup.HONOSWA_6_PSYCHOSIS_SCORE
-                        ): self.q6,
+                        ): self.q6,  # type: ignore[attr-defined]
                         req.snomed(
                             SnomedLookup.HONOSWA_7_DEPRESSION_SCORE
-                        ): self.q7,
+                        ): self.q7,  # type: ignore[attr-defined]
                         req.snomed(
                             SnomedLookup.HONOSWA_8_OTHERMENTAL_SCORE
-                        ): self.q8,
+                        ): self.q8,  # type: ignore[attr-defined]
                         req.snomed(
                             SnomedLookup.HONOSWA_9_RELATIONSHIPS_SCORE
-                        ): self.q9,
+                        ): self.q9,  # type: ignore[attr-defined]
                         req.snomed(
                             SnomedLookup.HONOSWA_10_ADL_SCORE
-                        ): self.q10,
+                        ): self.q10,  # type: ignore[attr-defined]
                         req.snomed(
                             SnomedLookup.HONOSWA_11_LIVINGCONDITIONS_SCORE
-                        ): self.q11,
+                        ): self.q11,  # type: ignore[attr-defined]
                         req.snomed(
                             SnomedLookup.HONOSWA_12_OCCUPATION_SCORE
-                        ): self.q12,
+                        ): self.q12,  # type: ignore[attr-defined]
                     },
                 )
             )
@@ -433,11 +433,11 @@ class Honos65(
             return False
         if not self.field_contents_valid():
             return False
-        if self.q8 != 0 and self.q8 != 9 and self.q8problemtype is None:
+        if self.q8 != 0 and self.q8 != 9 and self.q8problemtype is None:  # type: ignore[attr-defined]  # noqa: E501
             return False
         if (
-            self.q8 != 0
-            and self.q8 != 9
+            self.q8 != 0  # type: ignore[attr-defined]
+            and self.q8 != 9  # type: ignore[attr-defined]
             and self.q8problemtype == "J"
             and self.q8otherproblem is None
         ):

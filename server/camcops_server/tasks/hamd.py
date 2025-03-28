@@ -69,7 +69,7 @@ MAX_SCORE = (
 )  # ... and not scored beyond Q17... total 52
 
 
-class Hamd(
+class Hamd(  # type: ignore[misc]
     TaskHasPatientMixin,
     TaskHasClinicianMixin,
     Task,
@@ -291,15 +291,15 @@ class Hamd(
     def is_complete(self) -> bool:
         if not self.field_contents_valid():
             return False
-        if self.q1 is None or self.q9 is None or self.q10 is None:
+        if self.q1 is None or self.q9 is None or self.q10 is None:  # type: ignore[attr-defined]  # noqa: E501
             return False
-        if self.q1 == 0:
+        if self.q1 == 0:  # type: ignore[attr-defined]
             # Special limited-information completeness
             return True
         if (
-            self.q2 is not None
-            and self.q3 is not None
-            and (self.q2 + self.q3 == 0)
+            self.q2 is not None  # type: ignore[attr-defined]
+            and self.q3 is not None  # type: ignore[attr-defined]
+            and (self.q2 + self.q3 == 0)  # type: ignore[attr-defined]
         ):
             # Special limited-information completeness
             return True
@@ -386,8 +386,8 @@ class Hamd(
                 else:
                     col = getattr(self.__class__, q)  # type: MappedColumn
                     rangestr = " <sup>range {}–{}</sup>".format(
-                        col.info["permitted_value_checker"].minimum,
-                        col.info["permitted_value_checker"].maximum,
+                        col.info["permitted_value_checker"].minimum,  # type: ignore[attr-defined]  # noqa: E501
+                        col.info["permitted_value_checker"].maximum,  # type: ignore[attr-defined]  # noqa: E501
                     )
                 qstr = self.wxstring(req, "" + q + "_s") + rangestr
             q_a += tr_qa(

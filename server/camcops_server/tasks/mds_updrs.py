@@ -58,7 +58,7 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 
-class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task):  # type: ignore[misc]  # noqa: E501
     """
     Server implementation of the MDS-UPDRS task.
 

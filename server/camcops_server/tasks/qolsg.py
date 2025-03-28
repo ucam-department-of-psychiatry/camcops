@@ -54,7 +54,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 DP = 3
 
 
-class QolSG(TaskHasPatientMixin, Task):
+class QolSG(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the QoL-SG task.
     """

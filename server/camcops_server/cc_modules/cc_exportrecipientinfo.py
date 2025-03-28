@@ -649,10 +649,10 @@ class ExportRecipientInfo(object):
         )  # delayed import
 
         def fail_invalid(msg: str) -> NoReturn:
-            raise _Invalid(self.recipient_name, msg)
+            raise _Invalid(self.recipient_name, msg)  # type: ignore[arg-type]
 
         def fail_missing(paramname: str) -> NoReturn:
-            raise _Missing(self.recipient_name, paramname)
+            raise _Missing(self.recipient_name, paramname)  # type: ignore[arg-type]  # noqa: E501
 
         cpr = ConfigParamExportRecipient
         cps = ConfigParamSite
@@ -678,7 +678,7 @@ class ExportRecipientInfo(object):
             fail_invalid(f"Missing group names (from {cpr.GROUPS})")
 
         all_basetables = all_task_tablenames()
-        for basetable in self.tasks:
+        for basetable in self.tasks:  # type: ignore[attr-defined]
             if basetable not in all_basetables:
                 fail_invalid(f"Task {basetable!r} doesn't exist")
 
@@ -774,7 +774,7 @@ class ExportRecipientInfo(object):
             if (
                 not self.rio_uploading_user
                 or " " in self.rio_uploading_user
-                or len(self.rio_uploading_user) > RIO_MAX_USER_LEN
+                or len(self.rio_uploading_user) > RIO_MAX_USER_LEN  # type: ignore[arg-type]  # noqa: E501
             ):
                 fail_invalid(
                     f"Missing/invalid {cpr.RIO_UPLOADING_USER}: "
@@ -807,7 +807,7 @@ class ExportRecipientInfo(object):
         from camcops_server.cc_modules.cc_group import Group  # delayed import
 
         def fail_invalid(msg: str) -> NoReturn:
-            raise _Invalid(self.recipient_name, msg)
+            raise _Invalid(self.recipient_name, msg)  # type: ignore[arg-type]
 
         dbsession = req.dbsession
         valid_which_idnums = req.valid_which_idnums
@@ -820,8 +820,8 @@ class ExportRecipientInfo(object):
             group = Group.get_group_by_name(dbsession, groupname)
             if not group:
                 fail_invalid(f"No such group: {groupname!r}")
-            self.group_ids.append(group.id)
-        self.group_ids.sort()
+            self.group_ids.append(group.id)  # type: ignore[attr-defined]
+        self.group_ids.sort()  # type: ignore[attr-defined]
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # What to export
@@ -829,8 +829,8 @@ class ExportRecipientInfo(object):
         if self.all_groups:
             groups = Group.get_all_groups(dbsession)
         else:
-            groups = []  # type: List[Group]
-            for gid in self.group_ids:
+            groups = []  # type: ignore[no-redef] # type: List[Group]
+            for gid in self.group_ids:  # type: ignore[attr-defined]
                 group = Group.get_group_by_id(dbsession, gid)
                 if not group:
                     fail_invalid(f"Invalid group ID: {gid}")
@@ -847,7 +847,7 @@ class ExportRecipientInfo(object):
                 for group in groups:
                     finalize_policy = group.tokenized_finalize_policy()
                     if not finalize_policy.is_idnum_mandatory_in_policy(
-                        which_idnum=self.primary_idnum,
+                        which_idnum=self.primary_idnum,  # type: ignore[arg-type]  # noqa: E501
                         valid_idnums=valid_which_idnums,
                     ):
                         fail_invalid(
@@ -860,7 +860,7 @@ class ExportRecipientInfo(object):
                         # non-finalized records
                         upload_policy = group.tokenized_upload_policy()
                         if not upload_policy.is_idnum_mandatory_in_policy(
-                            which_idnum=self.primary_idnum,
+                            which_idnum=self.primary_idnum,  # type: ignore[arg-type]  # noqa: E501
                             valid_idnums=valid_which_idnums,
                         ):
                             fail_invalid(
@@ -876,7 +876,7 @@ class ExportRecipientInfo(object):
         if self._need_file_name():
             # Filename options
             if not patient_spec_for_filename_is_valid(
-                patient_spec=self.file_patient_spec,
+                patient_spec=self.file_patient_spec,  # type: ignore[arg-type]
                 valid_which_idnums=valid_which_idnums,
             ):
                 fail_invalid(
@@ -884,7 +884,7 @@ class ExportRecipientInfo(object):
                     f"{self.file_patient_spec}"
                 )
             if not filename_spec_is_valid(
-                filename_spec=self.file_filename_spec,
+                filename_spec=self.file_filename_spec,  # type: ignore[arg-type]  # noqa: E501
                 valid_which_idnums=valid_which_idnums,
             ):
                 fail_invalid(
@@ -905,7 +905,7 @@ class ExportRecipientInfo(object):
         Do we need to know about filenames?
         """
         return (
-            self.transmission_method == ExportTransmissionMethod.FILE
+            self.transmission_method == ExportTransmissionMethod.FILE  # type: ignore[return-value]  # noqa: E501
             or (
                 self.transmission_method == ExportTransmissionMethod.HL7
                 and self.hl7_debug_divert_to_file
@@ -918,9 +918,12 @@ class ExportRecipientInfo(object):
         Do we need to know about how to write to disk (e.g. overwrite, make
         directories)?
         """
-        return self.transmission_method == ExportTransmissionMethod.FILE or (
-            self.transmission_method == ExportTransmissionMethod.HL7
-            and self.hl7_debug_divert_to_file
+        return (
+            self.transmission_method == ExportTransmissionMethod.FILE
+            or (  # type: ignore[return-value]
+                self.transmission_method == ExportTransmissionMethod.HL7
+                and self.hl7_debug_divert_to_file
+            )
         )
 
     def _need_rio_metadata_options(self) -> bool:
@@ -928,7 +931,7 @@ class ExportRecipientInfo(object):
         Do we need to know about RiO metadata?
         """
         return (
-            self.transmission_method == ExportTransmissionMethod.FILE
+            self.transmission_method == ExportTransmissionMethod.FILE  # type: ignore[return-value]  # noqa: E501
             and self.file_export_rio_metadata
         )
 
@@ -936,37 +939,37 @@ class ExportRecipientInfo(object):
         """
         Is the recipient a database?
         """
-        return self.transmission_method == ExportTransmissionMethod.DATABASE
+        return self.transmission_method == ExportTransmissionMethod.DATABASE  # type: ignore[return-value]  # noqa: E501
 
     def using_email(self) -> bool:
         """
         Is the recipient an e-mail system?
         """
-        return self.transmission_method == ExportTransmissionMethod.EMAIL
+        return self.transmission_method == ExportTransmissionMethod.EMAIL  # type: ignore[return-value]  # noqa: E501
 
     def using_file(self) -> bool:
         """
         Is the recipient a filestore?
         """
-        return self.transmission_method == ExportTransmissionMethod.FILE
+        return self.transmission_method == ExportTransmissionMethod.FILE  # type: ignore[return-value]  # noqa: E501
 
     def using_hl7(self) -> bool:
         """
         Is the recipient an HL7 v2 recipient?
         """
-        return self.transmission_method == ExportTransmissionMethod.HL7
+        return self.transmission_method == ExportTransmissionMethod.HL7  # type: ignore[return-value]  # noqa: E501
 
     def using_fhir(self) -> bool:
         """
         Is the recipient a FHIR recipient?
         """
-        return self.transmission_method == ExportTransmissionMethod.FHIR
+        return self.transmission_method == ExportTransmissionMethod.FHIR  # type: ignore[return-value]  # noqa: E501
 
     def anonymous_ok(self) -> bool:
         """
         Does this recipient permit/want anonymous tasks?
         """
-        return self.include_anonymous and not (
+        return self.include_anonymous and not (  # type: ignore[return-value]
             # Methods that require patient identification:
             self.using_hl7()
             or self.using_fhir()
@@ -1033,7 +1036,7 @@ class ExportRecipientInfo(object):
             patient_spec=patient_spec,
             filename_spec=spec,
             filetype=(
-                override_task_format
+                override_task_format  # type: ignore[arg-type]
                 if override_task_format
                 else self.task_format
             ),
@@ -1061,9 +1064,9 @@ class ExportRecipientInfo(object):
         return self._get_processed_spec(
             req=req,
             task=task,
-            patient_spec_if_anonymous=self.file_patient_spec_if_anonymous,
-            patient_spec=self.file_patient_spec,
-            spec=self.file_filename_spec,
+            patient_spec_if_anonymous=self.file_patient_spec_if_anonymous,  # type: ignore[arg-type]  # noqa: E501
+            patient_spec=self.file_patient_spec,  # type: ignore[arg-type]
+            spec=self.file_filename_spec,  # type: ignore[arg-type]
             treat_as_filename=True,
             override_task_format=override_task_format,
         )
@@ -1075,9 +1078,9 @@ class ExportRecipientInfo(object):
         return self._get_processed_spec(
             req=req,
             task=task,
-            patient_spec_if_anonymous=self.email_patient_spec_if_anonymous,
-            patient_spec=self.email_patient_spec,
-            spec=self.email_subject,
+            patient_spec_if_anonymous=self.email_patient_spec_if_anonymous,  # type: ignore[arg-type]  # noqa: E501
+            patient_spec=self.email_patient_spec,  # type: ignore[arg-type]
+            spec=self.email_subject,  # type: ignore[arg-type]
             treat_as_filename=False,
         )
 
@@ -1088,8 +1091,8 @@ class ExportRecipientInfo(object):
         return self._get_processed_spec(
             req=req,
             task=task,
-            patient_spec_if_anonymous=self.email_patient_spec_if_anonymous,
-            patient_spec=self.email_patient_spec,
-            spec=self.email_body,
+            patient_spec_if_anonymous=self.email_patient_spec_if_anonymous,  # type: ignore[arg-type]  # noqa: E501
+            patient_spec=self.email_patient_spec,  # type: ignore[arg-type]
+            spec=self.email_body,  # type: ignore[arg-type]
             treat_as_filename=False,
         )

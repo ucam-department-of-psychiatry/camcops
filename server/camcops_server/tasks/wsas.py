@@ -55,7 +55,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Wsas(
+class Wsas(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):
@@ -203,14 +203,14 @@ class Wsas(
         if self.is_complete():
             d = {
                 req.snomed(SnomedLookup.WSAS_SCORE): self.total_score(),
-                req.snomed(SnomedLookup.WSAS_HOME_MANAGEMENT_SCORE): self.q2,
-                req.snomed(SnomedLookup.WSAS_SOCIAL_LEISURE_SCORE): self.q3,
-                req.snomed(SnomedLookup.WSAS_PRIVATE_LEISURE_SCORE): self.q4,
-                req.snomed(SnomedLookup.WSAS_RELATIONSHIPS_SCORE): self.q5,
+                req.snomed(SnomedLookup.WSAS_HOME_MANAGEMENT_SCORE): self.q2,  # type: ignore[attr-defined]  # noqa: E501
+                req.snomed(SnomedLookup.WSAS_SOCIAL_LEISURE_SCORE): self.q3,  # type: ignore[attr-defined]  # noqa: E501
+                req.snomed(SnomedLookup.WSAS_PRIVATE_LEISURE_SCORE): self.q4,  # type: ignore[attr-defined]  # noqa: E501
+                req.snomed(SnomedLookup.WSAS_RELATIONSHIPS_SCORE): self.q5,  # type: ignore[attr-defined]  # noqa: E501
             }
             if not self.retired_etc:
-                d[req.snomed(SnomedLookup.WSAS_WORK_SCORE)] = self.q1
+                d[req.snomed(SnomedLookup.WSAS_WORK_SCORE)] = self.q1  # type: ignore[attr-defined]  # noqa: E501
             codes.append(
-                SnomedExpression(req.snomed(SnomedLookup.WSAS_SCALE), d)
+                SnomedExpression(req.snomed(SnomedLookup.WSAS_SCALE), d)  # type: ignore[arg-type]  # noqa: E501
             )
         return codes

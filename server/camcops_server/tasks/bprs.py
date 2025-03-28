@@ -52,7 +52,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Bprs(
+class Bprs(  # type: ignore[misc]
     TaskHasPatientMixin,
     TaskHasClinicianMixin,
     Task,
@@ -195,10 +195,10 @@ class Bprs(
                 get_from_dict(main_dict, getattr(self, "q" + str(i))),
             )
         q_a += tr_qa(
-            self.wxstring(req, "q19_title"), get_from_dict(q19_dict, self.q19)
+            self.wxstring(req, "q19_title"), get_from_dict(q19_dict, self.q19)  # type: ignore[attr-defined]  # noqa: E501
         )
         q_a += tr_qa(
-            self.wxstring(req, "q20_title"), get_from_dict(q20_dict, self.q20)
+            self.wxstring(req, "q20_title"), get_from_dict(q20_dict, self.q20)  # type: ignore[attr-defined]  # noqa: E501
         )
 
         total_score = tr(

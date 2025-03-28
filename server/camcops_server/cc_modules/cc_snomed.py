@@ -657,7 +657,7 @@ def get_snomed_concepts_from_xml(
             concepts_for_lookup = all_concepts.setdefault(lookupname, [])
             concepts_for_lookup.append(concept)
     # Done
-    return all_concepts
+    return all_concepts  # type: ignore[return-value]
 
 
 def write_snomed_concepts_to_xml(
@@ -1211,9 +1211,9 @@ def get_all_task_snomed_concepts(
             log.debug("Ignoring unknown SNOMED-CT lookup: {!r}", lookup)
             continue
         assert (
-            len(concepts) == 1
+            len(concepts) == 1  # type: ignore[arg-type]
         ), f"More than one SNOMED-CT concept for lookup: {lookup!r}"
-        concept = concepts[0]
+        concept = concepts[0]  # type: ignore[index]
         assert (
             concept.identifier not in identifiers_seen
         ), f"Duplicate SNOMED-CT identifier: {concept.identifier!r}"
@@ -1739,7 +1739,7 @@ def get_multiple_snomed_concepts_from_xml(
             log.debug("Ignoring unknown SNOMED-CT lookup: {!r}", lookup)
             continue
         # Stash it
-        camcops_concepts[lookup] = concepts
+        camcops_concepts[lookup] = concepts  # type: ignore[assignment]
     if require_all:
         # Check if any are missing
         assert valid_lookups, "require_all specified but valid_lookups missing"

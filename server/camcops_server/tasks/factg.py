@@ -118,7 +118,7 @@ class FactgGroupInfo(object):
         return scoresum * self.n_questions / answered
 
 
-class Factg(TaskHasPatientMixin, Task):
+class Factg(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the Fact-G task.
     """

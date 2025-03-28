@@ -52,7 +52,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Basdai(
+class Basdai(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

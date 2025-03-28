@@ -54,7 +54,7 @@ def to_csv(values: Iterable[Any]) -> str:
     return ", ".join(str(v) for v in values)
 
 
-class Aq(
+class Aq(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

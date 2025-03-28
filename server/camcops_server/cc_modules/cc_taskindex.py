@@ -52,7 +52,7 @@ from sqlalchemy.orm import (
     Session as SqlASession,
 )
 from sqlalchemy.sql.expression import and_, exists, join, literal, select
-from sqlalchemy.sql.schema import ForeignKey, Table
+from sqlalchemy.sql.schema import ForeignKey
 from sqlalchemy.sql.sqltypes import BigInteger
 
 from camcops_server.cc_modules.cc_client_api_core import (
@@ -216,11 +216,11 @@ class PatientIdNumIndexEntry(Base):
         """
 
         # noinspection PyUnresolvedReferences
-        idxtable = cls.__table__  # type: Table
+        idxtable = cls.__table__  # type: ignore[assignment] # type: Table
         idxcols = idxtable.columns
         # noinspection PyProtectedMember
         session.execute(
-            idxtable.delete().where(idxcols.patient_pk == patient._pk)
+            idxtable.delete().where(idxcols.patient_pk == patient._pk)  # type: ignore[attr-defined]  # noqa: E501
         )
 
     # -------------------------------------------------------------------------
@@ -241,27 +241,27 @@ class PatientIdNumIndexEntry(Base):
         log.info("Rebuilding patient ID number index")
 
         # noinspection PyUnresolvedReferences
-        indextable = PatientIdNumIndexEntry.__table__  # type: Table
+        indextable = PatientIdNumIndexEntry.__table__  # type: ignore[assignment]  # noqa: E501
         indexcols = indextable.columns
         # noinspection PyUnresolvedReferences
-        idnumtable = PatientIdNum.__table__  # type: Table
+        idnumtable = PatientIdNum.__table__  # type: ignore[assignment]
         idnumcols = idnumtable.columns
         # noinspection PyUnresolvedReferences
-        patienttable = Patient.__table__  # type: Table
+        patienttable = Patient.__table__  # type: ignore[assignment]
         patientcols = patienttable.columns
 
         # Delete all entries
         with if_sqlserver_disable_constraints_triggers(
-            session, indextable.name
+            session, indextable.name  # type: ignore[attr-defined]
         ):
-            session.execute(indextable.delete())
+            session.execute(indextable.delete())  # type: ignore[attr-defined]
 
         # Create new ones
         indexed_at_utc = pendulum_to_datetime(indexed_at_utc)
         # ... SQLite has trouble otherwise
         # noinspection PyProtectedMember,PyPep8
         session.execute(
-            indextable.insert().from_select(
+            indextable.insert().from_select(  # type: ignore[attr-defined]
                 # Target:
                 [
                     indexcols.idnum_pk,
@@ -328,8 +328,8 @@ class PatientIdNumIndexEntry(Base):
                 PatientIdNum.__table__.join(
                     Patient.__table__,
                     Patient.id == PatientIdNum.patient_id,
-                    Patient._device_id == PatientIdNum._device_id,
-                    Patient._era == PatientIdNum._era,
+                    Patient._device_id == PatientIdNum._device_id,  # type: ignore[arg-type]  # noqa: E501
+                    Patient._era == PatientIdNum._era,  # type: ignore[arg-type]  # noqa: E501
                 )
             )
             .where(
@@ -409,13 +409,13 @@ class PatientIdNumIndexEntry(Base):
                 object describing the changes to a table
         """  # noqa
         # noinspection PyUnresolvedReferences
-        indextable = PatientIdNumIndexEntry.__table__  # type: Table
+        indextable = PatientIdNumIndexEntry.__table__  # type: ignore[assignment]  # noqa: E501
         indexcols = indextable.columns
         # noinspection PyUnresolvedReferences
-        idnumtable = PatientIdNum.__table__  # type: Table
+        idnumtable = PatientIdNum.__table__  # type: ignore[assignment]
         idnumcols = idnumtable.columns
         # noinspection PyUnresolvedReferences
-        patienttable = Patient.__table__  # type: Table
+        patienttable = Patient.__table__  # type: ignore[assignment]
         patientcols = patienttable.columns
 
         # Delete the old
@@ -425,7 +425,7 @@ class PatientIdNumIndexEntry(Base):
                 "Deleting old ID number indexes: server PKs {}", removal_pks
             )
             session.execute(
-                indextable.delete().where(
+                indextable.delete().where(  # type: ignore[attr-defined]
                     indextable.c.idnum_pk.in_(removal_pks)
                 )
             )
@@ -444,7 +444,7 @@ class PatientIdNumIndexEntry(Base):
             log.debug("Adding ID number indexes: server PKs {}", addition_pks)
             # noinspection PyPep8,PyProtectedMember
             session.execute(
-                indextable.insert().from_select(
+                indextable.insert().from_select(  # type: ignore[attr-defined]
                     # Target:
                     [
                         indexcols.idnum_pk,
@@ -455,7 +455,7 @@ class PatientIdNumIndexEntry(Base):
                     ],
                     # Source:
                     (
-                        select(select_fields)
+                        select(select_fields)  # type: ignore[call-overload]
                         .select_from(
                             join(
                                 idnumtable,
@@ -764,11 +764,11 @@ class TaskIndexEntry(Base):
         """
 
         # noinspection PyUnresolvedReferences
-        idxtable = cls.__table__  # type: Table
+        idxtable = cls.__table__  # type: ignore[assignment] # type: Table
         idxcols = idxtable.columns
         tasktablename = task.__class__.tablename
         session.execute(
-            idxtable.delete()
+            idxtable.delete()  # type: ignore[attr-defined]
             .where(idxcols.task_table_name == tasktablename)
             .where(idxcols.task_pk == task.pk)
         )
@@ -798,14 +798,14 @@ class TaskIndexEntry(Base):
                 everything first.
         """
         # noinspection PyUnresolvedReferences
-        idxtable = cls.__table__  # type: Table
+        idxtable = cls.__table__  # type: ignore[assignment] # type: Table
         idxcols = idxtable.columns
         tasktablename = taskclass.tablename
         log.info("Rebuilding task index for {}", tasktablename)
         # Delete all entries for this task
         if delete_first:
             session.execute(
-                idxtable.delete().where(idxcols.table_name == tasktablename)
+                idxtable.delete().where(idxcols.table_name == tasktablename)  # type: ignore[attr-defined]  # noqa: E501
             )
         # Create new entries
         # noinspection PyPep8,PyUnresolvedReferences,PyProtectedMember
@@ -837,11 +837,11 @@ class TaskIndexEntry(Base):
         """
         log.info("Rebuilding entire task index")
         # noinspection PyUnresolvedReferences
-        idxtable = cls.__table__  # type: Table
+        idxtable = cls.__table__  # type: ignore[assignment] # type: Table
 
         # Delete all entries
-        with if_sqlserver_disable_constraints_triggers(session, idxtable.name):
-            session.execute(idxtable.delete())
+        with if_sqlserver_disable_constraints_triggers(session, idxtable.name):  # type: ignore[attr-defined]  # noqa: E501
+            session.execute(idxtable.delete())  # type: ignore[attr-defined]
 
         # Now rebuild:
         for taskclass in Task.all_subclasses_by_tablename():
@@ -889,7 +889,7 @@ class TaskIndexEntry(Base):
             fail_user_error(f"Bug: no such task table: {tasktablename!r}")
 
         # noinspection PyUnresolvedReferences
-        idxtable = cls.__table__  # type: Table
+        idxtable = cls.__table__  # type: ignore[assignment] # type: Table
         idxcols = idxtable.columns
 
         # Delete the old.
@@ -902,7 +902,7 @@ class TaskIndexEntry(Base):
             )
             # noinspection PyProtectedMember
             session.execute(
-                idxtable.delete()
+                idxtable.delete()  # type: ignore[attr-defined]
                 .where(idxcols.task_table_name == tasktablename)
                 .where(idxcols.task_pk.in_(delete_index_pks))
             )

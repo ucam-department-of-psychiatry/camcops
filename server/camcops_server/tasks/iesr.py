@@ -56,7 +56,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Iesr(
+class Iesr(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

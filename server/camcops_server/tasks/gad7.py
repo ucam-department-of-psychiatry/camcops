@@ -55,7 +55,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Gad7(
+class Gad7(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

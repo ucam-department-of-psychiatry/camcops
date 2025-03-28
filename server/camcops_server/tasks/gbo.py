@@ -76,7 +76,7 @@ def agent_description(agent: int, other_detail: str) -> str:
 # =============================================================================
 
 
-class Gbogres(TaskHasPatientMixin, Task):
+class Gbogres(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the GBO - Goal Record Sheet task.
     """
@@ -202,7 +202,7 @@ class Gbogres(TaskHasPatientMixin, Task):
 # =============================================================================
 
 
-class Gbogpc(TaskHasPatientMixin, Task):
+class Gbogpc(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the GBO-GPC task.
     """
@@ -349,7 +349,7 @@ class Gbogpc(TaskHasPatientMixin, Task):
 # =============================================================================
 
 
-class Gbogras(TaskHasPatientMixin, Task):
+class Gbogras(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the GBO-GRaS task.
     """

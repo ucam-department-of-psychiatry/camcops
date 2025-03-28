@@ -52,7 +52,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 DP = 3
 
 
-class Pdss(
+class Pdss(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

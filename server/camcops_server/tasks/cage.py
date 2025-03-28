@@ -48,7 +48,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Cage(
+class Cage(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

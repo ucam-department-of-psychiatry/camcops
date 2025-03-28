@@ -56,7 +56,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Mast(
+class Mast(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

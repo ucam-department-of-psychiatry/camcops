@@ -53,7 +53,7 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 
-class Badls(
+class Badls(  # type: ignore[misc]
     TaskHasPatientMixin,
     TaskHasRespondentMixin,
     Task,

@@ -115,35 +115,35 @@ class DummyDataInserter:
         """
         # noinspection PyUnresolvedReferences
         for column in task.__table__.columns:
-            if not self.column_is_q_field(column):
+            if not self.column_is_q_field(column):  # type: ignore[arg-type]
                 continue
 
             if isinstance(column.type, Integer):
-                self.set_integer_field(task, column)
+                self.set_integer_field(task, column)  # type: ignore[arg-type]
                 continue
 
             if isinstance(column.type, Float):
-                self.set_float_field(task, column)
+                self.set_float_field(task, column)  # type: ignore[arg-type]
                 continue
 
             if isinstance(column.type, Boolean):
-                self.set_bool_field(task, column)
+                self.set_bool_field(task, column)  # type: ignore[arg-type]
                 continue
 
             if isinstance(column.type, Date):
-                self.set_date_field(task, column)
+                self.set_date_field(task, column)  # type: ignore[arg-type]
                 continue
 
             if isinstance(column.type, PendulumDateTimeAsIsoTextColType):
-                self.set_datetime_field(task, column)
+                self.set_datetime_field(task, column)  # type: ignore[arg-type]
                 continue
 
             if isinstance(column.type, UnicodeText):
-                self.set_unicode_text_field(task, column)
+                self.set_unicode_text_field(task, column)  # type: ignore[arg-type]  # noqa: E501
 
             if isinstance(column.type, String):
                 # covers String, Text, UnicodeText
-                self.set_string_field(task, column)
+                self.set_string_field(task, column)  # type: ignore[arg-type]
 
     def set_integer_field(self, task: Task, column: Column) -> None:
         setattr(task, column.name, self.get_valid_integer_for_field(column))
@@ -253,7 +253,7 @@ class DummyDataFactory(DummyDataInserter):
 
     def add_data(self) -> None:
         # noinspection PyTypeChecker
-        next_id = self.next_id(Group.id)
+        next_id = self.next_id(Group.id)  # type: ignore[arg-type]
 
         self.group = Group()
         self.group.name = f"dummygroup{next_id}"
@@ -345,7 +345,7 @@ class DummyDataFactory(DummyDataInserter):
 
     # noinspection PyTypeChecker
     def add_patient_idnum(self, patient_id: int) -> None:
-        next_id = self.next_id(PatientIdNum.id)
+        next_id = self.next_id(PatientIdNum.id)  # type: ignore[arg-type]
 
         patient_idnum = PatientIdNum()
         patient_idnum.id = next_id

@@ -46,7 +46,7 @@ from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, Task
 from camcops_server.cc_modules.cc_text import SS
 
 
-class Mfi20(
+class Mfi20(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

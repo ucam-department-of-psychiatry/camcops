@@ -59,7 +59,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 
-class HadsBase(TaskHasPatientMixin, Task, ABC):
+class HadsBase(TaskHasPatientMixin, Task, ABC):  # type: ignore[misc]
     """
     Server implementation of the HADS task.
     """
@@ -208,7 +208,7 @@ class HadsBase(TaskHasPatientMixin, Task, ABC):
             if crippled or v is None or v < min_score or v > max_score:
                 a = v
             else:
-                a = f"{v}: {self.wxstring(req, f'q{n}_a{v}')}"
+                a = f"{v}: {self.wxstring(req, f'q{n}_a{v}')}"  # type: ignore[assignment]  # noqa: E501
             h += tr_qa(q, a)
         h += (
             """
@@ -263,7 +263,7 @@ class Hads(HadsBase):
 # =============================================================================
 
 
-class HadsRespondent(TaskHasRespondentMixin, HadsBase):
+class HadsRespondent(TaskHasRespondentMixin, HadsBase):  # type: ignore[misc]
     __tablename__ = "hads_respondent"
     shortname = "HADS-Respondent"
     extrastring_taskname = "hads"

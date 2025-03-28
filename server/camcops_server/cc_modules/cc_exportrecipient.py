@@ -599,7 +599,7 @@ def _check_current(
     if target.current:
         # noinspection PyUnresolvedReferences
         connection.execute(
-            ExportRecipient.__table__.update()
+            ExportRecipient.__table__.update()  # type: ignore[attr-defined]
             .values(current=False)
             .where(ExportRecipient.recipient_name == target.recipient_name)
             .where(ExportRecipient.id != target.id)

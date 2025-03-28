@@ -233,7 +233,7 @@ class CamcopsSession(Base):
         """
         session = cls.get_session(
             req=ts.req,
-            session_id_str=ts.session_id,
+            session_id_str=ts.session_id,  # type: ignore[arg-type]
             session_token=ts.session_token,
         )
         if not session.user:
@@ -395,7 +395,7 @@ class CamcopsSession(Base):
         cls, req: "CamcopsRequest", when: Pendulum
     ) -> int:
         when_utc = pendulum_to_utc_datetime_without_tz(when)
-        q = CountStarSpecializedQuery(cls, session=req.dbsession).filter(
+        q = CountStarSpecializedQuery(cls, session=req.dbsession).filter(  # type: ignore[arg-type]  # noqa: E501
             cls.last_activity_utc >= when_utc
         )
         return q.count_star()

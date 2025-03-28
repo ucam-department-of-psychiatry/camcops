@@ -1666,7 +1666,7 @@ class CamcopsPage(Page):
             if wrapper_class:
                 item_count = len(wrapper_class(collection))
             else:
-                item_count = len(collection)
+                item_count = len(collection)  # type: ignore[arg-type]
         n_pages = ((item_count - 1) // items_per_page) + 1
         page = min(page, n_pages)
         super().__init__(
@@ -1961,7 +1961,7 @@ def make_page_url(
     if partial:
         params["partial"] = "1"
     if sort:
-        params = sorted(params.items())
+        params = sorted(params.items())  # type: ignore[assignment]
     qs = urlencode(params, True)  # was urllib.urlencode, but changed in Py3.5
     return "%s?%s" % (path, qs)
 

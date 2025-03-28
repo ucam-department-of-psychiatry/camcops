@@ -75,7 +75,7 @@ WORDLIST = ["FACE", "VELVET", "CHURCH", "DAISY", "RED"]
 # =============================================================================
 
 
-class Moca(
+class Moca(  # type: ignore[misc]
     TaskHasPatientMixin,
     TaskHasClinicianMixin,
     Task,
@@ -219,13 +219,13 @@ class Moca(
         UnicodeText, comment="Clinician's comments"
     )
 
-    trailpicture: Mapped[Optional[Blob]] = blob_relationship(
+    trailpicture: Mapped[Optional[Blob]] = blob_relationship(  # type: ignore[assignment]  # noqa: E501
         "Moca", "trailpicture_blobid"
     )
-    cubepicture: Mapped[Optional[Blob]] = blob_relationship(
+    cubepicture: Mapped[Optional[Blob]] = blob_relationship(  # type: ignore[assignment]  # noqa: E501
         "Moca", "cubepicture_blobid"
     )
-    clockpicture: Mapped[Optional[Blob]] = blob_relationship(
+    clockpicture: Mapped[Optional[Blob]] = blob_relationship(  # type: ignore[assignment]  # noqa: E501
         "Moca", "clockpicture_blobid"
     )
 
@@ -387,7 +387,7 @@ class Moca(
             "Path, cube, clock/contour, clock/numbers, clock/hands",
             ", ".join(
                 answer(x)
-                for x in (self.q1, self.q2, self.q3, self.q4, self.q5)
+                for x in (self.q1, self.q2, self.q3, self.q4, self.q5)  # type: ignore[attr-defined]  # noqa: E501
             ),
         )
 
@@ -398,7 +398,7 @@ class Moca(
         )
         h += tr(
             "Lion, rhino, camel",
-            ", ".join(answer(x) for x in (self.q6, self.q7, self.q8)),
+            ", ".join(answer(x) for x in (self.q6, self.q7, self.q8)),  # type: ignore[attr-defined]  # noqa: E501
         )
 
         h += tr(
@@ -410,7 +410,7 @@ class Moca(
             "5 digits forwards, 3 digits backwards, tapping, serial 7s "
             "[<i>scores 3</i>]",
             ", ".join(
-                answer(x) for x in (self.q9, self.q10, self.q11, self.q12)
+                answer(x) for x in (self.q9, self.q10, self.q11, self.q12)  # type: ignore[attr-defined]  # noqa: E501
             ),
         )
 
@@ -421,7 +421,7 @@ class Moca(
         )
         h += tr(
             "Repeat sentence 1, repeat sentence 2, fluency to letter ‘F’",
-            ", ".join(answer(x) for x in (self.q13, self.q14, self.q15)),
+            ", ".join(answer(x) for x in (self.q13, self.q14, self.q15)),  # type: ignore[attr-defined]  # noqa: E501
         )
 
         h += tr(
@@ -431,7 +431,7 @@ class Moca(
         )
         h += tr(
             "Means of transportation, measuring instruments",
-            ", ".join(answer(x) for x in (self.q16, self.q17)),
+            ", ".join(answer(x) for x in (self.q16, self.q17)),  # type: ignore[attr-defined]  # noqa: E501
         )
 
         h += tr(
@@ -444,11 +444,11 @@ class Moca(
             ", ".join(
                 answer(x, formatter_answer=italic)
                 for x in (
-                    self.register_trial1_1,
-                    self.register_trial1_2,
-                    self.register_trial1_3,
-                    self.register_trial1_4,
-                    self.register_trial1_5,
+                    self.register_trial1_1,  # type: ignore[attr-defined]
+                    self.register_trial1_2,  # type: ignore[attr-defined]
+                    self.register_trial1_3,  # type: ignore[attr-defined]
+                    self.register_trial1_4,  # type: ignore[attr-defined]
+                    self.register_trial1_5,  # type: ignore[attr-defined]
                 )
             ),
         )
@@ -457,11 +457,11 @@ class Moca(
             ", ".join(
                 answer(x, formatter_answer=italic)
                 for x in (
-                    self.register_trial2_1,
-                    self.register_trial2_2,
-                    self.register_trial2_3,
-                    self.register_trial2_4,
-                    self.register_trial2_5,
+                    self.register_trial2_1,  # type: ignore[attr-defined]
+                    self.register_trial2_2,  # type: ignore[attr-defined]
+                    self.register_trial2_3,  # type: ignore[attr-defined]
+                    self.register_trial2_4,  # type: ignore[attr-defined]
+                    self.register_trial2_5,  # type: ignore[attr-defined]
                 )
             ),
         )
@@ -469,7 +469,7 @@ class Moca(
             "Recall FACE, VELVET, CHURCH, DAISY, RED with no cue",
             ", ".join(
                 answer(x)
-                for x in (self.q18, self.q19, self.q20, self.q21, self.q22)
+                for x in (self.q18, self.q19, self.q20, self.q21, self.q22)  # type: ignore[attr-defined]  # noqa: E501
             ),
         )
         h += tr(
@@ -477,11 +477,11 @@ class Moca(
             ", ".join(
                 answer(x, formatter_answer=italic)
                 for x in (
-                    self.recall_category_cue_1,
-                    self.recall_category_cue_2,
-                    self.recall_category_cue_3,
-                    self.recall_category_cue_4,
-                    self.recall_category_cue_5,
+                    self.recall_category_cue_1,  # type: ignore[attr-defined]
+                    self.recall_category_cue_2,  # type: ignore[attr-defined]
+                    self.recall_category_cue_3,  # type: ignore[attr-defined]
+                    self.recall_category_cue_4,  # type: ignore[attr-defined]
+                    self.recall_category_cue_5,  # type: ignore[attr-defined]
                 )
             ),
         )
@@ -490,11 +490,11 @@ class Moca(
             ", ".join(
                 answer(x, formatter_answer=italic)
                 for x in (
-                    self.recall_mc_cue_1,
-                    self.recall_mc_cue_2,
-                    self.recall_mc_cue_3,
-                    self.recall_mc_cue_4,
-                    self.recall_mc_cue_5,
+                    self.recall_mc_cue_1,  # type: ignore[attr-defined]
+                    self.recall_mc_cue_2,  # type: ignore[attr-defined]
+                    self.recall_mc_cue_3,  # type: ignore[attr-defined]
+                    self.recall_mc_cue_4,  # type: ignore[attr-defined]
+                    self.recall_mc_cue_5,  # type: ignore[attr-defined]
                 )
             ),
         )
@@ -509,12 +509,12 @@ class Moca(
             ", ".join(
                 answer(x)
                 for x in (
-                    self.q23,
-                    self.q24,
-                    self.q25,
-                    self.q26,
-                    self.q27,
-                    self.q28,
+                    self.q23,  # type: ignore[attr-defined]
+                    self.q24,  # type: ignore[attr-defined]
+                    self.q25,  # type: ignore[attr-defined]
+                    self.q26,  # type: ignore[attr-defined]
+                    self.q27,  # type: ignore[attr-defined]
+                    self.q28,  # type: ignore[attr-defined]
                 )
             ),
         )

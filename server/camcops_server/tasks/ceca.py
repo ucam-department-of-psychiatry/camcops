@@ -68,7 +68,7 @@ from camcops_server.cc_modules.cc_task import (
 FREQUENCY_COMMENT = "Frequency (0 never - 3 often)"
 
 
-class CecaQ3(TaskHasPatientMixin, Task):
+class CecaQ3(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the CECA-Q3 task.
     """

@@ -3700,7 +3700,7 @@ def upgrade() -> None:
 
     op.create_table(
         "cecaq3",
-        *[
+        *[  # type: ignore[arg-type]
             sa.Column(
                 "s1a_motherfigure_birthmother", sa.Boolean(), nullable=True
             ),
@@ -16203,7 +16203,7 @@ def upgrade() -> None:
 
     op.create_table(
         "ybocssc",
-        *[
+        *[  # type: ignore[arg-type]
             sa.Column(
                 "obs_aggressive_harm_self_current", sa.Boolean(), nullable=True
             ),

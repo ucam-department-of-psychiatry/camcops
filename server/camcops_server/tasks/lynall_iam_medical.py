@@ -38,7 +38,7 @@ from camcops_server.cc_modules.cc_html import (
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    bool_column,
+    mapped_bool_column,
     mapped_camcops_column,
     PermittedValueChecker,
 )
@@ -51,7 +51,7 @@ from camcops_server.cc_modules.cc_text import SS
 # =============================================================================
 
 
-class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
+class LynallIamMedicalHistory(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the Lynall1IamMedicalHistory task.
     """
@@ -107,12 +107,12 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         comment="If Q4a == 2, number of days that brain Sx typically begin "
         "after physical Sx",
     )
-    q5_antibiotics = bool_column(
+    q5_antibiotics: Mapped[Optional[bool]] = mapped_bool_column(
         "q5_antibiotics",
         comment="Medication for infection (e.g. antibiotics) in past 3 months?"
         " (0 = no, 1 = yes)",
     )
-    q6a_inpatient_last_y = bool_column(
+    q6a_inpatient_last_y: Mapped[Optional[bool]] = mapped_bool_column(
         "q6a_inpatient_last_y",
         comment="Inpatient in the last year? (0 = no, 1 = yes)",
     )
@@ -120,7 +120,7 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         comment="If Q6a is true, approximate number of weeks spent as an "
         "inpatient in the past year",
     )
-    q7a_sx_last_2y = bool_column(
+    q7a_sx_last_2y: Mapped[Optional[bool]] = mapped_bool_column(
         "q7a_sx_last_2y",
         comment="Symptoms within the last 2 years? (0 = no, 1 = yes)",
     )
@@ -133,7 +133,7 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         comment="Current smoking status (0 = no, 1 = yes but not every day, "
         "2 = every day)",
     )
-    q9_pregnant = bool_column(
+    q9_pregnant: Mapped[Optional[bool]] = mapped_bool_column(
         "q9_pregnant", comment="Currently pregnant (0 = no or N/A, 1 = yes)"
     )
     q10a_effective_rx_physical: Mapped[Optional[str]] = mapped_column(
@@ -144,31 +144,31 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         UnicodeText,
         comment="Most effective treatments for brain/psychiatric Sx",
     )
-    q11a_ph_depression = bool_column(
+    q11a_ph_depression: Mapped[Optional[bool]] = mapped_bool_column(
         "q11a_ph_depression", comment="Personal history of depression?"
     )
-    q11b_ph_bipolar = bool_column(
+    q11b_ph_bipolar: Mapped[Optional[bool]] = mapped_bool_column(
         "q11b_ph_bipolar", comment="Personal history of bipolar disorder?"
     )
-    q11c_ph_schizophrenia = bool_column(
+    q11c_ph_schizophrenia: Mapped[Optional[bool]] = mapped_bool_column(
         "q11c_ph_schizophrenia", comment="Personal history of schizophrenia?"
     )
-    q11d_ph_autistic_spectrum = bool_column(
+    q11d_ph_autistic_spectrum: Mapped[Optional[bool]] = mapped_bool_column(
         "q11d_ph_autistic_spectrum",
         comment="Personal history of autism/Asperger's?",
     )
-    q11e_ph_ptsd = bool_column(
+    q11e_ph_ptsd: Mapped[Optional[bool]] = mapped_bool_column(
         "q11e_ph_ptsd", comment="Personal history of PTSD?"
     )
-    q11f_ph_other_anxiety = bool_column(
+    q11f_ph_other_anxiety: Mapped[Optional[bool]] = mapped_bool_column(
         "q11f_ph_other_anxiety",
         comment="Personal history of other anxiety disorders?",
     )
-    q11g_ph_personality_disorder = bool_column(
+    q11g_ph_personality_disorder: Mapped[Optional[bool]] = mapped_bool_column(
         "q11g_ph_personality_disorder",
         comment="Personal history of personality disorder?",
     )
-    q11h_ph_other_psych = bool_column(
+    q11h_ph_other_psych: Mapped[Optional[bool]] = mapped_bool_column(
         "q11h_ph_other_psych",
         comment="Personal history of other psychiatric disorder(s)?",
     )
@@ -177,31 +177,31 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         comment="If q11h_ph_other_psych is true, this is the free-text "
         "details field",
     )
-    q12a_fh_depression = bool_column(
+    q12a_fh_depression: Mapped[Optional[bool]] = mapped_bool_column(
         "q12a_fh_depression", comment="Family history of depression?"
     )
-    q12b_fh_bipolar = bool_column(
+    q12b_fh_bipolar: Mapped[Optional[bool]] = mapped_bool_column(
         "q12b_fh_bipolar", comment="Family history of bipolar disorder?"
     )
-    q12c_fh_schizophrenia = bool_column(
+    q12c_fh_schizophrenia: Mapped[Optional[bool]] = mapped_bool_column(
         "q12c_fh_schizophrenia", comment="Family history of schizophrenia?"
     )
-    q12d_fh_autistic_spectrum = bool_column(
+    q12d_fh_autistic_spectrum: Mapped[Optional[bool]] = mapped_bool_column(
         "q12d_fh_autistic_spectrum",
         comment="Family history of autism/Asperger's?",
     )
-    q12e_fh_ptsd = bool_column(
+    q12e_fh_ptsd: Mapped[Optional[bool]] = mapped_bool_column(
         "q12e_fh_ptsd", comment="Family history of PTSD?"
     )
-    q12f_fh_other_anxiety = bool_column(
+    q12f_fh_other_anxiety: Mapped[Optional[bool]] = mapped_bool_column(
         "q12f_fh_other_anxiety",
         comment="Family history of other anxiety disorders?",
     )
-    q12g_fh_personality_disorder = bool_column(
+    q12g_fh_personality_disorder: Mapped[Optional[bool]] = mapped_bool_column(
         "q12g_fh_personality_disorder",
         comment="Family history of personality disorder?",
     )
-    q12h_fh_other_psych = bool_column(
+    q12h_fh_other_psych: Mapped[Optional[bool]] = mapped_bool_column(
         "q12h_fh_other_psych",
         comment="Family history of other psychiatric disorder(s)?",
     )
@@ -210,21 +210,21 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         comment="If q12h_fh_other_psych is true, this is the free-text "
         "details field",
     )
-    q13a_behcet = bool_column(
+    q13a_behcet: Mapped[Optional[bool]] = mapped_bool_column(
         "q13a_behcet", comment="Behçet’s syndrome? (0 = no, 1 = yes)"
     )
-    q13b_oral_ulcers = bool_column(
+    q13b_oral_ulcers: Mapped[Optional[bool]] = mapped_bool_column(
         "q13b_oral_ulcers",
         comment="(If Behçet’s) Oral ulcers? (0 = no, 1 = yes)",
     )
     q13c_oral_age_first: Mapped[Optional[int]] = mapped_column(
         comment="(If Behçet’s + oral) Age (y) at first oral ulcers",
     )
-    q13d_oral_scarring = bool_column(
+    q13d_oral_scarring: Mapped[Optional[bool]] = mapped_bool_column(
         "q13d_oral_scarring",
         comment="(If Behçet’s + oral) Oral scarring? (0 = no, 1 = yes)",
     )
-    q13e_genital_ulcers = bool_column(
+    q13e_genital_ulcers: Mapped[Optional[bool]] = mapped_bool_column(
         "q13e_genital_ulcers",
         comment="(If Behçet’s) Genital ulcers? (0 = no, 1 = yes)",
     )
@@ -232,7 +232,7 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         Integer,
         comment="(If Behçet’s + genital) Age (y) at first genital ulcers",
     )
-    q13g_genital_scarring = bool_column(
+    q13g_genital_scarring: Mapped[Optional[bool]] = mapped_bool_column(
         "q13g_genital_scarring",
         comment="(If Behçet’s + genital) Genital scarring? (0 = no, 1 = yes)",
     )
@@ -390,6 +390,121 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         )
         q9_options = self.make_options_from_xstrings(req, "q9_option", 0, 1)
 
+        rows_1_to_9 = "".join(
+            [
+                plainrow(
+                    "1", "q1_question", self.q1_age_first_inflammatory_sx
+                ),
+                lookuprow(
+                    "2",
+                    "q2_question",
+                    self.q2_when_psych_sx_started,
+                    q2_options,
+                ),
+                lookuprow(
+                    "3",
+                    "q3_question",
+                    self.q3_worst_symptom_last_month,
+                    q3_options,
+                ),
+                lookuprow(
+                    "4a", "q4a_question", self.q4a_symptom_timing, q4a_options
+                ),
+                plainrow(
+                    "4b", "q4b_question", self.q4b_days_psych_before_phys, True
+                ),
+                plainrow(
+                    "4c", "q4c_question", self.q4c_days_psych_after_phys, True
+                ),
+                ynnrow("5", "q5_question", self.q5_antibiotics),
+                ynnrow("6a", "q6a_question", self.q6a_inpatient_last_y),
+                plainrow("6b", "q6b_question", self.q6b_inpatient_weeks, True),
+                boolrow(
+                    "7a", "q7a_question", self.q7a_sx_last_2y, q7a_options
+                ),
+                plainrow(
+                    "7b",
+                    "q7b_question",
+                    self.q7b_variability,
+                    True,
+                    qsuffix=q7b_explanation,
+                ),
+                lookuprow("8", "q8_question", self.q8_smoking, q8_options),
+                boolrow("9", "q9_question", self.q9_pregnant, q9_options),
+            ]
+        )
+
+        rows_10a_and_10b = "".join(
+            [
+                plainrow(
+                    "10a", "q10a_question", self.q10a_effective_rx_physical
+                ),
+                plainrow("10b", "q10b_question", self.q10b_effective_rx_psych),
+            ]
+        )
+
+        rows_11a_to_11h = "".join(
+            [
+                ynrow("11a", "depression", self.q11a_ph_depression),
+                ynrow("11b", "bipolar", self.q11b_ph_bipolar),
+                ynrow("11c", "schizophrenia", self.q11c_ph_schizophrenia),
+                ynrow(
+                    "11d", "autistic_spectrum", self.q11d_ph_autistic_spectrum
+                ),
+                ynrow("11e", "ptsd", self.q11e_ph_ptsd),
+                ynrow("11f", "other_anxiety", self.q11f_ph_other_anxiety),
+                ynrow(
+                    "11g",
+                    "personality_disorder",
+                    self.q11g_ph_personality_disorder,
+                ),
+                ynrow("11h", "other_psych", self.q11h_ph_other_psych),
+                plainrow(
+                    "11h", "other_psych", self.q11h_ph_other_detail, True
+                ),
+            ]
+        )
+
+        rows_12a_to_12h = "".join(
+            [
+                ynrow("12a", "depression", self.q12a_fh_depression),
+                ynrow("12b", "bipolar", self.q12b_fh_bipolar),
+                ynrow("12c", "schizophrenia", self.q12c_fh_schizophrenia),
+                ynrow(
+                    "12d", "autistic_spectrum", self.q12d_fh_autistic_spectrum
+                ),
+                ynrow("12e", "ptsd", self.q12e_fh_ptsd),
+                ynrow("12f", "other_anxiety", self.q12f_fh_other_anxiety),
+                ynrow(
+                    "12g",
+                    "personality_disorder",
+                    self.q12g_fh_personality_disorder,
+                ),
+                ynrow("12h", "other_psych", self.q12h_fh_other_psych),
+                plainrow(
+                    "12h", "other_psych", self.q12h_fh_other_detail, True
+                ),
+            ]
+        )
+
+        rows_13a_to_13g = "".join(
+            [
+                ynnrow("13a", "q13a_question", self.q13a_behcet),
+                ynnrow("13b", "q13b_question", self.q13b_oral_ulcers, True),
+                plainrow(
+                    "13c", "q13c_question", self.q13c_oral_age_first, True
+                ),
+                ynnrow("13d", "q13d_question", self.q13d_oral_scarring, True),
+                ynnrow("13e", "q13e_question", self.q13e_genital_ulcers, True),
+                plainrow(
+                    "13f", "q13f_question", self.q13f_genital_age_first, True
+                ),
+                ynnrow(
+                    "13g", "q13g_question", self.q13g_genital_scarring, True
+                ),
+            ]
+        )
+
         return f"""
           <div class="{CssClass.SUMMARY}">
             <table class="{CssClass.SUMMARY}">
@@ -401,62 +516,26 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
               <th width="60%">{req.sstring(SS.QUESTION)}</th>
               <th width="40%">{req.sstring(SS.ANSWER)}</th>
             </tr>
-            {plainrow("1", "q1_question", self.q1_age_first_inflammatory_sx)}
-            {lookuprow("2", "q2_question", self.q2_when_psych_sx_started, q2_options)}
-            {lookuprow("3", "q3_question", self.q3_worst_symptom_last_month, q3_options)}
-            {lookuprow("4a", "q4a_question", self.q4a_symptom_timing, q4a_options)}
-            {plainrow("4b", "q4b_question", self.q4b_days_psych_before_phys, True)}
-            {plainrow("4c", "q4c_question", self.q4c_days_psych_after_phys, True)}
-            {ynnrow("5", "q5_question", self.q5_antibiotics)}
-            {ynnrow("6a", "q6a_question", self.q6a_inpatient_last_y)}
-            {plainrow("6b", "q6b_question", self.q6b_inpatient_weeks, True)}
-            {boolrow("7a", "q7a_question", self.q7a_sx_last_2y, q7a_options)}
-            {plainrow("7b", "q7b_question", self.q7b_variability, True,
-                      qsuffix=q7b_explanation)}
-            {lookuprow("8", "q8_question", self.q8_smoking, q8_options)}
-            {boolrow("9", "q9_question", self.q9_pregnant, q9_options)}
+            {rows_1_to_9}
             <tr class="subheading">
               <td><i>{self.wxstring(req, "q10_stem")}</i></td>
               <td></td>
             </tr>
-            {plainrow("10a", "q10a_question", self.q10a_effective_rx_physical)}
-            {plainrow("10b", "q10b_question", self.q10b_effective_rx_psych)}
+            {rows_10a_and_10b}
             <tr class="subheading">
               <td><i>{self.wxstring(req, "q11_title")}</i></td>
               <td></td>
             </tr>
-            {ynrow("11a", "depression", self.q11a_ph_depression)}
-            {ynrow("11b", "bipolar", self.q11b_ph_bipolar)}
-            {ynrow("11c", "schizophrenia", self.q11c_ph_schizophrenia)}
-            {ynrow("11d", "autistic_spectrum", self.q11d_ph_autistic_spectrum)}
-            {ynrow("11e", "ptsd", self.q11e_ph_ptsd)}
-            {ynrow("11f", "other_anxiety", self.q11f_ph_other_anxiety)}
-            {ynrow("11g", "personality_disorder", self.q11g_ph_personality_disorder)}
-            {ynrow("11h", "other_psych", self.q11h_ph_other_psych)}
-            {plainrow("11h", "other_psych", self.q11h_ph_other_detail, True)}
+            {rows_11a_to_11h}
             <tr class="subheading">
               <td><i>{self.wxstring(req, "q12_title")}</i></td>
               <td></td>
             </tr>
-            {ynrow("12a", "depression", self.q12a_fh_depression)}
-            {ynrow("12b", "bipolar", self.q12b_fh_bipolar)}
-            {ynrow("12c", "schizophrenia", self.q12c_fh_schizophrenia)}
-            {ynrow("12d", "autistic_spectrum", self.q12d_fh_autistic_spectrum)}
-            {ynrow("12e", "ptsd", self.q12e_fh_ptsd)}
-            {ynrow("12f", "other_anxiety", self.q12f_fh_other_anxiety)}
-            {ynrow("12g", "personality_disorder", self.q12g_fh_personality_disorder)}
-            {ynrow("12h", "other_psych", self.q12h_fh_other_psych)}
-            {plainrow("12h", "other_psych", self.q12h_fh_other_detail, True)}
+            {rows_12a_to_12h}
             <tr class="subheading">
               <td><i>{self.wxstring(req, "q13_title")}</i></td>
               <td></td>
             </tr>
-            {ynnrow("13a", "q13a_question", self.q13a_behcet)}
-            {ynnrow("13b", "q13b_question", self.q13b_oral_ulcers, True)}
-            {plainrow("13c", "q13c_question", self.q13c_oral_age_first, True)}
-            {ynnrow("13d", "q13d_question", self.q13d_oral_scarring, True)}
-            {ynnrow("13e", "q13e_question", self.q13e_genital_ulcers, True)}
-            {plainrow("13f", "q13f_question", self.q13f_genital_age_first, True)}
-            {ynnrow("13g", "q13g_question", self.q13g_genital_scarring, True)}
+            {rows_13a_to_13g}
           </table>
-        """  # noqa
+        """

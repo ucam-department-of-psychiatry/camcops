@@ -96,7 +96,7 @@ class SqlaColtypesTestCase(DemoRequestTestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        TestColType.metadata.create_all(self.temp_engine)
+        TestColType.metadata.create_all(self.temp_engine)  # type: ignore[attr-defined]  # noqa: E501
 
 
 class SqlaColtypesTest(SqlaColtypesTestCase):
@@ -120,8 +120,8 @@ class SqlaColtypesTest(SqlaColtypesTestCase):
 
         table = TestColType.__table__
 
-        self.temp_session.execute(
-            insert(table).values(
+        self.temp_session.execute(  # type: ignore[attr-defined]
+            insert(table).values(  # type: ignore[arg-type]
                 [
                     {
                         "id": 1,
@@ -162,7 +162,7 @@ class SqlaColtypesTest(SqlaColtypesTestCase):
             .order_by(table.c.id)
         )
 
-        rows = list(self.temp_session.execute(statement).mappings())
+        rows = list(self.temp_session.execute(statement).mappings())  # type: ignore[attr-defined]  # noqa: E501
 
         self._assert_dt_equal(rows[0].dt_local, now)
         self._assert_dt_equal(rows[0].dt_utc, now_utc)
@@ -188,8 +188,8 @@ class SqlaColtypesTest(SqlaColtypesTestCase):
 
         table = TestColType.__table__
 
-        self.temp_session.execute(
-            insert(table).values(
+        self.temp_session.execute(  # type: ignore[attr-defined]
+            insert(table).values(  # type: ignore[arg-type]
                 [
                     {"id": 1, "duration_iso": d1},
                     {"id": 2, "duration_iso": d2},
@@ -204,7 +204,7 @@ class SqlaColtypesTest(SqlaColtypesTestCase):
             .order_by(table.c.id)
         )
 
-        rows = list(self.temp_session.execute(statement).mappings())
+        rows = list(self.temp_session.execute(statement).mappings())  # type: ignore[attr-defined]  # noqa: E501
 
         self._assert_duration_equal(rows[0].duration_iso, d1)
         self._assert_duration_equal(rows[1].duration_iso, d2)
@@ -217,8 +217,8 @@ class SqlaColtypesTest(SqlaColtypesTestCase):
 
         table = TestColType.__table__
 
-        self.temp_session.execute(
-            insert(table).values(
+        self.temp_session.execute(  # type: ignore[attr-defined]
+            insert(table).values(  # type: ignore[arg-type]
                 [
                     {"id": 1, "version": v1},
                     {"id": 2, "version": v2},
@@ -233,7 +233,7 @@ class SqlaColtypesTest(SqlaColtypesTestCase):
             .order_by(table.c.id)
         )
 
-        rows = list(self.temp_session.execute(statement).mappings())
+        rows = list(self.temp_session.execute(statement).mappings())  # type: ignore[attr-defined]  # noqa: E501
 
         self.assertEqual(rows[0]["version"], v1)
         self.assertEqual(rows[1]["version"], v2)
@@ -248,8 +248,8 @@ class SqlaColtypesTest(SqlaColtypesTestCase):
 
         table = TestColType.__table__
 
-        self.temp_session.execute(
-            insert(table).values(
+        self.temp_session.execute(  # type: ignore[attr-defined]
+            insert(table).values(  # type: ignore[arg-type]
                 [
                     {"id": 1, "phone_number": p1},
                     {"id": 2, "phone_number": p2},
@@ -265,7 +265,7 @@ class SqlaColtypesTest(SqlaColtypesTestCase):
             .order_by(table.c.id)
         )
 
-        rows = list(self.temp_session.execute(statement).mappings())
+        rows = list(self.temp_session.execute(statement).mappings())  # type: ignore[attr-defined]  # noqa: E501
 
         self.assertEqual(rows[0]["phone_number"], p1)
         self.assertEqual(rows[1]["phone_number"], p2)

@@ -61,7 +61,7 @@ QUESTION_FRAGMENTS = [
 ]
 
 
-class CgiSch(
+class CgiSch(  # type: ignore[misc]
     TaskHasPatientMixin,
     TaskHasClinicianMixin,
     Task,
@@ -109,35 +109,35 @@ class CgiSch(
         ylabel = "Score (1-7)"
         return [
             TrackerInfo(
-                value=self.severity1,
+                value=self.severity1,  # type: ignore[attr-defined]
                 plot_label=prefix + "positive symptoms",
                 axis_label=ylabel,
                 axis_min=0.5,
                 axis_max=7.5,
             ),
             TrackerInfo(
-                value=self.severity2,
+                value=self.severity2,  # type: ignore[attr-defined]
                 plot_label=prefix + "negative symptoms",
                 axis_label=ylabel,
                 axis_min=0.5,
                 axis_max=7.5,
             ),
             TrackerInfo(
-                value=self.severity3,
+                value=self.severity3,  # type: ignore[attr-defined]
                 plot_label=prefix + "depressive symptoms",
                 axis_label=ylabel,
                 axis_min=0.5,
                 axis_max=7.5,
             ),
             TrackerInfo(
-                value=self.severity4,
+                value=self.severity4,  # type: ignore[attr-defined]
                 plot_label=prefix + "cognitive symptoms",
                 axis_label=ylabel,
                 axis_min=0.5,
                 axis_max=7.5,
             ),
             TrackerInfo(
-                value=self.severity5,
+                value=self.severity5,  # type: ignore[attr-defined]
                 plot_label=prefix + "overall severity",
                 axis_label=ylabel,
                 axis_min=0.5,
@@ -152,7 +152,7 @@ class CgiSch(
         return [
             CtvInfo(
                 content=(
-                    f"CGI-SCH. Severity: positive {self.severity1}, "
+                    f"CGI-SCH. Severity: positive {self.severity1}, "  # type: ignore[attr-defined]  # noqa: E501
                     f"negative {self.severity2}, "
                     f"depressive {self.severity3}, "
                     f"cognitive {self.severity4}, "
@@ -212,6 +212,18 @@ class CgiSch(
                 get_from_dict(change_dict, value),
             )
 
+        change_1 = tr_change("q1", self.change1)  # type: ignore[attr-defined]
+        change_2 = tr_change("q2", self.change2)  # type: ignore[attr-defined]
+        change_3 = tr_change("q3", self.change3)  # type: ignore[attr-defined]
+        change_4 = tr_change("q4", self.change4)  # type: ignore[attr-defined]
+        change_5 = tr_change("q5", self.change5)  # type: ignore[attr-defined]
+
+        severity_1 = tr_severity("q1", self.severity1)  # type: ignore[attr-defined]  # noqa: E501
+        severity_2 = tr_severity("q2", self.severity2)  # type: ignore[attr-defined]  # noqa: E501
+        severity_3 = tr_severity("q3", self.severity3)  # type: ignore[attr-defined]  # noqa: E501
+        severity_4 = tr_severity("q4", self.severity4)  # type: ignore[attr-defined]  # noqa: E501
+        severity_5 = tr_severity("q5", self.severity5)  # type: ignore[attr-defined]  # noqa: E501
+
         return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
@@ -225,19 +237,19 @@ class CgiSch(
                 </tr>
                 {subheading_spanning_two_columns(self.wxstring(req, "i_title"))}
                 {tr_span_col(self.wxstring(req, "i_question"), cols=2)}
-                {tr_severity("q1", self.severity1)}
-                {tr_severity("q2", self.severity2)}
-                {tr_severity("q3", self.severity3)}
-                {tr_severity("q4", self.severity4)}
-                {tr_severity("q5", self.severity5)}
+                {severity_1}
+                {severity_2}
+                {severity_3}
+                {severity_4}
+                {severity_5}
 
                 {subheading_spanning_two_columns(self.wxstring(req, "ii_title"))}
                 {tr_span_col(self.wxstring(req, "ii_question"), cols=2)}
-                {tr_change("q1", self.change1)}
-                {tr_change("q2", self.change2)}
-                {tr_change("q3", self.change3)}
-                {tr_change("q4", self.change4)}
-                {tr_change("q5", self.change5)}
+                {change_1}
+                {change_2}
+                {change_3}
+                {change_4}
+                {change_5}
             </table>
             <div class="{CssClass.FOOTNOTES}">
                 [1] All questions are scored 1–7, or 9 (not applicable, for
@@ -245,4 +257,4 @@ class CgiSch(
                 {self.wxstring(req, "ii_postscript")}
             </div>
 
-        """  # noqa
+        """  # noqa: E501

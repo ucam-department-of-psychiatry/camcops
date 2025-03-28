@@ -55,7 +55,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Epds(
+class Epds(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

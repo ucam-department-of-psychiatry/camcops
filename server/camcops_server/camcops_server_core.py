@@ -303,7 +303,7 @@ def make_wsgi_app(
 
     if show_requests:
         # noinspection PyTypeChecker
-        app = RequestLoggingMiddleware(
+        app = RequestLoggingMiddleware(  # type: ignore[no-redef]
             app,
             logger=logging.getLogger(__name__),
             loglevel=logging.INFO,
@@ -314,7 +314,7 @@ def make_wsgi_app(
 
     if reverse_proxied_config and reverse_proxied_config.necessary():
         # noinspection PyTypeChecker
-        app = ReverseProxiedMiddleware(
+        app = ReverseProxiedMiddleware(  # type: ignore[no-redef]
             app=app, config=reverse_proxied_config, debug=debug_reverse_proxy
         )  # type: Router
 

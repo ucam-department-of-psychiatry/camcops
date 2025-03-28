@@ -41,7 +41,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
-class CpftResearchPreferences(
+class CpftResearchPreferences(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

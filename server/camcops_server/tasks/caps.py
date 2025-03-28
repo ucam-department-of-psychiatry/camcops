@@ -85,7 +85,7 @@ QUESTION_SNIPPETS = [
 ]
 
 
-class Caps(
+class Caps(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

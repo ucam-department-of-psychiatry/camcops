@@ -39,7 +39,7 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, Task
 
 
-class Paradise24(
+class Paradise24(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

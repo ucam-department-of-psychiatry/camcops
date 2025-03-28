@@ -43,7 +43,7 @@ from sqlalchemy import Float, Integer
 from typing import Any, List, Optional, Type
 
 
-class Sfmpq2(
+class Sfmpq2(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

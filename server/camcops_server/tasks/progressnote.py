@@ -53,7 +53,7 @@ from camcops_server.cc_modules.cc_text import SS
 # =============================================================================
 
 
-class ProgressNote(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
+class ProgressNote(TaskHasPatientMixin, TaskHasClinicianMixin, Task):  # type: ignore[misc]  # noqa: E501
     """
     Server implementation of the ProgressNote task.
     """
@@ -105,7 +105,7 @@ class ProgressNote(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         codes = [
             SnomedExpression(
                 req.snomed(SnomedLookup.PROGRESS_NOTE_PROCEDURE),
-                refinement=refinement or None,
+                refinement=refinement or None,  # type: ignore[arg-type]
             )
         ]
         return codes

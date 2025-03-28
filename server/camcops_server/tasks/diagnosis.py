@@ -172,7 +172,7 @@ class DiagnosisItemBase(GenericTabletRecordMixin, Base):
         return f"{self.code}: {self.description}{suffix}"
 
 
-class DiagnosisBase(
+class DiagnosisBase(  # type: ignore[misc]
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
     Task,
@@ -331,7 +331,7 @@ class DiagnosisIcd10Item(DiagnosisItemBase, TaskDescendant):
         return DiagnosisIcd10
 
     def task_ancestor(self) -> Optional["DiagnosisIcd10"]:
-        return DiagnosisIcd10.get_linked(self.diagnosis_icd10_id, self)
+        return DiagnosisIcd10.get_linked(self.diagnosis_icd10_id, self)  # type: ignore[return-value]  # noqa: E501
 
 
 class DiagnosisIcd10(DiagnosisBase):
@@ -342,7 +342,7 @@ class DiagnosisIcd10(DiagnosisBase):
     __tablename__ = "diagnosis_icd10"
     info_filename_stem = "icd"
 
-    items = ancillary_relationship(
+    items = ancillary_relationship(  # type: ignore[assignment]
         parent_class_name="DiagnosisIcd10",
         ancillary_class_name="DiagnosisIcd10Item",
         ancillary_fk_to_parent_attr_name="diagnosis_icd10_id",
@@ -447,7 +447,7 @@ class DiagnosisIcd9CMItem(DiagnosisItemBase, TaskDescendant):
         return DiagnosisIcd9CM
 
     def task_ancestor(self) -> Optional["DiagnosisIcd9CM"]:
-        return DiagnosisIcd9CM.get_linked(self.diagnosis_icd9cm_id, self)
+        return DiagnosisIcd9CM.get_linked(self.diagnosis_icd9cm_id, self)  # type: ignore[return-value]  # noqa: E501
 
 
 class DiagnosisIcd9CM(DiagnosisBase):
@@ -458,7 +458,7 @@ class DiagnosisIcd9CM(DiagnosisBase):
     __tablename__ = "diagnosis_icd9cm"
     info_filename_stem = "icd"
 
-    items = ancillary_relationship(
+    items = ancillary_relationship(  # type: ignore[assignment]
         parent_class_name="DiagnosisIcd9CM",
         ancillary_class_name="DiagnosisIcd9CMItem",
         ancillary_fk_to_parent_attr_name="diagnosis_icd9cm_id",
@@ -909,7 +909,7 @@ def get_diagnosis_inc_exc_report_query(
     inclusion_criteria = []  # type: List[ColumnElement]
     for idx in inclusion_dx:
         inclusion_criteria.append(item_class.code.like(idx))
-    wheres.append(or_(True, *inclusion_criteria))
+    wheres.append(or_(True, *inclusion_criteria))  # type: ignore[arg-type]
 
     # Exclusion criteria are the trickier: we need to be able to link
     # multiple diagnoses for the same patient, so we need to use a linking
@@ -1026,7 +1026,7 @@ class DiagnosisFinderReportBase(Report):
         age_maximum = req.get_int_param(ViewParam.AGE_MAXIMUM)
         idnum_desc = req.get_id_desc(which_idnum) or "BAD_IDNUM"
         query = self.get_query(req)
-        sql = get_literal_query(query, bind=req.engine)
+        sql = get_literal_query(query, bind=req.engine)  # type: ignore[arg-type]  # noqa: E501
 
         return render_to_response(
             "diagnosis_finder_report.mako",

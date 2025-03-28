@@ -43,7 +43,7 @@ from sqlalchemy import Float, Integer
 from typing import Any, List, Type
 
 
-class Esspri(
+class Esspri(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

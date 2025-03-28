@@ -62,7 +62,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Ybocs(
+class Ybocs(  # type: ignore[misc]
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
     Task,
@@ -284,7 +284,7 @@ class Ybocs(
 # =============================================================================
 
 
-class YbocsSc(
+class YbocsSc(  # type: ignore[misc]
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
     Task,

@@ -58,7 +58,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Cesdr(
+class Cesdr(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
 ):

@@ -170,7 +170,7 @@ def tr_heading(left: str, right: str) -> str:
 # =============================================================================
 
 
-class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
+class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):  # type: ignore[misc]  # noqa: E501
     """
     Server implementation of the ACE-III task.
     """
@@ -475,10 +475,10 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         UnicodeText, comment="Clinician's comments"
     )
 
-    picture1: Mapped[Optional[Blob]] = blob_relationship(
+    picture1: Mapped[Optional[Blob]] = blob_relationship(  # type: ignore[assignment]  # noqa: E501
         "Ace3", "picture1_blobid"
     )
-    picture2: Mapped[Optional[Blob]] = blob_relationship(
+    picture2: Mapped[Optional[Blob]] = blob_relationship(  # type: ignore[assignment]  # noqa: E501
         "Ace3", "picture2_blobid"
     )
 
@@ -645,21 +645,21 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     def get_mem_recognition_score(self) -> int:
         score = 0
         score += self.get_recog_score(
-            (self.mem_recall_address1 == 1 and self.mem_recall_address2 == 1),
-            self.mem_recognize_address1,
+            (self.mem_recall_address1 == 1 and self.mem_recall_address2 == 1),  # type: ignore[attr-defined]  # noqa: E501
+            self.mem_recognize_address1,  # type: ignore[attr-defined]
         )
         score += self.get_recog_score(
-            (self.mem_recall_address3 == 1), self.mem_recognize_address2
+            (self.mem_recall_address3 == 1), self.mem_recognize_address2  # type: ignore[attr-defined]  # noqa: E501
         )
         score += self.get_recog_score(
-            (self.mem_recall_address4 == 1 and self.mem_recall_address5 == 1),
-            self.mem_recognize_address3,
+            (self.mem_recall_address4 == 1 and self.mem_recall_address5 == 1),  # type: ignore[attr-defined]  # noqa: E501
+            self.mem_recognize_address3,  # type: ignore[attr-defined]
         )
         score += self.get_recog_score(
-            (self.mem_recall_address6 == 1), self.mem_recognize_address4
+            (self.mem_recall_address6 == 1), self.mem_recognize_address4  # type: ignore[attr-defined]  # noqa: E501
         )
         score += self.get_recog_score(
-            (self.mem_recall_address7 == 1), self.mem_recognize_address5
+            (self.mem_recall_address7 == 1), self.mem_recognize_address5  # type: ignore[attr-defined]  # noqa: E501
         )
         return score
 
@@ -723,29 +723,29 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         return (
             (
                 (
-                    self.mem_recall_address1 == 1
-                    and self.mem_recall_address2 == 1
+                    self.mem_recall_address1 == 1  # type: ignore[attr-defined]
+                    and self.mem_recall_address2 == 1  # type: ignore[attr-defined]  # noqa: E501
                 )
-                or self.mem_recognize_address1 is not None
+                or self.mem_recognize_address1 is not None  # type: ignore[attr-defined]  # noqa: E501
             )
             and (
-                self.mem_recall_address3 == 1
-                or self.mem_recognize_address2 is not None
+                self.mem_recall_address3 == 1  # type: ignore[attr-defined]
+                or self.mem_recognize_address2 is not None  # type: ignore[attr-defined]  # noqa: E501
             )
             and (
                 (
-                    self.mem_recall_address4 == 1
-                    and self.mem_recall_address5 == 1
+                    self.mem_recall_address4 == 1  # type: ignore[attr-defined]
+                    and self.mem_recall_address5 == 1  # type: ignore[attr-defined]  # noqa: E501
                 )
-                or self.mem_recognize_address3 is not None
+                or self.mem_recognize_address3 is not None  # type: ignore[attr-defined]  # noqa: E501
             )
             and (
-                self.mem_recall_address6 == 1
-                or self.mem_recognize_address4 is not None
+                self.mem_recall_address6 == 1  # type: ignore[attr-defined]
+                or self.mem_recognize_address4 is not None  # type: ignore[attr-defined]  # noqa: E501
             )
             and (
-                self.mem_recall_address7 == 1
-                or self.mem_recognize_address5 is not None
+                self.mem_recall_address7 == 1  # type: ignore[attr-defined]
+                or self.mem_recognize_address5 is not None  # type: ignore[attr-defined]  # noqa: E501
             )
         )
 
@@ -875,11 +875,11 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.attn_time1,
-                        self.attn_time2,
-                        self.attn_time3,
-                        self.attn_time4,
-                        self.attn_time5,
+                        self.attn_time1,  # type: ignore[attr-defined]
+                        self.attn_time2,  # type: ignore[attr-defined]
+                        self.attn_time3,  # type: ignore[attr-defined]
+                        self.attn_time4,  # type: ignore[attr-defined]
+                        self.attn_time5,  # type: ignore[attr-defined]
                     )
                 ),
             )
@@ -888,11 +888,11 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.attn_place1,
-                        self.attn_place2,
-                        self.attn_place3,
-                        self.attn_place4,
-                        self.attn_place5,
+                        self.attn_place1,  # type: ignore[attr-defined]
+                        self.attn_place2,  # type: ignore[attr-defined]
+                        self.attn_place3,  # type: ignore[attr-defined]
+                        self.attn_place4,  # type: ignore[attr-defined]
+                        self.attn_place5,  # type: ignore[attr-defined]
                     )
                 ),
             )
@@ -901,9 +901,9 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.attn_repeat_word1,
-                        self.attn_repeat_word2,
-                        self.attn_repeat_word3,
+                        self.attn_repeat_word1,  # type: ignore[attr-defined]
+                        self.attn_repeat_word2,  # type: ignore[attr-defined]
+                        self.attn_repeat_word3,  # type: ignore[attr-defined]
                     )
                 ),
             )
@@ -919,11 +919,11 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.attn_serial7_subtraction1,
-                        self.attn_serial7_subtraction2,
-                        self.attn_serial7_subtraction3,
-                        self.attn_serial7_subtraction4,
-                        self.attn_serial7_subtraction5,
+                        self.attn_serial7_subtraction1,  # type: ignore[attr-defined]  # noqa: E501
+                        self.attn_serial7_subtraction2,  # type: ignore[attr-defined]  # noqa: E501
+                        self.attn_serial7_subtraction3,  # type: ignore[attr-defined]  # noqa: E501
+                        self.attn_serial7_subtraction4,  # type: ignore[attr-defined]  # noqa: E501
+                        self.attn_serial7_subtraction5,  # type: ignore[attr-defined]  # noqa: E501
                     )
                 ),
             )
@@ -933,9 +933,9 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.mem_recall_word1,
-                        self.mem_recall_word2,
-                        self.mem_recall_word3,
+                        self.mem_recall_word1,  # type: ignore[attr-defined]
+                        self.mem_recall_word2,  # type: ignore[attr-defined]
+                        self.mem_recall_word3,  # type: ignore[attr-defined]
                     )
                 ),
             )
@@ -956,13 +956,13 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.mem_repeat_address_trial3_1,
-                        self.mem_repeat_address_trial3_2,
-                        self.mem_repeat_address_trial3_3,
-                        self.mem_repeat_address_trial3_4,
-                        self.mem_repeat_address_trial3_5,
-                        self.mem_repeat_address_trial3_6,
-                        self.mem_repeat_address_trial3_7,
+                        self.mem_repeat_address_trial3_1,  # type: ignore[attr-defined]  # noqa: E501
+                        self.mem_repeat_address_trial3_2,  # type: ignore[attr-defined]  # noqa: E501
+                        self.mem_repeat_address_trial3_3,  # type: ignore[attr-defined]  # noqa: E501
+                        self.mem_repeat_address_trial3_4,  # type: ignore[attr-defined]  # noqa: E501
+                        self.mem_repeat_address_trial3_5,  # type: ignore[attr-defined]  # noqa: E501
+                        self.mem_repeat_address_trial3_6,  # type: ignore[attr-defined]  # noqa: E501
+                        self.mem_repeat_address_trial3_7,  # type: ignore[attr-defined]  # noqa: E501
                     )
                 ),
             )
@@ -972,10 +972,10 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.mem_famous1,
-                        self.mem_famous2,
-                        self.mem_famous3,
-                        self.mem_famous4,
+                        self.mem_famous1,  # type: ignore[attr-defined]
+                        self.mem_famous2,  # type: ignore[attr-defined]
+                        self.mem_famous3,  # type: ignore[attr-defined]
+                        self.mem_famous4,  # type: ignore[attr-defined]
                     )
                 ),
             )
@@ -989,15 +989,15 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
             )
             + tr_qa(
                 "“Place the paper on top of the pencil”",
-                self.lang_follow_command1,
+                self.lang_follow_command1,  # type: ignore[attr-defined]
             )
             + tr_qa(
                 "“Pick up the pencil but not the paper”",
-                self.lang_follow_command2,
+                self.lang_follow_command2,  # type: ignore[attr-defined]
             )
             + tr_qa(
                 "“Pass me the pencil after touching the paper”",
-                self.lang_follow_command3,
+                self.lang_follow_command3,  # type: ignore[attr-defined]
             )
             + tr(
                 "Sentence-writing: point for 2 complete sentences? "
@@ -1005,8 +1005,8 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.lang_write_sentences_point1,
-                        self.lang_write_sentences_point2,
+                        self.lang_write_sentences_point1,  # type: ignore[attr-defined]  # noqa: E501
+                        self.lang_write_sentences_point2,  # type: ignore[attr-defined]  # noqa: E501
                     )
                 ),
             )
@@ -1015,29 +1015,29 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
                 "statistician? <i>(score 2 if all correct, 1 if 3 correct, "
                 "0 if ≤2 correct)</i>",
                 "<i>{}, {}, {}, {}</i> (score <b>{}</b> / 2)".format(
-                    answer(self.lang_repeat_word1, formatter_answer=italic),
-                    answer(self.lang_repeat_word2, formatter_answer=italic),
-                    answer(self.lang_repeat_word3, formatter_answer=italic),
-                    answer(self.lang_repeat_word4, formatter_answer=italic),
+                    answer(self.lang_repeat_word1, formatter_answer=italic),  # type: ignore[attr-defined]  # noqa: E501
+                    answer(self.lang_repeat_word2, formatter_answer=italic),  # type: ignore[attr-defined]  # noqa: E501
+                    answer(self.lang_repeat_word3, formatter_answer=italic),  # type: ignore[attr-defined]  # noqa: E501
+                    answer(self.lang_repeat_word4, formatter_answer=italic),  # type: ignore[attr-defined]  # noqa: E501
                     self.get_repeat_word_score(),
                 ),
             )
             + tr_qa(
                 "Repeat: “All that glitters is not gold”?",
-                self.lang_repeat_sentence1,
+                self.lang_repeat_sentence1,  # type: ignore[attr-defined]
             )
             + tr_qa(
                 "Repeat: “A stitch in time saves nine”?",
-                self.lang_repeat_sentence2,
+                self.lang_repeat_sentence2,  # type: ignore[attr-defined]
             )
             + tr(
                 "Name pictures: spoon, book, kangaroo/wallaby",
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.lang_name_picture1,
-                        self.lang_name_picture2,
-                        self.lang_name_picture3,
+                        self.lang_name_picture1,  # type: ignore[attr-defined]
+                        self.lang_name_picture2,  # type: ignore[attr-defined]
+                        self.lang_name_picture3,  # type: ignore[attr-defined]
                     )
                 ),
             )
@@ -1046,9 +1046,9 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.lang_name_picture4,
-                        self.lang_name_picture5,
-                        self.lang_name_picture6,
+                        self.lang_name_picture4,  # type: ignore[attr-defined]
+                        self.lang_name_picture5,  # type: ignore[attr-defined]
+                        self.lang_name_picture6,  # type: ignore[attr-defined]
                     )
                 ),
             )
@@ -1057,9 +1057,9 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.lang_name_picture7,
-                        self.lang_name_picture8,
-                        self.lang_name_picture9,
+                        self.lang_name_picture7,  # type: ignore[attr-defined]
+                        self.lang_name_picture8,  # type: ignore[attr-defined]
+                        self.lang_name_picture9,  # type: ignore[attr-defined]
                     )
                 ),
             )
@@ -1069,9 +1069,9 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.lang_name_picture10,
-                        self.lang_name_picture11,
-                        self.lang_name_picture12,
+                        self.lang_name_picture10,  # type: ignore[attr-defined]
+                        self.lang_name_picture11,  # type: ignore[attr-defined]
+                        self.lang_name_picture12,  # type: ignore[attr-defined]
                     )
                 ),
             )
@@ -1080,10 +1080,10 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.lang_identify_concept1,
-                        self.lang_identify_concept2,
-                        self.lang_identify_concept3,
-                        self.lang_identify_concept4,
+                        self.lang_identify_concept1,  # type: ignore[attr-defined]  # noqa: E501
+                        self.lang_identify_concept2,  # type: ignore[attr-defined]  # noqa: E501
+                        self.lang_identify_concept3,  # type: ignore[attr-defined]  # noqa: E501
+                        self.lang_identify_concept4,  # type: ignore[attr-defined]  # noqa: E501
                     )
                 ),
             )
@@ -1103,10 +1103,10 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.vsp_count_dots1,
-                        self.vsp_count_dots2,
-                        self.vsp_count_dots3,
-                        self.vsp_count_dots4,
+                        self.vsp_count_dots1,  # type: ignore[attr-defined]
+                        self.vsp_count_dots2,  # type: ignore[attr-defined]
+                        self.vsp_count_dots3,  # type: ignore[attr-defined]
+                        self.vsp_count_dots4,  # type: ignore[attr-defined]
                     )
                 ),
             )
@@ -1115,10 +1115,10 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.vsp_identify_letter1,
-                        self.vsp_identify_letter2,
-                        self.vsp_identify_letter3,
-                        self.vsp_identify_letter4,
+                        self.vsp_identify_letter1,  # type: ignore[attr-defined]  # noqa: E501
+                        self.vsp_identify_letter2,  # type: ignore[attr-defined]  # noqa: E501
+                        self.vsp_identify_letter3,  # type: ignore[attr-defined]  # noqa: E501
+                        self.vsp_identify_letter4,  # type: ignore[attr-defined]  # noqa: E501
                     )
                 ),
             )
@@ -1128,13 +1128,13 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.mem_recall_address1,
-                        self.mem_recall_address2,
-                        self.mem_recall_address3,
-                        self.mem_recall_address4,
-                        self.mem_recall_address5,
-                        self.mem_recall_address6,
-                        self.mem_recall_address7,
+                        self.mem_recall_address1,  # type: ignore[attr-defined]
+                        self.mem_recall_address2,  # type: ignore[attr-defined]
+                        self.mem_recall_address3,  # type: ignore[attr-defined]
+                        self.mem_recall_address4,  # type: ignore[attr-defined]
+                        self.mem_recall_address5,  # type: ignore[attr-defined]
+                        self.mem_recall_address6,  # type: ignore[attr-defined]
+                        self.mem_recall_address7,  # type: ignore[attr-defined]
                     )
                 ),
             )
@@ -1142,41 +1142,41 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
                 "Recognize address: forename and surname?",
                 self.get_recog_text(
                     (
-                        self.mem_recall_address1 == 1
-                        and self.mem_recall_address2 == 1
+                        self.mem_recall_address1 == 1  # type: ignore[attr-defined]  # noqa: E501
+                        and self.mem_recall_address2 == 1  # type: ignore[attr-defined]  # noqa: E501
                     ),
-                    self.mem_recognize_address1,
+                    self.mem_recognize_address1,  # type: ignore[attr-defined]
                 ),
             )
             + tr(
                 "Recognize address: house number?",
                 self.get_recog_text(
-                    (self.mem_recall_address3 == 1),
-                    self.mem_recognize_address2,
+                    (self.mem_recall_address3 == 1),  # type: ignore[attr-defined]  # noqa: E501
+                    self.mem_recognize_address2,  # type: ignore[attr-defined]
                 ),
             )
             + tr(
                 "Recognize address: street?",
                 self.get_recog_text(
                     (
-                        self.mem_recall_address4 == 1
-                        and self.mem_recall_address5 == 1
+                        self.mem_recall_address4 == 1  # type: ignore[attr-defined]  # noqa: E501
+                        and self.mem_recall_address5 == 1  # type: ignore[attr-defined]  # noqa: E501
                     ),
-                    self.mem_recognize_address3,
+                    self.mem_recognize_address3,  # type: ignore[attr-defined]
                 ),
             )
             + tr(
                 "Recognize address: town?",
                 self.get_recog_text(
-                    (self.mem_recall_address6 == 1),
-                    self.mem_recognize_address4,
+                    (self.mem_recall_address6 == 1),  # type: ignore[attr-defined]  # noqa: E501
+                    self.mem_recognize_address4,  # type: ignore[attr-defined]
                 ),
             )
             + tr(
                 "Recognize address: county?",
                 self.get_recog_text(
-                    (self.mem_recall_address7 == 1),
-                    self.mem_recognize_address5,
+                    (self.mem_recall_address7 == 1),  # type: ignore[attr-defined]  # noqa: E501
+                    self.mem_recognize_address5,  # type: ignore[attr-defined]
                 ),
             )
             + subheading_spanning_two_columns("Photos of test sheet")
@@ -1248,7 +1248,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
 # =============================================================================
 
 
-class MiniAce(
+class MiniAce(  # type: ignore[misc]
     TaskHasPatientMixin,
     TaskHasClinicianMixin,
     Task,
@@ -1366,10 +1366,10 @@ class MiniAce(
         "comments", UnicodeText, comment="Clinician's comments"
     )
 
-    picture1 = blob_relationship(
+    picture1 = blob_relationship(  # type: ignore[assignment]
         "MiniAce", "picture1_blobid"
     )  # type: Optional[Blob]
-    picture2 = blob_relationship(
+    picture2 = blob_relationship(  # type: ignore[assignment]
         "MiniAce", "picture2_blobid"
     )  # type: Optional[Blob]
 
@@ -1543,10 +1543,10 @@ class MiniAce(
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.attn_time1,
-                        self.attn_time2,
-                        self.attn_time3,
-                        self.attn_time4,
+                        self.attn_time1,  # type: ignore[attr-defined]
+                        self.attn_time2,  # type: ignore[attr-defined]
+                        self.attn_time3,  # type: ignore[attr-defined]
+                        self.attn_time4,  # type: ignore[attr-defined]
                     )
                 ),
             )
@@ -1556,13 +1556,13 @@ class MiniAce(
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.mem_repeat_address_trial3_1,
-                        self.mem_repeat_address_trial3_2,
-                        self.mem_repeat_address_trial3_3,
-                        self.mem_repeat_address_trial3_4,
-                        self.mem_repeat_address_trial3_5,
-                        self.mem_repeat_address_trial3_6,
-                        self.mem_repeat_address_trial3_7,
+                        self.mem_repeat_address_trial3_1,  # type: ignore[attr-defined]  # noqa: E501
+                        self.mem_repeat_address_trial3_2,  # type: ignore[attr-defined]  # noqa: E501
+                        self.mem_repeat_address_trial3_3,  # type: ignore[attr-defined]  # noqa: E501
+                        self.mem_repeat_address_trial3_4,  # type: ignore[attr-defined]  # noqa: E501
+                        self.mem_repeat_address_trial3_5,  # type: ignore[attr-defined]  # noqa: E501
+                        self.mem_repeat_address_trial3_6,  # type: ignore[attr-defined]  # noqa: E501
+                        self.mem_repeat_address_trial3_7,  # type: ignore[attr-defined]  # noqa: E501
                     )
                 ),
             )
@@ -1582,13 +1582,13 @@ class MiniAce(
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.mem_recall_address1,
-                        self.mem_recall_address2,
-                        self.mem_recall_address3,
-                        self.mem_recall_address4,
-                        self.mem_recall_address5,
-                        self.mem_recall_address6,
-                        self.mem_recall_address7,
+                        self.mem_recall_address1,  # type: ignore[attr-defined]
+                        self.mem_recall_address2,  # type: ignore[attr-defined]
+                        self.mem_recall_address3,  # type: ignore[attr-defined]
+                        self.mem_recall_address4,  # type: ignore[attr-defined]
+                        self.mem_recall_address5,  # type: ignore[attr-defined]
+                        self.mem_recall_address6,  # type: ignore[attr-defined]
+                        self.mem_recall_address7,  # type: ignore[attr-defined]
                     )
                 ),
             )
