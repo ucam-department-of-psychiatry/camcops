@@ -80,7 +80,7 @@ class Ifs(  # type: ignore[misc]
     provides_trackers = True
 
     @classmethod
-    def extend_table(cls: Type["Ifs"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Ifs"], **kwargs: Any) -> None:
         for seqlen in cls.Q4_DIGIT_LENGTHS:
             fname1 = f"q4_len{seqlen}_1"
             fname2 = f"q4_len{seqlen}_2"

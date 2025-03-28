@@ -63,7 +63,7 @@ class Cage(  # type: ignore[misc]
     NQUESTIONS = 4
 
     @classmethod
-    def extend_table(cls: Type["Cage"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Cage"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

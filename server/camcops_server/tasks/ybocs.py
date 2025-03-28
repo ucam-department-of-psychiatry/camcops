@@ -109,7 +109,7 @@ class Ybocs(  # type: ignore[misc]
     TARGET_COLUMNS: list[Column] = []
 
     @classmethod
-    def extend_table(cls: Type["Ybocs"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Ybocs"], **kwargs: Any) -> None:
         for target in ("obsession", "compulsion", "avoidance"):
             for n in range(1, cls.NTARGETS + 1):
                 fname = f"target_{target}_{n}"
@@ -401,7 +401,7 @@ class YbocsSc(  # type: ignore[misc]
     ]
 
     @classmethod
-    def extend_table(cls: Type["YbocsSc"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["YbocsSc"], **kwargs: Any) -> None:
         for item in cls.ITEMS:
             setattr(
                 cls,

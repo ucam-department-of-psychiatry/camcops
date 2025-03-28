@@ -56,7 +56,7 @@ class CpftCovidMedical(  # type: ignore[misc]
     FN_HOW_AND_WHEN_SYMPTOMS = "how_and_when_symptoms"
 
     @classmethod
-    def extend_table(cls: Type["CpftCovidMedical"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["CpftCovidMedical"], **kwargs: Any) -> None:
         setattr(
             cls,
             cls.FN_HOW_AND_WHEN_SYMPTOMS,

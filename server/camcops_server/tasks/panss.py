@@ -73,7 +73,7 @@ class Panss(  # type: ignore[misc]
     NUM_G = 16
 
     @classmethod
-    def extend_table(cls: Type["Panss"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Panss"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "p",

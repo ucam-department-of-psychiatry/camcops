@@ -98,7 +98,7 @@ class Demqol(  # type: ignore[misc]
     provides_trackers = True
 
     @classmethod
-    def extend_table(cls: Type["Demqol"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Demqol"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -297,7 +297,7 @@ class DemqolProxy(  # type: ignore[misc]
     info_filename_stem = "demqol"
 
     @classmethod
-    def extend_table(cls: Type["DemqolProxy"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["DemqolProxy"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

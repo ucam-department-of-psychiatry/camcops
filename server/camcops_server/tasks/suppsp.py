@@ -66,7 +66,7 @@ class Suppsp(  # type: ignore[misc]
     MAX_SUBSCALE = MAX_SCORE_PER_Q * N_Q_PER_SUBSCALE
 
     @classmethod
-    def extend_table(cls: Type["Suppsp"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Suppsp"], **kwargs: Any) -> None:
 
         comment_strings = [
             "see to end",

@@ -72,7 +72,7 @@ class CopeBrief(  # type: ignore[misc]
     RELATIONSHIPS_LAST = 9
 
     @classmethod
-    def extend_table(cls: Type["CopeBrief"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["CopeBrief"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

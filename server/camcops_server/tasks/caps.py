@@ -102,7 +102,7 @@ class Caps(  # type: ignore[misc]
     NQUESTIONS = 32
 
     @classmethod
-    def extend_table(cls: Type["Caps"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Caps"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "endorse",

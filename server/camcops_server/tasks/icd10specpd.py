@@ -89,7 +89,7 @@ class Icd10SpecPD(  # type: ignore[misc]
     info_filename_stem = "icd"
 
     @classmethod
-    def extend_table(cls: Type["Icd10SpecPD"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Icd10SpecPD"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "g",

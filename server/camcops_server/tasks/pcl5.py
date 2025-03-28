@@ -79,7 +79,7 @@ class Pcl5(  # type: ignore[misc]
     N_QUESTIONS = 20
 
     @classmethod
-    def extend_table(cls: Type["Pcl5"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Pcl5"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

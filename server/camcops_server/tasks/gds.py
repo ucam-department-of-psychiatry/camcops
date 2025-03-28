@@ -63,7 +63,7 @@ class Gds15(  # type: ignore[misc]
     NQUESTIONS = 15
 
     @classmethod
-    def extend_table(cls: Type["Gds15"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Gds15"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

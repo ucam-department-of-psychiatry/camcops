@@ -124,7 +124,7 @@ class Nart(  # type: ignore[misc]
     shortname = "NART"
 
     @classmethod
-    def extend_table(cls: Type["Nart"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Nart"], **kwargs: Any) -> None:
         for w in WORDLIST:
             setattr(
                 cls,

@@ -100,7 +100,7 @@ class ElixhauserCI(  # type: ignore[misc]
     shortname = "ElixhauserCI"
 
     @classmethod
-    def extend_table(cls: Type["ElixhauserCI"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["ElixhauserCI"], **kwargs: Any) -> None:
         for colname in FIELDNAMES:
             constraint_name = CONSTRAINT_NAME_MAP.get(colname)
             setattr(

@@ -182,7 +182,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):  # type: ignore[mi
     prohibits_commercial = True
 
     @classmethod
-    def extend_table(cls: Type["Ace3"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Ace3"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "attn_time",
@@ -1265,7 +1265,7 @@ class MiniAce(  # type: ignore[misc]
     prohibits_commercial = True
 
     @classmethod
-    def extend_table(cls: Type["MiniAce"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["MiniAce"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "attn_time",

@@ -77,7 +77,7 @@ class Cesd(  # type: ignore[misc]
     DEPRESSION_RISK_THRESHOLD = 16
 
     @classmethod
-    def extend_table(cls: Type["Cesd"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Cesd"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

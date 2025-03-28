@@ -56,7 +56,7 @@ class Edeq(  # type: ignore[misc]
     MEASUREMENT_FIELD_NAMES = ["mass_kg", "height_m"]
 
     @classmethod
-    def extend_table(cls: Type["Edeq"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Edeq"], **kwargs: Any) -> None:
 
         add_multiple_columns(
             cls,

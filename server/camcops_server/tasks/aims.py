@@ -74,7 +74,7 @@ class Aims(  # type: ignore[misc]
     NSCOREDQUESTIONS = 10
 
     @classmethod
-    def extend_table(cls: Type["Aims"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Aims"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

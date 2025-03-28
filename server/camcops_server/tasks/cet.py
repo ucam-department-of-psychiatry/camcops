@@ -105,7 +105,7 @@ class Cet(  # type: ignore[misc]
     Q_SUBSCALE_5_EX_RIGIDITY = [3, 7, 19]
 
     @classmethod
-    def extend_table(cls: Type["Cet"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Cet"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

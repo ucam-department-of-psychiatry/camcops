@@ -55,7 +55,7 @@ class Cia(  # type: ignore[misc]
     MAX_SCORE = 48
 
     @classmethod
-    def extend_table(cls: Type["Cia"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Cia"], **kwargs: Any) -> None:
 
         add_multiple_columns(
             cls,

@@ -61,7 +61,7 @@ class Asdas(  # type: ignore[misc]
     N_QUESTIONS = 6
 
     @classmethod
-    def extend_table(cls: Type["Asdas"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Asdas"], **kwargs: Any) -> None:
 
         add_multiple_columns(
             cls,

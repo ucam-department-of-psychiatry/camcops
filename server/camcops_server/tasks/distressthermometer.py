@@ -64,7 +64,9 @@ class DistressThermometer(  # type: ignore[misc]
     shortname = "Distress Thermometer"
 
     @classmethod
-    def extend_table(cls: Type["DistressThermometer"], **kwargs: Any) -> None:
+    def extend_columns(
+        cls: Type["DistressThermometer"], **kwargs: Any
+    ) -> None:
         add_multiple_columns(
             cls,
             "q",

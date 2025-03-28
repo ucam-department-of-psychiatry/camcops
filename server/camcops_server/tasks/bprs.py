@@ -68,7 +68,7 @@ class Bprs(  # type: ignore[misc]
     NQUESTIONS = 20
 
     @classmethod
-    def extend_table(cls: Type["Bprs"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Bprs"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

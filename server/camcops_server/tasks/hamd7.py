@@ -74,7 +74,7 @@ class Hamd7(  # type: ignore[misc]
     NQUESTIONS = 7
 
     @classmethod
-    def extend_table(cls: Type["Hamd7"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Hamd7"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

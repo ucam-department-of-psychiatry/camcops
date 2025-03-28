@@ -70,7 +70,7 @@ class Wemwbs(  # type: ignore[misc]
     MAXTOTALSCORE = N_QUESTIONS * MAXQSCORE
 
     @classmethod
-    def extend_table(cls: Type["Wemwbs"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Wemwbs"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -246,7 +246,7 @@ class Swemwbs(  # type: ignore[misc]
     MAXTOTALSCORE = N_QUESTIONS * MAXQSCORE
 
     @classmethod
-    def extend_table(cls: Type["Swemwbs"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Swemwbs"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

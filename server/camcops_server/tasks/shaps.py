@@ -56,7 +56,7 @@ class Shaps(  # type: ignore[misc]
     MAX_SCORE = 14
 
     @classmethod
-    def extend_table(cls: Type["Shaps"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Shaps"], **kwargs: Any) -> None:
 
         add_multiple_columns(
             cls,

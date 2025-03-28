@@ -207,11 +207,11 @@ class Base(DeclarativeBaseNoMeta):
     }
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
-        cls.extend_table(**kwargs)
+        cls.extend_columns(**kwargs)
         super().__init_subclass__(**kwargs)
 
     @classmethod
-    def extend_table(cls, **kwargs: Any) -> None:
+    def extend_columns(cls, **kwargs: Any) -> None:
         pass
 
 

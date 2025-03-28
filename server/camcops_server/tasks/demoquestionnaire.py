@@ -74,7 +74,7 @@ class DemoQuestionnaire(
     is_anonymous = True  # type: ignore[assignment]
 
     @classmethod
-    def extend_table(cls: Type["DemoQuestionnaire"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["DemoQuestionnaire"], **kwargs: Any) -> None:
         add_multiple_columns(cls, "mcq", 1, N_MCQ)
         add_multiple_columns(cls, "mcqbool", 1, N_MCQBOOL)
         add_multiple_columns(cls, "multipleresponse", 1, N_MULTIPLERESPONSE)

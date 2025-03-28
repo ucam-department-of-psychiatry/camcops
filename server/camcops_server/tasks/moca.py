@@ -92,7 +92,7 @@ class Moca(  # type: ignore[misc]
     prohibits_research = True
 
     @classmethod
-    def extend_table(cls: Type["Moca"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Moca"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

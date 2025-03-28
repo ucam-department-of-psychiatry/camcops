@@ -62,7 +62,9 @@ class KhandakerMojoMedical(  # type: ignore[misc]
     FN_HAS_INFECTION_PAST_MONTH = "has_infection_past_month"
 
     @classmethod
-    def extend_table(cls: Type["KhandakerMojoMedical"], **kwargs: Any) -> None:
+    def extend_columns(
+        cls: Type["KhandakerMojoMedical"], **kwargs: Any
+    ) -> None:
         setattr(
             cls,
             cls.FN_DIAGNOSIS,

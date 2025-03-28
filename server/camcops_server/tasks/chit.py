@@ -64,7 +64,7 @@ class Chit(  # type: ignore[misc]
     MAX_SCORE_MAIN = MAX_ANSWER * N_SCORED_QUESTIONS
 
     @classmethod
-    def extend_table(cls: Type["Chit"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Chit"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

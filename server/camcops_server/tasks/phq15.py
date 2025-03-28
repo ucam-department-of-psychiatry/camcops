@@ -71,7 +71,7 @@ class Phq15(  # type: ignore[misc]
     MAX_TOTAL = 30
 
     @classmethod
-    def extend_table(cls: Type["Phq15"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Phq15"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

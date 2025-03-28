@@ -92,7 +92,7 @@ class Badls(  # type: ignore[misc]
     ]
 
     @classmethod
-    def extend_table(cls: Type["Badls"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Badls"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

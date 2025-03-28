@@ -89,7 +89,9 @@ class LynallIamLifeEvents(  # type: ignore[misc]
     prohibits_commercial = True
 
     @classmethod
-    def extend_table(cls: Type["LynallIamLifeEvents"], **kwargs: Any) -> None:
+    def extend_columns(
+        cls: Type["LynallIamLifeEvents"], **kwargs: Any
+    ) -> None:
         comment_strings = [
             "illness/injury/assault (self)",  # 1
             "illness/injury/assault (relative)",

@@ -68,7 +68,7 @@ class Wsas(  # type: ignore[misc]
     provides_trackers = True
 
     @classmethod
-    def extend_table(cls: Type["Wsas"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Wsas"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

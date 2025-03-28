@@ -141,7 +141,7 @@ class Maas(TaskHasPatientMixin, Task):  # type: ignore[misc]
     MAX_TIME = N_TIME * MAX_SCORE_PER_Q
 
     @classmethod
-    def extend_table(cls: Type["Maas"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Maas"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             cls.FN_QPREFIX,

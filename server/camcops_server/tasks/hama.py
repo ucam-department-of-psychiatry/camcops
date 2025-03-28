@@ -71,7 +71,7 @@ class Hama(  # type: ignore[misc]
     NQUESTIONS = 14
 
     @classmethod
-    def extend_table(cls: Type["Hama"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Hama"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

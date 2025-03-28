@@ -77,7 +77,7 @@ class Icd10Schizotypal(  # type: ignore[misc]
     info_filename_stem = "icd"
 
     @classmethod
-    def extend_table(cls: Type["Icd10Schizotypal"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Icd10Schizotypal"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "a",

@@ -75,7 +75,7 @@ class PclCommon(TaskHasPatientMixin, Task, ABC):  # type: ignore[misc]
     # noinspection PyInitNewSignature
 
     @classmethod
-    def extend_table(cls: Type["PclCommon"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["PclCommon"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

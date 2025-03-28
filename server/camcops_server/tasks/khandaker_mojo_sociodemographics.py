@@ -89,7 +89,7 @@ class KhandakerMojoSociodemographics(  # type: ignore[misc]
     }
 
     @classmethod
-    def extend_table(
+    def extend_columns(
         cls: Type["KhandakerMojoSociodemographics"], **kwargs: Any
     ) -> None:
         setattr(

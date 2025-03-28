@@ -66,7 +66,7 @@ class Mfi20(  # type: ignore[misc]
     MAX_SUBSCALE = MAX_SCORE_PER_Q * N_Q_PER_SUBSCALE
 
     @classmethod
-    def extend_table(cls: Type["Mfi20"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Mfi20"], **kwargs: Any) -> None:
 
         comment_strings = [
             "feel fit",

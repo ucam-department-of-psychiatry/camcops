@@ -63,7 +63,7 @@ class Basdai(  # type: ignore[misc]
     N_QUESTIONS = 6
 
     @classmethod
-    def extend_table(cls: Type["Basdai"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Basdai"], **kwargs: Any) -> None:
 
         add_multiple_columns(
             cls,

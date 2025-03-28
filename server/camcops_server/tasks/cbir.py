@@ -119,7 +119,7 @@ class CbiR(  # type: ignore[misc]
     shortname = "CBI-R"
 
     @classmethod
-    def extend_table(cls: Type["CbiR"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["CbiR"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "frequency",

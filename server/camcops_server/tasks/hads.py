@@ -75,7 +75,7 @@ class HadsBase(TaskHasPatientMixin, Task, ABC):  # type: ignore[misc]
     MAX_DEP_SCORE = 21
 
     @classmethod
-    def extend_table(cls: Type["HadsBase"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["HadsBase"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

@@ -77,7 +77,7 @@ class Rapid3(  # type: ignore[misc]
     MAXIMUM = 30
 
     @classmethod
-    def extend_table(cls: Type["Rapid3"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Rapid3"], **kwargs: Any) -> None:
 
         comment_strings = [
             "get dressed",

@@ -70,7 +70,7 @@ class Pbq(  # type: ignore[misc]
     NQUESTIONS = 25
 
     @classmethod
-    def extend_table(cls: Type["Pbq"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Pbq"], **kwargs: Any) -> None:
         comment_strings = [
             # This is the Brockington 2006 order; see XML for notes.
             # 1-5

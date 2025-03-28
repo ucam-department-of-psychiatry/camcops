@@ -71,7 +71,7 @@ class Mast(  # type: ignore[misc]
     NQUESTIONS = 24
 
     @classmethod
-    def extend_table(cls: Type["Mast"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Mast"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

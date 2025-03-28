@@ -93,7 +93,7 @@ class Cesdr(  # type: ignore[misc]
     MAJOR_THRESH = 4
 
     @classmethod
-    def extend_table(cls: Type["Cesdr"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Cesdr"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

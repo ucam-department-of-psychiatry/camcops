@@ -64,7 +64,7 @@ class CpftResearchPreferences(  # type: ignore[misc]
     ]
 
     @classmethod
-    def extend_table(
+    def extend_columns(
         cls: Type["CpftResearchPreferences"], **kwargs: Any
     ) -> None:
         setattr(

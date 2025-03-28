@@ -131,7 +131,7 @@ class Dad(  # type: ignore[misc]
     ]
 
     @classmethod
-    def extend_table(cls: Type["Dad"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Dad"], **kwargs: Any) -> None:
         explan = f" ({YES} yes, {NO} no, {NA} not applicable)"
         for colname in cls.ITEMS:
             setattr(

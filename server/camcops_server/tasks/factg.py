@@ -196,7 +196,7 @@ class Factg(TaskHasPatientMixin, Task):  # type: ignore[misc]
     OPTIONAL_Q = "s_q7"
 
     @classmethod
-    def extend_table(cls: Type["Factg"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Factg"], **kwargs: Any) -> None:
         answer_stem = (
             " (0 not at all, 1 a little bit, 2 somewhat, 3 quite a bit, "
             "4 very much)"

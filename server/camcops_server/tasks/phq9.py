@@ -82,7 +82,7 @@ class Phq9(  # type: ignore[misc]
     provides_trackers = True
 
     @classmethod
-    def extend_table(cls: Type["Phq9"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Phq9"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

@@ -51,7 +51,7 @@ class Paradise24(  # type: ignore[misc]
     LAST_Q = 24
 
     @classmethod
-    def extend_table(cls: Type["Paradise24"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Paradise24"], **kwargs: Any) -> None:
 
         add_multiple_columns(
             cls,

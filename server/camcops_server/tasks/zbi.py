@@ -71,7 +71,7 @@ class Zbi12(  # type: ignore[misc]
     NQUESTIONS = 12
 
     @classmethod
-    def extend_table(cls: Type["Zbi12"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Zbi12"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

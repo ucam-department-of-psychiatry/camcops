@@ -54,7 +54,7 @@ class Sfmpq2(  # type: ignore[misc]
     MAX_SCORE_PER_Q = 10
 
     @classmethod
-    def extend_table(cls: Type["Sfmpq2"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Sfmpq2"], **kwargs: Any) -> None:
 
         # Field descriptions are open access, as per:
         # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5221718/

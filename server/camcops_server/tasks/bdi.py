@@ -165,7 +165,7 @@ class Bdi(  # type: ignore[misc]
     provides_trackers = True
 
     @classmethod
-    def extend_table(cls: Type["Bdi"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Bdi"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

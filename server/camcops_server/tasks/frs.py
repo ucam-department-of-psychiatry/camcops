@@ -201,7 +201,7 @@ class Frs(  # type: ignore[misc]
     shortname = "FRS"
 
     @classmethod
-    def extend_table(cls: Type["Frs"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Frs"], **kwargs: Any) -> None:
         for n in range(1, NQUESTIONS + 1):
             pv = [NEVER, ALWAYS]
             pc = [f"{NEVER} = never", f"{ALWAYS} = always"]

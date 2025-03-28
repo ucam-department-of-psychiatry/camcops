@@ -66,7 +66,7 @@ class Epds(  # type: ignore[misc]
     NQUESTIONS = 10
 
     @classmethod
-    def extend_table(cls: Type["Epds"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Epds"], **kwargs: Any) -> None:
         add_multiple_columns(cls, "q", 1, cls.NQUESTIONS)
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)

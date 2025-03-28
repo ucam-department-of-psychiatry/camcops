@@ -69,7 +69,7 @@ class Dast(  # type: ignore[misc]
     NQUESTIONS = 28
 
     @classmethod
-    def extend_table(cls: Type["Dast"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Dast"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

@@ -108,7 +108,7 @@ class KhandakerInsightMedical(  # type: ignore[misc]
     info_filename_stem = "khandaker_insight_medical"
 
     @classmethod
-    def extend_table(
+    def extend_columns(
         cls: Type["KhandakerInsightMedical"], **kwargs: Any
     ) -> None:
         for qinfo in QUESTIONS:

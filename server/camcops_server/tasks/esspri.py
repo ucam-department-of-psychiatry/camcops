@@ -54,7 +54,7 @@ class Esspri(  # type: ignore[misc]
     MAX_SCORE = 10  # Mean of 3 scores of 10
 
     @classmethod
-    def extend_table(cls: Type["Esspri"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Esspri"], **kwargs: Any) -> None:
 
         comment_strings = ["dryness", "fatigue", "pain"]
 

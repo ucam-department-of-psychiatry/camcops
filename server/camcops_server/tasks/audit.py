@@ -68,7 +68,7 @@ class Audit(  # type: ignore[misc]
     NQUESTIONS = 10
 
     @classmethod
-    def extend_table(cls: Type["Audit"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Audit"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -263,7 +263,7 @@ class AuditC(TaskHasPatientMixin, Task):  # type: ignore[misc]
     NQUESTIONS = 3
 
     @classmethod
-    def extend_table(cls: Type["AuditC"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["AuditC"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

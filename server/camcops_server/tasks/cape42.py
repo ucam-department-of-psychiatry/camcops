@@ -147,7 +147,7 @@ class Cape42(  # type: ignore[misc]
     info_filename_stem = "cape"
 
     @classmethod
-    def extend_table(cls: Type["Cape42"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Cape42"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "frequency",

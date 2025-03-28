@@ -64,7 +64,7 @@ class Pswq(  # type: ignore[misc]
     REVERSE_SCORE = [1, 3, 8, 10, 11]
 
     @classmethod
-    def extend_table(cls: Type["Pswq"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["Pswq"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",

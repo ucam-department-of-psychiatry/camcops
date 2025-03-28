@@ -49,7 +49,7 @@ class IsaaqEd(
     LAST_Q = 20
 
     @classmethod
-    def extend_table(cls: Type["IsaaqEd"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["IsaaqEd"], **kwargs: Any) -> None:
 
         add_multiple_columns(
             cls,

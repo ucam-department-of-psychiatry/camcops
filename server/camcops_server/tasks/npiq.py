@@ -71,7 +71,7 @@ class NpiQ(  # type: ignore[misc]
     NQUESTIONS = 12
 
     @classmethod
-    def extend_table(cls: Type["NpiQ"], **kwargs: Any) -> None:
+    def extend_columns(cls: Type["NpiQ"], **kwargs: Any) -> None:
         question_snippets = [
             "delusions",  # 1
             "hallucinations",
