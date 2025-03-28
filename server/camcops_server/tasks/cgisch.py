@@ -156,7 +156,7 @@ class CgiSch(  # type: ignore[misc]
                     f"negative {self.severity2}, "  # type: ignore[attr-defined]  # noqa: E501
                     f"depressive {self.severity3}, "  # type: ignore[attr-defined]  # noqa: E501
                     f"cognitive {self.severity4}, "  # type: ignore[attr-defined]  # noqa: E501
-                    f"overall {self.severity5}. "
+                    f"overall {self.severity5}. "  # type: ignore[attr-defined]
                     f"Change: positive {self.change1}, "  # type: ignore[attr-defined]  # noqa: E501
                     f"negative {self.change2}, "  # type: ignore[attr-defined]
                     f"depressive {self.change3}, "  # type: ignore[attr-defined]  # noqa: E501
