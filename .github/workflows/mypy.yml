@@ -25,7 +25,7 @@ jobs:
               run: |
                   set -euo pipefail
                   ${GITHUB_WORKSPACE}/.github/scripts/python_setup.sh
-                  ${VENV_BIN}=${HOME}/venv/bin
+                  VENV_BIN=${HOME}/venv/bin
                   PYTHON=${VENV_BIN}/python
                   ${PYTHON} -m pip install mypy==1.15.0
                   MYPY=${VENV_BIN}/mypy
