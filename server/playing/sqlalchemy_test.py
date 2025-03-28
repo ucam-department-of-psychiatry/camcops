@@ -302,7 +302,7 @@ def engine_mysql(
     # TypeError: 'str' does not support the buffer interface
     # because dates come back as e.g. b'2013-05-30 06:00:00' and then the
     # convert_datetime function in pymysql/converters.py chokes.
-    return sqlalchemy.create_engine(connectstring, echo=echo, future=True)
+    return sqlalchemy.create_engine(connectstring, echo=echo)
 
 
 def engine_mysql_commandline(echo: bool = True) -> Engine:
@@ -481,7 +481,7 @@ def test():
     # noinspection PyPep8Naming
     Session = sessionmaker()
     Session.configure(bind=engine)  # once engine is available
-    session = Session(future=True)
+    session = Session()
     # Create tables
     Base.metadata.create_all(engine)
 

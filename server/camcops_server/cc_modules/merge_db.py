@@ -1075,7 +1075,7 @@ def merge_camcops_db(
             from the config file. But for debugging, you can override this.
 
     """
-    src_engine = create_engine(src, echo=echo, pool_pre_ping=True, future=True)
+    src_engine = create_engine(src, echo=echo, pool_pre_ping=True)
     log.info("SOURCE: " + get_safe_url_from_engine(src_engine))
 
     if dst_url:

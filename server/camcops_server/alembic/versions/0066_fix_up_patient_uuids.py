@@ -75,7 +75,7 @@ def upgrade() -> None:
         return
     # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)  # for echo
     # bind._echo = True  # echo on, in a hacky way
-    dbsession = orm.Session(bind=bind, future=True)
+    dbsession = orm.Session(bind=bind)
 
     # How to do this?
     # (1) One approach is to create a "cut-down" Patient class with just two

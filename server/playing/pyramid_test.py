@@ -364,7 +364,7 @@ class DummyConfig(object):
         return auto_repr(self)
 
     def create_engine(self) -> Engine:
-        return create_engine(self.dburl, future=True)
+        return create_engine(self.dburl)
         # Don't use "echo=self.echo_sql"; things are logged twice. Set the log
         # level of the 'sqlalchemy.engine' logger; see main().
 
@@ -782,7 +782,7 @@ def session_context():
     cfg = get_config()  # type: DummyConfig
     engine = cfg.create_engine()
     maker = sessionmaker(bind=engine)
-    dbsession = maker(future=True)  # type: SqlASession
+    dbsession = maker()  # type: SqlASession
     # noinspection PyUnusedLocal,PyBroadException
     try:
         yield dbsession

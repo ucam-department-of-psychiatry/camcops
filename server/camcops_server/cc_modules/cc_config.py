@@ -1767,7 +1767,6 @@ class CamcopsConfig(object):
                 self.db_url,
                 echo=self.db_echo,
                 pool_pre_ping=True,
-                future=True,
                 # pool_size=0,  # no limit (for parallel testing, which failed)
             )
             log.debug(
@@ -1793,7 +1792,7 @@ class CamcopsConfig(object):
         """
         engine = self.get_sqla_engine()
         maker = sessionmaker(bind=engine)
-        dbsession = maker(future=True)  # type: SqlASession
+        dbsession = maker()  # type: SqlASession
         return dbsession
 
     @contextlib.contextmanager

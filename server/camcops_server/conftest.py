@@ -221,7 +221,7 @@ def create_engine_mysql(db_url: str, create_db: bool, echo: bool) -> "Engine":
     # mysql> CREATE DATABASE <db_name>;
     # mysql> GRANT ALL PRIVILEGES ON <db_name>.*
     #        TO <db_user>@localhost IDENTIFIED BY '<db_password>';
-    engine = create_engine(db_url, echo=echo, pool_pre_ping=True, future=True)
+    engine = create_engine(db_url, echo=echo, pool_pre_ping=True)
 
     if create_db:
         Base.metadata.drop_all(engine)
@@ -278,7 +278,7 @@ def dbsession(
     # begin the nested transaction
     transaction = connection.begin()
     # use the connection with the already started transaction
-    session = Session(bind=connection, future=True)
+    session = Session(bind=connection)
 
     yield session
 

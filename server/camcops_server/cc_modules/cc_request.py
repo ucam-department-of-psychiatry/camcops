@@ -482,7 +482,7 @@ class CamcopsRequest(Request):
             log.debug("Making SQLAlchemy session")
         engine = self.engine
         maker = sessionmaker(bind=engine)
-        session = maker(future=True)  # type: SqlASession
+        session = maker()  # type: SqlASession
         return session
 
     # -------------------------------------------------------------------------

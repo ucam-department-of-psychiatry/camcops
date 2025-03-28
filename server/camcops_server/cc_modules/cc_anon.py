@@ -87,8 +87,8 @@ def _gen_columns_for_anon_staging_db(
     Generates all columns for an anonymisation staging database.
     """
     url = SQLITE_MEMORY_URL
-    engine = create_engine(url, echo=False, future=True)
-    session = sessionmaker(bind=engine)(future=True)  # type: SqlASession
+    engine = create_engine(url, echo=False)
+    session = sessionmaker(bind=engine)()  # type: SqlASession
     export_options = TaskExportOptions(
         include_blobs=recipient.db_include_blobs,  # type: ignore[arg-type]
         db_patient_id_per_row=recipient.db_patient_id_per_row,  # type: ignore[arg-type]  # noqa: E501

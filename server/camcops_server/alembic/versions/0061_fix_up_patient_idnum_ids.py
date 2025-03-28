@@ -101,7 +101,7 @@ def upgrade() -> None:
     if isinstance(bind, MockEngineStrategy.MockConnection):
         log.warning("Using mock connection; skipping step")
         return
-    session = orm.Session(bind=bind, future=True)
+    session = orm.Session(bind=bind)
 
     for idnum in session.query(TmpPatientIdNum):
         if idnum.id == 0:
