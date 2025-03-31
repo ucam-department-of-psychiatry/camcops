@@ -69,7 +69,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from typing import List
+from typing import Any, List
 
 from cardinal_pythonlib.datetimefunc import get_now_localtz_pendulum
 from cardinal_pythonlib.file_io import (
@@ -137,7 +137,7 @@ def workpath(workdir: str, destpath: str) -> str:
         return join(workdir, destpath)
 
 
-def call(cmdargs: List[str], **kwargs) -> None:
+def call(cmdargs: List[str], **kwargs: Any) -> None:
     if kwargs:
         log.debug("With kwargs to subprocess.check_call of {!r}", kwargs)
     log.debug("Calling external program: {!r}", cmdargs)
@@ -1147,7 +1147,7 @@ def build_package() -> None:
 # =============================================================================
 
 
-def main():
+def main() -> None:
     """
     Command-line entry point.
     """

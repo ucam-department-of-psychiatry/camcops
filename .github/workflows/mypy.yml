@@ -27,7 +27,7 @@ jobs:
                   ${GITHUB_WORKSPACE}/.github/scripts/python_setup.sh
                   VENV_BIN=${HOME}/venv/bin
                   PYTHON=${VENV_BIN}/python
-                  ${PYTHON} -m pip install mypy==1.15.0
+                  ${PYTHON} -m pip install mypy==1.15.0 types-docutils types-pexpect types-setuptools
                   MYPY=${VENV_BIN}/mypy
                   cd ${GITHUB_WORKSPACE}/server
                   ${MYPY} camcops_server

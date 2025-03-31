@@ -59,7 +59,7 @@ BUILD_HTML_DIR = os.path.join(THIS_DIR, "build", "html")
 #                                "static", "documentation_copy")
 # WEBSITE_DOCS_DIR = os.path.join(CAMCOPS_ROOT_DIR, "website", "documentation")
 
-DEST_DIRS = [
+DEST_DIRS: list[str] = [
     # SERVER_DOCS_DIR,
     # WEBSITE_DOCS_DIR,
 ]
