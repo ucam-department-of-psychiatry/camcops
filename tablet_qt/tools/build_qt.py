@@ -4256,7 +4256,7 @@ def build_eigen(cfg: Config) -> None:
 # =============================================================================
 
 
-def master_builder(args) -> None:
+def master_builder(args: argparse.Namespace) -> None:
     """
     Do the work!
     """
