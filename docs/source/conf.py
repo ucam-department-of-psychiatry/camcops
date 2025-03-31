@@ -370,8 +370,8 @@ def register_css_role_allowing_content_substitution(css_class: str) -> None:
             )
         )
         parsed_nodes, parsed_msgs = inliner.parse(
-            text=text, lineno=0, memo=inliner, parent=None
-        )  # type: Tuple[List[Node], List[str]]
+            text=text, lineno=0, memo=inliner, parent=None  # type: ignore[arg-type]  # noqa: E501
+        )
         top_node = nodes.inline(  # was nodes.inline
             text="", refid=css_class, **options
         )  # type: Element
@@ -381,7 +381,7 @@ def register_css_role_allowing_content_substitution(css_class: str) -> None:
         top_node += parsed_nodes  # adds children to this_node; see Element
         return [top_node], []
 
-    register_canonical_role(css_class, rolefunc)
+    register_canonical_role(css_class, rolefunc)  # type: ignore[arg-type]
 
 
 main_only_quicksetup_rootlogger(level=logging.INFO)
