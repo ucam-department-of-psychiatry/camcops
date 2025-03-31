@@ -29,13 +29,17 @@ Sphinx configuration file
 import os
 import sys
 import logging
-from typing import Any
+from typing import Any, Callable, Dict, List, Tuple
 import warnings
 
 from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
 )
+from docutils import nodes
+from docutils.nodes import Element, Node
+from docutils.parsers.rst.roles import register_canonical_role
+from docutils.parsers.rst.states import Inliner
 from sphinx.application import Sphinx
 from sphinx.ext.autodoc import Options
 from sqlalchemy.exc import SAWarning
@@ -280,7 +284,109 @@ def setup(app: Sphinx) -> None:
     app.connect("autodoc-skip-member", skip)
 
 
+# -----------------------------------------------------------------------------
+# Add CSS
+# -----------------------------------------------------------------------------
+
+# html_context = {
+#     'css_files': ['_static/css/camcops_docs.css'],
+# }
+
+
+RoleFuncReturnType = Tuple[List[Node], List[str]]
+RoleFuncType = Callable[
+    [str, str, str, int, Inliner, Dict[str, Any], List[str]],
+    RoleFuncReturnType,
+]
+
+
+def register_css_role_allowing_content_substitution(css_class: str) -> None:
+    """
+    If you create a role in RST like this:
+
+        .. role:: somecssclass
+
+    then you can use it like this:
+
+        :somecssclass:`here is my content`
+
+    ... and it will render (after some CSS class name alterations, like
+    converting underscores to minus) as:
+
+        <span class="somecssclass">here is my content</span
+
+    However, you can't also use substitutions in the content. For example, if
+    you have defined a substitution
+
+        .. |biohazard| image:: biohazard_symbole.png
+           :height: 24px
+           :width: 24px
+
+    then you can use that substitution as
+
+        Always apply a |biohazard| sticker in the presence of biohazards.
+
+    but not as
+
+        :somecssclass:`Beware the poison! |biohazard| Beware!`
+
+    This function registers a role under the name of that CSS class, so now you
+    can.
+    """
+
+    def rolefunc(
+        role_name: str,  # e.g. "role"
+        rawtext: str,  # e.g. ":role:`text`"
+        text: str,  # e.g. "text"
+        lineno: int,
+        inliner: Inliner,
+        options: Dict[str, Any] = None,
+        content: List[str] = None,
+    ) -> Tuple[List[Node], List[str]]:
+        """
+        Attempt to implemented substitutions inside inline markup.
+        This is not directly supported:
+            https://sourceforge.net/p/docutils/feature-requests/53/
+        Role functions: see
+            http://docutils.sourceforge.net/docs/howto/rst-roles.html
+        See also:
+            https://github.com/sphinx-doc/sphinx/issues/2173
+        Returns the tuple (nodes, messages).
+        Search docutils for "role_fn" to see how this function will be called.
+        """
+        options = options or {}  # type: Dict[str, Any]
+        content = content or []  # type: List[str]
+        log.debug(
+            "rolefunc() called with role_name={rn!r}, rawtext={rt!r}, "
+            "text={t!r}, lineno={ln}, inliner={i!r}, "
+            "options={o!r}, content={c!r}".format(
+                rn=role_name,
+                rt=rawtext,
+                t=text,
+                ln=lineno,
+                i=inliner,
+                o=options,
+                c=content,
+            )
+        )
+        parsed_nodes, parsed_msgs = inliner.parse(
+            text=text, lineno=0, memo=inliner, parent=None
+        )  # type: Tuple[List[Node], List[str]]
+        top_node = nodes.inline(  # was nodes.inline
+            text="", refid=css_class, **options
+        )  # type: Element
+        top_node["classes"].append(
+            css_class
+        )  # see deprecated Element.set_class
+        top_node += parsed_nodes  # adds children to this_node; see Element
+        return [top_node], []
+
+    register_canonical_role(css_class, rolefunc)
+
+
 main_only_quicksetup_rootlogger(level=logging.INFO)
+
+register_css_role_allowing_content_substitution("tabletmenu")
 
 # https://stackoverflow.com/questions/5599254/how-to-use-sphinxs-autodoc-to-document-a-classs-init-self-method  # noqa
 # autoclass_content = "both"
