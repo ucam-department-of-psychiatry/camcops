@@ -5708,8 +5708,8 @@ def view_patient_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
         .filter(Patient._group_id.in_(allowed_group_ids))
         .filter(Patient._device_id == server_device.id)
         .order_by(Patient.surname, Patient.forename)
-        .options(joinedload("task_schedules"))  # type: ignore[arg-type]
-        .options(joinedload("idnums"))  # type: ignore[arg-type]
+        .options(joinedload(Patient.task_schedules))  # type: ignore[arg-type]
+        .options(joinedload(Patient.idnums))  # type: ignore[arg-type]
     )
 
     page = SqlalchemyOrmPage(

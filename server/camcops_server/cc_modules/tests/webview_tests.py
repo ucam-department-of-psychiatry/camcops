@@ -133,6 +133,7 @@ from camcops_server.cc_modules.webview import (
     LoginView,
     MfaMixin,
     SendEmailFromPatientTaskScheduleView,
+    view_patient_task_schedules,
 )
 
 log = logging.getLogger(__name__)
@@ -2368,6 +2369,42 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
         self.assertEqual(
             cm.exception.message, "Not authorized to email patients"
         )
+
+
+class ViewPatientTaskSchedulesTests(BasicDatabaseTestCase):
+    def test_patients_listed_alphabetically(self) -> None:
+        patient_a = ServerCreatedPatientFactory(
+            surname="alvarez", _group=self.group
+        )
+        patient_b = ServerCreatedPatientFactory(
+            surname="brown", _group=self.group
+        )
+        patient_c = ServerCreatedPatientFactory(
+            surname="chang", _group=self.group
+        )
+
+        schedule_1 = TaskScheduleFactory(group=self.group)
+        schedule_2 = TaskScheduleFactory(group=self.group)
+
+        PatientTaskScheduleFactory(patient=patient_a, task_schedule=schedule_1)
+        PatientTaskScheduleFactory(
+            patient=patient_a,
+            task_schedule=schedule_2,
+        )
+        PatientTaskScheduleFactory(
+            patient=patient_b,
+            task_schedule=schedule_1,
+        )
+        PatientTaskScheduleFactory(
+            patient=patient_c,
+            task_schedule=schedule_1,
+        )
+
+        patients = view_patient_task_schedules(self.req)["page"].collection
+
+        self.assertEqual(patients[0].surname, "alvarez")
+        self.assertEqual(patients[1].surname, "brown")
+        self.assertEqual(patients[2].surname, "chang")
 
 
 class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
