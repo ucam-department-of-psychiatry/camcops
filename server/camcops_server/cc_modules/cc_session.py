@@ -27,8 +27,9 @@ camcops_server/cc_modules/cc_session.py
 
 """
 
+import datetime
 import logging
-from typing import Optional, TYPE_CHECKING
+from typing import Any, Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.datetimefunc import (
     format_datetime,
@@ -40,9 +41,13 @@ from cardinal_pythonlib.randomness import create_base64encoded_randomness
 from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
 from pendulum import DateTime as Pendulum
 from pyramid.interfaces import ISession
-from sqlalchemy.orm import relationship, Session as SqlASession
-from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_column,
+    relationship,
+    Session as SqlASession,
+)
+from sqlalchemy.sql.schema import ForeignKey
 
 from camcops_server.cc_modules.cc_constants import DateFormat
 from camcops_server.cc_modules.cc_pyramid import CookieKey
@@ -109,50 +114,39 @@ class CamcopsSession(Base):
     __tablename__ = "_security_webviewer_sessions"
 
     # no TEXT fields here; this is a performance-critical table
-    id = Column(
-        "id",
-        Integer,
+    id: Mapped[int] = mapped_column(
         primary_key=True,
         autoincrement=True,
         index=True,
         comment="Session ID (internal number for insertion speed)",
     )
-    token = Column(
-        "token",
+    token: Mapped[Optional[str]] = mapped_column(
         SessionTokenColType,
         comment="Token (base 64 encoded random number)",
     )
-    ip_address = Column(
-        "ip_address", IPAddressColType, comment="IP address of user"
+    ip_address: Mapped[Optional[str]] = mapped_column(
+        IPAddressColType, comment="IP address of user"
     )
-    user_id = Column(
-        "user_id",
-        Integer,
+    user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("_security_users.id", ondelete="CASCADE"),
         # https://docs.sqlalchemy.org/en/latest/core/constraints.html#on-update-and-on-delete  # noqa
         comment="User ID",
     )
-    last_activity_utc = Column(
-        "last_activity_utc",
-        DateTime,
+    last_activity_utc: Mapped[Optional[datetime.datetime]] = mapped_column(
         comment="Date/time of last activity (UTC)",
     )
-    number_to_view = Column(
-        "number_to_view", Integer, comment="Number of records to view"
+    number_to_view: Mapped[Optional[int]] = mapped_column(
+        comment="Number of records to view"
     )
-    task_filter_id = Column(
-        "task_filter_id",
-        Integer,
+    task_filter_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("_task_filters.id"),
         comment="Task filter ID",
     )
-    is_api_session = Column(
-        "is_api_session",
-        Boolean,
+    is_api_session: Mapped[Optional[bool]] = mapped_column(
         default=False,
         comment="This session is using the client API (not a human browsing).",
     )
-    form_state = Column(
+    form_state: Mapped[Optional[Any]] = mapped_column(
         "form_state",
         MutableDict.as_mutable(JsonColType),
         comment=(
@@ -239,7 +233,7 @@ class CamcopsSession(Base):
         """
         session = cls.get_session(
             req=ts.req,
-            session_id_str=ts.session_id,
+            session_id_str=ts.session_id,  # type: ignore[arg-type]
             session_token=ts.session_token,
         )
         if not session.user:
@@ -401,7 +395,7 @@ class CamcopsSession(Base):
         cls, req: "CamcopsRequest", when: Pendulum
     ) -> int:
         when_utc = pendulum_to_utc_datetime_without_tz(when)
-        q = CountStarSpecializedQuery(cls, session=req.dbsession).filter(
+        q = CountStarSpecializedQuery(cls, session=req.dbsession).filter(  # type: ignore[arg-type]  # noqa: E501
             cls.last_activity_utc >= when_utc
         )
         return q.count_star()

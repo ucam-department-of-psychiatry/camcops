@@ -156,6 +156,8 @@ import os
 import sqlite3
 import tempfile
 from typing import (
+    Any,
+    Container,
     Dict,
     List,
     Generator,
@@ -164,7 +166,6 @@ from typing import (
     Tuple,
     Type,
     TYPE_CHECKING,
-    Union,
 )
 
 from cardinal_pythonlib.classes import gen_all_subclasses
@@ -192,6 +193,7 @@ from pendulum import DateTime as Pendulum, Duration
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
+from sqlalchemy import insert
 from sqlalchemy.engine import create_engine, CursorResult
 from sqlalchemy.orm import Session as SqlASession, sessionmaker
 from sqlalchemy.sql.expression import text
@@ -245,7 +247,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 INFOSCHEMA_PAGENAME = "_camcops_information_schema_columns"
 SUMMARYSCHEMA_PAGENAME = "_camcops_column_explanations"
 REMOVE_TABLES_FOR_SIMPLIFIED_SPREADSHEETS = {SNOMED_TABLENAME}
-EMPTY_SET = set()
+EMPTY_SET: Container[str] = set()
 
 
 # =============================================================================
@@ -701,16 +703,17 @@ def write_information_schema_to_dst(
     # https://stackoverflow.com/questions/21770829/sqlalchemy-copy-schema-and-data-of-subquery-to-another-database  # noqa
     src_engine = req.engine
     dst_engine = dst_session.bind
-    metadata = MetaData(bind=dst_engine)
+    metadata = MetaData()
     table = Table(
         "columns",  # table name; see also "schema" argument
         metadata,  # "load with the destination metadata"
         # Override some specific column types by hand, or they'll fail as
         # SQLAlchemy fails to reflect the MySQL LONGTEXT type properly:
         Column("COLUMN_DEFAULT", Text),
+        Column("COLUMN_KEY", Text),
         Column("COLUMN_TYPE", Text),
+        Column("DATA_TYPE", Text),
         Column("GENERATION_EXPRESSION", Text),
-        autoload=True,  # "read (reflect) structure from the database"
         autoload_with=src_engine,  # "read (reflect) structure from the source"
         schema="information_schema",  # schema
     )
@@ -722,7 +725,7 @@ def write_information_schema_to_dst(
     query = get_information_schema_query(req)
     # 4. Write the data.
     for row in query:
-        dst_session.execute(table.insert(row))
+        dst_session.execute(insert(table).values(row))
     # 5. COMMIT
     dst_session.commit()
 
@@ -1005,8 +1008,8 @@ class TaskCollectionExporter(object):
                 REMOVE_COLUMNS_FOR_SIMPLIFIED_SPREADSHEETS
             )
         else:
-            summary_exclusion_tables = EMPTY_SET
-            summary_exclusion_columns = EMPTY_SET
+            summary_exclusion_tables = EMPTY_SET  # type: ignore[assignment]
+            summary_exclusion_columns = EMPTY_SET  # type: ignore[assignment]
         # Task may return >1 sheet for output (e.g. for subtables).
         coll = SpreadsheetCollection()
 
@@ -1083,7 +1086,7 @@ class RExporter(TaskCollectionExporter):
     file_extension = "R"
     viewtype = ViewArg.R
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.encoding = "utf-8"
 
@@ -1137,6 +1140,7 @@ class SqliteExporter(TaskCollectionExporter):
 
     file_extension = "sqlite"
     viewtype = ViewArg.SQLITE
+    db_basename = "temp.sqlite3"
 
     def get_export_options(self) -> TaskExportOptions:
         return TaskExportOptions(
@@ -1146,16 +1150,32 @@ class SqliteExporter(TaskCollectionExporter):
             db_patient_id_per_row=self.options.db_patient_id_per_row,
         )
 
-    def get_sqlite_data(self, as_text: bool) -> Union[bytes, str]:
+    def get_sqlite_data_as_text(self) -> str:
         """
-        Returns data as a binary SQLite database, or SQL text to create it.
-
-        Args:
-            as_text: textual SQL, rather than binary SQLite?
-
-        Returns:
-            ``bytes`` or ``str``, according to ``as_text``
+        Returns data as SQL text to create it.
         """
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            db_filename = os.path.join(tmpdirname, self.db_basename)
+            self._write_to_sqlite_file(db_filename)
+            connection = sqlite3.connect(
+                db_filename
+            )  # type: sqlite3.Connection
+            sql_text = sql_from_sqlite_database(connection)
+            connection.close()
+            return sql_text
+
+    def get_sqlite_data_as_bytes(self) -> bytes:
+        """
+        Returns data as a binary SQLite database.
+        """
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            db_filename = os.path.join(tmpdirname, self.db_basename)
+            self._write_to_sqlite_file(db_filename)
+            with open(db_filename, "rb") as f:
+                binary_contents = f.read()
+            return binary_contents
+
+    def _write_to_sqlite_file(self, db_filename: str) -> None:
         # ---------------------------------------------------------------------
         # Create memory file, dumper, and engine
         # ---------------------------------------------------------------------
@@ -1201,65 +1221,46 @@ class SqliteExporter(TaskCollectionExporter):
         # https://docs.python.org/3/library/tempfile.html
         # https://security.openstack.org/guidelines/dg_using-temporary-files-securely.html  # noqa
         # https://stackoverflow.com/questions/3924117/how-to-use-tempfile-namedtemporaryfile-in-python  # noqa
-        db_basename = "temp.sqlite3"
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            db_filename = os.path.join(tmpdirname, db_basename)
-            # ---------------------------------------------------------------------
-            # Make SQLAlchemy session
-            # ---------------------------------------------------------------------
-            url = "sqlite:///" + db_filename
-            engine = create_engine(url, echo=False)
-            dst_session = sessionmaker(bind=engine)()  # type: SqlASession
-            # ---------------------------------------------------------------------
-            # Iterate through tasks, creating tables as we need them.
-            # ---------------------------------------------------------------------
-            audit_descriptions = []  # type: List[str]
-            task_generator = gen_audited_tasks_by_task_class(
-                self.collection, audit_descriptions
-            )
-            # ---------------------------------------------------------------------
-            # Next bit very tricky. We're trying to achieve several things:
-            # - a copy of part of the database structure
-            # - a copy of part of the data, with relationships intact
-            # - nothing sensitive (e.g. full User records) going through
-            # - adding new columns for Task objects offering summary values
-            # - Must treat tasks all together, because otherwise we will insert
-            #   duplicate dependency objects like Group objects.
-            # ---------------------------------------------------------------------
-            copy_tasks_and_summaries(
-                tasks=task_generator,
-                dst_engine=engine,
-                dst_session=dst_session,
-                export_options=self.get_export_options(),
-                req=self.req,
-            )
-            dst_session.commit()
-            if self.options.include_information_schema_columns:
-                # Must have committed before we do this:
-                write_information_schema_to_dst(self.req, dst_session)
-            # ---------------------------------------------------------------------
-            # Audit
-            # ---------------------------------------------------------------------
-            audit(self.req, f"SQL dump: {'; '.join(audit_descriptions)}")
-            # ---------------------------------------------------------------------
-            # Fetch file contents, either as binary, or as SQL
-            # ---------------------------------------------------------------------
-            if as_text:
-                # SQL text
-                connection = sqlite3.connect(
-                    db_filename
-                )  # type: sqlite3.Connection
-                sql_text = sql_from_sqlite_database(connection)
-                connection.close()
-                return sql_text
-            else:
-                # SQLite binary
-                with open(db_filename, "rb") as f:
-                    binary_contents = f.read()
-                return binary_contents
+        # ---------------------------------------------------------------------
+        # Make SQLAlchemy session
+        # ---------------------------------------------------------------------
+        url = "sqlite:///" + db_filename
+        engine = create_engine(url, echo=False)
+        dst_session: SqlASession = sessionmaker(bind=engine)()
+        # ---------------------------------------------------------------------
+        # Iterate through tasks, creating tables as we need them.
+        # ---------------------------------------------------------------------
+        audit_descriptions = []  # type: List[str]
+        task_generator = gen_audited_tasks_by_task_class(
+            self.collection, audit_descriptions
+        )
+        # ---------------------------------------------------------------------
+        # Next bit very tricky. We're trying to achieve several things:
+        # - a copy of part of the database structure
+        # - a copy of part of the data, with relationships intact
+        # - nothing sensitive (e.g. full User records) going through
+        # - adding new columns for Task objects offering summary values
+        # - Must treat tasks all together, because otherwise we will insert
+        #   duplicate dependency objects like Group objects.
+        # ---------------------------------------------------------------------
+        copy_tasks_and_summaries(
+            tasks=task_generator,
+            dst_engine=engine,
+            dst_session=dst_session,
+            export_options=self.get_export_options(),
+            req=self.req,
+        )
+        dst_session.commit()
+        if self.options.include_information_schema_columns:
+            # Must have committed before we do this:
+            write_information_schema_to_dst(self.req, dst_session)
+        # ---------------------------------------------------------------------
+        # Audit
+        # ---------------------------------------------------------------------
+        audit(self.req, f"SQL dump: {'; '.join(audit_descriptions)}")
 
     def get_file_body(self) -> bytes:
-        return self.get_sqlite_data(as_text=False)
+        return self.get_sqlite_data_as_bytes()
 
     def get_data_response(self, body: bytes, filename: str) -> Response:
         return SqliteBinaryResponse(body=body, filename=filename)
@@ -1273,7 +1274,7 @@ class SqlExporter(SqliteExporter):
     file_extension = "sql"
     viewtype = ViewArg.SQL
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.encoding = "utf-8"
 
@@ -1284,7 +1285,7 @@ class SqlExporter(SqliteExporter):
         """
         Returns SQL text representing the SQLite database.
         """
-        return self.get_sqlite_data(as_text=True)
+        return self.get_sqlite_data_as_text()
 
     def download_now(self) -> Response:
         """
@@ -1308,7 +1309,7 @@ for _cls in gen_all_subclasses(
     TaskCollectionExporter
 ):  # type: Type[TaskCollectionExporter]
     # noinspection PyTypeChecker
-    DOWNLOADER_CLASSES[_cls.viewtype] = _cls
+    DOWNLOADER_CLASSES[_cls.viewtype] = _cls  # type: ignore[index]
 
 
 def make_exporter(
@@ -1373,6 +1374,8 @@ class UserDownloadFile(object):
 
     """
 
+    statinfo: Optional[os.stat_result]
+
     def __init__(
         self,
         filename: str,
@@ -1428,7 +1431,7 @@ class UserDownloadFile(object):
             self.statinfo = os.stat(self.fullpath)
             self.exists = True
         except FileNotFoundError:
-            self.statinfo = None  # type: Optional[os.stat_result]
+            self.statinfo = None
             self.exists = False
 
     # -------------------------------------------------------------------------

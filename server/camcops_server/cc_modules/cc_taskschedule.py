@@ -26,17 +26,17 @@ camcops_server/cc_modules/cc_taskschedule.py
 """
 
 import logging
-from typing import List, Iterable, Optional, Tuple, TYPE_CHECKING
+from typing import Any, List, Iterable, Optional, Tuple, TYPE_CHECKING
 from urllib.parse import urlencode, urlunsplit
 
 from cardinal_pythonlib.uriconst import UriSchemes
 from pendulum import DateTime as Pendulum, Duration
 
 from sqlalchemy import cast, Numeric
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.functions import func
-from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import BigInteger, Integer, UnicodeText
+from sqlalchemy.sql.schema import ForeignKey
+from sqlalchemy.sql.sqltypes import BigInteger, UnicodeText
 
 from camcops_server.cc_modules.cc_email import Email
 from camcops_server.cc_modules.cc_formatter import SafeFormatter
@@ -144,36 +144,33 @@ class PatientTaskSchedule(Base):
 
     __tablename__ = "_patient_task_schedule"
 
-    id = Column("id", Integer, primary_key=True, autoincrement=True)
-    patient_pk = Column(
-        "patient_pk", Integer, ForeignKey("patient._pk"), nullable=False
-    )
-    schedule_id = Column(
-        "schedule_id", Integer, ForeignKey("_task_schedule.id"), nullable=False
-    )
-    start_datetime = Column(
-        "start_datetime",
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    patient_pk: Mapped[int] = mapped_column(ForeignKey("patient._pk"))
+    schedule_id: Mapped[int] = mapped_column(ForeignKey("_task_schedule.id"))
+    start_datetime: Mapped[Optional[Pendulum]] = mapped_column(
         PendulumDateTimeAsIsoTextColType,
         comment=(
             "Schedule start date for the patient. Due from/within "
             "durations for a task schedule item are relative to this."
         ),
     )
-    settings = Column(
-        "settings",
+    settings: Mapped[Optional[Any]] = mapped_column(
         JsonColType,
         comment="Task-specific settings for this patient",
     )
 
     patient = relationship("Patient", back_populates="task_schedules")
     task_schedule = relationship(
-        "TaskSchedule", back_populates="patient_task_schedules"
+        "TaskSchedule",
+        back_populates="patient_task_schedules",
+        cascade_backrefs=False,
     )
 
     emails = relationship(
         "PatientTaskScheduleEmail",
         back_populates="patient_task_schedule",
         cascade="all, delete",
+        cascade_backrefs=False,
     )
 
     def get_list_of_scheduled_tasks(
@@ -345,33 +342,28 @@ class PatientTaskScheduleEmail(Base):
 
     __tablename__ = "_patient_task_schedule_email"
 
-    id = Column(
-        "id",
-        Integer,
+    id: Mapped[int] = mapped_column(
         primary_key=True,
         autoincrement=True,
         comment="Arbitrary primary key",
     )
-    patient_task_schedule_id = Column(
-        "patient_task_schedule_id",
-        Integer,
+    patient_task_schedule_id: Mapped[int] = mapped_column(
         ForeignKey(PatientTaskSchedule.id),
-        nullable=False,
         comment=(
             f"FK to {PatientTaskSchedule.__tablename__}."
             f"{PatientTaskSchedule.id.name}"
         ),
     )
-    email_id = Column(
-        "email_id",
+    email_id: Mapped[int] = mapped_column(
         BigInteger,
         ForeignKey(Email.id),
-        nullable=False,
         comment=f"FK to {Email.__tablename__}.{Email.id.name}",
     )
 
     patient_task_schedule = relationship(
-        PatientTaskSchedule, back_populates="emails"
+        PatientTaskSchedule,
+        back_populates="emails",
+        cascade_backrefs=False,
     )
     email = relationship(Email, cascade="all, delete")
 
@@ -388,48 +380,37 @@ class TaskSchedule(Base):
 
     __tablename__ = "_task_schedule"
 
-    id = Column(
-        "id",
-        Integer,
+    id: Mapped[int] = mapped_column(
         primary_key=True,
         autoincrement=True,
         comment="Arbitrary primary key",
     )
 
-    group_id = Column(
-        "group_id",
-        Integer,
+    group_id: Mapped[int] = mapped_column(
         ForeignKey(Group.id),
-        nullable=False,
         comment="FK to {}.{}".format(Group.__tablename__, Group.id.name),
     )
 
-    name = Column("name", UnicodeText, comment="name")
+    name: Mapped[Optional[str]] = mapped_column(UnicodeText, comment="name")
 
-    email_subject = Column(
-        "email_subject",
+    email_subject: Mapped[str] = mapped_column(
         UnicodeText,
         comment="email subject",
-        nullable=False,
         default="",
     )
-    email_template = Column(
-        "email_template",
+    email_template: Mapped[str] = mapped_column(
         UnicodeText,
         comment="email template",
-        nullable=False,
         default="",
     )
-    email_from = Column(
-        "email_from", EmailAddressColType, comment="Sender's e-mail address"
+    email_from: Mapped[Optional[str]] = mapped_column(
+        EmailAddressColType, comment="Sender's e-mail address"
     )
-    email_cc = Column(
-        "email_cc",
+    email_cc: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Send a carbon copy of the email to these addresses",
     )
-    email_bcc = Column(
-        "email_bcc",
+    email_bcc: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Send a blind carbon copy of the email to these addresses",
     )
@@ -439,6 +420,7 @@ class TaskSchedule(Base):
         back_populates="task_schedule",
         order_by=task_schedule_item_sort_order,
         cascade="all, delete",
+        cascade_backrefs=False,
     )  # type: Iterable[TaskScheduleItem]
 
     group = relationship(Group)
@@ -447,6 +429,7 @@ class TaskSchedule(Base):
         "PatientTaskSchedule",
         back_populates="task_schedule",
         cascade="all, delete",
+        cascade_backrefs=False,
     )
 
     def user_may_edit(self, req: "CamcopsRequest") -> bool:
@@ -463,50 +446,44 @@ class TaskScheduleItem(Base):
 
     __tablename__ = "_task_schedule_item"
 
-    id = Column(
-        "id",
-        Integer,
+    id: Mapped[int] = mapped_column(
         primary_key=True,
         autoincrement=True,
         comment="Arbitrary primary key",
     )
 
-    schedule_id = Column(
-        "schedule_id",
-        Integer,
+    schedule_id: Mapped[int] = mapped_column(
         ForeignKey(TaskSchedule.id),
-        nullable=False,
         comment="FK to {}.{}".format(
             TaskSchedule.__tablename__, TaskSchedule.id.name
         ),
     )
 
-    task_table_name = Column(
-        "task_table_name",
+    task_table_name: Mapped[Optional[str]] = mapped_column(
         TableNameColType,
         index=True,
         comment="Table name of the task's base table",
     )
 
-    due_from = Column(
-        "due_from",
+    due_from: Mapped[Optional[Duration]] = mapped_column(
         PendulumDurationAsIsoTextColType,
         comment=(
             "Relative time from the start date by which the task may be "
             "started"
         ),
-    )  # type: Optional[Duration]
+    )
 
-    due_by = Column(
-        "due_by",
+    due_by: Mapped[Optional[Duration]] = mapped_column(
         PendulumDurationAsIsoTextColType,
         comment=(
             "Relative time from the start date by which the task must be "
             "completed"
         ),
-    )  # type: Optional[Duration]
+    )
 
-    task_schedule = relationship("TaskSchedule", back_populates="items")
+    task_schedule = relationship(
+        "TaskSchedule", back_populates="items", cascade_backrefs=False
+    )
 
     @property
     def task_shortname(self) -> str:
@@ -542,7 +519,7 @@ class TaskScheduleItem(Base):
             # Should not be possible if created through the form
             due_days = "?"
         else:
-            due_days = self.due_from.in_days()
+            due_days = str(self.due_from.in_days())
 
         return _("{task_name} @ {due_days} days").format(
             task_name=self.task_shortname, due_days=due_days
@@ -554,7 +531,7 @@ class TaskScheduleEmailTemplateFormatter(SafeFormatter):
     Safe template formatter for task schedule e-mails.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             [
                 "access_key",

@@ -27,15 +27,16 @@ camcops_server/tasks/srs.py
 
 """
 
-from typing import List
+import datetime
+from typing import List, Optional
 
-from sqlalchemy.sql.sqltypes import Date, Float, Integer
+from sqlalchemy.orm import Mapped
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    mapped_camcops_column,
     ZERO_TO_10_CHECKER,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -47,7 +48,7 @@ from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 # =============================================================================
 
 
-class Srs(TaskHasPatientMixin, Task):
+class Srs(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the SRS task.
     """
@@ -62,29 +63,25 @@ class Srs(TaskHasPatientMixin, Task):
     VAS_MIN_INT = 0
     VAS_MAX_INT = 10
 
-    q_session = CamcopsColumn("q_session", Integer, comment="Session number")
-    q_date = CamcopsColumn("q_date", Date, comment="Session date")
-    q_relationship = CamcopsColumn(
-        "q_relationship",
-        Float,
+    q_session: Mapped[Optional[int]] = mapped_camcops_column(
+        comment="Session number"
+    )
+    q_date: Mapped[Optional[datetime.date]] = mapped_camcops_column(
+        comment="Session date"
+    )
+    q_relationship: Mapped[Optional[float]] = mapped_camcops_column(
         comment="Rating of patient-therapist relationship (0-10, 10 better)",
         permitted_value_checker=ZERO_TO_10_CHECKER,
     )
-    q_goals = CamcopsColumn(
-        "q_goals",
-        Float,
+    q_goals: Mapped[Optional[float]] = mapped_camcops_column(
         comment="Rating for topics discussed (0-10, 10 better)",
         permitted_value_checker=ZERO_TO_10_CHECKER,
     )
-    q_approach = CamcopsColumn(
-        "q_approach",
-        Float,
+    q_approach: Mapped[Optional[float]] = mapped_camcops_column(
         comment="Rating for therapist's approach (0-10, 10 better)",
         permitted_value_checker=ZERO_TO_10_CHECKER,
     )
-    q_overall = CamcopsColumn(
-        "q_overall",
-        Float,
+    q_overall: Mapped[Optional[float]] = mapped_camcops_column(
         comment="Overall rating (0-10, 10 better)",
         permitted_value_checker=ZERO_TO_10_CHECKER,
     )

@@ -12,12 +12,12 @@ on:
             - 'server/camcops_server/**'
 jobs:
       migration-check:
-          runs-on: ubuntu-20.04
+          runs-on: ubuntu-22.04
           steps:
             - uses: actions/checkout@v4
             - uses: actions/setup-python@v5
               with:
-                  python-version: 3.9
+                  python-version: "3.10"
             - name: Missing migration check
               run: |
                   set -eux -o pipefail
@@ -26,6 +26,7 @@ jobs:
                   source ${HOME}/venv/bin/activate
                   python -m pip install pymysql
                   export CAMCOPS_CONFIG_FILE="${HOME}/camcops.cfg"
+                  export SQLALCHEMY_WARN_20=1
                   ${GITHUB_WORKSPACE}/.github/scripts/create_config_file.sh
                   camcops_server upgrade_db --config ${CAMCOPS_CONFIG_FILE}
                   python ${GITHUB_WORKSPACE}/server/tools/create_database_migration.py test

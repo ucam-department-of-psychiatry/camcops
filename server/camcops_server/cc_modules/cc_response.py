@@ -27,7 +27,7 @@ camcops_server/cc_modules/cc_response.py
 
 """
 
-from typing import TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 from pyramid.response import Response
 
@@ -51,7 +51,9 @@ class CamcopsResponse(Response):
     headers, rather than using additional middleware.
     """
 
-    def __init__(self, camcops_request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(
+        self, camcops_request: "CamcopsRequest", **kwargs: Any
+    ) -> None:
         super().__init__(**kwargs)
         nonce = camcops_request.nonce
         self.headers.update(

@@ -194,7 +194,9 @@ def all_extra_strings_as_dicts(
     r"""
     Returns strings from the all the extra XML string files.
 
-    The result is cached (via a proper cache).
+    The result is cached (via a proper cache). We reload the config file, which
+    is suboptimal, but that's because a filename is a sensibly cacheable
+    argument, unlike a config object.
 
     Args:
         config_filename: a CamCOPS config filename

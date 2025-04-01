@@ -128,8 +128,8 @@ class ExtendedTestCase(TestCase):
 @pytest.mark.usefixtures("setup")
 class DemoRequestTestCase(ExtendedTestCase):
     """
-    Test case that creates a demo Pyramid request that refers to a bare
-    in-memory SQLite database.
+    Test case that creates a demo Pyramid request that refers to a database.
+    See server/camcops_server/conftest.py
     """
 
     dbsession: "Session"
@@ -158,7 +158,7 @@ class DemoRequestTestCase(ExtendedTestCase):
         self.recipdef = ExportRecipient()
 
     def tearDown(self) -> None:
-        CamcopsRequest.config = self.old_config
+        CamcopsRequest.config = self.old_config  # type: ignore[method-assign]
 
     def set_echo(self, echo: bool) -> None:
         """
@@ -206,7 +206,7 @@ class DemoRequestTestCase(ExtendedTestCase):
         sql = f"SELECT {columns} FROM {tablename}"
         cursor.execute(sql)
         # noinspection PyTypeChecker
-        fieldnames = get_fieldnames_from_cursor(cursor)
+        fieldnames = get_fieldnames_from_cursor(cursor)  # type: ignore[arg-type]  # noqa: E501
         results = (
             ",".join(fieldnames)
             + "\n"
@@ -271,19 +271,21 @@ class DemoDatabaseTestCase(BasicDatabaseTestCase):
             factory_class = getattr(task_factories, f"{cls.__name__}Factory")
 
             t1_kwargs: Dict[str, Any] = dict(_group=self.demo_database_group)
-            t2_kwargs = t1_kwargs
+            t2_kwargs = t1_kwargs.copy()
             if issubclass(cls, TaskHasPatientMixin):
                 t1_kwargs.update(patient=patient_with_two_idnums)
                 t2_kwargs.update(patient=patient_with_one_idnum)
 
             if cls.__name__ == "Photo":
-                t1_kwargs.update(
+                blobargs = dict(
                     create_blob__fieldname="photo_blobid",
                     create_blob__filename="some_picture.png",
                     create_blob__mimetype=MimeType.PNG,
                     create_blob__image_rotation_deg_cw=0,
                     create_blob__theblob=DEMO_PNG_BYTES,
                 )
+                t1_kwargs.update(blobargs)
+                t2_kwargs.update(blobargs)
 
             factory_class(**t1_kwargs)
             factory_class(**t2_kwargs)

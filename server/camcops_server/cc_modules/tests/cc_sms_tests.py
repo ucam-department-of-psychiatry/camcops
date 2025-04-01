@@ -26,7 +26,7 @@ camcops_server/cc_modules/tests/cc_sms_tests.py
 """
 
 import logging
-from typing import cast
+from typing import cast, Dict, Any
 from unittest import mock, TestCase
 
 from camcops_server.cc_modules.cc_constants import SmsBackendNames
@@ -111,7 +111,7 @@ class TwilioSmsBackendTests(TestCase):
 class ConsoleSmsBackendTests(TestCase):
     def test_sends_sms(self) -> None:
 
-        config = {}
+        config: Dict[str, Any] = {}
 
         backend = get_sms_backend(SmsBackendNames.CONSOLE, config)
 

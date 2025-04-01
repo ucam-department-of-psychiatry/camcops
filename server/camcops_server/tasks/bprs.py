@@ -25,10 +25,9 @@ camcops_server/tasks/bprs.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, cast, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -53,14 +52,23 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class BprsMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Bprs"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Bprs(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
+):
+    """
+    Server implementation of the BPRS task.
+    """
+
+    __tablename__ = "bprs"
+    shortname = "BPRS"
+    provides_trackers = True
+
+    NQUESTIONS = 20
+
+    @classmethod
+    def extend_columns(cls: Type["Bprs"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -92,21 +100,7 @@ class BprsMetaclass(DeclarativeMeta):
                 "global improvement",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Bprs(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=BprsMetaclass
-):
-    """
-    Server implementation of the BPRS task.
-    """
-
-    __tablename__ = "bprs"
-    shortname = "BPRS"
-    provides_trackers = True
-
-    NQUESTIONS = 20
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     SCORED_FIELDS = [x for x in TASK_FIELDS if (x != "q19" and x != "q20")]
     MAX_SCORE = 126
@@ -154,7 +148,9 @@ class Bprs(
         )
 
     def total_score(self) -> int:
-        return self.sum_fields(Bprs.SCORED_FIELDS, ignorevalues=[0, None])
+        return cast(
+            int, self.sum_fields(Bprs.SCORED_FIELDS, ignorevalues=[0, None])
+        )
         # "0" means "not rated"
 
     # noinspection PyUnresolvedReferences
@@ -199,10 +195,10 @@ class Bprs(
                 get_from_dict(main_dict, getattr(self, "q" + str(i))),
             )
         q_a += tr_qa(
-            self.wxstring(req, "q19_title"), get_from_dict(q19_dict, self.q19)
+            self.wxstring(req, "q19_title"), get_from_dict(q19_dict, self.q19)  # type: ignore[attr-defined]  # noqa: E501
         )
         q_a += tr_qa(
-            self.wxstring(req, "q20_title"), get_from_dict(q20_dict, self.q20)
+            self.wxstring(req, "q20_title"), get_from_dict(q20_dict, self.q20)  # type: ignore[attr-defined]  # noqa: E501
         )
 
         total_score = tr(

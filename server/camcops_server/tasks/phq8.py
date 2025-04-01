@@ -26,10 +26,9 @@ camcops_server/tasks/phq8.py
 """
 
 import logging
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, cast, Dict, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -66,14 +65,23 @@ log = logging.getLogger(__name__)
 # =============================================================================
 
 
-class Phq8Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Phq8"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Phq8(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the Phq8 task.
+    """
+
+    __tablename__ = "phq8"
+    shortname = "PHQ-8"
+    provides_trackers = True
+
+    N_QUESTIONS = 8
+    MAX_SCORE = 3 * N_QUESTIONS
+
+    @classmethod
+    def extend_columns(cls: Type["Phq8"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -93,20 +101,7 @@ class Phq8Metaclass(DeclarativeMeta):
                 "psychomotor",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Phq8(TaskHasPatientMixin, Task, metaclass=Phq8Metaclass):
-    """
-    Server implementation of the Phq8 task.
-    """
-
-    __tablename__ = "phq8"
-    shortname = "PHQ-8"
-    provides_trackers = True
-
-    N_QUESTIONS = 8
-    MAX_SCORE = 3 * N_QUESTIONS
     QUESTIONS = strseq("q", 1, N_QUESTIONS)
 
     @staticmethod
@@ -208,7 +203,7 @@ class Phq8(TaskHasPatientMixin, Task, metaclass=Phq8Metaclass):
         ]
 
     def total_score(self) -> int:
-        return self.sum_fields(self.QUESTIONS)
+        return cast(int, self.sum_fields(self.QUESTIONS))
 
     def reaches_threshold(self, qnum: int) -> int:
         # Checks if a symptom scores >=2, meaning "more than half the days".

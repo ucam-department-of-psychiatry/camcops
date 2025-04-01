@@ -27,10 +27,9 @@ camcops_server/tasks/epds.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, cast, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -56,24 +55,20 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class EpdsMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Epds"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
-        add_multiple_columns(cls, "q", 1, cls.NQUESTIONS)
-        super().__init__(name, bases, classdict)
-
-
-class Epds(TaskHasPatientMixin, Task, metaclass=EpdsMetaclass):
+class Epds(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
     __tablename__ = "epds"
     shortname = "EPDS"
     provides_trackers = True
 
     NQUESTIONS = 10
+
+    @classmethod
+    def extend_columns(cls: Type["Epds"], **kwargs: Any) -> None:
+        add_multiple_columns(cls, "q", 1, cls.NQUESTIONS)
+
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_TOTAL = 30
     CUTOFF_1_GREATER_OR_EQUAL = 10  # Cox et al. 1987, PubMed ID 3651732.
@@ -127,7 +122,7 @@ class Epds(TaskHasPatientMixin, Task, metaclass=EpdsMetaclass):
         return self.all_fields_not_none(self.TASK_FIELDS)
 
     def total_score(self) -> int:
-        return self.sum_fields(self.TASK_FIELDS)
+        return cast(int, self.sum_fields(self.TASK_FIELDS))
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
@@ -135,7 +130,7 @@ class Epds(TaskHasPatientMixin, Task, metaclass=EpdsMetaclass):
         above_cutoff_2 = score >= 13
         answer_dicts = []
         for q in range(1, self.NQUESTIONS + 1):
-            d = {None: "?"}
+            d: dict[Optional[int], Optional[str]] = {None: "?"}
             for option in range(0, 4):
                 d[option] = (
                     str(option)

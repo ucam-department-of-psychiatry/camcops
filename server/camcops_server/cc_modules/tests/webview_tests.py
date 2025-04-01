@@ -32,6 +32,7 @@ import time
 from typing import cast
 import unittest
 from unittest import mock
+from urllib.parse import urlparse
 
 from cardinal_pythonlib.classes import class_attribute_names
 from cardinal_pythonlib.httpconst import MimeType
@@ -66,6 +67,7 @@ from camcops_server.cc_modules.cc_taskschedule import (
 )
 from camcops_server.cc_modules.cc_testfactories import (
     AnyIdNumGroupFactory,
+    DeviceFactory,
     Fake,
     GroupFactory,
     NHSIdNumDefinitionFactory,
@@ -127,6 +129,7 @@ from camcops_server.cc_modules.webview import (
     EditUserGroupAdminView,
     EraseTaskEntirelyView,
     EraseTaskLeavingPlaceholderView,
+    forcibly_finalize,
     LoginView,
     MfaMixin,
     SendEmailFromPatientTaskScheduleView,
@@ -1373,7 +1376,7 @@ class AddPatientViewTests(BasicDatabaseTestCase):
         )
 
     def test_patient_takes_next_available_id(self) -> None:
-        patient = ServerCreatedPatientFactory(id=1234)
+        ServerCreatedPatientFactory(id=1234)
         nhs_iddef = NHSIdNumDefinitionFactory()
 
         view = AddPatientView(self.req)
@@ -3204,7 +3207,10 @@ class EditUserViewTests(BasicDatabaseTestCase):
             with self.assertRaises(HTTPFound):
                 edit_user(self.req)
 
-        mock_set_group_ids.assert_called_once_with([group_a.id, group_b.id])
+        [actual_group_ids] = mock_set_group_ids.call_args[0]
+        self.assertEqual(
+            sorted(actual_group_ids), sorted([group_a.id, group_b.id])
+        )
 
     def test_upload_group_id_unset_when_membership_removed(self) -> None:
         group_a = GroupFactory()
@@ -4586,3 +4592,95 @@ class AddUserTests(DemoRequestTestCase):
         self.assertTrue(user.must_change_password)
         self.assertIn(group_1.id, user.group_ids)
         self.assertIn(group_2.id, user.group_ids)
+
+
+class ForciblyFinalizeTests(BasicDatabaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.req._debugging_user = self.groupadmin
+
+    def test_cancel_returns_to_home(self) -> None:
+        multidict = MultiDict([(FormAction.CANCEL, "cancel")])
+        self.req.fake_request_post_from_dict(multidict)
+
+        exc = forcibly_finalize(self.req)
+        self.assertIsInstance(exc, HTTPFound)
+        self.assertEqual(exc.status_code, 302)
+        self.assertEqual(urlparse(exc.headers["Location"]).path, "/")
+
+    def test_renders_first_form_on_get(self) -> None:
+        mock_render = mock.Mock()
+        with mock.patch.multiple(
+            "camcops_server.cc_modules.webview", render_to_response=mock_render
+        ):
+            forcibly_finalize(self.req)
+
+        args, kwargs = mock_render.call_args
+        context = args[1]
+
+        self.assertIn("form", context)
+        self.assertIn("<select", context["form"])
+
+    def test_renders_confirm_form_on_submit(self) -> None:
+        device = DeviceFactory()
+
+        multidict = MultiDict(
+            [
+                ("_charset_", UTF8),
+                ("__formid__", "deform"),
+                (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+                (ViewParam.DEVICE_ID, device.id),
+                ("__start__", "danger:mapping"),
+                ("target", "7176"),
+                ("user_entry", "7176"),
+                ("__end__", "danger:mapping"),
+                (FormAction.SUBMIT, "submit"),
+            ]
+        )
+        self.req.fake_request_post_from_dict(multidict)
+
+        mock_render = mock.Mock()
+        with mock.patch.multiple(
+            "camcops_server.cc_modules.webview", render_to_response=mock_render
+        ):
+            forcibly_finalize(self.req)
+
+        args, kwargs = mock_render.call_args
+        context = args[1]
+
+        self.assertIn("form", context)
+        self.assertIn("Forcibly finalize", context["form"])
+
+    def test_finalizes_on_submit(self) -> None:
+        device = DeviceFactory()
+        patient = PatientFactory(_device=device, _group=self.group)
+        bmis = BmiFactory.create_batch(3, patient=patient, _era=ERA_NOW)
+
+        multidict = MultiDict(
+            [
+                ("_charset_", UTF8),
+                ("__formid__", "deform"),
+                (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+                (ViewParam.DEVICE_ID, device.id),
+                ("confirm_1_t", "true"),
+                ("confirm_2_t", "true"),
+                ("confirm_4_t", "true"),
+                ("__start__", "danger:mapping"),
+                ("target", "7176"),
+                ("user_entry", "7176"),
+                ("__end__", "danger:mapping"),
+                (FormAction.FINALIZE, "Forcibly finalize"),
+            ]
+        )
+        self.req.fake_request_post_from_dict(multidict)
+
+        with self.assertRaises(HTTPFound) as cm:
+            forcibly_finalize(self.req)
+
+        self.assertEqual(cm.exception.status_code, 302)
+        self.assertEqual(urlparse(cm.exception.headers["Location"]).path, "/")
+
+        for bmi in bmis:
+            self.assertEqual(bmi._preserving_user_id, self.groupadmin.id)
+            self.assertTrue(bmi._forcibly_preserved)

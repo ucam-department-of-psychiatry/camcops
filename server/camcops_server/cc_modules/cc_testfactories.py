@@ -27,7 +27,7 @@ camcops_server/cc_modules/cc_testfactories.py
 
 """
 
-from typing import cast, Optional, TYPE_CHECKING
+from typing import Any, cast, Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.datetimefunc import (
     convert_datetime_to_utc,
@@ -40,13 +40,16 @@ import pendulum
 from camcops_server.cc_modules.cc_blob import Blob
 from camcops_server.cc_modules.cc_constants import DateFormat, ERA_NOW
 from camcops_server.cc_modules.cc_device import Device
+from camcops_server.cc_modules.cc_dirtytables import DirtyTable
 from camcops_server.cc_modules.cc_email import Email
+from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
 from camcops_server.cc_modules.cc_ipuse import IpUse
 from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+from camcops_server.cc_modules.cc_specialnote import SpecialNote
 from camcops_server.cc_modules.cc_testproviders import register_all_providers
 from camcops_server.cc_modules.cc_taskschedule import (
     PatientTaskSchedule,
@@ -133,7 +136,7 @@ class UserFactory(BaseFactory):
         create: bool,
         password: Optional[str],
         request: "CamcopsRequest" = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         if not create:
             return
@@ -169,17 +172,22 @@ class GenericTabletRecordFactory(BaseFactory):
     @factory.lazy_attribute
     def _when_added_batch_utc(obj: "Resolver") -> pendulum.DateTime:
         era_time = pendulum.parse(obj.default_iso_datetime)
-        return convert_datetime_to_utc(era_time)
+        return convert_datetime_to_utc(era_time)  # type: ignore[arg-type]
 
     @factory.lazy_attribute
     def _era(obj: "Resolver") -> str:
         era_time = pendulum.parse(obj.default_iso_datetime)
-        return format_datetime(era_time, DateFormat.ISO8601)
+        return format_datetime(era_time, DateFormat.ISO8601)  # type: ignore[arg-type]  # noqa: E501
 
     @factory.lazy_attribute
     def _current(obj: "Resolver") -> bool:
         # _current = True gets ignored for some reason
         return True
+
+    @factory.lazy_attribute
+    def when_last_modified(obj: "Resolver") -> str:
+        era_time = pendulum.parse(obj.default_iso_datetime)
+        return format_datetime(era_time, DateFormat.ISO8601)  # type: ignore[arg-type]  # noqa: E501
 
 
 class PatientFactory(GenericTabletRecordFactory):
@@ -226,6 +234,7 @@ class NHSIdNumDefinitionFactory(IdNumDefinitionFactory):
     short_description = "NHS#"
     hl7_assigning_authority = "NHS"
     hl7_id_type = "NHSN"
+    validation_method = "uk_nhs_number"
 
 
 class StudyIdNumDefinitionFactory(IdNumDefinitionFactory):
@@ -253,31 +262,31 @@ class PatientIdNumFactory(GenericTabletRecordFactory):
 
 class NHSPatientIdNumFactory(PatientIdNumFactory):
     class Meta:
-        exclude = PatientIdNumFactory._meta.exclude + ("idnum",)
+        exclude = PatientIdNumFactory._meta.exclude + ("iddef",)
 
-    idnum = factory.SubFactory(NHSIdNumDefinitionFactory)
+    iddef = factory.SubFactory(NHSIdNumDefinitionFactory)
 
-    which_idnum = factory.SelfAttribute("idnum.which_idnum")
+    which_idnum = factory.SelfAttribute("iddef.which_idnum")
     idnum_value = factory.LazyFunction(Fake.en_gb.nhs_number)
 
 
 class RioPatientIdNumFactory(PatientIdNumFactory):
     class Meta:
-        exclude = PatientIdNumFactory._meta.exclude + ("idnum",)
+        exclude = PatientIdNumFactory._meta.exclude + ("iddef",)
 
-    idnum = factory.SubFactory(RioIdNumDefinitionFactory)
+    iddef = factory.SubFactory(RioIdNumDefinitionFactory)
 
-    which_idnum = factory.SelfAttribute("idnum.which_idnum")
+    which_idnum = factory.SelfAttribute("iddef.which_idnum")
     idnum_value = factory.Sequence(lambda n: n + RIO_ID_OFFSET)
 
 
 class StudyPatientIdNumFactory(PatientIdNumFactory):
     class Meta:
-        exclude = PatientIdNumFactory._meta.exclude + ("idnum",)
+        exclude = PatientIdNumFactory._meta.exclude + ("iddef",)
 
-    idnum = factory.SubFactory(StudyIdNumDefinitionFactory)
+    iddef = factory.SubFactory(StudyIdNumDefinitionFactory)
 
-    which_idnum = factory.SelfAttribute("idnum.which_idnum")
+    which_idnum = factory.SelfAttribute("iddef.which_idnum")
     idnum_value = factory.Sequence(lambda n: n + STUDY_ID_OFFSET)
 
 
@@ -366,7 +375,7 @@ class EmailFactory(BaseFactory):
     # be a SQLite thing.
     @factory.post_generation
     def sent_at_utc(
-        obj: Email, create: bool, sent_at_utc: pendulum.DateTime, **kwargs
+        obj: Email, create: bool, sent_at_utc: pendulum.DateTime, **kwargs: Any
     ) -> None:
         if not create:
             return
@@ -374,7 +383,7 @@ class EmailFactory(BaseFactory):
         obj.sent_at_utc = sent_at_utc
 
     @factory.post_generation
-    def sent(obj: Email, create: bool, sent: bool, **kwargs) -> None:
+    def sent(obj: Email, create: bool, sent: bool, **kwargs: Any) -> None:
         if not create:
             return
 
@@ -401,3 +410,45 @@ class BlobFactory(GenericTabletRecordFactory):
         model = Blob
 
     id = factory.Sequence(lambda n: n + ID_OFFSET)
+
+
+class DirtyTableFactory(BaseFactory):
+    class Meta:
+        model = DirtyTable
+
+
+class SpecialNoteFactory(BaseFactory):
+    class Meta:
+        model = SpecialNote
+
+    @classmethod
+    def create(cls, *args: Any, **kwargs: Any) -> SpecialNote:
+        task = kwargs.pop("task", None)
+        if task is not None:
+            if "task_id" in kwargs:
+                raise TypeError(
+                    "Both 'task' and 'task_id' keyword arguments "
+                    f"unexpectedly passed to {cls.__name__}. Use one or the "
+                    "other."
+                )
+            kwargs["task_id"] = task.id
+
+            if "basetable" not in kwargs:
+                kwargs["basetable"] = task.__tablename__
+            if "device_id" not in kwargs:
+                kwargs["device_id"] = task._device.id
+            if "era" not in kwargs:
+                kwargs["era"] = task._era
+
+        return super().create(*args, **kwargs)
+
+
+class ExportRecipientFactory(BaseFactory):
+    class Meta:
+        exclude = ("iddef",)
+        model = ExportRecipient
+
+    id = factory.Sequence(lambda n: n + ID_OFFSET)
+
+    iddef = factory.SubFactory(IdNumDefinitionFactory)
+    primary_idnum = factory.SelfAttribute("iddef.which_idnum")

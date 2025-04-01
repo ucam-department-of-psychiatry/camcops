@@ -60,7 +60,6 @@ from camcops_server.cc_modules.cc_patientidnum import (
     EXTRA_IDNUM_FIELD_PREFIX,
 )
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
-from camcops_server.cc_modules.cc_sqla_coltypes import CamcopsColumn
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_exportrecipientinfo import (
@@ -83,7 +82,7 @@ MIN_STRING_LENGTH_TO_CONSIDER_SCRUBBING = 256
 
 def _gen_columns_for_anon_staging_db(
     req: "CamcopsRequest", recipient: "ExportRecipientInfo"
-) -> Generator[Union[Column, CamcopsColumn], None, None]:
+) -> Generator[Column, None, None]:
     """
     Generates all columns for an anonymisation staging database.
     """
@@ -91,10 +90,10 @@ def _gen_columns_for_anon_staging_db(
     engine = create_engine(url, echo=False)
     session = sessionmaker(bind=engine)()  # type: SqlASession
     export_options = TaskExportOptions(
-        include_blobs=recipient.db_include_blobs,
-        db_patient_id_per_row=recipient.db_patient_id_per_row,
+        include_blobs=recipient.db_include_blobs,  # type: ignore[arg-type]
+        db_patient_id_per_row=recipient.db_patient_id_per_row,  # type: ignore[arg-type]  # noqa: E501
         db_make_all_tables_even_empty=True,
-        db_include_summaries=recipient.db_add_summaries,
+        db_include_summaries=recipient.db_add_summaries,  # type: ignore[arg-type]  # noqa: E501
     )
 
     dc = DumpController(
@@ -130,7 +129,7 @@ def _get_type_size_as_text_from_sqltype(sqltype: str) -> Tuple[str, str]:
 
 # noinspection PyUnusedLocal
 def _get_cris_dd_row(
-    column: Union[Column, CamcopsColumn, None],
+    column: Union[Column, None],
     recipient: "ExportRecipientInfo",
     dest_dialect: Dialect = None,
 ) -> Dict:
@@ -171,13 +170,15 @@ def _get_cris_dd_row(
         exempt_from_anonymisation = False
         identifies_patient = False
 
-        if isinstance(column, CamcopsColumn):
-            exempt_from_anonymisation = column.exempt_from_anonymisation
-            identifies_patient = column.identifies_patient
-            if column.permitted_value_checker:
-                valid_values = (
-                    column.permitted_value_checker.permitted_values_csv()
-                )
+        if column.info.get("is_camcops_column", False):
+            exempt_from_anonymisation = column.info[
+                "exempt_from_anonymisation"
+            ]
+            identifies_patient = column.info["identifies_patient"]
+            if column.info["permitted_value_checker"]:
+                valid_values = column.info[
+                    "permitted_value_checker"
+                ].permitted_values_csv()
 
         needs_scrubbing = is_free_text and not exempt_from_anonymisation
 
@@ -297,7 +298,7 @@ def write_cris_data_dictionary(
 
 
 def _get_crate_dd_row(
-    column: Union[Column, CamcopsColumn, None],
+    column: Union[Column, None],
     recipient: "ExportRecipientInfo",
     dest_dialect: Dialect = None,
     src_db: str = "camcops",
@@ -344,10 +345,12 @@ def _get_crate_dd_row(
             coltype, min_length=MIN_STRING_LENGTH_TO_CONSIDER_SCRUBBING
         )
 
-        if isinstance(column, CamcopsColumn):
-            exempt_from_anonymisation = column.exempt_from_anonymisation
-            identifies_patient = column.identifies_patient
-            force_include = column.include_in_anon_staging_db
+        if column.info.get("is_camcops_column", False):
+            exempt_from_anonymisation = column.info[
+                "exempt_from_anonymisation"
+            ]
+            identifies_patient = column.info["identifies_patient"]
+            force_include = column.info["include_in_anon_staging_db"]
 
         needs_scrubbing = is_free_text and not exempt_from_anonymisation
         desttype = convert_sqla_type_for_dialect(
@@ -366,7 +369,7 @@ def _get_crate_dd_row(
     primary_pid = (
         recipient.db_patient_id_per_row
         and recipient.primary_idnum  # otherwise just in PatientIdNum
-        and colname == extra_id_colname(recipient.primary_idnum)
+        and colname == extra_id_colname(recipient.primary_idnum)  # type: ignore[arg-type]  # noqa: E501
     )
     if primary_pid:
         src_flags.append("P")

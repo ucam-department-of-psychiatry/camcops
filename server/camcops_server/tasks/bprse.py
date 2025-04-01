@@ -25,10 +25,9 @@ camcops_server/tasks/bprse.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, cast, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -52,14 +51,23 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class BprseMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Bprse"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Bprse(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
+):
+    """
+    Server implementation of the BPRS-E task.
+    """
+
+    __tablename__ = "bprse"
+    shortname = "BPRS-E"
+    provides_trackers = True
+
+    NQUESTIONS = 24
+
+    @classmethod
+    def extend_columns(cls: Type["Bprse"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -95,21 +103,7 @@ class BprseMetaclass(DeclarativeMeta):
                 "mannerisms and posturing",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Bprse(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=BprseMetaclass
-):
-    """
-    Server implementation of the BPRS-E task.
-    """
-
-    __tablename__ = "bprse"
-    shortname = "BPRS-E"
-    provides_trackers = True
-
-    NQUESTIONS = 24
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 168
 
@@ -156,7 +150,7 @@ class Bprse(
         )
 
     def total_score(self) -> int:
-        return self.sum_fields(self.TASK_FIELDS)
+        return cast(int, self.sum_fields(self.TASK_FIELDS))
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         def bprs_string(x: str) -> str:

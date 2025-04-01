@@ -27,6 +27,7 @@ camcops_server/cc_modules/cc_patient.py
 
 """
 
+import datetime
 import logging
 from typing import (
     Any,
@@ -39,7 +40,7 @@ from typing import (
     TYPE_CHECKING,
     Union,
 )
-import uuid
+import uuid as python_uuid
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.datetimefunc import (
@@ -60,14 +61,12 @@ from fhirclient.models.patient import Patient as FhirPatient
 import hl7
 import pendulum
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.expression import and_, ClauseElement, select
-from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.selectable import SelectBase
-from sqlalchemy.sql import sqltypes
-from sqlalchemy.sql.sqltypes import Integer, UnicodeText
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_audit import audit
 from camcops_server.cc_modules.cc_constants import (
@@ -83,11 +82,7 @@ from camcops_server.cc_modules.cc_constants import (
     SPREADSHEET_PATIENT_FIELD_PREFIX,
 )
 from camcops_server.cc_modules.cc_dataclasses import SummarySchemaInfo
-from camcops_server.cc_modules.cc_db import (
-    GenericTabletRecordMixin,
-    PFN_UUID,
-    TABLET_ID_FIELD,
-)
+from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
 from camcops_server.cc_modules.cc_fhir import (
     fhir_pk_identifier,
     make_fhir_bundle_entry,
@@ -111,8 +106,8 @@ from camcops_server.cc_modules.cc_simpleobjects import (
 )
 from camcops_server.cc_modules.cc_specialnote import SpecialNote
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
     EmailAddressColType,
+    mapped_camcops_column,
     PatientNameColType,
     SexColType,
     UuidColType,
@@ -126,6 +121,8 @@ from camcops_server.cc_modules.cc_xml import (
 )
 
 if TYPE_CHECKING:
+    from sqlalchemy.sql.elements import ColumnElement
+
     from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
     from camcops_server.cc_modules.cc_group import Group
     from camcops_server.cc_modules.cc_policy import TokenizedPolicy
@@ -148,70 +145,59 @@ class Patient(GenericTabletRecordMixin, Base):
 
     __tablename__ = "patient"
 
-    id = Column(
-        TABLET_ID_FIELD,
-        Integer,
-        nullable=False,
+    id: Mapped[int] = mapped_column(
         comment="Primary key (patient ID) on the source tablet device",
         # client PK
     )
-    uuid = CamcopsColumn(
-        PFN_UUID,
+    uuid: Mapped[Optional[python_uuid.UUID]] = mapped_camcops_column(
         UuidColType,
         comment="UUID",
-        default=uuid.uuid4,  # generates a random UUID
-    )  # type: Optional[uuid.UUID]
-    forename = CamcopsColumn(
-        "forename",
+        default=python_uuid.uuid4,  # generates a random UUID
+    )
+    forename: Mapped[Optional[str]] = mapped_camcops_column(
         PatientNameColType,
         index=True,
         identifies_patient=True,
         include_in_anon_staging_db=True,
         comment="Forename",
-    )  # type: Optional[str]
-    surname = CamcopsColumn(
-        "surname",
+    )
+    surname: Mapped[Optional[str]] = mapped_camcops_column(
         PatientNameColType,
         index=True,
         identifies_patient=True,
         include_in_anon_staging_db=True,
         comment="Surname",
-    )  # type: Optional[str]
-    dob = CamcopsColumn(
-        "dob",
-        sqltypes.Date,  # verified: merge_db handles this correctly
+    )
+    dob: Mapped[Optional[datetime.date]] = mapped_camcops_column(
         index=True,
         identifies_patient=True,
         include_in_anon_staging_db=True,
         comment="Date of birth",
         # ... e.g. "2013-02-04"
     )
-    sex = CamcopsColumn(
-        "sex",
+    sex: Mapped[Optional[str]] = mapped_camcops_column(
         SexColType,
         index=True,
         include_in_anon_staging_db=True,
         comment="Sex (M, F, X)",
     )
-    address = CamcopsColumn(
-        "address", UnicodeText, identifies_patient=True, comment="Address"
+    address: Mapped[Optional[str]] = mapped_camcops_column(
+        UnicodeText, identifies_patient=True, comment="Address"
     )
-    email = CamcopsColumn(
-        "email",
+    email: Mapped[Optional[str]] = mapped_camcops_column(
         EmailAddressColType,
         identifies_patient=True,
         comment="Patient's e-mail address",
     )
-    gp = CamcopsColumn(
-        "gp",
+    gp: Mapped[Optional[str]] = mapped_camcops_column(
         UnicodeText,
         identifies_patient=True,
         comment="General practitioner (GP)",
     )
-    other = CamcopsColumn(
-        "other", UnicodeText, identifies_patient=True, comment="Other details"
+    other: Mapped[Optional[str]] = mapped_camcops_column(
+        UnicodeText, identifies_patient=True, comment="Other details"
     )
-    idnums = relationship(
+    idnums = relationship(  # type: ignore[assignment]
         # https://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#relationship-custom-foreign
         # https://docs.sqlalchemy.org/en/latest/orm/relationship_api.html#sqlalchemy.orm.relationship  # noqa
         # https://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#relationship-primaryjoin  # noqa
@@ -236,8 +222,11 @@ class Patient(GenericTabletRecordMixin, Base):
         lazy="subquery",
     )  # type: List[PatientIdNum]
 
-    task_schedules = relationship(
-        "PatientTaskSchedule", back_populates="patient", cascade="all, delete"
+    task_schedules = relationship(  # type: ignore[assignment]
+        "PatientTaskSchedule",
+        back_populates="patient",
+        cascade="all, delete",
+        cascade_backrefs=False,
     )  # type: List[PatientTaskSchedule]
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -278,7 +267,7 @@ class Patient(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     # noinspection PyMethodParameters
-    @declared_attr
+    @declared_attr  # type: ignore[arg-type]
     def special_notes(cls) -> RelationshipProperty:
         """
         Relationship to all :class:`SpecialNote` objects associated with this
@@ -333,7 +322,7 @@ class Patient(GenericTabletRecordMixin, Base):
             return []
         if idnum_value is None:
             return []
-        q = dbsession.query(cls).join(cls.idnums)
+        q = dbsession.query(cls).join(cls.idnums)  # type: ignore[arg-type]
         # ... the join pre-restricts to current ID numbers
         # https://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#using-custom-operators-in-join-conditions  # noqa
         q = q.filter(PatientIdNum.which_idnum == which_idnum)
@@ -433,7 +422,7 @@ class Patient(GenericTabletRecordMixin, Base):
     # Equality
     # -------------------------------------------------------------------------
 
-    def __eq__(self, other: "Patient") -> bool:
+    def __eq__(self, other: object) -> bool:
         """
         Is this patient the same as another?
 
@@ -460,6 +449,16 @@ class Patient(GenericTabletRecordMixin, Base):
         if self is other:
             # log.debug("... same object; equal")
             return True
+
+        if not isinstance(other, Patient):
+            # Since SQLAlchemy 2.0, when lazy-loading from related objects
+            # (e.g. Task.patient) the patient will be compared with
+            # non-patient SQLA internal status codes so we need to cater for
+            # this. It is probably good practice anyway.
+
+            # MyPy does not recognise try... except AttributeError
+            return NotImplemented
+
         # Same device/era/patient ID (client PK)? Test int before str for speed
         if (
             self.id == other.id
@@ -913,7 +912,7 @@ class Patient(GenericTabletRecordMixin, Base):
             forename=self.forename,
             surname=self.surname,
             sex=self.sex,
-            dob=self.dob,
+            dob=self.dob,  # type: ignore[arg-type]
             address=self.address,
             email=self.email,
             gp=self.gp,
@@ -1147,7 +1146,7 @@ class Patient(GenericTabletRecordMixin, Base):
         sn.user_id = req.user_id
         sn.note = note
         req.dbsession.add(sn)
-        self.special_notes.append(sn)
+        self.special_notes.append(sn)  # type: ignore[attr-defined]
         self.audit(req, audit_msg)
         # HL7 deletion of corresponding tasks is done in camcops_server.py
 
@@ -1162,7 +1161,7 @@ class Patient(GenericTabletRecordMixin, Base):
         Generates all :class:`PatientIdNum` objects, including non-current
         ones.
         """
-        for lineage_member in self._gen_unique_lineage_objects(
+        for lineage_member in self._gen_unique_lineage_objects(  # type: ignore[assignment]  # noqa: E501
             self.idnums
         ):  # type: PatientIdNum
             yield lineage_member
@@ -1329,7 +1328,7 @@ class DistinctPatientReport(Report):
 
     # noinspection PyProtectedMember
     def get_query(self, req: "CamcopsRequest") -> SelectBase:
-        select_fields = [
+        select_fields: list[ColumnElement[Any]] = [
             Patient.surname.label("surname"),
             Patient.forename.label("forename"),
             Patient.dob.label("dob"),
@@ -1370,9 +1369,9 @@ class DistinctPatientReport(Report):
             Patient.sex,
         ]
         query = (
-            select(select_fields)
+            select(*select_fields)
             .select_from(select_from)
-            .where(and_(*wheres))
+            .where(and_(*wheres))  # type: ignore[arg-type]
             .order_by(*order_by)
             .distinct()
         )

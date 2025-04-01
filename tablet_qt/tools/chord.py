@@ -64,12 +64,12 @@ def synth_complex(
         None
     """
     if freq_coefs is None:
-        freq_coefs = [(440, 1)]  # type: List[Tuple[float, float]]
+        freq_coefs = [(440, 1)]
     sine_list = []
     datasize = int(frate_hz * duration_s)
     clipped = False
     for x in range(datasize):
-        samp = 0
+        samp: float = 0
         for k in range(len(freq_coefs)):
             freq = freq_coefs[k][0]
             coef = freq_coefs[k][1]

@@ -25,12 +25,11 @@ camcops_server/tasks/wsas.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, cast, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, Integer
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import (
     CssClass,
@@ -56,14 +55,20 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class WsasMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Wsas"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Wsas(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the WSAS task.
+    """
+
+    __tablename__ = "wsas"
+    shortname = "WSAS"
+    provides_trackers = True
+
+    @classmethod
+    def extend_columns(cls: Type["Wsas"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -80,21 +85,8 @@ class WsasMetaclass(DeclarativeMeta):
                 "relationships",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Wsas(TaskHasPatientMixin, Task, metaclass=WsasMetaclass):
-    """
-    Server implementation of the WSAS task.
-    """
-
-    __tablename__ = "wsas"
-    shortname = "WSAS"
-    provides_trackers = True
-
-    retired_etc = Column(
-        "retired_etc",
-        Boolean,
+    retired_etc: Mapped[Optional[bool]] = mapped_column(
         comment="Retired or choose not to have job for reason unrelated "
         "to problem",
     )
@@ -146,8 +138,11 @@ class Wsas(TaskHasPatientMixin, Task, metaclass=WsasMetaclass):
         ]
 
     def total_score(self) -> int:
-        return self.sum_fields(
-            self.Q2_TO_END if self.retired_etc else self.QUESTION_FIELDS
+        return cast(
+            int,
+            self.sum_fields(
+                self.Q2_TO_END if self.retired_etc else self.QUESTION_FIELDS
+            ),
         )
 
     def max_score(self) -> int:
@@ -162,7 +157,7 @@ class Wsas(TaskHasPatientMixin, Task, metaclass=WsasMetaclass):
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        option_dict = {None: None}
+        option_dict: dict[Optional[int], Optional[str]] = {None: None}
         for a in range(self.MIN_PER_Q, self.MAX_PER_Q + 1):
             option_dict[a] = req.wappstring(AS.WSAS_A_PREFIX + str(a))
         q_a = ""
@@ -208,14 +203,14 @@ class Wsas(TaskHasPatientMixin, Task, metaclass=WsasMetaclass):
         if self.is_complete():
             d = {
                 req.snomed(SnomedLookup.WSAS_SCORE): self.total_score(),
-                req.snomed(SnomedLookup.WSAS_HOME_MANAGEMENT_SCORE): self.q2,
-                req.snomed(SnomedLookup.WSAS_SOCIAL_LEISURE_SCORE): self.q3,
-                req.snomed(SnomedLookup.WSAS_PRIVATE_LEISURE_SCORE): self.q4,
-                req.snomed(SnomedLookup.WSAS_RELATIONSHIPS_SCORE): self.q5,
+                req.snomed(SnomedLookup.WSAS_HOME_MANAGEMENT_SCORE): self.q2,  # type: ignore[attr-defined]  # noqa: E501
+                req.snomed(SnomedLookup.WSAS_SOCIAL_LEISURE_SCORE): self.q3,  # type: ignore[attr-defined]  # noqa: E501
+                req.snomed(SnomedLookup.WSAS_PRIVATE_LEISURE_SCORE): self.q4,  # type: ignore[attr-defined]  # noqa: E501
+                req.snomed(SnomedLookup.WSAS_RELATIONSHIPS_SCORE): self.q5,  # type: ignore[attr-defined]  # noqa: E501
             }
             if not self.retired_etc:
-                d[req.snomed(SnomedLookup.WSAS_WORK_SCORE)] = self.q1
+                d[req.snomed(SnomedLookup.WSAS_WORK_SCORE)] = self.q1  # type: ignore[attr-defined]  # noqa: E501
             codes.append(
-                SnomedExpression(req.snomed(SnomedLookup.WSAS_SCALE), d)
+                SnomedExpression(req.snomed(SnomedLookup.WSAS_SCALE), d)  # type: ignore[arg-type]  # noqa: E501
             )
         return codes

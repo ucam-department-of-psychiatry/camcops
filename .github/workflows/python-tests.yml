@@ -16,7 +16,7 @@ jobs:
             matrix:
                 python-version: [3.9, "3.10", 3.11, 3.12]
                 # LTS versions
-                os: [ubuntu-20.04, ubuntu-22.04]
+                os: [ubuntu-22.04]
         runs-on: ${{ matrix.os }}
         steps:
             - uses: actions/checkout@v4
@@ -43,4 +43,4 @@ jobs:
                   ${GITHUB_WORKSPACE}/.github/scripts/create_config_file.sh
                   echo running tests
                   cd server/camcops_server
-                  pytest -v
+                  SQLALCHEMY_WARN_20=1 pytest -v -W error::sqlalchemy.exc.MovedIn20Warning -W error::sqlalchemy.exc.SADeprecationWarning

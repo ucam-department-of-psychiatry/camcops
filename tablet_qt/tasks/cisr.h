@@ -344,6 +344,7 @@ protected:
         void finalize();
         void decide(const QString& decision);
         QString diagnosisName(int diagnosis_code) const;
+        QString caveat() const;
 
         // Symptom scoring
         int depression = 0;  // DEPR in original
@@ -430,8 +431,6 @@ protected:
     QVector<QString> panicSymptomFieldnames() const;
     CisrQuestion nextQ(CisrQuestion q, CisrResult& getResult) const;
     CisrResult getResult() const;
-    QString diagnosisNameLong(int diagnosis_code) const;
-    QString diagnosisReason(int diagnosis_code) const;
     QString suicideIntent(
         const Cisr::CisrResult& result, bool with_warning = true
     ) const;

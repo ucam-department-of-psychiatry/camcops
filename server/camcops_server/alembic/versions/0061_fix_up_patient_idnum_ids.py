@@ -46,7 +46,7 @@ from alembic import op
 from sqlalchemy import orm
 from sqlalchemy.engine.strategies import MockEngineStrategy
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import DeclarativeBaseNoMeta
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column
@@ -68,10 +68,12 @@ branch_labels = None
 depends_on = None
 
 
-Base = declarative_base()
+# not the same metadata as the rest; we redefine
+class Base(DeclarativeBaseNoMeta):
+    pass
 
 
-class PatientIdNum(Base):
+class TmpPatientIdNum(Base):
     __tablename__ = "patient_idnum"
 
     _pk = Column("_pk", Integer, primary_key=True, autoincrement=True)
@@ -94,14 +96,14 @@ class PatientIdNum(Base):
 
 
 # noinspection PyPep8,PyTypeChecker
-def upgrade():
+def upgrade() -> None:
     bind = op.get_bind()
     if isinstance(bind, MockEngineStrategy.MockConnection):
         log.warning("Using mock connection; skipping step")
         return
     session = orm.Session(bind=bind)
 
-    for idnum in session.query(PatientIdNum):
+    for idnum in session.query(TmpPatientIdNum):
         if idnum.id == 0:
             save_with_next_available_id(idnum, session)
 
@@ -109,7 +111,7 @@ def upgrade():
 
 
 # noinspection PyPep8,PyTypeChecker
-def downgrade():
+def downgrade() -> None:
     pass
 
 
@@ -132,16 +134,16 @@ def save_with_next_available_id(obj: Base, dbsession: SqlASession) -> None:
         dbsession
         # func.max(cls.id) + 1 here will do the right thing for
         # backends that support select for update (maybe not for no rows)
-        .query(func.max(cls.id))
-        .filter(cls._device_id == obj._device_id)
-        .filter(cls._era == ERA_NOW)
+        .query(func.max(cls.id))  # type: ignore[attr-defined]
+        .filter(cls._device_id == obj._device_id)  # type: ignore[attr-defined]
+        .filter(cls._era == ERA_NOW)  # type: ignore[attr-defined]
         .scalar()
     ) or 0
 
     next_id = last_id + 1
 
     while not saved_ok:
-        obj.id = next_id
+        obj.id = next_id  # type: ignore[attr-defined]
 
         dbsession.add(obj)
 

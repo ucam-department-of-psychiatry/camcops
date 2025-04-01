@@ -132,7 +132,7 @@ class CamcopsWinService(WindowsService):
 # =============================================================================
 
 
-def main():
+def main() -> None:
     """
     Command-line entry point.
     """

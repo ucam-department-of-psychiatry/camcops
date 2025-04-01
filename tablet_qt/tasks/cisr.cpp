@@ -66,58 +66,10 @@ LABEL_B1
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ===============================================================================
-IMPLEMENTATION: EARLY THOUGHTS -- NOT USED
+IMPLEMENTATION
 ===============================================================================
 
-We could in principle do this with a Questionnaire interface, but to be honest
-it's going to be easiest to translate with a "direct" interface. Maybe
-something like:
-
-
-void start()
-{
-    goto_question(1);
-}
-
-void goto_question(int question)
-{
-    m_current_question = question;
-    offer_question();
-}
-
-bool offer_question()
-{
-    // do interesting things
-    connect(answer_1, answered, 1);
-    return true;
-}
-
-bool answered(int answer)
-{
-    // returns: something we don't care about
-    switch (m_current_question) {
-    case 1:
-        if (answer == 1) {
-            m_diagnosis_blah = true;
-            return goto_question(2);
-            // C++11: can't do "return goto_question(2);" if goto_question() is
-            // of void type, as you're not allowed to return anything from a
-            // void function, even of void type:
-            // http://stackoverflow.com/questions/35987493/return-void-type-in-c-and-c
-            // ... so just make them bool or something.
-            // It would be OK in C++14.
-        }
-        break;
-    // ...
-    }
-}
-
-
-===============================================================================
-IMPLEMENTATION: FURTHER THOUGHTS
-===============================================================================
-
-FURTHER THOUGHTS: we'll implement a DynamicQuestionnaire class; q.v.
+We'll implement a DynamicQuestionnaire class; q.v.
 
 */
 
@@ -1044,8 +996,10 @@ QString Cisr::longname() const
 QString Cisr::description() const
 {
     return tr(
-        "Structured diagnostic interview, yielding ICD-10 diagnoses for "
-        "depressive and anxiety disorders."
+        "Structured interview, yielding suggested possible ICD-10 diagnoses "
+        "for depressive and anxiety disorders. "
+        "(May be wrong. "
+        "Not a substitute for diagnosis by a qualified clinician.)"
     );
 }
 
@@ -1122,12 +1076,13 @@ QStringList Cisr::summaryForResult(const Cisr::CisrResult& result) const
     };
 
     if (!result.incomplete) {
+        const QString cv = result.caveat();
         addLine(
-            "Probable primary diagnosis",
+            QString("%1Possible primary diagnosis").arg(cv),
             result.diagnosisName(result.diagnosis_1)
         );
         addLine(
-            "Probable secondary diagnosis",
+            QString("%2Possible secondary diagnosis").arg(cv),
             result.diagnosisName(result.diagnosis_1)
         );
 
@@ -3625,25 +3580,13 @@ QVector<QString> Cisr::panicSymptomFieldnames() const
     return fieldnames;
 }
 
-QString Cisr::diagnosisNameLong(int diagnosis_code) const
-{
-    QString xstring_name = QString("diag_%1_desc").arg(diagnosis_code);
-    return xstring(xstring_name);
-}
-
-QString Cisr::diagnosisReason(int diagnosis_code) const
-{
-    QString xstring_name = QString("diag_%1_explan").arg(diagnosis_code);
-    return xstring(xstring_name);
-}
-
 QString Cisr::suicideIntent(
     const Cisr::CisrResult& result, bool with_warning
 ) const
 {
     QString intent;
     if (result.incomplete) {
-        intent = "TASK INCOMPLETE. SO FAR: ";
+        intent = "TASK INCOMPLETE; SO FAR: ";
     }
     intent += xstring(QString("suicid_%1").arg(result.suicidality));
     if (with_warning
@@ -4067,17 +4010,18 @@ void Cisr::CisrResult::finalize()
     SHOWBOOL(phobia_specific);
     SHOWBOOL(panic_disorder);
 
-    decide("--- Final diagnoses:");
-    decide(QString("Probable primary diagnosis: %1")
-               .arg(diagnosisName(diagnosis_1)));
-    decide(QString("Probable secondary diagnosis: %1")
-               .arg(diagnosisName(diagnosis_2)));
+    const QString cv = caveat();
+    decide(QString("--- %1Final possible diagnoses:").arg(cv));
+    decide(QString("%1Possible primary diagnosis: %2")
+               .arg(cv, diagnosisName(diagnosis_1)));
+    decide(QString("%1Possible secondary diagnosis: %2")
+               .arg(cv, diagnosisName(diagnosis_2)));
 }
 
 QString Cisr::CisrResult::diagnosisName(int diagnosis_code) const
 {
     if (incomplete) {
-        // Do NOT offer diagnostic information based on partial data.
+        // Do NOT offer suggested diagnostic information based on partial data.
         // Might be dangerous (e.g. say "mild depressive episode" when it's
         // severe + incomplete information).
         return "INFORMATION INCOMPLETE";
@@ -4112,4 +4056,9 @@ QString Cisr::CisrResult::diagnosisName(int diagnosis_code) const
         default:
             return "[INTERNAL ERROR: BAD DIAGNOSIS CODE]";
     }
+}
+
+QString Cisr::CisrResult::caveat() const
+{
+    return QString("[%1:] ").arg(tr("CIS-R suggestion ONLY"));
 }

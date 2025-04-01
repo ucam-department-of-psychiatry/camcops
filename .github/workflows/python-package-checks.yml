@@ -14,7 +14,7 @@ jobs:
             matrix:
                 python-version: [3.9, "3.10", 3.11, 3.12]
                 # LTS versions
-                os: [ubuntu-20.04, ubuntu-22.04]
+                os: [ubuntu-22.04]
         runs-on: ${{ matrix.os }}
         steps:
             - uses: actions/checkout@v4
@@ -32,8 +32,6 @@ jobs:
                   python -m pip install safety
                   echo checking packages for vulnerabilities
                   # All of these vulnerabilities look either harmless or very low risk
-                  # 51668 sqlalchemy. Fix in 2.0 beta. We don't log Engine.URL()
-                  #       https://github.com/sqlalchemy/sqlalchemy/issues/8567
                   # 52495 setuptools. Fix in 65.5.1. We'll be careful not to
                   #       install malicious packages.
                   # 67599 pip. Disputed and only relevant if using --extra-index-url,
@@ -42,4 +40,4 @@ jobs:
                   #       believe that this vulnerability isn't valid because
                   #       users shouldn't use untrusted templates without
                   #       sandboxing.
-                  safety check --full-report --ignore=51668 --ignore=52495 --ignore=67599 --ignore=70612
+                  safety check --full-report --ignore=52495 --ignore=67599 --ignore=70612
