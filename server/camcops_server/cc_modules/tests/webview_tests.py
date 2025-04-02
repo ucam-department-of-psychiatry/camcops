@@ -133,6 +133,7 @@ from camcops_server.cc_modules.webview import (
     LoginView,
     MfaMixin,
     SendEmailFromPatientTaskScheduleView,
+    view_patient_task_schedule,
     view_patient_task_schedules,
 )
 
@@ -2369,6 +2370,27 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
         self.assertEqual(
             cm.exception.message, "Not authorized to email patients"
         )
+
+
+class ViewPatientTaskScheduleTests(BasicDatabaseTestCase):
+    def test_patient_listed_with_no_tasks(self) -> None:
+        patient = ServerCreatedPatientFactory(_group=self.group)
+        schedule = TaskScheduleFactory(group=self.group)
+
+        pts = PatientTaskScheduleFactory(
+            patient=patient, task_schedule=schedule
+        )
+        self.req.add_get_params(
+            {ViewParam.PATIENT_TASK_SCHEDULE_ID: str(pts.id)}
+        )
+
+        view_dict = view_patient_task_schedule(self.req)
+
+        self.assertEqual(view_dict["pts"], pts)
+        self.assertEqual(
+            view_dict["patient_descriptor"], patient.prettystr(self.req)
+        )
+        self.assertEqual(view_dict["task_list"], [])
 
 
 class ViewPatientTaskSchedulesTests(BasicDatabaseTestCase):

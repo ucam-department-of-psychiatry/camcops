@@ -197,11 +197,10 @@ class Patient(GenericTabletRecordMixin, Base):
     other: Mapped[Optional[str]] = mapped_camcops_column(
         UnicodeText, identifies_patient=True, comment="Other details"
     )
-    idnums = relationship(  # type: ignore[assignment]
+    idnums: Mapped[list["PatientIdNum"]] = relationship(
         # https://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#relationship-custom-foreign
         # https://docs.sqlalchemy.org/en/latest/orm/relationship_api.html#sqlalchemy.orm.relationship  # noqa
         # https://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#relationship-primaryjoin  # noqa
-        "PatientIdNum",
         primaryjoin=(
             "and_("
             " remote(PatientIdNum.patient_id) == foreign(Patient.id), "
@@ -220,14 +219,13 @@ class Patient(GenericTabletRecordMixin, Base):
         # lazy="selectin": 26.4s
         # See also patient relationship on Task class (cc_task.py)
         lazy="subquery",
-    )  # type: List[PatientIdNum]
+    )
 
-    task_schedules = relationship(  # type: ignore[assignment]
-        "PatientTaskSchedule",
+    task_schedules: Mapped[list["PatientTaskSchedule"]] = relationship(
         back_populates="patient",
         cascade="all, delete",
         cascade_backrefs=False,
-    )  # type: List[PatientTaskSchedule]
+    )
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # THE FOLLOWING ARE DEFUNCT, AND THE SERVER WORKS AROUND OLD TABLETS IN
