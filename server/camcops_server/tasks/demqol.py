@@ -25,12 +25,12 @@ camcops_server/tasks/demqol.py
 
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, List, Optional, Tuple, Type, Union
 
 from cardinal_pythonlib.stringfunc import strseq
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.sql.sqltypes import Float, Integer
+from sqlalchemy.orm import Mapped
+from sqlalchemy.sql.sqltypes import Float
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
@@ -43,7 +43,7 @@ from camcops_server.cc_modules.cc_html import (
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    mapped_camcops_column,
     PermittedValueChecker,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -84,14 +84,21 @@ COPYRIGHT_DIV = f"""
 # =============================================================================
 
 
-class DemqolMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Demqol"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Demqol(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
+):
+    """
+    Server implementation of the DEMQOL task.
+    """
+
+    __tablename__ = "demqol"
+    shortname = "DEMQOL"
+    provides_trackers = True
+
+    @classmethod
+    def extend_columns(cls: Type["Demqol"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -133,23 +140,8 @@ class DemqolMetaclass(DeclarativeMeta):
                 "worried: health overall",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Demqol(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=DemqolMetaclass
-):
-    """
-    Server implementation of the DEMQOL task.
-    """
-
-    __tablename__ = "demqol"
-    shortname = "DEMQOL"
-    provides_trackers = True
-
-    q29 = CamcopsColumn(
-        "q29",
-        Integer,
+    q29: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(
             permitted_values=PERMITTED_VALUES
         ),
@@ -293,14 +285,19 @@ class Demqol(
 # =============================================================================
 
 
-class DemqolProxyMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["DemqolProxy"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class DemqolProxy(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    TaskHasRespondentMixin,
+    TaskHasClinicianMixin,
+    Task,
+):
+    __tablename__ = "demqolproxy"
+    shortname = "DEMQOL-Proxy"
+    extrastring_taskname = "demqol"
+    info_filename_stem = "demqol"
+
+    @classmethod
+    def extend_columns(cls: Type["DemqolProxy"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -345,24 +342,8 @@ class DemqolProxyMetaclass(DeclarativeMeta):
                 "worried: physical health",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class DemqolProxy(
-    TaskHasPatientMixin,
-    TaskHasRespondentMixin,
-    TaskHasClinicianMixin,
-    Task,
-    metaclass=DemqolProxyMetaclass,
-):
-    __tablename__ = "demqolproxy"
-    shortname = "DEMQOL-Proxy"
-    extrastring_taskname = "demqol"
-    info_filename_stem = "demqol"
-
-    q32 = CamcopsColumn(
-        "q32",
-        Integer,
+    q32: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(
             permitted_values=PERMITTED_VALUES
         ),

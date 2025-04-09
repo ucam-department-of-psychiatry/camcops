@@ -25,13 +25,12 @@ camcops_server/tasks/frs.py
 
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any, Dict, List, Optional, Type
 
 from cardinal_pythonlib.betweendict import BetweenDict
 from cardinal_pythonlib.stringfunc import strseq
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Float, Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -39,7 +38,7 @@ from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     PermittedValueChecker,
     SummaryCategoryColType,
 )
@@ -188,14 +187,21 @@ def get_tabular_logit(score: float) -> float:
 #     print(",".join(str(q) for q in (x, logit, severity)))
 
 
-class FrsMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Frs"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Frs(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    TaskHasRespondentMixin,
+    TaskHasClinicianMixin,
+    Task,
+):
+    """
+    Server implementation of the FRS task.
+    """
+
+    __tablename__ = "frs"
+    shortname = "FRS"
+
+    @classmethod
+    def extend_columns(cls: Type["Frs"], **kwargs: Any) -> None:
         for n in range(1, NQUESTIONS + 1):
             pv = [NEVER, ALWAYS]
             pc = [f"{NEVER} = never", f"{ALWAYS} = always"]
@@ -210,7 +216,7 @@ class FrsMetaclass(DeclarativeMeta):
             setattr(
                 cls,
                 colname,
-                CamcopsColumn(
+                camcops_column(
                     colname,
                     Integer,
                     permitted_value_checker=PermittedValueChecker(
@@ -219,24 +225,10 @@ class FrsMetaclass(DeclarativeMeta):
                     comment=comment,
                 ),
             )
-        super().__init__(name, bases, classdict)
 
-
-class Frs(
-    TaskHasPatientMixin,
-    TaskHasRespondentMixin,
-    TaskHasClinicianMixin,
-    Task,
-    metaclass=FrsMetaclass,
-):
-    """
-    Server implementation of the FRS task.
-    """
-
-    __tablename__ = "frs"
-    shortname = "FRS"
-
-    comments = Column("comments", UnicodeText, comment="Clinician's comments")
+    comments: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Clinician's comments"
+    )
 
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 

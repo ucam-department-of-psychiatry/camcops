@@ -44,7 +44,6 @@ import logging
 from alembic import op
 from sqlalchemy import orm
 from sqlalchemy.engine.strategies import MockEngineStrategy
-from sqlalchemy.sql.schema import Column, Table
 from sqlalchemy.sql.expression import update
 
 from camcops_server.cc_modules.cc_taskschedule import TaskScheduleItem
@@ -68,7 +67,7 @@ depends_on = None
 
 
 # noinspection PyPep8,PyTypeChecker
-def upgrade():
+def upgrade() -> None:
     bind = op.get_bind()
     if isinstance(bind, MockEngineStrategy.MockConnection):
         log.warning("Using mock connection; skipping step")
@@ -79,14 +78,14 @@ def upgrade():
 
     # Some shorthand:
     # noinspection PyUnresolvedReferences
-    tsi_table = TaskScheduleItem.__table__  # type: Table
+    tsi_table = TaskScheduleItem.__table__  # type: ignore[assignment]
     # noinspection PyProtectedMember
-    task_table_name_col = tsi_table.columns.task_table_name  # type: Column
+    task_table_name_col = tsi_table.columns.task_table_name  # type: ignore[assignment]  # noqa: E501
 
     # UPDATE _task_schedule_item SET task_table_name="isaaq10"
     # WHERE task_table_name = "isaaq":
     update_statement = (
-        update(tsi_table)
+        update(tsi_table)  # type: ignore[arg-type]
         .where(task_table_name_col == "isaaq")
         .values(task_table_name="isaaq10")
     )
@@ -95,5 +94,5 @@ def upgrade():
 
 
 # noinspection PyPep8,PyTypeChecker
-def downgrade():
+def downgrade() -> None:
     pass

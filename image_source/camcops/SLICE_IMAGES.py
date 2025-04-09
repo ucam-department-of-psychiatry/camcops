@@ -110,7 +110,7 @@ import shutil
 import subprocess
 
 import tempfile
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
 from rich_argparse import RichHelpFormatter
@@ -801,7 +801,7 @@ def main() -> None:
     # iOS
     # =========================================================================
 
-    def ios(filename):
+    def ios(filename: str) -> str:
         return join(ios_dir, filename)
 
     if args.ios:
@@ -967,7 +967,14 @@ def main() -> None:
         convert FILE.pdf -transparent "rgb(240,240,200)" -alpha extract TEMP.png
     """  # noqa
 
-    def row(a, b, c_, d, e, f):
+    def row(
+        a: Optional[str],
+        b: Optional[str],
+        c_: Optional[str],
+        d: Optional[str],
+        e: Optional[str],
+        f: Optional[str],
+    ) -> list[str]:
         temp = [
             None,
             None,
@@ -988,8 +995,8 @@ def main() -> None:
 
     ncol = 14
     nrow = 34
-    none_row = [None] * ncol
-    iconmap = [
+    none_row: list[Optional[str]] = [None] * ncol
+    iconmap: list[list[Optional[str]]] = [
         none_row,
         none_row,
         row("finishflag", "spanner", "camcops", "executive", "locked", None),

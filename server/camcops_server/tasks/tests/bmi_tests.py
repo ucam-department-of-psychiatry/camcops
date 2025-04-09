@@ -31,7 +31,7 @@ from camcops_server.tasks.bmi import Bmi
 
 
 class BmiTests(TestCase):
-    def test_bmi_calculation_for_healthy_mass_and_height(self):
+    def test_bmi_calculation_for_healthy_mass_and_height(self) -> None:
         bmi = Bmi()
 
         bmi.mass_kg = 70.0
@@ -39,7 +39,7 @@ class BmiTests(TestCase):
 
         self.assertAlmostEqual(bmi.bmi(), 20.902, places=3)
 
-    def test_bmi_none_for_zero_height(self):
+    def test_bmi_none_for_zero_height(self) -> None:
         bmi = Bmi()
 
         bmi.mass_kg = 70.0
@@ -47,7 +47,7 @@ class BmiTests(TestCase):
 
         self.assertIsNone(bmi.bmi())
 
-    def test_bmi_none_when_not_complete(self):
+    def test_bmi_none_when_not_complete(self) -> None:
         bmi = Bmi()
 
         self.assertIsNone(bmi.bmi())

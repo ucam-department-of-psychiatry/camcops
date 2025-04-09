@@ -28,11 +28,10 @@ camcops_server/tasks/photo.py
 from typing import List, Optional, Type
 
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, UnicodeText
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_blob import (
-    Blob,
     blob_relationship,
     get_blob_img_html,
 )
@@ -46,7 +45,7 @@ from camcops_server.cc_modules.cc_db import (
 from camcops_server.cc_modules.cc_html import answer, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
-from camcops_server.cc_modules.cc_sqla_coltypes import CamcopsColumn
+from camcops_server.cc_modules.cc_sqla_coltypes import mapped_camcops_column
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_task import (
     Task,
@@ -60,7 +59,7 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 
-class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):  # type: ignore[misc]  # noqa: E501
     """
     Server implementation of the Photo task.
     """
@@ -69,25 +68,21 @@ class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     shortname = "Photo"
     info_filename_stem = "clinical"
 
-    description = Column(
-        "description", UnicodeText, comment="Description of the photograph"
+    description: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Description of the photograph"
     )
-    photo_blobid = CamcopsColumn(
-        "photo_blobid",
-        Integer,
+    photo_blobid: Mapped[Optional[int]] = mapped_camcops_column(
         is_blob_id_field=True,
         blob_relationship_attr_name="photo",
         comment="ID of the BLOB (foreign key to blobs.id, given "
         "matching device and current/frozen record status)",
     )
     # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
-    rotation = Column(  # DEFUNCT as of v2.0.0
-        "rotation",
-        Integer,
+    rotation: Mapped[Optional[int]] = mapped_column(  # DEFUNCT as of v2.0.0
         comment="Rotation (clockwise, in degrees) to be applied for viewing",
     )
 
-    photo = blob_relationship("Photo", "photo_blobid")  # type: Optional[Blob]
+    photo = blob_relationship("Photo", "photo_blobid")  # type: ignore[assignment]  # noqa: E501
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -121,7 +116,7 @@ class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
                 default_for_blank_strings=True,
             ),
             # ... xhtml2pdf crashes if the contents are empty...
-            photo=get_blob_img_html(self.photo),
+            photo=get_blob_img_html(self.photo),  # type: ignore[arg-type]
         )
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
@@ -143,34 +138,24 @@ class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 class PhotoSequenceSinglePhoto(GenericTabletRecordMixin, TaskDescendant, Base):
     __tablename__ = "photosequence_photos"
 
-    photosequence_id = Column(
-        "photosequence_id",
-        Integer,
-        nullable=False,
+    photosequence_id: Mapped[int] = mapped_column(
         comment="Tablet FK to photosequence",
     )
-    seqnum = Column(
-        "seqnum",
-        Integer,
-        nullable=False,
+    seqnum: Mapped[int] = mapped_column(
         comment="Sequence number of this photo "
         "(consistently 1-based as of 2018-12-01)",
     )
-    description = Column(
-        "description", UnicodeText, comment="Description of the photograph"
+    description: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Description of the photograph"
     )
-    photo_blobid = CamcopsColumn(
-        "photo_blobid",
-        Integer,
+    photo_blobid: Mapped[Optional[int]] = mapped_camcops_column(
         is_blob_id_field=True,
         blob_relationship_attr_name="photo",
         comment="ID of the BLOB (foreign key to blobs.id, given "
         "matching device and current/frozen record status)",
     )
     # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
-    rotation = Column(  # DEFUNCT as of v2.0.0
-        "rotation",
-        Integer,
+    rotation: Mapped[Optional[int]] = mapped_column(  # DEFUNCT as of v2.0.0
         comment="(DEFUNCT COLUMN) "
         "Rotation (clockwise, in degrees) to be applied for viewing",
     )
@@ -188,7 +173,7 @@ class PhotoSequenceSinglePhoto(GenericTabletRecordMixin, TaskDescendant, Base):
             CssClass=CssClass,
             num=self.seqnum,
             description=ws.webify(self.description),
-            photo=get_blob_img_html(self.photo),
+            photo=get_blob_img_html(self.photo),  # type: ignore[arg-type]
         )
 
     # -------------------------------------------------------------------------
@@ -200,10 +185,10 @@ class PhotoSequenceSinglePhoto(GenericTabletRecordMixin, TaskDescendant, Base):
         return PhotoSequence
 
     def task_ancestor(self) -> Optional["PhotoSequence"]:
-        return PhotoSequence.get_linked(self.photosequence_id, self)
+        return PhotoSequence.get_linked(self.photosequence_id, self)  # type: ignore[return-value]  # noqa: E501
 
 
-class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task):  # type: ignore[misc]  # noqa: E501
     """
     Server implementation of the PhotoSequence task.
     """
@@ -212,13 +197,12 @@ class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     shortname = "PhotoSequence"
     info_filename_stem = "clinical"
 
-    sequence_description = Column(
-        "sequence_description",
+    sequence_description: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Description of the sequence of photographs",
     )
 
-    photos = ancillary_relationship(
+    photos = ancillary_relationship(  # type: ignore[assignment]
         parent_class_name="PhotoSequence",
         ancillary_class_name="PhotoSequenceSinglePhoto",
         ancillary_fk_to_parent_attr_name="photosequence_id",

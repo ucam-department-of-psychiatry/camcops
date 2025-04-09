@@ -27,13 +27,12 @@ camcops_server/tasks/chit.py
 
 """
 
-from typing import List, Type, Tuple, Dict, Any
+from typing import Any, cast, List, Optional, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
 from semantic_version import Version
 from sqlalchemy import Integer
-from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
@@ -52,14 +51,20 @@ from camcops_server.cc_modules.cc_task import (
 from camcops_server.cc_modules.cc_text import SS
 
 
-class ChitMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Chit"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Chit(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    __tablename__ = "chit"
+    shortname = "CHI-T"
+
+    N_SCORED_QUESTIONS = 15
+    MIN_ANSWER = 0
+    MAX_ANSWER = 4
+    MAX_SCORE_MAIN = MAX_ANSWER * N_SCORED_QUESTIONS
+
+    @classmethod
+    def extend_columns(cls: Type["Chit"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -87,17 +92,6 @@ class ChitMetaclass(DeclarativeMeta):
             ],
         )
 
-        super().__init__(name, bases, classdict)
-
-
-class Chit(TaskHasPatientMixin, Task, metaclass=ChitMetaclass):
-    __tablename__ = "chit"
-    shortname = "CHI-T"
-
-    N_SCORED_QUESTIONS = 15
-    MIN_ANSWER = 0
-    MAX_ANSWER = 4
-    MAX_SCORE_MAIN = MAX_ANSWER * N_SCORED_QUESTIONS
     SCORED_QUESTIONS = strseq("q", 1, N_SCORED_QUESTIONS)
 
     @staticmethod
@@ -128,12 +122,10 @@ class Chit(TaskHasPatientMixin, Task, metaclass=ChitMetaclass):
         return True
 
     def total_score(self) -> int:
-        return self.sum_fields(self.SCORED_QUESTIONS)
+        return cast(int, self.sum_fields(self.SCORED_QUESTIONS))
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        score_dict = {
-            None: None,
-        }
+        score_dict: dict[Optional[int], Optional[str]] = {None: None}
 
         for i in range(self.MIN_ANSWER, self.MAX_ANSWER + 1):
             score_dict[i] = f"{i} — " + self.wxstring(req, f"a{i}")

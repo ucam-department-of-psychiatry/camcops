@@ -93,9 +93,9 @@ def task_query_restricted_to_permitted_users(
 
     if cls is TaskIndexEntry:
         # noinspection PyUnresolvedReferences
-        q = q.filter(cls.group_id.in_(group_ids))
+        q = q.filter(cls.group_id.in_(group_ids))  # type: ignore[union-attr]
     else:  # a kind of Task
-        q = q.filter(cls._group_id.in_(group_ids))
+        q = q.filter(cls._group_id.in_(group_ids))  # type: ignore[union-attr]
 
     return q
 

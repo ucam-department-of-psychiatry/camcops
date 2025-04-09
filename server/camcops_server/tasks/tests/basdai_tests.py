@@ -44,13 +44,13 @@ class BasdaiTests(TestCase):
     def test_basdai_calculation(self) -> None:
         basdai = Basdai()
 
-        basdai.q1 = 2
-        basdai.q2 = 10
-        basdai.q3 = 7
-        basdai.q4 = 1
+        basdai.q1 = 2  # type: ignore[attr-defined]
+        basdai.q2 = 10  # type: ignore[attr-defined]
+        basdai.q3 = 7  # type: ignore[attr-defined]
+        basdai.q4 = 1  # type: ignore[attr-defined]
 
-        basdai.q5 = 9
-        basdai.q6 = 3
+        basdai.q5 = 9  # type: ignore[attr-defined]
+        basdai.q6 = 3  # type: ignore[attr-defined]
 
         # 2 + 10 + 7 + 1 = 20
         # (9 + 3) / 2 = 6
@@ -67,39 +67,39 @@ class BasdaiTests(TestCase):
     def test_basdai_complete_when_all_answers_valid(self) -> None:
         basdai = Basdai()
 
-        basdai.q1 = 0
-        basdai.q2 = 0
-        basdai.q3 = 0
-        basdai.q4 = 0
+        basdai.q1 = 0  # type: ignore[attr-defined]
+        basdai.q2 = 0  # type: ignore[attr-defined]
+        basdai.q3 = 0  # type: ignore[attr-defined]
+        basdai.q4 = 0  # type: ignore[attr-defined]
 
-        basdai.q5 = 0
-        basdai.q6 = 0
+        basdai.q5 = 0  # type: ignore[attr-defined]
+        basdai.q6 = 0  # type: ignore[attr-defined]
 
         self.assertTrue(basdai.is_complete())
 
     def test_basdai_incomplete_when_a_field_none(self) -> None:
         basdai = Basdai()
 
-        basdai.q1 = None
-        basdai.q2 = 0
-        basdai.q3 = 0
-        basdai.q4 = 0
+        basdai.q1 = None  # type: ignore[attr-defined]
+        basdai.q2 = 0  # type: ignore[attr-defined]
+        basdai.q3 = 0  # type: ignore[attr-defined]
+        basdai.q4 = 0  # type: ignore[attr-defined]
 
-        basdai.q5 = 0
-        basdai.q6 = 0
+        basdai.q5 = 0  # type: ignore[attr-defined]
+        basdai.q6 = 0  # type: ignore[attr-defined]
 
         self.assertFalse(basdai.is_complete())
 
     def test_basdai_incomplete_when_a_field_invalid(self) -> None:
         basdai = Basdai()
 
-        basdai.q1 = 11
-        basdai.q2 = 0
-        basdai.q3 = 0
-        basdai.q4 = 0
+        basdai.q1 = 11  # type: ignore[attr-defined]
+        basdai.q2 = 0  # type: ignore[attr-defined]
+        basdai.q3 = 0  # type: ignore[attr-defined]
+        basdai.q4 = 0  # type: ignore[attr-defined]
 
-        basdai.q5 = 0
-        basdai.q6 = 0
+        basdai.q5 = 0  # type: ignore[attr-defined]
+        basdai.q6 = 0  # type: ignore[attr-defined]
 
         self.assertFalse(basdai.is_complete())
 

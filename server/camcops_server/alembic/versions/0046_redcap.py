@@ -57,7 +57,7 @@ depends_on = None
 
 
 # noinspection PyPep8,PyTypeChecker
-def upgrade():
+def upgrade() -> None:
     with op.batch_alter_table("_export_recipients", schema=None) as batch_op:
         batch_op.add_column(
             sa.Column(
@@ -135,7 +135,7 @@ def upgrade():
 
 
 # noinspection PyPep8,PyTypeChecker
-def downgrade():
+def downgrade() -> None:
     with op.batch_alter_table("_export_recipients", schema=None) as batch_op:
         batch_op.drop_column("redcap_fieldmap_filename")
         batch_op.drop_column("redcap_api_url")

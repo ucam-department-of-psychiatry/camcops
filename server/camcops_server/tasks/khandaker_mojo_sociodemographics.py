@@ -25,16 +25,15 @@ camcops_server/tasks/khandaker_mojo_sociodemographics.py
 
 """
 
-from typing import Any, Dict, Optional, Tuple, Type
+from typing import Any, Optional, Type
 
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     ZERO_TO_10_CHECKER,
     ZERO_TO_FOUR_CHECKER,
     ZERO_TO_SEVEN_CHECKER,
@@ -44,161 +43,9 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
-class KhandakerMojoSociodemographicsMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["KhandakerMojoSociodemographics"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
-        setattr(
-            cls,
-            cls.FN_GENDER,
-            CamcopsColumn(
-                cls.FN_GENDER,
-                Integer,
-                permitted_value_checker=ZERO_TO_TWO_CHECKER,
-                comment=(
-                    "Gender at birth (0 Male, 1 Female, 2 Other (specify))"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_OTHER_GENDER,
-            CamcopsColumn(
-                cls.FN_OTHER_GENDER, UnicodeText, comment="Other (specify)"
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_ETHNICITY,
-            CamcopsColumn(
-                cls.FN_ETHNICITY,
-                Integer,
-                permitted_value_checker=ZERO_TO_10_CHECKER,
-                comment=(
-                    "Ethnicity (0 White, 1 Mixed, 2 Indian, 3 Pakistani, "
-                    "4 Bangladeshi, 5 Other Asian, 6 Black Caribbean, "
-                    "7 Black African, 8 Black Other, 9 Chinese, "
-                    "10 Other (specify))"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_OTHER_ETHNICITY,
-            CamcopsColumn(
-                cls.FN_OTHER_ETHNICITY, UnicodeText, comment="Other (specify)"
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_WITH_WHOM_LIVE,
-            CamcopsColumn(
-                cls.FN_WITH_WHOM_LIVE,
-                Integer,
-                permitted_value_checker=ZERO_TO_SEVEN_CHECKER,
-                comment=(
-                    "0 Alone, 1 Alone with children, 2 Partner/Spouse, "
-                    "3 Partner/Spouse and children, 4 Parents, "
-                    "5 Other family, 6 Friends, 7 Other (specify)"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_OTHER_WITH_WHOM_LIVE,
-            CamcopsColumn(
-                cls.FN_OTHER_WITH_WHOM_LIVE,
-                UnicodeText,
-                comment="Other (specify)",
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_RELATIONSHIP_STATUS,
-            CamcopsColumn(
-                cls.FN_RELATIONSHIP_STATUS,
-                Integer,
-                permitted_value_checker=ZERO_TO_FOUR_CHECKER,
-                comment=(
-                    "0 Single, 1 Married / Civil partnership, "
-                    "2 In steady relationship, 3 Divorced / separated, "
-                    "4 Widowed"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_EDUCATION,
-            CamcopsColumn(
-                cls.FN_EDUCATION,
-                Integer,
-                permitted_value_checker=ZERO_TO_FOUR_CHECKER,
-                comment=(
-                    "0 No qualifications, 1 GCSE/O levels, 2 A levels, "
-                    "3 Vocational/college (B. Tecs/NVQs etc), "
-                    "4 University / Professional Qualifications"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_EMPLOYMENT,
-            CamcopsColumn(
-                cls.FN_EMPLOYMENT,
-                Integer,
-                permitted_value_checker=ZERO_TO_SEVEN_CHECKER,
-                comment=(
-                    "0 No unemployed, 1 No student, 2 Yes full time, "
-                    "3 Yes part time, 4 Full time homemaker, "
-                    "5 Self employed, 6 Not working for medical reasons, "
-                    "7 Other (specify)"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_OTHER_EMPLOYMENT,
-            CamcopsColumn(
-                cls.FN_OTHER_EMPLOYMENT, UnicodeText, comment="Other (specify)"
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_ACCOMMODATION,
-            CamcopsColumn(
-                cls.FN_ACCOMMODATION,
-                Integer,
-                permitted_value_checker=ZERO_TO_SIX_CHECKER,
-                comment=(
-                    "0 Own outright, 1 Own with mortgage, "
-                    "2 Rent from local authority etc, "
-                    "3 Rent from landlord (private), "
-                    "4 Shared ownership (part rent, part mortgage)"
-                    "5 Live rent free, 6 Other (specify)"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_OTHER_ACCOMMODATION,
-            CamcopsColumn(
-                cls.FN_OTHER_ACCOMMODATION,
-                UnicodeText,
-                comment="Other (specify)",
-            ),
-        )
-
-        super().__init__(name, bases, classdict)
-
-
-class KhandakerMojoSociodemographics(
+class KhandakerMojoSociodemographics(  # type: ignore[misc]
     TaskHasPatientMixin,
     Task,
-    metaclass=KhandakerMojoSociodemographicsMetaclass,
 ):
     """
     Server implementation of the Khandaker_2_MOJOSociodemographics task
@@ -240,6 +87,150 @@ class KhandakerMojoSociodemographics(
         FN_EMPLOYMENT: 7,
         FN_ACCOMMODATION: 6,
     }
+
+    @classmethod
+    def extend_columns(
+        cls: Type["KhandakerMojoSociodemographics"], **kwargs: Any
+    ) -> None:
+        setattr(
+            cls,
+            cls.FN_GENDER,
+            camcops_column(
+                cls.FN_GENDER,
+                Integer,
+                permitted_value_checker=ZERO_TO_TWO_CHECKER,
+                comment=(
+                    "Gender at birth (0 Male, 1 Female, 2 Other (specify))"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_OTHER_GENDER,
+            camcops_column(
+                cls.FN_OTHER_GENDER, UnicodeText, comment="Other (specify)"
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_ETHNICITY,
+            camcops_column(
+                cls.FN_ETHNICITY,
+                Integer,
+                permitted_value_checker=ZERO_TO_10_CHECKER,
+                comment=(
+                    "Ethnicity (0 White, 1 Mixed, 2 Indian, 3 Pakistani, "
+                    "4 Bangladeshi, 5 Other Asian, 6 Black Caribbean, "
+                    "7 Black African, 8 Black Other, 9 Chinese, "
+                    "10 Other (specify))"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_OTHER_ETHNICITY,
+            camcops_column(
+                cls.FN_OTHER_ETHNICITY, UnicodeText, comment="Other (specify)"
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_WITH_WHOM_LIVE,
+            camcops_column(
+                cls.FN_WITH_WHOM_LIVE,
+                Integer,
+                permitted_value_checker=ZERO_TO_SEVEN_CHECKER,
+                comment=(
+                    "0 Alone, 1 Alone with children, 2 Partner/Spouse, "
+                    "3 Partner/Spouse and children, 4 Parents, "
+                    "5 Other family, 6 Friends, 7 Other (specify)"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_OTHER_WITH_WHOM_LIVE,
+            camcops_column(
+                cls.FN_OTHER_WITH_WHOM_LIVE,
+                UnicodeText,
+                comment="Other (specify)",
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_RELATIONSHIP_STATUS,
+            camcops_column(
+                cls.FN_RELATIONSHIP_STATUS,
+                Integer,
+                permitted_value_checker=ZERO_TO_FOUR_CHECKER,
+                comment=(
+                    "0 Single, 1 Married / Civil partnership, "
+                    "2 In steady relationship, 3 Divorced / separated, "
+                    "4 Widowed"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_EDUCATION,
+            camcops_column(
+                cls.FN_EDUCATION,
+                Integer,
+                permitted_value_checker=ZERO_TO_FOUR_CHECKER,
+                comment=(
+                    "0 No qualifications, 1 GCSE/O levels, 2 A levels, "
+                    "3 Vocational/college (B. Tecs/NVQs etc), "
+                    "4 University / Professional Qualifications"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_EMPLOYMENT,
+            camcops_column(
+                cls.FN_EMPLOYMENT,
+                Integer,
+                permitted_value_checker=ZERO_TO_SEVEN_CHECKER,
+                comment=(
+                    "0 No unemployed, 1 No student, 2 Yes full time, "
+                    "3 Yes part time, 4 Full time homemaker, "
+                    "5 Self employed, 6 Not working for medical reasons, "
+                    "7 Other (specify)"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_OTHER_EMPLOYMENT,
+            camcops_column(
+                cls.FN_OTHER_EMPLOYMENT, UnicodeText, comment="Other (specify)"
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_ACCOMMODATION,
+            camcops_column(
+                cls.FN_ACCOMMODATION,
+                Integer,
+                permitted_value_checker=ZERO_TO_SIX_CHECKER,
+                comment=(
+                    "0 Own outright, 1 Own with mortgage, "
+                    "2 Rent from local authority etc, "
+                    "3 Rent from landlord (private), "
+                    "4 Shared ownership (part rent, part mortgage)"
+                    "5 Live rent free, 6 Other (specify)"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_OTHER_ACCOMMODATION,
+            camcops_column(
+                cls.FN_OTHER_ACCOMMODATION,
+                UnicodeText,
+                comment="Other (specify)",
+            ),
+        )
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -306,7 +297,7 @@ class KhandakerMojoSociodemographics(
 
         return f"{answer} — {answer_text}"
 
-    def answered_other(self, field_name: str):
+    def answered_other(self, field_name: str) -> bool:
         if field_name not in self.OTHER_ANSWER_VALUES:
             return False
 

@@ -25,12 +25,11 @@ camcops_server/tasks/distressthermometer.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, UnicodeText
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass, PV
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
@@ -42,7 +41,7 @@ from camcops_server.cc_modules.cc_html import (
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    mapped_camcops_column,
     PermittedValueChecker,
 )
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
@@ -53,13 +52,20 @@ from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 # =============================================================================
 
 
-class DistressThermometerMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["DistressThermometer"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
+class DistressThermometer(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the DistressThermometer task.
+    """
+
+    __tablename__ = "distressthermometer"
+    shortname = "Distress Thermometer"
+
+    @classmethod
+    def extend_columns(
+        cls: Type["DistressThermometer"], **kwargs: Any
     ) -> None:
         add_multiple_columns(
             cls,
@@ -107,26 +113,14 @@ class DistressThermometerMetaclass(DeclarativeMeta):
                 "tingling in hands/feet",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class DistressThermometer(
-    TaskHasPatientMixin, Task, metaclass=DistressThermometerMetaclass
-):
-    """
-    Server implementation of the DistressThermometer task.
-    """
-
-    __tablename__ = "distressthermometer"
-    shortname = "Distress Thermometer"
-
-    distress = CamcopsColumn(
-        "distress",
-        Integer,
+    distress: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=10),
         comment="Distress (0 none - 10 extreme)",
     )
-    other = Column("other", UnicodeText, comment="Other problems")
+    other: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Other problems"
+    )
 
     NQUESTIONS = 36
     COMPLETENESS_FIELDS = strseq("q", 1, NQUESTIONS) + ["distress"]

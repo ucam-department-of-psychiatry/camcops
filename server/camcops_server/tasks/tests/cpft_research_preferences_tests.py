@@ -42,30 +42,30 @@ class CpftResearchPreferencesTests(unittest.TestCase):
     def test_complete_when_all_answers_valid(self) -> None:
         task = CpftResearchPreferences()
 
-        task.contact_preference = "Y"
-        task.contact_by_email = True
-        task.research_opt_out = False
+        task.contact_preference = "Y"  # type: ignore[attr-defined]
+        task.contact_by_email = True  # type: ignore[attr-defined]
+        task.research_opt_out = False  # type: ignore[attr-defined]
 
         self.assertTrue(task.is_complete())
 
     def test_complete_when_red_and_email_null(self) -> None:
         task = CpftResearchPreferences()
 
-        task.contact_preference = "R"
+        task.contact_preference = "R"  # type: ignore[attr-defined]
 
         self.assertTrue(task.is_complete())
 
     def test_incomplete_when_contact_preference_null(self) -> None:
         task = CpftResearchPreferences()
-        task.contact_by_email = True
-        task.research_opt_out = False
+        task.contact_by_email = True  # type: ignore[attr-defined]
+        task.research_opt_out = False  # type: ignore[attr-defined]
 
         self.assertFalse(task.is_complete())
 
     def test_incomplete_when_yellow_and_email_null(self) -> None:
         task = CpftResearchPreferences()
-        task.contact_preference = "Y"
-        task.research_opt_out = False
+        task.contact_preference = "Y"  # type: ignore[attr-defined]
+        task.research_opt_out = False  # type: ignore[attr-defined]
 
         self.assertFalse(task.is_complete())
 
@@ -79,9 +79,9 @@ class CpftResearchPreferencesTests(unittest.TestCase):
         for invalid_field in all_fields:
             task = CpftResearchPreferences()
 
-            task.contact_preference = "G"
-            task.contact_by_email = True
-            task.research_opt_out = False
+            task.contact_preference = "G"  # type: ignore[attr-defined]
+            task.contact_by_email = True  # type: ignore[attr-defined]
+            task.research_opt_out = False  # type: ignore[attr-defined]
             self.assertTrue(task.is_complete())
 
             setattr(task, invalid_field, 10.5)

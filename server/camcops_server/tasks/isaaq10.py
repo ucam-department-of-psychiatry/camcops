@@ -28,10 +28,9 @@ camcops_server/tasks/isaaq10.py
 
 """
 
-from typing import Any, Dict, Type, Tuple
+from typing import Any, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_db import add_multiple_columns
@@ -39,14 +38,22 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.tasks.isaaqcommon import IsaaqCommon
 
 
-class Isaaq10Metaclass(DeclarativeMeta):
-    def __init__(
-        cls: Type["Isaaq10"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Isaaq10(
+    IsaaqCommon,
+):
+    __tablename__ = "isaaq10"
+    shortname = "ISAAQ-10"
 
+    prohibits_commercial = True
+
+    A_PREFIX = "a"
+    B_PREFIX = "b"
+    FIRST_Q = 1
+    LAST_A_Q = 10
+    LAST_B_Q = 10
+
+    @classmethod
+    def extend_columns(cls: Type["Isaaq10"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             cls.A_PREFIX,
@@ -93,21 +100,6 @@ class Isaaq10Metaclass(DeclarativeMeta):
                 "cyberbullying 0-5 (not at all - all the time)",
             ],
         )
-
-        super().__init__(name, bases, classdict)
-
-
-class Isaaq10(IsaaqCommon, metaclass=Isaaq10Metaclass):
-    __tablename__ = "isaaq10"
-    shortname = "ISAAQ-10"
-
-    prohibits_commercial = True
-
-    A_PREFIX = "a"
-    B_PREFIX = "b"
-    FIRST_Q = 1
-    LAST_A_Q = 10
-    LAST_B_Q = 10
 
     ALL_FIELD_NAMES = strseq(A_PREFIX, FIRST_Q, LAST_A_Q) + strseq(
         B_PREFIX, FIRST_Q, LAST_B_Q

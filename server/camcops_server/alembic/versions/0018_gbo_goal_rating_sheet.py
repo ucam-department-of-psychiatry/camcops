@@ -62,7 +62,7 @@ depends_on = None
 
 
 # noinspection PyPep8,PyTypeChecker
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         "gbogras",
         sa.Column("date", sa.Date(), nullable=True, comment="Date of ratings"),
@@ -402,5 +402,5 @@ def upgrade():
         )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_table("gbogras")

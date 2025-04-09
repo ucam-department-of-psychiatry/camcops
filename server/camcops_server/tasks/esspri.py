@@ -31,7 +31,7 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa, tr, answer
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     ZERO_TO_10_CHECKER,
 )
 
@@ -40,18 +40,21 @@ from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, Task
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy import Float, Integer
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from typing import List, Type, Tuple, Dict, Any
+from typing import Any, List, Type
 
 
-class EsspriMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Esspri"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Esspri(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    __tablename__ = "esspri"
+    shortname = "ESSPRI"
+
+    N_QUESTIONS = 3
+    MAX_SCORE = 10  # Mean of 3 scores of 10
+
+    @classmethod
+    def extend_columns(cls: Type["Esspri"], **kwargs: Any) -> None:
 
         comment_strings = ["dryness", "fatigue", "pain"]
 
@@ -64,7 +67,7 @@ class EsspriMetaclass(DeclarativeMeta):
             setattr(
                 cls,
                 q_field,
-                CamcopsColumn(
+                camcops_column(
                     q_field,
                     Integer,
                     permitted_value_checker=ZERO_TO_10_CHECKER,
@@ -74,15 +77,6 @@ class EsspriMetaclass(DeclarativeMeta):
                 ),
             )
 
-        super().__init__(name, bases, classdict)
-
-
-class Esspri(TaskHasPatientMixin, Task, metaclass=EsspriMetaclass):
-    __tablename__ = "esspri"
-    shortname = "ESSPRI"
-
-    N_QUESTIONS = 3
-    MAX_SCORE = 10  # Mean of 3 scores of 10
     ALL_QUESTIONS = strseq("q", 1, N_QUESTIONS)
 
     @staticmethod

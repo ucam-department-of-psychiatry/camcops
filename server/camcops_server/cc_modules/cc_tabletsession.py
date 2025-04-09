@@ -210,7 +210,7 @@ class TabletSession(object):
         """
         return self.device is not None
 
-    def reload_device(self):
+    def reload_device(self) -> None:
         """
         Re-fetch the device information from the database.
         (Or, at least, do so when it's next required.)
@@ -310,7 +310,7 @@ class TabletSession(object):
         )
 
     @property
-    def pkname_in_upload_table_neither_first_nor_explicit(self):
+    def pkname_in_upload_table_neither_first_nor_explicit(self) -> bool:
         """
         Is the client a particularly tricky old version that is a C++ client
         (generally a good thing, but meaning that the primary key might not be

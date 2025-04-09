@@ -27,7 +27,7 @@ camcops_server/tasks/gaf.py
 
 from typing import List, Optional
 
-from sqlalchemy.sql.sqltypes import Integer
+from sqlalchemy.orm import Mapped
 
 from camcops_server.cc_modules.cc_constants import (
     CssClass,
@@ -38,7 +38,7 @@ from camcops_server.cc_modules.cc_html import answer, tr
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    mapped_camcops_column,
     PermittedValueChecker,
 )
 from camcops_server.cc_modules.cc_string import AS
@@ -56,7 +56,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Gaf(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+class Gaf(TaskHasClinicianMixin, TaskHasPatientMixin, Task):  # type: ignore[misc]  # noqa: E501
     """
     Server implementation of the GAF task.
     """
@@ -65,9 +65,7 @@ class Gaf(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     shortname = "GAF"
     provides_trackers = True
 
-    score = CamcopsColumn(
-        "score",
-        Integer,
+    score: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=100),
         comment="GAF score (1-100 or 0 for insufficient information)",
     )

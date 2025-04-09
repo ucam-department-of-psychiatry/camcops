@@ -27,10 +27,9 @@ camcops_server/tasks/aq.py
 
 """
 
-from typing import Any, Dict, Iterable, List, Optional, Type, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -55,13 +54,25 @@ def to_csv(values: Iterable[Any]) -> str:
     return ", ".join(str(v) for v in values)
 
 
-class AqMetaclass(DeclarativeMeta):
-    def __init__(
-        cls: Type["Aq"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Aq(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    __tablename__ = "aq"
+    shortname = "AQ"
+
+    prohibits_commercial = True
+
+    FIRST_Q = 1
+    LAST_Q = 50
+    PREFIX = "q"
+    MAX_AREA_SCORE = 10
+    MAX_SCORE = 50
+
+    # Questions where agreement indicates autistic-like traits.
+
+    @classmethod
+    def extend_columns(cls: Type["Aq"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             cls.PREFIX,
@@ -135,22 +146,6 @@ class AqMetaclass(DeclarativeMeta):
             ],
         )
 
-        super().__init__(name, bases, classdict)
-
-
-class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
-    __tablename__ = "aq"
-    shortname = "AQ"
-
-    prohibits_commercial = True
-
-    FIRST_Q = 1
-    LAST_Q = 50
-    PREFIX = "q"
-    MAX_AREA_SCORE = 10
-    MAX_SCORE = 50
-
-    # Questions where agreement indicates autistic-like traits.
     # As listed in Baron-Cohen et al. (2001) [see refs in aq.rst], p7:
     #   'Scoring the AQ: “Definitely agree” or “slightly agree” responses
     #   scored 1 point, on the following items: 1, 2, 4, 5, 6, 7, 9, 12, 13,
@@ -422,7 +417,7 @@ class Aq(TaskHasPatientMixin, Task, metaclass=AqMetaclass):
 
     def get_task_html_rows_for_range(
         self, req: CamcopsRequest, first_q: int, last_q: int
-    ):
+    ) -> str:
         rows = ""
         for q_num in range(first_q, last_q + 1):
             field = self.PREFIX + str(q_num)

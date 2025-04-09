@@ -28,7 +28,7 @@ camcops_server/tasks/asdas.py
 """
 
 import math
-from typing import Any, Dict, List, Optional, Type, Tuple
+from typing import Any, List, Optional, Type
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
@@ -46,17 +46,22 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy import Column, Float
-from sqlalchemy.ext.declarative import DeclarativeMeta
 
 
-class AsdasMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Asdas"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Asdas(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    __tablename__ = "asdas"
+    shortname = "ASDAS"
+    provides_trackers = True
+
+    N_SCALE_QUESTIONS = 4
+    MAX_SCORE_SCALE = 10
+    N_QUESTIONS = 6
+
+    @classmethod
+    def extend_columns(cls: Type["Asdas"], **kwargs: Any) -> None:
 
         add_multiple_columns(
             cls,
@@ -86,17 +91,6 @@ class AsdasMetaclass(DeclarativeMeta):
             Column(cls.ESR_FIELD_NAME, Float, comment="ESR (mm/h)"),
         )
 
-        super().__init__(name, bases, classdict)
-
-
-class Asdas(TaskHasPatientMixin, Task, metaclass=AsdasMetaclass):
-    __tablename__ = "asdas"
-    shortname = "ASDAS"
-    provides_trackers = True
-
-    N_SCALE_QUESTIONS = 4
-    MAX_SCORE_SCALE = 10
-    N_QUESTIONS = 6
     SCALE_FIELD_NAMES = strseq("q", 1, N_SCALE_QUESTIONS)
     CRP_FIELD_NAME = "q5"
     ESR_FIELD_NAME = "q6"

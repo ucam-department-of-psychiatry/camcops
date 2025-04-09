@@ -98,7 +98,7 @@ class AqTests(TestCase):
     COMMUNICATION_QUESTIONS = [7, 17, 18, 26, 27, 31, 33, 35, 38, 39]
     IMAGINATION_QUESTIONS = [3, 8, 14, 20, 21, 24, 40, 41, 42, 50]
 
-    def test_max_score_is_50(self):
+    def test_max_score_is_50(self) -> None:
         aq = Aq()
         for q_num in self.AGREE_SCORING_QUESTIONS:
             setattr(aq, f"q{q_num}", self.DEFINITELY_AGREE)
@@ -108,7 +108,7 @@ class AqTests(TestCase):
 
         self.assertEqual(aq.score(), 50)
 
-    def test_min_score_is_0(self):
+    def test_min_score_is_0(self) -> None:
         aq = Aq()
 
         for q_num in self.AGREE_SCORING_QUESTIONS:
@@ -119,22 +119,22 @@ class AqTests(TestCase):
 
         self.assertEqual(aq.score(), 0)
 
-    def test_score_is_none_if_any_none(self):
+    def test_score_is_none_if_any_none(self) -> None:
         aq = Aq()
 
         for q_num in self.ALL_QUESTIONS:
             setattr(aq, f"q{q_num}", self.DEFINITELY_AGREE)
 
-        aq.q1 = None
+        aq.q1 = None  # type: ignore[attr-defined]
 
         self.assertIsNone(aq.score())
 
-    def test_incomplete_when_answers_missing(self):
+    def test_incomplete_when_answers_missing(self) -> None:
         aq = Aq()
 
         self.assertFalse(aq.is_complete())
 
-    def test_complete_when_all_answered(self):
+    def test_complete_when_all_answered(self) -> None:
         aq = Aq()
 
         for q_num in self.ALL_QUESTIONS:
@@ -142,17 +142,17 @@ class AqTests(TestCase):
 
         self.assertTrue(aq.is_complete())
 
-    def test_social_skill_score_is_none_if_any_none(self):
+    def test_social_skill_score_is_none_if_any_none(self) -> None:
         aq = Aq()
 
         for q_num in self.SOCIAL_SKILL_QUESTIONS:
             setattr(aq, f"q{q_num}", self.non_scoring_answer(q_num))
 
-        aq.q1 = None
+        aq.q1 = None  # type: ignore[attr-defined]
 
         self.assertIsNone(aq.social_skill_score())
 
-    def test_min_social_skill_score_is_0(self):
+    def test_min_social_skill_score_is_0(self) -> None:
         aq = Aq()
 
         for q_num in self.SOCIAL_SKILL_QUESTIONS:
@@ -160,7 +160,7 @@ class AqTests(TestCase):
 
         self.assertEqual(aq.social_skill_score(), 0)
 
-    def test_max_social_skill_score_is_10(self):
+    def test_max_social_skill_score_is_10(self) -> None:
         aq = Aq()
 
         for q_num in self.SOCIAL_SKILL_QUESTIONS:
@@ -168,7 +168,7 @@ class AqTests(TestCase):
 
         self.assertEqual(aq.social_skill_score(), 10)
 
-    def test_min_attention_switching_score_is_0(self):
+    def test_min_attention_switching_score_is_0(self) -> None:
         aq = Aq()
 
         for q_num in self.ATTENTION_SWITCHING_QUESTIONS:
@@ -176,7 +176,7 @@ class AqTests(TestCase):
 
         self.assertEqual(aq.attention_switching_score(), 0)
 
-    def test_max_attention_switching_score_is_10(self):
+    def test_max_attention_switching_score_is_10(self) -> None:
         aq = Aq()
 
         for q_num in self.ATTENTION_SWITCHING_QUESTIONS:
@@ -184,7 +184,7 @@ class AqTests(TestCase):
 
         self.assertEqual(aq.attention_switching_score(), 10)
 
-    def test_min_attention_to_detail_score_is_0(self):
+    def test_min_attention_to_detail_score_is_0(self) -> None:
         aq = Aq()
 
         for q_num in self.ATTENTION_TO_DETAIL_QUESTIONS:
@@ -192,7 +192,7 @@ class AqTests(TestCase):
 
         self.assertEqual(aq.attention_to_detail_score(), 0)
 
-    def test_max_attention_to_detail_score_is_10(self):
+    def test_max_attention_to_detail_score_is_10(self) -> None:
         aq = Aq()
 
         for q_num in self.ATTENTION_TO_DETAIL_QUESTIONS:
@@ -200,7 +200,7 @@ class AqTests(TestCase):
 
         self.assertEqual(aq.attention_to_detail_score(), 10)
 
-    def test_min_communication_score_is_0(self):
+    def test_min_communication_score_is_0(self) -> None:
         aq = Aq()
 
         for q_num in self.COMMUNICATION_QUESTIONS:
@@ -208,7 +208,7 @@ class AqTests(TestCase):
 
         self.assertEqual(aq.communication_score(), 0)
 
-    def test_max_communication_score_is_10(self):
+    def test_max_communication_score_is_10(self) -> None:
         aq = Aq()
 
         for q_num in self.COMMUNICATION_QUESTIONS:
@@ -216,7 +216,7 @@ class AqTests(TestCase):
 
         self.assertEqual(aq.communication_score(), 10)
 
-    def test_min_imagination_score_is_0(self):
+    def test_min_imagination_score_is_0(self) -> None:
         aq = Aq()
 
         for q_num in self.IMAGINATION_QUESTIONS:
@@ -224,7 +224,7 @@ class AqTests(TestCase):
 
         self.assertEqual(aq.imagination_score(), 0)
 
-    def test_max_imagination_score_is_10(self):
+    def test_max_imagination_score_is_10(self) -> None:
         aq = Aq()
 
         for q_num in self.IMAGINATION_QUESTIONS:
@@ -232,13 +232,13 @@ class AqTests(TestCase):
 
         self.assertEqual(aq.imagination_score(), 10)
 
-    def non_scoring_answer(self, q_num: int):
+    def non_scoring_answer(self, q_num: int) -> int:
         if q_num in self.AGREE_SCORING_QUESTIONS:
             return self.DEFINITELY_DISAGREE
 
         return self.DEFINITELY_AGREE
 
-    def scoring_answer(self, q_num: int):
+    def scoring_answer(self, q_num: int) -> int:
         if q_num in self.AGREE_SCORING_QUESTIONS:
             return self.DEFINITELY_AGREE
 

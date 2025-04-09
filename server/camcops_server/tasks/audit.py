@@ -25,10 +25,9 @@ camcops_server/tasks/audit.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, cast, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -52,14 +51,24 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class AuditMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Audit"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Audit(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the AUDIT task.
+    """
+
+    __tablename__ = "audit"
+    shortname = "AUDIT"
+    provides_trackers = True
+
+    prohibits_commercial = True
+
+    NQUESTIONS = 10
+
+    @classmethod
+    def extend_columns(cls: Type["Audit"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -81,21 +90,7 @@ class AuditMetaclass(DeclarativeMeta):
                 "others concerned",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Audit(TaskHasPatientMixin, Task, metaclass=AuditMetaclass):
-    """
-    Server implementation of the AUDIT task.
-    """
-
-    __tablename__ = "audit"
-    shortname = "AUDIT"
-    provides_trackers = True
-
-    prohibits_commercial = True
-
-    NQUESTIONS = 10
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 
     @staticmethod
@@ -134,15 +129,17 @@ class Audit(TaskHasPatientMixin, Task, metaclass=AuditMetaclass):
     def is_complete(self) -> bool:
         if not self.field_contents_valid():
             return False
-        if self.q1 is None or self.q9 is None or self.q10 is None:
+        if (
+            self.q1 is None or self.q9 is None or self.q10 is None  # type: ignore[attr-defined]  # noqa: E501
+        ):
             return False
-        if self.q1 == 0:
+        if self.q1 == 0:  # type: ignore[attr-defined]
             # Special limited-information completeness
             return True
         if (
-            self.q2 is not None
-            and self.q3 is not None
-            and (self.q2 + self.q3 == 0)
+            self.q2 is not None  # type: ignore[attr-defined]
+            and self.q3 is not None  # type: ignore[attr-defined]
+            and (self.q2 + self.q3 == 0)  # type: ignore[attr-defined]
         ):
             # Special limited-information completeness
             return True
@@ -150,16 +147,16 @@ class Audit(TaskHasPatientMixin, Task, metaclass=AuditMetaclass):
         return self.all_fields_not_none(self.TASK_FIELDS)
 
     def total_score(self) -> int:
-        return self.sum_fields(self.TASK_FIELDS)
+        return cast(int, self.sum_fields(self.TASK_FIELDS))
 
     # noinspection PyUnresolvedReferences
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         exceeds_cutoff = score >= 8
-        q1_dict = {None: None}
-        q2_dict = {None: None}
-        q3_to_8_dict = {None: None}
-        q9_to_10_dict = {None: None}
+        q1_dict: dict[Optional[int], Optional[str]] = {None: None}
+        q2_dict: dict[Optional[int], Optional[str]] = {None: None}
+        q3_to_8_dict: dict[Optional[int], Optional[str]] = {None: None}
+        q9_to_10_dict: dict[Optional[int], Optional[str]] = {None: None}
         for option in range(0, 5):
             q1_dict[option] = (
                 str(option)
@@ -184,10 +181,12 @@ class Audit(TaskHasPatientMixin, Task, metaclass=AuditMetaclass):
                 )
 
         q_a = tr_qa(
-            self.wxstring(req, "q1_s"), get_from_dict(q1_dict, self.q1)
+            self.wxstring(req, "q1_s"),
+            get_from_dict(q1_dict, self.q1),  # type: ignore[attr-defined]
         )
         q_a += tr_qa(
-            self.wxstring(req, "q2_s"), get_from_dict(q2_dict, self.q2)
+            self.wxstring(req, "q2_s"),
+            get_from_dict(q2_dict, self.q2),  # type: ignore[attr-defined]
         )
         for q in range(3, 8 + 1):
             q_a += tr_qa(
@@ -195,10 +194,16 @@ class Audit(TaskHasPatientMixin, Task, metaclass=AuditMetaclass):
                 get_from_dict(q3_to_8_dict, getattr(self, "q" + str(q))),
             )
         q_a += tr_qa(
-            self.wxstring(req, "q9_s"), get_from_dict(q9_to_10_dict, self.q9)
+            self.wxstring(req, "q9_s"),
+            get_from_dict(
+                q9_to_10_dict, self.q9  # type: ignore[attr-defined]
+            ),
         )
         q_a += tr_qa(
-            self.wxstring(req, "q10_s"), get_from_dict(q9_to_10_dict, self.q10)
+            self.wxstring(req, "q10_s"),
+            get_from_dict(
+                q9_to_10_dict, self.q10  # type: ignore[attr-defined]
+            ),
         )
 
         return f"""
@@ -247,14 +252,18 @@ class Audit(TaskHasPatientMixin, Task, metaclass=AuditMetaclass):
 # =============================================================================
 
 
-class AuditCMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["AuditC"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class AuditC(TaskHasPatientMixin, Task):  # type: ignore[misc]
+    __tablename__ = "audit_c"
+    shortname = "AUDIT-C"
+    extrastring_taskname = "audit"  # shares strings with AUDIT
+    info_filename_stem = extrastring_taskname
+
+    prohibits_commercial = True
+
+    NQUESTIONS = 3
+
+    @classmethod
+    def extend_columns(cls: Type["AuditC"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -269,18 +278,7 @@ class AuditCMetaclass(DeclarativeMeta):
                 "how often six drinks",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class AuditC(TaskHasPatientMixin, Task, metaclass=AuditMetaclass):
-    __tablename__ = "audit_c"
-    shortname = "AUDIT-C"
-    extrastring_taskname = "audit"  # shares strings with AUDIT
-    info_filename_stem = extrastring_taskname
-
-    prohibits_commercial = True
-
-    NQUESTIONS = 3
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 
     @staticmethod
@@ -320,13 +318,13 @@ class AuditC(TaskHasPatientMixin, Task, metaclass=AuditMetaclass):
         return self.all_fields_not_none(self.TASK_FIELDS)
 
     def total_score(self) -> int:
-        return self.sum_fields(self.TASK_FIELDS)
+        return cast(int, self.sum_fields(self.TASK_FIELDS))
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
-        q1_dict = {None: None}
-        q2_dict = {None: None}
-        q3_dict = {None: None}
+        q1_dict: dict[Optional[int], Optional[str]] = {None: None}
+        q2_dict: dict[Optional[int], Optional[str]] = {None: None}
+        q3_dict: dict[Optional[int], Optional[str]] = {None: None}
         for option in range(0, 5):
             q1_dict[option] = (
                 str(option)
@@ -349,6 +347,19 @@ class AuditC(TaskHasPatientMixin, Task, metaclass=AuditMetaclass):
                 + self.wxstring(req, "q3to8_option" + str(option))
             )
 
+        row_1 = tr_qa(
+            self.wxstring(req, "c_q1_question"),
+            get_from_dict(q1_dict, self.q1),  # type: ignore[attr-defined]
+        )
+        row_2 = tr_qa(
+            self.wxstring(req, "c_q2_question"),
+            get_from_dict(q2_dict, self.q2),  # type: ignore[attr-defined]
+        )
+        row_3 = tr_qa(
+            self.wxstring(req, "c_q3_question"),
+            get_from_dict(q3_dict, self.q3),  # type: ignore[attr-defined]
+        )
+
         # noinspection PyUnresolvedReferences
         return f"""
             <div class="{CssClass.SUMMARY}">
@@ -363,12 +374,9 @@ class AuditC(TaskHasPatientMixin, Task, metaclass=AuditMetaclass):
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-                {tr_qa(self.wxstring(req, "c_q1_question"),
-                       get_from_dict(q1_dict, self.q1))}
-                {tr_qa(self.wxstring(req, "c_q2_question"),
-                       get_from_dict(q2_dict, self.q2))}
-                {tr_qa(self.wxstring(req, "c_q3_question"),
-                       get_from_dict(q3_dict, self.q3))}
+                {row_1}
+                {row_2}
+                {row_3}
             </table>
             <div class="{CssClass.COPYRIGHT}">
                 AUDIT: Copyright © World Health Organization.

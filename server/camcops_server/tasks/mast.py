@@ -25,10 +25,9 @@ camcops_server/tasks/mast.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -57,14 +56,22 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class MastMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Mast"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Mast(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the MAST task.
+    """
+
+    __tablename__ = "mast"
+    shortname = "MAST"
+    provides_trackers = True
+
+    NQUESTIONS = 24
+
+    @classmethod
+    def extend_columns(cls: Type["Mast"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -100,19 +107,7 @@ class MastMetaclass(DeclarativeMeta):
                 "arrested for other drunk behaviour",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Mast(TaskHasPatientMixin, Task, metaclass=MastMetaclass):
-    """
-    Server implementation of the MAST task.
-    """
-
-    __tablename__ = "mast"
-    shortname = "MAST"
-    provides_trackers = True
-
-    NQUESTIONS = 24
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 53
     ROSS_THRESHOLD = 13

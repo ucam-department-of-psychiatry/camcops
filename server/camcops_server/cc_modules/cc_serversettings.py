@@ -65,15 +65,16 @@ MySQL isn't one of those.
 
 """  # noqa
 
+from datetime import datetime
 import logging
 from typing import Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import pendulum
 from pendulum import DateTime as Pendulum
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.schema import Column, MetaData, Table
 from sqlalchemy.sql.sqltypes import (
-    DateTime,
     Float,
     Integer,
     String,
@@ -84,7 +85,6 @@ from camcops_server.cc_modules.cc_sqla_coltypes import DatabaseTitleColType
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 
 if TYPE_CHECKING:
-    from datetime import datetime
     from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -172,9 +172,7 @@ class ServerSettings(Base):
 
     __tablename__ = "_server_settings"
 
-    id = Column(
-        "id",
-        Integer,
+    id: Mapped[int] = mapped_column(
         primary_key=True,
         autoincrement=True,
         index=True,
@@ -183,14 +181,14 @@ class ServerSettings(Base):
             f"{SERVER_SETTINGS_SINGLETON_PK} is ever used)"
         ),
     )
-    database_title = Column(
-        "database_title", DatabaseTitleColType, comment="Database title"
+    database_title: Mapped[Optional[str]] = mapped_column(
+        DatabaseTitleColType, comment="Database title"
     )
-    last_dummy_login_failure_clearance_at_utc = Column(
-        "last_dummy_login_failure_clearance_at_utc",
-        DateTime,
-        comment="Date/time (in UTC) when login failure records were cleared "
-        "for nonexistent users (security feature)",
+    last_dummy_login_failure_clearance_at_utc: Mapped[Optional[datetime]] = (
+        mapped_column(
+            comment="Date/time (in UTC) when login failure records were "
+            "cleared for nonexistent users (security feature)",
+        )
     )
 
     def get_last_dummy_login_failure_clearance_pendulum(
@@ -208,9 +206,7 @@ class ServerSettings(Base):
         Specifically, this function returns an offset-aware (timezone-aware)
         version of the raw UTC DATETIME from the database.
         """
-        dt = (
-            self.last_dummy_login_failure_clearance_at_utc
-        )  # type: Optional[datetime]
+        dt = self.last_dummy_login_failure_clearance_at_utc
         if dt is None:
             return None
         return pendulum.instance(dt, tz=pendulum.UTC)

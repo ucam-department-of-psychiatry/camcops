@@ -27,33 +27,40 @@ camcops_server/tasks/cpft_covid_medical.py
 
 """
 
-from typing import Any, Dict, Optional, Tuple, Type
+from typing import Any, Optional, Type
 
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     ZERO_TO_THREE_CHECKER,
 )
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
-class CpftCovidMedicalMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["CpftCovidMedical"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class CpftCovidMedical(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the CPFT_Covid_Medical task
+    """
+
+    __tablename__ = "cpft_covid_medical"
+    shortname = "CPFT_Covid_Medical"
+    provides_trackers = False
+
+    FN_HOW_AND_WHEN_SYMPTOMS = "how_and_when_symptoms"
+
+    @classmethod
+    def extend_columns(cls: Type["CpftCovidMedical"], **kwargs: Any) -> None:
         setattr(
             cls,
             cls.FN_HOW_AND_WHEN_SYMPTOMS,
-            CamcopsColumn(
+            camcops_column(
                 cls.FN_HOW_AND_WHEN_SYMPTOMS,
                 Integer,
                 permitted_value_checker=ZERO_TO_THREE_CHECKER,
@@ -65,22 +72,6 @@ class CpftCovidMedicalMetaclass(DeclarativeMeta):
                 ),
             ),
         )
-
-        super().__init__(name, bases, classdict)
-
-
-class CpftCovidMedical(
-    TaskHasPatientMixin, Task, metaclass=CpftCovidMedicalMetaclass
-):
-    """
-    Server implementation of the CPFT_Covid_Medical task
-    """
-
-    __tablename__ = "cpft_covid_medical"
-    shortname = "CPFT_Covid_Medical"
-    provides_trackers = False
-
-    FN_HOW_AND_WHEN_SYMPTOMS = "how_and_when_symptoms"
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

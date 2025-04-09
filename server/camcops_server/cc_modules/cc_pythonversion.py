@@ -73,7 +73,7 @@ import sys
 MINIMUM_PYTHON_VERSION = (3, 8)
 
 
-def assert_minimum_python_version():
+def assert_minimum_python_version() -> None:
     """
     Asserts that this version of Python meets our minimum requirements.
     This function should be used except in installation environments where

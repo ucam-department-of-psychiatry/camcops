@@ -25,12 +25,12 @@ camcops_server/tasks/rand36.py
 
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.maths_py import mean
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.sql.sqltypes import Float, Integer
+from sqlalchemy.orm import Mapped
+from sqlalchemy.sql.sqltypes import Float
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
@@ -38,7 +38,7 @@ from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, identity, tr, tr_span_col
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    mapped_camcops_column,
     ONE_TO_FIVE_CHECKER,
     ONE_TO_SIX_CHECKER,
 )
@@ -52,14 +52,22 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Rand36Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Rand36"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Rand36(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the RAND-36 task.
+    """
+
+    __tablename__ = "rand36"
+    shortname = "RAND-36"
+    provides_trackers = True
+
+    NQUESTIONS = 36
+
+    @classmethod
+    def extend_columns(cls: Type["Rand36"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -149,58 +157,33 @@ class Rand36Metaclass(DeclarativeMeta):
                 "My health is excellent",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Rand36(TaskHasPatientMixin, Task, metaclass=Rand36Metaclass):
-    """
-    Server implementation of the RAND-36 task.
-    """
-
-    __tablename__ = "rand36"
-    shortname = "RAND-36"
-    provides_trackers = True
-
-    NQUESTIONS = 36
-
-    q1 = CamcopsColumn(
-        "q1",
-        Integer,
+    q1: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Q1 (general health) (1 excellent - 5 poor)",
     )
-    q2 = CamcopsColumn(
-        "q2",
-        Integer,
+    q2: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Q2 (health cf. 1y ago) (1 much better - 5 much worse)",
     )
 
-    q20 = CamcopsColumn(
-        "q20",
-        Integer,
+    q20: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Q20 (past 4 weeks, to what extent physical health/"
         "emotional problems interfered with social activity) "
         "(1 not at all - 5 extremely)",
     )
-    q21 = CamcopsColumn(
-        "q21",
-        Integer,
+    q21: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_SIX_CHECKER,
         comment="Q21 (past 4 weeks, how much pain (1 none - 6 very severe)",
     )
-    q22 = CamcopsColumn(
-        "q22",
-        Integer,
+    q22: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Q22 (past 4 weeks, pain interfered with normal activity "
         "(1 not at all - 5 extremely)",
     )
 
-    q32 = CamcopsColumn(
-        "q32",
-        Integer,
+    q32: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Q32 (past 4 weeks, how much of the time has physical "
         "health/emotional problems interfered with social activities "
@@ -520,51 +503,51 @@ class Rand36(TaskHasPatientMixin, Task, metaclass=Rand36Metaclass):
         h += self.scoreline(
             self.wxstring(req, "score_overall"),
             1,
-            self.format_float_for_display(self.score_overall()),
+            self.format_float_for_display(self.score_overall()),  # type: ignore[arg-type]  # noqa: E501
         )
         h += self.scoreline(
             self.wxstring(req, "score_physical_functioning"),
             2,
-            self.format_float_for_display(self.score_physical_functioning()),
+            self.format_float_for_display(self.score_physical_functioning()),  # type: ignore[arg-type]  # noqa: E501
         )
         h += self.scoreline(
             self.wxstring(req, "score_role_limitations_physical"),
             3,
-            self.format_float_for_display(
+            self.format_float_for_display(  # type: ignore[arg-type]
                 self.score_role_limitations_physical()
             ),
         )
         h += self.scoreline(
             self.wxstring(req, "score_role_limitations_emotional"),
             4,
-            self.format_float_for_display(
+            self.format_float_for_display(  # type: ignore[arg-type]
                 self.score_role_limitations_emotional()
             ),
         )
         h += self.scoreline(
             self.wxstring(req, "score_energy"),
             5,
-            self.format_float_for_display(self.score_energy()),
+            self.format_float_for_display(self.score_energy()),  # type: ignore[arg-type]  # noqa: E501
         )
         h += self.scoreline(
             self.wxstring(req, "score_emotional_wellbeing"),
             6,
-            self.format_float_for_display(self.score_emotional_wellbeing()),
+            self.format_float_for_display(self.score_emotional_wellbeing()),  # type: ignore[arg-type]  # noqa: E501
         )
         h += self.scoreline(
             self.wxstring(req, "score_social_functioning"),
             7,
-            self.format_float_for_display(self.score_social_functioning()),
+            self.format_float_for_display(self.score_social_functioning()),  # type: ignore[arg-type]  # noqa: E501
         )
         h += self.scoreline(
             self.wxstring(req, "score_pain"),
             8,
-            self.format_float_for_display(self.score_pain()),
+            self.format_float_for_display(self.score_pain()),  # type: ignore[arg-type]  # noqa: E501
         )
         h += self.scoreline(
             self.wxstring(req, "score_general_health"),
             9,
-            self.format_float_for_display(self.score_general_health()),
+            self.format_float_for_display(self.score_general_health()),  # type: ignore[arg-type]  # noqa: E501
         )
         h += f"""
                 </table>

@@ -27,15 +27,14 @@ camcops_server/tasks/elixhauserci.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, List, Type
 
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import get_yes_no_unknown, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
-from camcops_server.cc_modules.cc_sqla_coltypes import BoolColumn
+from camcops_server.cc_modules.cc_sqla_coltypes import bool_column
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
     Task,
@@ -92,36 +91,27 @@ CONSTRAINT_NAME_MAP = {
 }
 
 
-class ElixhauserCIMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["ElixhauserCI"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class ElixhauserCI(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
+):
+    __tablename__ = "elixhauserci"
+    shortname = "ElixhauserCI"
+
+    @classmethod
+    def extend_columns(cls: Type["ElixhauserCI"], **kwargs: Any) -> None:
         for colname in FIELDNAMES:
             constraint_name = CONSTRAINT_NAME_MAP.get(colname)
             setattr(
                 cls,
                 colname,
-                BoolColumn(
+                bool_column(
                     colname,
                     comment="Disease present (0 no, 1 yes)",
                     constraint_name=constraint_name,
                 ),
             )
-        super().__init__(name, bases, classdict)
-
-
-class ElixhauserCI(
-    TaskHasPatientMixin,
-    TaskHasClinicianMixin,
-    Task,
-    metaclass=ElixhauserCIMetaclass,
-):
-    __tablename__ = "elixhauserci"
-    shortname = "ElixhauserCI"
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

@@ -25,13 +25,13 @@ camcops_server/tasks/icd10specpd.py
 
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.stringfunc import strseq
 from cardinal_pythonlib.typetests import is_false
-from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.orm import Mapped
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Date, UnicodeText
 
@@ -53,7 +53,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    mapped_camcops_column,
 )
 from camcops_server.cc_modules.cc_string import AS
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -75,14 +75,21 @@ def ctv_info_pd(
     return CtvInfo(content=condition + ": " + get_yes_no_unknown(req, has_it))
 
 
-class Icd10SpecPDMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Icd10SpecPD"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Icd10SpecPD(  # type: ignore[misc]
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the ICD10-PD task.
+    """
+
+    __tablename__ = "icd10specpd"
+    shortname = "ICD10-PD"
+    info_filename_stem = "icd"
+
+    @classmethod
+    def extend_columns(cls: Type["Icd10SpecPD"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "g",
@@ -260,78 +267,44 @@ class Icd10SpecPDMetaclass(DeclarativeMeta):
                 "everyday decisions require advice/reassurance",
             ],
         )
-        super().__init__(name, bases, classdict)
-
-
-class Icd10SpecPD(
-    TaskHasClinicianMixin,
-    TaskHasPatientMixin,
-    Task,
-    metaclass=Icd10SpecPDMetaclass,
-):
-    """
-    Server implementation of the ICD10-PD task.
-    """
-
-    __tablename__ = "icd10specpd"
-    shortname = "ICD10-PD"
-    info_filename_stem = "icd"
 
     date_pertains_to = Column(
         "date_pertains_to", Date, comment="Date the assessment pertains to"
     )
     comments = Column("comments", UnicodeText, comment="Clinician's comments")
-    skip_paranoid = CamcopsColumn(
-        "skip_paranoid",
-        Boolean,
+    skip_paranoid: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for paranoid PD?",
     )
-    skip_schizoid = CamcopsColumn(
-        "skip_schizoid",
-        Boolean,
+    skip_schizoid: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for schizoid PD?",
     )
-    skip_dissocial = CamcopsColumn(
-        "skip_dissocial",
-        Boolean,
+    skip_dissocial: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for dissocial PD?",
     )
-    skip_eu = CamcopsColumn(
-        "skip_eu",
-        Boolean,
+    skip_eu: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for emotionally unstable PD?",
     )
-    skip_histrionic = CamcopsColumn(
-        "skip_histrionic",
-        Boolean,
+    skip_histrionic: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for histrionic PD?",
     )
-    skip_anankastic = CamcopsColumn(
-        "skip_anankastic",
-        Boolean,
+    skip_anankastic: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for anankastic PD?",
     )
-    skip_anxious = CamcopsColumn(
-        "skip_anxious",
-        Boolean,
+    skip_anxious: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for anxious PD?",
     )
-    skip_dependent = CamcopsColumn(
-        "skip_dependent",
-        Boolean,
+    skip_dependent: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Skip questions for dependent PD?",
     )
-    other_pd_present = CamcopsColumn(
-        "other_pd_present",
-        Boolean,
+    other_pd_present: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Is another personality disorder present?",
     )
@@ -487,12 +460,12 @@ class Icd10SpecPD(
     # noinspection PyUnresolvedReferences
     def is_pd_excluded(self) -> bool:
         return (
-            is_false(self.g1)
-            or is_false(self.g2)
-            or is_false(self.g3)
-            or is_false(self.g4)
-            or is_false(self.g5)
-            or is_false(self.g6)
+            is_false(self.g1)  # type: ignore[attr-defined]
+            or is_false(self.g2)  # type: ignore[attr-defined]
+            or is_false(self.g3)  # type: ignore[attr-defined]
+            or is_false(self.g4)  # type: ignore[attr-defined]
+            or is_false(self.g5)  # type: ignore[attr-defined]
+            or is_false(self.g6)  # type: ignore[attr-defined]
             or (
                 self.all_fields_not_none(self.GENERAL_1_FIELDS)
                 and self.count_booleans(self.GENERAL_1_FIELDS) <= 1
@@ -570,7 +543,7 @@ class Icd10SpecPD(
             return hpd
         if not self.is_complete_eu():
             return None
-        return self.count_booleans(self.EUPD_I_FIELDS) >= 3 and self.eu2
+        return self.count_booleans(self.EUPD_I_FIELDS) >= 3 and self.eu2  # type: ignore[attr-defined]  # noqa: E501
 
     def has_eupd_b(self) -> Optional[bool]:
         hpd = self.has_pd()
@@ -685,7 +658,7 @@ class Icd10SpecPD(
         return html
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        h = self.get_standard_clinician_comments_block(req, self.comments)
+        h = self.get_standard_clinician_comments_block(req, self.comments)  # type: ignore[arg-type]  # noqa: E501
         h += f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
@@ -694,7 +667,7 @@ class Icd10SpecPD(
         h += tr_qa(
             req.wappstring(AS.DATE_PERTAINS_TO),
             format_datetime(
-                self.date_pertains_to, DateFormat.LONG_DATE, default=None
+                self.date_pertains_to, DateFormat.LONG_DATE, default=None  # type: ignore[arg-type]  # noqa: E501
             ),
         )
         h += tr_qa(

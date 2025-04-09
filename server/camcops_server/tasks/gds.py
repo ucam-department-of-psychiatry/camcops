@@ -25,10 +25,9 @@ camcops_server/tasks/gds.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer, String
 
 from camcops_server.cc_modules.cc_constants import CssClass, NO_CHAR, YES_CHAR
@@ -48,14 +47,23 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class Gds15Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Gds15"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Gds15(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the GDS-15 task.
+    """
+
+    __tablename__ = "gds15"
+    shortname = "GDS-15"
+    info_filename_stem = "gds"
+    provides_trackers = True
+
+    NQUESTIONS = 15
+
+    @classmethod
+    def extend_columns(cls: Type["Gds15"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -82,20 +90,7 @@ class Gds15Metaclass(DeclarativeMeta):
                 "others better off",  # 15
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Gds15(TaskHasPatientMixin, Task, metaclass=Gds15Metaclass):
-    """
-    Server implementation of the GDS-15 task.
-    """
-
-    __tablename__ = "gds15"
-    shortname = "GDS-15"
-    info_filename_stem = "gds"
-    provides_trackers = True
-
-    NQUESTIONS = 15
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     SCORE_IF_YES = [2, 3, 4, 6, 8, 9, 10, 12, 14, 15]
     SCORE_IF_NO = [1, 5, 7, 11, 13]

@@ -25,10 +25,9 @@ camcops_server/tasks/cape42.py
 
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any, List, Optional, Type
 
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Float, Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -134,14 +133,21 @@ DEP_MAX = MAX_SCORE_PER_Q * len(DEPRESSIVE)
 DP = 2
 
 
-class Cape42Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Cape42"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Cape42(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the CAPE-42 task.
+    """
+
+    __tablename__ = "cape42"
+    shortname = "CAPE-42"
+    provides_trackers = True
+    info_filename_stem = "cape"
+
+    @classmethod
+    def extend_columns(cls: Type["Cape42"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "frequency",
@@ -168,18 +174,6 @@ class Cape42Metaclass(DeclarativeMeta):
             ),
             comment_strings=QUESTION_SNIPPETS,
         )
-        super().__init__(name, bases, classdict)
-
-
-class Cape42(TaskHasPatientMixin, Task, metaclass=Cape42Metaclass):
-    """
-    Server implementation of the CAPE-42 task.
-    """
-
-    __tablename__ = "cape42"
-    shortname = "CAPE-42"
-    provides_trackers = True
-    info_filename_stem = "cape"
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

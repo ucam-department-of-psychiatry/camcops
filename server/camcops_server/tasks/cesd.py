@@ -27,12 +27,11 @@ camcops_server/tasks/cesd.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
 from semantic_version import Version
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -61,18 +60,24 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class CesdMetaclass(DeclarativeMeta):
+class Cesd(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
     """
-    There is a multilayer metaclass problem; see hads.py for discussion.
+    Server implementation of the CESD task.
     """
 
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Cesd"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+    __tablename__ = "cesd"
+    shortname = "CESD"
+    provides_trackers = True
+    extrastring_taskname = "cesd"
+    N_QUESTIONS = 20
+    N_ANSWERS = 4
+    DEPRESSION_RISK_THRESHOLD = 16
+
+    @classmethod
+    def extend_columns(cls: Type["Cesd"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -106,21 +111,7 @@ class CesdMetaclass(DeclarativeMeta):
                 "could not get going",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Cesd(TaskHasPatientMixin, Task, metaclass=CesdMetaclass):
-    """
-    Server implementation of the CESD task.
-    """
-
-    __tablename__ = "cesd"
-    shortname = "CESD"
-    provides_trackers = True
-    extrastring_taskname = "cesd"
-    N_QUESTIONS = 20
-    N_ANSWERS = 4
-    DEPRESSION_RISK_THRESHOLD = 16
     SCORED_FIELDS = strseq("q", 1, N_QUESTIONS)
     TASK_FIELDS = SCORED_FIELDS
     MIN_SCORE = 0
@@ -205,7 +196,7 @@ class Cesd(TaskHasPatientMixin, Task, metaclass=CesdMetaclass):
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
-        answer_dict = {None: None}
+        answer_dict: dict[Optional[int], Optional[str]] = {None: None}
         for option in range(self.N_ANSWERS):
             answer_dict[option] = (
                 str(option) + " – " + self.wxstring(req, "a" + str(option))

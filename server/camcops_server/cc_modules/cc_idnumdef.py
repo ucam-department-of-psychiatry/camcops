@@ -33,9 +33,8 @@ from typing import List, Optional, Tuple, TYPE_CHECKING
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.nhs import is_valid_nhs_number
 from cardinal_pythonlib.reprfunc import simple_repr
-from sqlalchemy.orm import Session as SqlASession
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, Session as SqlASession
+from sqlalchemy.sql.sqltypes import String
 
 from camcops_server.cc_modules.cc_pyramid import Routes
 from camcops_server.cc_modules.cc_sqla_coltypes import (
@@ -121,42 +120,35 @@ class IdNumDefinition(Base):
 
     __tablename__ = "_idnum_definitions"
 
-    which_idnum = Column(
-        "which_idnum",
-        Integer,
+    which_idnum: Mapped[int] = mapped_column(
         primary_key=True,
         index=True,
         comment="Which of the server's ID numbers is this?",
     )
-    description = Column(
-        "description",
+    description: Mapped[Optional[str]] = mapped_column(
         IdDescriptorColType,
         comment="Full description of the ID number",
     )
-    short_description = Column(
-        "short_description",
+    short_description: Mapped[Optional[str]] = mapped_column(
         IdDescriptorColType,
         comment="Short description of the ID number",
     )
-    hl7_id_type = Column(
-        "hl7_id_type",
+    hl7_id_type: Mapped[Optional[str]] = mapped_column(
         HL7IdTypeType,
         comment="HL7: Identifier Type code: 'a code corresponding to the type "
         "of identifier. In some cases, this code may be used as a "
         'qualifier to the "Assigning Authority" component.\'',
     )
-    hl7_assigning_authority = Column(
-        "hl7_assigning_authority",
+    hl7_assigning_authority: Mapped[Optional[str]] = mapped_column(
         HL7AssigningAuthorityType,
         comment="HL7: Assigning Authority for ID number (unique name of the "
         "system/organization/agency/department that creates the data).",
     )
-    validation_method = Column(
-        "validation_method",
+    validation_method: Mapped[Optional[str]] = mapped_column(
         String(length=ID_NUM_VALIDATION_METHOD_MAX_LEN),
         comment="Optional validation method",
     )
-    fhir_id_system = Column(
+    fhir_id_system: Mapped[Optional[str]] = mapped_column(
         "fhir_id_system", UrlColType, comment="FHIR external ID 'system' URL"
     )
 

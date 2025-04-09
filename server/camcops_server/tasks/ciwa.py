@@ -25,12 +25,11 @@ camcops_server/tasks/ciwa.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, cast, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Float, Integer
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
@@ -44,7 +43,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    mapped_camcops_column,
     MIN_ZERO_CHECKER,
     PermittedValueChecker,
     SummaryCategoryColType,
@@ -68,14 +67,23 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class CiwaMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Ciwa"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Ciwa(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
+):
+    """
+    Server implementation of the CIWA-Ar task.
+    """
+
+    __tablename__ = "ciwa"
+    shortname = "CIWA-Ar"
+    provides_trackers = True
+
+    NSCOREDQUESTIONS = 10
+
+    @classmethod
+    def extend_columns(cls: Type["Ciwa"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -96,51 +104,29 @@ class CiwaMetaclass(DeclarativeMeta):
                 "headache/fullness in head",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Ciwa(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=CiwaMetaclass
-):
-    """
-    Server implementation of the CIWA-Ar task.
-    """
-
-    __tablename__ = "ciwa"
-    shortname = "CIWA-Ar"
-    provides_trackers = True
-
-    NSCOREDQUESTIONS = 10
     SCORED_QUESTIONS = strseq("q", 1, NSCOREDQUESTIONS)
 
-    q10 = CamcopsColumn(
-        "q10",
-        Integer,
+    q10: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=4),
         comment="Q10, orientation/clouding of sensorium (0-4, higher worse)",
     )
-    t = Column("t", Float, comment="Temperature (degrees C)")
-    hr = CamcopsColumn(
-        "hr",
-        Integer,
+    t: Mapped[Optional[float]] = mapped_column(
+        comment="Temperature (degrees C)"
+    )
+    hr: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=MIN_ZERO_CHECKER,
         comment="Heart rate (beats/minute)",
     )
-    sbp = CamcopsColumn(
-        "sbp",
-        Integer,
+    sbp: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=MIN_ZERO_CHECKER,
         comment="Systolic blood pressure (mmHg)",
     )
-    dbp = CamcopsColumn(
-        "dbp",
-        Integer,
+    dbp: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=MIN_ZERO_CHECKER,
         comment="Diastolic blood pressure (mmHg)",
     )
-    rr = CamcopsColumn(
-        "rr",
-        Integer,
+    rr: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=MIN_ZERO_CHECKER,
         comment="Respiratory rate (breaths/minute)",
     )
@@ -205,7 +191,7 @@ class Ciwa(
         )
 
     def total_score(self) -> int:
-        return self.sum_fields(self.SCORED_QUESTIONS)
+        return cast(int, self.sum_fields(self.SCORED_QUESTIONS))
 
     def severity(self, req: CamcopsRequest) -> str:
         score = self.total_score()
@@ -222,7 +208,7 @@ class Ciwa(
         severity = self.severity(req)
         answer_dicts_dict = {}
         for q in self.SCORED_QUESTIONS:
-            d = {None: None}
+            d: dict[Optional[int], Optional[str]] = {None: None}
             for option in range(0, 8):
                 if option > 4 and q == "q10":
                     continue

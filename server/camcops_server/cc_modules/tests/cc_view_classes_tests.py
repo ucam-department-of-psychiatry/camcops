@@ -35,7 +35,7 @@ class TestView(FormWizardMixin, View):
     pass
 
 
-class TestStateMixin(with_typehint(BasicDatabaseTestCase)):
+class TestStateMixin(with_typehint(BasicDatabaseTestCase)):  # type: ignore[misc]  # noqa: E501
     """
     For testing FormWizardMixin state.
     """

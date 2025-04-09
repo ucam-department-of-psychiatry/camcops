@@ -25,11 +25,10 @@ camcops_server/tasks/pdss.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, cast, List, Type, Union
 
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Float, Integer
 
 from camcops_server.cc_modules.cc_constants import (
@@ -53,14 +52,24 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 DP = 3
 
 
-class PdssMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Pdss"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Pdss(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the PDSS task.
+    """
+
+    __tablename__ = "pdss"
+    shortname = "PDSS"
+    provides_trackers = True
+
+    MIN_PER_Q = 0
+    MAX_PER_Q = 4
+    NQUESTIONS = 7
+
+    @classmethod
+    def extend_columns(cls: Type["Pdss"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -79,21 +88,7 @@ class PdssMetaclass(DeclarativeMeta):
                 "interference with social life",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Pdss(TaskHasPatientMixin, Task, metaclass=PdssMetaclass):
-    """
-    Server implementation of the PDSS task.
-    """
-
-    __tablename__ = "pdss"
-    shortname = "PDSS"
-    provides_trackers = True
-
-    MIN_PER_Q = 0
-    MAX_PER_Q = 4
-    NQUESTIONS = 7
     QUESTION_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_TOTAL = MAX_PER_Q * NQUESTIONS
     MAX_COMPOSITE = 4
@@ -143,9 +138,9 @@ class Pdss(TaskHasPatientMixin, Task, metaclass=PdssMetaclass):
         ]
 
     def total_score(self) -> int:
-        return self.sum_fields(self.QUESTION_FIELDS)
+        return cast(int, self.sum_fields(self.QUESTION_FIELDS))
 
-    def composite_score(self) -> int:
+    def composite_score(self) -> Union[int, float]:
         return self.mean_fields(self.QUESTION_FIELDS)
 
     def is_complete(self) -> bool:

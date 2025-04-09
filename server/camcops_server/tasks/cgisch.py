@@ -25,10 +25,9 @@ camcops_server/tasks/cgisch.py
 
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
@@ -62,18 +61,21 @@ QUESTION_FRAGMENTS = [
 ]
 
 
-class CgiSchMetaclass(DeclarativeMeta):
+class CgiSch(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
+):
     """
-    Metaclass for :class:`CgiSch`.
+    Server implementation of the CGI-SCH task.
     """
 
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["CgiSch"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+    __tablename__ = "cgisch"
+    shortname = "CGI-SCH"
+    provides_trackers = True
+
+    @classmethod
+    def extend_columns(cls: Type["CgiSch"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "severity",
@@ -93,19 +95,6 @@ class CgiSchMetaclass(DeclarativeMeta):
             comment_fmt="Change Q{n}, {s} (1-7, higher worse, or 9 N/A)",
             comment_strings=QUESTION_FRAGMENTS,
         )
-        super().__init__(name, bases, classdict)
-
-
-class CgiSch(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=CgiSchMetaclass
-):
-    """
-    Server implementation of the CGI-SCH task.
-    """
-
-    __tablename__ = "cgisch"
-    shortname = "CGI-SCH"
-    provides_trackers = True
 
     TASK_FIELDS = strseq("severity", 1, 5) + strseq("change", 1, 5)
 
@@ -120,35 +109,35 @@ class CgiSch(
         ylabel = "Score (1-7)"
         return [
             TrackerInfo(
-                value=self.severity1,
+                value=self.severity1,  # type: ignore[attr-defined]
                 plot_label=prefix + "positive symptoms",
                 axis_label=ylabel,
                 axis_min=0.5,
                 axis_max=7.5,
             ),
             TrackerInfo(
-                value=self.severity2,
+                value=self.severity2,  # type: ignore[attr-defined]
                 plot_label=prefix + "negative symptoms",
                 axis_label=ylabel,
                 axis_min=0.5,
                 axis_max=7.5,
             ),
             TrackerInfo(
-                value=self.severity3,
+                value=self.severity3,  # type: ignore[attr-defined]
                 plot_label=prefix + "depressive symptoms",
                 axis_label=ylabel,
                 axis_min=0.5,
                 axis_max=7.5,
             ),
             TrackerInfo(
-                value=self.severity4,
+                value=self.severity4,  # type: ignore[attr-defined]
                 plot_label=prefix + "cognitive symptoms",
                 axis_label=ylabel,
                 axis_min=0.5,
                 axis_max=7.5,
             ),
             TrackerInfo(
-                value=self.severity5,
+                value=self.severity5,  # type: ignore[attr-defined]
                 plot_label=prefix + "overall severity",
                 axis_label=ylabel,
                 axis_min=0.5,
@@ -163,16 +152,16 @@ class CgiSch(
         return [
             CtvInfo(
                 content=(
-                    f"CGI-SCH. Severity: positive {self.severity1}, "
-                    f"negative {self.severity2}, "
-                    f"depressive {self.severity3}, "
-                    f"cognitive {self.severity4}, "
-                    f"overall {self.severity5}. "
-                    f"Change: positive {self.change1}, "
-                    f"negative {self.change2}, "
-                    f"depressive {self.change3}, "
-                    f"cognitive {self.change4}, "
-                    f"overall {self.change5}."
+                    f"CGI-SCH. Severity: positive {self.severity1}, "  # type: ignore[attr-defined]  # noqa: E501
+                    f"negative {self.severity2}, "  # type: ignore[attr-defined]  # noqa: E501
+                    f"depressive {self.severity3}, "  # type: ignore[attr-defined]  # noqa: E501
+                    f"cognitive {self.severity4}, "  # type: ignore[attr-defined]  # noqa: E501
+                    f"overall {self.severity5}. "  # type: ignore[attr-defined]
+                    f"Change: positive {self.change1}, "  # type: ignore[attr-defined]  # noqa: E501
+                    f"negative {self.change2}, "  # type: ignore[attr-defined]
+                    f"depressive {self.change3}, "  # type: ignore[attr-defined]  # noqa: E501
+                    f"cognitive {self.change4}, "  # type: ignore[attr-defined]
+                    f"overall {self.change5}."  # type: ignore[attr-defined]
                 )
             )
         ]
@@ -223,6 +212,18 @@ class CgiSch(
                 get_from_dict(change_dict, value),
             )
 
+        change_1 = tr_change("q1", self.change1)  # type: ignore[attr-defined]
+        change_2 = tr_change("q2", self.change2)  # type: ignore[attr-defined]
+        change_3 = tr_change("q3", self.change3)  # type: ignore[attr-defined]
+        change_4 = tr_change("q4", self.change4)  # type: ignore[attr-defined]
+        change_5 = tr_change("q5", self.change5)  # type: ignore[attr-defined]
+
+        severity_1 = tr_severity("q1", self.severity1)  # type: ignore[attr-defined]  # noqa: E501
+        severity_2 = tr_severity("q2", self.severity2)  # type: ignore[attr-defined]  # noqa: E501
+        severity_3 = tr_severity("q3", self.severity3)  # type: ignore[attr-defined]  # noqa: E501
+        severity_4 = tr_severity("q4", self.severity4)  # type: ignore[attr-defined]  # noqa: E501
+        severity_5 = tr_severity("q5", self.severity5)  # type: ignore[attr-defined]  # noqa: E501
+
         return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
@@ -236,19 +237,19 @@ class CgiSch(
                 </tr>
                 {subheading_spanning_two_columns(self.wxstring(req, "i_title"))}
                 {tr_span_col(self.wxstring(req, "i_question"), cols=2)}
-                {tr_severity("q1", self.severity1)}
-                {tr_severity("q2", self.severity2)}
-                {tr_severity("q3", self.severity3)}
-                {tr_severity("q4", self.severity4)}
-                {tr_severity("q5", self.severity5)}
+                {severity_1}
+                {severity_2}
+                {severity_3}
+                {severity_4}
+                {severity_5}
 
                 {subheading_spanning_two_columns(self.wxstring(req, "ii_title"))}
                 {tr_span_col(self.wxstring(req, "ii_question"), cols=2)}
-                {tr_change("q1", self.change1)}
-                {tr_change("q2", self.change2)}
-                {tr_change("q3", self.change3)}
-                {tr_change("q4", self.change4)}
-                {tr_change("q5", self.change5)}
+                {change_1}
+                {change_2}
+                {change_3}
+                {change_4}
+                {change_5}
             </table>
             <div class="{CssClass.FOOTNOTES}">
                 [1] All questions are scored 1–7, or 9 (not applicable, for
@@ -256,4 +257,4 @@ class CgiSch(
                 {self.wxstring(req, "ii_postscript")}
             </div>
 
-        """  # noqa
+        """  # noqa: E501

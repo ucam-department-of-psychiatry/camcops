@@ -62,7 +62,7 @@ depends_on = None
 
 
 # noinspection PyPep8,PyTypeChecker
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         "cpft_research_preferences",
         sa.Column("contact_preference", sa.String(length=1), nullable=True),
@@ -376,5 +376,5 @@ def upgrade():
 
 
 # noinspection PyPep8,PyTypeChecker
-def downgrade():
+def downgrade() -> None:
     op.drop_table("cpft_research_preferences")

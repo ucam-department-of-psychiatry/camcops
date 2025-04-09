@@ -40,7 +40,7 @@ from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 # =============================================================================
 
 
-class Ctqsf(TaskHasPatientMixin, Task):
+class Ctqsf(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the CTQ-SF task.
     """

@@ -29,11 +29,12 @@ The Big Brother part.
 
 """
 
-from typing import TYPE_CHECKING
+import datetime
+from typing import Optional, TYPE_CHECKING
 
-from sqlalchemy.orm import relationship
-from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import DateTime, Integer, UnicodeText
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.sql.schema import ForeignKey
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     AuditSourceColType,
@@ -61,61 +62,46 @@ class AuditEntry(Base):
 
     __tablename__ = "_security_audit"
 
-    id = Column(
-        "id",
-        Integer,
+    id: Mapped[int] = mapped_column(
         primary_key=True,
         autoincrement=True,
         index=True,
         comment="Arbitrary primary key",
     )
-    when_access_utc = Column(
-        "when_access_utc",
-        DateTime,
-        nullable=False,
+    when_access_utc: Mapped[datetime.datetime] = mapped_column(
         index=True,
         comment="Date/time of access (UTC)",
     )
-    source = Column(
-        "source",
+    source: Mapped[str] = mapped_column(
         AuditSourceColType,
-        nullable=False,
         comment="Source (e.g. tablet, webviewer)",
     )
-    remote_addr = Column(
-        "remote_addr",
+    remote_addr: Mapped[Optional[str]] = mapped_column(
         IPAddressColType,
         comment="IP address of the remote computer",
     )
-    user_id = Column(
-        "user_id",
-        Integer,
+    user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("_security_users.id"),
         comment="ID of user, where applicable",
     )
     user = relationship("User")
-    device_id = Column(
-        "device_id",
-        Integer,
+    device_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("_security_devices.id"),
         comment="Device ID, where applicable",
     )
     device = relationship("Device")
-    table_name = Column(
-        "table_name",
+    table_name: Mapped[Optional[str]] = mapped_column(
         TableNameColType,
         comment="Table involved, where applicable",
     )
-    server_pk = Column(
-        "server_pk", Integer, comment="Server PK (table._pk), where applicable"
+    server_pk: Mapped[Optional[int]] = mapped_column(
+        comment="Server PK (table._pk), where applicable"
     )
-    patient_server_pk = Column(
-        "patient_server_pk",
-        Integer,
+    patient_server_pk: Mapped[Optional[int]] = mapped_column(
         comment="Server PK of the patient (patient._pk) concerned, or "
         "NULL if not applicable",
     )
-    details = Column(
+    details: Mapped[Optional[str]] = mapped_column(
         "details", UnicodeText, comment="Details of the access"
     )  # in practice, has 65,535 character limit and isn't Unicode.
     # See MAX_AUDIT_STRING_LENGTH above.

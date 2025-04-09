@@ -475,7 +475,7 @@ class Report(object):
             rows = rp.fetchall()
 
             plain_report = PlainReportType(
-                rows=rows, column_names=column_names
+                rows=rows, column_names=column_names  # type: ignore[arg-type]
             )
         else:
             plain_report = self.get_rows_colnames(req)
@@ -517,11 +517,11 @@ class PercentageSummaryReportMixin(object):
             wheres = [column(column_name).isnot(None)]
 
             # noinspection PyUnresolvedReferences
-            self.add_task_report_filters(wheres)
+            self.add_task_report_filters(wheres)  # type: ignore[attr-defined]
 
             # noinspection PyUnresolvedReferences
             total_query = (
-                select([func.count(column_name)])
+                select(func.count(column_name))  # type: ignore[arg-type]
                 .select_from(self.task_class.__table__)
                 .where(and_(*wheres))
             )
@@ -538,11 +538,9 @@ class PercentageSummaryReportMixin(object):
             """
             # noinspection PyUnresolvedReferences
             query = (
-                select(
-                    [
-                        column(column_name),
-                        ((100 * func.count(column_name)) / total_responses),
-                    ]
+                select(  # type: ignore[var-annotated]
+                    column(column_name),
+                    ((100 * func.count(column_name)) / total_responses),  # type: ignore[arg-type]  # noqa: E501
                 )
                 .select_from(self.task_class.__table__)
                 .where(and_(*wheres))
@@ -564,7 +562,7 @@ class PercentageSummaryReportMixin(object):
 
 
 class DateTimeFilteredReportMixin(object):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self.start_datetime = None  # type: Optional[str]
         self.end_datetime = None  # type: Optional[str]
@@ -580,7 +578,7 @@ class DateTimeFilteredReportMixin(object):
     @classmethod
     def get_specific_http_query_keys(cls) -> List[str]:
         # noinspection PyUnresolvedReferences
-        return super().get_specific_http_query_keys() + [
+        return super().get_specific_http_query_keys() + [  # type: ignore[misc]
             ViewParam.START_DATETIME,
             ViewParam.END_DATETIME,
         ]
@@ -594,7 +592,7 @@ class DateTimeFilteredReportMixin(object):
         )
 
         # noinspection PyUnresolvedReferences
-        return super().get_response(req)
+        return super().get_response(req)  # type: ignore[misc]
 
     def add_task_report_filters(self, wheres: List[ColumnElement]) -> None:
         """
@@ -611,7 +609,7 @@ class DateTimeFilteredReportMixin(object):
                 query.
         """
         # noinspection PyUnresolvedReferences
-        super().add_task_report_filters(wheres)
+        super().add_task_report_filters(wheres)  # type: ignore[misc]
 
         if self.start_datetime is not None:
             wheres.append(column(TFN_WHEN_CREATED) >= self.start_datetime)
@@ -676,7 +674,9 @@ class AverageScoreReport(DateTimeFilteredReportMixin, Report, ABC):
 
     template_name = "average_score_report.mako"
 
-    def __init__(self, *args, via_index: bool = True, **kwargs) -> None:
+    def __init__(
+        self, *args: Any, via_index: bool = True, **kwargs: Any
+    ) -> None:
         """
         Args:
             via_index:
@@ -747,8 +747,8 @@ class AverageScoreReport(DateTimeFilteredReportMixin, Report, ABC):
         # Which tasks?
         taskfilter = TaskFilter()
         taskfilter.task_types = [self.task_class.__tablename__]
-        taskfilter.start_datetime = self.start_datetime
-        taskfilter.end_datetime = self.end_datetime
+        taskfilter.start_datetime = self.start_datetime  # type: ignore[assignment]  # noqa: E501
+        taskfilter.end_datetime = self.end_datetime  # type: ignore[assignment]
         taskfilter.complete_only = True
 
         # Get tasks
@@ -769,9 +769,9 @@ class AverageScoreReport(DateTimeFilteredReportMixin, Report, ABC):
         n_scoretypes = len(scoretypes)
 
         # Sum first/last/progress scores by patient
-        sum_first_by_score = [0] * n_scoretypes
-        sum_last_by_score = [0] * n_scoretypes
-        sum_improvement_by_score = [0] * n_scoretypes
+        sum_first_by_score: list[Union[int, float]] = [0] * n_scoretypes
+        sum_last_by_score: list[Union[int, float]] = [0] * n_scoretypes
+        sum_improvement_by_score: list[Union[int, float]] = [0] * n_scoretypes
         n_first = 0
         n_last = 0  # also n_progress
         for patient in patients:

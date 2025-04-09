@@ -56,7 +56,7 @@ depends_on = None
 
 
 # noinspection PyPep8,PyTypeChecker
-def upgrade():
+def upgrade() -> None:
     with op.batch_alter_table("_exported_tasks", schema=None) as batch_op:
         batch_op.create_index(
             batch_op.f("ix__exported_tasks_start_at_utc"),
@@ -66,6 +66,6 @@ def upgrade():
 
 
 # noinspection PyPep8,PyTypeChecker
-def downgrade():
+def downgrade() -> None:
     with op.batch_alter_table("_exported_tasks", schema=None) as batch_op:
         batch_op.drop_index(batch_op.f("ix__exported_tasks_start_at_utc"))

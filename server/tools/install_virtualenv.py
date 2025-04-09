@@ -49,7 +49,7 @@ try:
 except ImportError:
     distro = None
 
-assert sys.version_info >= (3, 8), "Need Python 3.8 or higher"
+assert sys.version_info >= (3, 9), "Need Python 3.9 or higher"
 LINUX = platform.system() == "Linux"
 if distro:
     LINUX_DIST = distro.linux_distribution()[0].lower()
@@ -222,7 +222,7 @@ def main() -> None:
     print("OK")
 
     title("Upgrading pip within virtualenv")
-    check_call([venv_pip, "install", "--upgrade", "pip"])
+    check_call([venv_pip, "install", "--upgrade", "pip", "setuptools"])
 
     title("Checking version of tools within new virtualenv")
     print(venv_python)

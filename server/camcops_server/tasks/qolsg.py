@@ -25,11 +25,12 @@ camcops_server/tasks/qolsg.py
 
 """
 
-from typing import List
+from pendulum import DateTime as Pendulum
+from typing import List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Float, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import String
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
@@ -38,7 +39,7 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    mapped_camcops_column,
     PendulumDateTimeAsIsoTextColType,
     ZERO_TO_ONE_CHECKER,
 )
@@ -53,7 +54,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 DP = 3
 
 
-class QolSG(TaskHasPatientMixin, Task):
+class QolSG(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the QoL-SG task.
     """
@@ -63,80 +64,64 @@ class QolSG(TaskHasPatientMixin, Task):
     info_filename_stem = "qol"
     provides_trackers = True
 
-    category_start_time = Column(
-        "category_start_time",
+    category_start_time: Mapped[Optional[Pendulum]] = mapped_column(
         PendulumDateTimeAsIsoTextColType,
         comment="Time categories were offered (ISO-8601)",
     )
-    category_responded = CamcopsColumn(
-        "category_responded",
-        Integer,
+    category_responded: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Responded to category choice? (0 no, 1 yes)",
     )
-    category_response_time = Column(
-        "category_response_time",
+    category_response_time: Mapped[Optional[Pendulum]] = mapped_column(
         PendulumDateTimeAsIsoTextColType,
         comment="Time category was chosen (ISO-8601)",
     )
-    category_chosen = Column(
-        "category_chosen",
+    category_chosen: Mapped[Optional[str]] = mapped_column(
         String(length=len("medium")),
         comment="Category chosen: high (QoL > 1) "
         "medium (0 <= QoL <= 1) low (QoL < 0)",
     )
-    gamble_fixed_option = Column(
-        "gamble_fixed_option",
+    gamble_fixed_option: Mapped[Optional[str]] = mapped_column(
         String(length=len("current")),
         comment="Fixed option in gamble (current, healthy, dead)",
     )
-    gamble_lottery_option_p = Column(
-        "gamble_lottery_option_p",
+    gamble_lottery_option_p: Mapped[Optional[str]] = mapped_column(
         String(length=len("current")),
         comment="Gamble: option corresponding to p  "
         "(current, healthy, dead)",
     )
-    gamble_lottery_option_q = Column(
-        "gamble_lottery_option_q",
+    gamble_lottery_option_q: Mapped[Optional[str]] = mapped_column(
         String(length=len("current")),
         comment="Gamble: option corresponding to q  "
         "(current, healthy, dead) (q = 1 - p)",
     )
-    gamble_lottery_on_left = CamcopsColumn(
-        "gamble_lottery_on_left",
-        Integer,
+    gamble_lottery_on_left: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Gamble: lottery shown on the left (0 no, 1 yes)",
     )
-    gamble_starting_p = CamcopsColumn(
-        "gamble_starting_p",
-        Float,
+    gamble_starting_p: Mapped[Optional[float]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_ONE_CHECKER,
         comment="Gamble: starting value of p",
     )
-    gamble_start_time = Column(
-        "gamble_start_time",
+    gamble_start_time: Mapped[Optional[Pendulum]] = mapped_column(
         PendulumDateTimeAsIsoTextColType,
         comment="Time gamble was offered (ISO-8601)",
     )
-    gamble_responded = CamcopsColumn(
-        "gamble_responded",
-        Integer,
+    gamble_responded: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Gamble was responded to? (0 no, 1 yes)",
     )
-    gamble_response_time = Column(
-        "gamble_response_time",
+    gamble_response_time: Mapped[Optional[Pendulum]] = mapped_column(
         PendulumDateTimeAsIsoTextColType,
         comment="Time subject responded to gamble (ISO-8601)",
     )
-    gamble_p = CamcopsColumn(
-        "gamble_p",
-        Float,
+    gamble_p: Mapped[Optional[float]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_ONE_CHECKER,
         comment="Final value of p",
     )
-    utility = Column("utility", Float, comment="Calculated utility, h")
+    utility: Mapped[Optional[float]] = mapped_column(
+        comment="Calculated utility, h"
+    )
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

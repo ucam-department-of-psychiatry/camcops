@@ -25,10 +25,9 @@ camcops_server/tasks/aims.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, cast, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass, PV
@@ -58,14 +57,24 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class AimsMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Aims"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Aims(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
+):
+    """
+    Server implementation of the AIMS task.
+    """
+
+    __tablename__ = "aims"
+    shortname = "AIMS"
+    provides_trackers = True
+
+    NQUESTIONS = 12
+    NSCOREDQUESTIONS = 10
+
+    @classmethod
+    def extend_columns(cls: Type["Aims"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -100,22 +109,6 @@ class AimsMetaclass(DeclarativeMeta):
             ],
         )
 
-        super().__init__(name, bases, classdict)
-
-
-class Aims(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=AimsMetaclass
-):
-    """
-    Server implementation of the AIMS task.
-    """
-
-    __tablename__ = "aims"
-    shortname = "AIMS"
-    provides_trackers = True
-
-    NQUESTIONS = 12
-    NSCOREDQUESTIONS = 10
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     SCORED_FIELDS = strseq("q", 1, NSCOREDQUESTIONS)
 
@@ -157,13 +150,13 @@ class Aims(
         )
 
     def total_score(self) -> int:
-        return self.sum_fields(self.SCORED_FIELDS)
+        return cast(int, self.sum_fields(self.SCORED_FIELDS))
 
     # noinspection PyUnresolvedReferences
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
-        main_dict = {None: None}
-        q10_dict = {None: None}
+        main_dict: dict[Optional[int], Optional[str]] = {None: None}
+        q10_dict: dict[Optional[int], Optional[str]] = {None: None}
         for option in range(0, 5):
             main_dict[option] = (
                 str(option)
@@ -184,13 +177,13 @@ class Aims(
             )
         q_a += (
             tr_qa(
-                self.wxstring(req, "q10_s"), get_from_dict(q10_dict, self.q10)
+                self.wxstring(req, "q10_s"), get_from_dict(q10_dict, self.q10)  # type: ignore[attr-defined]  # noqa: E501
             )
             + tr_qa(
-                self.wxstring(req, "q11_s"), get_yes_no_none(req, self.q11)
+                self.wxstring(req, "q11_s"), get_yes_no_none(req, self.q11)  # type: ignore[attr-defined]  # noqa: E501
             )
             + tr_qa(
-                self.wxstring(req, "q12_s"), get_yes_no_none(req, self.q12)
+                self.wxstring(req, "q12_s"), get_yes_no_none(req, self.q12)  # type: ignore[attr-defined]  # noqa: E501
             )
         )
 

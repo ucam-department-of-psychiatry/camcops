@@ -29,7 +29,7 @@ tools/release_new_version.py
 
 import argparse
 import csv
-from datetime import datetime
+from datetime import date, datetime
 import logging
 import os
 from pathlib import Path
@@ -99,7 +99,7 @@ def in_virtualenv() -> bool:
     )
 
 
-def valid_date(date_string: str) -> datetime.date:
+def valid_date(date_string: str) -> date:
     """
     Converts a string like "2020-12-31" to a date, or raises.
     """
@@ -186,16 +186,16 @@ class VersionReleaser:
         self,
         new_client_version: Version,
         new_server_version: Version,
-        release_date: datetime.date,
+        release_date: date,
         update_versions: bool,
     ) -> None:
         self.new_client_version = new_client_version
         self.new_server_version = new_server_version
         self._progress_version = None
         self.release_date = release_date
-        self._released_versions = None
+        self._released_versions: Optional[list[tuple[Version, date]]] = None
         self.update_versions = update_versions
-        self.errors = []
+        self.errors: list[Any] = []
 
     def run_with_check(self, args: List[str]) -> None:
         """
@@ -225,7 +225,7 @@ class VersionReleaser:
         return self._progress_version
 
     @property
-    def released_versions(self) -> List[Tuple[Version, datetime]]:
+    def released_versions(self) -> List[Tuple[Version, date]]:
         """
         Returns a list of ``(version, date_released)`` tuples from the
         changelog.
@@ -235,7 +235,7 @@ class VersionReleaser:
 
         return self._released_versions
 
-    def _get_released_versions(self) -> List[Tuple[Version, datetime]]:
+    def _get_released_versions(self) -> List[Tuple[Version, date]]:
         regex = r"^\*\*.*(\d+)\.(\d+)\.(\d+).*released\s+(\d+)\s+([a-zA-Z]+)\s+(\d+).*\*\*$"  # noqa: E501
 
         released_versions = []
@@ -284,7 +284,7 @@ class VersionReleaser:
             "Could not find version in camcopsversion.cpp"
         )
 
-    def get_client_date(self) -> datetime:
+    def get_client_date(self) -> date:
         """
         Return the client changedate, from ``camcopsversion.cpp``, or raise.
         """
@@ -469,7 +469,7 @@ class VersionReleaser:
                     targets.append((target_version, target_version))
 
         versions = []
-        for version, date in self.released_versions:
+        for version, release_date in self.released_versions:
             versions.append((version, version))
 
         if targets != refs or versions != refs:

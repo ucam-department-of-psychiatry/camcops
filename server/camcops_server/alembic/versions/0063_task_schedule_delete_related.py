@@ -57,7 +57,7 @@ depends_on = None
 
 
 # noinspection PyPep8,PyTypeChecker
-def upgrade():
+def upgrade() -> None:
     with op.batch_alter_table(
         "_patient_task_schedule", schema=None
     ) as batch_op:
@@ -89,7 +89,7 @@ def upgrade():
 
 
 # noinspection PyPep8,PyTypeChecker
-def downgrade():
+def downgrade() -> None:
     with op.batch_alter_table(
         "_patient_task_schedule", schema=None
     ) as batch_op:

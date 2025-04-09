@@ -28,8 +28,9 @@ camcops_server/tasks/ided3d.py
 from typing import Any, List, Optional, Type
 
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, Float, Integer, Text
+from pendulum import DateTime as Pendulum
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import Boolean, Text
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import (
@@ -47,7 +48,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    mapped_camcops_column,
     PendulumDateTimeAsIsoTextColType,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
@@ -75,89 +76,69 @@ def a(x: Any) -> str:
 class IDED3DTrial(GenericTabletRecordMixin, TaskDescendant, Base):
     __tablename__ = "ided3d_trials"
 
-    ided3d_id = Column(
-        "ided3d_id", Integer, nullable=False, comment="FK to ided3d"
+    ided3d_id: Mapped[int] = mapped_column(comment="FK to ided3d")
+    trial: Mapped[int] = mapped_column(comment="Trial number (1-based)")
+    stage: Mapped[Optional[int]] = mapped_column(
+        comment="Stage number (1-based)"
     )
-    trial = Column(
-        "trial", Integer, nullable=False, comment="Trial number (1-based)"
-    )
-    stage = Column("stage", Integer, comment="Stage number (1-based)")
 
     # Locations
-    correct_location = Column(
-        "correct_location",
-        Integer,
+    correct_location: Mapped[Optional[int]] = mapped_column(
         comment="Location of correct stimulus "
         "(0 top, 1 right, 2 bottom, 3 left)",
     )
-    incorrect_location = Column(
-        "incorrect_location",
-        Integer,
+    incorrect_location: Mapped[Optional[int]] = mapped_column(
         comment="Location of incorrect stimulus "
         "(0 top, 1 right, 2 bottom, 3 left)",
     )
 
     # Stimuli
-    correct_shape = Column(
-        "correct_shape", Integer, comment="Shape# of correct stimulus"
+    correct_shape: Mapped[Optional[int]] = mapped_column(
+        comment="Shape# of correct stimulus"
     )
-    correct_colour = CamcopsColumn(
-        "correct_colour",
+    correct_colour: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="HTML colour of correct stimulus",
     )
-    correct_number = Column(
-        "correct_number",
-        Integer,
+    correct_number: Mapped[Optional[int]] = mapped_column(
         comment="Number of copies of correct stimulus",
     )
-    incorrect_shape = Column(
-        "incorrect_shape", Integer, comment="Shape# of incorrect stimulus"
+    incorrect_shape: Mapped[Optional[int]] = mapped_column(
+        comment="Shape# of incorrect stimulus"
     )
-    incorrect_colour = CamcopsColumn(
-        "incorrect_colour",
+    incorrect_colour: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="HTML colour of incorrect stimulus",
     )
-    incorrect_number = Column(
-        "incorrect_number",
-        Integer,
+    incorrect_number: Mapped[Optional[int]] = mapped_column(
         comment="Number of copies of incorrect stimulus",
     )
 
     # Trial
-    trial_start_time = Column(
-        "trial_start_time",
+    trial_start_time: Mapped[Optional[Pendulum]] = mapped_column(
         PendulumDateTimeAsIsoTextColType,
         comment="Trial start time / stimuli presented at (ISO-8601)",
     )
 
     # Response
-    responded = CamcopsColumn(
-        "responded",
-        Boolean,
+    responded: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Did the subject respond?",
     )
-    response_time = Column(
-        "response_time",
+    response_time: Mapped[Optional[Pendulum]] = mapped_column(
         PendulumDateTimeAsIsoTextColType,
         comment="Time of response (ISO-8601)",
     )
-    response_latency_ms = Column(
-        "response_latency_ms", Integer, comment="Response latency (ms)"
+    response_latency_ms: Mapped[Optional[int]] = mapped_column(
+        comment="Response latency (ms)"
     )
-    correct = CamcopsColumn(
-        "correct",
-        Boolean,
+    correct: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Response was correct",
     )
-    incorrect = CamcopsColumn(
-        "incorrect",
-        Boolean,
+    incorrect: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Response was incorrect",
     )
@@ -215,81 +196,67 @@ class IDED3DTrial(GenericTabletRecordMixin, TaskDescendant, Base):
         return IDED3D
 
     def task_ancestor(self) -> Optional["IDED3D"]:
-        return IDED3D.get_linked(self.ided3d_id, self)
+        return IDED3D.get_linked(self.ided3d_id, self)  # type: ignore[return-value]  # noqa: E501
 
 
 class IDED3DStage(GenericTabletRecordMixin, TaskDescendant, Base):
     __tablename__ = "ided3d_stages"
 
-    ided3d_id = Column(
-        "ided3d_id", Integer, nullable=False, comment="FK to ided3d"
-    )
-    stage = Column(
-        "stage", Integer, nullable=False, comment="Stage number (1-based)"
-    )
+    ided3d_id: Mapped[int] = mapped_column(comment="FK to ided3d")
+    stage: Mapped[int] = mapped_column(comment="Stage number (1-based)")
 
     # Config
-    stage_name = CamcopsColumn(
-        "stage_name",
+    stage_name: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="Name of the stage (e.g. SD, EDr)",
     )
-    relevant_dimension = CamcopsColumn(
-        "relevant_dimension",
+    relevant_dimension: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="Relevant dimension (e.g. shape, colour, number)",
     )
-    correct_exemplar = CamcopsColumn(
-        "correct_exemplar",
+    correct_exemplar: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="Correct exemplar (from relevant dimension)",
     )
-    incorrect_exemplar = CamcopsColumn(
-        "incorrect_exemplar",
+    incorrect_exemplar: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="Incorrect exemplar (from relevant dimension)",
     )
-    correct_stimulus_shapes = CamcopsColumn(
-        "correct_stimulus_shapes",
+    correct_stimulus_shapes: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="Possible shapes for correct stimulus "
         "(CSV list of shape numbers)",
     )
-    correct_stimulus_colours = CamcopsColumn(
-        "correct_stimulus_colours",
+    correct_stimulus_colours: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="Possible colours for correct stimulus "
         "(CSV list of HTML colours)",
     )
-    correct_stimulus_numbers = CamcopsColumn(
-        "correct_stimulus_numbers",
+    correct_stimulus_numbers: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="Possible numbers for correct stimulus "
         "(CSV list of numbers)",
     )
-    incorrect_stimulus_shapes = CamcopsColumn(
-        "incorrect_stimulus_shapes",
+    incorrect_stimulus_shapes: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="Possible shapes for incorrect stimulus "
         "(CSV list of shape numbers)",
     )
-    incorrect_stimulus_colours = CamcopsColumn(
-        "incorrect_stimulus_colours",
+    incorrect_stimulus_colours: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="Possible colours for incorrect stimulus "
         "(CSV list of HTML colours)",
     )
-    incorrect_stimulus_numbers = CamcopsColumn(
-        "incorrect_stimulus_numbers",
+    incorrect_stimulus_numbers: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="Possible numbers for incorrect stimulus "
@@ -297,30 +264,24 @@ class IDED3DStage(GenericTabletRecordMixin, TaskDescendant, Base):
     )
 
     # Results
-    first_trial_num = Column(
-        "first_trial_num",
-        Integer,
+    first_trial_num: Mapped[Optional[int]] = mapped_column(
         comment="Number of the first trial of the stage (1-based)",
     )
-    n_completed_trials = Column(
-        "n_completed_trials", Integer, comment="Number of trials completed"
+    n_completed_trials: Mapped[Optional[int]] = mapped_column(
+        comment="Number of trials completed"
     )
-    n_correct = Column(
-        "n_correct", Integer, comment="Number of trials performed correctly"
+    n_correct: Mapped[Optional[int]] = mapped_column(
+        comment="Number of trials performed correctly"
     )
-    n_incorrect = Column(
-        "n_incorrect",
-        Integer,
+    n_incorrect: Mapped[Optional[int]] = mapped_column(
         comment="Number of trials performed incorrectly",
     )
-    stage_passed = CamcopsColumn(
-        "stage_passed",
+    stage_passed: Mapped[Optional[bool]] = mapped_camcops_column(
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Subject met criterion and passed stage",
     )
-    stage_failed = CamcopsColumn(
-        "stage_failed",
+    stage_failed: Mapped[Optional[bool]] = mapped_camcops_column(
         Boolean,
         permitted_value_checker=BIT_CHECKER,
         comment="Subject took too many trials and failed stage",
@@ -381,10 +342,10 @@ class IDED3DStage(GenericTabletRecordMixin, TaskDescendant, Base):
         return IDED3D
 
     def task_ancestor(self) -> Optional["IDED3D"]:
-        return IDED3D.get_linked(self.ided3d_id, self)
+        return IDED3D.get_linked(self.ided3d_id, self)  # type: ignore[return-value]  # noqa: E501
 
 
-class IDED3D(TaskHasPatientMixin, Task):
+class IDED3D(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the ID/ED-3D task.
     """
@@ -393,100 +354,84 @@ class IDED3D(TaskHasPatientMixin, Task):
     shortname = "ID/ED-3D"
 
     # Config
-    last_stage = Column(
-        "last_stage", Integer, comment="Last stage to offer (1 [SD] - 8 [EDR])"
+    last_stage: Mapped[Optional[int]] = mapped_column(
+        comment="Last stage to offer (1 [SD] - 8 [EDR])"
     )
-    max_trials_per_stage = Column(
-        "max_trials_per_stage",
-        Integer,
+    max_trials_per_stage: Mapped[Optional[int]] = mapped_column(
         comment="Maximum number of trials allowed per stage before "
         "the task aborts",
     )
-    progress_criterion_x = Column(
-        "progress_criterion_x",
-        Integer,
+    progress_criterion_x: Mapped[Optional[int]] = mapped_column(
         comment="Criterion to proceed to next stage: X correct out of"
         " the last Y trials, where this is X",
     )
-    progress_criterion_y = Column(
-        "progress_criterion_y",
-        Integer,
+    progress_criterion_y: Mapped[Optional[int]] = mapped_column(
         comment="Criterion to proceed to next stage: X correct out of"
         " the last Y trials, where this is Y",
     )
-    min_number = Column(
-        "min_number",
-        Integer,
+    min_number: Mapped[Optional[int]] = mapped_column(
         comment="Minimum number of stimulus element to use",
     )
-    max_number = Column(
-        "max_number",
-        Integer,
+    max_number: Mapped[Optional[int]] = mapped_column(
         comment="Maximum number of stimulus element to use",
     )
-    pause_after_beep_ms = Column(
-        "pause_after_beep_ms",
-        Integer,
+    pause_after_beep_ms: Mapped[Optional[int]] = mapped_column(
         comment="Time to continue visual feedback after auditory "
         "feedback finished (ms)",
     )
-    iti_ms = Column("iti_ms", Integer, comment="Intertrial interval (ms)")
-    counterbalance_dimensions = Column(
-        "counterbalance_dimensions",
-        Integer,
+    iti_ms: Mapped[Optional[int]] = mapped_column(
+        comment="Intertrial interval (ms)"
+    )
+    counterbalance_dimensions: Mapped[Optional[int]] = mapped_column(
         comment="Dimensional counterbalancing condition (0-5)",
     )
-    volume = Column("volume", Float, comment="Sound volume (0.0-1.0)")
-    offer_abort = CamcopsColumn(
-        "offer_abort",
-        Boolean,
+    volume: Mapped[Optional[float]] = mapped_column(
+        comment="Sound volume (0.0-1.0)"
+    )
+    offer_abort: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Offer an abort button?",
     )
-    debug_display_stimuli_only = CamcopsColumn(
-        "debug_display_stimuli_only",
-        Boolean,
+    debug_display_stimuli_only: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="DEBUG: show stimuli only, don't run task",
     )
 
     # Intrinsic config
-    shape_definitions_svg = CamcopsColumn(
-        "shape_definitions_svg",
+    shape_definitions_svg: Mapped[Optional[str]] = mapped_camcops_column(
         Text,
         exempt_from_anonymisation=True,
         comment="JSON-encoded version of shape definition"
         " array in SVG format (with arbitrary scale of -60 to"
         " +60 in both X and Y dimensions)",
     )
-    colour_definitions_rgb = CamcopsColumn(  # v2.0.0
-        "colour_definitions_rgb",
-        Text,
-        exempt_from_anonymisation=True,
-        comment="JSON-encoded version of colour RGB definitions",
+    colour_definitions_rgb: Mapped[Optional[str]] = (
+        mapped_camcops_column(  # v2.0.0
+            Text,
+            exempt_from_anonymisation=True,
+            comment="JSON-encoded version of colour RGB definitions",
+        )
     )
 
     # Results
-    aborted = Column(
-        "aborted", Integer, comment="Was the task aborted? (0 no, 1 yes)"
+    aborted: Mapped[Optional[int]] = mapped_column(
+        comment="Was the task aborted? (0 no, 1 yes)"
     )
-    finished = Column(
-        "finished", Integer, comment="Was the task finished? (0 no, 1 yes)"
+    finished: Mapped[Optional[int]] = mapped_column(
+        comment="Was the task finished? (0 no, 1 yes)"
     )
-    last_trial_completed = Column(
-        "last_trial_completed",
-        Integer,
+    last_trial_completed: Mapped[Optional[int]] = mapped_column(
         comment="Number of last trial completed",
     )
 
     # Relationships
-    trials = ancillary_relationship(
+    trials = ancillary_relationship(  # type: ignore[assignment]
         parent_class_name="IDED3D",
         ancillary_class_name="IDED3DTrial",
         ancillary_fk_to_parent_attr_name="ided3d_id",
         ancillary_order_by_attr_name="trial",
     )  # type: List[IDED3DTrial]
-    stages = ancillary_relationship(
+    stages = ancillary_relationship(  # type: ignore[assignment]
         parent_class_name="IDED3D",
         ancillary_class_name="IDED3DStage",
         ancillary_fk_to_parent_attr_name="ided3d_id",

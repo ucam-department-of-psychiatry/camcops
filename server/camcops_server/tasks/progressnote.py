@@ -25,10 +25,10 @@ camcops_server/tasks/progressnote.py
 
 """
 
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -53,7 +53,7 @@ from camcops_server.cc_modules.cc_text import SS
 # =============================================================================
 
 
-class ProgressNote(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
+class ProgressNote(TaskHasPatientMixin, TaskHasClinicianMixin, Task):  # type: ignore[misc]  # noqa: E501
     """
     Server implementation of the ProgressNote task.
     """
@@ -62,8 +62,12 @@ class ProgressNote(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     shortname = "ProgressNote"
     info_filename_stem = "clinical"
 
-    location = Column("location", UnicodeText, comment="Location")
-    note = Column("note", UnicodeText, comment="Clinical note")
+    location: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Location"
+    )
+    note: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Clinical note"
+    )
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -101,7 +105,7 @@ class ProgressNote(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         codes = [
             SnomedExpression(
                 req.snomed(SnomedLookup.PROGRESS_NOTE_PROCEDURE),
-                refinement=refinement or None,
+                refinement=refinement or None,  # type: ignore[arg-type]
             )
         ]
         return codes

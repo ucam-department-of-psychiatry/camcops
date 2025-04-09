@@ -27,9 +27,11 @@ camcops_server/tasks/apeqpt.py
 
 """
 
-from typing import Dict, List
+from typing import Dict, List, Optional
 
-from sqlalchemy.sql.sqltypes import Integer, UnicodeText
+from pendulum import DateTime as Pendulum
+from sqlalchemy.orm import Mapped
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_fhir import (
@@ -40,7 +42,7 @@ from camcops_server.cc_modules.cc_fhir import (
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    mapped_camcops_column,
     PendulumDateTimeAsIsoTextColType,
     ZERO_TO_ONE_CHECKER,
     ZERO_TO_TWO_CHECKER,
@@ -65,43 +67,34 @@ class Apeqpt(Task):
     provides_trackers = True
 
     # todo: remove q_datetime (here and in the C++) -- it duplicates when_created  # noqa
-    q_datetime = CamcopsColumn(
-        "q_datetime",
+    q_datetime: Mapped[Optional[Pendulum]] = mapped_camcops_column(
         PendulumDateTimeAsIsoTextColType,
         comment="Date/time the assessment tool was completed",
     )
 
     N_CHOICE_QUESTIONS = 3
-    q1_choice = CamcopsColumn(
-        "q1_choice",
-        Integer,
+    q1_choice: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Enough information was provided (0 no, 1 yes)",
         permitted_value_checker=ZERO_TO_ONE_CHECKER,
     )
-    q2_choice = CamcopsColumn(
-        "q2_choice",
-        Integer,
+    q2_choice: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Treatment preference (0 no, 1 yes)",
         permitted_value_checker=ZERO_TO_ONE_CHECKER,
     )
-    q3_choice = CamcopsColumn(
-        "q3_choice",
-        Integer,
+    q3_choice: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Preference offered (0 no, 1 yes, 2 N/A)",
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
     )
 
-    q1_satisfaction = CamcopsColumn(
-        "q1_satisfaction",
-        Integer,
+    q1_satisfaction: Mapped[Optional[int]] = mapped_camcops_column(
         comment=(
             "Patient satisfaction (0 not at all satisfied - "
             "4 completely satisfied)"
         ),
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
     )
-    q2_satisfaction = CamcopsColumn(
-        "q2_satisfaction", UnicodeText, comment="Service experience"
+    q2_satisfaction: Mapped[Optional[str]] = mapped_camcops_column(
+        UnicodeText, comment="Service experience"
     )
 
     MAIN_QUESTIONS = [

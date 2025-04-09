@@ -25,10 +25,9 @@ camcops_server/tasks/hamd7.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, cast, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -38,7 +37,6 @@ from camcops_server.cc_modules.cc_html import answer, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     SummaryCategoryColType,
-    ZERO_TO_TWO_CHECKER,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
@@ -59,40 +57,10 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Hamd7Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature,PyUnresolvedReferences
-    def __init__(
-        cls: Type["Hamd7"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
-        add_multiple_columns(
-            cls,
-            "q",
-            1,
-            cls.NQUESTIONS,
-            minimum=0,
-            maximum=4,  # see below
-            comment_fmt="Q{n}, {s} (0-4, except Q6 0-2; higher worse)",
-            comment_strings=[
-                "depressed mood",
-                "guilt",
-                "interest/pleasure/level of activities",
-                "psychological anxiety",
-                "somatic anxiety",
-                "energy/somatic symptoms",
-                "suicide",
-            ],
-        )
-        # Now fix the wrong bits. Hardly elegant!
-        cls.q6.set_permitted_value_checker(ZERO_TO_TWO_CHECKER)
-
-        super().__init__(name, bases, classdict)
-
-
-class Hamd7(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=Hamd7Metaclass
+class Hamd7(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
 ):
     """
     Server implementation of the HAMD-7 task.
@@ -104,6 +72,50 @@ class Hamd7(
     provides_trackers = True
 
     NQUESTIONS = 7
+
+    @classmethod
+    def extend_columns(cls: Type["Hamd7"], **kwargs: Any) -> None:
+        add_multiple_columns(
+            cls,
+            "q",
+            1,
+            5,
+            minimum=0,
+            maximum=4,
+            comment_fmt="Q{n}, {s} (0-4, higher worse)",
+            comment_strings=[
+                "depressed mood",
+                "guilt",
+                "interest/pleasure/level of activities",
+                "psychological anxiety",
+                "somatic anxiety",
+            ],
+        )
+        add_multiple_columns(
+            cls,
+            "q",
+            6,
+            6,
+            minimum=0,
+            maximum=2,
+            comment_fmt="Q{n}, {s} (0-2, higher worse)",
+            comment_strings=[
+                "energy/somatic symptoms",
+            ],
+        )
+        add_multiple_columns(
+            cls,
+            "q",
+            7,
+            7,
+            minimum=0,
+            maximum=4,
+            comment_fmt="Q{n}, {s} (0-4, higher worse)",
+            comment_strings=[
+                "suicide",
+            ],
+        )
+
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 26
 
@@ -168,7 +180,7 @@ class Hamd7(
         )
 
     def total_score(self) -> int:
-        return self.sum_fields(self.TASK_FIELDS)
+        return cast(int, self.sum_fields(self.TASK_FIELDS))
 
     def severity(self, req: CamcopsRequest) -> str:
         score = self.total_score()
@@ -186,7 +198,7 @@ class Hamd7(
         severity = self.severity(req)
         answer_dicts = []
         for q in range(1, self.NQUESTIONS + 1):
-            d = {None: None}
+            d: dict[Optional[int], Optional[str]] = {None: None}
             for option in range(0, 5):
                 if q == 6 and option > 2:
                     continue

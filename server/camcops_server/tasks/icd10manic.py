@@ -25,13 +25,14 @@ camcops_server/tasks/icd10manic.py
 
 """
 
+import datetime
 from typing import List, Optional
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.typetests import is_false
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, Date, UnicodeText
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import Boolean, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import (
     CssClass,
@@ -48,7 +49,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    mapped_camcops_column,
     SummaryCategoryColType,
 )
 from camcops_server.cc_modules.cc_string import AS
@@ -66,7 +67,7 @@ from camcops_server.cc_modules.cc_text import SS
 # =============================================================================
 
 
-class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):  # type: ignore[misc]  # noqa: E501
     """
     Server implementation of the ICD10-MANIC task.
     """
@@ -75,52 +76,38 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     shortname = "ICD10-MANIC"
     info_filename_stem = "icd"
 
-    mood_elevated = CamcopsColumn(
-        "mood_elevated",
-        Boolean,
+    mood_elevated: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="The mood is 'elevated' [hypomania] or 'predominantly "
         "elevated [or] expansive' [mania] to a degree that is "
         "definitely abnormal for the individual concerned.",
     )
-    mood_irritable = CamcopsColumn(
-        "mood_irritable",
-        Boolean,
+    mood_irritable: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="The mood is 'irritable' [hypomania] or 'predominantly "
         "irritable' [mania] to a degree that is definitely abnormal "
         "for the individual concerned.",
     )
 
-    distractible = CamcopsColumn(
-        "distractible",
-        Boolean,
+    distractible: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Difficulty in concentration or distractibility [from "
         "the criteria for hypomania]; distractibility or constant "
         "changes in activity or plans [from the criteria for mania].",
     )
-    activity = CamcopsColumn(
-        "activity",
-        Boolean,
+    activity: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Increased activity or physical restlessness.",
     )
-    sleep = CamcopsColumn(
-        "sleep",
-        Boolean,
+    sleep: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Decreased need for sleep.",
     )
-    talkativeness = CamcopsColumn(
-        "talkativeness",
-        Boolean,
+    talkativeness: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Increased talkativeness (pressure of speech).",
     )
-    recklessness = CamcopsColumn(
-        "recklessness",
-        Boolean,
+    recklessness: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Mild spending sprees, or other types of reckless or "
         "irresponsible behaviour [hypomania]; behaviour which is "
@@ -128,96 +115,76 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "recognize e.g. spending sprees, foolish enterprises, "
         "reckless driving [mania].",
     )
-    social_disinhibition = CamcopsColumn(
-        "social_disinhibition",
-        Boolean,
+    social_disinhibition: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Increased sociability or over-familiarity [hypomania]; "
         "loss of normal social inhibitions resulting in behaviour "
         "which is inappropriate to the circumstances [mania].",
     )
-    sexual = CamcopsColumn(
-        "sexual",
-        Boolean,
+    sexual: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Increased sexual energy [hypomania]; marked sexual "
         "energy or sexual indiscretions [mania].",
     )
 
-    grandiosity = CamcopsColumn(
-        "grandiosity",
-        Boolean,
+    grandiosity: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Inflated self-esteem or grandiosity.",
     )
-    flight_of_ideas = CamcopsColumn(
-        "flight_of_ideas",
-        Boolean,
+    flight_of_ideas: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Flight of ideas or the subjective experience of "
         "thoughts racing.",
     )
 
-    sustained4days = CamcopsColumn(
-        "sustained4days",
-        Boolean,
+    sustained4days: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Elevated/irritable mood sustained for at least 4 days.",
     )
-    sustained7days = CamcopsColumn(
-        "sustained7days",
-        Boolean,
+    sustained7days: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Elevated/irritable mood sustained for at least 7 days.",
     )
-    admission_required = CamcopsColumn(
-        "admission_required",
-        Boolean,
+    admission_required: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Elevated/irritable mood severe enough to require "
         "hospital admission.",
     )
-    some_interference_functioning = CamcopsColumn(
-        "some_interference_functioning",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Some interference with personal functioning "
-        "in daily living.",
+    some_interference_functioning: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="Some interference with personal functioning "
+            "in daily living.",
+        )
     )
-    severe_interference_functioning = CamcopsColumn(
-        "severe_interference_functioning",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Severe interference with personal "
-        "functioning in daily living.",
+    severe_interference_functioning: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="Severe interference with personal "
+            "functioning in daily living.",
+        )
     )
 
-    perceptual_alterations = CamcopsColumn(
-        "perceptual_alterations",
-        Boolean,
+    perceptual_alterations: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Perceptual alterations (e.g. subjective hyperacusis, "
         "appreciation of colours as specially vivid, etc.).",
     )  # ... not psychotic
-    hallucinations_schizophrenic = CamcopsColumn(
-        "hallucinations_schizophrenic",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Hallucinations that are 'typically schizophrenic' "
-        "(hallucinatory voices giving a running commentary on the "
-        "patient's behaviour, or discussing him between themselves, "
-        "or other types of hallucinatory voices coming from some part "
-        "of the body).",
+    hallucinations_schizophrenic: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="Hallucinations that are 'typically schizophrenic' "
+            "(hallucinatory voices giving a running commentary on the "
+            "patient's behaviour, or discussing him between themselves, "
+            "or other types of hallucinatory voices coming from some part "
+            "of the body).",
+        )
     )
-    hallucinations_other = CamcopsColumn(
-        "hallucinations_other",
-        Boolean,
+    hallucinations_other: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Hallucinations (of any other kind).",
     )
-    delusions_schizophrenic = CamcopsColumn(
-        "delusions_schizophrenic",
-        Boolean,
+    delusions_schizophrenic: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Delusions that are 'typically schizophrenic' (delusions "
         "of control, influence or passivity, clearly referred to body "
@@ -226,17 +193,17 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         "other kinds that are culturally inappropriate and completely "
         "impossible).",
     )
-    delusions_other = CamcopsColumn(
-        "delusions_other",
-        Boolean,
+    delusions_other: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Delusions (of any other kind).",
     )
 
-    date_pertains_to = Column(
-        "date_pertains_to", Date, comment="Date the assessment pertains to"
+    date_pertains_to: Mapped[Optional[datetime.date]] = mapped_column(
+        comment="Date the assessment pertains to"
     )
-    comments = Column("comments", UnicodeText, comment="Clinician's comments")
+    comments: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Clinician's comments"
+    )
 
     CORE_NAMES = ["mood_elevated", "mood_irritable"]
     HYPOMANIA_MANIA_NAMES = [

@@ -182,7 +182,7 @@ def consistency_idnums(
             if idnum_value is not None:
                 which_idnum = idnum.which_idnum
                 if which_idnum not in known:
-                    known[which_idnum] = set()  # type: Set[int]
+                    known[which_idnum] = set()
                 known[which_idnum].add(idnum_value)
 
     # 2. For every observed which_idnum, was it observed in all tasks?
@@ -193,7 +193,7 @@ def consistency_idnums(
             (
                 # "At least one ID number record relates to this which_idnum".
                 any(
-                    idnum.which_idnum == which_idnum
+                    idnum.which_idnum == which_idnum  # type: ignore[arg-type]
                     and idnum.idnum_value is not None
                 )
                 for idnum in task_idnum_list
@@ -371,9 +371,9 @@ class TrackerCtvCommon(object):
             self.latest = all_tasks[-1].when_created
             self.patient = all_tasks[0].patient
         else:
-            self.earliest = None  # type: Optional[Pendulum]
-            self.latest = None  # type: Optional[Pendulum]
-            self.patient = None  # type: Optional[Patient]
+            self.earliest = None  # type: ignore[no-redef]
+            self.latest = None  # type: ignore[no-redef]
+            self.patient = None  # type: ignore[no-redef]
 
         # Summary information
         self.summary = ""

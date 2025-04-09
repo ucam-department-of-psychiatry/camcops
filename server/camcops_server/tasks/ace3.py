@@ -27,17 +27,16 @@ ACE-III and Mini-ACE.
 
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Type, TYPE_CHECKING
+from typing import Any, cast, Iterable, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 import cardinal_pythonlib.rnc_web as ws
 import numpy
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, Integer, String, UnicodeText
-from typing import Iterable
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import Integer, String, UnicodeText
 
 from camcops_server.cc_modules.cc_blob import (
+    Blob,
     blob_relationship,
     get_blob_img_html,
 )
@@ -58,7 +57,7 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    mapped_camcops_column,
     PermittedValueChecker,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -68,9 +67,6 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasPatientMixin,
 )
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
-
-if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_blob import Blob
 
 
 # =============================================================================
@@ -174,14 +170,19 @@ def tr_heading(left: str, right: str) -> str:
 # =============================================================================
 
 
-class Ace3Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Ace3"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):  # type: ignore[misc]  # noqa: E501
+    """
+    Server implementation of the ACE-III task.
+    """
+
+    __tablename__ = "ace3"
+    shortname = "ACE-III"
+    provides_trackers = True
+
+    prohibits_commercial = True
+
+    @classmethod
+    def extend_columns(cls: Type["Ace3"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "attn_time",
@@ -396,127 +397,90 @@ class Ace3Metaclass(DeclarativeMeta):
             comment_strings=["name", "number", "street", "town", "county"],
         )
 
-        super().__init__(name, bases, classdict)
-
-
-class Ace3(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=Ace3Metaclass
-):
-    """
-    Server implementation of the ACE-III task.
-    """
-
-    __tablename__ = "ace3"
-    shortname = "ACE-III"
-    provides_trackers = True
-
-    prohibits_commercial = True
-
-    task_edition = CamcopsColumn(
-        "task_edition",
+    task_edition: Mapped[Optional[str]] = mapped_camcops_column(
         String(length=255),
         comment="Task edition. Older task instances will have NULL and that "
         "indicates UK English, 2012 version.",
     )
-    task_address_version = CamcopsColumn(
-        "task_address_version",
+    task_address_version: Mapped[Optional[str]] = mapped_camcops_column(
         String(length=1),
         comment="Task version, determining the address for recall (A/B/C). "
         "Older task instances will have NULL and that indicates version A.",
         permitted_value_checker=PermittedValueChecker(
             permitted_values=["A", "B", "C"]
         ),
-    )  # type: str
-    remote_administration = CamcopsColumn(
-        "remote_administration",
-        Boolean,
+    )
+    remote_administration: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Task performed using remote (videoconferencing) "
         "administration?",
     )
-    age_at_leaving_full_time_education = Column(
-        "age_at_leaving_full_time_education",
-        Integer,
+    age_at_leaving_full_time_education: Mapped[Optional[int]] = mapped_column(
         comment="Age at leaving full time education",
     )
-    occupation = Column("occupation", UnicodeText, comment="Occupation")
-    handedness = CamcopsColumn(
-        "handedness",
+    occupation: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Occupation"
+    )
+    handedness: Mapped[Optional[str]] = mapped_camcops_column(
         String(length=1),  # was Text
         comment="Handedness (L or R)",
         permitted_value_checker=PermittedValueChecker(
             permitted_values=["L", "R"]
         ),
     )
-    attn_num_registration_trials = Column(
-        "attn_num_registration_trials",
-        Integer,
+    attn_num_registration_trials: Mapped[Optional[int]] = mapped_column(
         comment="Attention, repetition, number of trials (not scored)",
     )
-    fluency_letters_score = CamcopsColumn(
-        "fluency_letters_score",
-        Integer,
+    fluency_letters_score: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Fluency, words beginning with P, score 0-7",
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=7),
-    )  # type: Optional[int]
-    fluency_animals_score = CamcopsColumn(
-        "fluency_animals_score",
-        Integer,
+    )
+    fluency_animals_score: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Fluency, animals, score 0-7",
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=7),
-    )  # type: Optional[int]
-    lang_follow_command_practice = CamcopsColumn(
-        "lang_follow_command_practice",
-        Integer,
-        comment="Language, command, practice trial (not scored)",
-        permitted_value_checker=BIT_CHECKER,
     )
-    lang_read_words_aloud = CamcopsColumn(
-        "lang_read_words_aloud",
-        Integer,
+    lang_follow_command_practice: Mapped[Optional[int]] = (
+        mapped_camcops_column(
+            comment="Language, command, practice trial (not scored)",
+            permitted_value_checker=BIT_CHECKER,
+        )
+    )
+    lang_read_words_aloud: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Language, read five irregular words (0 or 1)",
         permitted_value_checker=BIT_CHECKER,
-    )  # type: Optional[int]
-    vsp_copy_infinity = CamcopsColumn(
-        "vsp_copy_infinity",
-        Integer,
+    )
+    vsp_copy_infinity: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Visuospatial, copy infinity (0-1)",
         permitted_value_checker=BIT_CHECKER,
-    )  # type: Optional[int]
-    vsp_copy_cube = CamcopsColumn(
-        "vsp_copy_cube",
-        Integer,
+    )
+    vsp_copy_cube: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Visuospatial, copy cube (0-2)",
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=2),
-    )  # type: Optional[int]
-    vsp_draw_clock = CamcopsColumn(
-        "vsp_draw_clock",
-        Integer,
+    )
+    vsp_draw_clock: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Visuospatial, draw clock (0-5)",
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=5),
-    )  # type: Optional[int]
-    picture1_blobid = CamcopsColumn(
-        "picture1_blobid",
-        Integer,
+    )
+    picture1_blobid: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Photo 1/2 PNG BLOB ID",
         is_blob_id_field=True,
         blob_relationship_attr_name="picture1",
     )
-    picture2_blobid = CamcopsColumn(
-        "picture2_blobid",
-        Integer,
+    picture2_blobid: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Photo 2/2 PNG BLOB ID",
         is_blob_id_field=True,
         blob_relationship_attr_name="picture2",
     )
-    comments = Column("comments", UnicodeText, comment="Clinician's comments")
+    comments: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Clinician's comments"
+    )
 
-    picture1 = blob_relationship(
+    picture1: Mapped[Optional[Blob]] = blob_relationship(  # type: ignore[assignment]  # noqa: E501
         "Ace3", "picture1_blobid"
-    )  # type: Optional[Blob]
-    picture2 = blob_relationship(
+    )
+    picture2: Mapped[Optional[Blob]] = blob_relationship(  # type: ignore[assignment]  # noqa: E501
         "Ace3", "picture2_blobid"
-    )  # type: Optional[Blob]
+    )
 
     ATTN_SCORE_FIELDS = (
         strseq("attn_time", 1, N_ATTN_TIME_ACE)
@@ -659,7 +623,7 @@ class Ace3(
         ]
 
     def attn_score(self) -> int:
-        return self.sum_fields(self.ATTN_SCORE_FIELDS)
+        return cast(int, self.sum_fields(self.ATTN_SCORE_FIELDS))
 
     @staticmethod
     def get_recog_score(
@@ -681,47 +645,54 @@ class Ace3(
     def get_mem_recognition_score(self) -> int:
         score = 0
         score += self.get_recog_score(
-            (self.mem_recall_address1 == 1 and self.mem_recall_address2 == 1),
-            self.mem_recognize_address1,
+            (self.mem_recall_address1 == 1 and self.mem_recall_address2 == 1),  # type: ignore[attr-defined]  # noqa: E501
+            self.mem_recognize_address1,  # type: ignore[attr-defined]
         )
         score += self.get_recog_score(
-            (self.mem_recall_address3 == 1), self.mem_recognize_address2
+            (self.mem_recall_address3 == 1), self.mem_recognize_address2  # type: ignore[attr-defined]  # noqa: E501
         )
         score += self.get_recog_score(
-            (self.mem_recall_address4 == 1 and self.mem_recall_address5 == 1),
-            self.mem_recognize_address3,
+            (self.mem_recall_address4 == 1 and self.mem_recall_address5 == 1),  # type: ignore[attr-defined]  # noqa: E501
+            self.mem_recognize_address3,  # type: ignore[attr-defined]
         )
         score += self.get_recog_score(
-            (self.mem_recall_address6 == 1), self.mem_recognize_address4
+            (self.mem_recall_address6 == 1), self.mem_recognize_address4  # type: ignore[attr-defined]  # noqa: E501
         )
         score += self.get_recog_score(
-            (self.mem_recall_address7 == 1), self.mem_recognize_address5
+            (self.mem_recall_address7 == 1), self.mem_recognize_address5  # type: ignore[attr-defined]  # noqa: E501
         )
         return score
 
     def mem_score(self) -> int:
-        return (
-            self.sum_fields(self.MEM_NON_RECOG_SCORE_FIELDS)
-            + self.get_mem_recognition_score()
+        return cast(
+            int,
+            (
+                self.sum_fields(self.MEM_NON_RECOG_SCORE_FIELDS)
+                + self.get_mem_recognition_score()
+            ),
         )
 
     def fluency_score(self) -> int:
-        return score_zero_for_absent(
-            self.fluency_letters_score
-        ) + score_zero_for_absent(self.fluency_animals_score)
+        return cast(
+            int,
+            (
+                score_zero_for_absent(self.fluency_letters_score)
+                + score_zero_for_absent(self.fluency_animals_score)
+            ),
+        )
 
     def get_follow_command_score(self) -> int:
         if self.lang_follow_command_practice != 1:
             return 0
-        return self.sum_fields(self.LANG_FOLLOW_CMD_FIELDS)
+        return cast(int, self.sum_fields(self.LANG_FOLLOW_CMD_FIELDS))
 
     def get_repeat_word_score(self) -> int:
-        n = self.sum_fields(self.LANG_REPEAT_WORD_FIELDS)
+        n = cast(int, self.sum_fields(self.LANG_REPEAT_WORD_FIELDS))
         return 2 if n >= 4 else (1 if n == 3 else 0)
 
     def lang_score(self) -> int:
         return (
-            self.sum_fields(self.LANG_SIMPLE_SCORE_FIELDS)
+            cast(int, self.sum_fields(self.LANG_SIMPLE_SCORE_FIELDS))
             + self.get_follow_command_score()
             + self.get_repeat_word_score()
             + score_zero_for_absent(self.lang_read_words_aloud)
@@ -729,7 +700,7 @@ class Ace3(
 
     def vsp_score(self) -> int:
         return (
-            self.sum_fields(self.VSP_SIMPLE_SCORE_FIELDS)
+            cast(int, self.sum_fields(self.VSP_SIMPLE_SCORE_FIELDS))
             + score_zero_for_absent(self.vsp_copy_infinity)
             + score_zero_for_absent(self.vsp_copy_cube)
             + score_zero_for_absent(self.vsp_draw_clock)
@@ -745,36 +716,36 @@ class Ace3(
         )
 
     def mini_ace_score(self) -> int:
-        return self.sum_fields(self.MINI_ACE_FIELDS)
+        return cast(int, self.sum_fields(self.MINI_ACE_FIELDS))
 
     # noinspection PyUnresolvedReferences
     def is_recognition_complete(self) -> bool:
         return (
             (
                 (
-                    self.mem_recall_address1 == 1
-                    and self.mem_recall_address2 == 1
+                    self.mem_recall_address1 == 1  # type: ignore[attr-defined]
+                    and self.mem_recall_address2 == 1  # type: ignore[attr-defined]  # noqa: E501
                 )
-                or self.mem_recognize_address1 is not None
+                or self.mem_recognize_address1 is not None  # type: ignore[attr-defined]  # noqa: E501
             )
             and (
-                self.mem_recall_address3 == 1
-                or self.mem_recognize_address2 is not None
+                self.mem_recall_address3 == 1  # type: ignore[attr-defined]
+                or self.mem_recognize_address2 is not None  # type: ignore[attr-defined]  # noqa: E501
             )
             and (
                 (
-                    self.mem_recall_address4 == 1
-                    and self.mem_recall_address5 == 1
+                    self.mem_recall_address4 == 1  # type: ignore[attr-defined]
+                    and self.mem_recall_address5 == 1  # type: ignore[attr-defined]  # noqa: E501
                 )
-                or self.mem_recognize_address3 is not None
+                or self.mem_recognize_address3 is not None  # type: ignore[attr-defined]  # noqa: E501
             )
             and (
-                self.mem_recall_address6 == 1
-                or self.mem_recognize_address4 is not None
+                self.mem_recall_address6 == 1  # type: ignore[attr-defined]
+                or self.mem_recognize_address4 is not None  # type: ignore[attr-defined]  # noqa: E501
             )
             and (
-                self.mem_recall_address7 == 1
-                or self.mem_recognize_address5 is not None
+                self.mem_recall_address7 == 1  # type: ignore[attr-defined]
+                or self.mem_recognize_address5 is not None  # type: ignore[attr-defined]  # noqa: E501
             )
         )
 
@@ -904,11 +875,11 @@ class Ace3(
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.attn_time1,
-                        self.attn_time2,
-                        self.attn_time3,
-                        self.attn_time4,
-                        self.attn_time5,
+                        self.attn_time1,  # type: ignore[attr-defined]
+                        self.attn_time2,  # type: ignore[attr-defined]
+                        self.attn_time3,  # type: ignore[attr-defined]
+                        self.attn_time4,  # type: ignore[attr-defined]
+                        self.attn_time5,  # type: ignore[attr-defined]
                     )
                 ),
             )
@@ -917,11 +888,11 @@ class Ace3(
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.attn_place1,
-                        self.attn_place2,
-                        self.attn_place3,
-                        self.attn_place4,
-                        self.attn_place5,
+                        self.attn_place1,  # type: ignore[attr-defined]
+                        self.attn_place2,  # type: ignore[attr-defined]
+                        self.attn_place3,  # type: ignore[attr-defined]
+                        self.attn_place4,  # type: ignore[attr-defined]
+                        self.attn_place5,  # type: ignore[attr-defined]
                     )
                 ),
             )
@@ -930,9 +901,9 @@ class Ace3(
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.attn_repeat_word1,
-                        self.attn_repeat_word2,
-                        self.attn_repeat_word3,
+                        self.attn_repeat_word1,  # type: ignore[attr-defined]
+                        self.attn_repeat_word2,  # type: ignore[attr-defined]
+                        self.attn_repeat_word3,  # type: ignore[attr-defined]
                     )
                 ),
             )
@@ -948,11 +919,11 @@ class Ace3(
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.attn_serial7_subtraction1,
-                        self.attn_serial7_subtraction2,
-                        self.attn_serial7_subtraction3,
-                        self.attn_serial7_subtraction4,
-                        self.attn_serial7_subtraction5,
+                        self.attn_serial7_subtraction1,  # type: ignore[attr-defined]  # noqa: E501
+                        self.attn_serial7_subtraction2,  # type: ignore[attr-defined]  # noqa: E501
+                        self.attn_serial7_subtraction3,  # type: ignore[attr-defined]  # noqa: E501
+                        self.attn_serial7_subtraction4,  # type: ignore[attr-defined]  # noqa: E501
+                        self.attn_serial7_subtraction5,  # type: ignore[attr-defined]  # noqa: E501
                     )
                 ),
             )
@@ -962,9 +933,9 @@ class Ace3(
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.mem_recall_word1,
-                        self.mem_recall_word2,
-                        self.mem_recall_word3,
+                        self.mem_recall_word1,  # type: ignore[attr-defined]
+                        self.mem_recall_word2,  # type: ignore[attr-defined]
+                        self.mem_recall_word3,  # type: ignore[attr-defined]
                     )
                 ),
             )
@@ -985,13 +956,13 @@ class Ace3(
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.mem_repeat_address_trial3_1,
-                        self.mem_repeat_address_trial3_2,
-                        self.mem_repeat_address_trial3_3,
-                        self.mem_repeat_address_trial3_4,
-                        self.mem_repeat_address_trial3_5,
-                        self.mem_repeat_address_trial3_6,
-                        self.mem_repeat_address_trial3_7,
+                        self.mem_repeat_address_trial3_1,  # type: ignore[attr-defined]  # noqa: E501
+                        self.mem_repeat_address_trial3_2,  # type: ignore[attr-defined]  # noqa: E501
+                        self.mem_repeat_address_trial3_3,  # type: ignore[attr-defined]  # noqa: E501
+                        self.mem_repeat_address_trial3_4,  # type: ignore[attr-defined]  # noqa: E501
+                        self.mem_repeat_address_trial3_5,  # type: ignore[attr-defined]  # noqa: E501
+                        self.mem_repeat_address_trial3_6,  # type: ignore[attr-defined]  # noqa: E501
+                        self.mem_repeat_address_trial3_7,  # type: ignore[attr-defined]  # noqa: E501
                     )
                 ),
             )
@@ -1001,10 +972,10 @@ class Ace3(
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.mem_famous1,
-                        self.mem_famous2,
-                        self.mem_famous3,
-                        self.mem_famous4,
+                        self.mem_famous1,  # type: ignore[attr-defined]
+                        self.mem_famous2,  # type: ignore[attr-defined]
+                        self.mem_famous3,  # type: ignore[attr-defined]
+                        self.mem_famous4,  # type: ignore[attr-defined]
                     )
                 ),
             )
@@ -1018,15 +989,15 @@ class Ace3(
             )
             + tr_qa(
                 "“Place the paper on top of the pencil”",
-                self.lang_follow_command1,
+                self.lang_follow_command1,  # type: ignore[attr-defined]
             )
             + tr_qa(
                 "“Pick up the pencil but not the paper”",
-                self.lang_follow_command2,
+                self.lang_follow_command2,  # type: ignore[attr-defined]
             )
             + tr_qa(
                 "“Pass me the pencil after touching the paper”",
-                self.lang_follow_command3,
+                self.lang_follow_command3,  # type: ignore[attr-defined]
             )
             + tr(
                 "Sentence-writing: point for 2 complete sentences? "
@@ -1034,8 +1005,8 @@ class Ace3(
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.lang_write_sentences_point1,
-                        self.lang_write_sentences_point2,
+                        self.lang_write_sentences_point1,  # type: ignore[attr-defined]  # noqa: E501
+                        self.lang_write_sentences_point2,  # type: ignore[attr-defined]  # noqa: E501
                     )
                 ),
             )
@@ -1044,29 +1015,29 @@ class Ace3(
                 "statistician? <i>(score 2 if all correct, 1 if 3 correct, "
                 "0 if ≤2 correct)</i>",
                 "<i>{}, {}, {}, {}</i> (score <b>{}</b> / 2)".format(
-                    answer(self.lang_repeat_word1, formatter_answer=italic),
-                    answer(self.lang_repeat_word2, formatter_answer=italic),
-                    answer(self.lang_repeat_word3, formatter_answer=italic),
-                    answer(self.lang_repeat_word4, formatter_answer=italic),
+                    answer(self.lang_repeat_word1, formatter_answer=italic),  # type: ignore[attr-defined]  # noqa: E501
+                    answer(self.lang_repeat_word2, formatter_answer=italic),  # type: ignore[attr-defined]  # noqa: E501
+                    answer(self.lang_repeat_word3, formatter_answer=italic),  # type: ignore[attr-defined]  # noqa: E501
+                    answer(self.lang_repeat_word4, formatter_answer=italic),  # type: ignore[attr-defined]  # noqa: E501
                     self.get_repeat_word_score(),
                 ),
             )
             + tr_qa(
                 "Repeat: “All that glitters is not gold”?",
-                self.lang_repeat_sentence1,
+                self.lang_repeat_sentence1,  # type: ignore[attr-defined]
             )
             + tr_qa(
                 "Repeat: “A stitch in time saves nine”?",
-                self.lang_repeat_sentence2,
+                self.lang_repeat_sentence2,  # type: ignore[attr-defined]
             )
             + tr(
                 "Name pictures: spoon, book, kangaroo/wallaby",
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.lang_name_picture1,
-                        self.lang_name_picture2,
-                        self.lang_name_picture3,
+                        self.lang_name_picture1,  # type: ignore[attr-defined]
+                        self.lang_name_picture2,  # type: ignore[attr-defined]
+                        self.lang_name_picture3,  # type: ignore[attr-defined]
                     )
                 ),
             )
@@ -1075,9 +1046,9 @@ class Ace3(
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.lang_name_picture4,
-                        self.lang_name_picture5,
-                        self.lang_name_picture6,
+                        self.lang_name_picture4,  # type: ignore[attr-defined]
+                        self.lang_name_picture5,  # type: ignore[attr-defined]
+                        self.lang_name_picture6,  # type: ignore[attr-defined]
                     )
                 ),
             )
@@ -1086,9 +1057,9 @@ class Ace3(
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.lang_name_picture7,
-                        self.lang_name_picture8,
-                        self.lang_name_picture9,
+                        self.lang_name_picture7,  # type: ignore[attr-defined]
+                        self.lang_name_picture8,  # type: ignore[attr-defined]
+                        self.lang_name_picture9,  # type: ignore[attr-defined]
                     )
                 ),
             )
@@ -1098,9 +1069,9 @@ class Ace3(
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.lang_name_picture10,
-                        self.lang_name_picture11,
-                        self.lang_name_picture12,
+                        self.lang_name_picture10,  # type: ignore[attr-defined]
+                        self.lang_name_picture11,  # type: ignore[attr-defined]
+                        self.lang_name_picture12,  # type: ignore[attr-defined]
                     )
                 ),
             )
@@ -1109,10 +1080,10 @@ class Ace3(
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.lang_identify_concept1,
-                        self.lang_identify_concept2,
-                        self.lang_identify_concept3,
-                        self.lang_identify_concept4,
+                        self.lang_identify_concept1,  # type: ignore[attr-defined]  # noqa: E501
+                        self.lang_identify_concept2,  # type: ignore[attr-defined]  # noqa: E501
+                        self.lang_identify_concept3,  # type: ignore[attr-defined]  # noqa: E501
+                        self.lang_identify_concept4,  # type: ignore[attr-defined]  # noqa: E501
                     )
                 ),
             )
@@ -1132,10 +1103,10 @@ class Ace3(
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.vsp_count_dots1,
-                        self.vsp_count_dots2,
-                        self.vsp_count_dots3,
-                        self.vsp_count_dots4,
+                        self.vsp_count_dots1,  # type: ignore[attr-defined]
+                        self.vsp_count_dots2,  # type: ignore[attr-defined]
+                        self.vsp_count_dots3,  # type: ignore[attr-defined]
+                        self.vsp_count_dots4,  # type: ignore[attr-defined]
                     )
                 ),
             )
@@ -1144,10 +1115,10 @@ class Ace3(
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.vsp_identify_letter1,
-                        self.vsp_identify_letter2,
-                        self.vsp_identify_letter3,
-                        self.vsp_identify_letter4,
+                        self.vsp_identify_letter1,  # type: ignore[attr-defined]  # noqa: E501
+                        self.vsp_identify_letter2,  # type: ignore[attr-defined]  # noqa: E501
+                        self.vsp_identify_letter3,  # type: ignore[attr-defined]  # noqa: E501
+                        self.vsp_identify_letter4,  # type: ignore[attr-defined]  # noqa: E501
                     )
                 ),
             )
@@ -1157,13 +1128,13 @@ class Ace3(
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.mem_recall_address1,
-                        self.mem_recall_address2,
-                        self.mem_recall_address3,
-                        self.mem_recall_address4,
-                        self.mem_recall_address5,
-                        self.mem_recall_address6,
-                        self.mem_recall_address7,
+                        self.mem_recall_address1,  # type: ignore[attr-defined]
+                        self.mem_recall_address2,  # type: ignore[attr-defined]
+                        self.mem_recall_address3,  # type: ignore[attr-defined]
+                        self.mem_recall_address4,  # type: ignore[attr-defined]
+                        self.mem_recall_address5,  # type: ignore[attr-defined]
+                        self.mem_recall_address6,  # type: ignore[attr-defined]
+                        self.mem_recall_address7,  # type: ignore[attr-defined]
                     )
                 ),
             )
@@ -1171,41 +1142,41 @@ class Ace3(
                 "Recognize address: forename and surname?",
                 self.get_recog_text(
                     (
-                        self.mem_recall_address1 == 1
-                        and self.mem_recall_address2 == 1
+                        self.mem_recall_address1 == 1  # type: ignore[attr-defined]  # noqa: E501
+                        and self.mem_recall_address2 == 1  # type: ignore[attr-defined]  # noqa: E501
                     ),
-                    self.mem_recognize_address1,
+                    self.mem_recognize_address1,  # type: ignore[attr-defined]
                 ),
             )
             + tr(
                 "Recognize address: house number?",
                 self.get_recog_text(
-                    (self.mem_recall_address3 == 1),
-                    self.mem_recognize_address2,
+                    (self.mem_recall_address3 == 1),  # type: ignore[attr-defined]  # noqa: E501
+                    self.mem_recognize_address2,  # type: ignore[attr-defined]
                 ),
             )
             + tr(
                 "Recognize address: street?",
                 self.get_recog_text(
                     (
-                        self.mem_recall_address4 == 1
-                        and self.mem_recall_address5 == 1
+                        self.mem_recall_address4 == 1  # type: ignore[attr-defined]  # noqa: E501
+                        and self.mem_recall_address5 == 1  # type: ignore[attr-defined]  # noqa: E501
                     ),
-                    self.mem_recognize_address3,
+                    self.mem_recognize_address3,  # type: ignore[attr-defined]
                 ),
             )
             + tr(
                 "Recognize address: town?",
                 self.get_recog_text(
-                    (self.mem_recall_address6 == 1),
-                    self.mem_recognize_address4,
+                    (self.mem_recall_address6 == 1),  # type: ignore[attr-defined]  # noqa: E501
+                    self.mem_recognize_address4,  # type: ignore[attr-defined]
                 ),
             )
             + tr(
                 "Recognize address: county?",
                 self.get_recog_text(
-                    (self.mem_recall_address7 == 1),
-                    self.mem_recognize_address5,
+                    (self.mem_recall_address7 == 1),  # type: ignore[attr-defined]  # noqa: E501
+                    self.mem_recognize_address5,  # type: ignore[attr-defined]
                 ),
             )
             + subheading_spanning_two_columns("Photos of test sheet")
@@ -1277,14 +1248,24 @@ class Ace3(
 # =============================================================================
 
 
-class MiniAceMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["MiniAce"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class MiniAce(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
+):
+    """
+    Server implementation of the Mini-ACE task.
+    """
+
+    __tablename__ = "miniace"
+    shortname = "Mini-ACE"
+    extrastring_taskname = "ace3"  # shares strings with ACE-III
+    provides_trackers = True
+
+    prohibits_commercial = True
+
+    @classmethod
+    def extend_columns(cls: Type["MiniAce"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "attn_time",
@@ -1334,92 +1315,61 @@ class MiniAceMetaclass(DeclarativeMeta):
             comment_strings=ADDRESS_PARTS,
         )
 
-        super().__init__(name, bases, classdict)
-
-
-class MiniAce(
-    TaskHasPatientMixin,
-    TaskHasClinicianMixin,
-    Task,
-    metaclass=MiniAceMetaclass,
-):
-    """
-    Server implementation of the Mini-ACE task.
-    """
-
-    __tablename__ = "miniace"
-    shortname = "Mini-ACE"
-    extrastring_taskname = "ace3"  # shares strings with ACE-III
-    provides_trackers = True
-
-    prohibits_commercial = True
-
-    task_edition = CamcopsColumn(
-        "task_edition",
+    task_edition: Mapped[Optional[str]] = mapped_camcops_column(
         String(length=255),
         comment="Task edition.",
     )
-    task_address_version = CamcopsColumn(
-        "task_address_version",
+    task_address_version: Mapped[Optional[str]] = mapped_camcops_column(
         String(length=1),
         comment="Task version, determining the address for recall (A/B/C).",
         permitted_value_checker=PermittedValueChecker(
             permitted_values=["A", "B", "C"]
         ),
-    )  # type: str
-    remote_administration = CamcopsColumn(
-        "remote_administration",
-        Boolean,
+    )
+    remote_administration: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Task performed using remote (videoconferencing) "
         "administration?",
     )
-    age_at_leaving_full_time_education = Column(
-        "age_at_leaving_full_time_education",
-        Integer,
+    age_at_leaving_full_time_education: Mapped[Optional[int]] = mapped_column(
         comment="Age at leaving full time education",
     )
-    occupation = Column("occupation", UnicodeText, comment=OCCUPATION)
-    handedness = CamcopsColumn(
-        "handedness",
+    occupation: Mapped[Optional[str]] = mapped_column(
+        "occupation", UnicodeText, comment=OCCUPATION
+    )
+    handedness: Mapped[Optional[str]] = mapped_camcops_column(
         String(length=1),  # was Text
         comment="Handedness (L or R)",
         permitted_value_checker=PermittedValueChecker(
             permitted_values=["L", "R"]
         ),
     )
-    fluency_animals_score = CamcopsColumn(
-        "fluency_animals_score",
-        Integer,
+    fluency_animals_score: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Fluency, animals, score 0-7",
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=7),
-    )  # type: Optional[int]
-    vsp_draw_clock = CamcopsColumn(
-        "vsp_draw_clock",
-        Integer,
+    )
+    vsp_draw_clock: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Visuospatial, draw clock (0-5)",
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=5),
-    )  # type: Optional[int]
-    picture1_blobid = CamcopsColumn(
-        "picture1_blobid",
-        Integer,
+    )
+    picture1_blobid: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Photo 1/2 PNG BLOB ID",
         is_blob_id_field=True,
         blob_relationship_attr_name="picture1",
     )
-    picture2_blobid = CamcopsColumn(
-        "picture2_blobid",
-        Integer,
+    picture2_blobid: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Photo 2/2 PNG BLOB ID",
         is_blob_id_field=True,
         blob_relationship_attr_name="picture2",
     )
-    comments = Column("comments", UnicodeText, comment="Clinician's comments")
+    comments: Mapped[Optional[str]] = mapped_column(
+        "comments", UnicodeText, comment="Clinician's comments"
+    )
 
-    picture1 = blob_relationship(
+    picture1 = blob_relationship(  # type: ignore[assignment]
         "MiniAce", "picture1_blobid"
     )  # type: Optional[Blob]
-    picture2 = blob_relationship(
+    picture2 = blob_relationship(  # type: ignore[assignment]
         "MiniAce", "picture2_blobid"
     )  # type: Optional[Blob]
 
@@ -1482,19 +1432,19 @@ class MiniAce(
         ]
 
     def attn_score(self) -> int:
-        return self.sum_fields(self.MACE_ATTN_FIELDS)
+        return cast(int, self.sum_fields(self.MACE_ATTN_FIELDS))
 
     def mem_score(self) -> int:
-        return self.sum_fields(self.MACE_MEMORY_FIELDS)
+        return cast(int, self.sum_fields(self.MACE_MEMORY_FIELDS))
 
     def fluency_score(self) -> int:
-        return self.sum_fields(self.MACE_FLUENCY_FIELDS)
+        return cast(int, self.sum_fields(self.MACE_FLUENCY_FIELDS))
 
     def vsp_score(self) -> int:
-        return self.sum_fields(self.MACE_VSP_FIELDS)
+        return cast(int, self.sum_fields(self.MACE_VSP_FIELDS))
 
     def mini_ace_score(self) -> int:
-        return self.sum_fields(self.MINI_ACE_FIELDS)
+        return cast(int, self.sum_fields(self.MINI_ACE_FIELDS))
 
     def is_complete(self) -> bool:
         return (
@@ -1593,10 +1543,10 @@ class MiniAce(
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.attn_time1,
-                        self.attn_time2,
-                        self.attn_time3,
-                        self.attn_time4,
+                        self.attn_time1,  # type: ignore[attr-defined]
+                        self.attn_time2,  # type: ignore[attr-defined]
+                        self.attn_time3,  # type: ignore[attr-defined]
+                        self.attn_time4,  # type: ignore[attr-defined]
                     )
                 ),
             )
@@ -1606,13 +1556,13 @@ class MiniAce(
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.mem_repeat_address_trial3_1,
-                        self.mem_repeat_address_trial3_2,
-                        self.mem_repeat_address_trial3_3,
-                        self.mem_repeat_address_trial3_4,
-                        self.mem_repeat_address_trial3_5,
-                        self.mem_repeat_address_trial3_6,
-                        self.mem_repeat_address_trial3_7,
+                        self.mem_repeat_address_trial3_1,  # type: ignore[attr-defined]  # noqa: E501
+                        self.mem_repeat_address_trial3_2,  # type: ignore[attr-defined]  # noqa: E501
+                        self.mem_repeat_address_trial3_3,  # type: ignore[attr-defined]  # noqa: E501
+                        self.mem_repeat_address_trial3_4,  # type: ignore[attr-defined]  # noqa: E501
+                        self.mem_repeat_address_trial3_5,  # type: ignore[attr-defined]  # noqa: E501
+                        self.mem_repeat_address_trial3_6,  # type: ignore[attr-defined]  # noqa: E501
+                        self.mem_repeat_address_trial3_7,  # type: ignore[attr-defined]  # noqa: E501
                     )
                 ),
             )
@@ -1632,13 +1582,13 @@ class MiniAce(
                 ", ".join(
                     answer(x)
                     for x in (
-                        self.mem_recall_address1,
-                        self.mem_recall_address2,
-                        self.mem_recall_address3,
-                        self.mem_recall_address4,
-                        self.mem_recall_address5,
-                        self.mem_recall_address6,
-                        self.mem_recall_address7,
+                        self.mem_recall_address1,  # type: ignore[attr-defined]
+                        self.mem_recall_address2,  # type: ignore[attr-defined]
+                        self.mem_recall_address3,  # type: ignore[attr-defined]
+                        self.mem_recall_address4,  # type: ignore[attr-defined]
+                        self.mem_recall_address5,  # type: ignore[attr-defined]
+                        self.mem_recall_address6,  # type: ignore[attr-defined]
+                        self.mem_recall_address7,  # type: ignore[attr-defined]
                     )
                 ),
             )

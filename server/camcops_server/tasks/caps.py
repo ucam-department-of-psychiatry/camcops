@@ -25,10 +25,9 @@ camcops_server/tasks/caps.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, cast, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass, PV
@@ -86,14 +85,24 @@ QUESTION_SNIPPETS = [
 ]
 
 
-class CapsMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Caps"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Caps(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the CAPS task.
+    """
+
+    __tablename__ = "caps"
+    shortname = "CAPS"
+    provides_trackers = True
+
+    prohibits_commercial = True
+
+    NQUESTIONS = 32
+
+    @classmethod
+    def extend_columns(cls: Type["Caps"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "endorse",
@@ -134,21 +143,7 @@ class CapsMetaclass(DeclarativeMeta):
             comment_fmt="Q{n} ({s}): frequency (1 low - 5 high), if endorsed",
             comment_strings=QUESTION_SNIPPETS,
         )
-        super().__init__(name, bases, classdict)
 
-
-class Caps(TaskHasPatientMixin, Task, metaclass=CapsMetaclass):
-    """
-    Server implementation of the CAPS task.
-    """
-
-    __tablename__ = "caps"
-    shortname = "CAPS"
-    provides_trackers = True
-
-    prohibits_commercial = True
-
-    NQUESTIONS = 32
     ENDORSE_FIELDS = strseq("endorse", 1, NQUESTIONS)
 
     @staticmethod
@@ -225,7 +220,7 @@ class Caps(TaskHasPatientMixin, Task, metaclass=CapsMetaclass):
                 getattr(self, "endorse" + str(q))
                 and getattr(self, "distress" + str(q)) is not None
             ):
-                score += self.sum_fields(["distress" + str(q)])
+                score += cast(int, self.sum_fields(["distress" + str(q)]))
         return score
 
     def intrusiveness_score(self) -> int:
@@ -235,7 +230,7 @@ class Caps(TaskHasPatientMixin, Task, metaclass=CapsMetaclass):
                 getattr(self, "endorse" + str(q))
                 and getattr(self, "intrusiveness" + str(q)) is not None
             ):
-                score += self.sum_fields(["intrusiveness" + str(q)])
+                score += cast(int, self.sum_fields(["intrusiveness" + str(q)]))
         return score
 
     def frequency_score(self) -> int:
@@ -245,7 +240,7 @@ class Caps(TaskHasPatientMixin, Task, metaclass=CapsMetaclass):
                 getattr(self, "endorse" + str(q))
                 and getattr(self, "frequency" + str(q)) is not None
             ):
-                score += self.sum_fields(["frequency" + str(q)])
+                score += cast(int, self.sum_fields(["frequency" + str(q)]))
         return score
 
     def get_task_html(self, req: CamcopsRequest) -> str:

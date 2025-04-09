@@ -25,11 +25,10 @@ camcops_server/tasks/iesr.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, cast, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import (
@@ -57,14 +56,20 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class IesrMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Iesr"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Iesr(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the IES-R task.
+    """
+
+    __tablename__ = "iesr"
+    shortname = "IES-R"
+    provides_trackers = True
+
+    @classmethod
+    def extend_columns(cls: Type["Iesr"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -98,19 +103,10 @@ class IesrMetaclass(DeclarativeMeta):
                 "avoided talking",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Iesr(TaskHasPatientMixin, Task, metaclass=IesrMetaclass):
-    """
-    Server implementation of the IES-R task.
-    """
-
-    __tablename__ = "iesr"
-    shortname = "IES-R"
-    provides_trackers = True
-
-    event = Column("event", UnicodeText, comment="Relevant event")
+    event: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Relevant event"
+    )
 
     NQUESTIONS = 22
     MIN_SCORE = 0  # per question
@@ -215,16 +211,16 @@ class Iesr(TaskHasPatientMixin, Task, metaclass=IesrMetaclass):
         ]
 
     def total_score(self) -> int:
-        return self.sum_fields(self.QUESTION_FIELDS)
+        return cast(int, self.sum_fields(self.QUESTION_FIELDS))
 
     def avoidance_score(self) -> int:
-        return self.sum_fields(self.AVOIDANCE_FIELDS)
+        return cast(int, self.sum_fields(self.AVOIDANCE_FIELDS))
 
     def intrusion_score(self) -> int:
-        return self.sum_fields(self.INTRUSION_FIELDS)
+        return cast(int, self.sum_fields(self.INTRUSION_FIELDS))
 
     def hyperarousal_score(self) -> int:
-        return self.sum_fields(self.HYPERAROUSAL_FIELDS)
+        return cast(int, self.sum_fields(self.HYPERAROUSAL_FIELDS))
 
     def is_complete(self) -> bool:
         return bool(
@@ -234,7 +230,7 @@ class Iesr(TaskHasPatientMixin, Task, metaclass=IesrMetaclass):
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        option_dict = {None: None}
+        option_dict: dict[Optional[int], Optional[str]] = {None: None}
         for a in range(self.MIN_SCORE, self.MAX_SCORE + 1):
             option_dict[a] = req.wappstring(AS.IESR_A_PREFIX + str(a))
         h = f"""

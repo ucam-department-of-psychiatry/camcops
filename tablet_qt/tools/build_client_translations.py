@@ -38,7 +38,7 @@ from os.path import abspath, dirname, join
 import shutil
 import subprocess
 import sys
-from typing import Iterable, List
+from typing import Any, Iterable, List
 import xml.etree.ElementTree as ET
 
 from cardinal_pythonlib.logs import (
@@ -182,7 +182,7 @@ def gen_files_with_ext(directory: str, ext: str) -> Iterable[str]:
 def report_missing_translations() -> int:
     exit_code = EXIT_SUCCESS
     for ts_filename in gen_files_with_ext(TRANSLATIONS_DIR, EXT_TS):
-        missing = []
+        missing: list[dict[str, Any]] = []
         tree = ET.parse(ts_filename)
         ts = tree.getroot()
 

@@ -27,53 +27,23 @@ camcops_server/tasks/cpft_research_preferences.py
 
 """
 
-from typing import Any, Dict, Optional, Tuple, Type
-
-from sqlalchemy.ext.declarative import DeclarativeMeta
+from typing import Any, Optional, Type
 
 from camcops_server.cc_modules.cc_constants import CssClass, PV
 from camcops_server.cc_modules.cc_html import tr_qa, get_yes_no_unknown
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    BoolColumn,
-    CamcopsColumn,
+    bool_column,
+    camcops_column,
     CharColType,
     PermittedValueChecker,
 )
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
-class CpftResearchPreferencesMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["CpftResearchPreferences"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
-        setattr(
-            cls,
-            cls.FN_CONTACT_PREFERENCE,
-            CamcopsColumn(
-                cls.FN_CONTACT_PREFERENCE,
-                CharColType,
-                permitted_value_checker=PermittedValueChecker(
-                    permitted_values=PV.RYG
-                ),
-            ),
-        )
-        setattr(
-            cls, cls.FN_CONTACT_BY_EMAIL, BoolColumn(cls.FN_CONTACT_BY_EMAIL)
-        )
-        setattr(
-            cls, cls.FN_RESEARCH_OPT_OUT, BoolColumn(cls.FN_RESEARCH_OPT_OUT)
-        )
-
-        super().__init__(name, bases, classdict)
-
-
-class CpftResearchPreferences(
-    TaskHasPatientMixin, Task, metaclass=CpftResearchPreferencesMetaclass
+class CpftResearchPreferences(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
 ):
     """
     Server implementation of the CPFT_Research_Preferences task
@@ -92,6 +62,28 @@ class CpftResearchPreferences(
         FN_CONTACT_BY_EMAIL,
         FN_RESEARCH_OPT_OUT,
     ]
+
+    @classmethod
+    def extend_columns(
+        cls: Type["CpftResearchPreferences"], **kwargs: Any
+    ) -> None:
+        setattr(
+            cls,
+            cls.FN_CONTACT_PREFERENCE,
+            camcops_column(
+                cls.FN_CONTACT_PREFERENCE,
+                CharColType,
+                permitted_value_checker=PermittedValueChecker(
+                    permitted_values=PV.RYG
+                ),
+            ),
+        )
+        setattr(
+            cls, cls.FN_CONTACT_BY_EMAIL, bool_column(cls.FN_CONTACT_BY_EMAIL)
+        )
+        setattr(
+            cls, cls.FN_RESEARCH_OPT_OUT, bool_column(cls.FN_RESEARCH_OPT_OUT)
+        )
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

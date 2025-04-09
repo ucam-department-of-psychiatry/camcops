@@ -265,7 +265,7 @@ class RedcapTaskExporter(object):
         if existing_record_id is None:
             uploader_class = RedcapNewRecordUploader
         else:
-            uploader_class = RedcapUpdatedRecordUploader
+            uploader_class = RedcapUpdatedRecordUploader  # type: ignore[assignment]  # noqa: E501
 
         try:
             instrument_name = fieldmap.instruments[task.tablename]
@@ -296,7 +296,7 @@ class RedcapTaskExporter(object):
             idnum_object.idnum_value,
         )
 
-        exported_task_redcap.redcap_record_id = new_record_id
+        exported_task_redcap.redcap_record_id = new_record_id  # type: ignore[assignment]  # noqa: E501
         exported_task_redcap.redcap_instrument_name = instrument_name
         exported_task_redcap.redcap_instance_id = next_instance_id
 
@@ -640,7 +640,7 @@ class RedcapUploader(object):
 
         response = self.upload_record(record, **import_kwargs)
 
-        new_record_id = self.get_new_record_id(record_id, response)
+        new_record_id = self.get_new_record_id(record_id, response)  # type: ignore[arg-type]  # noqa: E501
 
         # We don't mark the patient record as complete - it could be part of
         # a larger form. We don't require it to be complete.
@@ -650,7 +650,7 @@ class RedcapUploader(object):
         }
         self.upload_record(patient_record)
 
-        file_dict = {}
+        file_dict: dict[str, Any] = {}
         self.transform_fields(file_dict, task, fieldmap.files[task.tablename])
 
         self.upload_files(
@@ -666,7 +666,7 @@ class RedcapUploader(object):
         return new_record_id
 
     def upload_record(
-        self, record: Dict[str, Any], **kwargs
+        self, record: Dict[str, Any], **kwargs: Any
     ) -> Union[Dict, List, str]:
         """
         Uploads a REDCap record via the pycap

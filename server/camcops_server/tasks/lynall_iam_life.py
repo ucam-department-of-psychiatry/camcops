@@ -27,17 +27,16 @@ camcops_server/tasks/lynall_iam_life.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, List, Type
 
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import answer, get_yes_no_none
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    BoolColumn,
-    CamcopsColumn,
+    bool_column,
+    camcops_column,
     MIN_ZERO_CHECKER,
     ONE_TO_THREE_CHECKER,
     ZERO_TO_100_CHECKER,
@@ -76,13 +75,22 @@ def qfieldname_frequency(qnum: int) -> str:
     return f"{QPREFIX}{qnum}{QSUFFIX_FREQUENCY}"
 
 
-class LynallIamLifeEventsMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["LynallIamLifeEvents"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
+class LynallIamLifeEvents(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the LynallIamLifeEvents task.
+    """
+
+    __tablename__ = "lynall_iam_life"
+    shortname = "Lynall_IAM_Life"
+
+    prohibits_commercial = True
+
+    @classmethod
+    def extend_columns(
+        cls: Type["LynallIamLifeEvents"], **kwargs: Any
     ) -> None:
         comment_strings = [
             "illness/injury/assault (self)",  # 1
@@ -107,7 +115,7 @@ class LynallIamLifeEventsMetaclass(DeclarativeMeta):
             cmt_main = (
                 f"Q{q}: in last 6 months: {comment_strings[i]} (0 no, 1 yes)"
             )
-            setattr(cls, fn_main, BoolColumn(fn_main, comment=cmt_main))
+            setattr(cls, fn_main, bool_column(fn_main, comment=cmt_main))
 
             fn_severity = qfieldname_severity(q)
             cmt_severity = (
@@ -117,7 +125,7 @@ class LynallIamLifeEventsMetaclass(DeclarativeMeta):
             setattr(
                 cls,
                 fn_severity,
-                CamcopsColumn(
+                camcops_column(
                     fn_severity,
                     Integer,
                     comment=cmt_severity,
@@ -142,28 +150,13 @@ class LynallIamLifeEventsMetaclass(DeclarativeMeta):
             setattr(
                 cls,
                 fn_frequency,
-                CamcopsColumn(
+                camcops_column(
                     fn_frequency,
                     Integer,
                     comment=cmt_frequency,
                     permitted_value_checker=pv_frequency,
                 ),
             )
-
-        super().__init__(name, bases, classdict)
-
-
-class LynallIamLifeEvents(
-    TaskHasPatientMixin, Task, metaclass=LynallIamLifeEventsMetaclass
-):
-    """
-    Server implementation of the LynallIamLifeEvents task.
-    """
-
-    __tablename__ = "lynall_iam_life"
-    shortname = "Lynall_IAM_Life"
-
-    prohibits_commercial = True
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

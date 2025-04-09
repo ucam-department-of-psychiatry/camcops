@@ -40,13 +40,13 @@ Thus, always complete and contemporaneous.
 """
 
 import logging
-from typing import List, Tuple, TYPE_CHECKING
+from typing import List, Optional, Tuple, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import BigInteger, Integer
+from sqlalchemy.sql.sqltypes import BigInteger
 
 from camcops_server.cc_modules.cc_constants import (
     EXTRA_COMMENT_PREFIX,
@@ -56,7 +56,10 @@ from camcops_server.cc_modules.cc_constants import (
 from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
 from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
-from camcops_server.cc_modules.cc_sqla_coltypes import CamcopsColumn
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    mapped_camcops_column,
+    camcops_column,
+)
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 
 if TYPE_CHECKING:
@@ -80,26 +83,17 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
 
     __tablename__ = "patient_idnum"
 
-    id = Column(
-        "id",
-        Integer,
-        nullable=False,
+    id: Mapped[int] = mapped_column(
         comment="Primary key on the source tablet device",
     )
-    patient_id = Column(
-        "patient_id",
-        Integer,
-        nullable=False,
+    patient_id: Mapped[int] = mapped_column(
         comment="FK to patient.id (for this device/era)",
     )
-    which_idnum = Column(
-        "which_idnum",
-        Integer,
+    which_idnum: Mapped[int] = mapped_column(
         ForeignKey(IdNumDefinition.which_idnum),
-        nullable=False,
         comment="Which of the server's ID numbers is this?",
     )
-    idnum_value = CamcopsColumn(
+    idnum_value: Mapped[Optional[int]] = mapped_camcops_column(
         "idnum_value",
         BigInteger,
         identifies_patient=True,
@@ -184,7 +178,7 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         """
         return hash(self.__members())
 
-    def __eq__(self, other: "PatientIdNum") -> bool:
+    def __eq__(self, other: object) -> bool:
         """
         Do ``self`` and ``other`` represent the same ID number?
 
@@ -199,12 +193,11 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
                 self.idnum_value is not None
             )
         """
+        if not isinstance(other, PatientIdNum):
+            return NotImplemented
+
         sm = self.__members()
-        return (
-            type(self) is type(other)
-            and (None not in sm)
-            and sm == other.__members()
-        )
+        return (None not in sm) and sm == other.__members()
 
     # -------------------------------------------------------------------------
     # Validity
@@ -329,7 +322,7 @@ def extra_id_colname(which_idnum: int) -> str:
     return f"{EXTRA_IDNUM_FIELD_PREFIX}{which_idnum}"
 
 
-def extra_id_column(req: "CamcopsRequest", which_idnum: int) -> CamcopsColumn:
+def extra_id_column(req: "CamcopsRequest", which_idnum: int) -> Column:
     """
     The column definition used for the extra ID number columns provided by the
     ``DB_PATIENT_ID_PER_ROW`` export option.
@@ -343,7 +336,7 @@ def extra_id_column(req: "CamcopsRequest", which_idnum: int) -> CamcopsColumn:
 
     """
     desc = req.get_id_desc(which_idnum)
-    return CamcopsColumn(
+    return camcops_column(
         extra_id_colname(which_idnum),
         BigInteger,
         identifies_patient=True,
@@ -351,7 +344,7 @@ def extra_id_column(req: "CamcopsRequest", which_idnum: int) -> CamcopsColumn:
     )
 
 
-def all_extra_id_columns(req: "CamcopsRequest") -> List[CamcopsColumn]:
+def all_extra_id_columns(req: "CamcopsRequest") -> List[Column]:
     """
     Returns all column definitions used for the extra ID number columns
     provided by the ``DB_PATIENT_ID_PER_ROW`` export option.

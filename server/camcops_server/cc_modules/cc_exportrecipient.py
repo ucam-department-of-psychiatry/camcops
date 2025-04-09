@@ -27,6 +27,7 @@ camcops_server/cc_modules/cc_exportrecipient.py
 
 """
 
+import datetime
 import logging
 from typing import List, Optional, TYPE_CHECKING
 
@@ -39,13 +40,15 @@ from cardinal_pythonlib.sqlalchemy.list_types import (
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
 from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_url
 from sqlalchemy.event.api import listens_for
-from sqlalchemy.orm import reconstructor, Session as SqlASession
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_column,
+    reconstructor,
+    Session as SqlASession,
+)
 from sqlalchemy.sql.sqltypes import (
     BigInteger,
-    Boolean,
     DateTime,
-    Integer,
     Text,
 )
 
@@ -109,25 +112,19 @@ class ExportRecipient(ExportRecipientInfo, Base):
     # -------------------------------------------------------------------------
     # Identifying this object, and whether it's the "live" version
     # -------------------------------------------------------------------------
-    id = Column(
-        "id",
+    id: Mapped[int] = mapped_column(
         BigInteger,
         primary_key=True,
         autoincrement=True,
         index=True,
         comment="Export recipient ID (arbitrary primary key)",
     )
-    recipient_name = Column(
-        "recipient_name",
+    recipient_name: Mapped[str] = mapped_column(
         ExportRecipientNameColType,
-        nullable=False,
         comment="Name of export recipient",
     )
-    current = Column(
-        "current",
-        Boolean,
+    current: Mapped[bool] = mapped_column(
         default=False,
-        nullable=False,
         comment="Is this the current record for this recipient? (If not, it's "
         "a historical record for audit purposes.)",
     )
@@ -135,86 +132,59 @@ class ExportRecipient(ExportRecipientInfo, Base):
     # -------------------------------------------------------------------------
     # How to export
     # -------------------------------------------------------------------------
-    transmission_method = Column(
-        "transmission_method",
+    transmission_method: Mapped[str] = mapped_column(
         ExportTransmissionMethodColType,
-        nullable=False,
         comment="Export transmission method (e.g. hl7, file)",
     )
-    push = Column(
-        "push",
-        Boolean,
+    push: Mapped[bool] = mapped_column(
         default=False,
-        nullable=False,
         comment="Push (support auto-export on upload)?",
     )
-    task_format = Column(
-        "task_format",
+    task_format: Mapped[Optional[str]] = mapped_column(
         ExportTransmissionMethodColType,
         comment="Format that task information should be sent in (e.g. PDF), "
         "if not predetermined by the transmission method",
     )
-    xml_field_comments = Column(
-        "xml_field_comments",
-        Boolean,
+    xml_field_comments: Mapped[bool] = mapped_column(
         default=True,
-        nullable=False,
         comment="Whether to include field comments in XML output",
     )
 
     # -------------------------------------------------------------------------
     # What to export
     # -------------------------------------------------------------------------
-    all_groups = Column(
-        "all_groups",
-        Boolean,
+    all_groups: Mapped[bool] = mapped_column(
         default=False,
-        nullable=False,
         comment="Export all groups? (If not, see group_ids.)",
     )
-    group_ids = Column(
-        "group_ids",
+    group_ids: Mapped[Optional[list[int]]] = mapped_column(
         IntListType,
         comment="Integer IDs of CamCOPS group to export data from (as CSV)",
     )
-    tasks = Column(
-        "tasks",
+    tasks: Mapped[Optional[list[str]]] = mapped_column(
         StringListType,
         comment="Base table names of CamCOPS tasks to export data from "
         "(as CSV)",
     )
-    start_datetime_utc = Column(
-        "start_datetime_utc",
-        DateTime,
-        comment="Start date/time for tasks (UTC)",
+    start_datetime_utc: Mapped[Optional[datetime.datetime]] = mapped_column(
+        DateTime, comment="Start date/time for tasks (UTC)"
     )
-    end_datetime_utc = Column(
-        "end_datetime_utc", DateTime, comment="End date/time for tasks (UTC)"
+    end_datetime_utc: Mapped[Optional[datetime.datetime]] = mapped_column(
+        DateTime, comment="End date/time for tasks (UTC)"
     )
-    finalized_only = Column(
-        "finalized_only",
-        Boolean,
+    finalized_only: Mapped[bool] = mapped_column(
         default=True,
-        nullable=False,
         comment="Send only finalized tasks",
     )
-    include_anonymous = Column(
-        "include_anonymous",
-        Boolean,
+    include_anonymous: Mapped[bool] = mapped_column(
         default=False,
-        nullable=False,
         comment="Include anonymous tasks? "
         "Not applicable to some methods (e.g. HL7)",
     )
-    primary_idnum = Column(
-        "primary_idnum",
-        Integer,
-        nullable=False,
+    primary_idnum: Mapped[int] = mapped_column(
         comment="Which ID number is used as the primary ID?",
     )
-    require_idnum_mandatory = Column(
-        "require_idnum_mandatory",
-        Boolean,
+    require_idnum_mandatory: Mapped[Optional[bool]] = mapped_column(
         comment="Must the primary ID number be mandatory in the relevant "
         "policy?",
     )
@@ -222,170 +192,126 @@ class ExportRecipient(ExportRecipientInfo, Base):
     # -------------------------------------------------------------------------
     # Database
     # -------------------------------------------------------------------------
-    db_url = Column(
-        "db_url",
+    db_url: Mapped[Optional[str]] = mapped_column(
         UrlColType,
         comment="(DATABASE) SQLAlchemy database URL for export",
     )
-    db_echo = Column(
-        "db_echo",
-        Boolean,
+    db_echo: Mapped[bool] = mapped_column(
         default=False,
-        nullable=False,
         comment="(DATABASE) Echo SQL applied to destination database?",
     )
-    db_include_blobs = Column(
-        "db_include_blobs",
-        Boolean,
+    db_include_blobs: Mapped[bool] = mapped_column(
         default=True,
-        nullable=False,
         comment="(DATABASE) Include BLOBs?",
     )
-    db_add_summaries = Column(
-        "db_add_summaries",
-        Boolean,
+    db_add_summaries: Mapped[bool] = mapped_column(
         default=True,
-        nullable=False,
         comment="(DATABASE) Add summary information?",
     )
-    db_patient_id_per_row = Column(
-        "db_patient_id_per_row",
-        Boolean,
+    db_patient_id_per_row: Mapped[bool] = mapped_column(
         default=True,
-        nullable=False,
         comment="(DATABASE) Add patient ID information per row?",
     )
 
     # -------------------------------------------------------------------------
     # Email
     # -------------------------------------------------------------------------
-    email_host = Column(
-        "email_host",
+    email_host: Mapped[Optional[str]] = mapped_column(
         HostnameColType,
         comment="(EMAIL) E-mail (SMTP) server host name/IP address",
     )
-    email_port = Column(
+    email_port: Mapped[Optional[int]] = mapped_column(
         "email_port",
-        Integer,
         comment="(EMAIL) E-mail (SMTP) server port number",
     )
-    email_use_tls = Column(
-        "email_use_tls",
-        Boolean,
+    email_use_tls: Mapped[bool] = mapped_column(
         default=True,
-        nullable=False,
         comment="(EMAIL) Use explicit TLS connection?",
     )
-    email_host_username = Column(
-        "email_host_username",
+    email_host_username: Mapped[Optional[str]] = mapped_column(
         UserNameExternalColType,
         comment="(EMAIL) Username on e-mail server",
     )
     # email_host_password: not stored in database
-    email_from = Column(
-        "email_from",
+    email_from: Mapped[Optional[str]] = mapped_column(
         EmailAddressColType,
         comment='(EMAIL) "From:" address(es)',
     )
-    email_sender = Column(
-        "email_sender",
+    email_sender: Mapped[Optional[str]] = mapped_column(
         EmailAddressColType,
         comment='(EMAIL) "Sender:" address(es)',
     )
-    email_reply_to = Column(
-        "email_reply_to",
+    email_reply_to: Mapped[Optional[str]] = mapped_column(
         EmailAddressColType,
         comment='(EMAIL) "Reply-To:" address(es)',
     )
-    email_to = Column(
-        "email_to", Text, comment='(EMAIL) "To:" recipient(s), as a CSV list'
+    email_to: Mapped[Optional[str]] = mapped_column(
+        Text,
+        comment='(EMAIL) "To:" recipient(s), as a CSV list',
     )
-    email_cc = Column(
-        "email_cc", Text, comment='(EMAIL) "CC:" recipient(s), as a CSV list'
+    email_cc: Mapped[Optional[str]] = mapped_column(
+        Text, comment='(EMAIL) "CC:" recipient(s), as a CSV list'
     )
-    email_bcc = Column(
-        "email_bcc", Text, comment='(EMAIL) "BCC:" recipient(s), as a CSV list'
+    email_bcc: Mapped[Optional[str]] = mapped_column(
+        Text, comment='(EMAIL) "BCC:" recipient(s), as a CSV list'
     )
-    email_patient_spec = Column(
+    email_patient_spec: Mapped[Optional[str]] = mapped_column(
         "email_patient",
         FileSpecColType,
         comment="(EMAIL) Patient specification",
     )
-    email_patient_spec_if_anonymous = Column(
-        "email_patient_spec_if_anonymous",
+    email_patient_spec_if_anonymous: Mapped[Optional[str]] = mapped_column(
         FileSpecColType,
         comment="(EMAIL) Patient specification for anonymous tasks",
     )
-    email_subject = Column(
-        "email_subject",
+    email_subject: Mapped[Optional[str]] = mapped_column(
         FileSpecColType,
         comment="(EMAIL) Subject specification",
     )
-    email_body_as_html = Column(
-        "email_body_as_html",
-        Boolean,
+    email_body_as_html: Mapped[bool] = mapped_column(
         default=False,
-        nullable=False,
         comment="(EMAIL) Is the body HTML, rather than plain text?",
     )
-    email_body = Column("email_body", Text, comment="(EMAIL) Body contents")
-    email_keep_message = Column(
-        "email_keep_message",
-        Boolean,
+    email_body: Mapped[Optional[str]] = mapped_column(
+        Text, comment="(EMAIL) Body contents"
+    )
+    email_keep_message: Mapped[bool] = mapped_column(
         default=False,
-        nullable=False,
         comment="(EMAIL) Keep entire message?",
     )
 
     # -------------------------------------------------------------------------
     # HL7
     # -------------------------------------------------------------------------
-    hl7_host = Column(
-        "hl7_host",
+    hl7_host: Mapped[Optional[str]] = mapped_column(
         HostnameColType,
         comment="(HL7) Destination host name/IP address",
     )
-    hl7_port = Column(
-        "hl7_port", Integer, comment="(HL7) Destination port number"
+    hl7_port: Mapped[Optional[int]] = mapped_column(
+        comment="(HL7) Destination port number"
     )
-    hl7_ping_first = Column(
-        "hl7_ping_first",
-        Boolean,
+    hl7_ping_first: Mapped[bool] = mapped_column(
         default=False,
-        nullable=False,
         comment="(HL7) Ping via TCP/IP before sending HL7 messages?",
     )
-    hl7_network_timeout_ms = Column(
+    hl7_network_timeout_ms: Mapped[Optional[int]] = mapped_column(
         "hl7_network_timeout_ms",
-        Integer,
         comment="(HL7) Network timeout (ms).",
     )
-    hl7_keep_message = Column(
-        "hl7_keep_message",
-        Boolean,
+    hl7_keep_message: Mapped[bool] = mapped_column(
         default=False,
-        nullable=False,
         comment="(HL7) Keep copy of message in database? (May be large!)",
     )
-    hl7_keep_reply = Column(
-        "hl7_keep_reply",
-        Boolean,
+    hl7_keep_reply: Mapped[bool] = mapped_column(
         default=False,
-        nullable=False,
         comment="(HL7) Keep copy of server's reply in database?",
     )
-    hl7_debug_divert_to_file = Column(
-        "hl7_debug_divert_to_file",
-        Boolean,
+    hl7_debug_divert_to_file: Mapped[bool] = mapped_column(
         default=False,
-        nullable=False,
         comment="(HL7 debugging option) Divert messages to files?",
     )
-    hl7_debug_treat_diverted_as_sent = Column(
-        "hl7_debug_treat_diverted_as_sent",
-        Boolean,
+    hl7_debug_treat_diverted_as_sent: Mapped[bool] = mapped_column(
         default=False,
-        nullable=False,
         comment=(
             "(HL7 debugging option) Treat messages diverted to file as sent"
         ),
@@ -394,49 +320,36 @@ class ExportRecipient(ExportRecipientInfo, Base):
     # -------------------------------------------------------------------------
     # File
     # -------------------------------------------------------------------------
-    file_patient_spec = Column(
-        "file_patient_spec",
+    file_patient_spec: Mapped[Optional[str]] = mapped_column(
         FileSpecColType,
         comment="(FILE) Patient part of filename specification",
     )
-    file_patient_spec_if_anonymous = Column(
-        "file_patient_spec_if_anonymous",
+    file_patient_spec_if_anonymous: Mapped[Optional[str]] = mapped_column(
         FileSpecColType,
         comment=(
             "(FILE) Patient part of filename specification for anonymous "
             "tasks"
         ),
     )
-    file_filename_spec = Column(
-        "file_filename_spec",
+    file_filename_spec: Mapped[Optional[str]] = mapped_column(
         FileSpecColType,
         comment="(FILE) Filename specification",
     )
-    file_make_directory = Column(
-        "file_make_directory",
-        Boolean,
+    file_make_directory: Mapped[bool] = mapped_column(
         default=True,
-        nullable=False,
         comment=(
             "(FILE) Make destination directory if it doesn't already exist"
         ),
     )
-    file_overwrite_files = Column(
-        "file_overwrite_files",
-        Boolean,
+    file_overwrite_files: Mapped[bool] = mapped_column(
         default=False,
-        nullable=False,
         comment="(FILE) Overwrite existing files",
     )
-    file_export_rio_metadata = Column(
-        "file_export_rio_metadata",
-        Boolean,
+    file_export_rio_metadata: Mapped[bool] = mapped_column(
         default=False,
-        nullable=False,
         comment="(FILE) Export RiO metadata file along with main file?",
     )
-    file_script_after_export = Column(
-        "file_script_after_export",
+    file_script_after_export: Mapped[Optional[str]] = mapped_column(
         Text,
         comment="(FILE) Command/script to run after file export",
     )
@@ -444,18 +357,15 @@ class ExportRecipient(ExportRecipientInfo, Base):
     # -------------------------------------------------------------------------
     # File/RiO
     # -------------------------------------------------------------------------
-    rio_idnum = Column(
+    rio_idnum: Mapped[Optional[int]] = mapped_column(
         "rio_idnum",
-        Integer,
         comment="(FILE / RiO) RiO metadata: which ID number is the RiO ID?",
     )
-    rio_uploading_user = Column(
-        "rio_uploading_user",
+    rio_uploading_user: Mapped[Optional[str]] = mapped_column(
         Text,
         comment="(FILE / RiO) RiO metadata: name of automatic upload user",
     )
-    rio_document_type = Column(
-        "rio_document_type",
+    rio_document_type: Mapped[Optional[str]] = mapped_column(
         Text,
         comment="(FILE / RiO) RiO metadata: document type for RiO",
     )
@@ -463,13 +373,11 @@ class ExportRecipient(ExportRecipientInfo, Base):
     # -------------------------------------------------------------------------
     # REDCap export
     # -------------------------------------------------------------------------
-    redcap_api_url = Column(
-        "redcap_api_url",
+    redcap_api_url: Mapped[Optional[str]] = mapped_column(
         Text,
         comment="(REDCap) REDCap API URL, pointing to the REDCap server",
     )
-    redcap_fieldmap_filename = Column(
-        "redcap_fieldmap_filename",
+    redcap_fieldmap_filename: Mapped[Optional[str]] = mapped_column(
         Text,
         comment="(REDCap) File defining CamCOPS-to-REDCap field mapping",
     )
@@ -477,32 +385,18 @@ class ExportRecipient(ExportRecipientInfo, Base):
     # -------------------------------------------------------------------------
     # FHIR export
     # -------------------------------------------------------------------------
-    fhir_api_url = Column(
-        "fhir_api_url",
+    fhir_api_url: Mapped[Optional[str]] = mapped_column(
         Text,
         comment="(FHIR) FHIR API URL, pointing to the FHIR server",
     )
-    fhir_app_id = Column(
-        "fhir_app_id",
+    fhir_app_id: Mapped[Optional[str]] = mapped_column(
         Text,
         comment="(FHIR) FHIR app ID, identifying CamCOPS as the data source",
     )
-    fhir_concurrent = Column(
-        "fhir_concurrent",
-        Boolean,
+    fhir_concurrent: Mapped[Optional[bool]] = mapped_column(
         default=False,
-        nullable=True,
         comment="(FHIR) Server supports concurrency (parallel processing)?",
     )
-
-    def __init__(self, *args, **kwargs) -> None:
-        """
-        Creates a blank :class:`ExportRecipient` object.
-
-        NB not called when SQLAlchemy objects loaded from database; see
-        :meth:`init_on_load` instead.
-        """
-        super().__init__(*args, **kwargs)
 
     def __hash__(self) -> int:
         """
@@ -705,7 +599,7 @@ def _check_current(
     if target.current:
         # noinspection PyUnresolvedReferences
         connection.execute(
-            ExportRecipient.__table__.update()
+            ExportRecipient.__table__.update()  # type: ignore[attr-defined]
             .values(current=False)
             .where(ExportRecipient.recipient_name == target.recipient_name)
             .where(ExportRecipient.id != target.id)

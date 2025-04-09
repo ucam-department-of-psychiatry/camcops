@@ -25,13 +25,12 @@ camcops_server/tasks/hads.py
 
 """
 
-from abc import ABC, ABCMeta
+from abc import ABC
 import logging
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, cast, List, Type, Union
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import (
@@ -60,149 +59,23 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 
-class HadsMetaclass(DeclarativeMeta, ABCMeta):
+class HadsBase(TaskHasPatientMixin, Task, ABC):  # type: ignore[misc]
     """
-    We can't make this metaclass inherit from DeclarativeMeta.
-
-    This works:
-
-    .. :code-block:: python
-
-        class MyTaskMetaclass(DeclarativeMeta):
-            def __init__(cls, name, bases, classdict):
-                # do useful stuff
-                super().__init__(name, bases, classdict)
-
-        class MyTask(Task, Base, metaclass=MyTaskMetaclass):
-            __tablename__ = "mytask"
-
-    ... but at the point that MyTaskMetaclass calls DeclarativeMeta.__init__,
-    it registers "cls" (in this case MyTask) with the SQLAlchemy class
-    registry. In this example, that's fine, because MyTask wants to be
-    registered. But here it fails:
-
-    .. :code-block:: python
-
-        class OtherTaskMetaclass(DeclarativeMeta):
-            def __init__(cls, name, bases, classdict):
-                # do useful stuff
-                super().__init__(name, bases, classdict)
-
-        class Intermediate(Task, metaclass=OtherTaskMetaclass): pass
-
-        class OtherTask(Intermediate, Base):
-            __tablename__ = "othertask"
-
-    ... and it fails because OtherTaskMetaclass calls DeclarativeMeta.__init__
-    and this tries to register "Intermediate" with the SQLALchemy ORM.
-
-    So, it's clear that OtherTaskMetaclass shouldn't derive from
-    DeclarativeMeta. But if we make it derive from "object" instead, we get
-    the error
-
-    .. :code-block:: none
-
-        TypeError: metaclass conflict: the metaclass of a derived class must
-        be a (non-strict) subclass of the metaclasses of all its bases
-
-    because OtherTask inherits from Base, whose metaclass is DeclarativeMeta,
-    but there is another metaclass in the metaclass set that is incompatible
-    with this.
-
-    So, is solution that OtherTaskMetaclass should derive from "type" and then
-    to use CooperativeMeta (q.v.) for OtherTask?
-
-    No, that still seems to fail (and before any CooperativeMeta code is
-    called) -- possibly that framework is for Python 2 only.
-
-    See also
-    https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses/
-
-    Alternative solution 1: make a new metaclass that pretends to inherit
-    from HadsMetaclass and DeclarativeMeta.
-
-    WENT WITH THIS ONE INITIALLY:
-
-    .. :code-block:: python
-
-        class HadsMetaclass(type):                      # METACLASS
-            def __init__(cls: Type['HadsBase'],
-                 name: str,
-                 bases: Tuple[Type, ...],
-                 classdict: Dict[str, Any]) -> None:
-            add_multiple_columns(...)
-
-        class HadsBase(TaskHasPatientMixin, Task,       # INTERMEDIATE
-                       metaclass=HadsMetaclass):
-            ...
-
-        class HadsBlendedMetaclass(HadsMetaclass, DeclarativeMeta):    # ODDITY
-            # noinspection PyInitNewSignature
-            def __init__(cls: Type[Union[HadsBase, DeclarativeMeta]],
-                         name: str,
-                         bases: Tuple[Type, ...],
-                         classdict: Dict[str, Any]) -> None:
-                HadsMetaclass.__init__(cls, name, bases, classdict)
-                # ... will call DeclarativeMeta.__init__ via its
-                #     super().__init__()
-
-        class Hads(HadsBase,                            # ACTUAL TASK
-                   metaclass=HadsBlendedMetaclass):
-            __tablename__ = "hads"
-
-    Alternative solution 2: continue to have the HadsMetaclass deriving from
-    DeclarativeMeta, but add it in at the last stage.
-
-    IGNORE THIS, NO LONGER TRUE:
-
-    - ALL THIS SOMEWHAT REVISED to handle SQLAlchemy concrete inheritance
-      (q.v.), with the rule that "the only things that inherit from Task are
-      actual tasks"; Task then inherits from both AbstractConcreteBase and
-      Base.
-
-    SEE ALSO sqla_database_structure.txt
-
-    FINAL ANSWER:
-
-    - classes inherit in a neat chain from Base -> [+/- Task -> ...]
-    - metaclasses inherit in a neat chain from DeclarativeMeta
-    - abstract intermediates mark themselves with "__abstract__ = True"
-
-    .. :code-block:: python
-
-        class HadsMetaclass(DeclarativeMeta):           # METACLASS
-            def __init__(cls: Type['HadsBase'],
-                         name: str,
-                         bases: Tuple[Type, ...],
-                         classdict: Dict[str, Any]) -> None:
-                add_multiple_columns(...)
-
-        class HadsBase(TaskHasPatientMixin, Task,       # INTERMEDIATE
-                       metaclass=HadsMetaclass):
-            __abstract__ = True
-
-        class Hads(HadsBase):
-            __tablename__ = "hads"
-
-    Yes, that's it. (Note that if you erroneously also add
-    "metaclass=HadsMetaclass" on Hads, you get: "TypeError: metaclass conflict:
-    the metaclass of a derived class must be a (non-strict) subclass of the
-    metaclasses of all its bases.")
-
-    UPDATE 2019-07-28:
-
-    - To fix "class must implement all abstract methods" warning from PyCharm,
-      add "ABCMeta" to superclass list of HadsMetaclass.
-
+    Server implementation of the HADS task.
     """
 
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["HadsBase"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+    __abstract__ = True
+    provides_trackers = True
+
+    NQUESTIONS = 14
+    ANXIETY_QUESTIONS = [1, 3, 5, 7, 9, 11, 13]
+    DEPRESSION_QUESTIONS = [2, 4, 6, 8, 10, 12, 14]
+    TASK_FIELDS = strseq("q", 1, NQUESTIONS)
+    MAX_ANX_SCORE = 21
+    MAX_DEP_SCORE = 21
+
+    @classmethod
+    def extend_columns(cls: Type["HadsBase"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -228,23 +101,6 @@ class HadsMetaclass(DeclarativeMeta, ABCMeta):
                 "book/TV/radio",
             ],
         )
-        super().__init__(name, bases, classdict)
-
-
-class HadsBase(TaskHasPatientMixin, Task, ABC, metaclass=HadsMetaclass):
-    """
-    Server implementation of the HADS task.
-    """
-
-    __abstract__ = True
-    provides_trackers = True
-
-    NQUESTIONS = 14
-    ANXIETY_QUESTIONS = [1, 3, 5, 7, 9, 11, 13]
-    DEPRESSION_QUESTIONS = [2, 4, 6, 8, 10, 12, 14]
-    TASK_FIELDS = strseq("q", 1, NQUESTIONS)
-    MAX_ANX_SCORE = 21
-    MAX_DEP_SCORE = 21
 
     def is_complete(self) -> bool:
         return self.field_contents_valid() and self.all_fields_not_none(
@@ -301,12 +157,12 @@ class HadsBase(TaskHasPatientMixin, Task, ABC, metaclass=HadsMetaclass):
 
     def score(self, questions: List[int]) -> int:
         fields = self.fieldnames_from_list("q", questions)
-        return self.sum_fields(fields)
+        return cast(int, self.sum_fields(fields))
 
-    def anxiety_score(self) -> int:
+    def anxiety_score(self) -> Union[int, float]:
         return self.score(self.ANXIETY_QUESTIONS)
 
-    def depression_score(self) -> int:
+    def depression_score(self) -> Union[int, float]:
         return self.score(self.DEPRESSION_QUESTIONS)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
@@ -352,7 +208,7 @@ class HadsBase(TaskHasPatientMixin, Task, ABC, metaclass=HadsMetaclass):
             if crippled or v is None or v < min_score or v > max_score:
                 a = v
             else:
-                a = f"{v}: {self.wxstring(req, f'q{n}_a{v}')}"
+                a = f"{v}: {self.wxstring(req, f'q{n}_a{v}')}"  # type: ignore[assignment]  # noqa: E501
             h += tr_qa(q, a)
         h += (
             """
@@ -407,7 +263,7 @@ class Hads(HadsBase):
 # =============================================================================
 
 
-class HadsRespondent(TaskHasRespondentMixin, HadsBase):
+class HadsRespondent(TaskHasRespondentMixin, HadsBase):  # type: ignore[misc]
     __tablename__ = "hads_respondent"
     shortname = "HADS-Respondent"
     extrastring_taskname = "hads"

@@ -25,10 +25,9 @@ camcops_server/tasks/ybocs.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, cast, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Integer, UnicodeText
 
@@ -46,7 +45,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    camcops_column,
     PermittedValueChecker,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -63,45 +62,10 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class YbocsMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Ybocs"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
-        cls.TARGET_COLUMNS = []  # type: List[Column]
-        for target in ("obsession", "compulsion", "avoidance"):
-            for n in range(1, cls.NTARGETS + 1):
-                fname = f"target_{target}_{n}"
-                col = Column(
-                    fname,
-                    UnicodeText,
-                    comment=f"Target symptoms: {target} {n}",
-                )
-                setattr(cls, fname, col)
-                cls.TARGET_COLUMNS.append(col)
-        for qnumstr, maxscore, comment in cls.QINFO:
-            fname = "q" + qnumstr
-            setattr(
-                cls,
-                fname,
-                CamcopsColumn(
-                    fname,
-                    Integer,
-                    permitted_value_checker=PermittedValueChecker(
-                        minimum=0, maximum=maxscore
-                    ),
-                    comment=f"Q{qnumstr}, {comment} "
-                    f"(0-{maxscore}, higher worse)",
-                ),
-            )
-        super().__init__(name, bases, classdict)
-
-
-class Ybocs(
-    TaskHasClinicianMixin, TaskHasPatientMixin, Task, metaclass=YbocsMetaclass
+class Ybocs(  # type: ignore[misc]
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+    Task,
 ):
     """
     Server implementation of the Y-BOCS task.
@@ -142,6 +106,35 @@ class Ybocs(
     MAX_TOTAL = 40
     MAX_OBS = 20
     MAX_COM = 20
+    TARGET_COLUMNS: list[Column] = []
+
+    @classmethod
+    def extend_columns(cls: Type["Ybocs"], **kwargs: Any) -> None:
+        for target in ("obsession", "compulsion", "avoidance"):
+            for n in range(1, cls.NTARGETS + 1):
+                fname = f"target_{target}_{n}"
+                col = Column(
+                    fname,
+                    UnicodeText,
+                    comment=f"Target symptoms: {target} {n}",
+                )
+                setattr(cls, fname, col)
+                cls.TARGET_COLUMNS.append(col)
+        for qnumstr, maxscore, comment in cls.QINFO:
+            fname = "q" + qnumstr
+            setattr(
+                cls,
+                fname,
+                camcops_column(
+                    fname,
+                    Integer,
+                    permitted_value_checker=PermittedValueChecker(
+                        minimum=0, maximum=maxscore
+                    ),
+                    comment=f"Q{qnumstr}, {comment} "
+                    f"(0-{maxscore}, higher worse)",
+                ),
+            )
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -218,13 +211,13 @@ class Ybocs(
         ]
 
     def total_score(self) -> int:
-        return self.sum_fields(self.SCORED_QUESTIONS)
+        return cast(int, self.sum_fields(self.SCORED_QUESTIONS))
 
     def obsession_score(self) -> int:
-        return self.sum_fields(self.OBSESSION_QUESTIONS)
+        return cast(int, self.sum_fields(self.OBSESSION_QUESTIONS))
 
     def compulsion_score(self) -> int:
-        return self.sum_fields(self.COMPULSION_QUESTIONS)
+        return cast(int, self.sum_fields(self.COMPULSION_QUESTIONS))
 
     def is_complete(self) -> bool:
         return self.field_contents_valid() and self.all_fields_not_none(
@@ -291,63 +284,10 @@ class Ybocs(
 # =============================================================================
 
 
-class YbocsScMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["YbocsSc"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
-        for item in cls.ITEMS:
-            setattr(
-                cls,
-                item + cls.SUFFIX_CURRENT,
-                CamcopsColumn(
-                    item + cls.SUFFIX_CURRENT,
-                    Boolean,
-                    permitted_value_checker=BIT_CHECKER,
-                    comment=item + " (current symptom)",
-                ),
-            )
-            setattr(
-                cls,
-                item + cls.SUFFIX_PAST,
-                CamcopsColumn(
-                    item + cls.SUFFIX_PAST,
-                    Boolean,
-                    permitted_value_checker=BIT_CHECKER,
-                    comment=item + " (past symptom)",
-                ),
-            )
-            setattr(
-                cls,
-                item + cls.SUFFIX_PRINCIPAL,
-                CamcopsColumn(
-                    item + cls.SUFFIX_PRINCIPAL,
-                    Boolean,
-                    permitted_value_checker=BIT_CHECKER,
-                    comment=item + " (principal symptom)",
-                ),
-            )
-            if item.endswith(cls.SUFFIX_OTHER):
-                setattr(
-                    cls,
-                    item + cls.SUFFIX_DETAIL,
-                    Column(
-                        item + cls.SUFFIX_DETAIL,
-                        UnicodeText,
-                        comment=item + " (details)",
-                    ),
-                )
-        super().__init__(name, bases, classdict)
-
-
-class YbocsSc(
+class YbocsSc(  # type: ignore[misc]
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
     Task,
-    metaclass=YbocsScMetaclass,
 ):
     """
     Server implementation of the Y-BOCS-SC task.
@@ -459,6 +399,50 @@ class YbocsSc(
         "com_misc_self_harm",
         "com_misc_other",
     ]
+
+    @classmethod
+    def extend_columns(cls: Type["YbocsSc"], **kwargs: Any) -> None:
+        for item in cls.ITEMS:
+            setattr(
+                cls,
+                item + cls.SUFFIX_CURRENT,
+                camcops_column(
+                    item + cls.SUFFIX_CURRENT,
+                    Boolean,
+                    permitted_value_checker=BIT_CHECKER,
+                    comment=item + " (current symptom)",
+                ),
+            )
+            setattr(
+                cls,
+                item + cls.SUFFIX_PAST,
+                camcops_column(
+                    item + cls.SUFFIX_PAST,
+                    Boolean,
+                    permitted_value_checker=BIT_CHECKER,
+                    comment=item + " (past symptom)",
+                ),
+            )
+            setattr(
+                cls,
+                item + cls.SUFFIX_PRINCIPAL,
+                camcops_column(
+                    item + cls.SUFFIX_PRINCIPAL,
+                    Boolean,
+                    permitted_value_checker=BIT_CHECKER,
+                    comment=item + " (principal symptom)",
+                ),
+            )
+            if item.endswith(cls.SUFFIX_OTHER):
+                setattr(
+                    cls,
+                    item + cls.SUFFIX_DETAIL,
+                    Column(
+                        item + cls.SUFFIX_DETAIL,
+                        UnicodeText,
+                        comment=item + " (details)",
+                    ),
+                )
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

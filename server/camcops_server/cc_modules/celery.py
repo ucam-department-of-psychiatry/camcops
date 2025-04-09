@@ -111,7 +111,7 @@ Task decorator options:
 from contextlib import contextmanager
 import logging
 import os
-from typing import Any, Dict, TYPE_CHECKING
+from typing import Any, Dict, Generator, TYPE_CHECKING
 
 from cardinal_pythonlib.json.serialize import json_encode, json_decode
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -254,7 +254,7 @@ def _app_on_after_configure(**kwargs) -> None:
 
 
 @celery_app.task(bind=True)
-def debug_task(self) -> None:
+def debug_task(self: "CeleryTask") -> None:
     """
     Test as follows:
 
@@ -314,7 +314,7 @@ def jittered_delay_s() -> float:
 
 
 @contextmanager
-def retry_backoff_if_raises(self: "CeleryTask") -> None:
+def retry_backoff_if_raises(self: "CeleryTask") -> Generator[None, None, None]:
     """
     Context manager to retry a Celery task if an exception is raised, using a
     "backoff" method.
@@ -333,7 +333,7 @@ def retry_backoff_if_raises(self: "CeleryTask") -> None:
 
 
 @contextmanager
-def retry_jitter_if_raises(self: "CeleryTask") -> None:
+def retry_jitter_if_raises(self: "CeleryTask") -> Generator[None, None, None]:
     """
     Context manager to retry a Celery task if an exception is raised, using a
     "jittered delay" method.

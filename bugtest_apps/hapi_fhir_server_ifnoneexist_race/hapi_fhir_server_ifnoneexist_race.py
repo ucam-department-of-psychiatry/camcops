@@ -64,7 +64,7 @@ from requests.exceptions import HTTPError
 log = logging.getLogger(__name__)
 
 
-def print_json(prefix, x: Dict[str, Any], indent: int = None) -> None:
+def print_json(prefix: str, x: Dict[str, Any], indent: int = None) -> None:
     log.info(f"{prefix}{json.dumps(x, indent=indent)}")
 
 

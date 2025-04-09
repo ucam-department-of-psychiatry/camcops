@@ -31,9 +31,11 @@ it caches ``is_complete()`` information).
 
 """
 
+import datetime
 import logging
-from typing import List, Optional, Type, TYPE_CHECKING
+from typing import Any, List, Optional, Type, TYPE_CHECKING
 
+from cardinal_pythonlib.datetimefunc import pendulum_to_datetime
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
 from cardinal_pythonlib.sqlalchemy.session import get_engine_from_session
@@ -43,10 +45,15 @@ from cardinal_pythonlib.sqlalchemy.sqlserver import (
 )
 from pendulum import DateTime as Pendulum
 import pyramid.httpexceptions as exc
-from sqlalchemy.orm import relationship, Session as SqlASession
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_column,
+    relationship,
+    Session as SqlASession,
+)
 from sqlalchemy.sql.expression import and_, exists, join, literal, select
-from sqlalchemy.sql.schema import Column, ForeignKey, Table
-from sqlalchemy.sql.sqltypes import BigInteger, Boolean, DateTime, Integer
+from sqlalchemy.sql.schema import ForeignKey
+from sqlalchemy.sql.sqltypes import BigInteger
 
 from camcops_server.cc_modules.cc_client_api_core import (
     BatchDetails,
@@ -72,6 +79,8 @@ from camcops_server.cc_modules.cc_task import (
 from camcops_server.cc_modules.cc_user import User
 
 if TYPE_CHECKING:
+    from sqlalchemy.sql.elements import ColumnElement
+
     from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -126,39 +135,29 @@ class PatientIdNumIndexEntry(Base):
 
     __tablename__ = "_idnum_index"
 
-    idnum_pk = Column(
-        "idnum_pk",
-        Integer,
+    idnum_pk: Mapped[int] = mapped_column(
         primary_key=True,
         index=True,
         comment="Server primary key of the PatientIdNum "
         "(and of the PatientIdNumIndexEntry)",
     )
-    indexed_at_utc = Column(
-        "indexed_at_utc",
-        DateTime,
-        nullable=False,
+    indexed_at_utc: Mapped[datetime.datetime] = mapped_column(
         comment="When this index entry was created",
     )
 
     # noinspection PyProtectedMember
-    patient_pk = Column(
-        "patient_pk",
-        Integer,
+    patient_pk: Mapped[Optional[int]] = mapped_column(
         ForeignKey(Patient._pk),
         index=True,
         comment="Server primary key of the Patient",
     )
-    which_idnum = Column(
-        "which_idnum",
-        Integer,
+    which_idnum: Mapped[int] = mapped_column(
         ForeignKey(IdNumDefinition.which_idnum),
-        nullable=False,
         index=True,
         comment="Which of the server's ID numbers is this?",
     )
-    idnum_value = Column(
-        "idnum_value", BigInteger, comment="The value of the ID number"
+    idnum_value: Mapped[Optional[int]] = mapped_column(
+        BigInteger, comment="The value of the ID number"
     )
 
     # Relationships:
@@ -217,11 +216,11 @@ class PatientIdNumIndexEntry(Base):
         """
 
         # noinspection PyUnresolvedReferences
-        idxtable = cls.__table__  # type: Table
+        idxtable = cls.__table__  # type: ignore[assignment] # type: Table
         idxcols = idxtable.columns
         # noinspection PyProtectedMember
         session.execute(
-            idxtable.delete().where(idxcols.patient_pk == patient._pk)
+            idxtable.delete().where(idxcols.patient_pk == patient._pk)  # type: ignore[attr-defined]  # noqa: E501
         )
 
     # -------------------------------------------------------------------------
@@ -240,26 +239,29 @@ class PatientIdNumIndexEntry(Base):
             indexed_at_utc: current time in UTC
         """
         log.info("Rebuilding patient ID number index")
+
         # noinspection PyUnresolvedReferences
-        indextable = PatientIdNumIndexEntry.__table__  # type: Table
+        indextable = PatientIdNumIndexEntry.__table__  # type: ignore[assignment]  # noqa: E501
         indexcols = indextable.columns
         # noinspection PyUnresolvedReferences
-        idnumtable = PatientIdNum.__table__  # type: Table
+        idnumtable = PatientIdNum.__table__  # type: ignore[assignment]
         idnumcols = idnumtable.columns
         # noinspection PyUnresolvedReferences
-        patienttable = Patient.__table__  # type: Table
+        patienttable = Patient.__table__  # type: ignore[assignment]
         patientcols = patienttable.columns
 
         # Delete all entries
         with if_sqlserver_disable_constraints_triggers(
-            session, indextable.name
+            session, indextable.name  # type: ignore[attr-defined]
         ):
-            session.execute(indextable.delete())
+            session.execute(indextable.delete())  # type: ignore[attr-defined]
 
         # Create new ones
+        indexed_at_utc = pendulum_to_datetime(indexed_at_utc)
+        # ... SQLite has trouble otherwise
         # noinspection PyProtectedMember,PyPep8
         session.execute(
-            indextable.insert().from_select(
+            indextable.insert().from_select(  # type: ignore[attr-defined]
                 # Target:
                 [
                     indexcols.idnum_pk,
@@ -271,13 +273,11 @@ class PatientIdNumIndexEntry(Base):
                 # Source:
                 (
                     select(
-                        [
-                            idnumcols._pk,
-                            literal(indexed_at_utc),
-                            patientcols._pk,
-                            idnumcols.which_idnum,
-                            idnumcols.idnum_value,
-                        ]
+                        idnumcols._pk,
+                        literal(indexed_at_utc),
+                        patientcols._pk,
+                        idnumcols.which_idnum,
+                        idnumcols.idnum_value,
                     )
                     .select_from(
                         join(
@@ -328,8 +328,8 @@ class PatientIdNumIndexEntry(Base):
                 PatientIdNum.__table__.join(
                     Patient.__table__,
                     Patient.id == PatientIdNum.patient_id,
-                    Patient._device_id == PatientIdNum._device_id,
-                    Patient._era == PatientIdNum._era,
+                    Patient._device_id == PatientIdNum._device_id,  # type: ignore[arg-type]  # noqa: E501
+                    Patient._era == PatientIdNum._era,  # type: ignore[arg-type]  # noqa: E501
                 )
             )
             .where(
@@ -409,13 +409,13 @@ class PatientIdNumIndexEntry(Base):
                 object describing the changes to a table
         """  # noqa
         # noinspection PyUnresolvedReferences
-        indextable = PatientIdNumIndexEntry.__table__  # type: Table
+        indextable = PatientIdNumIndexEntry.__table__  # type: ignore[assignment]  # noqa: E501
         indexcols = indextable.columns
         # noinspection PyUnresolvedReferences
-        idnumtable = PatientIdNum.__table__  # type: Table
+        idnumtable = PatientIdNum.__table__  # type: ignore[assignment]
         idnumcols = idnumtable.columns
         # noinspection PyUnresolvedReferences
-        patienttable = Patient.__table__  # type: Table
+        patienttable = Patient.__table__  # type: ignore[assignment]
         patientcols = patienttable.columns
 
         # Delete the old
@@ -425,7 +425,7 @@ class PatientIdNumIndexEntry(Base):
                 "Deleting old ID number indexes: server PKs {}", removal_pks
             )
             session.execute(
-                indextable.delete().where(
+                indextable.delete().where(  # type: ignore[attr-defined]
                     indextable.c.idnum_pk.in_(removal_pks)
                 )
             )
@@ -433,10 +433,18 @@ class PatientIdNumIndexEntry(Base):
         # Create the new
         addition_pks = tablechanges.idnum_add_index_pks
         if addition_pks:
+            select_fields: list[ColumnElement[Any]] = [
+                idnumcols._pk,
+                literal(indexed_at_utc),
+                patientcols._pk,
+                idnumcols.which_idnum,
+                idnumcols.idnum_value,
+            ]
+
             log.debug("Adding ID number indexes: server PKs {}", addition_pks)
             # noinspection PyPep8,PyProtectedMember
             session.execute(
-                indextable.insert().from_select(
+                indextable.insert().from_select(  # type: ignore[attr-defined]
                     # Target:
                     [
                         indexcols.idnum_pk,
@@ -447,15 +455,7 @@ class PatientIdNumIndexEntry(Base):
                     ],
                     # Source:
                     (
-                        select(
-                            [
-                                idnumcols._pk,
-                                literal(indexed_at_utc),
-                                patientcols._pk,
-                                idnumcols.which_idnum,
-                                idnumcols.idnum_value,
-                            ]
-                        )
+                        select(select_fields)  # type: ignore[call-overload]
                         .select_from(
                             join(
                                 idnumtable,
@@ -491,30 +491,22 @@ class TaskIndexEntry(Base):
 
     __tablename__ = "_task_index"
 
-    index_entry_pk = Column(
-        "index_entry_pk",
-        Integer,
+    index_entry_pk: Mapped[int] = mapped_column(
         primary_key=True,
         autoincrement=True,
         comment="Arbitrary primary key of this index entry",
     )
-    indexed_at_utc = Column(
-        "indexed_at_utc",
-        DateTime,
-        nullable=False,
+    indexed_at_utc: Mapped[datetime.datetime] = mapped_column(
         comment="When this index entry was created",
     )
 
     # The next two fields link to our task:
-    task_table_name = Column(
-        "task_table_name",
+    task_table_name: Mapped[Optional[str]] = mapped_column(
         TableNameColType,
         index=True,
         comment="Table name of the task's base table",
     )
-    task_pk = Column(
-        "task_pk",
-        Integer,
+    task_pk: Mapped[Optional[int]] = mapped_column(
         index=True,
         comment="Server primary key of the task",
     )
@@ -528,69 +520,46 @@ class TaskIndexEntry(Base):
 
     # This links to the task's patient, if there is one:
     # noinspection PyProtectedMember
-    patient_pk = Column(
-        "patient_pk",
-        Integer,
+    patient_pk: Mapped[Optional[int]] = mapped_column(
         ForeignKey(Patient._pk),
         index=True,
         comment="Server primary key of the patient (if applicable)",
     )
 
     # These fields allow us to filter tasks efficiently:
-    device_id = Column(
-        "device_id",
-        Integer,
+    device_id: Mapped[int] = mapped_column(
         ForeignKey("_security_devices.id"),
-        nullable=False,
         index=True,
         comment="ID of the source tablet device",
     )
-    era = Column(
-        "era",
+    era: Mapped[str] = mapped_column(
         EraColType,
-        nullable=False,
         index=True,
         comment="Era (_era) field of the source record",
     )
-    when_created_utc = Column(
-        "when_created_utc",
-        DateTime,
-        nullable=False,
+    when_created_utc: Mapped[datetime.datetime] = mapped_column(
         index=True,
         comment="Date/time this task instance was created (UTC)",
     )
-    when_created_iso = Column(
-        "when_created_iso",
+    when_created_iso: Mapped[Pendulum] = mapped_column(
         PendulumDateTimeAsIsoTextColType,
-        nullable=False,
         index=True,
         comment="Date/time this task instance was created (ISO 8601)",
     )  # Pendulum on the Python side
-    when_added_batch_utc = Column(
-        "when_added_batch_utc",
-        DateTime,
-        nullable=False,
+    when_added_batch_utc: Mapped[datetime.datetime] = mapped_column(
         index=True,
         comment="Date/time this task index was uploaded (UTC)",
     )
-    adding_user_id = Column(
-        "adding_user_id",
-        Integer,
+    adding_user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("_security_users.id"),
         comment="ID of user that added this task",
     )
-    group_id = Column(
-        "group_id",
-        Integer,
+    group_id: Mapped[int] = mapped_column(
         ForeignKey("_security_groups.id"),
-        nullable=False,
         index=True,
         comment="ID of group to which this task belongs",
     )
-    task_is_complete = Column(
-        "task_is_complete",
-        Boolean,
-        nullable=False,
+    task_is_complete: Mapped[bool] = mapped_column(
         comment="Is the task complete (as judged by the server when the index "
         "entry was created)?",
     )
@@ -795,11 +764,11 @@ class TaskIndexEntry(Base):
         """
 
         # noinspection PyUnresolvedReferences
-        idxtable = cls.__table__  # type: Table
+        idxtable = cls.__table__  # type: ignore[assignment] # type: Table
         idxcols = idxtable.columns
         tasktablename = task.__class__.tablename
         session.execute(
-            idxtable.delete()
+            idxtable.delete()  # type: ignore[attr-defined]
             .where(idxcols.task_table_name == tasktablename)
             .where(idxcols.task_pk == task.pk)
         )
@@ -829,14 +798,14 @@ class TaskIndexEntry(Base):
                 everything first.
         """
         # noinspection PyUnresolvedReferences
-        idxtable = cls.__table__  # type: Table
+        idxtable = cls.__table__  # type: ignore[assignment] # type: Table
         idxcols = idxtable.columns
         tasktablename = taskclass.tablename
         log.info("Rebuilding task index for {}", tasktablename)
         # Delete all entries for this task
         if delete_first:
             session.execute(
-                idxtable.delete().where(idxcols.table_name == tasktablename)
+                idxtable.delete().where(idxcols.table_name == tasktablename)  # type: ignore[attr-defined]  # noqa: E501
             )
         # Create new entries
         # noinspection PyPep8,PyUnresolvedReferences,PyProtectedMember
@@ -868,11 +837,11 @@ class TaskIndexEntry(Base):
         """
         log.info("Rebuilding entire task index")
         # noinspection PyUnresolvedReferences
-        idxtable = cls.__table__  # type: Table
+        idxtable = cls.__table__  # type: ignore[assignment] # type: Table
 
         # Delete all entries
-        with if_sqlserver_disable_constraints_triggers(session, idxtable.name):
-            session.execute(idxtable.delete())
+        with if_sqlserver_disable_constraints_triggers(session, idxtable.name):  # type: ignore[attr-defined]  # noqa: E501
+            session.execute(idxtable.delete())  # type: ignore[attr-defined]
 
         # Now rebuild:
         for taskclass in Task.all_subclasses_by_tablename():
@@ -920,7 +889,7 @@ class TaskIndexEntry(Base):
             fail_user_error(f"Bug: no such task table: {tasktablename!r}")
 
         # noinspection PyUnresolvedReferences
-        idxtable = cls.__table__  # type: Table
+        idxtable = cls.__table__  # type: ignore[assignment] # type: Table
         idxcols = idxtable.columns
 
         # Delete the old.
@@ -933,7 +902,7 @@ class TaskIndexEntry(Base):
             )
             # noinspection PyProtectedMember
             session.execute(
-                idxtable.delete()
+                idxtable.delete()  # type: ignore[attr-defined]
                 .where(idxcols.task_table_name == tasktablename)
                 .where(idxcols.task_pk.in_(delete_index_pks))
             )

@@ -25,10 +25,9 @@ camcops_server/tasks/cope.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, cast, List, Optional, Type
 
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -36,7 +35,7 @@ from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    mapped_camcops_column,
     BIT_CHECKER,
     PermittedValueChecker,
 )
@@ -53,14 +52,27 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 
-class CopeBriefMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["CopeBrief"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class CopeBrief(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the COPE-Brief task.
+    """
+
+    __tablename__ = "cope_brief"
+    shortname = "COPE-Brief"
+    extrastring_taskname = "cope"
+    info_filename_stem = "cope"
+
+    NQUESTIONS = 28
+    RELATIONSHIP_OTHER_CODE = 0
+    RELATIONSHIPS_FIRST = 0
+    RELATIONSHIPS_FIRST_NON_OTHER = 1
+    RELATIONSHIPS_LAST = 9
+
+    @classmethod
+    def extend_columns(cls: Type["CopeBrief"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -100,46 +112,22 @@ class CopeBriefMetaclass(DeclarativeMeta):
                 "making fun of the situation",  # 28
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class CopeBrief(TaskHasPatientMixin, Task, metaclass=CopeBriefMetaclass):
-    """
-    Server implementation of the COPE-Brief task.
-    """
-
-    __tablename__ = "cope_brief"
-    shortname = "COPE-Brief"
-    extrastring_taskname = "cope"
-    info_filename_stem = "cope"
-
-    NQUESTIONS = 28
-    RELATIONSHIP_OTHER_CODE = 0
-    RELATIONSHIPS_FIRST = 0
-    RELATIONSHIPS_FIRST_NON_OTHER = 1
-    RELATIONSHIPS_LAST = 9
-
-    completed_by_patient = CamcopsColumn(
-        "completed_by_patient",
-        Integer,
+    completed_by_patient: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Task completed by patient? (0 no, 1 yes)",
     )
-    completed_by = Column(
-        "completed_by",
+    completed_by: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Name of person task completed by (if not by patient)",
     )
-    relationship_to_patient = CamcopsColumn(
-        "relationship_to_patient",
-        Integer,
+    relationship_to_patient: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=9),
         comment="Relationship of responder to patient (0 other, 1 wife, "
         "2 husband, 3 daughter, 4 son, 5 sister, 6 brother, "
         "7 mother, 8 father, 9 friend)",
     )
-    relationship_to_patient_other = Column(
-        "relationship_to_patient_other",
+    relationship_to_patient_other: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Relationship of responder to patient (if OTHER chosen)",
     )
@@ -261,49 +249,49 @@ class CopeBrief(TaskHasPatientMixin, Task, metaclass=CopeBriefMetaclass):
         )
 
     def self_distraction(self) -> int:
-        return self.sum_fields(["q1", "q19"])
+        return cast(int, self.sum_fields(["q1", "q19"]))
 
     def active_coping(self) -> int:
-        return self.sum_fields(["q2", "q7"])
+        return cast(int, self.sum_fields(["q2", "q7"]))
 
     def denial(self) -> int:
-        return self.sum_fields(["q3", "q8"])
+        return cast(int, self.sum_fields(["q3", "q8"]))
 
     def substance_use(self) -> int:
-        return self.sum_fields(["q4", "q11"])
+        return cast(int, self.sum_fields(["q4", "q11"]))
 
     def emotional_support(self) -> int:
-        return self.sum_fields(["q5", "q15"])
+        return cast(int, self.sum_fields(["q5", "q15"]))
 
     def instrumental_support(self) -> int:
-        return self.sum_fields(["q10", "q23"])
+        return cast(int, self.sum_fields(["q10", "q23"]))
 
     def behavioural_disengagement(self) -> int:
-        return self.sum_fields(["q6", "q16"])
+        return cast(int, self.sum_fields(["q6", "q16"]))
 
     def venting(self) -> int:
-        return self.sum_fields(["q9", "q21"])
+        return cast(int, self.sum_fields(["q9", "q21"]))
 
     def positive_reframing(self) -> int:
-        return self.sum_fields(["q12", "q17"])
+        return cast(int, self.sum_fields(["q12", "q17"]))
 
     def planning(self) -> int:
-        return self.sum_fields(["q14", "q25"])
+        return cast(int, self.sum_fields(["q14", "q25"]))
 
     def humour(self) -> int:
-        return self.sum_fields(["q18", "q28"])
+        return cast(int, self.sum_fields(["q18", "q28"]))
 
     def acceptance(self) -> int:
-        return self.sum_fields(["q20", "q24"])
+        return cast(int, self.sum_fields(["q20", "q24"]))
 
     def religion(self) -> int:
-        return self.sum_fields(["q22", "q27"])
+        return cast(int, self.sum_fields(["q22", "q27"]))
 
     def self_blame(self) -> int:
-        return self.sum_fields(["q13", "q26"])
+        return cast(int, self.sum_fields(["q13", "q26"]))
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        answer_dict = {None: None}
+        answer_dict: dict[Optional[int], Optional[str]] = {None: None}
         for option in range(0, 3 + 1):
             answer_dict[option] = (
                 str(option) + " — " + self.wxstring(req, "a" + str(option))

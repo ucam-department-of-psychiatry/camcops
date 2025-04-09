@@ -117,6 +117,7 @@ server/camcops_server
     alembic/versions/0083_delete_isaaq.py.rst
     alembic/versions/0084_compulsive_exercise_test_cet.py.rst
     alembic/versions/0085_aq.py.rst
+    alembic/versions/0086_hamd_specific_comments.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -216,12 +217,16 @@ server/camcops_server
     cc_modules/tests/cc_blob_tests.py.rst
     cc_modules/tests/cc_config_tests.py.rst
     cc_modules/tests/cc_device_tests.py.rst
+    cc_modules/tests/cc_dump_tests.py.rst
     cc_modules/tests/cc_export_tests.py.rst
+    cc_modules/tests/cc_exportrecipient_tests.py.rst
+    cc_modules/tests/cc_exportrecipientinfo_tests.py.rst
     cc_modules/tests/cc_fhir_tests.py.rst
     cc_modules/tests/cc_formatter_tests.py.rst
     cc_modules/tests/cc_forms_tests.py.rst
     cc_modules/tests/cc_hl7_tests.py.rst
     cc_modules/tests/cc_patient_tests.py.rst
+    cc_modules/tests/cc_patientidnum_tests.py.rst
     cc_modules/tests/cc_policy_tests.py.rst
     cc_modules/tests/cc_proquint_tests.py.rst
     cc_modules/tests/cc_pyramid_tests.py.rst
@@ -243,6 +248,7 @@ server/camcops_server
     cc_modules/tests/cc_validator_tests.py.rst
     cc_modules/tests/cc_view_classes_tests.py.rst
     cc_modules/tests/client_api_tests.py.rst
+    cc_modules/tests/merge_db_tests.py.rst
     cc_modules/tests/webview_tests.py.rst
     cc_modules/webview.py.rst
     conftest.py.rst
@@ -484,6 +490,7 @@ server/camcops_server
     tasks/tests/core10_tests.py.rst
     tasks/tests/cpft_covid_medical_tests.py.rst
     tasks/tests/cpft_research_preferences_tests.py.rst
+    tasks/tests/diagnosis_tests.py.rst
     tasks/tests/edeq_tests.py.rst
     tasks/tests/factories.py.rst
     tasks/tests/maas_tests.py.rst

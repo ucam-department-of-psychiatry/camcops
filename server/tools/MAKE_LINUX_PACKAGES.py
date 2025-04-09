@@ -69,7 +69,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from typing import List
+from typing import Any, List
 
 from cardinal_pythonlib.datetimefunc import get_now_localtz_pendulum
 from cardinal_pythonlib.file_io import (
@@ -137,7 +137,7 @@ def workpath(workdir: str, destpath: str) -> str:
         return join(workdir, destpath)
 
 
-def call(cmdargs: List[str], **kwargs) -> None:
+def call(cmdargs: List[str], **kwargs: Any) -> None:
     if kwargs:
         log.debug("With kwargs to subprocess.check_call of {!r}", kwargs)
     log.debug("Calling external program: {!r}", cmdargs)
@@ -248,9 +248,10 @@ system_python_executable()
     # Use as: $(system_python_executable) ...
 
     python_options=(
+        python3.12 python312
+        python3.11 python311
         python3.10 python310
         python3.9 python39
-        python3.8 python38
         python3
         python
     )
@@ -551,7 +552,7 @@ Priority: optional
 Architecture: all
 Maintainer: Rudolf Cardinal <rnc1001@cam.ac.uk>
 Depends: {DEPENDENCIES}
-X-Python3-Version: >= 3.8, <= 3.10
+X-Python3-Version: >= 3.9, <= 3.12
 Recommends: mysql-workbench
 Description: Cambridge Cognitive and Psychiatric Test Kit (CamCOPS), server
  packages.
@@ -1146,7 +1147,7 @@ def build_package() -> None:
 # =============================================================================
 
 
-def main():
+def main() -> None:
     """
     Command-line entry point.
     """

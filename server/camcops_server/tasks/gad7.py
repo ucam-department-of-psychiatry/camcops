@@ -25,10 +25,9 @@ camcops_server/tasks/gad7.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, cast, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -56,14 +55,22 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Gad7Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Gad7"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Gad7(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the GAD-7 task.
+    """
+
+    __tablename__ = "gad7"
+    shortname = "GAD-7"
+    provides_trackers = True
+
+    NQUESTIONS = 7
+
+    @classmethod
+    def extend_columns(cls: Type["Gad7"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -82,19 +89,7 @@ class Gad7Metaclass(DeclarativeMeta):
                 "afraid",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Gad7(TaskHasPatientMixin, Task, metaclass=Gad7Metaclass):
-    """
-    Server implementation of the GAD-7 task.
-    """
-
-    __tablename__ = "gad7"
-    shortname = "GAD-7"
-    provides_trackers = True
-
-    NQUESTIONS = 7
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 21
 
@@ -156,7 +151,7 @@ class Gad7(TaskHasPatientMixin, Task, metaclass=Gad7Metaclass):
         )
 
     def total_score(self) -> int:
-        return self.sum_fields(self.TASK_FIELDS)
+        return cast(int, self.sum_fields(self.TASK_FIELDS))
 
     def severity(self, req: CamcopsRequest) -> str:
         score = self.total_score()
@@ -173,7 +168,7 @@ class Gad7(TaskHasPatientMixin, Task, metaclass=Gad7Metaclass):
     def get_task_html(self, req: CamcopsRequest) -> str:
         score = self.total_score()
         severity = self.severity(req)
-        answer_dict = {None: None}
+        answer_dict: dict[Optional[int], Optional[str]] = {None: None}
         for option in range(0, 4):
             answer_dict[option] = (
                 str(option) + " — " + self.wxstring(req, "a" + str(option))

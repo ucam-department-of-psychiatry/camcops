@@ -28,11 +28,10 @@ camcops_server/tasks/basdai.py
 """
 
 import statistics
-from typing import Any, Dict, List, Optional, Type, Tuple
+from typing import Any, List, Optional, Type
 
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Float
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -53,14 +52,18 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class BasdaiMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Basdai"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Basdai(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    __tablename__ = "basdai"
+    shortname = "BASDAI"
+    provides_trackers = True
+
+    N_QUESTIONS = 6
+
+    @classmethod
+    def extend_columns(cls: Type["Basdai"], **kwargs: Any) -> None:
 
         add_multiple_columns(
             cls,
@@ -81,15 +84,6 @@ class BasdaiMetaclass(DeclarativeMeta):
             ],
         )
 
-        super().__init__(name, bases, classdict)
-
-
-class Basdai(TaskHasPatientMixin, Task, metaclass=BasdaiMetaclass):
-    __tablename__ = "basdai"
-    shortname = "BASDAI"
-    provides_trackers = True
-
-    N_QUESTIONS = 6
     FIELD_NAMES = strseq("q", 1, N_QUESTIONS)
 
     MINIMUM = 0.0

@@ -25,10 +25,9 @@ camcops_server/tasks/cage.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -49,14 +48,22 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class CageMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Cage"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Cage(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the CAGE task.
+    """
+
+    __tablename__ = "cage"
+    shortname = "CAGE"
+    provides_trackers = True
+
+    NQUESTIONS = 4
+
+    @classmethod
+    def extend_columns(cls: Type["Cage"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -67,19 +74,7 @@ class CageMetaclass(DeclarativeMeta):
             comment_fmt="Q{n}, {s} (Y, N)",
             comment_strings=["C", "A", "G", "E"],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Cage(TaskHasPatientMixin, Task, metaclass=CageMetaclass):
-    """
-    Server implementation of the CAGE task.
-    """
-
-    __tablename__ = "cage"
-    shortname = "CAGE"
-    provides_trackers = True
-
-    NQUESTIONS = 4
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 
     @staticmethod

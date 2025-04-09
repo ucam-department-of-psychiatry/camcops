@@ -838,7 +838,7 @@ class ConfigDefaults(object):
                 DockerConstants.DEFAULT_LOCKDIR, "camcops_celerybeat_schedule"
             )
             self.DB_SERVER = "@@db_server@@"
-            self.DB_PORT = "@@db_port@@"
+            self.DB_PORT = "@@db_port@@"  # type: ignore[assignment]
             self.DB_USER = "@@db_user@@"
             self.DB_PASSWORD = "@@db_password@@"
             self.DB_DATABASE = "@@db_database@@"

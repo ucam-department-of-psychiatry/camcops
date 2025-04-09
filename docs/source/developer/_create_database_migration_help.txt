@@ -1,9 +1,6 @@
-USAGE: create_database_migration.py [-h] [--verbose] message
+USAGE: create_database_migration.py [-h] [--config CONFIG] [--verbose] message
 
 Create database revision. Note:
-
-- The config used will be that from the environment variable
-  CAMCOPS_CONFIG_FILE (currently '/path/to/camcops/config_file.ini').
 
 - Alembic compares (a) the current state of the DATABASE to (b) the state of
   the SQLAlchemy metadata (i.e. the CODE). It creates a migration file to
@@ -19,8 +16,10 @@ Create database revision. Note:
   that version, there's likely to be trouble.
 
 POSITIONAL ARGUMENTS:
-  message     Revision message
+  message          Revision message
 
 OPTIONS:
-  -h, --help  show this help message and exit
-  --verbose   Be verbose
+  -h, --help       show this help message and exit
+  --config CONFIG  CamCOPS configuration file; if not provided, default is
+                   read from environment variable CAMCOPS_CONFIG_FILE
+  --verbose        Be verbose

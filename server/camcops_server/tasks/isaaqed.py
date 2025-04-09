@@ -28,10 +28,9 @@ camcops_server/tasks/isaaqed.py
 
 """
 
-from typing import Any, Dict, Type, Tuple
+from typing import Any, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_db import add_multiple_columns
@@ -39,13 +38,18 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.tasks.isaaqcommon import IsaaqCommon
 
 
-class IsaaqEdMetaclass(DeclarativeMeta):
-    def __init__(
-        cls: Type["IsaaqEd"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class IsaaqEd(
+    IsaaqCommon,
+):
+    __tablename__ = "isaaqed"
+    shortname = "ISAAQ-ED"
+
+    Q_PREFIX = "e"
+    FIRST_Q = 11
+    LAST_Q = 20
+
+    @classmethod
+    def extend_columns(cls: Type["IsaaqEd"], **kwargs: Any) -> None:
 
         add_multiple_columns(
             cls,
@@ -69,17 +73,6 @@ class IsaaqEdMetaclass(DeclarativeMeta):
                 "appearance-focused gaming 0-5 (not at all - all the time)",
             ],
         )
-
-        super().__init__(name, bases, classdict)
-
-
-class IsaaqEd(IsaaqCommon, metaclass=IsaaqEdMetaclass):
-    __tablename__ = "isaaqed"
-    shortname = "ISAAQ-ED"
-
-    Q_PREFIX = "e"
-    FIRST_Q = 11
-    LAST_Q = 20
 
     ALL_FIELD_NAMES = strseq(Q_PREFIX, FIRST_Q, LAST_Q)
 

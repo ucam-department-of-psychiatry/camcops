@@ -76,7 +76,7 @@ def main() -> None:
             pass  # e.g. "2.3.0-server^{}"
     versions.sort()
     if not versions:
-        log.error("No versions found", file=sys.stderr)
+        log.error("No versions found")
         sys.exit(1)
     latest_version = versions[-1]
     log.info(f"Latest version: {latest_version}")

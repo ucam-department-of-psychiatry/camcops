@@ -43,8 +43,7 @@ if XLSX_VIA_PYEXCEL:
 
     openpyxl = XLWorkbook = XLWorksheet = None
 else:
-    import openpyxl
-    from openpyxl.workbook.workbook import Workbook as XLWorkbook
+    import openpyxl  # type: ignore[no-redef]
 
     pyexcel_xlsx = None
 
@@ -80,11 +79,11 @@ class SpreadsheetCollectionTests(TestCase):
         buffer = io.BytesIO(data)
         expected_sheetnames = ["name 1", "name 2", "name 3"]
         if openpyxl:
-            wb = openpyxl.load_workbook(buffer)  # type: XLWorkbook
+            wb = openpyxl.load_workbook(buffer)  # type: ignore[valid-type]
             self.assertEqual(wb.sheetnames, expected_sheetnames)
         else:
-            wb = pyexcel_xlsx.get_data(buffer)  # type: Dict[str, Any]
-            sheetnames = list(wb.keys())
+            wb = pyexcel_xlsx.get_data(buffer)  # type: ignore[no-redef]
+            sheetnames = list(wb.keys())  # type: ignore[attr-defined]
             self.assertEqual(sheetnames, expected_sheetnames)
 
     def test_xlsx_page_name_exactly_31_chars_not_truncated(self) -> None:
@@ -174,7 +173,7 @@ class SpreadsheetCollectionTests(TestCase):
         content = zf.read("content.xml")
         doc = parseString(content)
         text_values = [
-            t.firstChild.nodeValue for t in doc.getElementsByTagName("text:p")
+            t.firstChild.nodeValue for t in doc.getElementsByTagName("text:p")  # type: ignore[attr-defined]  # noqa: E501
         ]
 
         self.assertIn("UUID", text_values)

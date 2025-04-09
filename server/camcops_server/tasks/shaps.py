@@ -27,11 +27,10 @@ camcops_server/tasks/shaps.py
 
 """
 
-from typing import Any, Dict, List, Type, Tuple
+from typing import Any, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy import Integer
-from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
@@ -46,14 +45,18 @@ from camcops_server.cc_modules.cc_task import (
 from camcops_server.cc_modules.cc_text import SS
 
 
-class ShapsMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Shaps"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Shaps(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    __tablename__ = "shaps"
+    shortname = "SHAPS"
+
+    N_QUESTIONS = 14
+    MAX_SCORE = 14
+
+    @classmethod
+    def extend_columns(cls: Type["Shaps"], **kwargs: Any) -> None:
 
         add_multiple_columns(
             cls,
@@ -81,15 +84,6 @@ class ShapsMetaclass(DeclarativeMeta):
             ],
         )
 
-        super().__init__(name, bases, classdict)
-
-
-class Shaps(TaskHasPatientMixin, Task, metaclass=ShapsMetaclass):
-    __tablename__ = "shaps"
-    shortname = "SHAPS"
-
-    N_QUESTIONS = 14
-    MAX_SCORE = 14
     ALL_QUESTIONS = strseq("q", 1, N_QUESTIONS)
 
     STRONGLY_DISAGREE = 0

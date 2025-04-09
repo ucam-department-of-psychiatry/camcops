@@ -32,8 +32,8 @@ from typing import Dict, List, Optional, Type
 import numpy as np
 from numpy.linalg.linalg import LinAlgError
 from scipy.stats.mstats import gmean
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Float, Integer
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import Float
 import statsmodels.api as sm
 
 # noinspection PyProtectedMember
@@ -50,8 +50,8 @@ from camcops_server.cc_modules.cc_html import answer, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    BoolColumn,
     CurrencyColType,
+    mapped_bool_column,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
@@ -182,21 +182,21 @@ class KirbyRewardPair(object):
 class KirbyTrial(GenericTabletRecordMixin, TaskDescendant, Base):
     __tablename__ = "kirby_mcq_trials"
 
-    kirby_mcq_id = Column(
-        "kirby_mcq_id", Integer, nullable=False, comment="FK to kirby_mcq"
+    kirby_mcq_id: Mapped[int] = mapped_column(comment="FK to kirby_mcq")
+    trial: Mapped[int] = mapped_column(comment="Trial number (1-based)")
+    sir: Mapped[Optional[int]] = mapped_column(
+        comment="Small immediate reward"
     )
-    trial = Column(
-        "trial", Integer, nullable=False, comment="Trial number (1-based)"
+    ldr: Mapped[Optional[int]] = mapped_column(comment="Large delayed reward")
+    delay_days: Mapped[Optional[int]] = mapped_column(comment="Delay in days")
+    currency: Mapped[Optional[str]] = mapped_column(
+        CurrencyColType, comment="Currency symbol"
     )
-    sir = Column("sir", Integer, comment="Small immediate reward")
-    ldr = Column("ldr", Integer, comment="Large delayed reward")
-    delay_days = Column("delay_days", Integer, comment="Delay in days")
-    currency = Column("currency", CurrencyColType, comment="Currency symbol")
-    currency_symbol_first = BoolColumn(
+    currency_symbol_first: Mapped[Optional[bool]] = mapped_bool_column(
         "currency_symbol_first",
         comment="Does the currency symbol come before the amount?",
     )
-    chose_ldr = BoolColumn(
+    chose_ldr: Mapped[Optional[bool]] = mapped_bool_column(
         "chose_ldr", comment="Did the subject choose the large delayed reward?"
     )
 
@@ -228,7 +228,9 @@ class KirbyTrial(GenericTabletRecordMixin, TaskDescendant, Base):
         return Kirby
 
     def task_ancestor(self) -> Optional["Kirby"]:
-        return Kirby.get_linked(self.kirby_mcq_id, self)
+        return Kirby.get_linked(
+            self.kirby_mcq_id, self
+        )  # type: ignore[return-value]
 
 
 # =============================================================================
@@ -236,7 +238,7 @@ class KirbyTrial(GenericTabletRecordMixin, TaskDescendant, Base):
 # =============================================================================
 
 
-class Kirby(TaskHasPatientMixin, Task):
+class Kirby(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the Kirby Monetary Choice Questionnaire task.
     """
@@ -249,7 +251,7 @@ class Kirby(TaskHasPatientMixin, Task):
     # No fields beyond the basics.
 
     # Relationships
-    trials = ancillary_relationship(
+    trials = ancillary_relationship(  # type: ignore[assignment]
         parent_class_name="Kirby",
         ancillary_class_name="KirbyTrial",
         ancillary_fk_to_parent_attr_name="kirby_mcq_id",

@@ -30,6 +30,7 @@
 from typing import List, Optional
 
 from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.orm import Mapped
 from sqlalchemy.sql.sqltypes import Integer, String
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -37,7 +38,7 @@ from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    mapped_camcops_column,
     ONE_TO_FIVE_CHECKER,
     ZERO_TO_100_CHECKER,
 )
@@ -59,7 +60,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Eq5d5l(TaskHasPatientMixin, Task):
+class Eq5d5l(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the EQ-5D-5L task.
 
@@ -75,47 +76,35 @@ class Eq5d5l(TaskHasPatientMixin, Task):
     shortname = "EQ-5D-5L"
     provides_trackers = True
 
-    q1 = CamcopsColumn(
-        "q1",
-        Integer,
+    q1: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Q1 (mobility) (1 no problems - 5 unable)",
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
-    q2 = CamcopsColumn(
-        "q2",
-        Integer,
+    q2: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Q2 (self-care) (1 no problems - 5 unable)",
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
-    q3 = CamcopsColumn(
-        "q3",
-        Integer,
+    q3: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Q3 (usual activities) (1 no problems - 5 unable)",
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
-    q4 = CamcopsColumn(
-        "q4",
-        Integer,
+    q4: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Q4 (pain/discomfort) (1 none - 5 extreme)",
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
-    q5 = CamcopsColumn(
-        "q5",
-        Integer,
+    q5: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Q5 (anxiety/depression) (1 not - 5 extremely)",
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
     )
 
-    health_vas = CamcopsColumn(
-        "health_vas",
-        Integer,
+    health_vas: Mapped[Optional[int]] = mapped_camcops_column(
         comment="Visual analogue scale for overall health (0 worst - 100 best)",  # noqa
         permitted_value_checker=ZERO_TO_100_CHECKER,
-    )  # type: Optional[int]
+    )
 
     N_QUESTIONS = 5
     MISSING_ANSWER_VALUE = 9

@@ -36,8 +36,8 @@ from sqlalchemy.orm import configure_mappers, Session
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.declarative import declared_attr, AbstractConcreteBase
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    BoolColumn,
-    CamcopsColumn,
+    bool_column,
+    camcops_column,
 )
 
 
@@ -56,8 +56,8 @@ class TreeNode(AbstractConcreteBase, Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     if WITH_CAMCOPS_COLUMNS:
-        counter = CamcopsColumn("counter", Integer)
-        flipswitch = BoolColumn("flipswitch")
+        counter = camcops_column("counter", Integer)
+        flipswitch = bool_column("flipswitch")
 
     @declared_attr
     def __mapper_args__(cls):

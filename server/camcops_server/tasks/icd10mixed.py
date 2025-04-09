@@ -25,13 +25,14 @@ camcops_server/tasks/icd10mixed.py
 
 """
 
+import datetime
 from typing import List, Optional
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.typetests import is_false
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, Date, UnicodeText
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import Boolean, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import (
     CssClass,
@@ -43,7 +44,7 @@ from camcops_server.cc_modules.cc_html import get_true_false_none, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    mapped_camcops_column,
 )
 from camcops_server.cc_modules.cc_string import AS
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -60,7 +61,7 @@ from camcops_server.cc_modules.cc_text import SS
 # =============================================================================
 
 
-class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):  # type: ignore[misc]  # noqa: E501
     """
     Server implementation of the ICD10-MIXED task.
     """
@@ -69,21 +70,21 @@ class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     shortname = "ICD10-MIXED"
     info_filename_stem = "icd"
 
-    date_pertains_to = Column(
-        "date_pertains_to", Date, comment="Date the assessment pertains to"
+    date_pertains_to: Mapped[Optional[datetime.date]] = mapped_column(
+        comment="Date the assessment pertains to"
     )
-    comments = Column("comments", UnicodeText, comment="Clinician's comments")
-    mixture_or_rapid_alternation = CamcopsColumn(
-        "mixture_or_rapid_alternation",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="The episode is characterized by either a mixture or "
-        "a rapid alternation (i.e. within a few hours) of hypomanic, "
-        "manic and depressive symptoms.",
+    comments: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Clinician's comments"
     )
-    duration_at_least_2_weeks = CamcopsColumn(
-        "duration_at_least_2_weeks",
-        Boolean,
+    mixture_or_rapid_alternation: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="The episode is characterized by either a mixture or "
+            "a rapid alternation (i.e. within a few hours) of hypomanic, "
+            "manic and depressive symptoms.",
+        )
+    )
+    duration_at_least_2_weeks: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Both manic and depressive symptoms must be prominent"
         " most of the time during a period of at least two weeks.",

@@ -26,9 +26,8 @@ camcops_server/tasks/nart.py
 """
 
 import math
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any, List, Optional, Type
 
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Float
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -38,7 +37,7 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    camcops_column,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
@@ -112,30 +111,10 @@ ACCENTED_WORDLIST[ACCENTED_WORDLIST.index("detente")] = "détente"
 # =============================================================================
 
 
-class NartMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Nart"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
-        for w in WORDLIST:
-            setattr(
-                cls,
-                w,
-                CamcopsColumn(
-                    w,
-                    Boolean,
-                    permitted_value_checker=BIT_CHECKER,
-                    comment=f"Pronounced {w} correctly (0 no, 1 yes)",
-                ),
-            )
-        super().__init__(name, bases, classdict)
-
-
-class Nart(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=NartMetaclass
+class Nart(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
 ):
     """
     Server implementation of the NART task.
@@ -143,6 +122,20 @@ class Nart(
 
     __tablename__ = "nart"
     shortname = "NART"
+
+    @classmethod
+    def extend_columns(cls: Type["Nart"], **kwargs: Any) -> None:
+        for w in WORDLIST:
+            setattr(
+                cls,
+                w,
+                camcops_column(
+                    w,
+                    Boolean,
+                    permitted_value_checker=BIT_CHECKER,
+                    comment=f"Pronounced {w} correctly (0 no, 1 yes)",
+                ),
+            )
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

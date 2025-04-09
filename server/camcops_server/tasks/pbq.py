@@ -25,11 +25,10 @@ camcops_server/tasks/pbq.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, cast, List, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strnumlist, strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -41,7 +40,7 @@ from camcops_server.cc_modules.cc_report import (
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     PermittedValueChecker,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -54,14 +53,24 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class PbqMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Pbq"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Pbq(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the PBQ task.
+    """
+
+    __tablename__ = "pbq"
+    shortname = "PBQ"
+    provides_trackers = True
+
+    MIN_PER_Q = 0
+    MAX_PER_Q = 5
+    NQUESTIONS = 25
+
+    @classmethod
+    def extend_columns(cls: Type["Pbq"], **kwargs: Any) -> None:
         comment_strings = [
             # This is the Brockington 2006 order; see XML for notes.
             # 1-5
@@ -109,28 +118,14 @@ class PbqMetaclass(DeclarativeMeta):
             setattr(
                 cls,
                 colname,
-                CamcopsColumn(
+                camcops_column(
                     colname,
                     Integer,
                     comment=comment,
                     permitted_value_checker=pvc,
                 ),
             )
-        super().__init__(name, bases, classdict)
 
-
-class Pbq(TaskHasPatientMixin, Task, metaclass=PbqMetaclass):
-    """
-    Server implementation of the PBQ task.
-    """
-
-    __tablename__ = "pbq"
-    shortname = "PBQ"
-    provides_trackers = True
-
-    MIN_PER_Q = 0
-    MAX_PER_Q = 5
-    NQUESTIONS = 25
     QUESTION_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_TOTAL = MAX_PER_Q * NQUESTIONS
     SCORED_A0N5_Q = [1, 4, 8, 9, 11, 16, 22, 25]  # rest scored A5N0
@@ -231,19 +226,19 @@ class Pbq(TaskHasPatientMixin, Task, metaclass=PbqMetaclass):
         ]
 
     def total_score(self) -> int:
-        return self.sum_fields(self.QUESTION_FIELDS)
+        return cast(int, self.sum_fields(self.QUESTION_FIELDS))
 
     def factor_1_score(self) -> int:
-        return self.sum_fields(self.FACTOR_1_F)
+        return cast(int, self.sum_fields(self.FACTOR_1_F))
 
     def factor_2_score(self) -> int:
-        return self.sum_fields(self.FACTOR_2_F)
+        return cast(int, self.sum_fields(self.FACTOR_2_F))
 
     def factor_3_score(self) -> int:
-        return self.sum_fields(self.FACTOR_3_F)
+        return cast(int, self.sum_fields(self.FACTOR_3_F))
 
     def factor_4_score(self) -> int:
-        return self.sum_fields(self.FACTOR_4_F)
+        return cast(int, self.sum_fields(self.FACTOR_4_F))
 
     def is_complete(self) -> bool:
         return self.field_contents_valid() and self.all_fields_not_none(
@@ -358,35 +353,35 @@ class PBQReport(AverageScoreReport):
         return [
             ScoreDetails(
                 name=_("Total score"),
-                scorefunc=Pbq.total_score,
+                scorefunc=Pbq.total_score,  # type: ignore[arg-type]
                 minimum=0,
                 maximum=Pbq.MAX_TOTAL,
                 higher_score_is_better=False,
             ),
             ScoreDetails(
                 name=_("Factor 1 score"),
-                scorefunc=Pbq.factor_1_score,
+                scorefunc=Pbq.factor_1_score,  # type: ignore[arg-type]
                 minimum=0,
                 maximum=Pbq.FACTOR_1_MAX,
                 higher_score_is_better=False,
             ),
             ScoreDetails(
                 name=_("Factor 2 score"),
-                scorefunc=Pbq.factor_2_score,
+                scorefunc=Pbq.factor_2_score,  # type: ignore[arg-type]
                 minimum=0,
                 maximum=Pbq.FACTOR_2_MAX,
                 higher_score_is_better=False,
             ),
             ScoreDetails(
                 name=_("Factor 3 score"),
-                scorefunc=Pbq.factor_3_score,
+                scorefunc=Pbq.factor_3_score,  # type: ignore[arg-type]
                 minimum=0,
                 maximum=Pbq.FACTOR_3_MAX,
                 higher_score_is_better=False,
             ),
             ScoreDetails(
                 name=_("Factor 4 score"),
-                scorefunc=Pbq.factor_4_score,
+                scorefunc=Pbq.factor_4_score,  # type: ignore[arg-type]
                 minimum=0,
                 maximum=Pbq.FACTOR_4_MAX,
                 higher_score_is_better=False,

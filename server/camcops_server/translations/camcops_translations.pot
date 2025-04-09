@@ -1,14 +1,14 @@
 # Translations template for CamCOPS.
-# Copyright (C) 2024 Rudolf Cardinal
+# Copyright (C) 2025 University of Cambridge, Department of Psychiatry
 # This file is distributed under the same license as the CamCOPS project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: CamCOPS 2.4.18\n"
+"Project-Id-Version: CamCOPS 2.4.21\n"
 "Report-Msgid-Bugs-To: rnc1001@cam.ac.uk\n"
-"POT-Creation-Date: 2024-06-25 16:58+0100\n"
+"POT-Creation-Date: 2025-03-11 15:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,25 +21,25 @@ msgstr ""
 msgid "(Server) Devices registered with the server"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:881
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:956
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:885
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:960
 msgid "CamCOPS research data dump"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:882
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:886
 msgid "The research data dump you requested is attached."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:922
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:926
 msgid "You do not have enough space to create this download. You are allowed {total_permitted} bytes and you are have {space} bytes free. This download would need {size} bytes."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:936
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:940
 #, python-format
 msgid "The research data dump you requested is ready to be downloaded. You will find it in your download area. It is called %s"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:945
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:949
 msgid "Failed to create file {filename}. Error was: {message}"
 msgstr ""
 
@@ -1148,15 +1148,15 @@ msgstr ""
 msgid "Default:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:691
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:694
 msgid "Date of birth:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:694
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:697
 msgid "DOB:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:1321
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:1324
 msgid "(Server) Patients, distinct by name, sex, DOB, all ID numbers"
 msgstr ""
 
@@ -1164,43 +1164,47 @@ msgstr ""
 msgid "ID number fails basic checks"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1739
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1740
 msgid "Page $page of $page_count; total $item_count records"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:807
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:805
 msgid "Number of initial records"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:808
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:806
 msgid "Number of latest subsequent records"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:840
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:838
 msgid "Date filters"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:841
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:839
 msgid "Start date"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:841
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:839
 msgid "End date"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_reportschema.py:55
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_reportschema.py:56
 msgid "Split by year?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_reportschema.py:69
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_reportschema.py:70
 msgid "Split by month?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_reportschema.py:83
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_reportschema.py:84
+msgid "Split by day of month?"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_reportschema.py:98
 msgid "Split by task type?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_reportschema.py:97
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_reportschema.py:112
 msgid "Split by user?"
 msgstr ""
 
@@ -1212,11 +1216,11 @@ msgstr ""
 msgid "Anonymous"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskreports.py:103
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskreports.py:112
 msgid "(Server) Count current task instances"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskschedule.py:547
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskschedule.py:556
 msgid "{task_name} @ {due_days} days"
 msgstr ""
 
@@ -1514,12 +1518,12 @@ msgstr ""
 msgid "Cannot find {object_class} with {server_pk_name}:{pk_value}"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2406
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2429
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2401
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2424
 msgid "There is no patient with access key '{access_key}'. Have you entered the key correctly?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2440
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2435
 msgid "Patient has no ID numbers"
 msgstr ""
 
@@ -1928,7 +1932,7 @@ msgstr ""
 msgid "Adult Autism Spectrum Quotient"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/aq.py:354
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/aq.py:411
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/isaaq10.py:134
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/isaaqed.py:110
 msgid "Score"
@@ -2030,7 +2034,11 @@ msgstr ""
 msgid "Clinical Impairment Assessment questionnaire"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cisr.py:3040
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cisr.py:1297
+msgid "CIS-R suggestion ONLY"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cisr.py:3053
 msgid "Clinical Interview Schedule, Revised"
 msgstr ""
 
@@ -2126,64 +2134,64 @@ msgstr ""
 msgid "Diagnostic codes, ICD-9-CM (DSM-IV-TR)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:639
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:641
 msgid "Diagnosis – ICD-9-CM (DSM-IV-TR) diagnoses for all patients"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:669
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:671
 msgid "Diagnosis – ICD-10 diagnoses for all patients"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:697
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:699
 msgid "Diagnosis – All diagnoses for all patients"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:740
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:742
 msgid "Diagnostic code"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:741
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:743
 #, python-format
 msgid "Type in a diagnostic code; you may use SQL 'LIKE' syntax for wildcards, i.e. _ for one character and % for zero/one/lots"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:766
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:768
 msgid "Diagnostic codes"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:768
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:770
 msgid "Use % as a wildcard (e.g. F32 matches only F32, but F32% matches F32, F32.1, F32.2...)."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:782
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:784
 msgid "You must specify at least"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:785
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:787
 msgid "You have specified duplicate diagnoses"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:803
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:805
 msgid "Inclusion diagnoses (lifetime)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:805
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:807
 msgid "Exclusion diagnoses (lifetime)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:807
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:809
 msgid "Minimum age (years) (optional)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:809
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:811
 msgid "Maximum age (years) (optional)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:1056
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:1060
 msgid "Diagnosis – Find patients by ICD-10 diagnosis ± age"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:1107
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:1111
 msgid "Diagnosis – Find patients by ICD-9-CM (DSM-IV-TR) diagnosis ± age"
 msgstr ""
 
