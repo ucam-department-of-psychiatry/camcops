@@ -5766,8 +5766,8 @@ def view_patient_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
         .filter(Patient._group_id.in_(allowed_group_ids))
         .filter(Patient._device_id == server_device.id)
         .order_by(Patient.surname, Patient.forename)
-        .options(joinedload("task_schedules"))  # type: ignore[arg-type]
-        .options(joinedload("idnums"))  # type: ignore[arg-type]
+        .options(joinedload(Patient.task_schedules))
+        .options(joinedload(Patient.idnums))
     )
 
     # .join(
@@ -5806,7 +5806,10 @@ def view_patient_task_schedule(req: "CamcopsRequest") -> Dict[str, Any]:
         req.dbsession.query(PatientTaskSchedule)
         .filter(PatientTaskSchedule.id == pts_id)
         .options(
-            joinedload("patient.idnums"), joinedload("task_schedule.items")  # type: ignore[arg-type]  # noqa: E501
+            joinedload(PatientTaskSchedule.patient).joinedload(Patient.idnums),
+            joinedload(PatientTaskSchedule.task_schedule).joinedload(
+                TaskSchedule.items
+            ),
         )
         .one_or_none()
     )

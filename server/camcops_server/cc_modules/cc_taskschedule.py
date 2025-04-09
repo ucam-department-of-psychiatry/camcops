@@ -26,7 +26,7 @@ camcops_server/cc_modules/cc_taskschedule.py
 """
 
 import logging
-from typing import Any, List, Iterable, Optional, Tuple, TYPE_CHECKING
+from typing import Any, List, Optional, Tuple, TYPE_CHECKING
 from urllib.parse import urlencode, urlunsplit
 
 from cardinal_pythonlib.uriconst import UriSchemes
@@ -160,8 +160,7 @@ class PatientTaskSchedule(Base):
     )
 
     patient = relationship("Patient", back_populates="task_schedules")
-    task_schedule = relationship(
-        "TaskSchedule",
+    task_schedule: Mapped["TaskSchedule"] = relationship(
         back_populates="patient_task_schedules",
         cascade_backrefs=False,
     )
@@ -415,13 +414,12 @@ class TaskSchedule(Base):
         comment="Send a blind carbon copy of the email to these addresses",
     )
 
-    items = relationship(
-        "TaskScheduleItem",
+    items: Mapped[list["TaskScheduleItem"]] = relationship(
         back_populates="task_schedule",
         order_by=task_schedule_item_sort_order,
         cascade="all, delete",
         cascade_backrefs=False,
-    )  # type: Iterable[TaskScheduleItem]
+    )
 
     group = relationship(Group)
 
