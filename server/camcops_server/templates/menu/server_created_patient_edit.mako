@@ -30,7 +30,7 @@ camcops_server/templates/menu/server_created_patient_edit.mako
 <%inherit file="base_web_form.mako"/>
 
 <%!
-from camcops_server.cc_modules.cc_pyramid import Icons
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewParam
 %>
 
 <%include file="db_user_info.mako"/>
@@ -41,6 +41,35 @@ from camcops_server.cc_modules.cc_pyramid import Icons
         text=_("Edit details for patient")
     ) | n }
 </h1>
+
+<%
+    duplicates = object.duplicates
+%>
+
+%if duplicates:
+<div class="warning">
+${ _("Another patient exists with an identifier that matches this patient. CamCOPS can handle this but it is probably a mistake.") }
+
+<ul>
+%for duplicate in duplicates:
+<li>
+     ${ req.icon_text(
+     icon=Icons.PATIENT_EDIT,
+     url=request.route_url(
+         Routes.EDIT_SERVER_CREATED_PATIENT,
+         _query={
+             ViewParam.SERVER_PK: duplicate.pk
+         }
+     ),
+     text=duplicate
+ ) | n }
+</li>
+%endfor
+</ul>
+
+</div>
+%endif
+
 
 <div>${ _("Server PK:") } ${ object.pk }</div>
 
