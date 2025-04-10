@@ -119,6 +119,20 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         viewonly=True,
     )
 
+    duplicates: Mapped[list["PatientIdNum"]] = relationship(
+        primaryjoin=(
+            "and_("
+            " remote(PatientIdNum._group_id) == foreign(PatientIdNum._group_id), "  # noqa: E501
+            " remote(PatientIdNum.which_idnum) == foreign(PatientIdNum.which_idnum), "  # noqa: E501
+            " remote(PatientIdNum.idnum_value) == foreign(PatientIdNum.idnum_value), "  # noqa: E501
+            " remote(PatientIdNum._device_id) == foreign(PatientIdNum._device_id), "  # noqa: E501
+            " remote(PatientIdNum._current) == foreign(PatientIdNum._current), "  # noqa: E501
+            ")"
+        ),
+        viewonly=True,
+        uselist=True,
+    )
+
     # -------------------------------------------------------------------------
     # String representations
     # -------------------------------------------------------------------------
@@ -287,6 +301,14 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
                 "Corrupted database? PatientIdNum can't fetch its Patient"
             )
         return patient.pk
+
+    # -------------------------------------------------------------------------
+    # Duplicates
+    # -------------------------------------------------------------------------
+
+    @property
+    def has_duplicates(self) -> bool:
+        return len(self.duplicates) > 1
 
 
 # =============================================================================
