@@ -1207,6 +1207,16 @@ class Patient(GenericTabletRecordMixin, Base):
 
         return proquint_from_uuid(self.uuid)
 
+    @property
+    def duplicates(self) -> List["Patient"]:
+        dups = []
+
+        for idnum in self.idnums:
+            for dup in idnum.duplicates:
+                dups.append(dup.patient)
+
+        return dups
+
 
 # =============================================================================
 # Validate candidate patient info for upload
