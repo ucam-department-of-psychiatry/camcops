@@ -174,9 +174,9 @@ import pygments.lexers
 import pygments.lexers.sql
 import pygments.lexers.web
 import pygments.formatters
-from sqlalchemy.orm import aliased, joinedload, Query
+from sqlalchemy.orm import joinedload, Query
 from sqlalchemy.sql.functions import func
-from sqlalchemy.sql.expression import and_, desc, or_, select, update
+from sqlalchemy.sql.expression import desc, or_, select, update
 
 from camcops_server.cc_modules.cc_audit import audit, AuditEntry
 from camcops_server.cc_modules.cc_all_models import CLIENT_TABLE_MAP
@@ -5701,64 +5701,6 @@ def view_patient_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
     )
     page_num = req.get_int_param(ViewParam.PAGE, 1)
     allowed_group_ids = req.user.ids_of_groups_user_may_manage_patients_in
-    # SELECT _pk, pi._group_id, pi.which_idnum, pi.idnum_value, duplicate
-    #     FROM patient_idnum pi
-    #     JOIN (
-    #         SELECT _group_id, which_idnum, idnum_value, COUNT(idnum_value) AS duplicates
-    #             FROM patient_idnum
-    #             WHERE _device_id = 2 AND _era="NOW"
-    #             GROUP BY _group_id, which_idnum, idnum_value
-    #     ) dups
-    #     ON pi._group_id = dups._group_id
-    #         AND pi.which_idnum = dups.which_idnum
-    #         AND pi.idnum_value = dups.idnum_value
-    #     WHERE _device_id=2 AND _era="NOW";
-
-    patient_idnum_a = aliased(PatientIdNum, name="dups")
-    patient_idnum_b = aliased(PatientIdNum, name="all_idnums")
-
-    duplicates = func.count(patient_idnum_a.idnum_value).label("duplicates")
-    duplicates_query = (
-        req.dbsession.query(
-            patient_idnum_a._group_id,
-            patient_idnum_a.which_idnum,
-            patient_idnum_a.idnum_value,
-            duplicates,
-        )
-        .select_from(patient_idnum_a)
-        .filter(patient_idnum_a._device_id == server_device.id)
-        .filter(patient_idnum_a._era == ERA_NOW)
-        .filter(patient_idnum_a._group_id.in_(allowed_group_ids))
-        .group_by(
-            patient_idnum_a._group_id,
-            patient_idnum_a.which_idnum,
-            patient_idnum_a.idnum_value,
-        )
-        .subquery(name="duplicates")
-    )
-
-    # patient_idnum_query = req.dbsession.query(
-    #     patient_idnum_b._pk,
-    #     patient_idnum_b._group_id,
-    #     patient_idnum_b.which_idnum,
-    #     patient_idnum_b.idnum_value,
-    # ).select_from(
-    #     patient_idnum_b
-    # ).filter(
-    #     patient_idnum_b._device_id == server_device.id
-    # ).filter(
-    #     patient_idnum_b._era == ERA_NOW
-    # ).filter(
-    #     patient_idnum_b._group_id.in_(allowed_group_ids)
-    # ).join(
-    #     duplicates_query,
-    #     and_(
-    #         duplicates_query.c._group_id == patient_idnum_b._group_id,
-    #         duplicates_query.c.which_idnum == patient_idnum_b.which_idnum,
-    #         duplicates_query.c.idnum_value == patient_idnum_b.idnum_value,
-    #     )
-    # ).subquery(name="patient_idnum")
-
     # noinspection PyProtectedMember
     q = (
         req.dbsession.query(Patient)
@@ -5766,20 +5708,7 @@ def view_patient_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
         .filter(Patient._group_id.in_(allowed_group_ids))
         .filter(Patient._device_id == server_device.id)
         .order_by(Patient.surname, Patient.forename)
-        .options(joinedload(Patient.task_schedules))
-        .options(joinedload(Patient.idnums))
     )
-
-    # .join(
-    #     # patient_idnum_query,
-    #     # patient_idnum_query.c._pk == PatientIdNum._pk,
-    #     duplicates_query,
-    #     and_(
-    #         duplicates_query.c._group_id == PatientIdNum._group_id,
-    #         duplicates_query.c.which_idnum == PatientIdNum.which_idnum,
-    #         duplicates_query.c.idnum_value == PatientIdNum.idnum_value,
-    #     )
-    # )
 
     page = SqlalchemyOrmPage(
         query=q,
