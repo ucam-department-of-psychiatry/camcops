@@ -343,6 +343,11 @@ p.hangingindent {
     color: rgb(64, 0, 192);
     font-weight: bold;
 }
+
+
+.idnum {
+    margin: 0;
+}
 .ip_use_label {
     font-weight: bold;
 }
@@ -502,7 +507,7 @@ table.taskdetail td {
     background-color: rgb(227, 227, 227);
 }
 .warning {
-    background-color: rgb(255, 100, 100);
+    background-color: rgb(255, 110, 110);
 }
 
 /* The next three: need both L/R to float and clear:both for IE */
