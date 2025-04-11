@@ -1208,12 +1208,12 @@ class Patient(GenericTabletRecordMixin, Base):
         return proquint_from_uuid(self.uuid)
 
     @property
-    def duplicates(self) -> List["Patient"]:
-        dups = []
+    def duplicates(self) -> set["Patient"]:
+        dups = set()
 
         for idnum in self.idnums:
             for dup in idnum.duplicates:
-                dups.append(dup.patient)
+                dups.add(dup.patient)
 
         return dups
 
