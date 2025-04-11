@@ -3953,4 +3953,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Update the Docker image to use Debian 11. Debian 10 has now reached end-of-life.
+
 - **Minimum Python version now Python 3.9.** Python 3.11 and 3.12 supported.
+
+- Display the question on the server side for :ref:`The Clinical Impairment Assessment questionnaire (CIA)
+  <cia>`.
