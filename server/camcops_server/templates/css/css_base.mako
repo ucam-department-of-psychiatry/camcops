@@ -245,6 +245,9 @@ table.clinician, table.clinician th, table.clinician td {
 .ctv_warnings {
     margin: ${va.ELEMENTGAP} ${va.ZERO} ${va.SMALLGAP} ${va.INDENT_NORMAL};
 }
+.duplicates {
+    list-style: none;
+}
 .error {
     color: rgb(255, 0, 0);
 }
@@ -339,14 +342,12 @@ p.hangingindent {
 .highlight {
     background-color: rgb(255, 250, 205);
 }
+.idnum {
+    margin: 0;
+}
 .important {
     color: rgb(64, 0, 192);
     font-weight: bold;
-}
-
-
-.idnum {
-    margin: 0;
 }
 .ip_use_label {
     font-weight: bold;
