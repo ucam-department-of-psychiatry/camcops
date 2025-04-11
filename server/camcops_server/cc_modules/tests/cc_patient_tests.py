@@ -439,7 +439,7 @@ class DuplicatesTests(BasicDatabaseTestCase):
     def test_different_era_not_in_duplicates(self) -> None:
         patient_1_era = ERA_NOW
         era_time = pendulum.parse("1970-01-01T12:00")
-        patient_2_era = format_datetime(era_time, DateFormat.ISO8601)
+        patient_2_era = format_datetime(era_time, DateFormat.ISO8601)  # type: ignore[arg-type]  # noqa: E501
 
         patient_1 = PatientFactory(_group=self.group, _era=patient_1_era)
         patient_2 = PatientFactory(
