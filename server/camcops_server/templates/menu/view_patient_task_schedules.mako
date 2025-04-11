@@ -69,7 +69,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
 
 %if duplicates:
 <div class="warning">
-${ _("Multiple patients exist with the same identifier. CamCOPS can handle this but it is probably a mistake.") }
+${ _("Multiple patients exist with the same identifier. CamCOPS can handle this but it is probably due to a data entry mistake.") }
 </div>
 %endif
 
