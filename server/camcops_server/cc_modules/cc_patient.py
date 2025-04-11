@@ -1209,6 +1209,19 @@ class Patient(GenericTabletRecordMixin, Base):
 
     @property
     def duplicates(self) -> set["Patient"]:
+        """
+        Returns a set of patients that have an ID Number that matches this one.
+        For a patient to be considered a duplicate, the ID number needs to
+        match on:
+
+        * Group
+        * Type of ID Number (e.g. NHS Number)
+        * Value of ID number
+        * Device where patient was created
+
+        and have the "current" flag set to True
+        """
+
         dups = set()
 
         for idnum in self.idnums:
