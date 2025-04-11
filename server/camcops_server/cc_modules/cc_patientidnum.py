@@ -127,7 +127,8 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
             " remote(PatientIdNum.which_idnum) == foreign(PatientIdNum.which_idnum), "  # noqa: E501
             " remote(PatientIdNum.idnum_value) == foreign(PatientIdNum.idnum_value), "  # noqa: E501
             " remote(PatientIdNum._device_id) == foreign(PatientIdNum._device_id), "  # noqa: E501
-            " remote(PatientIdNum._current) == foreign(PatientIdNum._current), "  # noqa: E501
+            " remote(PatientIdNum._era) == foreign(PatientIdNum._era), "
+            " remote(PatientIdNum._current) == True, "
             ")"
         ),
         viewonly=True,
