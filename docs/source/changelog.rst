@@ -3953,4 +3953,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Update the Docker image to use Debian 11. Debian 10 has now reached end-of-life.
+
 - **Minimum Python version now Python 3.9.** Python 3.11 and 3.12 supported.
+
+- Warn the user if duplicate server-created patient idenitifers exist in the same group.
