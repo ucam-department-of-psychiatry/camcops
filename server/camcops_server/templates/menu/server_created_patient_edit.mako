@@ -48,7 +48,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewParam
 
 %if duplicates:
 <div class="warning">
-${ _("Other patients exists with identifiers that match this patient. CamCOPS can handle this but it is probably due to a data entry mistake:") }
+${ _("Other patients exist with identifiers that match this patient. CamCOPS can handle this but it is probably due to a data entry mistake:") }
 
 <ul class="duplicates">
 %for duplicate in duplicates:
