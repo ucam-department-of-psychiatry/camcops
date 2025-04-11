@@ -133,6 +133,8 @@ class Cia(  # type: ignore[misc]
         return scale_factor * self.sum_fields(self.ALL_FIELD_NAMES)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
+        question = self.xstring(req, "grid_title")
+
         rows = ""
         for q_num in range(self.FIRST_Q, self.LAST_Q + 1):
             field = self.Q_PREFIX + str(q_num)
@@ -157,8 +159,8 @@ class Cia(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="60%">Question</th>
-                    <th width="40%">Score</th>
+                    <th width="60%">{question}</th>
+                    <th width="40%">Response</th>
                 </tr>
                 {rows}
             </table>
@@ -173,6 +175,7 @@ class Cia(  # type: ignore[misc]
                 req.sstring(SS.TOTAL_SCORE) + "<sup>[1]</sup>",
                 answer(global_score_display),
             ),
+            question=question,
             rows=rows,
         )
         return html
