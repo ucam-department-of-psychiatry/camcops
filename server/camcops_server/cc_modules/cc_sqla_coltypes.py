@@ -1433,7 +1433,7 @@ ONE_TO_SIX_CHECKER = PermittedValueChecker(minimum=1, maximum=6)
 ONE_TO_SEVEN_CHECKER = PermittedValueChecker(minimum=1, maximum=7)
 ONE_TO_EIGHT_CHECKER = PermittedValueChecker(minimum=1, maximum=8)
 ONE_TO_NINE_CHECKER = PermittedValueChecker(minimum=1, maximum=9)
-
+ONE_TO_TEN_CHECKER = PermittedValueChecker(minimum=1, maximum=10)
 
 # =============================================================================
 # camcops_column: provides extra functions over Column.
