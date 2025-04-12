@@ -45,7 +45,7 @@ if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 
-class Empsa(TaskHasPatientMixin, Task):
+class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
     __tablename__ = "empsa"
     shortname = "EMPSA"
 
