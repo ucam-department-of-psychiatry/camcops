@@ -455,7 +455,7 @@ class PatientIdNumIndexEntry(Base):
                     ],
                     # Source:
                     (
-                        select(select_fields)  # type: ignore[call-overload]
+                        select(*select_fields)
                         .select_from(
                             join(
                                 idnumtable,
