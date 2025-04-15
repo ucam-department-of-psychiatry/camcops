@@ -100,6 +100,7 @@ public:
     //   the grid, and (b) a "stretch".
     // Default is true.
     QuGridContainer* setExpandHorizontally(bool expand);
+    QuGridContainer* setStyleSheet(const QString &style_sheet);
 
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
@@ -113,7 +114,7 @@ protected:
     // ... maps column_index to minimum width in pixels
     bool m_expand;  // expand horizontally?
     bool m_fixed_grid;  // columns of equal width (unless specified), as above?
-
+    QString m_style_sheet;
 public:
     // Debug description
     friend QDebug operator<<(QDebug debug, const QuGridContainer& grid);
