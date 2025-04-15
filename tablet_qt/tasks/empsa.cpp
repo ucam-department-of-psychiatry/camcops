@@ -20,6 +20,7 @@
 
 #include "empsa.h"
 
+#include "common/uiconst.h"
 #include "lib/stringfunc.h"
 #include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
@@ -28,6 +29,7 @@
 #include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qupage.h"
+#include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
@@ -136,8 +138,17 @@ OpenableWidget* Empsa::editor(const bool read_only)
     auto subtitle = new QuText(xstring("subtitle"));
     auto instructions_1 = new QuText(xstring("instructions_1"));
     auto instructions_2 = new QuText(xstring("instructions_2"));
-    auto instructions_3 = new QuHeading(xstring("instructions_3"));
-    auto key = new QuHeading(QString("%1, %2").arg(xstring("zero")).arg(xstring("ten")));
+
+    auto instructions_grid = new QuGridContainer();
+    instructions_grid->setStyleSheet("background-color: #fefec2; padding: 10px;");
+
+    int row = 0;
+    instructions_grid->addCell(QuGridCell((new QuText(xstring("instructions_3")))->setBold()->setTextAndWidgetAlignment(Qt::AlignHCenter), row, 0, 1, 2, Qt::AlignHCenter));
+
+    row++;
+
+    instructions_grid->addCell(QuGridCell((new QuText(xstring("zero")))->setBold()->setTextAndWidgetAlignment(Qt::AlignLeft), row, 0, 1, 1, Qt::AlignLeft));
+    instructions_grid->addCell(QuGridCell((new QuText(xstring("ten")))->setBold()->setTextAndWidgetAlignment(Qt::AlignRight), row, 1, 1, 1, Qt::AlignRight));
 
     auto grid = new QuGridContainer();
     grid->setColumnStretch(0, 1);
@@ -146,7 +157,7 @@ OpenableWidget* Empsa::editor(const bool read_only)
     grid->setColumnStretch(3, 2);
     grid->setColumnStretch(4, 9);
 
-    int row = 0;
+    row = 0;
 
     grid->addCell(QuGridCell(new QuText(""), row, 0));
     grid->addCell(QuGridCell((new QuText(xstring("task")))->setBold(), row, 1));
@@ -184,10 +195,13 @@ OpenableWidget* Empsa::editor(const bool read_only)
 
     QVector<QuElement*> elements{
         subtitle,
+        new QuSpacer(QSize(uiconst::MEDIUMSPACE, uiconst::MEDIUMSPACE)),
         instructions_1,
+        new QuSpacer(QSize(uiconst::MEDIUMSPACE, uiconst::MEDIUMSPACE)),
         instructions_2,
-        instructions_3,
-        key,
+        new QuSpacer(QSize(uiconst::MEDIUMSPACE, uiconst::MEDIUMSPACE)),
+        instructions_grid,
+        new QuSpacer(QSize(uiconst::MEDIUMSPACE, uiconst::MEDIUMSPACE)),
         grid,
     };
 
