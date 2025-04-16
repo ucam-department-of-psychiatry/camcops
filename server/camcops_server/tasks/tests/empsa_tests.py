@@ -42,6 +42,4 @@ class EmpsaTests(TestCase):
     def test_not_complete_when_not_all_questions_answered(self) -> None:
         empsa = Empsa()
 
-        empsa.q1_ability = None
-
         self.assertFalse(empsa.is_complete())
