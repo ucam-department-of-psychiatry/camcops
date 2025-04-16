@@ -100,11 +100,9 @@ QString Empsa::longname() const
 QString Empsa::description() const
 {
     return tr(
-        "The purpose of this questionnaire is to help people with eating "
-        "disorders to measure how able and motivated they are to perform "
-        "twelve tasks related to preparing and eating normal portion-sized "
-        "cooked meals with dessert. This will highlight what they need to "
-        "work on in treatment and measure if treatment has been effective."
+        "A 12-item self-report assessment tool designed to measure eating "
+        "disordered clients' perceived ability and motivation to perform 12 "
+        "eating and meal preparation tasks."
     );
 }
 

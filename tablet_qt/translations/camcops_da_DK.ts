@@ -2536,7 +2536,7 @@ enig</translation>
 <context>
     <name>EatingDisordersMenu</name>
     <message>
-        <location filename="../menu/eatingdisordersmenu.cpp" line="+42"/>
+        <location filename="../menu/eatingdisordersmenu.cpp" line="+43"/>
         <source>Eating disorders</source>
         <translation>Spiseforstyrrelser</translation>
     </message>
@@ -2570,18 +2570,18 @@ enig</translation>
 <context>
     <name>Empsa</name>
     <message>
-        <location filename="../tasks/empsa.cpp" line="+94"/>
+        <location filename="../tasks/empsa.cpp" line="+97"/>
         <source>Eating &amp; Meal Preparation Skills Assessment</source>
         <translation>Eating &amp; Meal Preparation Skills Assessment [Spise &amp; Måltidsforberedelse færdighedsvurdering]</translation>
     </message>
     <message>
         <location line="+5"/>
-        <source>The purpose of this questionnaire is to help people with eating disorders to measure how able and motivated they are to perform twelve tasks related to preparing and eating normal portion-sized cooked meals with dessert. This will highlight what they need to work on in treatment and measure if treatment has been effective.</source>
-        <translation>Formålet med dette spørgeskema er at hjælpe mennesker med spiseforstyrrelser til at måle, hvor dygtige og motiverede de er til at udføre tolv opgaver i forbindelse med tilberedning og spisning af almindelige portionsstørrelser tilberedt måltid med dessert. Dette vil fremhæve, hvad de skal arbejde med i behandlingen og måle, om behandlingen har været effektiv.</translation>
+        <source>A 12-item self-report assessment tool designed to measure eating disordered clients&apos; perceived ability and motivation to perform 12 eating and meal preparation tasks.</source>
+        <translation>Et 12-elements selvrapporteringsvurderingsværktøj designet til at måle spiseforstyrrede klienters opfattede evne og motivation til at udføre 12 spise- og måltidsforberedelsesopgaver.</translation>
     </message>
     <message>
-        <location line="+84"/>
-        <location line="+4"/>
+        <location line="+182"/>
+        <location line="+8"/>
         <source>%1 to %2</source>
         <extracomment>Range for integer input</extracomment>
         <translation>%1 til %2</translation>
