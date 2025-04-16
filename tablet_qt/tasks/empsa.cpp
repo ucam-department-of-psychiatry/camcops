@@ -21,6 +21,7 @@
 #include "empsa.h"
 
 #include "common/uiconst.h"
+#include "lib/convert.h"
 #include "lib/stringfunc.h"
 #include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
@@ -34,6 +35,7 @@
 #include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
 using mathfunc::anyNull;
+using mathfunc::meanOrNull;
 using stringfunc::strseq;
 
 const int FIRST_Q = 1;
@@ -124,16 +126,80 @@ bool Empsa::isComplete() const
     return true;
 }
 
-QStringList Empsa::summary() const
-{
-    return QStringList{};
-}
-
 QStringList Empsa::detail() const
 {
     QStringList lines = completenessInfo();
 
+    auto html = QString("<table>");
+    html.append("<tr>");
+    html.append("<th></th>");
+    html.append("<th></th>");
+    html.append(QString("<th>%1</th>").arg(xstring("ability")));
+    html.append(QString("<th>%1</th>").arg(xstring("motivation")));
+    html.append("</tr>");
+
+    for (int q = FIRST_Q; q <= LAST_Q; ++q) {
+        const QString q_str = QString("%1%2").arg(Q_PREFIX).arg(q);
+        const QString ability_field_name = q_str + ABILITY_SUFFIX;
+        const QString motivation_field_name = q_str + MOTIVATION_SUFFIX;
+
+        html.append("<tr>");
+        html.append(QString("<td>%1</td>").arg(q));
+        html.append(QString("<td>%1</td>").arg(xstring(q_str)));
+        html.append(QString("<td>%1</td>").arg(valueInt(ability_field_name)));
+        html.append(QString("<td>%1</td>").arg(valueInt(motivation_field_name)));
+        html.append("</tr>");
+    }
+    html.append("</table>");
+
+    lines.append(html);
+    lines.append("");
+    lines += summary();
+
     return lines;
+}
+
+QStringList Empsa::summary() const
+{
+    auto rangeScore = [](const QString& description,
+                    const QVariant score,
+                    const int min,
+                    const int max) {
+        return QString("%1: <b>%2</b> [%3–%4].")
+            .arg(
+                description,
+                convert::prettyValue(score, 2),
+                QString::number(min),
+                QString::number(max)
+            );
+    };
+
+    return QStringList{
+        rangeScore(
+            xstring("ability"),
+            abilitySubscale(),
+            MIN_SCORE,
+            MAX_SCORE
+        ),
+        rangeScore(
+            xstring("motivation"),
+            motivationSubscale(),
+            MIN_SCORE,
+            MAX_SCORE
+        ),
+
+    };
+}
+
+QVariant Empsa::abilitySubscale() const
+{
+    return meanOrNull(values(abilityFieldNames()));
+
+}
+
+QVariant Empsa::motivationSubscale() const
+{
+    return meanOrNull(values(motivationFieldNames()));
 }
 
 OpenableWidget* Empsa::editor(const bool read_only)

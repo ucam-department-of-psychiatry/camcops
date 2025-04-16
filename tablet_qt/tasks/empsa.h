@@ -53,7 +53,9 @@ public:
     virtual QStringList detail() const override;
     virtual OpenableWidget* editor(bool read_only = false) override;
 
-public:
+    QVariant abilitySubscale() const;
+    QVariant motivationSubscale() const;
+
     static const QString EMPSA_TABLENAME;
 
 protected:
