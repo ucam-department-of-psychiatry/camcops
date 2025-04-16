@@ -208,7 +208,7 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
         _ = req.gettext
-        return _("Eating and Meal Preparation Skills Assessment (EMPSA)")
+        return _("Eating and Meal Preparation Skills Assessment")
 
     def is_complete(self) -> bool:
         if self.any_fields_none(self.ALL_MANDATORY_FIELD_NAMES):
