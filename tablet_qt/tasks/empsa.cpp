@@ -71,7 +71,8 @@ QStringList Empsa::commentsFieldNames() const
 
 
 Empsa::Empsa(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, EMPSA_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, EMPSA_TABLENAME, false, false, false)
+// ... anon, clin, resp
 {
     addFields(abilityFieldNames(), QMetaType::fromType<int>());
     addFields(motivationFieldNames(), QMetaType::fromType<int>());
@@ -97,11 +98,13 @@ QString Empsa::longname() const
 QString Empsa::description() const
 {
     return tr(
-        "The purpose of this questionnaire is to help people with eating disorders to measure how able and motivated they are to perform twelve tasks related to preparing and eating normal portion-sized cooked meals with dessert. This will highlight what they need to work on in treatment and measure if treatment has been effective."
+        "The purpose of this questionnaire is to help people with eating "
+        "disorders to measure how able and motivated they are to perform "
+        "twelve tasks related to preparing and eating normal portion-sized "
+        "cooked meals with dessert. This will highlight what they need to "
+        "work on in treatment and measure if treatment has been effective."
     );
 }
-
-
 
 // ============================================================================
 // Instance info
@@ -140,15 +143,44 @@ OpenableWidget* Empsa::editor(const bool read_only)
     auto instructions_2 = new QuText(xstring("instructions_2"));
 
     auto instructions_grid = new QuGridContainer();
-    instructions_grid->setStyleSheet("background-color: #fefec2; padding: 10px;");
+    instructions_grid->setStyleSheet(
+        "background-color: #fefec2; padding: 10px;"
+    );
 
     int row = 0;
-    instructions_grid->addCell(QuGridCell((new QuText(xstring("instructions_3")))->setBold()->setTextAndWidgetAlignment(Qt::AlignHCenter), row, 0, 1, 2, Qt::AlignHCenter));
+    instructions_grid->addCell(QuGridCell(
+        (new QuText(xstring("instructions_3")))
+            ->setBold()
+            ->setTextAndWidgetAlignment(Qt::AlignHCenter),
+        row,
+        0,
+        1,
+        2,
+        Qt::AlignHCenter
+    ));
 
     row++;
 
-    instructions_grid->addCell(QuGridCell((new QuText(xstring("zero")))->setBold()->setTextAndWidgetAlignment(Qt::AlignLeft), row, 0, 1, 1, Qt::AlignLeft));
-    instructions_grid->addCell(QuGridCell((new QuText(xstring("ten")))->setBold()->setTextAndWidgetAlignment(Qt::AlignRight), row, 1, 1, 1, Qt::AlignRight));
+    instructions_grid->addCell(QuGridCell(
+        (new QuText(xstring("zero")))
+            ->setBold()
+            ->setTextAndWidgetAlignment(Qt::AlignLeft),
+        row,
+        0,
+        1,
+        1,
+        Qt::AlignLeft
+    ));
+    instructions_grid->addCell(QuGridCell(
+        (new QuText(xstring("ten")))
+            ->setBold()
+            ->setTextAndWidgetAlignment(Qt::AlignRight),
+        row,
+        1,
+        1,
+        1,
+        Qt::AlignRight
+    ));
 
     auto grid = new QuGridContainer();
     grid->setColumnStretch(0, 1);
@@ -160,36 +192,54 @@ OpenableWidget* Empsa::editor(const bool read_only)
     row = 0;
 
     grid->addCell(QuGridCell(new QuText(""), row, 0));
-    grid->addCell(QuGridCell((new QuText(xstring("task")))->setBold(), row, 1));
-    grid->addCell(QuGridCell((new QuText(xstring("ability")))->setBold(), row, 2));
-    grid->addCell(QuGridCell((new QuText(xstring("motivation")))->setBold(), row, 3));
-    grid->addCell(QuGridCell((new QuText(xstring("comments")))->setBold(), row, 4));
+    grid->addCell(QuGridCell((new QuText(xstring("task")))->setBold(), row, 1)
+    );
+    grid->addCell(
+        QuGridCell((new QuText(xstring("ability")))->setBold(), row, 2)
+    );
+    grid->addCell(
+        QuGridCell((new QuText(xstring("motivation")))->setBold(), row, 3)
+    );
+    grid->addCell(
+        QuGridCell((new QuText(xstring("comments")))->setBold(), row, 4)
+    );
 
     row++;
 
-    for(int q = FIRST_Q; q <= LAST_Q; ++q) {
+    for (int q = FIRST_Q; q <= LAST_Q; ++q) {
         const QString q_str = QString("%1%2").arg(Q_PREFIX).arg(q);
         const QString ability_field_name = q_str + ABILITY_SUFFIX;
         const QString motivation_field_name = q_str + MOTIVATION_SUFFIX;
         const QString comments_field_name = q_str + COMMENTS_SUFFIX;
         const QString note_name = q_str + NOTE_SUFFIX;
-        const QString label = QString("%1 %2").arg(xstring(q_str)).arg(xstring(note_name));
+        const QString label
+            = QString("%1 %2").arg(xstring(q_str)).arg(xstring(note_name));
 
         grid->addCell(QuGridCell(new QuText(QString::number(q)), row, 0));
         grid->addCell(QuGridCell(new QuText(label), row, 1));
 
-        auto ability_edit = new QuLineEditInteger(fieldRef(ability_field_name), MIN_SCORE, MAX_SCORE);
+        auto ability_edit = new QuLineEditInteger(
+            fieldRef(ability_field_name), MIN_SCORE, MAX_SCORE
+        );
         //: Range for integer input
-        ability_edit->setHint(QString(tr("%1 to %2")).arg(MIN_SCORE).arg(MAX_SCORE));
+        ability_edit->setHint(
+            QString(tr("%1 to %2")).arg(MIN_SCORE).arg(MAX_SCORE)
+        );
         grid->addCell(QuGridCell(ability_edit, row, 2));
 
-        auto motivation_edit = new QuLineEditInteger(fieldRef(motivation_field_name), MIN_SCORE, MAX_SCORE);
-        motivation_edit->setHint(QString(tr("%1 to %2")).arg(MIN_SCORE).arg(MAX_SCORE));
+        auto motivation_edit = new QuLineEditInteger(
+            fieldRef(motivation_field_name), MIN_SCORE, MAX_SCORE
+        );
+        motivation_edit->setHint(
+            QString(tr("%1 to %2")).arg(MIN_SCORE).arg(MAX_SCORE)
+        );
         grid->addCell(QuGridCell(motivation_edit, row, 3));
 
-        grid->addCell(QuGridCell(new QuLineEdit(fieldRef(comments_field_name, false)), row, 4));
+        grid->addCell(QuGridCell(
+            new QuLineEdit(fieldRef(comments_field_name, false)), row, 4
+        ));
 
-        row ++;
+        row++;
     }
 
 

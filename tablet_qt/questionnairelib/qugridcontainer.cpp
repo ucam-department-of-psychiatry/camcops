@@ -239,7 +239,7 @@ QuGridContainer* QuGridContainer::setExpandHorizontally(const bool expand)
     return this;
 }
 
-QuGridContainer* QuGridContainer::setStyleSheet(const QString &style_sheet)
+QuGridContainer* QuGridContainer::setStyleSheet(const QString& style_sheet)
 {
     m_style_sheet = style_sheet;
     return this;

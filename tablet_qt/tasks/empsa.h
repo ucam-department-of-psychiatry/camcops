@@ -33,9 +33,11 @@ class Empsa : public Task
     Q_OBJECT
 
 public:
-    Empsa(CamcopsApp& app,
-          DatabaseManager& db,
-          int load_pk = dbconst::NONEXISTENT_PK);
+    Empsa(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -58,5 +60,4 @@ protected:
     QStringList abilityFieldNames() const;
     QStringList motivationFieldNames() const;
     QStringList commentsFieldNames() const;
-
 };
