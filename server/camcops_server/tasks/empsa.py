@@ -204,6 +204,7 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
     )
     FIRST_Q = 1
     LAST_Q = 12
+    MAX_SCORE = 10
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -216,6 +217,14 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
 
         return True
 
+    def ability_subscale(self) -> Optional[float]:
+        return self.mean_fields(self.ALL_ABILITY_FIELD_NAMES, ignorevalues=[])
+
+    def motivation_subscale(self) -> Optional[float]:
+        return self.mean_fields(
+            self.ALL_MOTIVATION_FIELD_NAMES, ignorevalues=[]
+        )
+
     def get_task_html(self, req: "CamcopsRequest") -> str:
         rows = self.get_task_html_rows(req)
 
@@ -223,15 +232,31 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
                     {tr_is_complete}
+                    {ability_subscale}
+                    {motivation_subscale}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 {rows}
             </table>
+            <div class="{CssClass.FOOTNOTES}">
+                [1] {ability_footnote}
+                [2] {motivation_footnote}
+            </div>
         """.format(
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
+            ability_subscale=tr(
+                self.wxstring(req, "ability") + "<sup>[1]</sup>",
+                answer(self.ability_subscale()) + f" / {self.MAX_SCORE}",
+            ),
+            motivation_subscale=tr(
+                self.wxstring(req, "motivation") + "<sup>[2]</sup>",
+                answer(self.motivation_subscale()) + f" / {self.MAX_SCORE}",
+            ),
             rows=rows,
+            ability_footnote=self.wxstring(req, "ability_footnote"),
+            motivation_footnote=self.wxstring(req, "motivation_footnote"),
         )
         return html
 
