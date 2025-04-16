@@ -66,7 +66,7 @@ Source
 
 
 Notes
------
+~~~~~
 
 - Pronounced "kye-tee" (by analogy to chi, chi-square), not "chit" (personal
   communication, task authors to Martin Burchell, Feb 2023).
