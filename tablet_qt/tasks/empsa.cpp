@@ -147,7 +147,8 @@ QStringList Empsa::detail() const
         html.append(QString("<td>%1</td>").arg(q));
         html.append(QString("<td>%1</td>").arg(xstring(q_str)));
         html.append(QString("<td>%1</td>").arg(valueInt(ability_field_name)));
-        html.append(QString("<td>%1</td>").arg(valueInt(motivation_field_name)));
+        html.append(QString("<td>%1</td>").arg(valueInt(motivation_field_name))
+        );
         html.append("</tr>");
     }
     html.append("</table>");
@@ -162,9 +163,9 @@ QStringList Empsa::detail() const
 QStringList Empsa::summary() const
 {
     auto rangeScore = [](const QString& description,
-                    const QVariant score,
-                    const int min,
-                    const int max) {
+                         const QVariant score,
+                         const int min,
+                         const int max) {
         return QString("%1: <b>%2</b> [%3–%4].")
             .arg(
                 description,
@@ -176,16 +177,10 @@ QStringList Empsa::summary() const
 
     return QStringList{
         rangeScore(
-            xstring("ability"),
-            abilitySubscale(),
-            MIN_SCORE,
-            MAX_SCORE
+            xstring("ability"), abilitySubscale(), MIN_SCORE, MAX_SCORE
         ),
         rangeScore(
-            xstring("motivation"),
-            motivationSubscale(),
-            MIN_SCORE,
-            MAX_SCORE
+            xstring("motivation"), motivationSubscale(), MIN_SCORE, MAX_SCORE
         ),
 
     };
@@ -194,7 +189,6 @@ QStringList Empsa::summary() const
 QVariant Empsa::abilitySubscale() const
 {
     return meanOrNull(values(abilityFieldNames()));
-
 }
 
 QVariant Empsa::motivationSubscale() const
