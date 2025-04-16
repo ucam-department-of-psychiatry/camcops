@@ -1210,7 +1210,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>Cisr</name>
     <message>
-        <location filename="../tasks/cisr.cpp" line="+1041"/>
+        <location filename="../tasks/cisr.cpp" line="+993"/>
         <source>Clinical Interview Schedule – Revised</source>
         <translation>Clinical Interview Schedule – Revised [klinisk interviewplan - revideret]</translation>
     </message>
@@ -1220,7 +1220,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
         <translation>Struktureret interview, der giver forslag til mulige ICD-10-diagnoser for depressive lidelser og angstlidelser. (Kan være forkert. Er ikke en erstatning for en diagnose stillet af en kvalificeret kliniker.)</translation>
     </message>
     <message>
-        <location line="+3081"/>
+        <location line="+3065"/>
         <source>CIS-R suggestion ONLY</source>
         <translation>Kun forslag fra CIS-R</translation>
     </message>
@@ -2565,6 +2565,26 @@ enig</translation>
         <location line="+5"/>
         <source>31-item clinician-rated comorbidity catalogue.</source>
         <translation>31-punkts kliniker-bedømt comorbiditet katalog.</translation>
+    </message>
+</context>
+<context>
+    <name>Empsa</name>
+    <message>
+        <location filename="../tasks/empsa.cpp" line="+94"/>
+        <source>Eating &amp; Meal Preparation Skills Assessment</source>
+        <translation>Eating &amp; Meal Preparation Skills Assessment [Spise &amp; Måltidsforberedelse færdighedsvurdering]</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>The purpose of this questionnaire is to help people with eating disorders to measure how able and motivated they are to perform twelve tasks related to preparing and eating normal portion-sized cooked meals with dessert. This will highlight what they need to work on in treatment and measure if treatment has been effective.</source>
+        <translation>Formålet med dette spørgeskema er at hjælpe mennesker med spiseforstyrrelser til at måle, hvor dygtige og motiverede de er til at udføre tolv opgaver i forbindelse med tilberedning og spisning af almindelige portionsstørrelser tilberedt måltid med dessert. Dette vil fremhæve, hvad de skal arbejde med i behandlingen og måle, om behandlingen har været effektiv.</translation>
+    </message>
+    <message>
+        <location line="+84"/>
+        <location line="+4"/>
+        <source>%1 to %2</source>
+        <extracomment>Range for integer input</extracomment>
+        <translation>%1 til %2</translation>
     </message>
 </context>
 <context>
