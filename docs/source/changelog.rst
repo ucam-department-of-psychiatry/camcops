@@ -3957,3 +3957,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - **Minimum Python version now Python 3.9.** Python 3.11 and 3.12 supported.
 
 - Update to use SQLAlchemy 2.0
+
+- New task: :ref:`Eating and Meal Preparation Skills Assessment (EMPSA) <empsa>`. (Database revision 0087.)
