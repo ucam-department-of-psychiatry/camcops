@@ -263,6 +263,7 @@ server/camcops_server
     extra_string_templates/dad_TEMPLATE.xml.rst
     extra_string_templates/das28_TEMPLATE.xml.rst
     extra_string_templates/edeq_TEMPLATE.xml.rst
+    extra_string_templates/empsa_TEMPLATE.xml.rst
     extra_string_templates/epds_TEMPLATE.xml.rst
     extra_string_templates/eq5d5l_TEMPLATE.xml.rst
     extra_string_templates/esspri_TEMPLATE.xml.rst
