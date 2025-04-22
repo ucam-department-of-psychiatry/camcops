@@ -1,8 +1,8 @@
 diff --git a/cmake/FindFFmpeg.cmake b/cmake/FindFFmpeg.cmake
-index fb92a9f08..f1ab8a61e 100644
+index 554788a31..1e5a5bbe3 100644
 --- a/cmake/FindFFmpeg.cmake
 +++ b/cmake/FindFFmpeg.cmake
-@@ -257,7 +257,7 @@ endfunction()
+@@ -259,7 +259,7 @@ endfunction()
        # message(STATUS "Libs: ${${_component}_LIBRARIES} | ${PC_${_component}_LIBRARIES}")
  
        # message(STATUS "Required component ${_component} present.")
@@ -11,7 +11,7 @@ index fb92a9f08..f1ab8a61e 100644
        set(FFMPEG_DEFINITIONS  ${FFMPEG_DEFINITIONS}  ${${_component}_DEFINITIONS})
  
        list(APPEND FFMPEG_INCLUDE_DIRS ${${_component}_INCLUDE_DIRS})
-@@ -269,13 +269,13 @@ endfunction()
+@@ -271,13 +271,13 @@ endfunction()
          set_target_properties(FFmpeg::${_lowerComponent} PROPERTIES
              INTERFACE_COMPILE_OPTIONS "${${_component}_DEFINITIONS}"
              INTERFACE_INCLUDE_DIRECTORIES ${${_component}_INCLUDE_DIRS}
@@ -20,7 +20,7 @@ index fb92a9f08..f1ab8a61e 100644
              INTERFACE_LINK_DIRECTORIES "${${_component}_LIBRARY_DIRS}"
          )
 +        target_link_libraries(FFmpeg::${_lowerComponent} INTERFACE "${${_component}_LIBRARY}")
-         if(__ffmpeg_is_static)
+         if(FFMPEG_IS_STATIC)
              __ffmpeg_internal_set_dependencies(${_lowerComponent})
          endif()
 -        target_link_libraries(FFmpeg::${_lowerComponent} INTERFACE "${${_component}_LIBRARY}")
