@@ -40,7 +40,10 @@ void ProquintLineEdit::processChangedText()
     // Automatically strip white space and insert the dashes, because it's a
     // pain having to do that on a mobile on-screen keyboard
     auto line_edit = getLineEdit();
+
+#ifdef Q_OS_ANDROID
     line_edit->installEventFilter(this);
+#endif
 
     QString initial_text = line_edit->text();
 
@@ -70,17 +73,21 @@ void ProquintLineEdit::processChangedText()
 
     // Set text will put the cursor to the end so only set it if it has changed
     if (new_text != initial_text) {
+#ifdef Q_OS_ANDROID
         maybeIgnoreNextInputEvent();
+#endif
         line_edit->setText(new_text);
     }
 
     m_old_text = new_text;
 }
 
+#ifdef Q_OS_ANDROID
 // Thanks to Axel Spoerl for this workaround for
 // https://bugreports.qt.io/browse/QTBUG-115756
 // On Android, the cursor does not get updated properly if a dash is appended
-// Remove this when fixed.
+// Remove this when fixed (the change on that ticket was actually reverted due
+// to a regression elsewhere).
 bool ProquintLineEdit::eventFilter(QObject* obj, QEvent* event)
 {
     auto line_edit = getLineEdit();
@@ -104,3 +111,4 @@ void ProquintLineEdit::maybeIgnoreNextInputEvent()
         m_ignore_next_input_event = true;
     }
 }
+#endif
