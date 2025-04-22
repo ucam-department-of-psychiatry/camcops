@@ -3959,3 +3959,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Update to use SQLAlchemy 2.0
 
 - New task: :ref:`Eating and Meal Preparation Skills Assessment (EMPSA) <empsa>`. (Database revision 0087.)
+
+- Fix cursor placement when entering the access key on iOS. The workaround for
+  https://bugreports.qt.io/browse/QTBUG-115756 is now only applied for Android.
