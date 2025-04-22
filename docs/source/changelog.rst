@@ -3956,4 +3956,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - **Minimum Python version now Python 3.9.** Python 3.11 and 3.12 supported.
 
-- Update to use SQLAlchemy 2.0
+- Update to use SQLAlchemy 2.0 (Database revision 0086 for minor changes to
+  comments for HAMD and HAMD7).
