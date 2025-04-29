@@ -3121,7 +3121,6 @@ def op_which_keys_to_send(req: "CamcopsRequest") -> str:
         cpkv = clientpk_values[i]
         if not isinstance(cpkv, int):
             fail_user_error(f"Bad (non-integer) client PK: {cpkv!r}")
-        dt = None  # for type checker
         try:
             dt = coerce_to_pendulum(client_dates[i])
             if dt is None:

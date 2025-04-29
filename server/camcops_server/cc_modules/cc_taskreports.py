@@ -167,9 +167,6 @@ class TaskCountReport(Report):
         return PlainReportType(rows=rows, column_names=colnames)
 
     def _get_rows_colnames_via_index(self) -> Tuple[list[Row], list[str]]:
-        final_rows = []
-        colnames = []  # type: ignore[var-annotated]
-
         selectors: list[ColumnElement[Any]] = []
         groupers = []
         sorters: list[ColumnExpressionArgument[Any]] = []
@@ -235,10 +232,7 @@ class TaskCountReport(Report):
         rows, colnames = get_rows_fieldnames_from_select(
             self.dbsession, statement
         )
-        # noinspection PyTypeChecker
-        final_rows = rows
-
-        return final_rows, colnames
+        return rows, colnames
 
     def _get_rows_colnames_without_index(self) -> Tuple[list[Row], list[str]]:
         final_rows = []
@@ -346,8 +340,8 @@ class TaskCountReport(Report):
         self._sort_final_rows(final_rows, sorters)
         return final_rows, colnames
 
+    @staticmethod
     def _sort_final_rows(
-        self,
         final_rows: list[Row],
         sorters: list[Tuple[str, bool]],
     ) -> None:

@@ -941,28 +941,25 @@ def get_server_live_records(
         the 'NOW' era) for the specified device/table.
     """
     recs = []  # type: List[ServerRecord]
-    client_pk_clause = (
-        table.c[clientpk_name] if clientpk_name else literal(None)
-    )
+    c = table.c
+    client_pk_clause = c[clientpk_name] if clientpk_name else literal(None)
     query = (
         select(
             client_pk_clause,  # 0: client PK (or None)
-            table.c[FN_PK],  # 1: server PK
-            table.c[
-                CLIENT_DATE_FIELD
-            ],  # 2: when last modified (on the server)
-            table.c[MOVE_OFF_TABLET_FIELD],  # 3: move_off_tablet
-            table.c[FN_CURRENT],  # 4: current
-            table.c[FN_ADDITION_PENDING],  # 5
-            table.c[FN_REMOVAL_PENDING],  # 6
-            table.c[FN_PREDECESSOR_PK],  # 7
-            table.c[FN_SUCCESSOR_PK],  # 8
+            c[FN_PK],  # 1: server PK
+            c[CLIENT_DATE_FIELD],  # 2: when last modified (on the server)
+            c[MOVE_OFF_TABLET_FIELD],  # 3: move_off_tablet
+            c[FN_CURRENT],  # 4: current
+            c[FN_ADDITION_PENDING],  # 5
+            c[FN_REMOVAL_PENDING],  # 6
+            c[FN_PREDECESSOR_PK],  # 7
+            c[FN_SUCCESSOR_PK],  # 8
         )
-        .where(table.c[FN_DEVICE_ID] == device_id)
-        .where(table.c[FN_ERA] == ERA_NOW)
+        .where(c[FN_DEVICE_ID] == device_id)
+        .where(c[FN_ERA] == ERA_NOW)  # type: ignore[arg-type]
     )
     if current_only:
-        query = query.where(table.c[FN_CURRENT])
+        query = query.where(c[FN_CURRENT])
     rows = req.dbsession.execute(query)
     for row in rows:
         recs.append(

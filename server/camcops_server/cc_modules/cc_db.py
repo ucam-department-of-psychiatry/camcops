@@ -75,6 +75,7 @@ from camcops_server.cc_modules.cc_constants import (
 from camcops_server.cc_modules.cc_dataclasses import SummarySchemaInfo
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     camcops_column,
+    COLATTR_BLOB_RELATIONSHIP_ATTR_NAME,
     COLATTR_PERMITTED_VALUE_CHECKER,
     EraColType,
     gen_ancillary_relationships,
@@ -939,7 +940,9 @@ class GenericTabletRecordMixin(object):
         Generate all ``_current`` BLOBs owned by this object.
         """
         for id_attrname, column in gen_camcops_blob_columns(self):
-            relationship_attr = column.info.get("blob_relationship_attr_name")
+            relationship_attr = column.info.get(
+                COLATTR_BLOB_RELATIONSHIP_ATTR_NAME
+            )
             blob = getattr(self, relationship_attr)
             if blob is None:
                 continue

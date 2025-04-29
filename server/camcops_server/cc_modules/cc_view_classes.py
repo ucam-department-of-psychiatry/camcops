@@ -785,6 +785,7 @@ class FormWizardMixin(with_typehints(FormMixin, ProcessFormView)):  # type: igno
     # Success
     # -------------------------------------------------------------------------
 
+    # noinspection PyUnusedLocal
     def form_valid_response(
         self, form: "Form", appstruct: Dict[str, Any]
     ) -> Response:

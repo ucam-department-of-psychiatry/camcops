@@ -45,7 +45,8 @@ from typing import Any, List
 
 
 class NhsNumberProvider(BaseProvider):
-    def nhs_number(self) -> str:
+    @staticmethod
+    def nhs_number() -> str:
         return generate_random_nhs_number()  # type: ignore[return-value]
 
 

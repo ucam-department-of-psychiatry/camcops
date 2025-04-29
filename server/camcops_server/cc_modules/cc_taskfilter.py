@@ -258,7 +258,8 @@ class TaskFilter(Base):
         comment="Task filter: task complete?"
     )
 
-    def __init__(self) -> None:
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
         # We need to initialize these explicitly, because if we create an
         # instance via "x = TaskFilter()", they will be initialized to None,
         # without any recourse to our database to-and-fro conversion code for

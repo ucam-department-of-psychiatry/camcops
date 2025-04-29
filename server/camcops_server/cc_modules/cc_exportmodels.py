@@ -284,7 +284,6 @@ class ExportedTask(Base):
         task: "Task" = None,
         basetable: str = None,
         task_server_pk: int = None,
-        *args: Any,
         **kwargs: Any,
     ) -> None:
         """
@@ -299,7 +298,7 @@ class ExportedTask(Base):
         (However, we must also support a no-parameter constructor, not least
         for our :func:`merge_db` function.)
         """  # noqa
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
         self.recipient = recipient
         self.start_at_utc = get_now_utc_datetime()
         if task:
@@ -565,13 +564,13 @@ class ExportedTaskHL7Message(Base):
     exported_task = relationship(ExportedTask)
 
     def __init__(
-        self, exported_task: ExportedTask = None, *args: Any, **kwargs: Any
+        self, exported_task: ExportedTask = None, **kwargs: Any
     ) -> None:
         """
         Must support parameter-free construction, not least for
         :func:`merge_db`.
         """
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
         self.exported_task = exported_task
 
         self._hl7_msg = None  # type: Optional[hl7.Message]
@@ -877,11 +876,14 @@ class ExportedTaskFileGroup(Base):
 
     exported_task = relationship(ExportedTask)
 
-    def __init__(self, exported_task: ExportedTask = None) -> None:
+    def __init__(
+        self, exported_task: ExportedTask = None, **kwargs: Any
+    ) -> None:
         """
         Args:
             exported_task: :class:`ExportedTask` object
         """
+        super().__init__(**kwargs)
         self.exported_task = exported_task
 
     def export_file(
@@ -1098,11 +1100,14 @@ class ExportedTaskEmail(Base):
     exported_task = relationship(ExportedTask)
     email = relationship(Email)
 
-    def __init__(self, exported_task: ExportedTask = None) -> None:
+    def __init__(
+        self, exported_task: ExportedTask = None, **kwargs: Any
+    ) -> None:
         """
         Args:
             exported_task: :class:`ExportedTask` object
         """
+        super().__init__(**kwargs)
         self.exported_task = exported_task
 
     def export_task(self, req: "CamcopsRequest") -> None:
@@ -1213,11 +1218,12 @@ class ExportedTaskRedcap(Base):
         ),
     )
 
-    def __init__(self, exported_task: ExportedTask = None) -> None:
+    def __init__(self, exported_task: ExportedTask = None, **kwargs) -> None:
         """
         Args:
             exported_task: :class:`ExportedTask` object
         """
+        super().__init__(**kwargs)
         self.exported_task = exported_task
 
     def export_task(self, req: "CamcopsRequest") -> None:
@@ -1267,11 +1273,12 @@ class ExportedTaskFhir(Base):
         "ExportedTaskFhirEntry", back_populates="exported_task_fhir"
     )
 
-    def __init__(self, exported_task: ExportedTask = None) -> None:
+    def __init__(self, exported_task: ExportedTask = None, **kwargs) -> None:
         """
         Args:
             exported_task: :class:`ExportedTask` object
         """
+        super().__init__(**kwargs)
         self.exported_task = exported_task
 
     def export_task(self, req: "CamcopsRequest") -> None:
