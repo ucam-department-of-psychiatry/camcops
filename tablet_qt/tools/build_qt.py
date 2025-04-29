@@ -408,7 +408,7 @@ import shutil
 import subprocess
 import sys
 import traceback
-from typing import Dict, List, NoReturn, TextIO, Tuple, Union
+from typing import Any, cast, Dict, List, NoReturn, TextIO, Tuple
 
 try:
     import cardinal_pythonlib
@@ -735,12 +735,12 @@ QT_POSSIBLE_BUILD_TYPES = [
 DEBUG_SHOW_ENV = True
 
 
-def run(*args, **kwargs) -> Tuple[str, str]:
+def run(*args: Any, **kwargs: Any) -> Tuple[str, str]:
     """
     Uses our library command-running tool, but forces the debug_show_env
     parameter.
     """
-    return run2(*args, **kwargs, debug_show_env=DEBUG_SHOW_ENV)
+    return run2(*args, debug_show_env=DEBUG_SHOW_ENV, **kwargs)  # type: ignore[misc]  # noqa: E501
 
 
 # =============================================================================
@@ -833,7 +833,10 @@ class Platform(object):
     def __str__(self) -> str:
         return self.description
 
-    def __eq__(self, other: "Platform") -> bool:
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Platform):
+            return NotImplemented
+
         return (
             self.os == other.os
             and self.cpu == other.cpu
@@ -1441,7 +1444,7 @@ class Platform(object):
         Generates command arguments for "make" or a platform equivalent.
         """
         extra_args = extra_args or []  # type: List[str]
-        env = env if env is not None else os.environ
+        env = env if env is not None else cast(dict[str, str], os.environ)
         if self.windows:
             make = which_with_envpath(NMAKE, env)
             supports_parallel = False
@@ -1811,7 +1814,7 @@ class Config(object):
         # 2. Beware "plain" under macOS; complains about missing "HOME"
         # variable.
         if plain:
-            env = {}  # type: Dict[str, str]
+            env: dict[str, str] = {}
             keys = ["PATH"]
             # if BUILD_PLATFORM.windows:
             #     keys += ["APPDATA", "TEMP", "TMP"]
@@ -2543,16 +2546,16 @@ def is_tclsh_windows_compatible(tclsh: str = TCLSH) -> bool:
     incorrect = "."
     cmdargs = [tclsh]
     encoding = sys.getdefaultencoding()
-    subproc_run_kwargs = {
-        "stdout": subprocess.PIPE,
-        "check": True,
-        "encoding": encoding,
-        "input": tcl_cmd,
-    }
     # In Python 3.5, we deal with bytes objects and manually encode/decode.
     # In Python 3.6+, we can specify the encoding and deal with str objects.
     # Now we are always using Python 3.6+.
-    completed_proc = subprocess.run(cmdargs, **subproc_run_kwargs)
+    completed_proc = subprocess.run(
+        cmdargs,
+        stdout=subprocess.PIPE,
+        check=True,
+        encoding=encoding,
+        input=tcl_cmd,
+    )
     # noinspection PyTypeChecker
     result = completed_proc.stdout  # type: str
     if result == correct:
@@ -2880,7 +2883,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     # hard-code the "-lcrypto" (in that example, in its test suite as it
     # compiles conftest.c). So we're best off using the Linux notation but
     # making additional copies of the libraries:
-    shadow_targets = []  # type: List[Union[str, PurePath]]
+    shadow_targets: list[str] = []
     libprefix = "lib"
     if BUILD_PLATFORM.windows:
         for t in main_targets:
@@ -2897,7 +2900,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
             shadow_target = PurePath(
                 path.parent / f"{path.stem}_3"
             ).with_suffix(path.suffix)
-            shadow_targets.append(shadow_target)
+            shadow_targets.append(str(shadow_target))
 
     targets = main_targets + shadow_targets
     if not cfg.force_openssl and all(isfile(x) for x in targets):
@@ -3207,7 +3210,7 @@ def init_repository(cfg: Config) -> None:
     run(init_args)
 
 
-def local_changes_present(cfg) -> bool:
+def local_changes_present(cfg: "Config") -> bool:
     chdir(join(cfg.qt_src_gitdir))
     run([GIT, "update-index", "--refresh"])
     try:
@@ -3864,7 +3867,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
             )
             if not is_tclsh_windows_compatible():
                 raise RuntimeError("Incompatible TCL interpreter; stopping")
-            nmake = which_with_envpath(NMAKE, env)
+            nmake = cast(dict[str, str], which_with_envpath(NMAKE, env))
             run(
                 [
                     nmake,
@@ -4253,7 +4256,7 @@ def build_eigen(cfg: Config) -> None:
 # =============================================================================
 
 
-def master_builder(args) -> None:
+def master_builder(args: argparse.Namespace) -> None:
     """
     Do the work!
     """
