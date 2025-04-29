@@ -3460,14 +3460,13 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
             # "-android-toolchain-version",
             # cfg.android_toolchain_version,
             "--disable-rpath",  # 2019-06-16; https://wiki.qt.io/Android
-            # MAY POSSIBLY NEED:
-            # (https://wiki.qt.io/Qt5_platform_configurations,
-            # https://wiki.qt.io/Android)
-            # "-skip", "qttools",
-            # "-skip", "qttranslations",
-            # "-skip", "qtwebkit",
-            # "-skip", "qtwebkit-examples",
-            # we always skip qtserialport (see QT_CONFIG_COMMON_ARGS)
+            # qttools will try to build assistant and this requires
+            # qhelpgenerator on the host. qhelpgenerator is not built because
+            # SQLite is replaced with our own SQLCipher
+            "-skip",
+            "qttools",
+            "-skip",
+            "qttranslations",  # Requires qttools so skip as well
         ]
         qt_config_args += ["-xplatform", "android-clang"]
         # log.critical(sysroot)
