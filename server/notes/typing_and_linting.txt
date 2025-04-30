@@ -1,0 +1,142 @@
+===============================================================================
+Linting notes
+===============================================================================
+
+-------------------------------------------------------------------------------
+flake8
+-------------------------------------------------------------------------------
+
+Flake8 rules: https://www.flake8rules.com/
+
+Suppress with "# noqa: ..." comments at the end of a line.
+You can do a generic "# noqa" but we should avoid that.
+
+COMMON ONES TO SUPPRESS:
+
+- Spaces before commas
+  # noqa: E203
+  ... as Flake8 may disagree with black and PEP8
+  See https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html#slices
+
+- Import not at top of file
+  # noqa: E402
+
+- Line too long
+  # noqa: E501
+
+- Boolean comparison with "==" not "is" etc. -- SQLAlchemy may need this:
+  # noqa: E712
+
+- Import not used
+  # noqa: F401
+
+- "from module import *" used
+  # noqa: F403
+
+- Local variable assigned to but not used
+  # noqa: F841
+
+
+-------------------------------------------------------------------------------
+PyCharm
+-------------------------------------------------------------------------------
+
+Suppression marks on the line preceding the offending line (or function).
+Can combine several, e.g.:
+    # noinspection PyProtectedMember,PyUnresolvedReferences
+
+See:
+- https://gist.github.com/pylover/7870c235867cf22817ac5b096defb768
+- https://www.jetbrains.com/help/pycharm/disabling-and-enabling-inspections.html#comments-ref
+
+COMMON ONES:
+
+- Must implement all abstract methods
+# noinspection PyAbstractClass
+
+- "try/except" without qualification
+# noinspection PyBroadException
+
+- Method may be stati
+# noinspection PyMethodMayBeStatic
+
+- "Usually first parameter of a method is named self" (e.g. for @classproperty)
+# noinspection PyMethodParameters
+
+- Turn off PEP8 checking
+# noinspection PyPep8
+
+- Allow PEP8-incompatible naming
+# noinspection PyPep8Naming
+
+- Access to a protected member of a class/module
+# noinspection PyProtectedMember
+
+- Shadowing a built-in name
+# noinspection PyShadowingBuiltins
+
+- Turn off type checker (but: see alternatives)
+# noinspection PyTypeChecker
+
+- Unresolved reference
+# noinspection PyUnresolvedReferences
+
+- Parameter not used
+# noinspection PyUnusedLocal
+
+
+===============================================================================
+Typing notes
+===============================================================================
+
+See PEP484: https://peps.python.org/pep-0484/
+
+-------------------------------------------------------------------------------
+General
+-------------------------------------------------------------------------------
+
+- OLD STYLE: x = None  # type: Optional[int]
+- NEW STYLE: x: Optional[int] = None
+
+-------------------------------------------------------------------------------
+More complex types
+-------------------------------------------------------------------------------
+
+- def func(a: int, b: bool) -> str
+  Callable[[int, bool], str)
+
+- x = SomeClass()
+  x is of type: SomeClass
+  type(x), the class, is itself of type: Type[SomeClass]
+
+-------------------------------------------------------------------------------
+mypy
+-------------------------------------------------------------------------------
+
+See
+- Error codes: https://mypy.readthedocs.io/en/stable/error_codes.html
+
+  - https://mypy.readthedocs.io/en/stable/error_code_list.html#error-code-list
+  - https://mypy.readthedocs.io/en/stable/error_code_list2.html#error-codes-optional
+
+- Suppression: https://mypy.readthedocs.io/en/stable/common_issues.html#spurious-errors-and-locally-silencing-the-checker
+
+Suppressions (at the end of the line):
+
+- Check argument types for function calls.
+  # type: ignore[arg-type]
+
+- Check types in assignment statement.
+  # type: ignore[assignment]
+
+- Check that attribute exists
+  # type: ignore[attr-defined]
+
+- Miscellaneous checks
+  # type: ignore[misc]
+
+- Check each name is defined once.
+  # type: ignore[no-redef]
+
+- Require annotation if variable type is unclear
+  # type: ignore[var-annotated]
