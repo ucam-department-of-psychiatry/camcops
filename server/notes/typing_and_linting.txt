@@ -89,25 +89,98 @@ COMMON ONES:
 Typing notes
 ===============================================================================
 
-See PEP484: https://peps.python.org/pep-0484/
+Some of the evolution of type checking in Python:
+
+- PEP 484: https://peps.python.org/pep-0484/; includes:
+
+    def func(a: str) -> str
+    vec = []  # type: List[float]
+
+- PEP 526: https://peps.python.org/pep-0526/; syntax for variable annotations,
+  i.e.
+
+    a: int = None
+    b: List[int] = []
+
+  These are stored in an __annotations__ attribute on functions, classes, and
+  modules.
+
+- PEP 563: https://peps.python.org/pep-0563/; postponed evaluation of
+  annotations, using "stringized annotations", activated via
+  "from __future__ import annotations".
+
+- PEP 649: https://peps.python.org/pep-0649/; deferred evaluation of
+  annotations using descriptors, supporting a wide variety of static and
+  runtime annotation use cases. Essentially, this removes the need to use
+  string annotations.
+
 
 -------------------------------------------------------------------------------
-General
+Type annotation of variables
 -------------------------------------------------------------------------------
 
 - OLD STYLE: x = None  # type: Optional[int]
 - NEW STYLE: x: Optional[int] = None
 
+
+-------------------------------------------------------------------------------
+Need for imports
+-------------------------------------------------------------------------------
+
+(a) Always:
+
+    from somewhere import Something
+
+(b) Conditionally:
+
+    from typing import TYPE_CHECKING
+    if TYPE_CHECKING:
+        from somewhere import Something
+
+Conditional imports only work when:
+
+- the type name is in quotes, e.g. def fun(a: "ExpensiveType")
+
+or
+
+- the type name is in a comment, e.g. x = blah()  # type: ExpensiveType
+
+or
+
+- annotation evaluation is postponed per PEP 563
+  (https://peps.python.org/pep-0563/), or PEP 649
+  (https://peps.python.org/pep-0649/), by using "from __future__ import
+  annotations" in current (pre-4.0) versions of Python (e.g.
+  https://stackoverflow.com/questions/61544854/from-future-import-annotations).
+
+But note also that annotations can be RUNTIME as well as STATIC. SQLAlchemy 2
+uses runtime annotations, e.g. "somecol: Mapped[int] = mapped_column()" (see
+https://docs.sqlalchemy.org/en/20/orm/declarative_tables.html). And so do
+Python dataclasses.
+
+
 -------------------------------------------------------------------------------
 More complex types
 -------------------------------------------------------------------------------
 
-- def func(a: int, b: bool) -> str
-  Callable[[int, bool], str)
+- If we have "def func(a: int, b: bool) -> str", then func is of type:
+  Callable[[int, bool], str]
 
-- x = SomeClass()
-  x is of type: SomeClass
-  type(x), the class, is itself of type: Type[SomeClass]
+- If x = SomeClass(), then:
+
+  - x is of type: SomeClass
+  - type(x), the class, is itself of type: Type[SomeClass]
+
+- A generic class is of type Type, i.e. def func(cls: Type).
+
+- The tuple (1, ) is of type Tuple[int].
+  The tuple (1, 2) is of type Tuple[int, int].
+  The tuple (1, 2, 3, ...) is of type Tuple[int, ...].
+
+- If a function type is a generator, its return type is Generator[YieldType,
+  SendType, ReturnType]. If something just yields (e.g.) ints, its type is
+  Generator[int] or Generator[int, None, None]; you can also use Iterable[int].
+
 
 -------------------------------------------------------------------------------
 mypy
