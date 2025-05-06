@@ -57,7 +57,7 @@ COMMON ONES:
 - "try/except" without qualification
 # noinspection PyBroadException
 
-- Method may be stati
+- Method may be static
 # noinspection PyMethodMayBeStatic
 
 - "Usually first parameter of a method is named self" (e.g. for @classproperty)
