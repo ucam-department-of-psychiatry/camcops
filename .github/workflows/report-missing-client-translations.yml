@@ -10,12 +10,13 @@ on:
             - .github/workflows/report-missing-client-translations.yml
             - 'tablet_qt/**.cpp'
             - 'tablet_qt/**.h'
+            - 'tablet_qt/qt_version.txt'
             - tablet_qt/tools/build_client_translations.py
             - tablet_qt/translations/*.ts
 
 env:
     # Keep in sync with tablet_qt/qt_version.txt. We check this further down.
-    QT_VERSION: 6.5.3
+    QT_VERSION: 6.5.5
 jobs:
     report-missing-client-translations:
         runs-on: ubuntu-22.04
@@ -24,7 +25,7 @@ jobs:
             - name: Qt version check
               run: |
                   set -euxo pipefail
-                  test "${{ env.QT_VERSION }}" == "$(cat ${GITHUB_WORKSPACE}/tablet_qt/qt_version.txt)"
+                  test "${{ env.QT_VERSION }}" == "$(sed 's/[a-z-]//g' ${GITHUB_WORKSPACE}/tablet_qt/qt_version.txt)"
             - name: Install Qt
               uses: jurplel/install-qt-action@v3
               with:
