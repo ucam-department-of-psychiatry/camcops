@@ -234,12 +234,13 @@ void HelpMenu::softwareVersions() const
 void HelpMenu::aboutQt()
 {
     // Setting the parent widget will inherit the style sheet and having a style
-    // sheet means that QMessageBox will not display a native dialog. This is the
-    // intended behaviour since Qt 6.5.5.
+    // sheet means that QMessageBox will not display a native dialog. This is
+    // the intended behaviour since Qt 6.5.5.
     // However, the non-native dialog looks a mess on iPad, resulting in a blank
     // dialog and no means to dismiss it.
     // https://bugreports.qt.io/browse/QTBUG-115832 original fix
-    // https://bugreports.qt.io/browse/QTBUG-120054 change making nullptr necessary
+    // https://bugreports.qt.io/browse/QTBUG-120054 change making nullptr
+    // necessary
     QMessageBox::aboutQt(nullptr);
 }
 
