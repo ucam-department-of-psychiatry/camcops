@@ -68,7 +68,7 @@ INSTALL_REQUIRES = [
     # The GitHub syntax (for development only) is:
     # "libraryname @ git+https://github.com/owner/reponame@commitsignature#egg==libraryname-version"  # noqa: E501
     "alembic==1.4.2",  # database migrations
-    "asteval==0.9.25",  # safe-ish alternative to eval
+    "asteval==1.0.6",  # safe-ish alternative to eval
     "cardinal_pythonlib==2.0.3",  # RNC libraries
     "celery==5.3.6",  # background tasks
     "colander==1.7.0",  # serialization/deserialization from web forms
