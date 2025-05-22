@@ -10,38 +10,41 @@ on:
             - .github/workflows/report-missing-client-translations.yml
             - 'tablet_qt/**.cpp'
             - 'tablet_qt/**.h'
-            - 'tablet_qt/qt_version.txt'
             - tablet_qt/tools/build_client_translations.py
             - tablet_qt/translations/*.ts
 
-env:
-    # Keep in sync with tablet_qt/qt_version.txt. We check this further down.
-    QT_VERSION: 6.5.5
 jobs:
     report-missing-client-translations:
         runs-on: ubuntu-22.04
         steps:
             - uses: actions/checkout@v4
-            - name: Qt version check
-              run: |
-                  set -euxo pipefail
-                  test "${{ env.QT_VERSION }}" == "$(sed 's/[a-z-]//g' ${GITHUB_WORKSPACE}/tablet_qt/qt_version.txt)"
-            - name: Install Qt
-              uses: jurplel/install-qt-action@v3
+            - name: Download Qt
+              uses: dsaltares/fetch-gh-release-asset@1.1.2
               with:
-                  aqtversion: "==3.1.*"
-                  version: ${{ env.QT_VERSION }}
-                  host: linux
-                  target: desktop
-                  arch: gcc_64
-                  archives: "qtbase qtdeclarative qttools qttranslations icu"
+                  # Has to download to GITHUB_WORKSPACE
+                  file: qt.tgz
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  # The release ID is set by the build-qt.yml action
+                  # but the tagging is broken somehow. This is brittle
+                  # because editing the release on GitHub will change
+                  # the tag (which isn't a proper tag)
+                  version: 'tags/untagged-de3656cacfe8d9840ad0'
+            - name: Install Qt
+              run: |
+                  set -euo pipefail
+                  mv ${GITHUB_WORKSPACE}/qt.tgz ${HOME}
+                  cd ${HOME}
+                  ls
+                  # Remove home/runner from paths
+                  tar -xvzf qt.tgz --strip-components=2
+                  ls
+                  ls qt_local_build
             - uses: actions/setup-python@v5
               with:
                   python-version: "3.10"
             - name: Report missing client translations
               run: |
-                  set -euxo pipefail
-                  ls ${Qt6_DIR}/lib
+                  set -euo pipefail
                   ${GITHUB_WORKSPACE}/.github/scripts/python_setup.sh
-
-                  ${GITHUB_WORKSPACE}/.github/scripts/report_missing_client_translations.sh
+                  QT_BIN_DIR=${HOME}/qt_local_build/qt_linux_x86_64_install/bin
+                  ${GITHUB_WORKSPACE}/.github/scripts/report_missing_client_translations.sh ${GITHUB_WORKSPACE} ${QT_BIN_DIR}
