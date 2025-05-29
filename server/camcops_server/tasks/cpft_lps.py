@@ -176,7 +176,7 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
         return [
             CtvInfo(
-                heading=ws.webify(self.wxstring(req, "f_referral_reason_t")),
+                heading=self.wxstring(req, "f_referral_reason"),
                 content=self.referral_reason,
             )
         ]
@@ -759,23 +759,23 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         )
         return [
             CtvInfo(
-                heading=ws.webify(self.wxstring(req, "discharge_reason")),
+                heading=self.wxstring(req, "discharge_reason"),
                 content=self.get_discharge_reason(req),
             ),
             CtvInfo(
-                heading=ws.webify(self.wxstring(req, "referral_reason_t")),
+                heading=self.wxstring(req, "referral_reason_t"),
                 content=", ".join(self.get_referral_reasons(req)),
             ),
             CtvInfo(
-                heading=ws.webify(self.wxstring(req, "diagnoses_t")),
+                heading=self.wxstring(req, "diagnoses_t"),
                 content=", ".join(diagnoses),
             ),
             CtvInfo(
-                heading=ws.webify(self.wxstring(req, "management_t")),
+                heading=self.wxstring(req, "management_t"),
                 content=", ".join(self.get_managements(req)),
             ),
             CtvInfo(
-                heading=ws.webify(self.wxstring(req, "outcome_t")),
+                heading=self.wxstring(req, "outcome_t"),
                 content=self.outcome,
             ),
         ]
