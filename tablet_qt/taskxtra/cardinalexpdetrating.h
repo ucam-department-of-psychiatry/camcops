@@ -22,14 +22,15 @@
 #include <QRectF>
 #include <QString>
 
-
 class CardinalExpDetRating
 {
 public:
     CardinalExpDetRating(int rating, bool detection_response_on_right);
     CardinalExpDetRating();  // so it can live in a QVector
+
 protected:
     QRectF getRatingButtonRect(int x, int n) const;
+
 public:
     int rating;
     QRectF rect;

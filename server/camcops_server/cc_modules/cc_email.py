@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_email.py
 
@@ -323,7 +321,7 @@ class Email(Base):
             (
                 f"To: {self.to}" if self.to else "",
                 f"Cc: {self.cc}" if self.cc else "",
-                f"Bcc: {self.bcc}" if self.bcc else "",  # noqa
+                f"Bcc: {self.bcc}" if self.bcc else "",
                 f"Subject: {self.subject}" if self.subject else "",
             ),
         )

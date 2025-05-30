@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 r"""
 camcops_server/cc_modules/cc_snomed.py
 
@@ -727,9 +725,9 @@ class SnomedLookup(object):
     Variable names are designed for clear code. Value strings are designed for
     clear XML that matches SNOMED-CT, in the format TASK_CONCEPTTYPE_NAME.
 
-    """  # noqa
+    """
 
-    # https://snomedbrowser.com/Codes/Details/XXX  # noqa
+    # https://snomedbrowser.com/Codes/Details/XXX
 
     # -------------------------------------------------------------------------
     # SNOMED-CT core concepts
@@ -1640,10 +1638,10 @@ def get_icd9cm_icd10_snomed_concepts_from_athena(
     )
     snomed_concepts_icd9 = (
         OrderedDict()
-    )  # type: Dict[str, List[SnomedConcept]]  # noqa
+    )  # type: Dict[str, List[SnomedConcept]]
     snomed_concepts_icd10 = (
         OrderedDict()
-    )  # type: Dict[str, List[SnomedConcept]]  # noqa
+    )  # type: Dict[str, List[SnomedConcept]]
     for icd in athena_icd_concepts:
         target = (
             snomed_concepts_icd9

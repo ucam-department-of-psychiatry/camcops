@@ -22,27 +22,30 @@
 #include <QColor>
 #include <QWidget>
 
-
 class FixedAreaHfwTestWidget : public QWidget
 {
     // Test widget that occupies a fixed area. It adjusts its height according
     // to its width, etc.
 
     Q_OBJECT
+
 public:
-    FixedAreaHfwTestWidget(int area = 500 * 100,
-                           int preferred_width = 1000,
-                           const QSize& min_size = QSize(10, 10),
-                           const QColor& background_colour = QColor(0, 0, 100),
-                           int border_thickness = 0,
-                           const QColor& border_colour = QColor(255, 0, 0),
-                           const QColor& text_colour = QColor(255, 255, 255),
-                           QWidget* parent = nullptr);
+    FixedAreaHfwTestWidget(
+        int area = 500 * 100,
+        int preferred_width = 1000,
+        const QSize& min_size = QSize(10, 10),
+        const QColor& background_colour = QColor(0, 0, 100),
+        int border_thickness = 0,
+        const QColor& border_colour = QColor(255, 0, 0),
+        const QColor& text_colour = QColor(255, 255, 255),
+        QWidget* parent = nullptr
+    );
     virtual QSize sizeHint() const override;
     virtual QSize minimumSizeHint() const override;
     virtual bool hasHeightForWidth() const override;
     virtual int heightForWidth(int width) const override;
     virtual void paintEvent(QPaintEvent* event) override;
+
 protected:
     int m_area;
     int m_preferred_width;

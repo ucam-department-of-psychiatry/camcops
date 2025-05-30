@@ -19,11 +19,12 @@
 */
 
 #include "whereconditions.h"
+
 #include <QStringList>
+
 #include "db/dbfunc.h"
 #include "db/sqlargs.h"
 #include "lib/convert.h"
-
 
 void WhereConditions::add(const QString& column, const QVariant& value)
 {
@@ -32,21 +33,19 @@ void WhereConditions::add(const QString& column, const QVariant& value)
     m_values.append(value);
 }
 
-
-void WhereConditions::add(const QString& column, const QString& op,
-                          const QVariant& value)
+void WhereConditions::add(
+    const QString& column, const QString& op, const QVariant& value
+)
 {
     m_columns.append(column);
     m_operators.append(op);
     m_values.append(value);
 }
 
-
 void WhereConditions::set(const SqlArgs& sql_args)
 {
     m_raw_sqlargs = sql_args;
 }
-
 
 void WhereConditions::appendWhereClauseTo(SqlArgs& sqlargs_altered) const
 {
@@ -62,14 +61,15 @@ void WhereConditions::appendWhereClauseTo(SqlArgs& sqlargs_altered) const
         Q_ASSERT(n == m_operators.size());
         Q_ASSERT(n == m_values.size());
         for (int i = 0; i < n; ++i) {
-            whereclauses.append(dbfunc::delimit(m_columns.at(i)) +
-                                " " + m_operators.at(i) + " ?");
+            whereclauses.append(
+                dbfunc::delimit(m_columns.at(i)) + " " + m_operators.at(i)
+                + " ?"
+            );
             sqlargs_altered.args.append(m_values.at(i));
         }
         sqlargs_altered.sql += " WHERE " + whereclauses.join(" AND ");
     }
 }
-
 
 QString WhereConditions::whereLiteralForDebuggingOnly() const
 {
@@ -84,14 +84,14 @@ QString WhereConditions::whereLiteralForDebuggingOnly() const
         Q_ASSERT(n == m_operators.size());
         Q_ASSERT(n == m_values.size());
         for (int i = 0; i < n; ++i) {
-            whereclauses.append(dbfunc::delimit(m_columns.at(i)) +
-                                " " + m_operators.at(i) + " " +
-                                convert::toSqlLiteral(m_values.at(i)));
+            whereclauses.append(
+                dbfunc::delimit(m_columns.at(i)) + " " + m_operators.at(i)
+                + " " + convert::toSqlLiteral(m_values.at(i))
+            );
         }
         return "WHERE " + whereclauses.join(" AND ");
     }
 }
-
 
 // ========================================================================
 // For friends

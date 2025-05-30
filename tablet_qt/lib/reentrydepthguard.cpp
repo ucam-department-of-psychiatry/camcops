@@ -26,12 +26,10 @@ ReentryDepthGuard::ReentryDepthGuard(int& counter) :
     ++m_counter;
 }
 
-
 ReentryDepthGuard::~ReentryDepthGuard()
 {
     --m_counter;
 }
-
 
 int ReentryDepthGuard::depth() const
 {

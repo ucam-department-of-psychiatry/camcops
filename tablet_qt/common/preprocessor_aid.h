@@ -42,7 +42,8 @@
 // GCC defines __GNUC__.
 // Visual C++ defines _MSC_VER.
 
-#if defined __clang__  // NB defined in Qt Creator; put this first for that reason
+#if defined __clang__
+    // NB defined in Qt Creator; put this first for that reason
     #define COMPILER_IS_CLANG
     #if __clang_major__ >= 10
         #define CLANG_AT_LEAST_10
@@ -125,12 +126,12 @@
 
 #ifdef CLANG_AT_LEAST_10
     #define CLANG_HAS_WARNING_IMPLICITLY_DECLARED_COPY_DEPRECATED
-    // Core Qt code triggers this warning. So we won't push/pop; we'd have
-    // to guard around all sorts of #include directives. We disable this
-    // globally for now. (Can revisit when Qt fix their code.)
-    // Known Qt problem: e.g. https://bugreports.qt.io/browse/QTBUG-75210.
-    // HOWEVER, best to do the disabling in camcops.pro, so this flag is
-    // currently ignored.
+// Core Qt code triggers this warning. So we won't push/pop; we'd have
+// to guard around all sorts of #include directives. We disable this
+// globally for now. (Can revisit when Qt fix their code.)
+// Known Qt problem: e.g. https://bugreports.qt.io/browse/QTBUG-75210.
+// HOWEVER, best to do the disabling in camcops.pro, so this flag is
+// currently ignored.
 #endif
 
 
@@ -158,8 +159,8 @@
     #if QT_VERSION == ((5 << 16) | (12 << 8) | (0))
         // Qt version 5.12.0
         #define QT_WORKAROUND_BUG_68889
-        // See https://bugreports.qt.io/browse/QTBUG-68889
-        // Only seems to affect Android builds (Ubuntu, Arch Linux OK).
+    // See https://bugreports.qt.io/browse/QTBUG-68889
+    // Only seems to affect Android builds (Ubuntu, Arch Linux OK).
     #endif
 #endif
 
@@ -175,7 +176,7 @@
 // - https://docs.microsoft.com/en-us/cpp/cpp/dllexport-dllimport?view=vs-2019
 
 #if defined COMPILER_IS_CLANG || defined COMPILER_IS_GCC
-    #define VISIBLE_SYMBOL __attribute__ ((visibility ("default")))
+    #define VISIBLE_SYMBOL __attribute__((visibility("default")))
 #elif defined COMPILER_IS_VISUAL_CPP
     #define VISIBLE_SYMBOL __declspec(dllexport)
 #else

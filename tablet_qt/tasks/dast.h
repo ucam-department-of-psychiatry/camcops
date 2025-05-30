@@ -20,6 +20,7 @@
 
 #pragma once
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -28,20 +29,28 @@ class TaskFactory;
 
 void initializeDast(TaskFactory& factory);
 
-
 class Dast : public Task
 {
     Q_OBJECT
+
 public:
-    Dast(CamcopsApp& app, DatabaseManager& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
+    Dast(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    virtual bool prohibitsCommercial() const override { return true; }
+
+    virtual bool prohibitsCommercial() const override
+    {
+        return true;
+    }
+
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -52,9 +61,11 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
+
 protected:
     int totalScore() const;
     int score(const QVariant& value, int question) const;
+
 public:
     static const QString DAST_TABLENAME;
 };

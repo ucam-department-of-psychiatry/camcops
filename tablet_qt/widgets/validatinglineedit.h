@@ -21,19 +21,27 @@
 #pragma once
 #include <QLabel>
 #include <QLineEdit>
-#include <QVBoxLayout>
 #include <QValidator>
+#include <QVBoxLayout>
 
 class ValidatingLineEdit : public QVBoxLayout
 {
     // One-line text editor with validation and visual feedback
 
     Q_OBJECT
+
 public:
-    ValidatingLineEdit(QValidator* validator, QWidget* parent = nullptr,
-                       const QString& text = "");
-    ValidatingLineEdit(QValidator* validator, const QString& text = "")
-        : ValidatingLineEdit(validator, nullptr, text) {}
+    ValidatingLineEdit(
+        QValidator* validator,
+        QWidget* parent = nullptr,
+        const QString& text = ""
+    );
+
+    ValidatingLineEdit(QValidator* validator, const QString& text = "") :
+        ValidatingLineEdit(validator, nullptr, text)
+    {
+    }
+
     void textChanged();
     QValidator::State getState();
     bool isValid();

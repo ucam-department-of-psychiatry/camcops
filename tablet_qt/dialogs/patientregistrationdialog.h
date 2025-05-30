@@ -26,7 +26,6 @@ class QDialogButtonBox;
 class QLabel;
 class ValidatingLineEdit;
 
-
 class PatientRegistrationDialog : public QDialog
 {
     // Dialogue to select mode of operation.
@@ -34,13 +33,17 @@ class PatientRegistrationDialog : public QDialog
     // patientProquint() if it succeeds.
 
     Q_OBJECT
+
 public:
-    PatientRegistrationDialog(QWidget* parent = nullptr,
-                              const QUrl& server_url = QUrl(),
-                              const QString& patient_proquint = "");
+    PatientRegistrationDialog(
+        QWidget* parent = nullptr,
+        const QUrl& server_url = QUrl(),
+        const QString& patient_proquint = ""
+    );
     QString patientProquint() const;
     QString serverUrlAsString() const;
     QUrl serverUrl() const;
+
 protected:
     QPointer<QDialogButtonBox> m_buttonbox;
     QPointer<ValidatingLineEdit> m_editor_patient_proquint;

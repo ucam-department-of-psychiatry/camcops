@@ -330,6 +330,9 @@ the CamCOPS general images:
       - Modified from
         https://commons.wikimedia.org/wiki/File:Magnifying_glass_icon.svg (by
         Derferman; public domain).
+    * - neurodiversity.png
+      - From https://commons.wikimedia.org/wiki/File:Neurodiversity_Symbol.svg
+        (by Mrmw; public domain).
     * - next.png
       - |denovo|
     * - ok.png

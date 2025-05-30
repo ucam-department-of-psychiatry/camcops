@@ -19,6 +19,7 @@
 */
 
 #include "khandakermojomedicationtherapy.h"
+
 #include "common/textconst.h"
 #include "db/ancillaryfunc.h"
 #include "db/fieldref.h"
@@ -39,27 +40,27 @@
 #include "taskxtra/khandakermojomedicationitem.h"
 #include "taskxtra/khandakermojotherapyitem.h"
 
-const QString KhandakerMojoMedicationTherapy::KHANDAKERMOJOMEDICATIONTHERAPY_TABLENAME(
-    "khandaker_mojo_medicationtherapy");
+const QString
+    KhandakerMojoMedicationTherapy::KHANDAKERMOJOMEDICATIONTHERAPY_TABLENAME(
+        "khandaker_mojo_medicationtherapy"
+    );
 
 const QString Q_XML_PREFIX = "q_";
-
-
 
 void initializeKhandakerMojoMedicationTherapy(TaskFactory& factory)
 {
     static TaskRegistrar<KhandakerMojoMedicationTherapy> registered(factory);
 }
 
-
 KhandakerMojoMedicationTherapy::KhandakerMojoMedicationTherapy(
-        CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, KHANDAKERMOJOMEDICATIONTHERAPY_TABLENAME,
-         false, false, false)  // ... anon, clin, resp
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
+    Task(
+        app, db, KHANDAKERMOJOMEDICATIONTHERAPY_TABLENAME, false, false, false
+    )  // ... anon, clin, resp
 {
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -70,24 +71,20 @@ QString KhandakerMojoMedicationTherapy::shortname() const
     return "Khandaker_MOJO_MedicationTherapy";
 }
 
-
 QString KhandakerMojoMedicationTherapy::longname() const
 {
     return tr("Khandaker GM — MOJO — Medications and therapies");
 }
-
 
 QString KhandakerMojoMedicationTherapy::description() const
 {
     return tr("Record of medications and talking therapies for MOJO study.");
 }
 
-
 QString KhandakerMojoMedicationTherapy::infoFilenameStem() const
 {
     return "khandaker_mojo";
 }
-
 
 // ============================================================================
 // Ancillary management
@@ -97,35 +94,49 @@ QStringList KhandakerMojoMedicationTherapy::ancillaryTables() const
 {
     return QStringList{
         KhandakerMojoMedicationItem::KHANDAKERMOJOMEDICATIONITEM_TABLENAME,
-        KhandakerMojoTherapyItem::KHANDAKER2MOJOTHERAPYITEM_TABLENAME
-    };
+        KhandakerMojoTherapyItem::KHANDAKER2MOJOTHERAPYITEM_TABLENAME};
 }
-
 
 QString KhandakerMojoMedicationTherapy::ancillaryTableFKToTaskFieldname() const
 {
-    Q_ASSERT(KhandakerMojoTherapyItem::FN_FK_NAME == KhandakerMojoMedicationItem::FN_FK_NAME);
+    Q_ASSERT(
+        KhandakerMojoTherapyItem::FN_FK_NAME
+        == KhandakerMojoMedicationItem::FN_FK_NAME
+    );
 
     return KhandakerMojoMedicationItem::FN_FK_NAME;
 }
 
 void KhandakerMojoMedicationTherapy::loadAllAncillary(const int pk)
 {
-    const OrderBy medication_order_by{{KhandakerMojoMedicationItem::FN_SEQNUM, true}};
-    ancillaryfunc::loadAncillary<KhandakerMojoMedicationItem,
-                                 KhandakerMojoMedicationItemPtr>(
-                m_medications, m_app, m_db,
-                KhandakerMojoMedicationItem::FN_FK_NAME, medication_order_by, pk);
+    const OrderBy medication_order_by{
+        {KhandakerMojoMedicationItem::FN_SEQNUM, true}};
+    ancillaryfunc::loadAncillary<
+        KhandakerMojoMedicationItem,
+        KhandakerMojoMedicationItemPtr>(
+        m_medications,
+        m_app,
+        m_db,
+        KhandakerMojoMedicationItem::FN_FK_NAME,
+        medication_order_by,
+        pk
+    );
 
-    const OrderBy therapy_order_by{{KhandakerMojoTherapyItem::FN_SEQNUM, true}};
-    ancillaryfunc::loadAncillary<KhandakerMojoTherapyItem,
-                                 KhandakerMojoTherapyItemPtr>(
-                m_therapies, m_app, m_db,
-                KhandakerMojoTherapyItem::FN_FK_NAME, therapy_order_by, pk);
+    const OrderBy therapy_order_by{
+        {KhandakerMojoTherapyItem::FN_SEQNUM, true}};
+    ancillaryfunc::
+        loadAncillary<KhandakerMojoTherapyItem, KhandakerMojoTherapyItemPtr>(
+            m_therapies,
+            m_app,
+            m_db,
+            KhandakerMojoTherapyItem::FN_FK_NAME,
+            therapy_order_by,
+            pk
+        );
 }
 
-
-QVector<DatabaseObjectPtr> KhandakerMojoMedicationTherapy::getAncillarySpecimens() const
+QVector<DatabaseObjectPtr>
+    KhandakerMojoMedicationTherapy::getAncillarySpecimens() const
 {
     return QVector<DatabaseObjectPtr>{
         DatabaseObjectPtr(new KhandakerMojoMedicationItem(m_app, m_db)),
@@ -133,8 +144,8 @@ QVector<DatabaseObjectPtr> KhandakerMojoMedicationTherapy::getAncillarySpecimens
     };
 }
 
-
-QVector<DatabaseObjectPtr> KhandakerMojoMedicationTherapy::getAllAncillary() const
+QVector<DatabaseObjectPtr> KhandakerMojoMedicationTherapy::getAllAncillary(
+) const
 {
     QVector<DatabaseObjectPtr> ancillaries;
     for (const KhandakerMojoMedicationItemPtr& medication : m_medications) {
@@ -145,8 +156,6 @@ QVector<DatabaseObjectPtr> KhandakerMojoMedicationTherapy::getAllAncillary() con
     }
     return ancillaries;
 }
-
-
 
 // ============================================================================
 // Instance info
@@ -173,24 +182,22 @@ bool KhandakerMojoMedicationTherapy::isComplete() const
     return true;
 }
 
-
 QStringList KhandakerMojoMedicationTherapy::summary() const
 {
     return QStringList{
-        QString("%1 %2").arg(xstring("number_of_medications")).arg(
-            m_medications.size()),
-        QString("%1 %2").arg(xstring("number_of_therapies")).arg(
-                m_therapies.size())
-    };
+        QString("%1 %2")
+            .arg(xstring("number_of_medications"))
+            .arg(m_medications.size()),
+        QString("%1 %2")
+            .arg(xstring("number_of_therapies"))
+            .arg(m_therapies.size())};
 }
-
 
 QStringList KhandakerMojoMedicationTherapy::detail() const
 {
-    return completenessInfo() + medicationDetail() + therapyDetail() +
-            QStringList("") + summary();
+    return completenessInfo() + medicationDetail() + therapyDetail()
+        + QStringList("") + summary();
 }
-
 
 QStringList KhandakerMojoMedicationTherapy::medicationDetail() const
 {
@@ -205,7 +212,8 @@ QStringList KhandakerMojoMedicationTherapy::medicationDetail() const
     html.append("<table>");
     html.append("<tr>");
 
-    for (const QString& fieldname : KhandakerMojoMedicationItem::TABLE_FIELDNAMES) {
+    for (const QString& fieldname :
+         KhandakerMojoMedicationItem::TABLE_FIELDNAMES) {
         html.append(QString("<th>%1</th>").arg(xstring(fieldname)));
     }
 
@@ -214,7 +222,8 @@ QStringList KhandakerMojoMedicationTherapy::medicationDetail() const
     for (const KhandakerMojoMedicationItemPtr& medication : m_medications) {
         html.append("<tr>");
 
-        for (const QString& fieldname : KhandakerMojoMedicationItem::TABLE_FIELDNAMES) {
+        for (const QString& fieldname :
+             KhandakerMojoMedicationItem::TABLE_FIELDNAMES) {
             QString table_cell = "?";
 
             const QVariant field_value = medication->value(fieldname);
@@ -223,7 +232,8 @@ QStringList KhandakerMojoMedicationTherapy::medicationDetail() const
                 table_cell = field_value.toString();
 
                 if (fieldname == KhandakerMojoMedicationItem::FN_RESPONSE) {
-                    table_cell = getOptionName("response", field_value.toInt());
+                    table_cell
+                        = getOptionName("response", field_value.toInt());
                 }
             }
 
@@ -239,7 +249,6 @@ QStringList KhandakerMojoMedicationTherapy::medicationDetail() const
 
     return lines;
 }
-
 
 QStringList KhandakerMojoMedicationTherapy::therapyDetail() const
 {
@@ -254,7 +263,8 @@ QStringList KhandakerMojoMedicationTherapy::therapyDetail() const
     html.append("<table>");
     html.append("<tr>");
 
-    for (const QString& fieldname : KhandakerMojoTherapyItem::TABLE_FIELDNAMES) {
+    for (const QString& fieldname :
+         KhandakerMojoTherapyItem::TABLE_FIELDNAMES) {
         html.append(QString("<th>%1</th>").arg(xstring(fieldname)));
     }
 
@@ -263,7 +273,8 @@ QStringList KhandakerMojoMedicationTherapy::therapyDetail() const
     for (const KhandakerMojoTherapyItemPtr& therapy : m_therapies) {
         html.append("<tr>");
 
-        for (const QString& fieldname : KhandakerMojoTherapyItem::TABLE_FIELDNAMES) {
+        for (const QString& fieldname :
+             KhandakerMojoTherapyItem::TABLE_FIELDNAMES) {
             QString table_cell = "?";
 
             const QVariant field_value = therapy->value(fieldname);
@@ -272,7 +283,8 @@ QStringList KhandakerMojoMedicationTherapy::therapyDetail() const
                 table_cell = field_value.toString();
 
                 if (fieldname == KhandakerMojoTherapyItem::FN_RESPONSE) {
-                    table_cell = getOptionName("response", field_value.toInt());
+                    table_cell
+                        = getOptionName("response", field_value.toInt());
                 }
             }
 
@@ -288,7 +300,6 @@ QStringList KhandakerMojoMedicationTherapy::therapyDetail() const
 
     return lines;
 }
-
 
 OpenableWidget* KhandakerMojoMedicationTherapy::editor(const bool read_only)
 {
@@ -307,13 +318,13 @@ OpenableWidget* KhandakerMojoMedicationTherapy::editor(const bool read_only)
     return m_questionnaire;
 }
 
-
 void KhandakerMojoMedicationTherapy::addMedicationItem(int index)
 {
     const QString chemical_name = getCustomMedicationName(index);
 
     if (chemical_name == nullptr) {
-        for (const KhandakerMojoMedicationItemPtr& medication : m_medications) {
+        for (const KhandakerMojoMedicationItemPtr& medication :
+             m_medications) {
             if (medication->isEmpty()) {
                 uifunc::alert(tr("A row is blank; won’t add another"));
 
@@ -332,7 +343,6 @@ void KhandakerMojoMedicationTherapy::addMedicationItem(int index)
     refreshQuestionnaire();
 }
 
-
 void KhandakerMojoMedicationTherapy::addTherapyItem()
 {
     for (const KhandakerMojoTherapyItemPtr& therapy : m_therapies) {
@@ -350,22 +360,21 @@ void KhandakerMojoMedicationTherapy::addTherapyItem()
     refreshQuestionnaire();
 }
 
-
-KhandakerMojoMedicationItemPtr KhandakerMojoMedicationTherapy::makeMedicationItem() const
+KhandakerMojoMedicationItemPtr
+    KhandakerMojoMedicationTherapy::makeMedicationItem() const
 {
     return KhandakerMojoMedicationItemPtr(
         new KhandakerMojoMedicationItem(pkvalueInt(), m_app, m_db)
     );
 }
 
-
-KhandakerMojoTherapyItemPtr KhandakerMojoMedicationTherapy::makeTherapyItem() const
+KhandakerMojoTherapyItemPtr KhandakerMojoMedicationTherapy::makeTherapyItem(
+) const
 {
     return KhandakerMojoTherapyItemPtr(
         new KhandakerMojoTherapyItem(pkvalueInt(), m_app, m_db)
     );
 }
-
 
 void KhandakerMojoMedicationTherapy::deleteMedicationItem(const int index)
 {
@@ -379,7 +388,6 @@ void KhandakerMojoMedicationTherapy::deleteMedicationItem(const int index)
     refreshQuestionnaire();
 }
 
-
 void KhandakerMojoMedicationTherapy::deleteTherapyItem(const int index)
 {
     if (index < 0 || index >= m_therapies.size()) {
@@ -392,7 +400,6 @@ void KhandakerMojoMedicationTherapy::deleteTherapyItem(const int index)
     refreshQuestionnaire();
 }
 
-
 void KhandakerMojoMedicationTherapy::renumberMedicationItems()
 {
     const int n = m_medications.size();
@@ -403,7 +410,6 @@ void KhandakerMojoMedicationTherapy::renumberMedicationItems()
     }
 }
 
-
 void KhandakerMojoMedicationTherapy::renumberTherapyItems()
 {
     const int n = m_therapies.size();
@@ -413,7 +419,6 @@ void KhandakerMojoMedicationTherapy::renumberTherapyItems()
         item->save();
     }
 }
-
 
 void KhandakerMojoMedicationTherapy::refreshQuestionnaire()
 {
@@ -430,7 +435,6 @@ void KhandakerMojoMedicationTherapy::refreshQuestionnaire()
 
     m_questionnaire->refreshCurrentPage();
 }
-
 
 void KhandakerMojoMedicationTherapy::rebuildMedicationPage(QuPage* page)
 {
@@ -456,7 +460,6 @@ void KhandakerMojoMedicationTherapy::rebuildMedicationPage(QuPage* page)
     page->addElements(elements);
 }
 
-
 void KhandakerMojoMedicationTherapy::rebuildTherapyPage(QuPage* page)
 {
     QVector<QuElement*> elements;
@@ -474,7 +477,6 @@ void KhandakerMojoMedicationTherapy::rebuildTherapyPage(QuPage* page)
     page->clearElements();
     page->addElements(elements);
 }
-
 
 QuGridContainer* KhandakerMojoMedicationTherapy::getMedicationGrid()
 {
@@ -494,13 +496,29 @@ QuGridContainer* KhandakerMojoMedicationTherapy::getMedicationGrid()
 
     row++;
 
-    grid->addCell(QuGridCell((new QuText(xstring("chemical_name_hint")))->setItalic(), row, 0));
-    grid->addCell(QuGridCell((new QuText(xstring("brand_name_hint")))->setItalic(), row, 1));
-    grid->addCell(QuGridCell((new QuText(xstring("dose_hint")))->setItalic(), row, 2));
-    grid->addCell(QuGridCell((new QuText(xstring("medication_frequency_hint")))->setItalic(), row, 3));
-    grid->addCell(QuGridCell((new QuText(xstring("duration_months_hint")))->setItalic(), row, 4));
-    grid->addCell(QuGridCell((new QuText(xstring("medication_indication_hint")))->setItalic(), row, 5));
-    grid->addCell(QuGridCell((new QuText(xstring("response_hint")))->setItalic(), row, 6));
+    grid->addCell(QuGridCell(
+        (new QuText(xstring("chemical_name_hint")))->setItalic(), row, 0
+    ));
+    grid->addCell(QuGridCell(
+        (new QuText(xstring("brand_name_hint")))->setItalic(), row, 1
+    ));
+    grid->addCell(
+        QuGridCell((new QuText(xstring("dose_hint")))->setItalic(), row, 2)
+    );
+    grid->addCell(QuGridCell(
+        (new QuText(xstring("medication_frequency_hint")))->setItalic(), row, 3
+    ));
+    grid->addCell(QuGridCell(
+        (new QuText(xstring("duration_months_hint")))->setItalic(), row, 4
+    ));
+    grid->addCell(QuGridCell(
+        (new QuText(xstring("medication_indication_hint")))->setItalic(),
+        row,
+        5
+    ));
+    grid->addCell(
+        QuGridCell((new QuText(xstring("response_hint")))->setItalic(), row, 6)
+    );
 
     row++;
 
@@ -509,33 +527,33 @@ QuGridContainer* KhandakerMojoMedicationTherapy::getMedicationGrid()
     for (const KhandakerMojoMedicationItemPtr& medication : m_medications) {
         auto delete_button = new QuButton(
             TextConst::delete_(),
-            std::bind(&KhandakerMojoMedicationTherapy::deleteMedicationItem,
-                      this, item_index)
+            std::bind(
+                &KhandakerMojoMedicationTherapy::deleteMedicationItem,
+                this,
+                item_index
+            )
         );
         auto chemical_name_edit = new QuLineEdit(
-            medication->fieldRef(
-                KhandakerMojoMedicationItem::FN_CHEMICAL_NAME)
+            medication->fieldRef(KhandakerMojoMedicationItem::FN_CHEMICAL_NAME)
         );
         auto brand_name_edit = new QuLineEdit(
-            medication->fieldRef(
-                KhandakerMojoMedicationItem::FN_BRAND_NAME)
+            medication->fieldRef(KhandakerMojoMedicationItem::FN_BRAND_NAME)
         );
         auto dose_edit = new QuLineEdit(
-            medication->fieldRef(
-                KhandakerMojoMedicationItem::FN_DOSE)
+            medication->fieldRef(KhandakerMojoMedicationItem::FN_DOSE)
         );
         auto frequency_edit = new QuLineEdit(
-            medication->fieldRef(
-                KhandakerMojoMedicationItem::FN_FREQUENCY)
+            medication->fieldRef(KhandakerMojoMedicationItem::FN_FREQUENCY)
         );
         auto duration_edit = new QuLineEditDouble(
             medication->fieldRef(
-                KhandakerMojoMedicationItem::FN_DURATION_MONTHS),
-            0, 1800
+                KhandakerMojoMedicationItem::FN_DURATION_MONTHS
+            ),
+            0,
+            1800
         );
         auto indication_edit = new QuLineEdit(
-            medication->fieldRef(
-                KhandakerMojoMedicationItem::FN_INDICATION)
+            medication->fieldRef(KhandakerMojoMedicationItem::FN_INDICATION)
         );
         auto response_picker = getResponsePicker(
             medication->fieldRef(KhandakerMojoMedicationItem::FN_RESPONSE),
@@ -558,7 +576,6 @@ QuGridContainer* KhandakerMojoMedicationTherapy::getMedicationGrid()
     return grid;
 }
 
-
 QuGridContainer* KhandakerMojoMedicationTherapy::getTherapyGrid()
 {
     auto grid = new QuGridContainer();
@@ -569,19 +586,32 @@ QuGridContainer* KhandakerMojoMedicationTherapy::getTherapyGrid()
 
     grid->addCell(QuGridCell(new QuText(xstring("therapy")), row, 0));
     grid->addCell(QuGridCell(new QuText(xstring("frequency")), row, 1));
-    grid->addCell(QuGridCell(new QuText(xstring("sessions_completed")), row, 2));
+    grid->addCell(QuGridCell(new QuText(xstring("sessions_completed")), row, 2)
+    );
     grid->addCell(QuGridCell(new QuText(xstring("sessions_planned")), row, 3));
     grid->addCell(QuGridCell(new QuText(xstring("indication")), row, 4));
     grid->addCell(QuGridCell(new QuText(xstring("response")), row, 5));
 
     row++;
 
-    grid->addCell(QuGridCell((new QuText(xstring("therapy_hint")))->setItalic(), row, 0));
-    grid->addCell(QuGridCell((new QuText(xstring("therapy_frequency_hint")))->setItalic(), row, 1));
-    grid->addCell(QuGridCell((new QuText(xstring("sessions_completed_hint")))->setItalic(), row, 2));
-    grid->addCell(QuGridCell((new QuText(xstring("sessions_planned_hint")))->setItalic(), row, 3));
-    grid->addCell(QuGridCell((new QuText(xstring("therapy_indication_hint")))->setItalic(), row, 4));
-    grid->addCell(QuGridCell((new QuText(xstring("response_hint")))->setItalic(), row, 5));
+    grid->addCell(
+        QuGridCell((new QuText(xstring("therapy_hint")))->setItalic(), row, 0)
+    );
+    grid->addCell(QuGridCell(
+        (new QuText(xstring("therapy_frequency_hint")))->setItalic(), row, 1
+    ));
+    grid->addCell(QuGridCell(
+        (new QuText(xstring("sessions_completed_hint")))->setItalic(), row, 2
+    ));
+    grid->addCell(QuGridCell(
+        (new QuText(xstring("sessions_planned_hint")))->setItalic(), row, 3
+    ));
+    grid->addCell(QuGridCell(
+        (new QuText(xstring("therapy_indication_hint")))->setItalic(), row, 4
+    ));
+    grid->addCell(
+        QuGridCell((new QuText(xstring("response_hint")))->setItalic(), row, 5)
+    );
 
     row++;
 
@@ -590,30 +620,30 @@ QuGridContainer* KhandakerMojoMedicationTherapy::getTherapyGrid()
     for (const KhandakerMojoTherapyItemPtr& therapy : m_therapies) {
         auto delete_button = new QuButton(
             TextConst::delete_(),
-            std::bind(&KhandakerMojoMedicationTherapy::deleteTherapyItem, this,
-                      item_index)
+            std::bind(
+                &KhandakerMojoMedicationTherapy::deleteTherapyItem,
+                this,
+                item_index
+            )
         );
         auto therapy_edit = new QuLineEdit(
-            therapy->fieldRef(
-                KhandakerMojoTherapyItem::FN_THERAPY)
+            therapy->fieldRef(KhandakerMojoTherapyItem::FN_THERAPY)
         );
         auto frequency_edit = new QuLineEdit(
-            therapy->fieldRef(
-                KhandakerMojoTherapyItem::FN_FREQUENCY)
+            therapy->fieldRef(KhandakerMojoTherapyItem::FN_FREQUENCY)
         );
         auto sessions_completed_edit = new QuLineEditInteger(
-            therapy->fieldRef(
-                KhandakerMojoTherapyItem::FN_SESSIONS_COMPLETED),
-            0, 500
+            therapy->fieldRef(KhandakerMojoTherapyItem::FN_SESSIONS_COMPLETED),
+            0,
+            500
         );
         auto sessions_planned_edit = new QuLineEditInteger(
-            therapy->fieldRef(
-                KhandakerMojoTherapyItem::FN_SESSIONS_PLANNED),
-            0, 500
+            therapy->fieldRef(KhandakerMojoTherapyItem::FN_SESSIONS_PLANNED),
+            0,
+            500
         );
         auto indication_edit = new QuLineEdit(
-            therapy->fieldRef(
-                KhandakerMojoTherapyItem::FN_INDICATION)
+            therapy->fieldRef(KhandakerMojoTherapyItem::FN_INDICATION)
         );
         auto response_picker = getResponsePicker(
             therapy->fieldRef(KhandakerMojoTherapyItem::FN_RESPONSE),
@@ -635,9 +665,9 @@ QuGridContainer* KhandakerMojoMedicationTherapy::getTherapyGrid()
     return grid;
 }
 
-
 QuPickerPopup* KhandakerMojoMedicationTherapy::getResponsePicker(
-    FieldRefPtr fieldref, const QString fieldname)
+    FieldRefPtr fieldref, const QString fieldname
+)
 {
     NameValueOptions response_options;
 
@@ -648,7 +678,6 @@ QuPickerPopup* KhandakerMojoMedicationTherapy::getResponsePicker(
 
     return new QuPickerPopup(fieldref, response_options);
 }
-
 
 QuFlowContainer* KhandakerMojoMedicationTherapy::getMedicationButtons()
 {
@@ -665,7 +694,9 @@ QuFlowContainer* KhandakerMojoMedicationTherapy::getMedicationButtons()
 
         container->addElement(new QuButton(
             name,
-            std::bind(&KhandakerMojoMedicationTherapy::addMedicationItem, this, i)
+            std::bind(
+                &KhandakerMojoMedicationTherapy::addMedicationItem, this, i
+            )
         ));
 
         i++;
@@ -674,29 +705,26 @@ QuFlowContainer* KhandakerMojoMedicationTherapy::getMedicationButtons()
     return container;
 }
 
-
-QString KhandakerMojoMedicationTherapy::getCustomMedicationName(
-    const int index) const
+QString KhandakerMojoMedicationTherapy::getCustomMedicationName(const int index
+) const
 {
     if (index == 0) {
         return nullptr;
     }
 
-    return getOptionName("custom_medication",
-                         index,
-                         "__no_more_medications");
+    return getOptionName("custom_medication", index, "__no_more_medications");
 }
 
-
 QString KhandakerMojoMedicationTherapy::getOptionName(
-    const QString& prefix, const int index) const
+    const QString& prefix, const int index
+) const
 {
     return getOptionName(prefix, index, "");
 }
 
-
 QString KhandakerMojoMedicationTherapy::getOptionName(
-    const QString& prefix, const int index, const QString default_str) const
+    const QString& prefix, const int index, const QString default_str
+) const
 {
     return xstring(QString("%1_%2").arg(prefix).arg(index), default_str);
 }

@@ -23,6 +23,7 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -35,18 +36,25 @@ void initializeEq5d5l(TaskFactory& factory);
 class Eq5d5l : public Task
 {
     Q_OBJECT
+
 public:
-    Eq5d5l(CamcopsApp& app, DatabaseManager& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
+    Eq5d5l(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    virtual TaskImplementationType implementationType() const override {
+
+    virtual TaskImplementationType implementationType() const override
+    {
         return TaskImplementationType::UpgradableSkeleton;
     }
+
     virtual Version minimumServerVersion() const override;
     // ------------------------------------------------------------------------
     // Instance overrides
@@ -60,8 +68,10 @@ public:
     // ------------------------------------------------------------------------
     int getScore(QString field) const;
     QString getHealthStateCode() const;
+
 public:
     static const QString EQ5D5L_TABLENAME;
+
 protected:
     bool m_in_tickbox_change;
 };

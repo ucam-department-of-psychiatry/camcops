@@ -395,7 +395,6 @@ cmake under Ubuntu
 
 """  # noqa
 
-
 import argparse
 import logging
 import multiprocessing
@@ -1180,7 +1179,7 @@ class Platform(object):
         clang, and/or pass ``-arch arm64`` to clang (the latter is more
         plausible to me); see
         https://github.com/tpoechtrager/cctools-port/issues/6.
-        """  # noqa
+        """
         if self.cpu_x86_64bit_family:
             return "x86_64"
         elif self.cpu_x86_32bit_family:
@@ -1264,7 +1263,7 @@ class Platform(object):
     def target_triplet(self) -> str:
         """
         https://www.gnu.org/software/autoconf/manual/autoconf-2.65/html_node/Specifying-Target-Triplets.html
-        """  # noqa
+        """
         cpu = self.triplet_cpu
         vendor = self.triplet_vendor
         os_ = self.triplet_os
@@ -1490,7 +1489,7 @@ class Platform(object):
 
         See also
         https://www.gnu.org/software/autoconf/manual/autoconf-2.65/html_node/Specifying-Target-Triplets.html
-        """  # noqa
+        """
         # See sqlcipher/config.sub, sqlcipher/config.guess
         # (You can run or source config.guess to see its answer.)
         return self.target_triplet
@@ -1537,12 +1536,13 @@ class Config(object):
         # Architectures
         self.build_all = args.build_all  # type: bool
         self.build_android_x86_32 = args.build_android_x86_32  # type: bool
+        self.build_android_x86_64 = args.build_android_x86_64  # type: bool
         self.build_android_arm_v7_32 = (
             args.build_android_arm_v7_32
-        )  # type: bool  # noqa
+        )  # type: bool
         self.build_android_arm_v8_64 = (
             args.build_android_arm_v8_64
-        )  # type: bool  # noqa
+        )  # type: bool
         self.build_linux_x86_64 = args.build_linux_x86_64  # type: bool
         self.build_macos_x86_64 = args.build_macos_x86_64  # type: bool
         self.build_windows_x86_64 = args.build_windows_x86_64  # type: bool
@@ -1551,10 +1551,10 @@ class Config(object):
         self.build_ios_arm_v8_64 = args.build_ios_arm_v8_64  # type: bool
         self.build_ios_simulator_x86_32 = (
             args.build_ios_simulator_x86_32
-        )  # type: bool  # noqa
+        )  # type: bool
         self.build_ios_simulator_x86_64 = (
             args.build_ios_simulator_x86_64
-        )  # type: bool  # noqa
+        )  # type: bool
 
         if self.build_all:
             if BUILD_PLATFORM.linux:
@@ -1581,10 +1581,14 @@ class Config(object):
 
         # General
         self.show_config_only = args.show_config_only  # type: bool
-        self.build_qt = args.build_qt
+        self.configure_qt_only = args.configure_qt_only
         self.fetch = args.fetch
         self.root_dir = args.root_dir  # type: str
         self.nparallel = args.nparallel  # type: int
+        self.build_ffmpeg = args.build_ffmpeg
+        self.build_openssl = args.build_openssl
+        self.build_qt = args.build_qt
+        self.build_sqlcipher = args.build_sqlcipher
         self.force_ffmpeg = args.force or args.force_ffmpeg  # type: bool
         self.force_openssl = args.force or args.force_openssl  # type: bool
         self.force_qt = args.force or args.force_qt  # type: bool
@@ -1608,7 +1612,7 @@ class Config(object):
         self.qt_openssl_static = args.qt_openssl_static  # type: bool
         self.qt_src_gitdir = join(
             self.src_rootdir, args.qt_src_dirname
-        )  # type: str  # noqa
+        )  # type: str
         self.qt_host_path = args.qt_host_path
         self.qt_ccache = args.qt_ccache
         self.qt_gerrit_username = args.qt_gerrit_username
@@ -1624,7 +1628,7 @@ class Config(object):
         self.android_ndk_host = args.android_ndk_host  # type: str
         self.android_toolchain_version = (
             args.android_toolchain_version
-        )  # type: str  # noqa
+        )  # type: str
         self.android_api = f"android-{self.android_sdk_version}"
         # ... see $ANDROID_SDK_ROOT/platforms/
         self.android_ndk_platform = self.android_api
@@ -1663,7 +1667,7 @@ class Config(object):
         self.sqlcipher_git_commit = SQLCIPHER_GIT_COMMIT  # type: str
         self.sqlcipher_src_gitdir = join(
             self.src_rootdir, "sqlcipher"
-        )  # type: str  # noqa
+        )  # type: str
 
         # Eigen
         # Changed location from bitbucket:
@@ -1926,7 +1930,7 @@ class Config(object):
         env["ANDROID_API_VERSION"] = self.android_api
         env["ANDROID_ARCH"] = target_platform.android_arch_full
         env["ANDROID_DEV"] = join(android_sysroot, "usr")
-        env["ANDROID_EABI"] = self._android_eabi(target_platform)
+        env["ANDROID_EABI"] = "llvm"
         env["ANDROID_NDK_ROOT"] = self.android_ndk_root
         env["ANDROID_SDK_ROOT"] = self.android_sdk_root
         env["ANDROID_SYSROOT"] = android_sysroot
@@ -1937,9 +1941,9 @@ class Config(object):
         env["ARCH"] = target_platform.android_arch_short
         env["CC"] = self.android_cc(target_platform)
         if use_cross_compile_var:
-            env[
-                "CROSS_COMPILE"
-            ] = target_platform.android_cross_compile_prefix(self)
+            env["CROSS_COMPILE"] = (
+                target_platform.android_cross_compile_prefix(self)
+            )
             # ... unnecessary as we are specifying AR, CC directly
         env["HOSTCC"] = BUILD_PLATFORM.gcc(
             fullpath=not use_cross_compile_var, cfg=self
@@ -1960,35 +1964,6 @@ class Config(object):
     # -------------------------------------------------------------------------
 
     # TODO: should this be in Platform or Config?
-
-    def _android_eabi(self, target_platform: Platform) -> str:
-        """
-        Get the name of the Android Embedded Application Binary Interface
-        for ARM processors, used for the Android SDK.
-
-        ABIs:
-
-        - https://developer.android.com/ndk/guides/abis.html
-
-        ARM supports two ABI types, one of which is the Embedded ABI:
-
-        - https://kanj.github.io/elfs/book/armMusl/cross-tools/abi.html
-        - https://www.eecs.umich.edu/courses/eeecs373/readings/ARM-AAPCS-EABI-v2.08.pdf
-          = Procedure Call Standard for the ARM Architecture
-        """  # noqa
-        if target_platform.cpu_x86_family:
-            return "{}-{}".format(
-                target_platform.android_arch_short,
-                self.android_toolchain_version,
-            )  # e.g. x86-4.9
-            # For toolchain version: ls $ANDROID_NDK_ROOT/toolchains
-            # ... "-android-arch" and "-android-toolchain-version" get
-            # concatenated, I think; for example, this gives the toolchain
-            # "x86_64-4.9"
-        elif target_platform.cpu_arm_family:
-            return "llvm"
-        else:
-            raise NotImplementedError("Unknown CPU family for Android")
 
     def android_sysroot(self, target_platform: Platform) -> str:
         """
@@ -2025,7 +2000,7 @@ class Config(object):
         return join(
             self.android_ndk_root,
             "toolchains",
-            self._android_eabi(target_platform),
+            "llvm",
             "prebuilt",
             self.android_ndk_host,
         )
@@ -2087,7 +2062,7 @@ class Config(object):
             raise ValueError(
                 "Don't know how to convert library: " + lib_a_fullpath
             )
-        libname = basename[len(libprefix) :]  # noqa: E203
+        libname = basename[len(libprefix) :]
         newlibbasename = libprefix + libname + ".so"
         newlibfilename = join(directory, newlibbasename)
         compiler = self.android_cc(target_platform)
@@ -2299,7 +2274,7 @@ class Config(object):
         ]  # Last item will be the current SDK, since they are alphanumerically ordered  # noqa
         suffix = ".sdk"
         sdk_name = latest_sdk[: -len(suffix)]  # remove the trailing ".sdk"
-        sdk_version = sdk_name[len(xcode_platform) :]  # noqa: E203
+        sdk_version = sdk_name[len(xcode_platform) :]
         # ... remove the leading prefix, e.g. "iPhoneOS"
         # log.debug("iOS SDK version: {!r}", sdk_version)
         return sdk_version
@@ -2815,7 +2790,7 @@ def openssl_target_os_args(target_platform: Platform) -> List[str]:
             return [
                 "darwin64-x86_64-cc",
                 "no-asm",
-            ]  # unsure if "no-asm" required  # noqa
+            ]  # unsure if "no-asm" required
         elif target_platform.cpu_x86_32bit_family:  # iOS on 32-bit simulator
             return ["darwin-i386-cc"]
 
@@ -2910,7 +2885,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         for t in main_targets:
             dirname, basename = os.path.split(t)
             assert basename.startswith(libprefix)
-            shortbasename = basename[len(libprefix) :]  # noqa: E203
+            shortbasename = basename[len(libprefix) :]
             shadow_targets.append(join(dirname, shortbasename))
 
     if target_platform.android:
@@ -3456,6 +3431,8 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
         # version; see android_compilation.txt
         if target_platform.cpu == Cpu.X86_32:
             android_abi = "x86"
+        elif target_platform.cpu == Cpu.X86_64:
+            android_abi = "x86_64"
         elif target_platform.cpu == Cpu.ARM_V7_32:
             android_abi = "armeabi-v7a"
         elif target_platform.cpu == Cpu.ARM_V8_64:
@@ -3472,7 +3449,7 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
             "-android-ndk",
             cfg.android_ndk_root,
             "-android-ndk-platform",
-            cfg.android_ndk_platform,  # https://wiki.qt.io/Android  # noqa
+            cfg.android_ndk_platform,  # https://wiki.qt.io/Android
             # "-android-ndk-host",
             # cfg.android_ndk_host,
             # Multiple ABIs are supported by Qt but not by us
@@ -4023,7 +4000,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
             if not isfile(target_exe) or not isfile(target_o):
                 run(
                     [MAKE, "sqlite3" + target_platform.obj_ext], env
-                )  # for static linking  # noqa
+                )  # for static linking
             if want_exe and not isfile(target_exe):
                 run([MAKE, "sqlcipher"], env)  # the command-line executable
 
@@ -4118,11 +4095,15 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
         ar = cfg.android_ar(target_platform)
         ranlib = cfg.android_ranlib(target_platform)
 
-        if target_platform.cpu == Cpu.ARM_V7_32:
-            cpu = "armv7-a"
-        elif target_platform.cpu == Cpu.ARM_V8_64:
-            cpu = "armv8-a"
-        else:
+        cpu_dict = {
+            Cpu.ARM_V7_32: "armv7-a",
+            Cpu.ARM_V8_64: "armv8-a",
+            Cpu.X86_32: "i686",
+            Cpu.X86_64: "x86_64",
+        }
+
+        cpu = cpu_dict.get(target_platform.cpu)
+        if cpu is None:
             raise NotImplementedError(
                 "Don't know how to build FFmpeg for Android "
                 f"with CPU {target_platform.cpu}"
@@ -4314,13 +4295,17 @@ def master_builder(args) -> None:
     # Fetch
     # =========================================================================
     if cfg.fetch:
-        download_qt(cfg)
-        checkout_qt(cfg)
-        patch_qt(cfg)
-        fetch_openssl(cfg)
-        fetch_sqlcipher(cfg)
+        if cfg.build_qt:
+            download_qt(cfg)
+            checkout_qt(cfg)
+            patch_qt(cfg)
+        if cfg.build_openssl:
+            fetch_openssl(cfg)
+        if cfg.build_sqlcipher:
+            fetch_sqlcipher(cfg)
         fetch_eigen(cfg)
-        fetch_ffmpeg(cfg)
+        if cfg.build_ffmpeg:
+            fetch_ffmpeg(cfg)
 
     # =========================================================================
     # Build
@@ -4337,20 +4322,25 @@ def master_builder(args) -> None:
             f"Building (1) OpenSSL, (2) SQLite/SQLCipher, (3) Qt "
             f"for {target_platform}"
         )
-        build_openssl(cfg, target_platform)
-        build_sqlcipher(cfg, target_platform)
-        if cfg.use_ffmpeg(target_platform):
+        if cfg.build_openssl:
+            build_openssl(cfg, target_platform)
+        if cfg.build_sqlcipher:
+            build_sqlcipher(cfg, target_platform)
+        if cfg.build_ffmpeg and cfg.use_ffmpeg(target_platform):
             build_ffmpeg(cfg, target_platform)
 
-        if qt_needs_building(cfg, target_platform):
+        if cfg.build_qt and qt_needs_building(cfg, target_platform):
             configure_qt(cfg, target_platform)
-            if cfg.build_qt:
+            if not cfg.configure_qt_only:
                 installdirs.append(build_qt(cfg, target_platform))
         if target_platform.android and ADD_SO_VERSION_OF_LIBQTFORANDROID:
             make_missing_libqtforandroid_so(cfg, target_platform)
 
     if cfg.build_android_x86_32:  # for x86 Android emulator
         build_for(Os.ANDROID, Cpu.X86_32)
+
+    if cfg.build_android_x86_64:  # for x86_64 Android emulator
+        build_for(Os.ANDROID, Cpu.X86_64)
 
     if cfg.build_android_arm_v7_32:  # for native Android, 32-bit ARM
         build_for(Os.ANDROID, Cpu.ARM_V7_32)
@@ -4374,25 +4364,29 @@ def master_builder(args) -> None:
 
     if (
         cfg.build_ios_arm_v7_32
-    ):  # for iOS (e.g. iPad) with 32-bit ARM processor  # noqa
+    ):  # for iOS (e.g. iPad) with 32-bit ARM processor
         build_for(Os.IOS, Cpu.ARM_V7_32)
 
     if (
         cfg.build_ios_arm_v8_64
-    ):  # for iOS (e.g. iPad) with 64-bit ARM processor  # noqa
+    ):  # for iOS (e.g. iPad) with 64-bit ARM processor
         build_for(Os.IOS, Cpu.ARM_V8_64)
 
     if (
         cfg.build_ios_simulator_x86_32
-    ):  # 32-bit iOS simulator under Intel macOS  # noqa
+    ):  # 32-bit iOS simulator under Intel macOS
         build_for(Os.IOS, Cpu.X86_32)
 
     if (
         cfg.build_ios_simulator_x86_64
-    ):  # 64-bit iOS simulator under Intel macOS  # noqa
+    ):  # 64-bit iOS simulator under Intel macOS
         build_for(Os.IOS, Cpu.X86_64)
 
     if not cfg.build_qt:
+        log.info("Not building Qt.")
+        sys.exit(EXIT_SUCCESS)
+
+    if cfg.configure_qt_only:
         log.info("Configuration only. Not building Qt.")
         sys.exit(EXIT_SUCCESS)
 
@@ -4451,15 +4445,23 @@ def main() -> None:
         ),
     )
     general.add_argument(
-        "--no_build_qt",
-        dest="build_qt",
-        action="store_false",
+        "--configure_qt_only",
+        dest="configure_qt_only",
+        action="store_true",
         help="Only run Qt configure, don't build Qt",
+    )
+    general.add_argument(
+        "--fetch",
+        dest="fetch",
+        action="store_true",
+        default=True,
+        help="Fetch source code",
     )
     general.add_argument(
         "--no_fetch",
         dest="fetch",
         action="store_false",
+        default=False,
         help="Skip fetching source code",
     )
     general.add_argument(
@@ -4467,6 +4469,62 @@ def main() -> None:
         type=int,
         default=CPU_COUNT,
         help="Number of parallel processes to run",
+    )
+    general.add_argument(
+        "--build_ffmpeg",
+        dest="build_ffmpeg",
+        action="store_true",
+        default=True,
+        help="Build FFmpeg",
+    )
+    general.add_argument(
+        "--no_build_ffmpeg",
+        dest="build_ffmpeg",
+        action="store_false",
+        default=False,
+        help="Skip building FFmpeg",
+    )
+    general.add_argument(
+        "--build_openssl",
+        dest="build_openssl",
+        action="store_true",
+        default=True,
+        help="Build OpenSSL",
+    )
+    general.add_argument(
+        "--no_build_openssl",
+        dest="build_openssl",
+        action="store_false",
+        default=False,
+        help="Skip building OpenSSL",
+    )
+    general.add_argument(
+        "--build_qt",
+        dest="build_qt",
+        action="store_true",
+        default=True,
+        help="Build Qt",
+    )
+    general.add_argument(
+        "--no_build_qt",
+        dest="build_qt",
+        action="store_false",
+        default=False,
+        help="Skip building Qt",
+    )
+    general.add_argument(
+        "--build_sqlcipher",
+        dest="build_sqlcipher",
+        action="store_true",
+        default=True,
+        help="Build SQLCipher",
+    )
+    general.add_argument(
+        "--no_build_sqlcipher",
+        dest="build_sqlcipher",
+        action="store_false",
+        default=False,
+        help="Skip building SQLCipher",
     )
     general.add_argument(
         "--force", action="store_true", help="Force rebuild of everything"
@@ -4530,6 +4588,12 @@ def main() -> None:
         action="store_true",
         help="An architecture target (Android under an "
         "Intel x86 32-bit emulator)",
+    )
+    archgroup.add_argument(
+        "--build_android_x86_64",
+        action="store_true",
+        help="An architecture target (Android under an "
+        "Intel x86 64-bit emulator)",
     )
     archgroup.add_argument(
         "--build_android_arm_v7_32",
@@ -4665,7 +4729,7 @@ def main() -> None:
     )
     android.add_argument(
         "--android_toolchain_version",
-        default=DEFAULT_ANDROID_TOOLCHAIN_VERSION,  # noqa
+        default=DEFAULT_ANDROID_TOOLCHAIN_VERSION,
         help="Android toolchain version",
     )
     android.add_argument(

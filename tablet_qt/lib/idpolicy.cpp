@@ -19,8 +19,10 @@
 */
 
 #include "idpolicy.h"
+
 #include <QObject>
-#include <QRegularExpression>  // replacing QRegExp; https://doc.qt.io/qt-6.5/qregexp.html#details
+#include <QRegularExpression>
+// ... replacing QRegExp; https://doc.qt.io/qt-6.5/qregexp.html#details
 #include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "dbobjects/patient.h"
 #include "lib/convert.h"
@@ -52,19 +54,18 @@ const QString TOKENIZE_RE_STR(
     // http://stackoverflow.com/questions/20508534/c-multiline-string-raw-literal
     // https://doc.qt.io/qt-6.5/qregularexpression.html#details
 
-    "\\s*"    // discard leading whitespace
-    "("         // start capture group
-        "\\w+"      // word character
-    "|"         // alternator
-        "\\("       // left parenthesis
-    "|"         // alternator
-        "\\)"       // right parenthesis
-    ")"         // end capture group, and we can have lots of them
+    "\\s*"  // discard leading whitespace
+    "("  // start capture group
+    "\\w+"  // word character
+    "|"  // alternator
+    "\\("  // left parenthesis
+    "|"  // alternator
+    "\\)"  // right parenthesis
+    ")"  // end capture group, and we can have lots of them
 
     // In full:
     // \s*(\w+|\(|\))
 );
-
 
 // ============================================================================
 // Static data
@@ -99,11 +100,9 @@ QMap<int, QString> makeTokenToNameDict()
     return token_to_name;
 }
 
-
 const QMap<int, QString> IdPolicy::s_token_to_name = makeTokenToNameDict();
-const QMap<QString, int> IdPolicy::s_name_to_token = convert::reverseMap(
-            IdPolicy::s_token_to_name);
-
+const QMap<QString, int> IdPolicy::s_name_to_token
+    = convert::reverseMap(IdPolicy::s_token_to_name);
 
 // ============================================================================
 // IdPolicy class
@@ -115,7 +114,6 @@ IdPolicy::IdPolicy(const QString& policy_text) :
     tokenize(policy_text);
 }
 
-
 int IdPolicy::nameToToken(const QString& name) const
 {
     // One of our pre-cached tokens?
@@ -124,8 +122,8 @@ int IdPolicy::nameToToken(const QString& name) const
     }
     // An ID number token?
     if (name.startsWith(IDNUM_FIELD_PREFIX)) {
-        const QString number = name.right(
-                    name.length() - IDNUM_FIELD_PREFIX.length());
+        const QString number
+            = name.right(name.length() - IDNUM_FIELD_PREFIX.length());
         bool ok = false;
         const int which_idnum = number.toInt(&ok);
         if (ok) {
@@ -135,7 +133,6 @@ int IdPolicy::nameToToken(const QString& name) const
     // Failed.
     return BAD_TOKEN;
 }
-
 
 QString IdPolicy::tokenToName(const int token) const
 {
@@ -148,7 +145,6 @@ QString IdPolicy::tokenToName(const int token) const
     qWarning() << Q_FUNC_INFO << "Bad token!";
     return "BAD_TOKEN";
 }
-
 
 void IdPolicy::tokenize(QString policy_text)
 {
@@ -188,19 +184,16 @@ void IdPolicy::tokenize(QString policy_text)
     }
 }
 
-
 void IdPolicy::invalidate()
 {
     m_valid = false;
     m_tokens.clear();
 }
 
-
 QString IdPolicy::original() const
 {
     return m_policy_text;
 }
-
 
 QString IdPolicy::pretty() const
 {
@@ -210,14 +203,13 @@ QString IdPolicy::pretty() const
     return stringify(m_tokens);
 }
 
-
 QString IdPolicy::stringify(const QVector<int>& tokens) const
 {
     QString policy;
     for (int i = 0; i < tokens.length(); ++i) {
         const int token = tokens.at(i);
         if (i > 0 && token != TOKEN_RPAREN
-                && tokens.at(i - 1) != TOKEN_LPAREN) {
+            && tokens.at(i - 1) != TOKEN_LPAREN) {
             policy += " ";
         }
         const QString element = tokenToName(token);
@@ -227,13 +219,11 @@ QString IdPolicy::stringify(const QVector<int>& tokens) const
     return policy;
 }
 
-
 void IdPolicy::reportSyntaxError(const QString& msg) const
 {
     qWarning().nospace() << "Syntax error in policy (" << msg
                          << "); policy text is: " << m_policy_text;
 }
-
 
 bool IdPolicy::complies(const AttributesType& attributes) const
 {
@@ -251,10 +241,9 @@ bool IdPolicy::complies(const AttributesType& attributes) const
     return value == ChunkValue::True;
 }
 
-
 IdPolicy::ChunkValue IdPolicy::idPolicyChunk(
-        const QVector<int>& tokens,
-        const AttributesType& attributes) const
+    const QVector<int>& tokens, const AttributesType& attributes
+) const
 {
     // qDebug() << Q_FUNC_INFO << stringify(tokens);
     if (!m_valid) {
@@ -269,8 +258,8 @@ IdPolicy::ChunkValue IdPolicy::idPolicyChunk(
         if (want_content) {
             // We want content (a field token)
             ChunkValue nextchunk = idPolicyContent(tokens, attributes, index);
-            if (nextchunk == ChunkValue::Unknown ||
-                    nextchunk == ChunkValue::SyntaxError) {
+            if (nextchunk == ChunkValue::Unknown
+                || nextchunk == ChunkValue::SyntaxError) {
                 return ChunkValue::SyntaxError;
             }
             if (value == ChunkValue::Unknown) {
@@ -294,15 +283,15 @@ IdPolicy::ChunkValue IdPolicy::idPolicyChunk(
             // We want an operator
             OperatorValue op = idPolicyOp(tokens, index);
             switch (op) {
-            case OperatorValue::And:
-                processing_and = true;
-                break;
-            case OperatorValue::Or:
-                processing_or = true;
-                break;
-            case OperatorValue::None:
-                reportSyntaxError("missing operator");
-                return ChunkValue::SyntaxError;
+                case OperatorValue::And:
+                    processing_and = true;
+                    break;
+                case OperatorValue::Or:
+                    processing_or = true;
+                    break;
+                case OperatorValue::None:
+                    reportSyntaxError("missing operator");
+                    return ChunkValue::SyntaxError;
             }
         }
         want_content = !want_content;
@@ -314,25 +303,24 @@ IdPolicy::ChunkValue IdPolicy::idPolicyChunk(
     return value;
 }
 
-
-IdPolicy::ChunkValue IdPolicy::idPolicyContent(const QVector<int>& tokens,
-                                               const AttributesType& attributes,
-                                               int& index) const
+IdPolicy::ChunkValue IdPolicy::idPolicyContent(
+    const QVector<int>& tokens, const AttributesType& attributes, int& index
+) const
 {
-    // qDebug() << Q_FUNC_INFO << "tokens =" << stringify(tokens) << "; index =" << index;
+    // qDebug() << Q_FUNC_INFO << "tokens =" << stringify(tokens)
+    //          << "; index =" << index;
     if (index >= tokens.length()) {
         reportSyntaxError("policy incomplete; missing content at end");
         return ChunkValue::SyntaxError;
     }
     int token = tokens.at(index++);
     switch (token) {
-    case TOKEN_RPAREN:
-    case TOKEN_AND:
-    case TOKEN_OR:
-        reportSyntaxError("chunk can't start with AND/OR/')'");
-        return ChunkValue::SyntaxError;
-    case TOKEN_LPAREN:
-        {
+        case TOKEN_RPAREN:
+        case TOKEN_AND:
+        case TOKEN_OR:
+            reportSyntaxError("chunk can't start with AND/OR/')'");
+            return ChunkValue::SyntaxError;
+        case TOKEN_LPAREN: {
             // The recursive bit.
             int subchunkstart = index;  // one past the opening bracket
             // Find closing parenthesis:
@@ -356,57 +344,58 @@ IdPolicy::ChunkValue IdPolicy::idPolicyContent(const QVector<int>& tokens,
             QVector<int> subchunk = tokens.mid(subchunkstart, subchunklen);
             return idPolicyChunk(subchunk, attributes);
         }
-    case TOKEN_NOT:
-        {
+        case TOKEN_NOT: {
             ChunkValue nextchunk = idPolicyContent(tokens, attributes, index);
             switch (nextchunk) {
-            case ChunkValue::SyntaxError:
-            case ChunkValue::Unknown:
+                case ChunkValue::SyntaxError:
+                case ChunkValue::Unknown:
 #ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
-            default:
+                default:
 #endif
-                return nextchunk;
-            case ChunkValue::False:  // invert
-                return ChunkValue::True;
-            case ChunkValue::True:  // invert
-                return ChunkValue::False;
+                    return nextchunk;
+                case ChunkValue::False:  // invert
+                    return ChunkValue::True;
+                case ChunkValue::True:  // invert
+                    return ChunkValue::False;
             }
         }
-    default:
-        // meaningful token
-        return idPolicyElement(attributes, token);
+        default:
+            // meaningful token
+            return idPolicyElement(attributes, token);
     }
 }
 
-
-IdPolicy::OperatorValue IdPolicy::idPolicyOp(const QVector<int>& tokens,
-                                             int& index) const
+IdPolicy::OperatorValue
+    IdPolicy::idPolicyOp(const QVector<int>& tokens, int& index) const
 {
-    // qDebug() << Q_FUNC_INFO << "tokens =" << stringify(tokens) << "; index =" << index;
+    // qDebug() << Q_FUNC_INFO << "tokens =" << stringify(tokens)
+    //          << "; index =" << index;
     if (index >= tokens.length()) {
         reportSyntaxError("policy incomplete; missing operator at end");
         return OperatorValue::None;
     }
     const int token = tokens.at(index++);
     switch (token) {
-    case TOKEN_AND:
-        return OperatorValue::And;
-    case TOKEN_OR:
-        return OperatorValue::Or;
-    default:
-        return OperatorValue::None;
+        case TOKEN_AND:
+            return OperatorValue::And;
+        case TOKEN_OR:
+            return OperatorValue::Or;
+        default:
+            return OperatorValue::None;
     }
 }
 
-
-IdPolicy::ChunkValue IdPolicy::idPolicyElement(const AttributesType& attributes,
-                                               const int token) const
+IdPolicy::ChunkValue IdPolicy::idPolicyElement(
+    const AttributesType& attributes, const int token
+) const
 {
     const QString name = tokenToName(token);
     if (token <= 0) {
         if (!attributes.contains(name)) {
-            qWarning() << "Policy contains element" << name
-                       << "but patient information is unaware of that attribute";
+            qWarning(
+            ) << "Policy contains element"
+              << name
+              << "but patient information is unaware of that attribute";
             return ChunkValue::Unknown;
         }
         return attributes[name] ? ChunkValue::True : ChunkValue::False;
@@ -417,7 +406,6 @@ IdPolicy::ChunkValue IdPolicy::idPolicyElement(const AttributesType& attributes,
     // But if it's absent, that's just a missing ID, not a syntax error:
     return ChunkValue::False;
 }
-
 
 QVector<int> IdPolicy::specificallyMentionedIdNums() const
 {
@@ -430,14 +418,12 @@ QVector<int> IdPolicy::specificallyMentionedIdNums() const
     return mentioned;
 }
 
-
-
 // ============================================================================
 // Tablet ID policy
 // ============================================================================
 
-const IdPolicy TABLET_ID_POLICY(
-        "sex AND ((forename AND surname AND dob) OR anyidnum)");
+const IdPolicy
+    TABLET_ID_POLICY("sex AND ((forename AND surname AND dob) OR anyidnum)");
 
 // ... clinical environment: forename/surname/dob/sex, and we can await an
 //     ID number later

@@ -22,27 +22,30 @@
 #include <QColor>
 #include <QWidget>
 
-
 class FixedNumBlocksHfwTestWidget : public QWidget
 {
     // Test widget that has a fixed aspect ratio. It adjusts its height
     // according to its width.
 
     Q_OBJECT
+
 public:
     FixedNumBlocksHfwTestWidget(
-            int num_blocks = 20,
-            const QSize& block_size = QSize(20, 30),  // unequal is more complex
-            qreal preferred_aspect_ratio = 1.6,  // golden ratio
-            const QColor& block_colour = QColor(100, 100, 100),
-            const QColor& background_colour = QColor(0, 0, 100),
-            const QColor& text_colour = QColor(255, 255, 255),
-            QWidget* parent = nullptr);
+        int num_blocks = 20,
+        const QSize& block_size = QSize(20, 30),
+        // ... unequal is more complex
+        qreal preferred_aspect_ratio = 1.6,  // golden ratio
+        const QColor& block_colour = QColor(100, 100, 100),
+        const QColor& background_colour = QColor(0, 0, 100),
+        const QColor& text_colour = QColor(255, 255, 255),
+        QWidget* parent = nullptr
+    );
     virtual QSize sizeHint() const override;
     virtual QSize minimumSizeHint() const override;
     virtual bool hasHeightForWidth() const override;
     virtual int heightForWidth(int width) const override;
     virtual void paintEvent(QPaintEvent* event) override;
+
 protected:
     int m_n_blocks;
     QSize m_block_size;

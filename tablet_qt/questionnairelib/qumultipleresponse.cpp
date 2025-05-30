@@ -19,10 +19,11 @@
 */
 
 #include "qumultipleresponse.h"
+
 #include "common/cssconst.h"
 #include "db/fieldref.h"
-#include "layouts/layouts.h"
 #include "layouts/flowlayouthfw.h"
+#include "layouts/layouts.h"
 #include "lib/uifunc.h"
 #include "maths/ccrandom.h"
 #include "questionnairelib/questionnaire.h"
@@ -31,9 +32,9 @@
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/labelwordwrapwide.h"
 
-
 QuMultipleResponse::QuMultipleResponse(
-        const QVector<QuestionWithOneField>& items, QObject* parent) :
+    const QVector<QuestionWithOneField>& items, QObject* parent
+) :
     QuElement(parent),
     m_items(items),
     m_minimum_answers(0),
@@ -50,25 +51,26 @@ QuMultipleResponse::QuMultipleResponse(
 
 
 QuMultipleResponse::QuMultipleResponse(
-        std::initializer_list<QuestionWithOneField> items, QObject* parent) :
-    QuMultipleResponse(QVector<QuestionWithOneField>(items), parent)  // delegating constructor
+    std::initializer_list<QuestionWithOneField> items, QObject* parent
+) :
+    QuMultipleResponse(QVector<QuestionWithOneField>(items), parent)
+// ... delegating constructor
 {
 }
 
 
 QuMultipleResponse::QuMultipleResponse(QObject* parent) :
-    QuMultipleResponse(QVector<QuestionWithOneField>(), parent)  // delegating constructor
+    QuMultipleResponse(QVector<QuestionWithOneField>(), parent)
+// ... delegating constructor
 {
 }
 
-
-QuMultipleResponse* QuMultipleResponse::addItem(
-        const QuestionWithOneField& item)
+QuMultipleResponse*
+    QuMultipleResponse::addItem(const QuestionWithOneField& item)
 {
     m_items.append(item);
     return this;
 }
-
 
 QuMultipleResponse* QuMultipleResponse::setMinimumAnswers(int minimum_answers)
 {
@@ -83,7 +85,6 @@ QuMultipleResponse* QuMultipleResponse::setMinimumAnswers(int minimum_answers)
     return this;
 }
 
-
 QuMultipleResponse* QuMultipleResponse::setMaximumAnswers(int maximum_answers)
 {
     if (maximum_answers == 0) {  // dumb value, use -1 for don't care
@@ -97,13 +98,12 @@ QuMultipleResponse* QuMultipleResponse::setMaximumAnswers(int maximum_answers)
     return this;
 }
 
-
 void QuMultipleResponse::minOrMaxChanged()
 {
     if (!m_widgets.empty()) {
         // we're live
-        if (m_show_instruction && m_instruction_label &&
-                m_instruction.isEmpty()) {
+        if (m_show_instruction && m_instruction_label
+            && m_instruction.isEmpty()) {
             m_instruction_label->setText(defaultInstruction());
         }
         fieldValueChanged();  // may change mandatory colour
@@ -111,29 +111,25 @@ void QuMultipleResponse::minOrMaxChanged()
     }
 }
 
-
 QuMultipleResponse* QuMultipleResponse::setRandomize(const bool randomize)
 {
     m_randomize = randomize;
     return this;
 }
 
-
-QuMultipleResponse* QuMultipleResponse::setShowInstruction(
-        bool show_instruction)
+QuMultipleResponse*
+    QuMultipleResponse::setShowInstruction(bool show_instruction)
 {
     m_show_instruction = show_instruction;
     return this;
 }
 
-
-QuMultipleResponse* QuMultipleResponse::setInstruction(
-        const QString& instruction)
+QuMultipleResponse*
+    QuMultipleResponse::setInstruction(const QString& instruction)
 {
     m_instruction = instruction;
     return this;
 }
-
 
 QuMultipleResponse* QuMultipleResponse::setHorizontal(const bool horizontal)
 {
@@ -141,21 +137,18 @@ QuMultipleResponse* QuMultipleResponse::setHorizontal(const bool horizontal)
     return this;
 }
 
-
-QuMultipleResponse* QuMultipleResponse::setAsTextButton(
-        const bool as_text_button)
+QuMultipleResponse*
+    QuMultipleResponse::setAsTextButton(const bool as_text_button)
 {
     m_as_text_button = as_text_button;
     return this;
 }
-
 
 QuMultipleResponse* QuMultipleResponse::setBold(const bool bold)
 {
     m_bold = bold;
     return this;
 }
-
 
 QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
 {
@@ -185,17 +178,21 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
         // Widget
         QPointer<BooleanWidget> w = new BooleanWidget();
         w->setReadOnly(read_only);
-        w->setAppearance(m_as_text_button
-                         ? BooleanWidget::Appearance::Text
-                         : BooleanWidget::Appearance::CheckRed);
+        w->setAppearance(
+            m_as_text_button ? BooleanWidget::Appearance::Text
+                             : BooleanWidget::Appearance::CheckRed
+        );
         if (m_as_text_button) {
             w->setText(item.text());
             w->setBold(m_bold);
         }
         if (!read_only) {
             // Safe object lifespan signal: can use std::bind
-            connect(w, &BooleanWidget::clicked,
-                    std::bind(&QuMultipleResponse::clicked, this, i));
+            connect(
+                w,
+                &BooleanWidget::clicked,
+                std::bind(&QuMultipleResponse::clicked, this, i)
+            );
         }
         m_widgets.append(w);
 
@@ -206,22 +203,28 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
         } else {
             // cf. QuMCQ
             auto itemwidget = new QWidget();
-            ClickableLabelWordWrapWide* namelabel = new ClickableLabelWordWrapWide(item.text());
+            ClickableLabelWordWrapWide* namelabel
+                = new ClickableLabelWordWrapWide(item.text());
             namelabel->setEnabled(!read_only);
-            const int fontsize = questionnaire->fontSizePt(uiconst::FontSize::Normal);
+            const int fontsize
+                = questionnaire->fontSizePt(uiconst::FontSize::Normal);
             const bool italic = false;
             const QString css = uifunc::textCSS(fontsize, m_bold, italic);
             namelabel->setStyleSheet(css);
             if (!read_only) {
                 // Safe object lifespan signal: can use std::bind
-                connect(namelabel, &ClickableLabelWordWrapWide::clicked,
-                        std::bind(&QuMultipleResponse::clicked, this, i));
+                connect(
+                    namelabel,
+                    &ClickableLabelWordWrapWide::clicked,
+                    std::bind(&QuMultipleResponse::clicked, this, i)
+                );
             }
             auto itemlayout = new HBoxLayout();
             itemlayout->setContentsMargins(uiconst::NO_MARGINS);
             itemwidget->setLayout(itemlayout);
             itemlayout->addWidget(w, 0, Qt::AlignTop);
-            itemlayout->addWidget(namelabel, 0, Qt::AlignVCenter);  // different
+            itemlayout->addWidget(namelabel, 0, Qt::AlignVCenter);
+            // ... different
             itemlayout->addStretch();
 
             mainlayout->addWidget(itemwidget);
@@ -241,12 +244,20 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
         // pointless and we can use a single signal with no parameters.
 
         FieldRef* fr = item.fieldref().data();
-        connect(fr, &FieldRef::valueChanged,
-                this, &QuMultipleResponse::fieldValueChanged,
-                Qt::UniqueConnection);
-        connect(fr, &FieldRef::mandatoryChanged,
-                this, &QuMultipleResponse::fieldValueChanged,
-                Qt::UniqueConnection);
+        connect(
+            fr,
+            &FieldRef::valueChanged,
+            this,
+            &QuMultipleResponse::fieldValueChanged,
+            Qt::UniqueConnection
+        );
+        connect(
+            fr,
+            &FieldRef::mandatoryChanged,
+            this,
+            &QuMultipleResponse::fieldValueChanged,
+            Qt::UniqueConnection
+        );
     }
 
     QPointer<QWidget> final_widget;
@@ -254,8 +265,8 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
         // Higher-level widget containing {instructions, actual MCQ}
         auto layout_w_instr = new VBoxLayout();
         layout_w_instr->setContentsMargins(uiconst::NO_MARGINS);
-        QString instruction = m_instruction.isEmpty() ? defaultInstruction()
-                                                      : m_instruction;
+        QString instruction
+            = m_instruction.isEmpty() ? defaultInstruction() : m_instruction;
         m_instruction_label = new LabelWordWrapWide(instruction);
         m_instruction_label->setObjectName(cssconst::MCQ_INSTRUCTION);
         layout_w_instr->addWidget(m_instruction_label);
@@ -271,7 +282,6 @@ QPointer<QWidget> QuMultipleResponse::makeWidget(Questionnaire* questionnaire)
 
     return final_widget;
 }
-
 
 void QuMultipleResponse::clicked(const int index)
 {
@@ -306,12 +316,10 @@ void QuMultipleResponse::clicked(const int index)
     emit elementValueChanged();
 }
 
-
 void QuMultipleResponse::setFromFields()
 {
     fieldValueChanged();
 }
-
 
 void QuMultipleResponse::fieldValueChanged()
 {
@@ -329,8 +337,10 @@ void QuMultipleResponse::fieldValueChanged()
             w->setState(BooleanWidget::State::True);
         } else {
             // null or false (both look like blanks)
-            w->setState(need_more ? BooleanWidget::State::NullRequired
-                                  : BooleanWidget::State::Null);
+            w->setState(
+                need_more ? BooleanWidget::State::NullRequired
+                          : BooleanWidget::State::Null
+            );
             // We ignore mandatory properties on the fieldref, since we have a
             // minimum/maximum specified for them collectively.
             // Then we override missingInput() so that the QuPage uses our
@@ -338,7 +348,6 @@ void QuMultipleResponse::fieldValueChanged()
         }
     }
 }
-
 
 FieldRefPtrList QuMultipleResponse::fieldrefs() const
 {
@@ -349,12 +358,10 @@ FieldRefPtrList QuMultipleResponse::fieldrefs() const
     return fieldrefs;
 }
 
-
 int QuMultipleResponse::minimumAnswers() const
 {
     return m_minimum_answers;
 }
-
 
 int QuMultipleResponse::maximumAnswers() const
 {
@@ -363,7 +370,6 @@ int QuMultipleResponse::maximumAnswers() const
     }
     return qMin(m_items.size(), m_maximum_answers);
 }
-
 
 QString QuMultipleResponse::defaultInstruction() const
 {
@@ -381,12 +387,10 @@ QString QuMultipleResponse::defaultInstruction() const
     return QString("Choose %1–%2:").arg(minimum).arg(maximum);
 }
 
-
 bool QuMultipleResponse::validIndex(const int index)
 {
     return index >= 0 && index < m_items.size();
 }
-
 
 int QuMultipleResponse::nTrueAnswers() const
 {
@@ -399,7 +403,6 @@ int QuMultipleResponse::nTrueAnswers() const
     }
     return n;
 }
-
 
 bool QuMultipleResponse::missingInput() const
 {

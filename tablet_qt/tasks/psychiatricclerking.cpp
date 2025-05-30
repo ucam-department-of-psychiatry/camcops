@@ -19,6 +19,7 @@
 */
 
 #include "psychiatricclerking.h"
+
 #include "common/textconst.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quheading.h"
@@ -60,10 +61,13 @@ const QString MSE_COGNITION("mse_cognition");
 const QString MSE_INSIGHT("mse_insight");
 
 const QString PHYSICAL_EXAMINATION_GENERAL("physical_examination_general");
-const QString PHYSICAL_EXAMINATION_CARDIOVASCULAR("physical_examination_cardiovascular");
-const QString PHYSICAL_EXAMINATION_RESPIRATORY("physical_examination_respiratory");
+const QString
+    PHYSICAL_EXAMINATION_CARDIOVASCULAR("physical_examination_cardiovascular");
+const QString
+    PHYSICAL_EXAMINATION_RESPIRATORY("physical_examination_respiratory");
 const QString PHYSICAL_EXAMINATION_ABDOMINAL("physical_examination_abdominal");
-const QString PHYSICAL_EXAMINATION_NEUROLOGICAL("physical_examination_neurological");
+const QString
+    PHYSICAL_EXAMINATION_NEUROLOGICAL("physical_examination_neurological");
 
 const QString ASSESSMENT_SCALES("assessment_scales");
 const QString INVESTIGATIONS_RESULTS("investigations_results");
@@ -135,18 +139,20 @@ const QStringList EXTRAFIELDS_F{
     INFORMATION_GIVEN,
 };
 
-
 void initializePsychiatricClerking(TaskFactory& factory)
 {
     static TaskRegistrar<PsychiatricClerking> registered(factory);
 }
 
 
-PsychiatricClerking::PsychiatricClerking(CamcopsApp& app, DatabaseManager& db,
-                                         const int load_pk) :
-    Task(app, db, PSYCLERK_TABLENAME, false, true, false)  // ... anon, clin, resp
+PsychiatricClerking::PsychiatricClerking(
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
+    Task(app, db, PSYCLERK_TABLENAME, false, true, false)
+// ... anon, clin, resp
 {
-    // In the Javascript version, EXTRAFIELDS_A was the set of clinician fields.
+    // In the Javascript version, EXTRAFIELDS_A was the set of clinician
+    // fields.
     addFields(EXTRAFIELDS_B, QMetaType::fromType<QString>());
     addFields(EXTRAFIELDS_C, QMetaType::fromType<QString>());
     addFields(EXTRAFIELDS_MSE, QMetaType::fromType<QString>());
@@ -158,7 +164,6 @@ PsychiatricClerking::PsychiatricClerking(CamcopsApp& app, DatabaseManager& db,
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
 
-
 // ============================================================================
 // Class info
 // ============================================================================
@@ -168,24 +173,20 @@ QString PsychiatricClerking::shortname() const
     return "Clerking";
 }
 
-
 QString PsychiatricClerking::longname() const
 {
     return tr("Psychiatric clerking");
 }
-
 
 QString PsychiatricClerking::description() const
 {
     return tr("Standard psychiatric clerking form.");
 }
 
-
 QString PsychiatricClerking::infoFilenameStem() const
 {
     return "clinical";
 }
-
 
 // ============================================================================
 // Instance info
@@ -196,14 +197,12 @@ bool PsychiatricClerking::isComplete() const
     return true;
 }
 
-
 QStringList PsychiatricClerking::summary() const
 {
     return QStringList{
         fieldSummary(LOCATION, TextConst::location(), ": "),
     };
 }
-
 
 QStringList PsychiatricClerking::detail() const
 {
@@ -225,7 +224,6 @@ QStringList PsychiatricClerking::detail() const
     return lines;
 }
 
-
 OpenableWidget* PsychiatricClerking::editor(const bool read_only)
 {
     QVector<QuElement*> elements{getClinicianQuestionnaireBlockRawPointer()};
@@ -241,7 +239,8 @@ OpenableWidget* PsychiatricClerking::editor(const bool read_only)
     auto addHeading = [this, &elements](const QString& xstringname) -> void {
         elements.append(new QuHeading(xstring(xstringname)));
     };
-    auto addSubheading = [this, &elements](const QString& xstringname) -> void {
+    auto addSubheading
+        = [this, &elements](const QString& xstringname) -> void {
         elements.append((new QuText(xstring(xstringname)))->setBold(true));
     };
 

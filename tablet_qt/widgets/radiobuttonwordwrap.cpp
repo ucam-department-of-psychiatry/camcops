@@ -19,33 +19,34 @@
 */
 
 /*
-  Based on CheckBoxWordWrap:
-  https://github.com/ThiBsc/qtCustomPlugins/tree/master/plugins/CheckBoxWordWrap
-  which has the following license:
+Based on CheckBoxWordWrap:
+https://github.com/ThiBsc/qtCustomPlugins/tree/master/plugins/CheckBoxWordWrap
+which has the following license:
 
-  MIT License
+MIT License
 
-  Copyright (c) 2018 Thibaut B.
+Copyright (c) 2018 Thibaut B.
 
-  Permission is hereby granted, free of charge, to any person obtaining a copy
-  of this software and associated documentation files (the "Software"), to deal
-  in the Software without restriction, including without limitation the rights
-  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-  copies of the Software, and to permit persons to whom the Software is
-  furnished to do so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-  The above copyright notice and this permission notice shall be included in all
-  copies or substantial portions of the Software.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  SOFTWARE.
-
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 */
+
+#include "radiobuttonwordwrap.h"
 
 #include <QHBoxLayout>
 #include <QStyle>
@@ -53,18 +54,19 @@
 #include <QWidget>
 
 #include "clickablelabel.h"
-#include "radiobuttonwordwrap.h"
 
-RadioButtonWordWrap::RadioButtonWordWrap(QWidget* parent)
-    : QRadioButton (parent),
+RadioButtonWordWrap::RadioButtonWordWrap(QWidget* parent) :
+    QRadioButton(parent),
     m_main_layout(new QHBoxLayout(this)),
     m_label(new ClickableLabel(this))
 {
     init();
 }
 
-RadioButtonWordWrap::RadioButtonWordWrap(const QString& text, QWidget* parent)
-    : QRadioButton (parent),
+RadioButtonWordWrap::RadioButtonWordWrap(
+    const QString& text, QWidget* parent
+) :
+    QRadioButton(parent),
     m_main_layout(new QHBoxLayout(this)),
     m_label(new ClickableLabel(text, this))
 {
@@ -101,8 +103,12 @@ QSize RadioButtonWordWrap::sizeHint() const
 {
     QFontMetrics fm(m_label->font());
     QRect r = m_label->rect();
-    r.setLeft(r.left()+m_label->indent()+separation);
-    QRect bRect = fm.boundingRect(r, int(Qt::AlignLeft | Qt::AlignVCenter | Qt::TextWordWrap), m_label->text());
+    r.setLeft(r.left() + m_label->indent() + separation);
+    QRect bRect = fm.boundingRect(
+        r,
+        int(Qt::AlignLeft | Qt::AlignVCenter | Qt::TextWordWrap),
+        m_label->text()
+    );
     QSize ret = QSize(QWidget::sizeHint().width(), bRect.height());
 
     return ret;
@@ -124,7 +130,9 @@ void RadioButtonWordWrap::init()
     setLayout(m_main_layout);
     QStyleOptionButton opt;
     initStyleOption(&opt);
-    int indicator_width = style()->pixelMetric(QStyle::PixelMetric::PM_IndicatorWidth, &opt, this);
+    int indicator_width = style()->pixelMetric(
+        QStyle::PixelMetric::PM_IndicatorWidth, &opt, this
+    );
 
     m_main_layout->setContentsMargins(0, 0, 0, 0);
     m_main_layout->addWidget(m_label);

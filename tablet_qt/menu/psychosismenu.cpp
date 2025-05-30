@@ -19,10 +19,10 @@
 */
 
 #include "psychosismenu.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
-
 #include "tasks/cape42.h"
 #include "tasks/caps.h"
 #include "tasks/cgisch.h"
@@ -30,18 +30,15 @@
 #include "tasks/icd10schizotypal.h"
 #include "tasks/panss.h"
 
-
 PsychosisMenu::PsychosisMenu(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_PSYCHOSIS))
 {
 }
 
-
 QString PsychosisMenu::title() const
 {
     return tr("Psychosis");
 }
-
 
 void PsychosisMenu::makeItems()
 {

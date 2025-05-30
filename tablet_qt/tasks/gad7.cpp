@@ -19,9 +19,10 @@
 */
 
 #include "gad7.h"
+
 #include "common/textconst.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
@@ -41,21 +42,20 @@ const QString QPREFIX("q");
 
 const QString Gad7::GAD7_TABLENAME("gad7");
 
-
 void initializeGad7(TaskFactory& factory)
 {
     static TaskRegistrar<Gad7> registered(factory);
 }
 
-
 Gad7::Gad7(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, GAD7_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
+    );
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -66,18 +66,15 @@ QString Gad7::shortname() const
     return "GAD-7";
 }
 
-
 QString Gad7::longname() const
 {
     return tr("Generalized Anxiety Disorder Assessment");
 }
 
-
 QString Gad7::description() const
 {
     return tr("7-item self-report scale.");
 }
-
 
 // ============================================================================
 // Instance info
@@ -88,21 +85,18 @@ bool Gad7::isComplete() const
     return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
 
-
 QStringList Gad7::summary() const
 {
     return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
 
-
 QStringList Gad7::detail() const
 {
     const int total = totalScore();
-    const QString severity =
-            total >= 15 ? TextConst::severe()
-                        : (total >= 10 ? TextConst::moderate()
-                                       : (total >= 5 ? TextConst::mild()
-                                                     : TextConst::none()));
+    const QString severity = total >= 15
+        ? TextConst::severe()
+        : (total >= 10 ? TextConst::moderate()
+                       : (total >= 5 ? TextConst::mild() : TextConst::none()));
 
     QStringList lines = completenessInfo();
     lines += fieldSummaries("q", "_s", " ", QPREFIX, FIRST_Q, N_QUESTIONS);
@@ -112,7 +106,6 @@ QStringList Gad7::detail() const
     lines.append(standardResult(xstring("anxiety_severity"), severity));
     return lines;
 }
-
 
 OpenableWidget* Gad7::editor(const bool read_only)
 {
@@ -124,21 +117,22 @@ OpenableWidget* Gad7::editor(const bool read_only)
     };
     QVector<QuestionWithOneField> qfields;
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
-        qfields.append(QuestionWithOneField(fieldRef(strnum(QPREFIX, i)),
-                                            xstring(strnum("q", i))));
+        qfields.append(QuestionWithOneField(
+            fieldRef(strnum(QPREFIX, i)), xstring(strnum("q", i))
+        ));
     }
 
     QuPagePtr page((new QuPage{
-        new QuText(xstring("stem")),
-        new QuMcqGrid(qfields, options),
-    })->setTitle(xstring("title")));
+                        new QuText(xstring("stem")),
+                        new QuMcqGrid(qfields, options),
+                    })
+                       ->setTitle(xstring("title")));
 
     auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations

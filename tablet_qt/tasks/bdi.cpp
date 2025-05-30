@@ -19,10 +19,11 @@
 */
 
 #include "bdi.h"
+
 #include "common/appstrings.h"
 #include "common/textconst.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionwithonefield.h"
 #include "questionnairelib/qumcq.h"
@@ -132,12 +133,10 @@ const QStringList BDI_II_QUESTION_TOPICS = {
     "loss of interest in sex",
 };
 
-
 void initializeBdi(TaskFactory& factory)
 {
     static TaskRegistrar<Bdi> registered(factory);
 }
-
 
 Bdi::Bdi(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, BDI_TABLENAME, false, false, false),  // ... anon, clin, resp
@@ -146,11 +145,12 @@ Bdi::Bdi(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     m_grid_ii(nullptr)
 {
     addField(FN_BDI_SCALE, QMetaType::fromType<QString>());
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
+    );
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -161,18 +161,15 @@ QString Bdi::shortname() const
     return "BDI";
 }
 
-
 QString Bdi::longname() const
 {
     return tr("Beck Depression Inventory");
 }
 
-
 QString Bdi::description() const
 {
     return tr("21-item self-report scale (for BDI, BDI-1A, BDI-II).");
 }
-
 
 // ============================================================================
 // Instance info
@@ -183,12 +180,10 @@ bool Bdi::isComplete() const
     return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
 
-
 bool Bdi::isBdiII() const
 {
     return valueString(FN_BDI_SCALE) == SCALE_BDI_II;
 }
-
 
 QStringList Bdi::summary() const
 {
@@ -211,8 +206,8 @@ QStringList Bdi::summary() const
     // Custom somatic score for Khandaker Insight study:
     QString somatic_text;
     if (isBdiII()) {
-        const QStringList somatic_fieldnames = strnumlist(
-                    QPREFIX, CUSTOM_SOMATIC_KHANDAKER_BDI_II_QNUMS);
+        const QStringList somatic_fieldnames
+            = strnumlist(QPREFIX, CUSTOM_SOMATIC_KHANDAKER_BDI_II_QNUMS);
         const QVector<QVariant> somatic_values = values(somatic_fieldnames);
         bool somatic_missing = false;
         int somatic_score = 0;
@@ -223,9 +218,8 @@ QStringList Bdi::summary() const
             }
             somatic_score += v.toInt();
         }
-        somatic_text = somatic_missing
-                ? "incomplete"
-                : QString::number(somatic_score);
+        somatic_text
+            = somatic_missing ? "incomplete" : QString::number(somatic_score);
     } else {
         somatic_text = "N/A";  // not the BDI-II
     }
@@ -246,23 +240,25 @@ QStringList Bdi::summary() const
         QString("Scale: %1.").arg(bold(valueString(FN_BDI_SCALE))),
         totalScorePhrase(totalScore(), MAX_QUESTION_SCORE),
         // Q9 is suicidal ideation in all versions of the BDI (I, IA, II).
-        QString("Q%1 (%2): %3.").arg(
+        QString("Q%1 (%2): %3.")
+            .arg(
                 QString::number(SUICIDALITY_QNUM),
                 suicidality_topic,
-                bold(suicide_description)),
+                bold(suicide_description)
+            ),
         QString("Custom somatic score for Insight study "
-                "(sum of scores for questions %1 for BDI-II only): %2.").arg(
+                "(sum of scores for questions %1 for BDI-II only): %2.")
+            .arg(
                 describeAsRanges(CUSTOM_SOMATIC_KHANDAKER_BDI_II_QNUMS),
-                bold(somatic_text)),
+                bold(somatic_text)
+            ),
     };
 }
-
 
 QStringList Bdi::detail() const
 {
     return summary() + completenessInfo();
 }
-
 
 OpenableWidget* Bdi::editor(const bool read_only)
 {
@@ -292,8 +288,10 @@ OpenableWidget* Bdi::editor(const bool read_only)
         const QString question_ia = working_prefix + topic_ia + ")";
         const QString question_ii = working_prefix + topic_ii + ")";
         fields_i.append(QuestionWithOneField(fieldRef(fieldname), question_i));
-        fields_ia.append(QuestionWithOneField(fieldRef(fieldname), question_ia));
-        fields_ii.append(QuestionWithOneField(fieldRef(fieldname), question_ii));
+        fields_ia.append(QuestionWithOneField(fieldRef(fieldname), question_ia)
+        );
+        fields_ii.append(QuestionWithOneField(fieldRef(fieldname), question_ii)
+        );
     }
 
     m_grid_i = new QuMcqGrid(fields_i, options);
@@ -313,28 +311,32 @@ OpenableWidget* Bdi::editor(const bool read_only)
 
     // Callback
     FieldRefPtr fr_scale = fieldRef(FN_BDI_SCALE);
-    connect(fr_scale.data(), &FieldRef::valueChanged,
-            this, &Bdi::scaleChanged);
+    connect(
+        fr_scale.data(), &FieldRef::valueChanged, this, &Bdi::scaleChanged
+    );
 
-    QuPagePtr page((new QuPage({
-        (new QuText(appstring(appstrings::DATA_COLLECTION_ONLY)))->setBold(),
-        new QuText(appstring(appstrings::BDI_WHICH_SCALE)),
-        (new QuMcq(fr_scale, scale_options))
-            ->setHorizontal(true)
-            ->setAsTextButton(true),
-        new QuText(TextConst::enterTheAnswers()),
-        // Add all three grids; we'll swap between them.
-        m_grid_i,
-        m_grid_ia,
-        m_grid_ii,
-    }))->setTitle(shortname()));
+    QuPagePtr page(
+        (new QuPage({
+             (new QuText(appstring(appstrings::DATA_COLLECTION_ONLY)))
+                 ->setBold(),
+             new QuText(appstring(appstrings::BDI_WHICH_SCALE)),
+             (new QuMcq(fr_scale, scale_options))
+                 ->setHorizontal(true)
+                 ->setAsTextButton(true),
+             new QuText(TextConst::enterTheAnswers()),
+             // Add all three grids; we'll swap between them.
+             m_grid_i,
+             m_grid_ia,
+             m_grid_ii,
+         }))
+            ->setTitle(shortname())
+    );
 
     auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations
@@ -344,7 +346,6 @@ int Bdi::totalScore() const
 {
     return sumInt(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
-
 
 // ============================================================================
 // Signal handlers

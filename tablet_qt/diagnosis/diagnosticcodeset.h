@@ -21,20 +21,25 @@
 #pragma once
 #include <QAbstractItemModel>
 #include <QString>
+
 #include "diagnosticcode.h"
 
 class CamcopsApp;
-
 
 // Qt model representing a set of diagnostic codes.
 
 class DiagnosticCodeSet : public QAbstractItemModel
 {
     Q_OBJECT
+
 public:
-    DiagnosticCodeSet(CamcopsApp& app, const QString& setname,
-                      const QString& title, QObject* parent = nullptr,
-                      bool dummy_creation_no_xstrings = false);
+    DiagnosticCodeSet(
+        CamcopsApp& app,
+        const QString& setname,
+        const QString& title,
+        QObject* parent = nullptr,
+        bool dummy_creation_no_xstrings = false
+    );
     ~DiagnosticCodeSet() override;
 
     // Returns item data for the specified index/role (e.g. code; description)
@@ -43,11 +48,12 @@ public:
     // Returns flags for the specified index/role; e.g. selectable?
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
-    QVariant headerData(int section, Qt::Orientation orientation,
-                        int role = Qt::DisplayRole) const override;
+    QVariant headerData(
+        int section, Qt::Orientation orientation, int role = Qt::DisplayRole
+    ) const override;
     QModelIndex index(
-            int row, int column,
-            const QModelIndex& parent_index = QModelIndex()) const override;
+        int row, int column, const QModelIndex& parent_index = QModelIndex()
+    ) const override;
     QModelIndex parent(const QModelIndex& child) const override;
     int rowCount(const QModelIndex& parent_index) const override;
     int columnCount(const QModelIndex& parent_index) const override;
@@ -70,19 +76,24 @@ protected:
     QString xstring(const QString& stringname);
 
     // Adds a diagnostic code.
-    DiagnosticCode* addCode(DiagnosticCode* parent,
-                            const QString& code,
-                            const QString& description,
-                            bool selectable = true,
-                            bool show_code_in_full_name = true);
+    DiagnosticCode* addCode(
+        DiagnosticCode* parent,
+        const QString& code,
+        const QString& description,
+        bool selectable = true,
+        bool show_code_in_full_name = true
+    );
+
 protected:
     CamcopsApp& m_app;
     QString m_setname;  // for xstring
     QString m_title;  // cosmetic
     DiagnosticCode* m_root_item;
-    bool m_dummy_creation_no_xstrings;  // don't use xstrings; for command-line debugging
+    bool m_dummy_creation_no_xstrings;
+    // ... don't use xstrings; for command-line debugging
 
 public:
     friend QDebug operator<<(QDebug debug, const DiagnosticCodeSet& d);
-    friend QTextStream& operator<<(QTextStream& stream, const DiagnosticCodeSet& d);
+    friend QTextStream&
+        operator<<(QTextStream& stream, const DiagnosticCodeSet& d);
 };

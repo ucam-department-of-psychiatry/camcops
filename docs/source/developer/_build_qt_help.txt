@@ -1,13 +1,18 @@
 usage: build_qt.py [-h] [--show_config_only] [--root_dir ROOT_DIR]
-                   [--no_build_qt] [--no_fetch] [--nparallel NPARALLEL]
-                   [--force] [--force_ffmpeg] [--force_openssl] [--force_qt]
-                   [--force_sqlcipher] [--tee TEE] [--verbose {0,1,2}]
-                   [--inherit_os_env] [--no_inherit_os_env] [--build_all]
-                   [--build_android_x86_32] [--build_android_arm_v7_32]
-                   [--build_android_arm_v8_64] [--build_linux_x86_64]
-                   [--build_macos_x86_64] [--build_windows_x86_64]
-                   [--build_windows_x86_32] [--build_ios_arm_v7_32]
-                   [--build_ios_arm_v8_64] [--build_ios_simulator_x86_32]
+                   [--configure_qt_only] [--fetch] [--no_fetch]
+                   [--nparallel NPARALLEL] [--build_ffmpeg]
+                   [--no_build_ffmpeg] [--build_openssl] [--no_build_openssl]
+                   [--build_qt] [--no_build_qt] [--build_sqlcipher]
+                   [--no_build_sqlcipher] [--force] [--force_ffmpeg]
+                   [--force_openssl] [--force_qt] [--force_sqlcipher]
+                   [--tee TEE] [--verbose {0,1,2}] [--inherit_os_env]
+                   [--no_inherit_os_env] [--build_all]
+                   [--build_android_x86_32] [--build_android_x86_64]
+                   [--build_android_arm_v7_32] [--build_android_arm_v8_64]
+                   [--build_linux_x86_64] [--build_macos_x86_64]
+                   [--build_windows_x86_64] [--build_windows_x86_32]
+                   [--build_ios_arm_v7_32] [--build_ios_arm_v8_64]
+                   [--build_ios_simulator_x86_32]
                    [--build_ios_simulator_x86_64]
                    [--qt_build_type {debug,release,release_w_symbols}]
                    [--qt_src_dirname QT_SRC_DIRNAME] [--qt_openssl_static]
@@ -31,10 +36,19 @@ General:
   --root_dir ROOT_DIR   Root directory for source and builds (default taken
                         from environment variable CAMCOPS_QT6_BASE_DIR if
                         present) (default: /path/to/user/dev/qt_local_build)
-  --no_build_qt         Only run Qt configure, don't build Qt (default: True)
-  --no_fetch            Skip fetching source code (default: True)
+  --configure_qt_only   Only run Qt configure, don't build Qt (default: False)
+  --fetch               Fetch source code (default: True)
+  --no_fetch            Skip fetching source code (default: False)
   --nparallel NPARALLEL
                         Number of parallel processes to run (default: 8)
+  --build_ffmpeg        Build FFmpeg (default: True)
+  --no_build_ffmpeg     Skip building FFmpeg (default: False)
+  --build_openssl       Build OpenSSL (default: True)
+  --no_build_openssl    Skip building OpenSSL (default: False)
+  --build_qt            Build Qt (default: True)
+  --no_build_qt         Skip building Qt (default: False)
+  --build_sqlcipher     Build SQLCipher (default: True)
+  --no_build_sqlcipher  Skip building SQLCipher (default: False)
   --force               Force rebuild of everything (default: False)
   --force_ffmpeg        Force rebuild of FFmpeg (default: False)
   --force_openssl       Force rebuild of OpenSSL (default: False)
@@ -57,6 +71,9 @@ Architecture:
   --build_android_x86_32
                         An architecture target (Android under an Intel x86
                         32-bit emulator) (default: False)
+  --build_android_x86_64
+                        An architecture target (Android under an Intel x86
+                        64-bit emulator) (default: False)
   --build_android_arm_v7_32
                         An architecture target (Android with a 32-bit ARM
                         processor) (default: False)

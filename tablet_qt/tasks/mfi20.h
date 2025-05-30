@@ -21,6 +21,7 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -30,24 +31,38 @@ class TaskFactory;
 
 void initializeMfi20(TaskFactory& factory);
 
-
 class Mfi20 : public Task
 {
     Q_OBJECT
+
 public:
-    Mfi20(CamcopsApp& app, DatabaseManager& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
+    Mfi20(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    virtual TaskImplementationType implementationType() const override {
+
+    virtual TaskImplementationType implementationType() const override
+    {
         return TaskImplementationType::Full;
     }
-    virtual bool prohibitsClinical() const override { return true; }
-    virtual bool prohibitsCommercial() const override { return true; }
+
+    virtual bool prohibitsClinical() const override
+    {
+        return true;
+    }
+
+    virtual bool prohibitsCommercial() const override
+    {
+        return true;
+    }
+
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -64,10 +79,13 @@ public:
     int reducedActivity() const;
     int reducedMotivation() const;
     int mentalFatigue() const;
+
 public:
     static const QString MFI20_TABLENAME;
+
 protected:
     QPointer<Questionnaire> m_questionnaire;
+
 private:
     QStringList fieldNames() const;
     QVector<QVariant> normalizeValues(const QStringList& fieldnames) const;

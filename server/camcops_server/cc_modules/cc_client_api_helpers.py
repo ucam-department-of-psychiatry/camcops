@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_client_api_helpers.py
 
@@ -69,7 +67,7 @@ def upload_commit_order_sorter(x: Table) -> Tuple[bool, bool, bool, str]:
 
     Note that ``False`` sorts before ``True``, and see
     https://stackoverflow.com/questions/23090664/sorting-a-list-of-string-in-python-such-that-a-specific-string-if-present-appea.
-    """  # noqa
+    """
     return (
         x.name != Patient.__tablename__,
         x.name != PatientIdNum.__tablename__,

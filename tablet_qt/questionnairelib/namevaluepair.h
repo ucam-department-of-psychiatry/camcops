@@ -23,7 +23,6 @@
 #include <QString>
 #include <QVariant>
 
-
 class NameValuePair
 {
     // Encapsulates a single name/value pair.
@@ -31,7 +30,9 @@ class NameValuePair
 
 public:
     // Default constructor, so it can live in a QVector
-    NameValuePair() {}
+    NameValuePair()
+    {
+    }
 
     // Usual constructor
     NameValuePair(const QString& name, const QVariant& value);

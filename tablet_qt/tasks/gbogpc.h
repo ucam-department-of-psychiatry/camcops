@@ -22,18 +22,22 @@
 
 #pragma once
 #include <QPointer>
+
 #include "tasklib/task.h"
 
 
 void initializeGboGPC(TaskFactory& factory);
 
-
 class GboGPC : public Task
 {
     Q_OBJECT
+
 public:
-    GboGPC(CamcopsApp& app, DatabaseManager& db,
-           int load_pk = dbconst::NONEXISTENT_PK);
+    GboGPC(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -53,8 +57,10 @@ public:
     // Task specific
     // ------------------------------------------------------------------------
     void updateMandatory();
+
 public:
     static const QString GBOGPC_TABLENAME;
+
 protected:
     QPointer<Questionnaire> m_questionnaire;
 };

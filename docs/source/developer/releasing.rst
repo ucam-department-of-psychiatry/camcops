@@ -105,89 +105,9 @@ Google Play Store settings
 Google Play Store release history
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| Google Play   | AndroidManifest.xml | AndroidManifest.xml | To Play Store on   | Minimum | Target  |
-| Store release | version code        | name                |                    | Android | Android |
-| name          |                     |                     |                    | API     | API     |
-+===============+=====================+=====================+====================+=========+=========+
-| 2.0.1 (beta)  | 2                   | 2.0.1               | 2017-08-04         | 16      | 23      |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.0.4 (beta)  | 3                   | 2.0.4               | 2017-10-22         | 16      | 23      |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.2.3 (beta)  | 5                   | 2.2.3               | 2018-06-25         | 16      | 26      |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.2.4 (beta)  | 6                   | 2.2.4               | 2018-07-18         | 23      | 26      |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.2.6 (beta)  | 7                   | 2.2.6               | 2018-07-31         | 23      | 26      |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.2.7         | 8                   | 2.2.7               | 2018-08-19         | 23      | 26      |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.2.8 to      | N/A, internal only  | N/A, internal only  | N/A, internal only | 23      | 26      |
-| 2.3.0         |                     |                     |                    |         |         |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.3.1         | 9                   | 2.3.1               | 2019-03-24         | 23      | 26      |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.3.2         | 10                  | 2.3.2               | 2019-04-05         | 23      | 26      |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.3.3         | 11                  | 2.3.3               | 2019-06-15         | 23      | 26      |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.3.4         | 12                  | 2.3.4               | 2019-06-21         | 23      | 26      |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.4.1         | 15 (32-bit ARM);    | 2.4.1               | 2021-02-10         | 23      | 29      |
-|               | 16 (64-bit ARM)     |                     |                    |         |         |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.4.2         | N/A, identical      | N/A                 | N/A                | 23      | 29      |
-|               | to 2.4.3            |                     |                    |         |         |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.4.3         | 17 (32-bit ARM);    | 2.4.3               | 2021-03-30         | 23      | 29      |
-|               | 18 (64-bit ARM)     |                     |                    |         |         |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.4.4         | N/A, server only    | N/A                 | N/A                | 23      | 29      |
-|               |                     |                     |                    |         |         |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.4.5         | N/A, macOS only     | N/A                 | N/A                | 23      | 29      |
-|               |                     |                     |                    |         |         |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.4.6         | 19 (32-bit ARM);    | 2.4.6               | 2021-05-08         | 23      | 29      |
-|               | 20 (64-bit ARM)     |                     |                    |         |         |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.4.7         | N/A, server only    | N/A                 | N/A                | 23      | 29      |
-|               |                     |                     |                    |         |         |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.4.8         | 21 (32-bit ARM);    | 2.4.8               | 2021-07-15         | 23      | 29      |
-|               | 22 (64-bit ARM)     |                     |                    |         |         |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.4.9         | 23 (32-bit ARM);    | 2.4.9               | 2021-08-10         | 23      | 29      |
-|               | 24 (64-bit ARM)     |                     |                    |         |         |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.4.10        | N/A, server only    | N/A                 | N/A                | 23      | 29      |
-|               |                     |                     |                    |         |         |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.4.11        | 25 (32-bit ARM);    | 2.4.11              | 2021-10-08         | 23      | 29      |
-|               | 26 (64-bit ARM)     |                     |                    |         |         |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.4.12        | N/A, server only    | N/A                 | N/A                | 23      | 29      |
-|               |                     |                     |                    |         |         |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.4.13        | 27 (32-bit ARM);    | 2.4.13              | 2022-08-19         | 23      | 30      |
-|               | 28 (64-bit ARM)     |                     |                    |         |         |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.4.14        | N/A, server only    | N/A                 | N/A                | 23      | 30      |
-|               |                     |                     |                    |         |         |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.4.15        | 29 (32-bit ARM);    | 2.4.15              | 2023-03-27         | 23      | 31      |
-|               | 30 (64-bit ARM)     |                     |                    |         |         |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.4.16        | 31 (32-bit ARM);    | 2.4.16              | 2023-06-15         | 23      | 31      |
-|               | 32 (64-bit ARM)     |                     |                    |         |         |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.4.17        | 33 (32-bit ARM);    | 2.4.17              | 2023-08-21         | 23      | 33      |
-|               | 34 (64-bit ARM)     |                     |                    |         |         |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.4.18        | 41 (32-bit ARM);    | 2.4.18              | 2024-02-08         | 23      | 33      |
-|               | 42 (64-bit ARM)     |                     |                    |         |         |
-+---------------+---------------------+---------------------+--------------------+---------+---------+
-
+.. csv-table::
+   :file: play_store_release_history.csv
+   :header-rows: 1
 
 iOS client
 ----------
@@ -224,42 +144,49 @@ Build in QtCreator as usual then sign for distribution outside the Apple Store a
 
     .. code-block:: bash
 
-        codesign --verify --verbose --timestamp --sign "Developer ID Application: UNIVERSITY OF CAMBRIDGE DEPARTMENT OF PSYCHIATRY (XXXXXXXXXX)" --options runtime camcops.app
-        /path/to/macos/qt/install/bin/macdeployqt camcops.app -verbose=3 -dmg -no-strip
+        /path/to/macos/qt/install/bin/macdeployqt camcops.app -always-overwrite -verbose=3 -no-strip -sign-for-notarization="Developer ID Application: UNIVERSITY OF CAMBRIDGE DEPARTMENT OF PSYCHIATRY (XXXXXXXXXX)" -dmg
 
 This should sign with a valid Developer ID certificate, include a secure timestamp and have the hardened runtime enabled.
-``macdeployqt`` can also do code signing but doesn't support all the required options, so we do it separately.
 
 To notarize the app with Apple (to prevent malicious software warnings), you
-need to know the app-specific password for ``altool`` which was generated at
+need to know the app-specific password for ``notarytool`` which was generated at
 https://appleid.apple.com/ and then:
 
     .. code-block:: bash
 
-       xcrun altool -t osx -f camcops.dmg --primary-bundle-id "uk.ac.cam.psychiatry.camcops.dmg" --notarize-app -u <ACCOUNT OWNER APPLE ID>
+        xcrun notarytool submit --apple-id <ACCOUNT OWNER APPLE ID> --team-id <ACCOUNT OWNER TEAM ID> camcops.dmg
 
 You will be prompted to enter the app-specific password generated by the account owner.
-
-You can watch the upload progress in the Activity Monitor app (Network tab, look out for ``java`` process after a few minutes).
 
 After the upload has finished, you should see something like:
 
     .. code-block:: bash
 
-       No errors uploading 'camcops.dmg'
-       RequestUUID = 12345678-9abc-def0-1234-56789abcdef0
+        Submission ID received
+          id: <some UUID>
+        Upload progress: 100.00% (39.7 MB of 39.7 MB)
+        Successfully uploaded file
+          id: <some UUID>
+          path: /some/path/camcops.dmg
 
-You can check progress with:
+To check progress:
 
     .. code-block:: bash
 
-       xcrun altool --notarization-info 12345678-9abc-def0-1234-56789abcdef0 -u <ACCOUNT OWNER APPLE ID>
+        xcrun notarytool info --apple-id <ACCOUNT OWNER APPLE ID> --team-id <ACCOUNT OWNER TEAM ID> <the UUID above>
 
 Again use the app-specific password.
 
-If notarization failed, follow the link to the log file in a browser to see what the problem was.
+If notarization failed, try this for more information:
 
-If it passed, run this command:
+    .. code-block:: bash
+
+        xcrun notarytool info --apple-id <ACCOUNT OWNER APPLE ID> --team-id <ACCOUNT OWNER TEAM ID> <the UUID above>
+
+Again use the app-specific password.
+
+
+If notarization succeeded, run this command:
 
    .. code-block:: bash
 
@@ -282,11 +209,7 @@ Tools...`. Add a tool called ``signtool`` with a command to sign the executable.
 
 For example:
 
-``C:\Program Files (x86)\Windows Kits\10\App Certification Kit\signtool.exe sign /f C:\Users\Me\certificates\certificate.p12 /tr http://timestamp.sectigo.com /td SHA256 /p "password" $f``
-
-or for a certificate generated from a Certificate Signing Request on the same machine (and installed with ``certreq -accept``):
-
-``C:\Program Files (x86)\Windows Kits\10\bin\10.0.20348.0\x64\signtool.exe sign /debug /f C:\Users\Me\certificates\certificate.crt /tr http://timestamp.sectigo.com /td SHA256 $f``
+``C:\Program Files (x86)\Windows Kits\10\bin\10.0.20348.0\x64\signtool.exe sign /debug /sha1 <SHA1 Thumbprint of certificate> /tr http://timestamp.sectigo.com /td SHA256 /fd SHA256 $f``
 
 You can use the `/debug` switch for more verbose output when running `signtool` from the command line.
 

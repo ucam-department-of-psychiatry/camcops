@@ -19,27 +19,30 @@
 */
 
 #include "qumcqgridsinglebooleansignaller.h"
+
 #include "db/fieldref.h"
 #include "questionnairelib/qumcqgridsingleboolean.h"
 
-
 QuMcqGridSingleBooleanSignaller::QuMcqGridSingleBooleanSignaller(
-        QuMcqGridSingleBoolean* recipient, const int question_index) :
+    QuMcqGridSingleBoolean* recipient, const int question_index
+) :
     m_recipient(recipient),
     m_question_index(question_index)
 {
 }
 
-
 void QuMcqGridSingleBooleanSignaller::mcqFieldValueOrMandatoryChanged(
-        const FieldRef* fieldref)
+    const FieldRef* fieldref
+)
 {
     m_recipient->mcqFieldValueOrMandatoryChanged(m_question_index, fieldref);
 }
 
-
 void QuMcqGridSingleBooleanSignaller::booleanFieldValueOrMandatoryChanged(
-        const FieldRef* fieldref)
+    const FieldRef* fieldref
+)
 {
-    m_recipient->booleanFieldValueOrMandatoryChanged(m_question_index, fieldref);
+    m_recipient->booleanFieldValueOrMandatoryChanged(
+        m_question_index, fieldref
+    );
 }

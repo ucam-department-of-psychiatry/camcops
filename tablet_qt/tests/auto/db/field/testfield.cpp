@@ -21,10 +21,10 @@
 #include <QtTest/QtTest>
 
 #include "db/field.h"
-#include "lib/convert.h"
+#include "lib/customtypes.h"
 #include "lib/version.h"
 
-class TestField: public QObject
+class TestField : public QObject
 {
     Q_OBJECT
 
@@ -113,7 +113,7 @@ void TestField::testDatabaseValueQUuidReturnsString()
 
 void TestField::testDatabaseValueQVectorIntReturnsString()
 {
-    convert::registerTypesForQVariant();
+    customtypes::registerTypesForQVariant();
     auto field = Field("test", QMetaType::fromType<QVector<int>>());
     const QVector<int> vector_int = {1, 2, 3};
     QVariant value_in;
@@ -124,7 +124,7 @@ void TestField::testDatabaseValueQVectorIntReturnsString()
 
 void TestField::testDatabaseValueVersionReturnsString()
 {
-    convert::registerTypesForQVariant();
+    customtypes::registerTypesForQVariant();
     auto field = Field("test", QMetaType::fromType<Version>());
     const Version version = Version(1, 2, 3);
     QVariant value_in;
@@ -181,7 +181,7 @@ void TestField::testSetFromDatabaseValueQStringListFromText()
 
 void TestField::testSetFromDatabaseValueQVectorIntFromText()
 {
-    convert::registerTypesForQVariant();
+    customtypes::registerTypesForQVariant();
     auto field = Field("test", QMetaType::fromType<QVector<int>>());
     const QVariant value_in = "1,2,3";
     field.setFromDatabaseValue(value_in);
@@ -195,7 +195,7 @@ void TestField::testSetFromDatabaseValueQVectorIntFromText()
 
 void TestField::testSetFromDatabaseValueVersionFromText()
 {
-    convert::registerTypesForQVariant();
+    customtypes::registerTypesForQVariant();
     auto field = Field("test", QMetaType::fromType<Version>());
     const QVariant value_in = "1.2.3";
     field.setFromDatabaseValue(value_in);
@@ -273,35 +273,30 @@ void TestField::testSqlColumnTypeQDateIsText()
 {
     auto field = Field("test", QMetaType::fromType<QDate>());
     QCOMPARE(field.sqlColumnType(), "TEXT");
-
 }
 
 void TestField::testSqlColumnTypeQDateTimeIsText()
 {
     auto field = Field("test", QMetaType::fromType<QDateTime>());
     QCOMPARE(field.sqlColumnType(), "TEXT");
-
 }
 
 void TestField::testSqlColumnTypeQStringIsText()
 {
     auto field = Field("test", QMetaType::fromType<QString>());
     QCOMPARE(field.sqlColumnType(), "TEXT");
-
 }
 
 void TestField::testSqlColumnTypeQStringListIsText()
 {
     auto field = Field("test", QMetaType::fromType<QStringList>());
     QCOMPARE(field.sqlColumnType(), "TEXT");
-
 }
 
 void TestField::testSqlColumnTypeQTimeIsText()
 {
     auto field = Field("test", QMetaType::fromType<QTime>());
     QCOMPARE(field.sqlColumnType(), "TEXT");
-
 }
 
 void TestField::testSqlColumnTypeQUuidIsText()
@@ -318,18 +313,17 @@ void TestField::testSqlColumnTypeQByteArrayIsBlob()
 
 void TestField::testSqlColumnTypeQVectorIntIsText()
 {
-    convert::registerTypesForQVariant();
+    customtypes::registerTypesForQVariant();
     auto field = Field("test", QMetaType::fromType<QVector<int>>());
     QCOMPARE(field.sqlColumnType(), "TEXT");
 }
 
 void TestField::testSqlColumnTypeVersionIsText()
 {
-    convert::registerTypesForQVariant();
+    customtypes::registerTypesForQVariant();
     auto field = Field("test", QMetaType::fromType<Version>());
     QCOMPARE(field.sqlColumnType(), "TEXT");
 }
-
 
 
 QTEST_MAIN(TestField)

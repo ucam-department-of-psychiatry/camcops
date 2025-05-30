@@ -19,6 +19,7 @@
 */
 
 #include "css.h"
+
 #include <QColor>
 #include <QDebug>
 #include <QPen>
@@ -34,7 +35,6 @@ QString pixelCss(const int px)
     return QString("%1px").arg(px);
 }
 
-
 QString ptCss(const qreal pt)
 {
     if (pt <= 0) {
@@ -43,39 +43,36 @@ QString ptCss(const qreal pt)
     return QString("%1pt").arg(pt);
 }
 
-
 QString colourCss(const QColor& colour)
 {
     return QString("rgba(%1,%2,%3,%4)")
-            .arg(colour.red())
-            .arg(colour.green())
-            .arg(colour.blue())
-            .arg(colour.alpha());
+        .arg(colour.red())
+        .arg(colour.green())
+        .arg(colour.blue())
+        .arg(colour.alpha());
 }
-
 
 QString penStyleCss(const QPen& pen)
 {
     // https://doc.qt.io/qt-6.5/qpen.html#pen-style
     // https://www.w3schools.com/cssref/pr_border-style.asp
     switch (pen.style()) {
-    case Qt::NoPen:
-        return "none";
-    case Qt::SolidLine:
-        return "solid";
-    case Qt::DashLine:
-        return "dashed";
-    case Qt::DotLine:
-        return "dotted";
-    case Qt::DashDotLine:
-    case Qt::DashDotDotLine:
-    case Qt::CustomDashLine:
-    default:
-        qWarning() << Q_FUNC_INFO << "Qt pen style not supported in CSS";
-        return "dashed";
+        case Qt::NoPen:
+            return "none";
+        case Qt::SolidLine:
+            return "solid";
+        case Qt::DashLine:
+            return "dashed";
+        case Qt::DotLine:
+            return "dotted";
+        case Qt::DashDotLine:
+        case Qt::DashDotDotLine:
+        case Qt::CustomDashLine:
+        default:
+            qWarning() << Q_FUNC_INFO << "Qt pen style not supported in CSS";
+            return "dashed";
     }
 }
-
 
 QString penCss(const QPen& pen)
 {
@@ -84,20 +81,19 @@ QString penCss(const QPen& pen)
         return "none";
     }
     return QString("%1 %2 %3")
-            .arg(pixelCss(pen.width()),
-                 penStyleCss(pen),
-                 colourCss(pen.color()));
+        .arg(pixelCss(pen.width()), penStyleCss(pen), colourCss(pen.color()));
 }
-
 
 QString labelCss(const QColor& colour)
 {
-    return QString("background-color: rgba(0,0,0,0);"  // transparent
-                   "border: 0;"
-                   "color: %1;"
-                   "margin: 0;"
-                   "padding: 0;")
-            .arg(colourCss(colour));
+    return QString(
+               "background-color: rgba(0,0,0,0);"  // transparent
+               "border: 0;"
+               "color: %1;"
+               "margin: 0;"
+               "padding: 0;"
+    )
+        .arg(colourCss(colour));
 }
 
 

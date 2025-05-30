@@ -19,6 +19,7 @@
 */
 
 #include "khandakermojochain.h"
+
 #include "tasks/chit.h"
 #include "tasks/eq5d5l.h"
 #include "tasks/khandakermojomedicationtherapy.h"
@@ -28,13 +29,14 @@
 #include "tasks/shaps.h"
 #include "tasks/suppsp.h"
 
-
 KhandakerMojoChain::KhandakerMojoChain(CamcopsApp& app) :
     TaskChain(
         app,
         {
-            KhandakerMojoSociodemographics::KHANDAKER2MOJOSOCIODEMOGRAPHICS_TABLENAME,
-            KhandakerMojoMedicationTherapy::KHANDAKERMOJOMEDICATIONTHERAPY_TABLENAME,
+            KhandakerMojoSociodemographics::
+                KHANDAKER2MOJOSOCIODEMOGRAPHICS_TABLENAME,
+            KhandakerMojoMedicationTherapy::
+                KHANDAKERMOJOMEDICATIONTHERAPY_TABLENAME,
             Eq5d5l::EQ5D5L_TABLENAME,
             Shaps::SHAPS_TABLENAME,
             Mfi20::MFI20_TABLENAME,
@@ -43,7 +45,8 @@ KhandakerMojoChain::KhandakerMojoChain(CamcopsApp& app) :
             Sfmpq2::SFMPQ2_TABLENAME,
             // Sequence as per Joel Parkinson to Rudolf Cardinal, 2019-10-22.
         },
-        TaskChain::CreationMethod::OnDemandOrAbort  // as per JP 2019-10-22; also the default.
+        TaskChain::CreationMethod::OnDemandOrAbort
+        // ... as per JP 2019-10-22; also the default.
     )
 {
 }

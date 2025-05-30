@@ -3,10 +3,12 @@
 
 # Qt
 build-*/
-*.pro.user
+*.pro.user*
 *.stash
 tablet_qt/.qtc_clangd/
+tablet_qt/build/
 tablet_qt/Makefile
+tablet_qt/tests/build/
 
 # Temporary
 *~

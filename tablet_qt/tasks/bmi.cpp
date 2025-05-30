@@ -21,6 +21,7 @@
 // #define DEBUG_DATA_FLOW
 
 #include "bmi.h"
+
 #include "common/textconst.h"
 #include "lib/convert.h"
 #include "maths/mathfunc.h"
@@ -29,8 +30,8 @@
 #include "questionnairelib/quheight.h"
 #include "questionnairelib/qumass.h"
 #include "questionnairelib/qutext.h"
-#include "questionnairelib/quwaist.h"
 #include "questionnairelib/qutextedit.h"
+#include "questionnairelib/quwaist.h"
 #include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
 using convert::toDp;
@@ -51,7 +52,6 @@ void initializeBmi(TaskFactory& factory)
     static TaskRegistrar<Bmi> registered(factory);
 }
 
-
 Bmi::Bmi(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, BMI_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
@@ -64,7 +64,6 @@ Bmi::Bmi(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
 
-
 // ============================================================================
 // Class info
 // ============================================================================
@@ -74,18 +73,15 @@ QString Bmi::shortname() const
     return "BMI";
 }
 
-
 QString Bmi::longname() const
 {
     return tr("Body mass index");
 }
 
-
 QString Bmi::description() const
 {
     return tr("Mass, height, BMI; also waist circumference.");
 }
-
 
 // ============================================================================
 // Instance info
@@ -97,39 +93,38 @@ bool Bmi::isComplete() const
     return noneNull(values({FN_MASS_KG, FN_HEIGHT_M}));
 }
 
-
 QStringList Bmi::summary() const
 {
     QStringList lines;
 
     lines.append(QString("%1 kg, %2 m; BMI = %3 kg/m^2; %4.")
-                 .arg(prettyValue(FN_MASS_KG),
-                      prettyValue(FN_HEIGHT_M),
-                      bmiString(),
-                      category())
-    );
+                     .arg(
+                         prettyValue(FN_MASS_KG),
+                         prettyValue(FN_HEIGHT_M),
+                         bmiString(),
+                         category()
+                     ));
 
     if (!valueIsNullOrEmpty(FN_WAIST_CM)) {
-        lines.append(QString("%1 %2 cm.")
-                     .arg(tr("Waist circumference:"),
-                          prettyValue(FN_WAIST_CM)));
+        lines.append(
+            QString("%1 %2 cm.")
+                .arg(tr("Waist circumference:"), prettyValue(FN_WAIST_CM))
+        );
     }
 
     if (!valueIsNullOrEmpty(FN_COMMENT)) {
-        lines.append(QString("%1 %2")
-                     .arg(tr("Comments:"),
-                          valueString(FN_COMMENT)));
+        lines.append(
+            QString("%1 %2").arg(tr("Comments:"), valueString(FN_COMMENT))
+        );
     }
 
     return lines;
 }
 
-
 QStringList Bmi::detail() const
 {
     return completenessInfo() + summary();
 }
-
 
 OpenableWidget* Bmi::editor(const bool read_only)
 {
@@ -142,41 +137,47 @@ OpenableWidget* Bmi::editor(const bool read_only)
     auto mass_units = new QuUnitSelector(CommonOptions::massUnits());
     auto mass_edit = new QuMass(fieldRef(FN_MASS_KG), mass_units);
     auto waist_units = new QuUnitSelector(CommonOptions::waistUnits());
-    auto waist_edit = new QuWaist(fieldRef(FN_WAIST_CM), waist_units,
-                                  false); // Not mandatory
+    auto waist_edit = new QuWaist(
+        fieldRef(FN_WAIST_CM),
+        waist_units,
+        false
+    );  // Not mandatory
 
     // Comments
     FieldRefPtr fr_comment = fieldRef(FN_COMMENT, false);
 
-    QuPagePtr page((new QuPage{
-        // --------------------------------------------------------------------
-        // Height
-        // --------------------------------------------------------------------
-        heading("title_1"),
-        height_units,
-        heading("title_2"),
-        height_edit,
-        // --------------------------------------------------------------------
-        // Mass
-        // --------------------------------------------------------------------
-        heading("title_3"),
-        mass_units,
-        heading("title_4"),
-        mass_edit,
-        // --------------------------------------------------------------------
-        // Waist circumference
-        // --------------------------------------------------------------------
-        new QuText(xstring("optional")),
-        heading("title_5"),
-        waist_units,
-        heading("title_6"),
-        waist_edit,
-        // --------------------------------------------------------------------
-        // Comments
-        // --------------------------------------------------------------------
-        (new QuText(TextConst::comments()))->setBold(true),
-        new QuTextEdit(fr_comment),
-    })->setTitle(longname()));
+    QuPagePtr page(
+        (new QuPage{
+             // ---------------------------------------------------------------
+             // Height
+             // ---------------------------------------------------------------
+             heading("title_1"),
+             height_units,
+             heading("title_2"),
+             height_edit,
+             // ---------------------------------------------------------------
+             // Mass
+             // ---------------------------------------------------------------
+             heading("title_3"),
+             mass_units,
+             heading("title_4"),
+             mass_edit,
+             // ---------------------------------------------------------------
+             // Waist circumference
+             // ---------------------------------------------------------------
+             new QuText(xstring("optional")),
+             heading("title_5"),
+             waist_units,
+             heading("title_6"),
+             waist_edit,
+             // ---------------------------------------------------------------
+             // Comments
+             // ---------------------------------------------------------------
+             (new QuText(TextConst::comments()))->setBold(true),
+             new QuTextEdit(fr_comment),
+         })
+            ->setTitle(longname())
+    );
 
     m_questionnaire = new Questionnaire(m_app, {page});
     m_questionnaire->setType(QuPage::PageType::Clinician);
@@ -184,7 +185,6 @@ OpenableWidget* Bmi::editor(const bool read_only)
 
     return m_questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations
@@ -197,10 +197,18 @@ QVariant Bmi::bmiVariant() const
     }
     const double mass_kg = valueDouble(FN_MASS_KG);
     const double height_m = valueDouble(FN_HEIGHT_M);
+
+    if (abs(height_m) < 0.0001) {
+        // It is possible that a platform may not handle division by zero. We
+        // could also limit height to a sensible range. It's probably better to
+        // allow a patient to skip this task altogether rather than end up with
+        // silly small height values.
+        return QVariant();
+    }
+
     const double bmi = mass_kg / (height_m * height_m);
     return QVariant(bmi);
 }
-
 
 QString Bmi::bmiString(const int dp) const
 {
@@ -210,7 +218,6 @@ QString Bmi::bmiString(const int dp) const
     }
     return toDp(bmi.toDouble(), dp);
 }
-
 
 QString Bmi::category() const
 {

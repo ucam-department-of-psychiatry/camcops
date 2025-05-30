@@ -24,6 +24,7 @@
 #include <QMap>
 #include <QMetaType>
 #include <QString>
+
 #include "common/aliases_camcops.h"
 #include "common/aliases_qt.h"
 #include "common/dbconst.h"
@@ -39,7 +40,6 @@ class QueryResult;
 extern const QString DBOBJECT_DEFAULT_SEPARATOR;
 extern const QString DBOBJECT_DEFAULT_SUFFIX;
 
-
 // A database object representing a single row of a table.
 //
 // It supports a single integer PK field, and some other default facilities
@@ -50,43 +50,47 @@ extern const QString DBOBJECT_DEFAULT_SUFFIX;
 class DatabaseObject : public QObject
 {
     Q_OBJECT  // so our derived classes can be too
-public:
-    // ========================================================================
-    // Constructor/destructor
-    // ========================================================================
+        public :
+        // ====================================================================
+        // Constructor/destructor
+        // ====================================================================
 
-    // Subclass constructors should follow a specific format, in which they:
-    //
-    // - create all fields, via addField() or addFields()
-    // - if they're the final subclass, they should call load()
-    //
-    // Args:
-    //  app:
-    //      the CamCOPS application
-    //  db:
-    //      the database manager for the database this object will live in
-    //  tablename:
-    //      this object's database table name
-    //  pk_fieldname:
-    //      the name of a field (column) containing an integer primary key (PK)
-    //  has_modification_timestamp:
-    //      add the "when_last_modified" field and track modification time?
-    //  has_creation_timestamp:
-    //      add the "when_created" field and track creation time?
-    //  has_move_off_tablet_field:
-    //      add the "_move_off_tablet" field (used by upload code)?
-    //  triggers_need_upload:
-    //      if true, writing new data to this object tells the app that it
-    //      needs to upload
-    DatabaseObject(CamcopsApp& app,
-                   DatabaseManager& db,
-                   const QString& tablename,
-                   const QString& pk_fieldname = dbconst::PK_FIELDNAME,
-                   bool has_modification_timestamp = true,
-                   bool has_creation_timestamp = false,
-                   bool has_move_off_tablet_field = true,
-                   bool triggers_need_upload = true,
-                   QObject* parent = nullptr);
+        // Subclass constructors should follow a specific format, in which
+        // they:
+        //
+        // - create all fields, via addField() or addFields()
+        // - if they're the final subclass, they should call load()
+        //
+        // Args:
+        //  app:
+        //      the CamCOPS application
+        //  db:
+        //      the database manager for the database this object will live in
+        //  tablename:
+        //      this object's database table name
+        //  pk_fieldname:
+        //      the name of a field (column) containing an integer primary key
+        //      (PK)
+        //  has_modification_timestamp:
+        //      add the "when_last_modified" field and track modification time?
+        //  has_creation_timestamp:
+        //      add the "when_created" field and track creation time?
+        //  has_move_off_tablet_field:
+        //      add the "_move_off_tablet" field (used by upload code)?
+        //  triggers_need_upload:
+        //      if true, writing new data to this object tells the app that it
+        //      needs to upload
+        DatabaseObject(
+            CamcopsApp& app,
+            DatabaseManager& db,
+            const QString& tablename,
+            const QString& pk_fieldname = dbconst::PK_FIELDNAME,
+            bool has_modification_timestamp = true,
+            bool has_creation_timestamp = false,
+            bool has_move_off_tablet_field = true,
+            bool triggers_need_upload = true,
+            QObject* parent = nullptr
+        );
     virtual ~DatabaseObject() = default;
 
     // ========================================================================
@@ -104,19 +108,22 @@ public:
     //  default_value:
     //      value for fields that haven't been written to (or read from the
     //      database)
-    void addField(const QString& fieldname,
-                  QMetaType type,
-                  bool mandatory = false,
-                  bool unique = false,
-                  bool pk = false,
-                  const QVariant& default_value = QVariant());
+    void addField(
+        const QString& fieldname,
+        QMetaType type,
+        bool mandatory = false,
+        bool unique = false,
+        bool pk = false,
+        const QVariant& default_value = QVariant()
+    );
 
     // Alternative version of addField().
     void addField(const Field& field);
 
     // Bulk field addition.
-    void addFields(const QStringList& fieldnames, QMetaType type,
-                   bool mandatory = false);
+    void addFields(
+        const QStringList& fieldnames, QMetaType type, bool mandatory = false
+    );
 
     // Do we have the specified field?
     bool hasField(const QString& fieldname) const;
@@ -137,28 +144,38 @@ public:
 
     // Sets a field's value.
     // Returns: changed?
-    bool setValue(const QString& fieldname, const QVariant& value,
-                  bool touch_record = true);
+    bool setValue(
+        const QString& fieldname,
+        const QVariant& value,
+        bool touch_record = true
+    );
 
     // Sets a field's value.
     // Returns: changed?
-    bool setValue(const QString& fieldname, const QVector<int>& value,
-                  bool touch_record = true);
+    bool setValue(
+        const QString& fieldname,
+        const QVector<int>& value,
+        bool touch_record = true
+    );
 
     // Sets a field's value.
     // Returns: changed?
-    bool setValue(const QString& fieldname, const QStringList& value,
-                  bool touch_record = true);
+    bool setValue(
+        const QString& fieldname,
+        const QStringList& value,
+        bool touch_record = true
+    );
 
     // Adds an increment to an integer field's value.
     void addToValueInt(const QString& fieldname, int increment);
 
     // Set a field's value from a JSON object.
     bool setValueFromJson(
-            const QJsonObject& json_obj,
-            const QString& fieldname,
-            const QString& json_key,
-            bool touch_record = true);
+        const QJsonObject& json_obj,
+        const QString& fieldname,
+        const QString& json_key,
+        bool touch_record = true
+    );
 
     // ------------------------------------------------------------------------
     // Set multiple fields
@@ -167,9 +184,10 @@ public:
     // Set multiple fields' values from a JSON object.
     // Returns: anything changed?
     bool setValuesFromJson(
-            const QJsonObject& json_obj,
-            const QMap<QString, QString>& fieldnames_to_json_keys,
-            bool touch_record = true);
+        const QJsonObject& json_obj,
+        const QMap<QString, QString>& fieldnames_to_json_keys,
+        bool touch_record = true
+    );
 
     // ------------------------------------------------------------------------
     // Read a field
@@ -235,10 +253,12 @@ public:
     QVector<int> valueVectorInt(const QString& fieldname) const;
 
     // Returns a FieldRef (q.v.) pointer for the specified field.
-    FieldRefPtr fieldRef(const QString& fieldname,
-                         bool mandatory = true,
-                         bool autosave = true,
-                         bool blob = false);
+    FieldRefPtr fieldRef(
+        const QString& fieldname,
+        bool mandatory = true,
+        bool autosave = true,
+        bool blob = false
+    );
 
     // Returns a BlobFieldRef (q.v.) pointer for the specified field.
     BlobFieldRefPtr blobFieldRef(const QString& fieldname, bool mandatory);
@@ -248,9 +268,10 @@ public:
 
     // Read a value and store it in a JSON object.
     void readValueIntoJson(
-            const QString& fieldname,
-            QJsonObject& json_obj,
-            const QString& json_key) const;
+        const QString& fieldname,
+        QJsonObject& json_obj,
+        const QString& json_key
+    ) const;
 
 protected:
     // Low-level field access (for internal use only)
@@ -294,8 +315,9 @@ public:
 
     // Read values and store them in a JSON object.
     void readValuesIntoJson(
-            const QMap<QString, QString>& fieldnames_to_json_keys,
-            QJsonObject& json_obj) const;
+        const QMap<QString, QString>& fieldnames_to_json_keys,
+        QJsonObject& json_obj
+    ) const;
 
     // ========================================================================
     // PK access
@@ -316,61 +338,70 @@ public:
     // Returns a summary for this field of the style "name = <b>value</b>".
     // Uses prettyValue() to provide the value.
     QString fieldSummary(
-            const QString& fieldname,
-            const QString& altname = QString(),
-            const QString& separator = DBOBJECT_DEFAULT_SEPARATOR,
-            const QString& suffix = DBOBJECT_DEFAULT_SUFFIX) const;
+        const QString& fieldname,
+        const QString& altname = QString(),
+        const QString& separator = DBOBJECT_DEFAULT_SEPARATOR,
+        const QString& suffix = DBOBJECT_DEFAULT_SUFFIX
+    ) const;
 
     // Like fieldSummary(); for boolean fields; value is Yes/No.
     QString fieldSummaryYesNo(
-            const QString& fieldname,
-            const QString& altname,
-            const QString& separator = DBOBJECT_DEFAULT_SEPARATOR,
-            const QString& suffix = DBOBJECT_DEFAULT_SUFFIX) const;
+        const QString& fieldname,
+        const QString& altname,
+        const QString& separator = DBOBJECT_DEFAULT_SEPARATOR,
+        const QString& suffix = DBOBJECT_DEFAULT_SUFFIX
+    ) const;
 
     // Like fieldSummary(); for boolean fields; value is Yes/No/NULL.
     QString fieldSummaryYesNoNull(
-            const QString& fieldname,
-            const QString& altname,
-            const QString& separator = DBOBJECT_DEFAULT_SEPARATOR,
-            const QString& suffix = DBOBJECT_DEFAULT_SUFFIX) const;
+        const QString& fieldname,
+        const QString& altname,
+        const QString& separator = DBOBJECT_DEFAULT_SEPARATOR,
+        const QString& suffix = DBOBJECT_DEFAULT_SUFFIX
+    ) const;
 
     // Like fieldSummary(); for boolean fields; value is Yes/No/Unknown.
     QString fieldSummaryYesNoUnknown(
-            const QString& fieldname,
-            const QString& altname,
-            const QString& separator = DBOBJECT_DEFAULT_SEPARATOR,
-            const QString& suffix = DBOBJECT_DEFAULT_SUFFIX) const;
+        const QString& fieldname,
+        const QString& altname,
+        const QString& separator = DBOBJECT_DEFAULT_SEPARATOR,
+        const QString& suffix = DBOBJECT_DEFAULT_SUFFIX
+    ) const;
 
     // Like fieldSummary(); for boolean fields; value is True/False/Unknown.
     QString fieldSummaryTrueFalseUnknown(
-            const QString& fieldname,
-            const QString& altname,
-            const QString& separator = DBOBJECT_DEFAULT_SEPARATOR,
-            const QString& suffix = DBOBJECT_DEFAULT_SUFFIX) const;
+        const QString& fieldname,
+        const QString& altname,
+        const QString& separator = DBOBJECT_DEFAULT_SEPARATOR,
+        const QString& suffix = DBOBJECT_DEFAULT_SUFFIX
+    ) const;
 
     // Like fieldSummary(); value is encoded via a NameValueOptions objects
     QString fieldSummaryNameValueOptions(
-            const QString& fieldname,
-            const NameValueOptions& options,
-            const QString& altname,
-            const QString& separator = DBOBJECT_DEFAULT_SEPARATOR,
-            const QString& suffix = DBOBJECT_DEFAULT_SUFFIX) const;
+        const QString& fieldname,
+        const NameValueOptions& options,
+        const QString& altname,
+        const QString& separator = DBOBJECT_DEFAULT_SEPARATOR,
+        const QString& suffix = DBOBJECT_DEFAULT_SUFFIX
+    ) const;
 
     // Returns a list of default field summaries, one per field.
     QStringList recordSummaryLines(
-            const QString& separator = DBOBJECT_DEFAULT_SEPARATOR,
-            const QString& suffix = DBOBJECT_DEFAULT_SUFFIX) const;
+        const QString& separator = DBOBJECT_DEFAULT_SEPARATOR,
+        const QString& suffix = DBOBJECT_DEFAULT_SUFFIX
+    ) const;
 
     // Returns recordSummaryLines() joined by "<br>".
     QString recordSummaryString(
-            const QString& separator = DBOBJECT_DEFAULT_SEPARATOR,
-            const QString& suffix = DBOBJECT_DEFAULT_SUFFIX) const;
+        const QString& separator = DBOBJECT_DEFAULT_SEPARATOR,
+        const QString& suffix = DBOBJECT_DEFAULT_SUFFIX
+    ) const;
 
     // Returns a list of default field summaries, one per field.
     QString recordSummaryCSVString(
-            const QString& equals_separator = DBOBJECT_DEFAULT_SEPARATOR,
-            const QString& comma_separator = QStringLiteral(", ")) const;
+        const QString& equals_separator = DBOBJECT_DEFAULT_SEPARATOR,
+        const QString& comma_separator = QStringLiteral(", ")
+    ) const;
 
     // ========================================================================
     // Loading, saving
@@ -391,17 +422,21 @@ public:
     virtual bool load(const WhereConditions& where);
 
     // Creates the SQL/arguments to fetch records from this table.
-    virtual SqlArgs fetchQuerySql(const WhereConditions& where = WhereConditions(),
-                                  const OrderBy& order_by = OrderBy());
+    virtual SqlArgs fetchQuerySql(
+        const WhereConditions& where = WhereConditions(),
+        const OrderBy& order_by = OrderBy()
+    );
 
     // Sets our internal field values from a particular row of the results of
     // an SQL query.
     // If order_matches_fetchquery is true, assumes the result's fields are
     // in the same order as ours -- which will be true if the query came from
     // our fetchQuerySql().
-    virtual void setFromQuery(const QueryResult& query_result,
-                              int row,
-                              bool order_matches_fetchquery = false);
+    virtual void setFromQuery(
+        const QueryResult& query_result,
+        int row,
+        bool order_matches_fetchquery = false
+    );
 
     // Saves the record to the database, if required. Returns: success?
     virtual bool save();
@@ -495,8 +530,8 @@ signals:
     // ========================================================================
     // Internals: ancillary management
     // ========================================================================
-protected:
 
+protected:
     // Load all ancillary objects from the database.
     // Calls loadAllAncillary(pk).
     void loadAllAncillary();
@@ -513,6 +548,7 @@ protected:
     // ========================================================================
     // Internals: saving, etc.
     // ========================================================================
+
 protected:
     // Performs an "INSERT OR REPLACE INTO" to save this object.
     bool saveInsert(bool read_pk_from_database = true);

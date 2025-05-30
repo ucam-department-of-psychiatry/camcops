@@ -21,14 +21,18 @@
 // #define DEBUG_SIZE
 
 #include "quimage.h"
+
 #include "lib/convert.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/aspectratiopixmap.h"
 
-
-QuImage::QuImage(const QString& filename, FieldRefPtr fieldref,
-                 const QSize& size, QObject* parent) :
+QuImage::QuImage(
+    const QString& filename,
+    FieldRefPtr fieldref,
+    const QSize& size,
+    QObject* parent
+) :
     QuElement(parent),
     m_filename(filename),
     m_fieldref(fieldref),
@@ -38,17 +42,19 @@ QuImage::QuImage(const QString& filename, FieldRefPtr fieldref,
     m_allow_shrink(true)
 {
     if (fieldref) {
-        connect(m_fieldref.data(), &FieldRef::valueChanged,
-                this, &QuImage::valueChanged);
+        connect(
+            m_fieldref.data(),
+            &FieldRef::valueChanged,
+            this,
+            &QuImage::valueChanged
+        );
     }
 }
-
 
 QuImage::QuImage(const QString& filename, const QSize& size, QObject* parent) :
     QuImage(filename, nullptr, size, parent)  // delegating constructor
 {
 }
-
 
 QuImage::QuImage(FieldRefPtr fieldref, const QSize& size, QObject* parent) :
     QuImage(QString(), fieldref, size, parent)  // delegating constructor
@@ -56,13 +62,11 @@ QuImage::QuImage(FieldRefPtr fieldref, const QSize& size, QObject* parent) :
     Q_ASSERT(m_fieldref);
 }
 
-
 QuImage* QuImage::setAdjustForDpi(const bool adjust_for_dpi)
 {
     m_adjust_for_dpi = adjust_for_dpi;
     return this;
 }
-
 
 QuImage* QuImage::setSize(const QSize& size)
 {
@@ -70,13 +74,11 @@ QuImage* QuImage::setSize(const QSize& size)
     return this;
 }
 
-
 QuImage* QuImage::setAllowShrink(const bool allow_shrink)
 {
     m_allow_shrink = allow_shrink;
     return this;
 }
-
 
 QPointer<QWidget> QuImage::makeWidget(Questionnaire* questionnaire)
 {
@@ -90,14 +92,13 @@ QPointer<QWidget> QuImage::makeWidget(Questionnaire* questionnaire)
     return QPointer<QWidget>(m_label);
 }
 
-
 QPixmap QuImage::getScaledImage(const FieldRef* fieldref) const
 {
     // Fetch image
     QPixmap image;
     const FieldRef* fieldref_to_use = fieldref
-            ? fieldref
-            : (m_fieldref && m_fieldref->valid() ? m_fieldref.data() : nullptr);
+        ? fieldref
+        : (m_fieldref && m_fieldref->valid() ? m_fieldref.data() : nullptr);
     if (fieldref_to_use) {
         image = fieldref_to_use->pixmap();
     } else {
@@ -118,13 +119,12 @@ QPixmap QuImage::getScaledImage(const FieldRef* fieldref) const
         image = image.scaled(size);
     }
 #ifdef DEBUG_SIZE
-    qDebug().nospace()
-            << Q_FUNC_INFO << " Final size (after m_size=" << m_size
-            << ", m_adjust_for_dpi=" << m_adjust_for_dpi << "): " << size;
+    qDebug().nospace() << Q_FUNC_INFO << " Final size (after m_size=" << m_size
+                       << ", m_adjust_for_dpi=" << m_adjust_for_dpi
+                       << "): " << size;
 #endif
     return image;
 }
-
 
 void QuImage::valueChanged(const FieldRef* fieldref)
 {
@@ -133,7 +133,6 @@ void QuImage::valueChanged(const FieldRef* fieldref)
     }
     m_label->setPixmap(getScaledImage(fieldref));
 }
-
 
 QSize QuImage::dpiScaledSize(const QSize& size) const
 {

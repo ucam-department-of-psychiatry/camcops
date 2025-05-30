@@ -19,10 +19,11 @@
 */
 
 #include "demqolproxy.h"
+
 #include "common/textconst.h"
 #include "lib/convert.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qumcqgrid.h"
@@ -38,12 +39,12 @@ const int N_QUESTIONS = 32;
 const int N_SCORED_QUESTIONS = 31;
 const int MISSING_VALUE = -99;
 const int MINIMUM_N_FOR_TOTAL_SCORE = 16;
-const QVector<int>REVERSE_SCORE{1, 4, 6, 8, 11, 32};  // questions scored backwards
+const QVector<int> REVERSE_SCORE{1, 4, 6, 8, 11, 32};
+// ... questions scored backwards
 
 const QString QPREFIX("q");
 
 const QString DemqolProxy::DEMQOLPROXY_TABLENAME("demqolproxy");
-
 
 void initializeDemqolProxy(TaskFactory& factory)
 {
@@ -52,14 +53,17 @@ void initializeDemqolProxy(TaskFactory& factory)
 
 
 DemqolProxy::DemqolProxy(
-        CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, DEMQOLPROXY_TABLENAME, false, true, true)  // ... anon, clin, resp
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
+    Task(app, db, DEMQOLPROXY_TABLENAME, false, true, true)
+// ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
+    );
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -70,31 +74,28 @@ QString DemqolProxy::shortname() const
     return "DEMQOL-Proxy";
 }
 
-
 QString DemqolProxy::longname() const
 {
     return tr("Dementia Quality of Life measure, proxy version");
 }
 
-
 QString DemqolProxy::description() const
 {
-    return tr("31-item interviewer-administered questionnaire answered by a "
-              "caregiver.");
+    return tr(
+        "31-item interviewer-administered questionnaire answered by a "
+        "caregiver."
+    );
 }
-
 
 QString DemqolProxy::infoFilenameStem() const
 {
     return "demqol";  // shares its HTML
 }
 
-
 QString DemqolProxy::xstringTaskname() const
 {
     return "demqol";
 }
-
 
 // ============================================================================
 // Instance info
@@ -105,25 +106,22 @@ bool DemqolProxy::isComplete() const
     return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
 
-
 QStringList DemqolProxy::summary() const
 {
     const int dp = 2;
-    return QStringList{stringfunc::standardResult(
-                    TextConst::totalScore(),
-                    convert::prettyValue(totalScore(), dp)),
-                    " (Q1–31, range 31–124)"};
+    return QStringList{
+        stringfunc::standardResult(
+            TextConst::totalScore(), convert::prettyValue(totalScore(), dp)
+        ),
+        " (Q1–31, range 31–124)"};
 }
-
 
 QStringList DemqolProxy::detail() const
 {
-    return completenessInfo() +
-            fieldSummaries("q", "", " ", QPREFIX, 1, N_QUESTIONS) +
-            QStringList{""} +
-            summary();
+    return completenessInfo()
+        + fieldSummaries("q", "", " ", QPREFIX, 1, N_QUESTIONS)
+        + QStringList{""} + summary();
 }
-
 
 OpenableWidget* DemqolProxy::editor(const bool read_only)
 {
@@ -146,8 +144,8 @@ OpenableWidget* DemqolProxy::editor(const bool read_only)
     };
 
     auto title = [this](int pagenum) -> QString {
-        return shortname() + " " + TextConst::page() + " " +
-                QString::number(pagenum) + "/5";
+        return shortname() + " " + TextConst::page() + " "
+            + QString::number(pagenum) + "/5";
     };
     auto bold = [this](const QString& xstringname) -> QuElement* {
         return (new QuText(xstring(xstringname)))->setBold();
@@ -155,60 +153,67 @@ OpenableWidget* DemqolProxy::editor(const bool read_only)
     auto italic = [this](const QString& xstringname) -> QuElement* {
         return (new QuText(xstring(xstringname)))->setItalic();
     };
-    auto qfields = [this](int first,
-                          int last) -> QVector<QuestionWithOneField> {
+    auto qfields
+        = [this](int first, int last) -> QVector<QuestionWithOneField> {
         QVector<QuestionWithOneField> qf;
         for (int i = first; i <= last; ++i) {
-            qf.append(QuestionWithOneField(xstring(strnum("proxy_q", i)),
-                                           fieldRef(strnum(QPREFIX, i))));
+            qf.append(QuestionWithOneField(
+                xstring(strnum("proxy_q", i)), fieldRef(strnum(QPREFIX, i))
+            ));
         }
         return qf;
     };
 
     pages.append(QuPagePtr((new QuPage{
-        italic("proxy_instruction1"),
-        bold("proxy_instruction2"),
-        bold("proxy_instruction3"),
-        italic("proxy_instruction4"),
-        bold("proxy_instruction5"),
-        bold("a1"),
-        bold("a2"),
-        bold("a3"),
-        bold("a4"),
-        italic("proxy_instruction6"),
-        bold("proxy_instruction7"),
-        italic("proxy_instruction8"),
-        bold("proxy_instruction9"),
-    })->setTitle(title(1))));
+                                italic("proxy_instruction1"),
+                                bold("proxy_instruction2"),
+                                bold("proxy_instruction3"),
+                                italic("proxy_instruction4"),
+                                bold("proxy_instruction5"),
+                                bold("a1"),
+                                bold("a2"),
+                                bold("a3"),
+                                bold("a4"),
+                                italic("proxy_instruction6"),
+                                bold("proxy_instruction7"),
+                                italic("proxy_instruction8"),
+                                bold("proxy_instruction9"),
+                            })
+                               ->setTitle(title(1))));
 
     pages.append(QuPagePtr((new QuPage{
-        bold("proxy_instruction10"),
-        bold("proxy_instruction11"),
-        new QuMcqGrid(qfields(1, 11), main_options),
-    })->setTitle(title(2))));
+                                bold("proxy_instruction10"),
+                                bold("proxy_instruction11"),
+                                new QuMcqGrid(qfields(1, 11), main_options),
+                            })
+                               ->setTitle(title(2))));
 
     pages.append(QuPagePtr((new QuPage{
-        bold("proxy_instruction12"),
-        new QuMcqGrid(qfields(12, 20), main_options),
-    })->setTitle(title(3))));
+                                bold("proxy_instruction12"),
+                                new QuMcqGrid(qfields(12, 20), main_options),
+                            })
+                               ->setTitle(title(3))));
 
     pages.append(QuPagePtr((new QuPage{
-        bold("proxy_instruction13"),
-        new QuMcqGrid(qfields(21, 31), main_options),
-    })->setTitle(title(4))));
+                                bold("proxy_instruction13"),
+                                new QuMcqGrid(qfields(21, 31), main_options),
+                            })
+                               ->setTitle(title(4))));
 
-    pages.append(QuPagePtr((new QuPage{
-        bold("proxy_instruction14"),
-        bold("proxy_q32"),
-        new QuMcq(fieldRef(strnum(QPREFIX, 32)), qol_options),
-    })->setTitle(title(5))));
+    pages.append(
+        QuPagePtr((new QuPage{
+                       bold("proxy_instruction14"),
+                       bold("proxy_q32"),
+                       new QuMcq(fieldRef(strnum(QPREFIX, 32)), qol_options),
+                   })
+                      ->setTitle(title(5)))
+    );
 
     auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations

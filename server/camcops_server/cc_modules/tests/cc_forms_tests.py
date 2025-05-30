@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/tests/cc_forms_tests.py
 
@@ -56,33 +54,22 @@ from camcops_server.cc_modules.cc_forms import (
 )
 from camcops_server.cc_modules.cc_ipuse import IpContexts
 from camcops_server.cc_modules.cc_pyramid import ViewParam
-from camcops_server.cc_modules.cc_taskschedule import TaskSchedule
+from camcops_server.cc_modules.cc_testfactories import (
+    Fake,
+    GroupFactory,
+    TaskScheduleFactory,
+    UserFactory,
+    UserGroupMembershipFactory,
+)
 from camcops_server.cc_modules.cc_unittest import (
     BasicDatabaseTestCase,
-    DemoDatabaseTestCase,
     DemoRequestTestCase,
 )
-
-TEST_PHONE_NUMBER = "+{ctry}{tel}".format(
-    ctry=phonenumbers.PhoneMetadata.metadata_for_region("GB").country_code,
-    tel=phonenumbers.PhoneMetadata.metadata_for_region(
-        "GB"
-    ).personal_number.example_number,
-)  # see webview_tests.py
 
 log = logging.getLogger(__name__)
 
 
-# =============================================================================
-# Unit tests
-# =============================================================================
-
-
 class SchemaTestCase(DemoRequestTestCase):
-    """
-    Unit tests.
-    """
-
     def serialize_deserialize(
         self, schema: Schema, appstruct: Dict[str, Any]
     ) -> None:
@@ -115,7 +102,7 @@ class LoginSchemaTests(SchemaTestCase):
         self.serialize_deserialize(schema, appstruct)
 
 
-class TaskScheduleSchemaTests(DemoDatabaseTestCase):
+class TaskScheduleSchemaTests(BasicDatabaseTestCase):
     def test_invalid_for_bad_template_placeholder(self) -> None:
         schema = TaskScheduleSchema().bind(request=self.req)
         cstruct = {
@@ -254,23 +241,19 @@ class TaskScheduleItemSchemaTests(SchemaTestCase):
         self.assertIn("must be zero or more days", cm.exception.messages()[0])
 
 
-class TaskScheduleItemSchemaIpTests(BasicDatabaseTestCase):
-    def setUp(self) -> None:
-        super().setUp()
-
-        self.schedule = TaskSchedule()
-        self.schedule.group_id = self.group.id
-        self.dbsession.add(self.schedule)
-        self.dbsession.commit()
-
+class TaskScheduleItemSchemaIpTests(DemoRequestTestCase):
     def test_invalid_for_commercial_mismatch(self) -> None:
-        self.group.ip_use.commercial = True
-        self.dbsession.add(self.group)
-        self.dbsession.commit()
+        group = GroupFactory(
+            ip_use__clinical=False,
+            ip_use__commercial=True,
+            ip_use__educational=False,
+            ip_use__research=False,
+        )
+        schedule = TaskScheduleFactory(group=group)
 
         schema = TaskScheduleItemSchema().bind(request=self.req)
         appstruct = {
-            ViewParam.SCHEDULE_ID: self.schedule.id,
+            ViewParam.SCHEDULE_ID: schedule.id,
             ViewParam.TABLE_NAME: "mfi20",
             ViewParam.CLINICIAN_CONFIRMATION: False,
             ViewParam.DUE_FROM: Duration(days=0),
@@ -284,13 +267,17 @@ class TaskScheduleItemSchemaIpTests(BasicDatabaseTestCase):
         self.assertIn("prohibits commercial", cm.exception.messages()[0])
 
     def test_invalid_for_clinical_mismatch(self) -> None:
-        self.group.ip_use.clinical = True
-        self.dbsession.add(self.group)
-        self.dbsession.commit()
+        group = GroupFactory(
+            ip_use__clinical=True,
+            ip_use__commercial=False,
+            ip_use__educational=False,
+            ip_use__research=False,
+        )
+        schedule = TaskScheduleFactory(group=group)
 
         schema = TaskScheduleItemSchema().bind(request=self.req)
         appstruct = {
-            ViewParam.SCHEDULE_ID: self.schedule.id,
+            ViewParam.SCHEDULE_ID: schedule.id,
             ViewParam.TABLE_NAME: "mfi20",
             ViewParam.CLINICIAN_CONFIRMATION: False,
             ViewParam.DUE_FROM: Duration(days=0),
@@ -304,13 +291,17 @@ class TaskScheduleItemSchemaIpTests(BasicDatabaseTestCase):
         self.assertIn("prohibits clinical", cm.exception.messages()[0])
 
     def test_invalid_for_educational_mismatch(self) -> None:
-        self.group.ip_use.educational = True
-        self.dbsession.add(self.group)
-        self.dbsession.commit()
+        group = GroupFactory(
+            ip_use__clinical=False,
+            ip_use__commercial=False,
+            ip_use__educational=True,
+            ip_use__research=False,
+        )
+        schedule = TaskScheduleFactory(group=group)
 
         schema = TaskScheduleItemSchema().bind(request=self.req)
         appstruct = {
-            ViewParam.SCHEDULE_ID: self.schedule.id,
+            ViewParam.SCHEDULE_ID: schedule.id,
             ViewParam.TABLE_NAME: "mfi20",
             ViewParam.CLINICIAN_CONFIRMATION: True,
             ViewParam.DUE_FROM: Duration(days=0),
@@ -330,13 +321,17 @@ class TaskScheduleItemSchemaIpTests(BasicDatabaseTestCase):
         self.assertIn("prohibits educational", cm.exception.messages()[0])
 
     def test_invalid_for_research_mismatch(self) -> None:
-        self.group.ip_use.research = True
-        self.dbsession.add(self.group)
-        self.dbsession.commit()
+        group = GroupFactory(
+            ip_use__clinical=False,
+            ip_use__commercial=False,
+            ip_use__educational=False,
+            ip_use__research=True,
+        )
+        schedule = TaskScheduleFactory(group=group)
 
         schema = TaskScheduleItemSchema().bind(request=self.req)
         appstruct = {
-            ViewParam.SCHEDULE_ID: self.schedule.id,
+            ViewParam.SCHEDULE_ID: schedule.id,
             ViewParam.TABLE_NAME: "moca",
             ViewParam.CLINICIAN_CONFIRMATION: True,
             ViewParam.DUE_FROM: Duration(days=0),
@@ -350,13 +345,12 @@ class TaskScheduleItemSchemaIpTests(BasicDatabaseTestCase):
         self.assertIn("prohibits research", cm.exception.messages()[0])
 
     def test_invalid_for_missing_ip_use(self) -> None:
-        self.group.ip_use = None
-        self.dbsession.add(self.group)
-        self.dbsession.commit()
+        group = GroupFactory(ip_use=None)
+        schedule = TaskScheduleFactory(group=group)
 
         schema = TaskScheduleItemSchema().bind(request=self.req)
         appstruct = {
-            ViewParam.SCHEDULE_ID: self.schedule.id,
+            ViewParam.SCHEDULE_ID: schedule.id,
             ViewParam.TABLE_NAME: "moca",
             ViewParam.CLINICIAN_CONFIRMATION: True,
             ViewParam.DUE_FROM: Duration(days=0),
@@ -368,7 +362,7 @@ class TaskScheduleItemSchemaIpTests(BasicDatabaseTestCase):
             schema.deserialize(cstruct)
 
         self.assertIn(
-            f"The group '{self.group.name}' has no intellectual property "
+            f"The group '{group.name}' has no intellectual property "
             f"settings",
             cm.exception.messages()[0],
         )
@@ -715,25 +709,17 @@ class TaskScheduleNodeTests(TestCase):
             self.assertEqual(cm.exception.value, "[{}]")
 
 
-class TaskScheduleSelectorTests(BasicDatabaseTestCase):
+class TaskScheduleSelectorTests(DemoRequestTestCase):
     def test_displays_only_users_schedules(self) -> None:
-        user = self.create_user(username="regular_user")
-        my_group = self.create_group("mygroup")
-        not_my_group = self.create_group("notmygroup")
-        self.dbsession.flush()
+        user = UserFactory()
+        my_group = GroupFactory()
+        not_my_group = GroupFactory()
+        UserGroupMembershipFactory(
+            user_id=user.id, group_id=my_group.id, may_manage_patients=True
+        )
 
-        self.create_membership(user, my_group, may_manage_patients=True)
-
-        my_schedule = TaskSchedule()
-        my_schedule.group_id = my_group.id
-        my_schedule.name = "My group's schedule"
-        self.dbsession.add(my_schedule)
-
-        not_my_schedule = TaskSchedule()
-        not_my_schedule.group_id = not_my_group.id
-        not_my_schedule.name = "Not my group's schedule"
-        self.dbsession.add(not_my_schedule)
-        self.dbsession.commit()
+        my_schedule = TaskScheduleFactory(group=my_group)
+        not_my_schedule = TaskScheduleFactory(group=not_my_group)
 
         self.req._debugging_user = user
 
@@ -996,9 +982,8 @@ class PhoneNumberTypeDeserializeTests(PhoneNumberTypeTestCase):
             self.assertIn("Invalid phone number", cm.exception.messages()[0])
 
     def test_returns_valid_phone_number(self) -> None:
-        phone_number = self.phone_type.deserialize(
-            self.node, TEST_PHONE_NUMBER
-        )
+        phone_number_str = Fake.en_gb.valid_phone_number()
+        phone_number = self.phone_type.deserialize(self.node, phone_number_str)
 
         self.assertIsInstance(phone_number, phonenumbers.PhoneNumber)
 
@@ -1006,7 +991,7 @@ class PhoneNumberTypeDeserializeTests(PhoneNumberTypeTestCase):
             phonenumbers.format_number(
                 phone_number, phonenumbers.PhoneNumberFormat.E164
             ),
-            TEST_PHONE_NUMBER,
+            phone_number_str,
         )
 
 
@@ -1015,11 +1000,12 @@ class PhoneNumberTypeSerializeTests(PhoneNumberTypeTestCase):
         self.assertIs(self.phone_type.serialize(self.node, None), null)
 
     def test_returns_number_formatted_e164(self) -> None:
-        phone_number = phonenumbers.parse(TEST_PHONE_NUMBER)
+        phone_number_str = Fake.en_gb.valid_phone_number()
+        phone_number = phonenumbers.parse(phone_number_str)
 
         self.assertEqual(
             self.phone_type.serialize(self.node, phone_number),
-            TEST_PHONE_NUMBER,
+            phone_number_str,
         )
 
 

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # noinspection HttpUrlsUsage
 """
 camcops_server/cc_modules/cc_hl7.py
@@ -180,7 +178,7 @@ def make_msh_segment(
         COMPONENT_SEPARATOR,
         [
             "ORU",  # message type ID = Observ result/unsolicited
-            "R01"  # trigger event ID = ORU/ACK - Unsolicited transmission
+            "R01",  # trigger event ID = ORU/ACK - Unsolicited transmission
             # of an observation message
         ],
     )

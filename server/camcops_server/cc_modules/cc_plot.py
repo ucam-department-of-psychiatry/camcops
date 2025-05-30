@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_plot.py
 
@@ -117,7 +115,7 @@ log.debug(
     "Importing matplotlib (can be slow) (MPLCONFIGDIR={})...", _mpl_config_dir
 )
 # noinspection PyUnresolvedReferences
-import matplotlib  # noqa: E402,F401
+import matplotlib  # noqa: E402, F401
 
 # 6. Restore $HOME
 if _old_home is not None:
@@ -130,7 +128,7 @@ if _old_home is not None:
 # matplotlib.use("cairo") # cairo backend corrupts some SVG figures
 
 # Load this once so we can tell the user we're importing it and it's slow
-# REPLACED BY OO METHOD # import matplotlib.pyplot  # noqa
+# REPLACED BY OO METHOD # import matplotlib.pyplot
 
 log.debug("... finished importing matplotlib")
 

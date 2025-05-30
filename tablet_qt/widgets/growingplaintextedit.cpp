@@ -22,40 +22,42 @@
 // This is to PlainTextEdit as GrowingTextEdit is to TextEdit.
 
 #include "growingplaintextedit.h"
+
 #include <QDebug>
 #include <QFont>
 #include <QFontMetrics>
-
 
 GrowingPlainTextEdit::GrowingPlainTextEdit(QWidget* parent) :
     QPlainTextEdit(parent),
     m_auto_resize(true)
 {
-    connect(document(), &QTextDocument::contentsChanged,
-            this, &GrowingPlainTextEdit::contentsChanged);
+    connect(
+        document(),
+        &QTextDocument::contentsChanged,
+        this,
+        &GrowingPlainTextEdit::contentsChanged
+    );
 
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 }
 
-
-GrowingPlainTextEdit::GrowingPlainTextEdit(const QString& text,
-                                           QWidget* parent) :
+GrowingPlainTextEdit::GrowingPlainTextEdit(
+    const QString& text,
+    QWidget* parent
+) :
     GrowingPlainTextEdit(parent)  // delegating constructor
 {
     setPlainText(text);
 }
 
-
 GrowingPlainTextEdit::~GrowingPlainTextEdit()
 {
 }
-
 
 void GrowingPlainTextEdit::setAutoResize(const bool auto_resize)
 {
     m_auto_resize = auto_resize;
 }
-
 
 QSize GrowingPlainTextEdit::sizeHint() const
 {
@@ -94,14 +96,12 @@ QSize GrowingPlainTextEdit::sizeHint() const
     return size_hint;
 }
 
-
 QSize GrowingPlainTextEdit::minimumSizeHint() const
 {
     QSize minsize = QPlainTextEdit::minimumSizeHint();
     minsize.setHeight(sizeHint().height());
     return minsize;
 }
-
 
 void GrowingPlainTextEdit::contentsChanged()
 {

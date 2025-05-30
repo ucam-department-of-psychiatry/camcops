@@ -24,6 +24,7 @@
 #include <QPointer>
 #include <QSharedPointer>
 #include <QString>
+
 #include "graphics/graphicsfunc.h"
 #include "tasklib/task.h"
 
@@ -53,9 +54,13 @@ class IDED3D : public Task
     using IDED3DTrialPtr = QSharedPointer<IDED3DTrial>;
 
 public:
-    IDED3D(CamcopsApp& app, DatabaseManager& db,
-           int load_pk = dbconst::NONEXISTENT_PK);
+    IDED3D(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     ~IDED3D() override;
+
 protected:
     QMap<QString, QMetaType> initTypes();
     QMap<QString, QVariant> initDefaultValues();
@@ -65,12 +70,22 @@ protected:
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
+
 public:
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    virtual bool isEditable() const override { return false; }
-    virtual bool isCrippled() const override { return false; }
+
+    virtual bool isEditable() const override
+    {
+        return false;
+    }
+
+    virtual bool isCrippled() const override
+    {
+        return false;
+    }
+
     // ------------------------------------------------------------------------
     // Ancillary management
     // ------------------------------------------------------------------------
@@ -86,6 +101,7 @@ public:
     virtual QStringList summary() const override;
     virtual QStringList detail() const override;
     virtual OpenableWidget* editor(bool read_only = false) override;
+
 protected:
     virtual void applySettings(const QJsonObject& settings) override;
     void applySetting(const QString fieldname, const QJsonValue value);
@@ -95,34 +111,43 @@ protected:
     // ------------------------------------------------------------------------
 protected slots:
     void validateQuestionnaire();
+
 protected:
     bool validateSettings();
 
     // ------------------------------------------------------------------------
     // Calculation/assistance functions for main task
     // ------------------------------------------------------------------------
+
 protected:
     void makeStages();
     void debugDisplayStimuli();
     graphicsfunc::SvgWidgetAndProxy showIndividualStimulus(
-            int stimulus_num, const QColor& colour,
-            const QPointF& centre, qreal scale,
-            bool debug = false);
+        int stimulus_num,
+        const QColor& colour,
+        const QPointF& centre,
+        qreal scale,
+        bool debug = false
+    );
     QVector<QPointF> stimCentres(int n) const;
     QRectF locationRect(int location) const;
-    void showEmptyBox(int location, bool touchable = false,
-                      bool correct = false);
-    void showCompositeStimulus(int shape, int colour_number, int number,
-                               int location, bool correct);
+    void showEmptyBox(
+        int location, bool touchable = false, bool correct = false
+    );
+    void showCompositeStimulus(
+        int shape, int colour_number, int number, int location, bool correct
+    );
     bool stagePassed() const;
     int getNumTrialsThisStage() const;
     bool stageFailed() const;
     void clearScene();
-    void setTimeout(int time_ms, FuncPtr callback);  // NB QObject has startTimer(), calling timerEvent()
+    void setTimeout(int time_ms, FuncPtr callback);
+    // NB QObject has startTimer(), calling timerEvent()
 
     // ------------------------------------------------------------------------
     // Main task proper
     // ------------------------------------------------------------------------
+
 protected:
     void startTask();
 protected slots:
@@ -140,6 +165,7 @@ protected slots:
     // ------------------------------------------------------------------------
     // Data
     // ------------------------------------------------------------------------
+
 protected:
     QPointer<OpenableWidget> m_widget;
     QPointer<Questionnaire> m_questionnaire;
@@ -150,8 +176,10 @@ protected:
     int m_current_stage;  // zero-based
     int m_current_trial;  // zero-based
     QSharedPointer<QTimer> m_timer;
-    QSharedPointer<QMediaPlayer> m_player_correct;  // not owned by other widgets
-    QSharedPointer<QMediaPlayer> m_player_incorrect;  // not owned by other widgets
+    QSharedPointer<QMediaPlayer> m_player_correct;
+    // ... not owned by other widgets
+    QSharedPointer<QMediaPlayer> m_player_incorrect;
+    // ... not owned by other widgets
 
     QMap<QString, QVariant> m_default_values;
     QMap<QString, QMetaType> m_types;
@@ -161,6 +189,7 @@ protected:
     // ------------------------------------------------------------------------
     // Constants
     // ------------------------------------------------------------------------
+
 public:
     static const QString IDED3D_TABLENAME;
 };

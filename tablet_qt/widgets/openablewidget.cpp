@@ -23,21 +23,23 @@
 // #define DEBUG_RESIZE
 
 #include "openablewidget.h"
+
 #include <QGraphicsView>
 #include <QKeyEvent>
 #include <QResizeEvent>
 #include <QVBoxLayout>
+
 #include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
 
 #ifdef DEBUG_OPENABLE_WIDGET_LAYOUT
-#include "qobjects/showwatcher.h"
+    #include "qobjects/showwatcher.h"
 #endif
 #ifdef DEBUG_PRESS_D_TO_DUMP
-#include "lib/layoutdumper.h"
+    #include "lib/layoutdumper.h"
 #endif
 #ifdef DEBUG_RESIZE
-#include "layouts/qtlayouthelpers.h"
+    #include "layouts/qtlayouthelpers.h"
 #endif
 
 
@@ -54,7 +56,6 @@ OpenableWidget::OpenableWidget(QWidget* parent) :
 #endif
 }
 
-
 void OpenableWidget::build()
 {
     QWidget* widget = m_subwidget.data();
@@ -64,23 +65,22 @@ void OpenableWidget::build()
     }
 }
 
-
 bool OpenableWidget::wantsFullscreen() const
 {
     return m_wants_fullscreen;
 }
-
 
 void OpenableWidget::setWantsFullscreen(const bool fullscreen)
 {
     m_wants_fullscreen = fullscreen;
 }
 
-
-void OpenableWidget::setWidgetAsOnlyContents(QWidget* widget,
-                                             const int margin,
-                                             const bool fullscreen,
-                                             const bool esc_can_abort)
+void OpenableWidget::setWidgetAsOnlyContents(
+    QWidget* widget,
+    const int margin,
+    const bool fullscreen,
+    const bool esc_can_abort
+)
 {
     // Remove any existing layout
     m_subwidget = nullptr;
@@ -112,34 +112,30 @@ void OpenableWidget::setWidgetAsOnlyContents(QWidget* widget,
     setEscapeKeyCanAbort(esc_can_abort, false);
 }
 
-
 bool OpenableWidget::escapeKeyCanAbort() const
 {
     return m_escape_key_can_abort;
 }
 
-
-void OpenableWidget::setEscapeKeyCanAbort(const bool esc_can_abort,
-                                          const bool without_confirmation)
+void OpenableWidget::setEscapeKeyCanAbort(
+    const bool esc_can_abort, const bool without_confirmation
+)
 {
     m_escape_key_can_abort = esc_can_abort;
     m_escape_aborts_without_confirmation = without_confirmation;
 }
 
-
 void OpenableWidget::resizeEvent(QResizeEvent* event)
 {
 #ifdef DEBUG_RESIZE
-    qDebug().nospace()
-            << Q_FUNC_INFO
-            << ": resized to " << event->size()
-            << "; minimumSizeHint() " << minimumSizeHint()
-            << "; qSmartMinSize(this) " << qtlayouthelpers::qSmartMinSize(this);
+    qDebug().nospace() << Q_FUNC_INFO << ": resized to " << event->size()
+                       << "; minimumSizeHint() " << minimumSizeHint()
+                       << "; qSmartMinSize(this) "
+                       << qtlayouthelpers::qSmartMinSize(this);
 #else
     Q_UNUSED(event)
 #endif
 }
-
 
 void OpenableWidget::keyPressEvent(QKeyEvent* event)
 {
@@ -151,10 +147,10 @@ void OpenableWidget::keyPressEvent(QKeyEvent* event)
     if (key == Qt::Key_Escape && type == QEvent::KeyPress) {
         // Escape key pressed
         if (m_escape_key_can_abort) {
-            if (m_escape_aborts_without_confirmation ||
-                    uifunc::confirm(tr("Abort: are you sure?"),
-                                    tr("Abort?"),
-                                    "", "", this)) {
+            if (m_escape_aborts_without_confirmation
+                || uifunc::confirm(
+                    tr("Abort: are you sure?"), tr("Abort?"), "", "", this
+                )) {
                 // User confirms: abort
                 emit aborting();
                 emit finished();

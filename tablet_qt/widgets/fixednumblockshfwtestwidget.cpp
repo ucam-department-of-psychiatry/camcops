@@ -21,23 +21,25 @@
 // #define DEBUG_PAINT
 
 #include "fixednumblockshfwtestwidget.h"
+
 #include <cmath>
 #include <QBrush>
 #include <QDebug>
 #include <QPainter>
 #include <QPen>
 #include <QtMath>
+
 #include "lib/sizehelpers.h"
 
-
 FixedNumBlocksHfwTestWidget::FixedNumBlocksHfwTestWidget(
-        const int num_blocks,
-        const QSize& block_size,
-        qreal preferred_aspect_ratio,
-        const QColor& block_colour,
-        const QColor& background_colour,
-        const QColor& text_colour,
-        QWidget* parent) :
+    const int num_blocks,
+    const QSize& block_size,
+    qreal preferred_aspect_ratio,
+    const QColor& block_colour,
+    const QColor& background_colour,
+    const QColor& text_colour,
+    QWidget* parent
+) :
     QWidget(parent),
     m_n_blocks(num_blocks),
     m_block_size(block_size),
@@ -78,14 +80,16 @@ FixedNumBlocksHfwTestWidget::FixedNumBlocksHfwTestWidget(
 
     // Set non-crazy defaults:
     qreal best_w_blocks = m_n_blocks >= 2 ? (num_blocks / 2) : 1;
-    qreal best_h_blocks = qCeil(static_cast<qreal>(m_n_blocks) /
-                                static_cast<qreal>(best_w_blocks));
+    qreal best_h_blocks = qCeil(
+        static_cast<qreal>(m_n_blocks) / static_cast<qreal>(best_w_blocks)
+    );
     // Hunt for something better:
     qreal best_sq_error = std::numeric_limits<qreal>::infinity();
     const qreal tolerance = 1e-3;
     for (int w_blocks = m_n_blocks; w_blocks > 0; --w_blocks) {
-        const int h_blocks = qCeil(static_cast<qreal>(m_n_blocks) /
-                                   static_cast<qreal>(w_blocks));
+        const int h_blocks = qCeil(
+            static_cast<qreal>(m_n_blocks) / static_cast<qreal>(w_blocks)
+        );
         const qreal w_px = w_blocks * m_block_size.width();
         const qreal h_px = h_blocks * m_block_size.height();
         const qreal aspect_ratio = w_px / h_px;
@@ -106,24 +110,20 @@ FixedNumBlocksHfwTestWidget::FixedNumBlocksHfwTestWidget(
     m_preferred_size.rheight() = best_h_blocks * m_block_size.height();
 }
 
-
 QSize FixedNumBlocksHfwTestWidget::sizeHint() const
 {
     return m_preferred_size;
 }
-
 
 QSize FixedNumBlocksHfwTestWidget::minimumSizeHint() const
 {
     return m_block_size;
 }
 
-
 bool FixedNumBlocksHfwTestWidget::hasHeightForWidth() const
 {
     return true;
 }
-
 
 int FixedNumBlocksHfwTestWidget::heightForWidth(const int width) const
 {
@@ -133,11 +133,10 @@ int FixedNumBlocksHfwTestWidget::heightForWidth(const int width) const
         qWarning() << Q_FUNC_INFO << "problem: w_blocks == 0";
         return m_block_size.height();
     }
-    const int h_blocks = qCeil(static_cast<qreal>(m_n_blocks) /
-                               static_cast<qreal>(w_blocks));
+    const int h_blocks
+        = qCeil(static_cast<qreal>(m_n_blocks) / static_cast<qreal>(w_blocks));
     return h_blocks * m_block_size.height();
 }
-
 
 void FixedNumBlocksHfwTestWidget::paintEvent(QPaintEvent* event)
 {
@@ -155,30 +154,28 @@ void FixedNumBlocksHfwTestWidget::paintEvent(QPaintEvent* event)
         qWarning() << Q_FUNC_INFO << "problem: w_blocks == 0";
         return;
     }
-    const int h_blocks = qCeil(static_cast<qreal>(m_n_blocks) /
-                               static_cast<qreal>(w_blocks));
+    const int h_blocks
+        = qCeil(static_cast<qreal>(m_n_blocks) / static_cast<qreal>(w_blocks));
     const QString hfw_description = hfw_px == h_px
         ? "matches HFW"
         : QString("MISMATCH to HFW %1").arg(hfw_px);
-    const QString description = QString(
-        "Fixed #blocks; %1 x %2 px (%3); %4 x %5 blocks")
-            .arg(w_px)
-            .arg(h_px)
-            .arg(hfw_description)
-            .arg(w_blocks)
-            .arg(h_blocks);
+    const QString description
+        = QString("Fixed #blocks; %1 x %2 px (%3); %4 x %5 blocks")
+              .arg(w_px)
+              .arg(h_px)
+              .arg(hfw_description)
+              .arg(w_blocks)
+              .arg(h_blocks);
 
     const QPen text_pen(m_text_colour);
     const QBrush bg_brush(m_background_colour, Qt::SolidPattern);
     const QBrush block_brush(m_block_colour, Qt::SolidPattern);
 
 #ifdef DEBUG_PAINT
-    qDebug().nospace()
-            << Q_FUNC_INFO
-            << ": size = " << s
-            << ", geometry = " << geometry()
-            << ", w_blocks = " << w_blocks
-            << ", h_blocks = " << h_blocks;
+    qDebug().nospace() << Q_FUNC_INFO << ": size = " << s
+                       << ", geometry = " << geometry()
+                       << ", w_blocks = " << w_blocks
+                       << ", h_blocks = " << h_blocks;
 #endif
 
     QPainter painter(this);
@@ -198,8 +195,6 @@ void FixedNumBlocksHfwTestWidget::paintEvent(QPaintEvent* event)
     // Text
     painter.setPen(text_pen);
     painter.drawText(
-        rect,
-        Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap,
-        description
+        rect, Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap, description
     );
 }

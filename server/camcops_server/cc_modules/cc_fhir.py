@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # noinspection HttpUrlsUsage
 """
 camcops_server/cc_modules/cc_fhir.py
@@ -139,7 +137,7 @@ This problem occurs intermittently:
   So we use a carefully sequenced file lock; see
   :func:`camcops_server.cc_modules.cc_export.export_task`.
 
-"""  # noqa
+"""
 
 
 # =============================================================================
@@ -201,7 +199,7 @@ if any([DEBUG_FHIR_TX]):
 # Development thoughts
 # =============================================================================
 
-_ = """
+_ = r"""
 
 Dive into the internals of the HAPI FHIR server
 ===============================================
@@ -320,7 +318,7 @@ Each class has entries like this:
 The fields are: ``name, jsname, typ, is_list, of_many, not_optional``.
 They are validated in FHIRAbstractBase.update_with_json().
 
-"""  # noqa
+"""  # noqa: E501
 
 
 # =============================================================================

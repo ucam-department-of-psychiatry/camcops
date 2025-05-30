@@ -12,13 +12,13 @@ jobs:
     python-package-checks:
         strategy:
             matrix:
-                python-version: [3.8, 3.9, "3.10"]
+                python-version: [3.9, "3.10", 3.11, 3.12]
                 # LTS versions
                 os: [ubuntu-20.04, ubuntu-22.04]
         runs-on: ${{ matrix.os }}
         steps:
-            - uses: actions/checkout@v3
-            - uses: actions/setup-python@v4
+            - uses: actions/checkout@v4
+            - uses: actions/setup-python@v5
               with:
                   python-version: ${{ matrix.python-version }}
             - name: Python package checks
@@ -32,8 +32,14 @@ jobs:
                   python -m pip install safety
                   echo checking packages for vulnerabilities
                   # All of these vulnerabilities look either harmless or very low risk
-                  # 51668 sqlalchemy fix in 2.0 beta, we don't log Engine.URL()
+                  # 51668 sqlalchemy. Fix in 2.0 beta. We don't log Engine.URL()
                   #       https://github.com/sqlalchemy/sqlalchemy/issues/8567
-                  # 52495 setuptools fix in 65.5.1, we'll be careful not to
+                  # 52495 setuptools. Fix in 65.5.1. We'll be careful not to
                   #       install malicious packages.
-                  safety check --full-report --ignore=51668 --ignore=52495
+                  # 67599 pip. Disputed and only relevant if using --extra-index-url,
+                  #       which we're not.
+                  # 70612 jinja2. The maintainer and multiple third parties
+                  #       believe that this vulnerability isn't valid because
+                  #       users shouldn't use untrusted templates without
+                  #       sandboxing.
+                  safety check --full-report --ignore=51668 --ignore=52495 --ignore=67599 --ignore=70612

@@ -20,14 +20,13 @@
 
 #pragma once
 #include "layouts/layouts.h"
-#include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/mcqgridsubtitle.h"
+#include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/quelement.h"
 #include "questionnairelib/questionwithonefield.h"
 
 class BooleanWidget;
 class QuMcqGridSignaller;
-
 
 class QuMcqGrid : public QuElement
 {
@@ -52,8 +51,11 @@ class QuMcqGrid : public QuElement
 
 public:
     // Constructor
-    QuMcqGrid(const QVector<QuestionWithOneField>& question_field_pairs,
-              const NameValueOptions& options, QObject* parent = nullptr);
+    QuMcqGrid(
+        const QVector<QuestionWithOneField>& question_field_pairs,
+        const NameValueOptions& options,
+        QObject* parent = nullptr
+    );
 
     // Destructor
     virtual ~QuMcqGrid() override;
@@ -65,7 +67,9 @@ public:
     // take more of the available space.
     QuMcqGrid* setWidth(int question_width, const QVector<int>& option_widths);
 
-    QuMcqGrid* setMinimumWidthInPixels(int question_width, const QVector<int>& option_widths);
+    QuMcqGrid* setMinimumWidthInPixels(
+        int question_width, const QVector<int>& option_widths
+    );
 
     // Sets the title
     QuMcqGrid* setTitle(const QString& title);
@@ -95,14 +99,15 @@ public:
     // The NameValueOptions passed must have the same length as the main one
     // passed to the constructor.
     QuMcqGrid* setAlternateNameValueOptions(
-            const QVector<int>& question_indexes,
-            const NameValueOptions& options);
+        const QVector<int>& question_indexes, const NameValueOptions& options
+    );
 
 protected:
     // Set the widget state from the fields' data.
     void setFromFields();
 
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
+    ) override;
     virtual FieldRefPtrList fieldrefs() const override;
 
     // Returns the column number containing the specified (zero-based)
@@ -117,24 +122,28 @@ protected slots:
     void clicked(int question_index, int value_index);
 
     // "A field's value, or a field's mandatory status, has changed."
-    void fieldValueOrMandatoryChanged(int question_index,
-                                      const FieldRef* fieldref);
+    void fieldValueOrMandatoryChanged(
+        int question_index, const FieldRef* fieldref
+    );
 
 protected:
-    QVector<QuestionWithOneField> m_question_field_pairs;  // Question/field mapping
+    QVector<QuestionWithOneField> m_question_field_pairs;
+    // ... Question/field mapping
     NameValueOptions m_options;  // Name/value pairs for options
     int m_question_width;  // relative width for question column
     QVector<int> m_option_widths;  // relative widths for option columns
     int m_question_min_width_px;  // minimum width in pixels for question
-    QVector<int> m_option_min_widths_px;  // minimum width in pixels for option columns
+    QVector<int> m_option_min_widths_px;
+    // ... minimum width in pixels for option columns
     QString m_title;  // title text
     QVector<McqGridSubtitle> m_subtitles;  // subtitle info
     bool m_expand;  // expand our widgets horizontally?
     bool m_stripy;  // apply a stripy background?
     bool m_show_title;  // show the title?
     bool m_questions_bold;  // show questions in bold?
-    QVector<QVector<QPointer<BooleanWidget>>> m_widgets;  // our response widgets
+    QVector<QVector<QPointer<BooleanWidget>>> m_widgets;
+    // ... our response widgets
     QVector<QuMcqGridSignaller*> m_signallers;
-        // ... objects to signal us when field data/mandatory status changes
+    // ... objects to signal us when field data/mandatory status changes
     QMap<int, NameValueOptions> m_alternate_options;
 };

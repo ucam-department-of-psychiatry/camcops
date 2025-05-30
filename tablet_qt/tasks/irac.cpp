@@ -19,8 +19,9 @@
 */
 
 #include "irac.h"
-#include "maths/mathfunc.h"
+
 #include "lib/stringfunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
@@ -36,12 +37,10 @@ const QString Irac::IRAC_TABLENAME("irac");
 const QString AIM("aim");
 const QString ACHIEVED("achieved");
 
-
 void initializeIrac(TaskFactory& factory)
 {
     static TaskRegistrar<Irac> registered(factory);
 }
-
 
 Irac::Irac(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, IRAC_TABLENAME, false, false, false)  // ... anon, clin, resp
@@ -52,7 +51,6 @@ Irac::Irac(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
 
-
 // ============================================================================
 // Class info
 // ============================================================================
@@ -62,18 +60,15 @@ QString Irac::shortname() const
     return "IRAC";
 }
 
-
 QString Irac::longname() const
 {
     return tr("Identify and Rate the Aim of the Contact");
 }
 
-
 QString Irac::description() const
 {
     return tr("Clinician-specified aim of contact, and whether aim achieved.");
 }
-
 
 // ============================================================================
 // Instance info
@@ -84,7 +79,6 @@ bool Irac::isComplete() const
     return noneNull(values({AIM, ACHIEVED}));
 }
 
-
 QStringList Irac::summary() const
 {
     return QStringList{
@@ -93,12 +87,10 @@ QStringList Irac::summary() const
     };
 }
 
-
 QStringList Irac::detail() const
 {
     return completenessInfo() + summary();
 }
-
 
 OpenableWidget* Irac::editor(const bool read_only)
 {
@@ -113,18 +105,18 @@ OpenableWidget* Irac::editor(const bool read_only)
         options_achieved.append(NameValuePair(s, i));
     }
     QuPagePtr page((new QuPage{
-        (new QuText(xstring("q_aim")))->setBold(),
-        new QuMcq(fieldRef(AIM), options_aim),
-        (new QuText(xstring("q_achieved")))->setBold(),
-        new QuMcq(fieldRef(ACHIEVED), options_achieved),
-    })->setTitle(longname()));
+                        (new QuText(xstring("q_aim")))->setBold(),
+                        new QuMcq(fieldRef(AIM), options_aim),
+                        (new QuText(xstring("q_achieved")))->setBold(),
+                        new QuMcq(fieldRef(ACHIEVED), options_achieved),
+                    })
+                       ->setTitle(longname()));
 
     auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations

@@ -26,7 +26,6 @@ class QGraphicsScene;
 class SizeWatcher;
 class ZoomableGraphicsView;
 
-
 class ZoomableWidget : public QWidget
 {
     // Widget that encloses another, and provides a zoomable view onto it.
@@ -36,8 +35,8 @@ class ZoomableWidget : public QWidget
     // different.)
 
     Q_OBJECT
-public:
 
+public:
     // Constructor
     // - A scale of 1.0 means "life-sized".
     //
@@ -52,13 +51,15 @@ public:
     // - minimum_size: how small can this widget go? Since it zooms its
     //   contents, this can be pretty small.
     // - parent: widget's parent (optional)
-    ZoomableWidget(QWidget* contents,
-                   bool can_scale_smaller_than_viewport = false,
-                   qreal min_scale = 0.2,
-                   qreal max_scale = 5.0,
-                   qreal scale_step_factor = 1.1,
-                   const QSize& minimum_size = QSize(300, 300),
-                   QWidget* parent = nullptr);
+    ZoomableWidget(
+        QWidget* contents,
+        bool can_scale_smaller_than_viewport = false,
+        qreal min_scale = 0.2,
+        qreal max_scale = 5.0,
+        qreal scale_step_factor = 1.1,
+        const QSize& minimum_size = QSize(300, 300),
+        QWidget* parent = nullptr
+    );
 
 protected:
     // Standard overrides
@@ -69,7 +70,8 @@ protected:
 
 protected:
     QWidget* m_contents;  // the widget we're displaying
-    QPointer<QGraphicsScene> m_scene;  // a graphics scene containing the contents
+    QPointer<QGraphicsScene> m_scene;
+    // ... a graphics scene containing the contents.
     QPointer<ZoomableGraphicsView> m_view;  // view to display/zoom the scene
     QSize m_minimum_size;  // how small may we be displayed?
 };

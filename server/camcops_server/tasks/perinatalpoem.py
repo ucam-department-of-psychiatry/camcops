@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/tasks/perinatalpoem.py
 
@@ -420,9 +418,9 @@ class PerinatalPoem(Task):
             _dict: Dict[int, str], _first: int, _last: int, _xstringprefix: str
         ) -> None:
             for val in range(_first, _last + 1):
-                _dict[
-                    val
-                ] = f"{val} — {self.wxstring(req, f'{_xstringprefix}{val}')}"
+                _dict[val] = (
+                    f"{val} — {self.wxstring(req, f'{_xstringprefix}{val}')}"
+                )
 
         respondent_dict = {}  # type: Dict[int, str]
         loadvalues(
@@ -759,7 +757,7 @@ class PerinatalPoemReport(
 
         # noinspection PyUnresolvedReferences
         query = (
-            select([column("general_comments")])
+            select(column("general_comments"))
             .select_from(self.task.__table__)
             .where(and_(*wheres))
         )

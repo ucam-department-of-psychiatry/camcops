@@ -19,11 +19,12 @@
 */
 
 #pragma once
-#include "db/databaseobject.h"
 #include <QDate>
 #include <QJsonObject>
 #include <QMap>
 #include <QPointer>
+
+#include "db/databaseobject.h"
 class CamcopsApp;
 class IdPolicy;
 class OpenableWidget;
@@ -43,29 +44,29 @@ extern const QString IDNUM_FIELD_FORMAT;
 extern const QString ANY_IDNUM_POLICYNAME;
 extern const QString OTHER_IDNUM_POLICYNAME;
 
-
 // Represents a patient.
 
 class Patient : public DatabaseObject
 {
     Q_OBJECT
     using AttributesType = QMap<QString, bool>;
+
 public:
     // ------------------------------------------------------------------------
     // Creation
     // ------------------------------------------------------------------------
 
     // Normal constructor.
-    Patient(CamcopsApp& app,
-            DatabaseManager& db,
-            int load_pk = dbconst::NONEXISTENT_PK);
+    Patient(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
 
     // Construct from JSON (except ID numbers -- because they are in a separate
     // table that needs to refer to this patient, so the patient needs to be
     // saved first).
-    Patient(CamcopsApp& app,
-            DatabaseManager& db,
-            const QJsonObject& json_obj);
+    Patient(CamcopsApp& app, DatabaseManager& db, const QJsonObject& json_obj);
 
     // Sets details (except for ID numbers)
     void setPatientDetailsFromJson(const QJsonObject& json_obj);
@@ -160,8 +161,8 @@ public:
     // Returns the attributes possessed by the patient (e.g. "sex and
     // forename and id number type 3"), to provide information for checking
     // against an ID policy mentioning the specified ID number types.
-    AttributesType policyAttributes(
-            const QVector<int>& policy_mentioned_idnums) const;
+    AttributesType policyAttributes(const QVector<int>& policy_mentioned_idnums
+    ) const;
 
     // Returns a JSON representation of the patient.
     QJsonObject jsonDescription() const;
@@ -199,7 +200,8 @@ public:
 
     // Helper functions for various viewers:
 
-    // e.g. "<b>JONES, Bob</b><br>M, 19y, DOB 1 Jan 2000<br>RiO 12345, NHS 9876543210"
+    // e.g. "<b>JONES, Bob</b><br>M, 19y, DOB 1 Jan 2000<br>
+    // RiO 12345, NHS 9876543210"
     QString descriptionForMerge() const;
 
     // e.g. "Bob Jones"
@@ -217,7 +219,8 @@ public:
     // e.g. "JONES, Bob (M, 19y, DOB 1 Jan 2000)\nRiO 12345, NHS 9876543210"
     QString twoLineDetailString() const;
 
-    // e.g. "<b>JONES, Bob</b> (M, 19y, DOB 1 Jan 2000); RiO 12345, NHS 9876543210"
+    // e.g. "<b>JONES, Bob</b> (M, 19y, DOB 1 Jan 2000); RiO 12345,
+    // NHS 9876543210"
     QString oneLineHtmlDetailString() const;
 
     // e.g. "<b>Bob Jones</b>"
@@ -256,8 +259,9 @@ protected:
     void sortIdNums();
 
     // Updates the "missing" alerts etc.
-    void updateQuestionnaireIndicators(const FieldRef* fieldref = nullptr,
-                                       const QObject* originator = nullptr);
+    void updateQuestionnaireIndicators(
+        const FieldRef* fieldref = nullptr, const QObject* originator = nullptr
+    );
 
 protected:
     // ID number objects

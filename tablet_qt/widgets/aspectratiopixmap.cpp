@@ -30,14 +30,15 @@
 // #define DEBUG_CLICK_TIMING
 
 #include "aspectratiopixmap.h"
+
 #include <QDebug>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QResizeEvent>
+
 #include "common/colourdefs.h"
 #include "graphics/graphicsfunc.h"
 #include "lib/sizehelpers.h"
-
 
 AspectRatioPixmap::AspectRatioPixmap(QPixmap* pixmap, QWidget* parent) :
     QWidget(parent)
@@ -48,7 +49,6 @@ AspectRatioPixmap::AspectRatioPixmap(QPixmap* pixmap, QWidget* parent) :
     }
 }
 
-
 void AspectRatioPixmap::setPixmap(const QPixmap& pixmap)
 {
 #ifdef DEBUG_LAYOUT
@@ -58,12 +58,10 @@ void AspectRatioPixmap::setPixmap(const QPixmap& pixmap)
     updateGeometry();  // maximum size may have changed
 }
 
-
 bool AspectRatioPixmap::hasHeightForWidth() const
 {
     return true;
 }
-
 
 int AspectRatioPixmap::heightForWidth(const int width) const
 {
@@ -72,21 +70,22 @@ int AspectRatioPixmap::heightForWidth(const int width) const
 #endif
     // Step 1: calculate an answer that's right for our image's aspect ratio
     int h = m_pixmap.isNull()
-            ? 0  // a bit arbitrary! width()? 0? 1?
-            : static_cast<int>((static_cast<qreal>(m_pixmap.height()) * width) /
-                               m_pixmap.width());
+        ? 0  // a bit arbitrary! width()? 0? 1?
+        : static_cast<int>(
+            (static_cast<qreal>(m_pixmap.height()) * width) / m_pixmap.width()
+        );
 
     // Step 2: never give an answer that is greater than our maximum height,
     // or the framework may allocate too much space for it (and then display
     // us at our correct maximum size, but with giant gaps in the layout).
-    h = qMin(h, m_pixmap.height());  // height() is 0 for a null pixmap anyway; see qpixmap.cpp
+    h = qMin(h, m_pixmap.height());
+    // ... height() is 0 for a null pixmap anyway; see qpixmap.cpp
 
 #ifdef DEBUG_LAYOUT
     qDebug() << Q_FUNC_INFO << "width" << width << "-> height" << h;
 #endif
     return h;
 }
-
 
 QSize AspectRatioPixmap::sizeHint() const
 {
@@ -96,8 +95,8 @@ QSize AspectRatioPixmap::sizeHint() const
     QSize hint = m_pixmap.size();
     // hint.rheight() = -1;
 #ifdef DEBUG_LAYOUT
-    qDebug() << Q_FUNC_INFO << "pixmap size" << m_pixmap.size()
-             << "size hint" << hint;
+    qDebug() << Q_FUNC_INFO << "pixmap size" << m_pixmap.size() << "size hint"
+             << hint;
 #endif
     return hint;
 
@@ -123,12 +122,10 @@ QSize AspectRatioPixmap::sizeHint() const
     // too large; not sure.
 }
 
-
 QSize AspectRatioPixmap::minimumSizeHint() const
 {
     return QSize(0, 0);
 }
-
 
 void AspectRatioPixmap::mousePressEvent(QMouseEvent* event)
 {
@@ -139,7 +136,6 @@ void AspectRatioPixmap::mousePressEvent(QMouseEvent* event)
     emit clicked();
 }
 
-
 void AspectRatioPixmap::clear()
 {
     // qDebug() << Q_FUNC_INFO;
@@ -149,7 +145,6 @@ void AspectRatioPixmap::clear()
     blank.fill(QCOLOR_TRANSPARENT);
     setPixmap(blank);
 }
-
 
 void AspectRatioPixmap::paintEvent(QPaintEvent* event)
 {

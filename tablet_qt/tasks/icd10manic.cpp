@@ -21,12 +21,13 @@
 #define SHOW_CLASSIFICATION_WORKING
 
 #include "icd10manic.h"
+
 #include "common/appstrings.h"
 #include "common/textconst.h"
 #include "lib/convert.h"
 #include "lib/datetime.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
@@ -80,7 +81,8 @@ const QString SUSTAINED4DAYS("sustained4days");
 const QString SUSTAINED7DAYS("sustained7days");
 const QString ADMISSION_REQUIRED("admission_required");
 const QString SOME_INTERFERENCE_FUNCTIONING("some_interference_functioning");
-const QString SEVERE_INTERFERENCE_FUNCTIONING("severe_interference_functioning");
+const QString SEVERE_INTERFERENCE_FUNCTIONING("severe_interference_functioning"
+);
 const QStringList OTHER_CRITERIA_NAMES{
     SUSTAINED4DAYS,
     SUSTAINED7DAYS,
@@ -106,11 +108,10 @@ const QStringList PSYCHOSIS_NAMES{
     DELUSIONS_SCHIZOPHRENIC,
     DELUSIONS_OTHER,
 };
-const QStringList INFORMATIVE = CORE_NAMES + HYPOMANIA_MANIA_NAMES +
-        MANIA_NAMES + OTHER_CRITERIA_NAMES + PSYCHOSIS_AND_SIMILAR_NAMES;
+const QStringList INFORMATIVE = CORE_NAMES + HYPOMANIA_MANIA_NAMES
+    + MANIA_NAMES + OTHER_CRITERIA_NAMES + PSYCHOSIS_AND_SIMILAR_NAMES;
 const QString DATE_PERTAINS_TO("date_pertains_to");
 const QString COMMENTS("comments");
-
 
 void initializeIcd10Manic(TaskFactory& factory)
 {
@@ -118,9 +119,11 @@ void initializeIcd10Manic(TaskFactory& factory)
 }
 
 
-Icd10Manic::Icd10Manic(CamcopsApp& app, DatabaseManager& db,
-                       const int load_pk) :
-    Task(app, db, ICD10MANIC_TABLENAME, false, true, false)  // ... anon, clin, resp
+Icd10Manic::Icd10Manic(
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
+    Task(app, db, ICD10MANIC_TABLENAME, false, true, false)
+// ... anon, clin, resp
 {
     addFields(CORE_NAMES, QMetaType::fromType<bool>());
     addFields(HYPOMANIA_MANIA_NAMES, QMetaType::fromType<bool>());
@@ -139,7 +142,6 @@ Icd10Manic::Icd10Manic(CamcopsApp& app, DatabaseManager& db,
     }
 }
 
-
 // ============================================================================
 // Class info
 // ============================================================================
@@ -149,25 +151,23 @@ QString Icd10Manic::shortname() const
     return "ICD10-mania";
 }
 
-
 QString Icd10Manic::longname() const
 {
-    return tr("ICD-10 symptomatic criteria for a manic/hypomanic episode "
-              "(as in e.g. F06.3, F25, F30, F31)");
+    return tr(
+        "ICD-10 symptomatic criteria for a manic/hypomanic episode "
+        "(as in e.g. F06.3, F25, F30, F31)"
+    );
 }
-
 
 QString Icd10Manic::description() const
 {
     return TextConst::icd10();
 }
 
-
 QString Icd10Manic::infoFilenameStem() const
 {
     return "icd";
 }
-
 
 // ============================================================================
 // Instance info
@@ -178,24 +178,25 @@ bool Icd10Manic::isComplete() const
     return !valueIsNull(DATE_PERTAINS_TO) && !meetsCriteriaNone().isNull();
 }
 
-
 QStringList Icd10Manic::summary() const
 {
     return QStringList{
-        standardResult(appstring(appstrings::DATE_PERTAINS_TO),
-                       shortDate(value(DATE_PERTAINS_TO))),
+        standardResult(
+            appstring(appstrings::DATE_PERTAINS_TO),
+            shortDate(value(DATE_PERTAINS_TO))
+        ),
         standardResult(TextConst::category(), getDescription()),
     };
 }
 
-
 QStringList Icd10Manic::detail() const
 {
     QStringList lines = completenessInfo();
-    lines.append(standardResult(appstring(appstrings::DATE_PERTAINS_TO),
-                                shortDate(value(DATE_PERTAINS_TO))));
-    lines.append(fieldSummary(COMMENTS,
-                              TextConst::examinerComments()));
+    lines.append(standardResult(
+        appstring(appstrings::DATE_PERTAINS_TO),
+        shortDate(value(DATE_PERTAINS_TO))
+    ));
+    lines.append(fieldSummary(COMMENTS, TextConst::examinerComments()));
     lines.append("");
     lines += detailGroup(CORE_NAMES);
     lines += detailGroup(HYPOMANIA_MANIA_NAMES);
@@ -209,69 +210,87 @@ QStringList Icd10Manic::detail() const
         return bold(convert::prettyValue(v));
     };
     lines.append("");
-    lines.append("meetsCriteriaManiaPsychoticSchizophrenic(): " +
-                 pv(meetsCriteriaManiaPsychoticSchizophrenic()));
-    lines.append("meetsCriteriaManiaPsychoticIcd(): " +
-                 pv(meetsCriteriaManiaPsychoticIcd()));
-    lines.append("meetsCriteriaManiaNonpsychotic(): " +
-                 pv(meetsCriteriaManiaNonpsychotic()));
-    lines.append("meetsCriteriaManiaIgnoringPsychosis(): " +
-                 pv(meetsCriteriaManiaIgnoringPsychosis()));
+    lines.append(
+        "meetsCriteriaManiaPsychoticSchizophrenic(): "
+        + pv(meetsCriteriaManiaPsychoticSchizophrenic())
+    );
+    lines.append(
+        "meetsCriteriaManiaPsychoticIcd(): "
+        + pv(meetsCriteriaManiaPsychoticIcd())
+    );
+    lines.append(
+        "meetsCriteriaManiaNonpsychotic(): "
+        + pv(meetsCriteriaManiaNonpsychotic())
+    );
+    lines.append(
+        "meetsCriteriaManiaIgnoringPsychosis(): "
+        + pv(meetsCriteriaManiaIgnoringPsychosis())
+    );
     lines.append("meetsCriteriaHypomania(): " + pv(meetsCriteriaHypomania()));
     lines.append("meetsCriteriaNone(): " + pv(meetsCriteriaNone()));
 #endif
     return lines;
 }
 
-
 OpenableWidget* Icd10Manic::editor(const bool read_only)
 {
-    const NameValueOptions true_false_options = CommonOptions::falseTrueBoolean();
+    const NameValueOptions true_false_options
+        = CommonOptions::falseTrueBoolean();
 
     auto heading = [this](const QString& xstringname) -> QuElement* {
         return new QuHeading(xstring(xstringname));
     };
-    auto grid = [this](const QStringList& fields_xstrings,
-                       const NameValueOptions& options,
-                       bool mandatory) -> QuElement* {
+    auto grid = [this](
+                    const QStringList& fields_xstrings,
+                    const NameValueOptions& options,
+                    bool mandatory
+                ) -> QuElement* {
         // Assumes the xstring name matches the fieldname (as it does)
         QVector<QuestionWithOneField> qfields;
         for (const QString& fieldname : fields_xstrings) {
-            qfields.append(
-                        QuestionWithOneField(xstring(fieldname),
-                                             fieldRef(fieldname, mandatory)));
+            qfields.append(QuestionWithOneField(
+                xstring(fieldname), fieldRef(fieldname, mandatory)
+            ));
         }
         const int n = options.size();
         const QVector<int> v(n, 1);
         return (new QuMcqGrid(qfields, options))
-                ->setExpand(true)
-                ->setWidth(n, v);
+            ->setExpand(true)
+            ->setWidth(n, v);
     };
 
-    QuPagePtr page((new QuPage{
-        getClinicianQuestionnaireBlockRawPointer(),
-        (new QuText(appstring(appstrings::ICD10_SYMPTOMATIC_DISCLAIMER)))->setBold(),
-        new QuText(appstring(appstrings::DATE_PERTAINS_TO)),
-        (new QuDateTime(fieldRef(DATE_PERTAINS_TO)))
-            ->setMode(QuDateTime::Mode::DefaultDate)
-            ->setOfferNowButton(true),
-        heading("core"),
-        grid(CORE_NAMES, true_false_options, true),
-        heading("hypomania_mania"),
-        grid(HYPOMANIA_MANIA_NAMES, true_false_options, true),
-        heading("other_mania"),
-        grid(MANIA_NAMES, true_false_options, false),
-        heading("other_criteria"),
-        grid(OTHER_CRITERIA_NAMES, true_false_options, false),
-        heading("psychosis"),
-        grid(PSYCHOSIS_AND_SIMILAR_NAMES, true_false_options, false),
-        new QuHeading(TextConst::comments()),
-        new QuTextEdit(fieldRef(COMMENTS, false)),
-    })->setTitle(longname()));
+    QuPagePtr page(
+        (new QuPage{
+             getClinicianQuestionnaireBlockRawPointer(),
+             (new QuText(appstring(appstrings::ICD10_SYMPTOMATIC_DISCLAIMER)))
+                 ->setBold(),
+             new QuText(appstring(appstrings::DATE_PERTAINS_TO)),
+             (new QuDateTime(fieldRef(DATE_PERTAINS_TO)))
+                 ->setMode(QuDateTime::Mode::DefaultDate)
+                 ->setOfferNowButton(true),
+             heading("core"),
+             grid(CORE_NAMES, true_false_options, true),
+             heading("hypomania_mania"),
+             grid(HYPOMANIA_MANIA_NAMES, true_false_options, true),
+             heading("other_mania"),
+             grid(MANIA_NAMES, true_false_options, false),
+             heading("other_criteria"),
+             grid(OTHER_CRITERIA_NAMES, true_false_options, false),
+             heading("psychosis"),
+             grid(PSYCHOSIS_AND_SIMILAR_NAMES, true_false_options, false),
+             new QuHeading(TextConst::comments()),
+             new QuTextEdit(fieldRef(COMMENTS, false)),
+         })
+            ->setTitle(longname())
+    );
 
     for (const QString& fieldname : INFORMATIVE) {
-        connect(fieldRef(fieldname).data(), &FieldRef::valueChanged,
-                this, &Icd10Manic::updateMandatory);
+        connect(
+            fieldRef(fieldname).data(),
+            &FieldRef::valueChanged,
+            this,
+            &Icd10Manic::updateMandatory
+        );
     }
 
     updateMandatory();
@@ -281,7 +300,6 @@ OpenableWidget* Icd10Manic::editor(const bool read_only)
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations
@@ -294,8 +312,8 @@ QVariant Icd10Manic::meetsCriteriaManiaPsychoticSchizophrenic() const
         return mania;  // might be false or NULL
     }
     const QStringList icd10psychotic{HALLUCINATIONS_OTHER, DELUSIONS_OTHER};
-    const QStringList schizophreniform{HALLUCINATIONS_SCHIZOPHRENIC,
-                                       DELUSIONS_SCHIZOPHRENIC};
+    const QStringList schizophreniform{
+        HALLUCINATIONS_SCHIZOPHRENIC, DELUSIONS_SCHIZOPHRENIC};
     if (anyTrue(values(icd10psychotic))) {
         return false;  // that counts as manic psychosis
     }
@@ -310,7 +328,6 @@ QVariant Icd10Manic::meetsCriteriaManiaPsychoticSchizophrenic() const
     }
     return false;
 }
-
 
 QVariant Icd10Manic::meetsCriteriaManiaPsychoticIcd() const
 {
@@ -328,7 +345,6 @@ QVariant Icd10Manic::meetsCriteriaManiaPsychoticIcd() const
     return false;
 }
 
-
 QVariant Icd10Manic::meetsCriteriaManiaNonpsychotic() const
 {
     const QVariant mania_ign_psy = meetsCriteriaManiaIgnoringPsychosis();
@@ -344,7 +360,6 @@ QVariant Icd10Manic::meetsCriteriaManiaNonpsychotic() const
     return true;
 }
 
-
 QVariant Icd10Manic::meetsCriteriaManiaIgnoringPsychosis() const
 {
     // When can we say "definitely not"?
@@ -354,7 +369,8 @@ QVariant Icd10Manic::meetsCriteriaManiaIgnoringPsychosis() const
     if (allFalse(values({SUSTAINED7DAYS, ADMISSION_REQUIRED}))) {
         return false;
     }
-    const QVector<QVariant> symptoms = values(HYPOMANIA_MANIA_NAMES + MANIA_NAMES);
+    const QVector<QVariant> symptoms
+        = values(HYPOMANIA_MANIA_NAMES + MANIA_NAMES);
     const int t = countTrue(symptoms);  // t for true
     const int u = countNull(symptoms);  // u for unknown
     if (valueBool(MOOD_ELEVATED) && (t + u < 3)) {
@@ -369,16 +385,15 @@ QVariant Icd10Manic::meetsCriteriaManiaIgnoringPsychosis() const
         return false;
     }
     // OK. When can we say "yes"?
-    if ((valueBool(MOOD_ELEVATED) || valueBool(MOOD_IRRITABLE)) &&
-            (valueBool(SUSTAINED7DAYS) || valueBool(ADMISSION_REQUIRED)) &&
-            ((valueBool(MOOD_ELEVATED) && t >= 3) ||
-             (valueBool(MOOD_IRRITABLE) && t >= 4)) &&
-            valueBool(SEVERE_INTERFERENCE_FUNCTIONING)) {
+    if ((valueBool(MOOD_ELEVATED) || valueBool(MOOD_IRRITABLE))
+        && (valueBool(SUSTAINED7DAYS) || valueBool(ADMISSION_REQUIRED))
+        && ((valueBool(MOOD_ELEVATED) && t >= 3)
+            || (valueBool(MOOD_IRRITABLE) && t >= 4))
+        && valueBool(SEVERE_INTERFERENCE_FUNCTIONING)) {
         return true;
     }
     return QVariant();
 }
-
 
 QVariant Icd10Manic::meetsCriteriaHypomania() const
 {
@@ -386,8 +401,8 @@ QVariant Icd10Manic::meetsCriteriaHypomania() const
     if (meetsCriteriaManiaIgnoringPsychosis().toBool()) {
         return false;  // silly to call it hypomania if it's mania
     }
-    if (valueIsFalseNotNull(MOOD_ELEVATED) &&
-            valueIsFalseNotNull(MOOD_IRRITABLE)) {
+    if (valueIsFalseNotNull(MOOD_ELEVATED)
+        && valueIsFalseNotNull(MOOD_IRRITABLE)) {
         return false;
     }
     if (valueIsFalseNotNull(SUSTAINED4DAYS)) {
@@ -404,15 +419,13 @@ QVariant Icd10Manic::meetsCriteriaHypomania() const
         return false;
     }
     // OK. When can we say "yes"?
-    if ((valueBool(MOOD_ELEVATED) || valueBool(MOOD_IRRITABLE)) &&
-            valueBool(SUSTAINED4DAYS) &&
-            t >= 3 &&
-            valueBool(SOME_INTERFERENCE_FUNCTIONING)) {
+    if ((valueBool(MOOD_ELEVATED) || valueBool(MOOD_IRRITABLE))
+        && valueBool(SUSTAINED4DAYS) && t >= 3
+        && valueBool(SOME_INTERFERENCE_FUNCTIONING)) {
         return true;
     }
     return QVariant();
 }
-
 
 QVariant Icd10Manic::meetsCriteriaNone() const
 {
@@ -426,7 +439,6 @@ QVariant Icd10Manic::meetsCriteriaNone() const
     }
     return QVariant();
 }
-
 
 QString Icd10Manic::getDescription() const
 {
@@ -448,7 +460,6 @@ QString Icd10Manic::getDescription() const
     return TextConst::unknown();
 }
 
-
 QStringList Icd10Manic::detailGroup(const QStringList& fieldnames) const
 {
     QStringList lines;
@@ -458,7 +469,6 @@ QStringList Icd10Manic::detailGroup(const QStringList& fieldnames) const
     return lines;
 }
 
-
 // ============================================================================
 // Signal handlers
 // ============================================================================
@@ -466,11 +476,11 @@ QStringList Icd10Manic::detailGroup(const QStringList& fieldnames) const
 void Icd10Manic::updateMandatory()
 {
     // Information is mandatory until we have an answer.
-    const bool known = meetsCriteriaNone().toBool() ||
-            meetsCriteriaHypomania().toBool() ||
-            meetsCriteriaManiaNonpsychotic().toBool() ||
-            meetsCriteriaManiaPsychoticIcd().toBool() ||
-            meetsCriteriaManiaPsychoticSchizophrenic().toBool();
+    const bool known = meetsCriteriaNone().toBool()
+        || meetsCriteriaHypomania().toBool()
+        || meetsCriteriaManiaNonpsychotic().toBool()
+        || meetsCriteriaManiaPsychoticIcd().toBool()
+        || meetsCriteriaManiaPsychoticSchizophrenic().toBool();
     const bool need = !known;
     for (const QString& fieldname : INFORMATIVE) {
         fieldRef(fieldname)->setMandatory(need, this);

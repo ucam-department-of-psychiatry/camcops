@@ -31,20 +31,27 @@ namespace layoutdumper {
 
 // Class to collection options for our layout dumper.
 
-class DumperConfig {
+class DumperConfig
+{
 public:
-    DumperConfig() {}
-    DumperConfig(bool show_widget_properties,
-                 bool show_all_widget_attributes,
-                 bool show_set_widget_attributes,
-                 bool show_widget_stylesheets,
-                 bool spaces_per_level) :
+    DumperConfig()
+    {
+    }
+
+    DumperConfig(
+        bool show_widget_properties,
+        bool show_all_widget_attributes,
+        bool show_set_widget_attributes,
+        bool show_widget_stylesheets,
+        bool spaces_per_level
+    ) :
         show_widget_properties(show_widget_properties),
         show_all_widget_attributes(show_all_widget_attributes),
         show_set_widget_attributes(show_set_widget_attributes),
         show_widget_stylesheets(show_widget_stylesheets),
         spaces_per_level(spaces_per_level)
-    {}
+    {
+    }
 
 public:
     bool show_widget_properties = false;
@@ -94,13 +101,15 @@ QString getWidgetDescriptor(const QWidget* w);
 // Produces a lengthy description of the widget's geometry, size, size hints,
 // etc. Labels the components as flowing "up" (widget to its parent
 // layout/widget) or "down" (parent layout/widget to this widget).
-QString getWidgetInfo(const QWidget* w,
-                      const DumperConfig& config = DumperConfig());
+QString getWidgetInfo(
+    const QWidget* w, const DumperConfig& config = DumperConfig()
+);
 
 // Provides a description of a widget's attributes, i.e. Qt::WidgetAttribute.
 QString getWidgetAttributeInfo(const QWidget* w, bool all = false);
 
-// Describes a widget's dynamic properties, via QWidget::dynamicPropertyNames().
+// Describes a widget's dynamic properties, via
+// QWidget::dynamicPropertyNames().
 QString getDynamicProperties(const QWidget* w);
 
 // Provides a lengthy description of a layout's geometry, size hints, etc.
@@ -116,18 +125,23 @@ QString paddingSpaces(int level, int spaces_per_level);
 
 // Dumps information about a layout and its children to an output stream.
 QVector<const QWidget*> dumpLayoutAndChildren(
-        QDebug& os, const QLayout* layout, int level,
-        const DumperConfig& config);
+    QDebug& os, const QLayout* layout, int level, const DumperConfig& config
+);
 
 // Dumps information about a widget and its children to an output stream.
 QVector<const QWidget*> dumpWidgetAndChildren(
-        QDebug& os, const QWidget* w, int level,
-        const QString& alignment, const DumperConfig& config);
+    QDebug& os,
+    const QWidget* w,
+    int level,
+    const QString& alignment,
+    const DumperConfig& config
+);
 
 // Dumps a widget and its children to the qDebug() stream via
 // dumpWidgetAndChildren().
-void dumpWidgetHierarchy(const QWidget* w,
-                         const DumperConfig& config = DumperConfig());
+void dumpWidgetHierarchy(
+    const QWidget* w, const DumperConfig& config = DumperConfig()
+);
 
 // Travels up through the widget's parents until there are no more parents,
 // and return the last one we got to.

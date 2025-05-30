@@ -26,7 +26,6 @@
 
 class LinkFunctionFamily;
 
-
 namespace statsfunc {
 
 // ============================================================================
@@ -34,8 +33,7 @@ namespace statsfunc {
 // ============================================================================
 
 // Calculates the (sample) variance of an Eigen array.
-template<typename Derived>
-double variance(const Eigen::ArrayBase<Derived>& a)
+template<typename Derived> double variance(const Eigen::ArrayBase<Derived>& a)
 {
     double n = a.size();
     double mean = a.mean();
@@ -44,15 +42,12 @@ double variance(const Eigen::ArrayBase<Derived>& a)
     return ss / (n - 1);
 }
 
-
 // Calculates the (sample) variance of an Eigen matrix.
-template<typename Derived>
-double variance(const Eigen::MatrixBase<Derived>& m)
+template<typename Derived> double variance(const Eigen::MatrixBase<Derived>& m)
 {
     // For elementwise operations, we need an Array, not a Matrix.
     return variance(m.array());
 }
-
 
 // ============================================================================
 // Elementary functions
@@ -135,24 +130,26 @@ bool allInteger(const Eigen::ArrayXd& x, double threshold = 0.001);
 Eigen::ArrayXXd binomialVariance(const Eigen::ArrayXXd& x);
 
 // R: binomial_dev_resids()
-Eigen::ArrayXd binomialDevResids(const Eigen::ArrayXd& y,
-                                 const Eigen::ArrayXd& mu,
-                                 const Eigen::ArrayXd& wt);
+Eigen::ArrayXd binomialDevResids(
+    const Eigen::ArrayXd& y, const Eigen::ArrayXd& mu, const Eigen::ArrayXd& wt
+);
 
 // R: binomial()$validmu
 bool binomialValidMu(const Eigen::ArrayXd& mu);
 
 // R: binomial()$initialize
 // Returns: OK?
-bool binomialInitialize(QStringList& errors,
-                        const LinkFunctionFamily& family,
-                        Eigen::ArrayXd& y,
-                        Eigen::ArrayXd& n,
-                        Eigen::ArrayXd& m,
-                        Eigen::ArrayXd& weights,
-                        Eigen::ArrayXd& start,
-                        Eigen::ArrayXd& etastart,
-                        Eigen::ArrayXd& mustart);
+bool binomialInitialize(
+    QStringList& errors,
+    const LinkFunctionFamily& family,
+    Eigen::ArrayXd& y,
+    Eigen::ArrayXd& n,
+    Eigen::ArrayXd& m,
+    Eigen::ArrayXd& weights,
+    Eigen::ArrayXd& start,
+    Eigen::ArrayXd& etastart,
+    Eigen::ArrayXd& mustart
+);
 
 #ifdef STATSFUNC_OFFER_AIC
 
@@ -160,17 +157,21 @@ bool binomialInitialize(QStringList& errors,
 double dbinom(double x, int n, double p, bool log = false);
 
 // As per R's dbinom()
-Eigen::ArrayXd dbinom(const Eigen::ArrayXd& x,
-                      const Eigen::ArrayXi& n,
-                      const Eigen::ArrayXd& p,
-                      bool log = false);
+Eigen::ArrayXd dbinom(
+    const Eigen::ArrayXd& x,
+    const Eigen::ArrayXi& n,
+    const Eigen::ArrayXd& p,
+    bool log = false
+);
 
 // R: binomial()$aic
-double binomialAIC(const Eigen::ArrayXd& y,
-                   const Eigen::ArrayXd& n,
-                   const Eigen::ArrayXd& mu,
-                   const Eigen::ArrayXd& wt,
-                   double dev);
+double binomialAIC(
+    const Eigen::ArrayXd& y,
+    const Eigen::ArrayXd& n,
+    const Eigen::ArrayXd& mu,
+    const Eigen::ArrayXd& wt,
+    double dev
+);
 
 #endif
 
@@ -179,30 +180,34 @@ double binomialAIC(const Eigen::ArrayXd& y,
 // ----------------------------------------------------------------------------
 
 // R: gaussian()$dev.resids
-Eigen::ArrayXd gaussianDevResids(const Eigen::ArrayXd& y,
-                                 const Eigen::ArrayXd& mu,
-                                 const Eigen::ArrayXd& wt);
+Eigen::ArrayXd gaussianDevResids(
+    const Eigen::ArrayXd& y, const Eigen::ArrayXd& mu, const Eigen::ArrayXd& wt
+);
 
 // R: gaussian()$initialize
 // Returns: OK?
-bool gaussianInitialize(QStringList& errors,
-                        const LinkFunctionFamily& family,
-                        Eigen::ArrayXd& y,
-                        Eigen::ArrayXd& n,
-                        Eigen::ArrayXd& m,
-                        Eigen::ArrayXd& weights,
-                        Eigen::ArrayXd& start,
-                        Eigen::ArrayXd& etastart,
-                        Eigen::ArrayXd& mustart);
+bool gaussianInitialize(
+    QStringList& errors,
+    const LinkFunctionFamily& family,
+    Eigen::ArrayXd& y,
+    Eigen::ArrayXd& n,
+    Eigen::ArrayXd& m,
+    Eigen::ArrayXd& weights,
+    Eigen::ArrayXd& start,
+    Eigen::ArrayXd& etastart,
+    Eigen::ArrayXd& mustart
+);
 
 #ifdef STATSFUNC_OFFER_AIC
 
 // R: gaussian()$aic
-double gaussianAIC(const Eigen::ArrayXd& y,
-                   const Eigen::ArrayXd& n,
-                   const Eigen::ArrayXd& mu,
-                   const Eigen::ArrayXd& wt,
-                   double dev);
+double gaussianAIC(
+    const Eigen::ArrayXd& y,
+    const Eigen::ArrayXd& n,
+    const Eigen::ArrayXd& mu,
+    const Eigen::ArrayXd& wt,
+    double dev
+);
 
 #endif
 
@@ -215,32 +220,36 @@ bool poissonValidMu(const Eigen::ArrayXd& mu);
 
 
 // R: poisson()$dev.resids
-Eigen::ArrayXd poissonDevResids(const Eigen::ArrayXd& y,
-                                const Eigen::ArrayXd& mu,
-                                const Eigen::ArrayXd& wt);
+Eigen::ArrayXd poissonDevResids(
+    const Eigen::ArrayXd& y, const Eigen::ArrayXd& mu, const Eigen::ArrayXd& wt
+);
 
 
 // R: poisson()$initialize
 // Returns: OK?
-bool poissonInitialize(QStringList& errors,
-                       const LinkFunctionFamily& family,
-                       Eigen::ArrayXd& y,
-                       Eigen::ArrayXd& n,
-                       Eigen::ArrayXd& m,
-                       Eigen::ArrayXd& weights,
-                       Eigen::ArrayXd& start,
-                       Eigen::ArrayXd& etastart,
-                       Eigen::ArrayXd& mustart);
+bool poissonInitialize(
+    QStringList& errors,
+    const LinkFunctionFamily& family,
+    Eigen::ArrayXd& y,
+    Eigen::ArrayXd& n,
+    Eigen::ArrayXd& m,
+    Eigen::ArrayXd& weights,
+    Eigen::ArrayXd& start,
+    Eigen::ArrayXd& etastart,
+    Eigen::ArrayXd& mustart
+);
 
 
 #ifdef STATSFUNC_OFFER_AIC
 
 // R: poisson()$aic
-double poissonAIC(const Eigen::ArrayXd& y,
-                  const Eigen::ArrayXd& n,
-                  const Eigen::ArrayXd& mu,
-                  const Eigen::ArrayXd& wt,
-                  double dev);  // NOT YET IMPLEMENTED
+double poissonAIC(
+    const Eigen::ArrayXd& y,
+    const Eigen::ArrayXd& n,
+    const Eigen::ArrayXd& mu,
+    const Eigen::ArrayXd& wt,
+    double dev
+);  // NOT YET IMPLEMENTED
 
 #endif
 
@@ -252,8 +261,7 @@ double poissonAIC(const Eigen::ArrayXd& y,
 // Singular value decomposition (SVD) solving.
 // Solves Ax = b [or b = Ax + e], for x, minimizing e (in a least-squares
 // sense).
-Eigen::VectorXd svdSolve(const Eigen::MatrixXd& A,
-                         const Eigen::VectorXd& b);  // solves Ax = b [or b = Ax + e], for x, minimizing e
+Eigen::VectorXd svdSolve(const Eigen::MatrixXd& A, const Eigen::VectorXd& b);
 
 
 // ============================================================================

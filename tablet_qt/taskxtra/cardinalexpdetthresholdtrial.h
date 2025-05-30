@@ -21,20 +21,26 @@
 #pragma once
 #include "db/databaseobject.h"
 
-
 class CardinalExpDetThresholdTrial : public DatabaseObject
 {
     Q_OBJECT
+
 public:
     // Load, or create blank
-    CardinalExpDetThresholdTrial(CamcopsApp& app, DatabaseManager& db,
-                                 int load_pk = dbconst::NONEXISTENT_PK);
+    CardinalExpDetThresholdTrial(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // Create and save
     CardinalExpDetThresholdTrial(
-            int task_pk, int trial_num,
-            const QVariant& trial_num_ignoring_catch_trials,
-            bool target_presented,
-            CamcopsApp& app, DatabaseManager& db);
+        int task_pk,
+        int trial_num,
+        const QVariant& trial_num_ignoring_catch_trials,
+        bool target_presented,
+        CamcopsApp& app,
+        DatabaseManager& db
+    );
 
     bool wasCaughtOutReset() const;
     int trialNum() const;
@@ -49,9 +55,11 @@ public:
     QString summary() const;
     void setTrialNumInCalcSeq(const QVariant& value);
     bool isInCalculationSeq() const;
+
 public:
     static const QString TRIAL_TABLENAME;
     static const QString FN_FK_TO_TASK;
     static const QString FN_TRIAL;
+
 protected:
 };

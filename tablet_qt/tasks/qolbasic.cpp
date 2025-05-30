@@ -19,9 +19,10 @@
 */
 
 #include "qolbasic.h"
+
 #include "lib/convert.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quslider.h"
 #include "questionnairelib/qutext.h"
@@ -40,7 +41,6 @@ const int DP_TTO = 2;
 const int DP_RS = 2;
 const int DP_MEAN = 3;
 
-
 void initializeQolBasic(TaskFactory& factory)
 {
     static TaskRegistrar<QolBasic> registered(factory);
@@ -48,14 +48,14 @@ void initializeQolBasic(TaskFactory& factory)
 
 
 QolBasic::QolBasic(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, QOLBASIC_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, QOLBASIC_TABLENAME, false, false, false)
+// ... anon, clin, resp
 {
     addField(TTO, QMetaType::fromType<double>());
     addField(RS, QMetaType::fromType<double>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -66,24 +66,21 @@ QString QolBasic::shortname() const
     return "QoL-Basic";
 }
 
-
 QString QolBasic::longname() const
 {
     return tr("Quality of Life: basic assessment");
 }
 
-
 QString QolBasic::description() const
 {
-    return tr("Time trade-off and response scale measures of quality of life.");
+    return tr("Time trade-off and response scale measures of quality of life."
+    );
 }
-
 
 QString QolBasic::infoFilenameStem() const
 {
     return "qol";
 }
-
 
 // ============================================================================
 // Instance info
@@ -94,25 +91,25 @@ bool QolBasic::isComplete() const
     return noneNull(values({TTO, RS}));
 }
 
-
 QStringList QolBasic::summary() const
 {
     return QStringList{
-        standardResult(xstring("tto_q_s"),
-                       convert::prettyValue(qolTto(), DP_TTO)),
-        standardResult(xstring("rs_q_s"),
-                       convert::prettyValue(qolRs(), DP_RS)),
-        standardResult(xstring("mean_qol"),
-                       convert::prettyValue(meanQol(), DP_MEAN)),
+        standardResult(
+            xstring("tto_q_s"), convert::prettyValue(qolTto(), DP_TTO)
+        ),
+        standardResult(
+            xstring("rs_q_s"), convert::prettyValue(qolRs(), DP_RS)
+        ),
+        standardResult(
+            xstring("mean_qol"), convert::prettyValue(meanQol(), DP_MEAN)
+        ),
     };
 }
-
 
 QStringList QolBasic::detail() const
 {
     return completenessInfo() + summary();
 }
-
 
 OpenableWidget* QolBasic::editor(const bool read_only)
 {
@@ -162,21 +159,22 @@ OpenableWidget* QolBasic::editor(const bool read_only)
     rs_slider->setTickLabelPosition(QSlider::TicksBelow);
 
     QuPagePtr page1((new QuPage{
-        new QuText(xstring("tto_q")),
-        tto_slider,
-    })->setTitle(xstring("tto_title")));
+                         new QuText(xstring("tto_q")),
+                         tto_slider,
+                     })
+                        ->setTitle(xstring("tto_title")));
 
     QuPagePtr page2((new QuPage{
-         new QuText(xstring("rs_q")),
-         rs_slider,
-    })->setTitle(xstring("rs_title")));
+                         new QuText(xstring("rs_q")),
+                         rs_slider,
+                     })
+                        ->setTitle(xstring("rs_title")));
 
     auto questionnaire = new Questionnaire(m_app, {page1, page2});
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations
@@ -188,13 +186,11 @@ QVariant QolBasic::qolTto() const
     return tto.isNull() ? tto : tto.toDouble() / 10.0;
 }
 
-
 QVariant QolBasic::qolRs() const
 {
     const QVariant rs = value(RS);
     return rs.isNull() ? rs : rs.toDouble() / 100.0;
 }
-
 
 QVariant QolBasic::meanQol() const
 {

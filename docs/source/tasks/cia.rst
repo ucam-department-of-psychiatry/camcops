@@ -21,8 +21,8 @@
 
 .. _cia:
 
-The Clinical Impairment Assessment Questionnaire (CIA)
-------------------------------------------------------
+Clinical Impairment Assessment Questionnaire (CIA)
+--------------------------------------------------
 
 .. include:: include_data_collection_plus_local_upgrade.rst
 

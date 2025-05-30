@@ -21,10 +21,12 @@
 // #define DEBUG_SIZE
 
 #include "qucanvas.h"
+
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QTimer>
+
 #include "common/colourdefs.h"
 #include "common/uiconst.h"
 #include "db/blobfieldref.h"
@@ -38,11 +40,14 @@
 
 const int WRITE_DELAY_MS = 200;
 
-
-QuCanvas::QuCanvas(BlobFieldRefPtr fieldref, const QSize& size,
-                   const bool allow_shrink, const QImage::Format format,
-                   const QColor& background_colour,
-                   QObject* parent) :
+QuCanvas::QuCanvas(
+    BlobFieldRefPtr fieldref,
+    const QSize& size,
+    const bool allow_shrink,
+    const QImage::Format format,
+    const QColor& background_colour,
+    QObject* parent
+) :
     QuElement(parent),
     m_fieldref(fieldref),
     m_size(size),
@@ -63,25 +68,40 @@ QuCanvas::QuCanvas(BlobFieldRefPtr fieldref, const QSize& size,
     m_no_missing_indicator = nullptr;
     m_field_write_pending = false;
     timerfunc::makeSingleShotTimer(m_timer);
-    connect(m_timer.data(), &QTimer::timeout,
-            this, &QuCanvas::completePendingFieldWrite);
-    connect(m_fieldref.data(), &FieldRef::valueChanged,
-            this, &QuCanvas::fieldValueChanged);
-    connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
-            this, &QuCanvas::fieldValueChanged);
+    connect(
+        m_timer.data(),
+        &QTimer::timeout,
+        this,
+        &QuCanvas::completePendingFieldWrite
+    );
+    connect(
+        m_fieldref.data(),
+        &FieldRef::valueChanged,
+        this,
+        &QuCanvas::fieldValueChanged
+    );
+    connect(
+        m_fieldref.data(),
+        &FieldRef::mandatoryChanged,
+        this,
+        &QuCanvas::fieldValueChanged
+    );
 }
 
-
-QuCanvas::QuCanvas(BlobFieldRefPtr fieldref, const QString& template_filename,
-                   const QSize& size, const bool allow_shrink,
-                   QObject* parent) :
-    QuCanvas(fieldref, size, allow_shrink, QImage::Format_RGB32, Qt::white,
-             parent)
+QuCanvas::QuCanvas(
+    BlobFieldRefPtr fieldref,
+    const QString& template_filename,
+    const QSize& size,
+    const bool allow_shrink,
+    QObject* parent
+) :
+    QuCanvas(
+        fieldref, size, allow_shrink, QImage::Format_RGB32, Qt::white, parent
+    )
 {
     m_template_filename = template_filename;
     m_using_template = true;
 }
-
 
 QuCanvas* QuCanvas::setAdjustForDpi(const bool adjust_for_dpi)
 {
@@ -89,13 +109,11 @@ QuCanvas* QuCanvas::setAdjustForDpi(const bool adjust_for_dpi)
     return this;
 }
 
-
 QuCanvas* QuCanvas::setBackgroundColour(const QColor& colour)
 {
     m_background_colour = colour;
     return this;
 }
-
 
 QuCanvas* QuCanvas::setBorderWidth(const int width)
 {
@@ -103,13 +121,11 @@ QuCanvas* QuCanvas::setBorderWidth(const int width)
     return this;
 }
 
-
 QuCanvas* QuCanvas::setBorderColour(const QColor& colour)
 {
     m_border_colour = colour;
     return this;
 }
-
 
 QuCanvas* QuCanvas::setUnusedSpaceColour(const QColor& colour)
 {
@@ -117,13 +133,11 @@ QuCanvas* QuCanvas::setUnusedSpaceColour(const QColor& colour)
     return this;
 }
 
-
 QuCanvas* QuCanvas::setPenColour(const QColor& colour)
 {
     m_pen_colour = colour;
     return this;
 }
-
 
 QuCanvas* QuCanvas::setPenWidth(const int width)
 {
@@ -131,13 +145,11 @@ QuCanvas* QuCanvas::setPenWidth(const int width)
     return this;
 }
 
-
 QuCanvas* QuCanvas::setAllowShrink(const bool allow_shrink)
 {
     m_allow_shrink = allow_shrink;
     return this;
 }
-
 
 QPointer<QWidget> QuCanvas::makeWidget(Questionnaire* questionnaire)
 {
@@ -155,18 +167,26 @@ QPointer<QWidget> QuCanvas::makeWidget(Questionnaire* questionnaire)
     m_canvas->setAllowShrink(m_allow_shrink);
     m_canvas->setAdjustDisplayForDpi(m_adjust_display_for_dpi);
     if (!read_only) {
-        connect(m_canvas.data(), &CanvasWidget::imageChanged,
-                this, &QuCanvas::imageChanged);
+        connect(
+            m_canvas.data(),
+            &CanvasWidget::imageChanged,
+            this,
+            &QuCanvas::imageChanged
+        );
     }
 
     auto button_reset = new ImageButton(uiconst::CBS_DELETE);
     button_reset->setEnabled(!read_only);
     if (!read_only) {
-        connect(button_reset, &QAbstractButton::clicked,
-                this, &QuCanvas::resetFieldToNull);
+        connect(
+            button_reset,
+            &QAbstractButton::clicked,
+            this,
+            &QuCanvas::resetFieldToNull
+        );
     }
-    m_missing_indicator = uifunc::iconWidget(
-                uifunc::iconFilename(uiconst::ICON_WARNING));
+    m_missing_indicator
+        = uifunc::iconWidget(uifunc::iconFilename(uiconst::ICON_WARNING));
     m_no_missing_indicator = QPointer<Spacer>(new Spacer(uiconst::g_iconsize));
     auto button_layout = new QVBoxLayout();
     button_layout->setContentsMargins(uiconst::NO_MARGINS);
@@ -193,13 +213,11 @@ QPointer<QWidget> QuCanvas::makeWidget(Questionnaire* questionnaire)
     return widget;
 }
 
-
 void QuCanvas::imageChanged()
 {
     m_field_write_pending = true;
     m_timer->start(WRITE_DELAY_MS);  // goes to completePendingFieldWrite
 }
-
 
 void QuCanvas::completePendingFieldWrite()
 {
@@ -214,21 +232,19 @@ void QuCanvas::completePendingFieldWrite()
     }
 }
 
-
 void QuCanvas::closing()
 {
     completePendingFieldWrite();
 }
-
 
 void QuCanvas::setFromField()
 {
     fieldValueChanged(m_fieldref.data(), nullptr);
 }
 
-
-void QuCanvas::fieldValueChanged(const FieldRef* fieldref,
-                                 const QObject* originator)
+void QuCanvas::fieldValueChanged(
+    const FieldRef* fieldref, const QObject* originator
+)
 {
     if (!m_canvas) {
         return;
@@ -268,12 +284,10 @@ void QuCanvas::fieldValueChanged(const FieldRef* fieldref,
     }
 }
 
-
 FieldRefPtrList QuCanvas::fieldrefs() const
 {
     return FieldRefPtrList{m_fieldref};
 }
-
 
 void QuCanvas::resetWidget()
 {
@@ -284,7 +298,8 @@ void QuCanvas::resetWidget()
     if (m_using_template) {
         loaded_template = img.load(m_template_filename);
         if (!loaded_template) {
-            qWarning() << Q_FUNC_INFO << "- failed to load:" << m_template_filename;
+            qWarning() << Q_FUNC_INFO
+                       << "- failed to load:" << m_template_filename;
         }
     }
 #ifdef DEBUG_SIZE
@@ -296,9 +311,9 @@ void QuCanvas::resetWidget()
     // Adjustment for DPI is done by the CanvasWidget, not here.
 
 #ifdef DEBUG_SIZE
-    qDebug().nospace()
-            << Q_FUNC_INFO << " Final internal image size (after m_size="
-            << m_size << "): " << size;
+    qDebug().nospace() << Q_FUNC_INFO
+                       << " Final internal image size (after m_size=" << m_size
+                       << "): " << size;
 #endif
 
     // Now we know the final size. Either we make sure the template is that
@@ -316,7 +331,6 @@ void QuCanvas::resetWidget()
     // All ready. Set the canvas.
     m_canvas->setImage(img);
 }
-
 
 void QuCanvas::resetFieldToNull()
 {

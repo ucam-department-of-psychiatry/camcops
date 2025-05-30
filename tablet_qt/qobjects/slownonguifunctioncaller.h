@@ -20,10 +20,10 @@
 
 #pragma once
 #include <QThread>
+
 #include "common/textconst.h"
 #include "dialogs/waitbox.h"
 #include "qobjects/threadworker.h"
-
 
 class SlowNonGuiFunctionCaller : public QObject
 {
@@ -39,12 +39,16 @@ class SlowNonGuiFunctionCaller : public QObject
     // DO NOT PERFORM GUI OPERATIONS IN THE WORKER FUNCTION.
 
     Q_OBJECT
+
 public:
-    SlowNonGuiFunctionCaller(const ThreadWorker::PlainWorkerFunction& func,
-                             QWidget* parent,
-                             const QString& text = "Operation in progress...",
-                             const QString& title = TextConst::pleaseWait());
+    SlowNonGuiFunctionCaller(
+        const ThreadWorker::PlainWorkerFunction& func,
+        QWidget* parent,
+        const QString& text = "Operation in progress...",
+        const QString& title = TextConst::pleaseWait()
+    );
     ~SlowNonGuiFunctionCaller();
+
 protected:
     QThread m_worker_thread;
     ThreadWorker* m_worker;

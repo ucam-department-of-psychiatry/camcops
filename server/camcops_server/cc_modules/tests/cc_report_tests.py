@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/tests/cc_report_tests.py
 
@@ -27,8 +25,10 @@ camcops_server/cc_modules/tests/cc_report_tests.py
 
 """
 
+import csv
+import io
 import logging
-from typing import Generator, Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -38,20 +38,17 @@ from cardinal_pythonlib.pyramid.responses import (
     XlsxResponse,
 )
 from deform.form import Form
-import pendulum
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.response import Response
 from sqlalchemy.orm.query import Query
 from sqlalchemy.sql.selectable import SelectBase
 
 from camcops_server.cc_modules.cc_report import (
-    AverageScoreReport,
     get_all_report_classes,
     PlainReportType,
     Report,
 )
 from camcops_server.cc_modules.cc_unittest import (
-    BasicDatabaseTestCase,
     DemoDatabaseTestCase,
     DemoRequestTestCase,
 )
@@ -64,9 +61,7 @@ if TYPE_CHECKING:
         ReportParamForm,
         ReportParamSchema,
     )
-    from camcops_server.cc_modules.cc_patient import Patient
-    from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
-    from camcops_server.cc_modules.cc_request import (  # noqa: F401
+    from camcops_server.cc_modules.cc_request import (
         CamcopsRequest,
     )
 
@@ -144,81 +139,6 @@ class AllReportTests(DemoDatabaseTestCase):
                 pass
 
 
-class AverageScoreReportTestCase(BasicDatabaseTestCase):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        self.patient_id_sequence = self.get_patient_id()
-        self.task_id_sequence = self.get_task_id()
-        self.patient_idnum_id_sequence = self.get_patient_idnum_id()
-
-    def setUp(self) -> None:
-        super().setUp()
-
-        self.report = self.create_report()
-
-    def create_report(self) -> AverageScoreReport:
-        raise NotImplementedError(
-            "Report TestCase needs to implement create_report"
-        )
-
-    @staticmethod
-    def get_patient_id() -> Generator[int, None, None]:
-        i = 1
-
-        while True:
-            yield i
-            i += 1
-
-    @staticmethod
-    def get_task_id() -> Generator[int, None, None]:
-        i = 1
-
-        while True:
-            yield i
-            i += 1
-
-    @staticmethod
-    def get_patient_idnum_id() -> Generator[int, None, None]:
-        i = 1
-
-        while True:
-            yield i
-            i += 1
-
-    def create_patient(self, idnum_value: int = 333) -> "Patient":
-        from camcops_server.cc_modules.cc_patient import Patient
-
-        patient = Patient()
-        patient.id = next(self.patient_id_sequence)
-        self.apply_standard_db_fields(patient)
-
-        patient.forename = f"Forename {patient.id}"
-        patient.surname = f"Surname {patient.id}"
-        patient.dob = pendulum.parse("1950-01-01")
-        self.dbsession.add(patient)
-
-        self.create_patient_idnum(patient, idnum_value)
-
-        self.dbsession.commit()
-
-        return patient
-
-    def create_patient_idnum(
-        self, patient, idnum_value: int = 333
-    ) -> "PatientIdNum":
-        from camcops_server.cc_modules.cc_patient import PatientIdNum
-
-        patient_idnum = PatientIdNum()
-        patient_idnum.id = next(self.patient_idnum_id_sequence)
-        self.apply_standard_db_fields(patient_idnum)
-        patient_idnum.patient_id = patient.id
-        patient_idnum.which_idnum = self.nhs_iddef.which_idnum
-        patient_idnum.idnum_value = idnum_value
-        self.dbsession.add(patient_idnum)
-
-        return patient_idnum
-
-
 class TestReport(Report):
     # noinspection PyMethodParameters
     @classproperty
@@ -279,9 +199,6 @@ class ReportSpreadsheetTests(DemoRequestTestCase):
         )
 
         self.assertIn(".tsv", response.content_disposition)
-
-        import csv
-        import io
 
         reader = csv.reader(
             io.StringIO(response.body.decode()), dialect="excel-tab"

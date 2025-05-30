@@ -19,13 +19,17 @@
 */
 
 #include "cardinalexpdetthresholdtrial.h"
+
 #include "lib/datetime.h"
 
 // Tablename
-const QString CardinalExpDetThresholdTrial::TRIAL_TABLENAME("cardinal_expdetthreshold_trials");
+const QString CardinalExpDetThresholdTrial::TRIAL_TABLENAME(
+    "cardinal_expdetthreshold_trials"
+);
 
 // Fieldnames
-const QString CardinalExpDetThresholdTrial::FN_FK_TO_TASK("cardinal_expdetthreshold_id");
+const QString
+    CardinalExpDetThresholdTrial::FN_FK_TO_TASK("cardinal_expdetthreshold_id");
 const QString CardinalExpDetThresholdTrial::FN_TRIAL("trial");
 const QString FN_TRIAL_IGNORING_CATCH_TRIALS("trial_ignoring_catch_trials");
 const QString FN_TARGET_PRESENTED("target_presented");
@@ -38,16 +42,18 @@ const QString FN_RESPONSE_LATENCY_MS("response_latency_ms");
 const QString FN_YES("yes");
 const QString FN_NO("no");
 const QString FN_CAUGHT_OUT_RESET("caught_out_reset");
-const QString FN_TRIAL_NUM_IN_CALCULATION_SEQUENCE("trial_num_in_calculation_sequence");
-
+const QString
+    FN_TRIAL_NUM_IN_CALCULATION_SEQUENCE("trial_num_in_calculation_sequence");
 
 CardinalExpDetThresholdTrial::CardinalExpDetThresholdTrial(
-        CamcopsApp& app, DatabaseManager& db, const int load_pk) :
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
     DatabaseObject(app, db, TRIAL_TABLENAME)
 {
     // Keys
     addField(FN_FK_TO_TASK, QMetaType::fromType<int>());
-    addField(FN_TRIAL, QMetaType::fromType<int>(), true);  // trial number within this session, 0-based
+    addField(FN_TRIAL, QMetaType::fromType<int>(), true);
+    // ... trial number within this session, 0-based
     // Results
     addField(FN_TRIAL_IGNORING_CATCH_TRIALS, QMetaType::fromType<int>());
     addField(FN_TARGET_PRESENTED, QMetaType::fromType<bool>());
@@ -60,23 +66,28 @@ CardinalExpDetThresholdTrial::CardinalExpDetThresholdTrial(
     addField(FN_YES, QMetaType::fromType<bool>());
     addField(FN_NO, QMetaType::fromType<bool>());
     addField(FN_CAUGHT_OUT_RESET, QMetaType::fromType<bool>());
-    addField(FN_TRIAL_NUM_IN_CALCULATION_SEQUENCE, QMetaType::fromType<int>());  // 0 or NULL for trials not used
+    addField(FN_TRIAL_NUM_IN_CALCULATION_SEQUENCE, QMetaType::fromType<int>());
+    // ... 0 or NULL for trials not used
 
     load(load_pk);
 }
 
-
 CardinalExpDetThresholdTrial::CardinalExpDetThresholdTrial(
-        int task_pk, int trial_num,
-        const QVariant& trial_num_ignoring_catch_trials,
-        bool target_presented,
-        CamcopsApp& app, DatabaseManager& db) :
+    int task_pk,
+    int trial_num,
+    const QVariant& trial_num_ignoring_catch_trials,
+    bool target_presented,
+    CamcopsApp& app,
+    DatabaseManager& db
+) :
     CardinalExpDetThresholdTrial::CardinalExpDetThresholdTrial(
-        app, db, dbconst::NONEXISTENT_PK)  // delegating constructor
+        app, db, dbconst::NONEXISTENT_PK
+    )  // delegating constructor
 {
     setValue(FN_FK_TO_TASK, task_pk);
     setValue(FN_TRIAL, trial_num);  // 0-based
-    setValue(FN_TRIAL_IGNORING_CATCH_TRIALS, trial_num_ignoring_catch_trials);  // 0-based
+    setValue(FN_TRIAL_IGNORING_CATCH_TRIALS, trial_num_ignoring_catch_trials);
+    // ... 0-based
     setValue(FN_TARGET_PRESENTED, target_presented);
     if (target_presented) {
         QDateTime now = datetime::now();
@@ -85,36 +96,30 @@ CardinalExpDetThresholdTrial::CardinalExpDetThresholdTrial(
     save();
 }
 
-
 bool CardinalExpDetThresholdTrial::wasCaughtOutReset() const
 {
     return valueBool(FN_CAUGHT_OUT_RESET);
 }
-
 
 int CardinalExpDetThresholdTrial::trialNum() const
 {
     return valueInt(FN_TRIAL);
 }
 
-
 int CardinalExpDetThresholdTrial::trialNumIgnoringCatchTrials() const
 {
     return valueInt(FN_TRIAL_IGNORING_CATCH_TRIALS);
 }
-
 
 bool CardinalExpDetThresholdTrial::targetPresented() const
 {
     return valueBool(FN_TARGET_PRESENTED);
 }
 
-
 qreal CardinalExpDetThresholdTrial::intensity() const
 {
     return valueDouble(FN_INTENSITY);
 }
-
 
 void CardinalExpDetThresholdTrial::setIntensity(double intensity)
 {
@@ -122,19 +127,16 @@ void CardinalExpDetThresholdTrial::setIntensity(double intensity)
     save();
 }
 
-
 bool CardinalExpDetThresholdTrial::yes() const
 {
     return valueBool(FN_YES);
 }
-
 
 void CardinalExpDetThresholdTrial::setCaughtOutReset()
 {
     setValue(FN_CAUGHT_OUT_RESET, true);
     save();
 }
-
 
 void CardinalExpDetThresholdTrial::recordChoiceTime()
 {
@@ -143,19 +145,18 @@ void CardinalExpDetThresholdTrial::recordChoiceTime()
     save();
 }
 
-
 void CardinalExpDetThresholdTrial::recordResponse(const bool yes)
 {
     const QDateTime now = datetime::now();
     setValue(FN_RESPONDED, true);
     setValue(FN_RESPONSE_TIME, now);
-    setValue(FN_RESPONSE_LATENCY_MS,
-             valueDateTime(FN_CHOICE_TIME).msecsTo(now));
+    setValue(
+        FN_RESPONSE_LATENCY_MS, valueDateTime(FN_CHOICE_TIME).msecsTo(now)
+    );
     setValue(FN_YES, yes);
     setValue(FN_NO, !yes);
     save();
 }
-
 
 QString CardinalExpDetThresholdTrial::summary() const
 {
@@ -163,18 +164,16 @@ QString CardinalExpDetThresholdTrial::summary() const
         return "Catch trial";
     }
     return QString("Normal trial [#%1, w/o catch trials #%2], intensity %3")
-            .arg(valueInt(FN_TRIAL))
-            .arg(valueInt(FN_TRIAL_IGNORING_CATCH_TRIALS))
-            .arg(valueDouble(FN_INTENSITY));
+        .arg(valueInt(FN_TRIAL))
+        .arg(valueInt(FN_TRIAL_IGNORING_CATCH_TRIALS))
+        .arg(valueDouble(FN_INTENSITY));
 }
-
 
 void CardinalExpDetThresholdTrial::setTrialNumInCalcSeq(const QVariant& value)
 {
     setValue(FN_TRIAL_NUM_IN_CALCULATION_SEQUENCE, value);
     save();
 }
-
 
 bool CardinalExpDetThresholdTrial::isInCalculationSeq() const
 {

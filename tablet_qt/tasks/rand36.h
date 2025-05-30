@@ -20,6 +20,7 @@
 
 #pragma once
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -28,13 +29,16 @@ class TaskFactory;
 
 void initializeRand36(TaskFactory& factory);
 
-
 class Rand36 : public Task
 {
     Q_OBJECT
+
 public:
-    Rand36(CamcopsApp& app, DatabaseManager& db,
-           int load_pk = dbconst::NONEXISTENT_PK);
+    Rand36(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -54,6 +58,7 @@ public:
     QVariant recoded(int question) const;
     QVariant subscaleMean(const QVector<int>& questions) const;
     QVariant overallMean() const;
+
 public:
     static const QString RAND36_TABLENAME;
 };

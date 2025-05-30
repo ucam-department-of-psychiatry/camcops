@@ -20,7 +20,6 @@
 
 #pragma once
 
-
 class FlagGuard
 {
     // Class to set a boolean flag to true during the lifetime of this
@@ -34,6 +33,7 @@ public:
     FlagGuard(bool& flag);
     ~FlagGuard();
     bool previousState() const;
+
 protected:
     bool& m_flag;
     bool m_previous_state;

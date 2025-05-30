@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_request.py
 
@@ -286,7 +284,7 @@ class CamcopsRequest(Request):
 
         And for how to make one:
         https://stackoverflow.com/questions/5590170/what-is-the-standard-method-for-generating-a-nonce-in-python
-        """  # noqa
+        """
         return secrets.token_urlsafe()
 
     # -------------------------------------------------------------------------
@@ -1462,7 +1460,7 @@ class CamcopsRequest(Request):
 
           - 50% grey colour and on the bottom.
 
-        """  # noqa
+        """
         fontsize = self.config.plot_fontsize
         return dict(
             family="sans-serif",
@@ -2542,8 +2540,5 @@ def get_unittest_request(
     req.set_get_params(params)
 
     req._debugging_db_session = dbsession
-    user = User()
-    user.superuser = True
-    req._debugging_user = user
 
     return req

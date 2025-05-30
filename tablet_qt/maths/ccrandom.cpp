@@ -19,8 +19,10 @@
 */
 
 #include "ccrandom.h"
+
 #include <QDebug>
 #include <QMultiMap>
+
 #include "maths/countingcontainer.h"
 #include "maths/floatbits.h"
 #include "maths/mathfunc.h"
@@ -31,13 +33,11 @@ namespace ccrandom {
 std::random_device rd;
 std::mt19937 rng(rd());
 
-
 bool coin(const qreal p)
 {
     std::bernoulli_distribution dist(p);
     return dist(rng);
 }
-
 
 int randomInt(const int minimum, const int maximum)
 {
@@ -45,7 +45,6 @@ int randomInt(const int minimum, const int maximum)
     std::uniform_int_distribution<int> dist(minimum, maximum);
     return dist(rng);
 }
-
 
 double randomRealExcUpper(const double minimum, const double maximum)
 {
@@ -72,7 +71,6 @@ double randomRealExcUpper(const double minimum, const double maximum)
     // Yup, that works.
 }
 
-
 float nextFloatAbove(const float x)
 {
     // https://stackoverflow.com/questions/16335992/alternative-to-c11s-stdnextafter-and-stdnexttoward-for-c03
@@ -85,10 +83,11 @@ float nextFloatAbove(const float x)
         }
         return brf.f;
     }
-    qFatal("nextFloatAbove: machine/compiler not using IEC559 (IEEE 754) "
-           "for float");
+    qFatal(
+        "nextFloatAbove: machine/compiler not using IEC559 (IEEE 754) "
+        "for float"
+    );
 }
-
 
 double nextDoubleAboveManual(const double x)
 {
@@ -99,10 +98,11 @@ double nextDoubleAboveManual(const double x)
         }
         return brd.d;
     }
-    qFatal("nextDoubleAbove: machine/compiler not using IEC559 (IEEE 754) "
-           "for double");
+    qFatal(
+        "nextDoubleAbove: machine/compiler not using IEC559 (IEEE 754) "
+        "for double"
+    );
 }
-
 
 double nextDoubleAbove(const double x)
 {
@@ -115,7 +115,6 @@ double nextDoubleAbove(const double x)
 #endif
 }
 
-
 double randomRealIncUpper(const double minimum, const double maximum)
 {
     // [minimum, maximum] -- i.e. inclusive
@@ -123,7 +122,6 @@ double randomRealIncUpper(const double minimum, const double maximum)
     const double adjusted_max = nextDoubleAbove(maximum);
     return randomRealExcUpper(minimum, adjusted_max);
 }
-
 
 QStringList testRandom()
 {
@@ -143,10 +141,12 @@ QStringList testRandom()
         const BitRepresentationFloat brnf(nf);
         lines.append(QString("nextFloatAbove(%1 [integer representation %2]) "
                              "-> %3 [integer representation %4]")
-                     .arg(fullFloat(f),
-                          QString::number(brf.ui),
-                          fullFloat(nf),
-                          QString::number(brnf.ui)));
+                         .arg(
+                             fullFloat(f),
+                             QString::number(brf.ui),
+                             fullFloat(nf),
+                             QString::number(brnf.ui)
+                         ));
     };
     auto testNextDoubleAbove = [&fullDouble, &lines](double d) -> void {
         const double dam = nextDoubleAboveManual(d);
@@ -157,21 +157,26 @@ QStringList testRandom()
         lines.append(
             QString("nextDoubleAboveManual(%1 [integer representation %2]) "
                     "-> %3 [integer representation %4]")
-                     .arg(fullDouble(d),
-                          QString::number(brd.ui),
-                          fullDouble(dam),
-                          QString::number(brdam.ui)));
-        lines.append(
-            QString("nextDoubleAbove(%1 [integer representation %2]) "
-                    "-> %3 [integer representation %4]")
-                     .arg(fullDouble(d),
-                          QString::number(brd.ui),
-                          fullDouble(da),
-                          QString::number(brda.ui)));
+                .arg(
+                    fullDouble(d),
+                    QString::number(brd.ui),
+                    fullDouble(dam),
+                    QString::number(brdam.ui)
+                )
+        );
+        lines.append(QString("nextDoubleAbove(%1 [integer representation %2]) "
+                             "-> %3 [integer representation %4]")
+                         .arg(
+                             fullDouble(d),
+                             QString::number(brd.ui),
+                             fullDouble(da),
+                             QString::number(brda.ui)
+                         ));
     };
 
-    auto testRangeSampling = [&fullDouble, &lines]
-            (qreal range_min, qreal range_max, int range_n) -> void {
+    auto testRangeSampling
+        = [&fullDouble,
+           &lines](qreal range_min, qreal range_max, int range_n) -> void {
         qreal exc_min = std::numeric_limits<double>::max();  // start high
         qreal exc_max = -exc_min;  // start low
         qreal inc_min = exc_min;
@@ -182,37 +187,45 @@ QStringList testRandom()
             qreal draw_exc = randomRealExcUpper(range_min, range_max);
             exc_min = qMin(exc_min, draw_exc);
             exc_max = qMax(exc_max, draw_exc);
-            int exc_centile = mathfunc::centile(draw_exc, range_min, range_max);
+            int exc_centile
+                = mathfunc::centile(draw_exc, range_min, range_max);
             exc_centiles.add(exc_centile);
 
             qreal draw_inc = randomRealIncUpper(range_min, range_max);
             inc_min = qMin(inc_min, draw_inc);
             inc_max = qMax(inc_max, draw_inc);
-            int inc_centile = mathfunc::centile(draw_inc, range_min, range_max);
+            int inc_centile
+                = mathfunc::centile(draw_inc, range_min, range_max);
             inc_centiles.add(inc_centile);
         }
         lines.append(QString("Draw from upper-exclusive range [%1–%2): "
                              "min %3, max %4, centiles %5")
-                     .arg(fullDouble(range_min),
-                          fullDouble(range_max),
-                          fullDouble(exc_min),
-                          fullDouble(exc_max),
-                          exc_centiles.asString()));
+                         .arg(
+                             fullDouble(range_min),
+                             fullDouble(range_max),
+                             fullDouble(exc_min),
+                             fullDouble(exc_max),
+                             exc_centiles.asString()
+                         ));
         lines.append(QString("Draw from upper-inclusive range [%1–%2]: "
                              "min %3, max %4, centiles %5")
-                     .arg(fullDouble(range_min),
-                          fullDouble(range_max),
-                          fullDouble(inc_min),
-                          fullDouble(inc_max),
-                          inc_centiles.asString()));
+                         .arg(
+                             fullDouble(range_min),
+                             fullDouble(range_max),
+                             fullDouble(inc_min),
+                             fullDouble(inc_max),
+                             inc_centiles.asString()
+                         ));
     };
 
     // ========================================================================
 
-    lines.append("Testing std::nextafter() [if available on this platform, "
-                 "via nextDoubleAbove()], and manual versions: "
-                 "nextFloatAbove(), nextDoubleAboveManual()");
-    const QVector<float>  fv{1.0, 100.0, 1.0e10};
+    lines.append(
+        "Testing std::nextafter() [if available on this platform, "
+        "via nextDoubleAbove()], and manual versions: "
+        "nextFloatAbove(), nextDoubleAboveManual()"
+    );
+    const QVector<float> fv{1.0, 100.0, 1.0e10};
     const QVector<double> dv{1.0, 100.0, 1.0e10, 1.0e100};
     for (float f : fv) {
         testNextFloatAbove(f);
@@ -232,9 +245,11 @@ QStringList testRandom()
         coins.add(coin(coin_p));
     }
     lines.append(QString("Coin flips (n=%1, p=%2): %3")
-                 .arg(QString::number(coin_n),
-                      QString::number(coin_p),
-                      coins.asString()));
+                     .arg(
+                         QString::number(coin_n),
+                         QString::number(coin_p),
+                         coins.asString()
+                     ));
     lines.append("");
 
     const int die_n = 6000;
@@ -243,17 +258,14 @@ QStringList testRandom()
         die.add(randomInt(1, 6));
     }
     lines.append(QString("Rolls of a fair die (n=%1): %2")
-                 .arg(QString::number(die_n),
-                      die.asString()));
+                     .arg(QString::number(die_n), die.asString()));
     lines.append("");
 
     const int range_n = 100000;
-    testRangeSampling(0.0,
-                      1.0,
-                      range_n);
-    testRangeSampling(1.0,
-                      nextDoubleAbove(nextDoubleAbove(nextDoubleAbove(1.0))),
-                      range_n);
+    testRangeSampling(0.0, 1.0, range_n);
+    testRangeSampling(
+        1.0, nextDoubleAbove(nextDoubleAbove(nextDoubleAbove(1.0))), range_n
+    );
 
     return lines;
 }

@@ -25,7 +25,6 @@
 #include <QVector>
 #include <QWidget>
 
-
 class Thermometer : public QWidget
 {
     /*
@@ -77,35 +76,44 @@ class Thermometer : public QWidget
 
     Widths:
         [a] m_lstring_width;
-            left_string_span / (left_string_span + image_span + right_string_span)
+            left_string_span /
+                (left_string_span + image_span + right_string_span)
         [b] m_image_width;
-            image_span / (left_string_span + image_span + right_string_span)
+            image_span /
+                (left_string_span + image_span + right_string_span)
         [c] m_rstring_width;
-            right_string_span / (left_string_span + image_span + right_string_span)
+            right_string_span /
+                (left_string_span + image_span + right_string_span)
         [d] m_target_total_size.width()
         [g] text_gap_px, m_text_gap_px
 
     */
 
     Q_OBJECT
-public:
 
+public:
     // Constructor.
     explicit Thermometer(
-            const QVector<QPixmap>& active_images,  // top to bottom
-            const QVector<QPixmap>& inactive_images,  // top to bottom
-            const QStringList* left_strings = nullptr,  // top to bottom
-            const QStringList* right_strings = nullptr,  // top to bottom
-            int left_string_span = 1,  // arbitrary int representing "left text column proportion"
-            int image_span = 1,  // arbitrary int representing "image column proportion"
-            int right_string_span = 1,  // arbitrary int representing "right text column proportion"
-            bool allow_deselection = true,  // allow images to be re-clicked to deselect them?
-            bool read_only = false,  // read-only mode?
-            bool rescale_images = false,  // rescale from images' intrinsic size?
-            double rescale_image_factor = 1.0,  // if rescale: scale factor
-            int text_gap_px = 4,  // gap between images and adjacent text
-            int image_padding_px = 0,
-            QWidget* parent = nullptr);
+        const QVector<QPixmap>& active_images,  // top to bottom
+        const QVector<QPixmap>& inactive_images,  // top to bottom
+        const QStringList* left_strings = nullptr,  // top to bottom
+        const QStringList* right_strings = nullptr,  // top to bottom
+        int left_string_span = 1,
+        // ... arbitrary int representing "left text column proportion"
+        int image_span = 1,
+        // ... arbitrary int representing "image column proportion"
+        int right_string_span = 1,
+        // ... arbitrary int representing "right text column proportion"
+        bool allow_deselection = true,
+        // ... allow images to be re-clicked to deselect them?
+        bool read_only = false,  // read-only mode?
+        bool rescale_images = false,
+        // ... rescale from images' intrinsic size?
+        double rescale_image_factor = 1.0,  // if rescale: scale factor
+        int text_gap_px = 4,  // gap between images and adjacent text
+        int image_padding_px = 0,
+        QWidget* parent = nullptr
+    );
 
     // ------------------------------------------------------------------------
     // Standard Qt widget overrides.
@@ -128,7 +136,6 @@ signals:
     void selectionIndexChanged(int index);
 
 protected:
-
     // ------------------------------------------------------------------------
     // Event handling
     // ------------------------------------------------------------------------
@@ -165,22 +172,28 @@ protected:
     qreal widgetScaleFactor(const QRect& activecontentsrect) const;
 
     // Convert internal (pixmap) coordinates to external (screen) coordinates:
-    QPoint externalPt(const QPointF& internal_pt,
-                      const QRect& activecontentsrect) const;
+    QPoint externalPt(
+        const QPointF& internal_pt, const QRect& activecontentsrect
+    ) const;
 
     // Convert external (screen) coordinates to internal (pixmap) coordinates.
-    QPointF internalPt(const QPoint& external_pt,
-                       const QRect& activecontentsrect) const;
-    QRectF internalRect(const QRect& external_rect,
-                        const QRect& activecontentsrect) const;
+    QPointF internalPt(
+        const QPoint& external_pt, const QRect& activecontentsrect
+    ) const;
+    QRectF internalRect(
+        const QRect& external_rect, const QRect& activecontentsrect
+    ) const;
 
     // ------------------------------------------------------------------------
     // Data
     // ------------------------------------------------------------------------
+
 protected:
     // Config:
-    QVector<QPixmap> m_active_images;  // all active (selected) images, top to bottom
-    QVector<QPixmap> m_inactive_images;  // all inactive (unselected) images, top to bottom
+    QVector<QPixmap> m_active_images;
+    // ... all active (selected) images, top to bottom
+    QVector<QPixmap> m_inactive_images;
+    // ... all inactive (unselected) images, top to bottom
     int m_n_rows;  // number of rows (each with image + text)
     bool m_use_left_strings;  // show text on the left of the images?
     bool m_use_right_strings;  // show text on the right of the images?
@@ -198,7 +211,8 @@ protected:
     // QColor m_unused_space_colour;  // colour for any "unpainted" area
 
     // Details of the current selection:
-    int m_selected_index;  // -1 for none selected, or zero-based index of selected row
+    int m_selected_index;
+    // ... -1 for none selected, or zero-based index of selected row
     int m_touching_index;  // similarly, for row being touched now
     int m_start_touch_index;  // row in which the current touch began
 
@@ -219,6 +233,8 @@ protected:
     qreal m_aspect_ratio;  // widget aspect ratio; width / height
 
     // Modified images (modified to show "currently being touched" shading):
-    QVector<QPixmap> m_active_touched_images;  // "selected and being touched" images
-    QVector<QPixmap> m_inactive_touched_images;  // "unselected and being touched" images
+    QVector<QPixmap> m_active_touched_images;
+    // ... "selected and being touched" images
+    QVector<QPixmap> m_inactive_touched_images;
+    // ... "unselected and being touched" images
 };

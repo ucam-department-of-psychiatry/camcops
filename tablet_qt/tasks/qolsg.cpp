@@ -19,11 +19,13 @@
 */
 
 #include "qolsg.h"
+
 #include <functional>
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QPen>
 #include <QPushButton>
+
 #include "common/colourdefs.h"
 #include "common/textconst.h"
 #include "lib/datetime.h"
@@ -70,9 +72,10 @@ const QString FN_UTILITY("utility");
 // Strings
 const QString TX_UTILITY("Utility");
 const QString TX_INITIAL_INSTRUCTION(
-        "Quality of Life Standard Gamble<br><br><br>"
-        "<b>Please choose the statement that best describes your current health "
-        "state:</b>");
+    "Quality of Life Standard Gamble<br><br><br>"
+    "<b>Please choose the statement that best describes your current "
+    "health state:</b>"
+);
 const QString TX_CURRENT_STATE("Current state");
 const QString TX_DEAD("Dead");
 const QString TX_HEALTHY("Healthy");
@@ -83,33 +86,38 @@ const QString TX_H_BELOW_0("My current state is worse than being dead");
 const QString TX_LEFT("left");
 const QString TX_RIGHT("right");
 const QString TX_INSTRUCTION_PREFIX(
-        "<b>Suppose you are offered two alternatives, represented by the two "
-        "wheels below.</b>");
+    "<b>Suppose you are offered two alternatives, represented by the two "
+    "wheels below.</b>"
+);
 const QString TX_INSTRUCTION_MEDIUM(
-        "The FIXEDSIDE wheel represents you remaining in your current state "
-        "of health for the rest of your life.\n"
-        "The LOTTERYSIDE wheel represents an experimental treatment. There is "
-        "a chance that it will return you to full health for the rest of "
-        "your life. However, there is also a chance that it will kill you "
-        "instantly.");
+    "The FIXEDSIDE wheel represents you remaining in your current state "
+    "of health for the rest of your life.\n"
+    "The LOTTERYSIDE wheel represents an experimental treatment. There is "
+    "a chance that it will return you to full health for the rest of "
+    "your life. However, there is also a chance that it will kill you "
+    "instantly."
+);
 const QString TX_INSTRUCTION_LOW(
-        "The FIXEDSIDE wheel represents a poison that would kill you "
-        "instantly.\n"
-        "The LOTTERYSIDE wheel represents an experimental treatment. There is "
-        "a chance that it will return you to full health for the rest of your "
-        "life. However, there is also a chance that you will remain in your "
-        "current state of health for the rest of your life.");
+    "The FIXEDSIDE wheel represents a poison that would kill you "
+    "instantly.\n"
+    "The LOTTERYSIDE wheel represents an experimental treatment. There is "
+    "a chance that it will return you to full health for the rest of your "
+    "life. However, there is also a chance that you will remain in your "
+    "current state of health for the rest of your life."
+);
 const QString TX_INSTRUCTION_HIGH(
-        "The FIXEDSIDE wheel represents a medicine that would give you normal "
-        "full health for the rest of your life.\n"
-        "The LOTTERYSIDE wheel represents an experimental treatment. There is "
-        "a chance that it will keep you in your current state of health for "
-        "the rest of your life. However, there is also a chance that it will "
-        "kill you instantly.");
+    "The FIXEDSIDE wheel represents a medicine that would give you normal "
+    "full health for the rest of your life.\n"
+    "The LOTTERYSIDE wheel represents an experimental treatment. There is "
+    "a chance that it will keep you in your current state of health for "
+    "the rest of your life. However, there is also a chance that it will "
+    "kill you instantly."
+);
 const QString TX_INSTRUCTION_SUFFIX(
-        "<b>Please drag the red pointer to adjust the chances on the "
-        "LOTTERYSIDE wheel, until the two wheels seem EQUAL IN VALUE to you. "
-        "Then press the green button.</b>");
+    "<b>Please drag the red pointer to adjust the chances on the "
+    "LOTTERYSIDE wheel, until the two wheels seem EQUAL IN VALUE to you. "
+    "Then press the green button.</b>"
+);
 const QString TX_THANKS("Thank you! Please touch here to exit.");
 
 // Bits to replace in the string above:
@@ -139,31 +147,36 @@ const int TEXT_SIZE_PX = 20;  // will be scaled
 const int BUTTON_RADIUS = 5;
 const int PADDING = 5;
 const Qt::Alignment BUTTON_TEXT_ALIGN = Qt::AlignCenter;
-const Qt::Alignment TEXT_ALIGN = Qt::AlignCenter;  // Qt::AlignLeft | Qt::AlignTop;
+const Qt::Alignment TEXT_ALIGN = Qt::AlignCenter;
+// ... Qt::AlignLeft | Qt::AlignTop;
 
-const qreal EDGESPACE_FRAC = 0.01; // left, right
+const qreal EDGESPACE_FRAC = 0.01;  // left, right
 const qreal EDGESPACE_AT_STIM = 0.05;
 const qreal CENTRESPACE_FRAC = 0.10;
-const qreal STIMDIAMETER_FRAC = 0.5 - EDGESPACE_AT_STIM - (0.5 * CENTRESPACE_FRAC);
+const qreal STIMDIAMETER_FRAC
+    = 0.5 - EDGESPACE_AT_STIM - (0.5 * CENTRESPACE_FRAC);
 const qreal STIMDIAMETER = SCENE_WIDTH * STIMDIAMETER_FRAC;
 const qreal STIM_VCENTRE = 0.60 * SCENE_HEIGHT;
-const qreal LEFT_STIM_CENTRE = SCENE_WIDTH * (0.5 - (0.5 * CENTRESPACE_FRAC +
-                                                     0.5 * STIMDIAMETER_FRAC));
-const qreal RIGHT_STIM_CENTRE = SCENE_WIDTH * (0.5 + (0.5 * CENTRESPACE_FRAC +
-                                                      0.5 * STIMDIAMETER_FRAC));
+const qreal LEFT_STIM_CENTRE
+    = SCENE_WIDTH * (0.5 - (0.5 * CENTRESPACE_FRAC + 0.5 * STIMDIAMETER_FRAC));
+const qreal RIGHT_STIM_CENTRE
+    = SCENE_WIDTH * (0.5 + (0.5 * CENTRESPACE_FRAC + 0.5 * STIMDIAMETER_FRAC));
 
 const QRectF SCENE_RECT(0, 0, SCENE_WIDTH, SCENE_HEIGHT);
 const QPen BORDER_PEN(QBrush(EDGE_COLOUR), BORDER_WIDTH_PX);
-const ButtonConfig BASE_BUTTON_CONFIG(PADDING,
-                                      TEXT_SIZE_PX,
-                                      TEXT_COLOUR,
-                                      BUTTON_TEXT_ALIGN,
-                                      BUTTON_BACKGROUND,
-                                      BUTTON_PRESSED_BACKGROUND,
-                                      BORDER_PEN,
-                                      BUTTON_RADIUS);
-const TextConfig BASE_TEXT_CONFIG(TEXT_SIZE_PX, TEXT_COLOUR,
-                                  static_cast<int>(SCENE_WIDTH), TEXT_ALIGN);
+const ButtonConfig BASE_BUTTON_CONFIG(
+    PADDING,
+    TEXT_SIZE_PX,
+    TEXT_COLOUR,
+    BUTTON_TEXT_ALIGN,
+    BUTTON_BACKGROUND,
+    BUTTON_PRESSED_BACKGROUND,
+    BORDER_PEN,
+    BUTTON_RADIUS
+);
+const TextConfig BASE_TEXT_CONFIG(
+    TEXT_SIZE_PX, TEXT_COLOUR, static_cast<int>(SCENE_WIDTH), TEXT_ALIGN
+);
 // YOU CANNOT INSTANTIATE A STATIC QFont() OBJECT BEFORE QT IS FULLY
 // FIRED UP; QFont::QFont() calls QFontPrivate::QFontPrivate()) calls
 // QGuiApplication::primaryScreen() which causes a segmentation fault.
@@ -174,12 +187,10 @@ const TextConfig BASE_TEXT_CONFIG(TEXT_SIZE_PX, TEXT_COLOUR,
 // For safety, went with (b).
 
 const QColor CURRENT_STATE_TEXT_COLOUR(QCOLOR_YELLOW);
-const QolSG::LotteryOption TESTSTATE(
-        TX_CURRENT_STATE, QCOLOR_GREY, CURRENT_STATE_TEXT_COLOUR);
-const QolSG::LotteryOption DEAD(
-        TX_DEAD, QCOLOR_BLACK, QCOLOR_RED);
-const QolSG::LotteryOption HEALTHY(
-        TX_HEALTHY, QCOLOR_BLUE, QCOLOR_WHITE);
+const QolSG::LotteryOption
+    TESTSTATE(TX_CURRENT_STATE, QCOLOR_GREY, CURRENT_STATE_TEXT_COLOUR);
+const QolSG::LotteryOption DEAD(TX_DEAD, QCOLOR_BLACK, QCOLOR_RED);
+const QolSG::LotteryOption HEALTHY(TX_HEALTHY, QCOLOR_BLUE, QCOLOR_WHITE);
 
 // AdjustablePie settings:
 const qreal PIE_FRAC = 0.5;
@@ -189,13 +200,14 @@ const int PIE_CURSOR_ANGLE = 60;
 const int PIE_REPORTING_DELAY_MS = 10;
 const int PIE_BASE_HEADING = 180;
 const PenBrush CURSOR_PENBRUSH(QPen(Qt::NoPen), QBrush(QCOLOR_RED));
-const PenBrush CURSOR_ACTIVE_PENBRUSH(QPen(QBrush(QCOLOR_ORANGE), 3.0),
-                                      QBrush(QCOLOR_RED));
+const PenBrush CURSOR_ACTIVE_PENBRUSH(
+    QPen(QBrush(QCOLOR_ORANGE), 3.0), QBrush(QCOLOR_RED)
+);
 const QPen SECTOR_PEN(QBrush(QCOLOR_WHITE), 3.0);
 
 }  // namespace qolsgconst
-using namespace qolsgconst;
 
+using namespace qolsgconst;
 
 // ============================================================================
 // Initialization
@@ -206,9 +218,9 @@ void initializeQolSG(TaskFactory& factory)
     static TaskRegistrar<QolSG> registered(factory);
 }
 
-
 QolSG::QolSG(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, QOLSG_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, QOLSG_TABLENAME, false, false, false),
+    // ... anon, clin, resp
     m_pie_touched_at_least_once(false),
     m_last_p(0)
 {
@@ -230,7 +242,6 @@ QolSG::QolSG(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
 
-
 // ============================================================================
 // Class info
 // ============================================================================
@@ -240,24 +251,20 @@ QString QolSG::shortname() const
     return "QoL-SG";
 }
 
-
 QString QolSG::longname() const
 {
     return tr("Quality of Life: Standard Gamble");
 }
-
 
 QString QolSG::description() const
 {
     return tr("Standard-gamble measure of quality of life.");
 }
 
-
 QString QolSG::infoFilenameStem() const
 {
     return "qol";
 }
-
 
 // ============================================================================
 // Instance info
@@ -268,19 +275,16 @@ bool QolSG::isComplete() const
     return !valueIsNull(FN_UTILITY);
 }
 
-
 QStringList QolSG::summary() const
 {
-    return QStringList{stringfunc::standardResult(TX_UTILITY,
-                                                  prettyValue(FN_UTILITY, 3))};
+    return QStringList{
+        stringfunc::standardResult(TX_UTILITY, prettyValue(FN_UTILITY, 3))};
 }
-
 
 QStringList QolSG::detail() const
 {
     return completenessInfo() + recordSummaryLines();
 }
-
 
 OpenableWidget* QolSG::editor(const bool read_only)
 {
@@ -291,67 +295,75 @@ OpenableWidget* QolSG::editor(const bool read_only)
 
     m_scene = new QGraphicsScene(SCENE_RECT);
     m_scene->setBackgroundBrush(QBrush(SCENE_BACKGROUND));
-    m_widget = makeGraphicsWidgetForImmediateEditing(m_scene, SCENE_BACKGROUND);
+    m_widget
+        = makeGraphicsWidgetForImmediateEditing(m_scene, SCENE_BACKGROUND);
 
     startTask();
 
     return m_widget;
 }
 
-
 // ============================================================================
 // Internals
 // ============================================================================
 
 // MUST USE Qt::QueuedConnection - see comments in clearScene()
-#define CONNECT_BUTTON(b, funcname) \
-    connect((b).button, &QPushButton::clicked, \
-            this, &QolSG::funcname, \
-            Qt::QueuedConnection)
+#define CONNECT_BUTTON(b, funcname)                                           \
+    connect(                                                                  \
+        (b).button,                                                           \
+        &QPushButton::clicked,                                                \
+        this,                                                                 \
+        &QolSG::funcname,                                                     \
+        Qt::QueuedConnection                                                  \
+    )
 // To use a Qt::ConnectionType parameter with a functor, we need a context
 // See https://doc.qt.io/qt-6.5/qobject.html#connect-5
 // That's the reason for the extra "this":
-#define CONNECT_BUTTON_PARAM(b, funcname, param) \
-    connect((b).button, &QPushButton::clicked, this, \
-            std::bind(&QolSG::funcname, this, param), \
-            Qt::QueuedConnection)
-
+#define CONNECT_BUTTON_PARAM(b, funcname, param)                              \
+    connect(                                                                  \
+        (b).button,                                                           \
+        &QPushButton::clicked,                                                \
+        this,                                                                 \
+        std::bind(&QolSG::funcname, this, param),                             \
+        Qt::QueuedConnection                                                  \
+    )
 
 void QolSG::startTask()
 {
     askCategory();
 }
 
-
 void QolSG::askCategory()
 {
     Q_ASSERT(m_scene);
     clearScene();
-    makeText(m_scene,
-             QPointF(0.5 * SCENE_WIDTH, 0.15 * SCENE_HEIGHT),
-             BASE_TEXT_CONFIG,
-             TX_INITIAL_INSTRUCTION);
+    makeText(
+        m_scene,
+        QPointF(0.5 * SCENE_WIDTH, 0.15 * SCENE_HEIGHT),
+        BASE_TEXT_CONFIG,
+        TX_INITIAL_INSTRUCTION
+    );
     const qreal button_left = 0.2 * SCENE_WIDTH;
     const qreal button_width = 0.6 * SCENE_WIDTH;
-    const qreal button_height = 0.1  * SCENE_HEIGHT;
+    const qreal button_height = 0.1 * SCENE_HEIGHT;
     ButtonAndProxy h = makeTextButton(
-                m_scene,
-                QRectF(button_left, 0.35 * SCENE_HEIGHT,
-                       button_width, button_height),
-                BASE_BUTTON_CONFIG,
-                TX_H_ABOVE_1);
+        m_scene,
+        QRectF(button_left, 0.35 * SCENE_HEIGHT, button_width, button_height),
+        BASE_BUTTON_CONFIG,
+        TX_H_ABOVE_1
+    );
     ButtonAndProxy m = makeTextButton(
-                m_scene,
-                QRectF(button_left, 0.55 * SCENE_HEIGHT,
-                       button_width, button_height),
-                BASE_BUTTON_CONFIG,
-                TX_H_0_TO_1);
+        m_scene,
+        QRectF(button_left, 0.55 * SCENE_HEIGHT, button_width, button_height),
+        BASE_BUTTON_CONFIG,
+        TX_H_0_TO_1
+    );
     ButtonAndProxy l = makeTextButton(
-                m_scene,
-                QRectF(button_left, 0.75 * SCENE_HEIGHT,
-                       button_width, button_height),
-                BASE_BUTTON_CONFIG,
-                TX_H_BELOW_0);
+        m_scene,
+        QRectF(button_left, 0.75 * SCENE_HEIGHT, button_width, button_height),
+        BASE_BUTTON_CONFIG,
+        TX_H_BELOW_0
+    );
     CONNECT_BUTTON_PARAM(h, giveChoice, CHOICE_HIGH);
     CONNECT_BUTTON_PARAM(m, giveChoice, CHOICE_MEDIUM);
     CONNECT_BUTTON_PARAM(l, giveChoice, CHOICE_LOW);
@@ -360,20 +372,23 @@ void QolSG::askCategory()
     save();
 }
 
-
 void QolSG::thanks()
 {
     Q_ASSERT(m_scene);
     clearScene();
     ButtonAndProxy t = makeTextButton(
-                m_scene,
-                QRectF(0.3 * SCENE_WIDTH, 0.4 * SCENE_HEIGHT,
-                       0.4 * SCENE_WIDTH, 0.2 * SCENE_HEIGHT),
-                BASE_BUTTON_CONFIG,
-                TX_THANKS);
+        m_scene,
+        QRectF(
+            0.3 * SCENE_WIDTH,
+            0.4 * SCENE_HEIGHT,
+            0.4 * SCENE_WIDTH,
+            0.2 * SCENE_HEIGHT
+        ),
+        BASE_BUTTON_CONFIG,
+        TX_THANKS
+    );
     CONNECT_BUTTON(t, finished);
 }
-
 
 void QolSG::clearScene()
 {
@@ -386,7 +401,6 @@ void QolSG::clearScene()
     m_scene->clear();  // be careful not to do m_scene.clear() instead!
 }
 
-
 // ============================================================================
 // Signal handlers
 // ============================================================================
@@ -398,7 +412,8 @@ void QolSG::giveChoice(const QString& category_chosen)
     setValue(FN_CATEGORY_RESPONDED, true);
     setValue(FN_CATEGORY_CHOSEN, category_chosen);
     const bool lottery_on_left = false;  // coin();
-    // task is more confusing with lots of left/right references. Fix the lottery on the right.
+    // The task is more confusing with lots of left/right references.
+    // Fix the lottery to be on the right.
     setValue(FN_GAMBLE_LOTTERY_ON_LEFT, lottery_on_left);
     clearScene();
 
@@ -412,7 +427,10 @@ void QolSG::giveChoice(const QString& category_chosen)
 
         h = 1.5;
         // RNC: h > 1, since we should consider mania...
-        // If indifferent, p * h + (1 - p) * 0 = 1 * 1  =>  h = 1/p  =>  p = 1/h
+        // If indifferent,
+        //      p * h + (1 - p) * 0 = 1 * 1
+        //      => h = 1/p
+        //      => p = 1/h
         p = 1 / h;
         setValue(FN_GAMBLE_LOTTERY_OPTION_P, LOTTERY_OPTION_CURRENT);
         setValue(FN_GAMBLE_LOTTERY_OPTION_Q, LOTTERY_OPTION_DEAD);
@@ -443,7 +461,9 @@ void QolSG::giveChoice(const QString& category_chosen)
 
         h = -0.5;
         // h < 0: if indifferent here, current state is worse than death
-        // If indifferent, Torrance gives h = -p / (1 - p) = p / (p - 1)  =>  p = h / (h - 1)
+        // If indifferent, Torrance gives
+        //      h = -p / (1 - p) = p / (p - 1)
+        //      =>  p = h / (h - 1)
         // Derivation: p * 1 + (1 - p) * h = 1 * 0  =>  h = -p / (1-p)  => etc.
         p = h / (h - 1);
         setValue(FN_GAMBLE_LOTTERY_OPTION_P, LOTTERY_OPTION_HEALTHY);
@@ -453,8 +473,10 @@ void QolSG::giveChoice(const QString& category_chosen)
         option2 = TESTSTATE;
         option_fixed = DEAD;
         // If the subject chooses A, their utility is HIGHER than h.
-        // Example: h = -1, so p = 0.5: will be indifferent between {0.5 health, 0.5 current} versus {1 death}
-        // Example: h = -0.1, so p = 0.0909: will be approx. indifferent between {0.9 health, 0.1 current} versus {1 death}
+        // Example: h = -1, so p = 0.5: will be indifferent between
+        //      {0.5 health, 0.5 current} versus {1 death}
+        // Example: h = -0.1, so p = 0.0909: will be approx. indifferent
+        //      between {0.9 health, 0.1 current} versus {1 death}
         // However, we'll ask them to aim for indifference directly -- simpler.
 
     } else {
@@ -470,11 +492,16 @@ void QolSG::giveChoice(const QString& category_chosen)
     ButtonConfig back_button_cfg = BASE_BUTTON_CONFIG;
     back_button_cfg.background_colour = BACK_BUTTON_BACKGROUND;
     ButtonAndProxy b = makeTextButton(
-                m_scene,
-                QRectF(0.05 * SCENE_WIDTH, 0.94 * SCENE_HEIGHT,
-                       0.1 * SCENE_WIDTH, 0.05 * SCENE_HEIGHT),
-                back_button_cfg,
-                TextConst::back());
+        m_scene,
+        QRectF(
+            0.05 * SCENE_WIDTH,
+            0.94 * SCENE_HEIGHT,
+            0.1 * SCENE_WIDTH,
+            0.05 * SCENE_HEIGHT
+        ),
+        back_button_cfg,
+        TextConst::back()
+    );
     CONNECT_BUTTON(b, askCategory);
 
     // Off we go
@@ -482,23 +509,22 @@ void QolSG::giveChoice(const QString& category_chosen)
     save();
 }
 
-
-AdjustablePieAndProxy QolSG::makePie(const QPointF& centre,
-                                     const int n_sectors)
+AdjustablePieAndProxy
+    QolSG::makePie(const QPointF& centre, const int n_sectors)
 {
     const qreal diameter = STIMDIAMETER;
     const qreal radius = diameter / 2;
-    AdjustablePieAndProxy pp = makeAdjustablePie(m_scene, centre,
-                                                 n_sectors, diameter);
+    AdjustablePieAndProxy pp
+        = makeAdjustablePie(m_scene, centre, n_sectors, diameter);
     AdjustablePie* pie = pp.pie;
     pie->setBackgroundBrush(QBrush(SCENE_BACKGROUND));
     pie->setBaseCompassHeading(PIE_BASE_HEADING);
     pie->setSectorRadius(radius * PIE_FRAC);
-    pie->setCursorRadius(radius * PIE_FRAC,
-                         radius * (PIE_FRAC + CURSOR_FRAC));
+    pie->setCursorRadius(radius * PIE_FRAC, radius * (PIE_FRAC + CURSOR_FRAC));
     pie->setCursorAngle(PIE_CURSOR_ANGLE);
-    pie->setLabelStartRadius(radius * (PIE_FRAC + CURSOR_FRAC +
-                                       LABEL_CURSOR_GAP_FRAC));
+    pie->setLabelStartRadius(
+        radius * (PIE_FRAC + CURSOR_FRAC + LABEL_CURSOR_GAP_FRAC)
+    );
     pie->setLabelRotation(true);
     pie->setReportingDelay(PIE_REPORTING_DELAY_MS);
 
@@ -516,11 +542,11 @@ AdjustablePieAndProxy QolSG::makePie(const QPointF& centre,
     return pp;
 }
 
-
 void QolSG::showFixed(const bool left, const LotteryOption& option)
 {
-    const QPointF lottery_centre(left ? LEFT_STIM_CENTRE : RIGHT_STIM_CENTRE,
-                                 STIM_VCENTRE);
+    const QPointF lottery_centre(
+        left ? LEFT_STIM_CENTRE : RIGHT_STIM_CENTRE, STIM_VCENTRE
+    );
     AdjustablePieAndProxy pp = makePie(lottery_centre, 1);
     pp.pie->setProportions({1.0});
     pp.pie->setSectorPenBrushes({{SECTOR_PEN, QBrush(option.fill_colour)}});
@@ -528,27 +554,37 @@ void QolSG::showFixed(const bool left, const LotteryOption& option)
     pp.pie->setCentreLabelColour(option.text_colour);
 }
 
-
-void QolSG::showLottery(const bool left, const LotteryOption& option1,
-                        const LotteryOption& option2, const qreal starting_p)
+void QolSG::showLottery(
+    const bool left,
+    const LotteryOption& option1,
+    const LotteryOption& option2,
+    const qreal starting_p
+)
 {
-    const QPointF lottery_centre(left ? LEFT_STIM_CENTRE : RIGHT_STIM_CENTRE,
-                                 STIM_VCENTRE);
+    const QPointF lottery_centre(
+        left ? LEFT_STIM_CENTRE : RIGHT_STIM_CENTRE, STIM_VCENTRE
+    );
     AdjustablePieAndProxy pp = makePie(lottery_centre, 2);
     m_pie = pp.pie;
     m_pie->setProportions({starting_p, 1.0 - starting_p});
-    m_pie->setSectorPenBrushes({{SECTOR_PEN, QBrush(option1.fill_colour)},
-                                {SECTOR_PEN, QBrush(option2.fill_colour)}});
+    m_pie->setSectorPenBrushes(
+        {{SECTOR_PEN, QBrush(option1.fill_colour)},
+         {SECTOR_PEN, QBrush(option2.fill_colour)}}
+    );
     m_pie->setLabels({option1.label, option2.label});
     m_pie->setLabelColours({option1.text_colour, option2.text_colour});
     m_pie_touched_at_least_once = false;
-    connect(m_pie.data(), &AdjustablePie::proportionsChanged,
-            this, &QolSG::pieAdjusted);
+    connect(
+        m_pie.data(),
+        &AdjustablePie::proportionsChanged,
+        this,
+        &QolSG::pieAdjusted
+    );
 }
 
-
-void QolSG::showGambleInstruction(const bool lottery_on_left,
-                                  const QString& category_chosen)
+void QolSG::showGambleInstruction(
+    const bool lottery_on_left, const QString& category_chosen
+)
 {
     qDebug() << Q_FUNC_INFO << lottery_on_left << category_chosen;
 
@@ -581,37 +617,42 @@ void QolSG::showGambleInstruction(const bool lottery_on_left,
     const qreal left = EDGESPACE_FRAC * SCENE_WIDTH;
     QString sep("<br><br>");
 
-    makeText(m_scene,
-             QPointF(left, left),
-             tc,
-             TX_INSTRUCTION_PREFIX + sep + instruction + sep + suffix);
+    makeText(
+        m_scene,
+        QPointF(left, left),
+        tc,
+        TX_INSTRUCTION_PREFIX + sep + instruction + sep + suffix
+    );
 }
-
 
 void QolSG::pieAdjusted(const QVector<qreal>& proportions)
 {
     lotteryTouched(proportions.at(0));
 }
 
-
 void QolSG::lotteryTouched(const qreal p)
 {
     if (!m_pie_touched_at_least_once) {
-        // Make the "indifference" button appear only after the twirler has been set.
+        // Make the "indifference" button appear only after the twirler has
+        // been set.
         m_pie_touched_at_least_once = true;
         ButtonConfig indiff_button_cfg = BASE_BUTTON_CONFIG;
         indiff_button_cfg.background_colour = QCOLOR_DARKGREEN;
         ButtonAndProxy c = makeTextButton(
-                    m_scene,
-                    QRectF(0.3 * SCENE_WIDTH, 0.90 * SCENE_HEIGHT,
-                           0.4 * SCENE_WIDTH, 0.09 * SCENE_HEIGHT),
-                    indiff_button_cfg,
-                    TX_INDIFFERENT);
+            m_scene,
+            QRectF(
+                0.3 * SCENE_WIDTH,
+                0.90 * SCENE_HEIGHT,
+                0.4 * SCENE_WIDTH,
+                0.09 * SCENE_HEIGHT
+            ),
+            indiff_button_cfg,
+            TX_INDIFFERENT
+        );
         CONNECT_BUTTON(c, recordChoice);
     }
     m_last_p = p;
 }
-
 
 void QolSG::recordChoice()
 {
@@ -636,7 +677,6 @@ void QolSG::recordChoice()
     save();
     thanks();
 }
-
 
 void QolSG::finished()
 {

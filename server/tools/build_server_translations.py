@@ -69,7 +69,7 @@ MAPPING_FILE = join(CURRENT_DIR, "babel.cfg")
 SOURCE_DIRS = [CAMCOPS_SERVER_DIRECTORY]  # it recurses below this directory
 
 PROJECT_NAME = "CamCOPS"
-COPYRIGHT_HOLDER = "Rudolf Cardinal"
+COPYRIGHT_HOLDER = "University of Cambridge, Department of Psychiatry"
 MSGID_BUGS_ADDR = "rnc1001@cam.ac.uk"
 CHARSET = "utf-8"
 
@@ -115,7 +115,7 @@ def spawn(cmdargs: List[str]) -> None:
 
     See
     https://stackoverflow.com/questions/1196074/how-to-start-a-background-process-in-python
-    """  # noqa
+    """
     subprocess.Popen(cmdargs, close_fds=True)
 
 
@@ -158,7 +158,7 @@ def get_mo_filename(locale: str) -> str:
 def main() -> None:
     """
     Create translation files for the CamCOPS server.
-    """  # noqa
+    """
     # noinspection PyTypeChecker
     parser = argparse.ArgumentParser(
         description=f"""

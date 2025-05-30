@@ -19,27 +19,30 @@
 */
 
 #include "soundfunc.h"
+
 #include <QAudioDevice>
 #include <QAudioOutput>
 #include <QDebug>
 #include <QMediaDevices>
-#include <QObject>
 #include <QMediaPlayer>
+#include <QObject>
+
 #include "maths/mathfunc.h"
 
 namespace soundfunc {
 
 const QString UNABLE_TO_CREATE_MEDIA_PLAYER("Unable");
 
-
 void makeMediaPlayer(QSharedPointer<QMediaPlayer>& player)
 {
-    // qDebug() << "Default QMediaPlayer() flags: " << static_cast<int>(QMediaPlayer::Flags());
+    // qDebug() << "Default QMediaPlayer() flags: "
+    //          << static_cast<int>(QMediaPlayer::Flags());
     // default "flags" argument to QMediaPlayer() is 0, i.e. no flags set.
 
     qDebug() << "About to call QMediaPlayer()...";
-    player = QSharedPointer<QMediaPlayer>(new QMediaPlayer(),
-                                          &QObject::deleteLater);
+    player = QSharedPointer<QMediaPlayer>(
+        new QMediaPlayer(), &QObject::deleteLater
+    );
     auto audio_output = new QAudioOutput();
     audio_output->setDevice(QMediaDevices::defaultAudioOutput());
     player->setAudioOutput(audio_output);
@@ -53,46 +56,50 @@ void makeMediaPlayer(QSharedPointer<QMediaPlayer>& player)
 
     Near-crash; very long pause 2019-09-06. Looks like it relates to GStreamer:
 
-        1   ??                                                                                                                                                                                                                                                   0x7ffff7bcefd7
-        2   ??                                                                                                                                                                                                                                                   0x7ffff7bcfba8
-        3   ??                                                                                                                                                                                                                                                   0x7ffff7bcfbda
-        4   g_type_add_interface_static                                                                                                                                                                                                                          0x7ffff7bd10d6
-        5   gst_bin_get_type                                                                                                                                                                                                                                     0x7ffff6d009b0
-        6   ??                                                                                                                                                                                                                                                   0x7ffff6cf74fc
-        7   g_option_context_parse                                                                                                                                                                                                                               0x7ffff13a58a8
-        8   gst_init_check                                                                                                                                                                                                                                       0x7ffff6cf84cf
-        9   gst_init                                                                                                                                                                                                                                             0x7ffff6cf8524
-        10  QGstreamerPlayerServicePlugin::create(QString const&)                                                                                                                                                                                                0x555555f98cd2
-        11  QPluginServiceProvider::requestService(QByteArray const&, QMediaServiceProviderHint const&)                                                                                                                                                          0x555556581e9e
-        12  QMediaPlayer::QMediaPlayer(QObject *, QFlags<QMediaPlayer::Flag>)                                                                                                                                                                                    0x5555565aed69
-        13  soundfunc::makeMediaPlayer                                                                                                                                                                                      soundfunc.cpp                    31  0x5555558a5214
-        14  CardinalExpectationDetection::startTask                                                                                                                                                                         cardinalexpectationdetection.cpp 770 0x555555adbc7b
+        1   ??
+        2   ??
+        3   ??
+        4   g_type_add_interface_static
+        5   gst_bin_get_type
+        6   ??
+        7   g_option_context_parse
+        8   gst_init_check
+        9   gst_init
+        10  QGstreamerPlayerServicePlugin::create(QString const&)
+        11  QPluginServiceProvider::requestService(QByteArray const&,
+                QMediaServiceProviderHint const&)
+        12  QMediaPlayer::QMediaPlayer(QObject *, QFlags<QMediaPlayer::Flag>)
+        13  soundfunc::makeMediaPlayer
+        14  CardinalExpectationDetection::startTask
         ... <More>
 
     or
 
-        1  sched_yield                                                                                                                                                                                                     syscall-template.S               78  0x7ffff0613e57
-        2  ??                                                                                                                                                                                                                                                   0x7fffc78841b9
-        3  ??                                                                                                                                                                                                                                                   0x7fffc78708e0
-        4  ??                                                                                                                                                                                                                                                   0x7fffc75db94f
-        5  ??                                                                                                                                                                                                                                                   0x7fffc75d0f00
-        6  vaTerminate                                                                                                                                                                                                                                          0x7fffccb2f542
-        7  ??                                                                                                                                                                                                                                                   0x7fffcd7ec3ad
-        8  g_object_unref                                                                                                                                                                                                                                       0x7ffff6a8a012
-        9  gst_object_replace                                                                                                                                                                                                                                   0x7ffff6cf9a10
-        10 ??                                                                                                                                                                                                                                                   0x7fffcd7c17a3
-        11 ??                                                                                                                                                                                                                                                   0x7fffcd7cc16b
-        12 ??                                                                                                                                                                                                                                                   0x7ffff7269f11
-        13 gst_element_change_state                                                                                                                                                                                                                             0x7ffff6d26d5e
-        14 ??                                                                                                                                                                                                                                                   0x7ffff6d27499
-        15 QGstreamerVideoOverlay::QGstreamerVideoOverlay(QObject *, QByteArray const&)                                                                                                                                                                         0x555555faef15
-        16 QGstreamerVideoWidgetControl::QGstreamerVideoWidgetControl(QObject *, QByteArray const&)                                                                                                                                                             0x555555fb9c55
-        17 QGstreamerPlayerService::QGstreamerPlayerService(QObject *)                                                                                                                                                                                          0x555555f991c5
-        18 QGstreamerPlayerServicePlugin::create(QString const&)                                                                                                                                                                                                0x555555f98d01
-        19 QPluginServiceProvider::requestService(QByteArray const&, QMediaServiceProviderHint const&)                                                                                                                                                          0x55555658206e
-        20 QMediaPlayer::QMediaPlayer(QObject *, QFlags<QMediaPlayer::Flag>)                                                                                                                                                                                    0x5555565aef39
-        21 soundfunc::makeMediaPlayer                                                                                                                                                                                      soundfunc.cpp                    31  0x5555558a5199
-        22 CardinalExpectationDetection::startTask                                                                                                                                                                         cardinalexpectationdetection.cpp 760 0x555555adb996
+        1  sched_yield
+        2  ??
+        3  ??
+        4  ??
+        5  ??
+        6  vaTerminate
+        7  ??
+        8  g_object_unref
+        9  gst_object_replace
+        10 ??
+        11 ??
+        12 ??
+        13 gst_element_change_state
+        14 ??
+        15 QGstreamerVideoOverlay::QGstreamerVideoOverlay(QObject *,
+                QByteArray const&)
+        16 QGstreamerVideoWidgetControl::QGstreamerVideoWidgetControl(
+                QObject *, QByteArray const&)
+        17 QGstreamerPlayerService::QGstreamerPlayerService(QObject *)
+        18 QGstreamerPlayerServicePlugin::create(QString const&)
+        19 QPluginServiceProvider::requestService(QByteArray const&,
+                QMediaServiceProviderHint const&)
+        20 QMediaPlayer::QMediaPlayer(QObject *, QFlags<QMediaPlayer::Flag>)
+        21 soundfunc::makeMediaPlayer
+        22 CardinalExpectationDetection::startTask
         ... <More>
 
     This is potentially related to
@@ -106,7 +113,6 @@ void makeMediaPlayer(QSharedPointer<QMediaPlayer>& player)
 
     */
 }
-
 
 void finishMediaPlayer(const QSharedPointer<QMediaPlayer>& player)
 {
@@ -122,17 +128,18 @@ void finishMediaPlayer(const QSharedPointer<QMediaPlayer>& player)
     }
 }
 
-
-void setVolume(const QSharedPointer<QMediaPlayer>& player,
-               const int volume_percent)
+void setVolume(
+    const QSharedPointer<QMediaPlayer>& player, const int volume_percent
+)
 {
-    const qreal volume_proportion = mathfunc::intPercentToProportion(volume_percent);
+    const qreal volume_proportion
+        = mathfunc::intPercentToProportion(volume_percent);
     setVolume(player, volume_proportion);
 }
 
-
-void setVolume(const QSharedPointer<QMediaPlayer>& player,
-               const double volume_proportion)
+void setVolume(
+    const QSharedPointer<QMediaPlayer>& player, const double volume_proportion
+)
 {
     QAudioOutput* output = player->audioOutput();
     if (output) {

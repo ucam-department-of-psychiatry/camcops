@@ -21,6 +21,7 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -30,13 +31,16 @@ class TaskFactory;
 
 void initializeCore10(TaskFactory& factory);
 
-
 class Core10 : public Task
 {
     Q_OBJECT
+
 public:
-    Core10(CamcopsApp& app, DatabaseManager& db,
-           int load_pk = dbconst::NONEXISTENT_PK);
+    Core10(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -56,7 +60,10 @@ public:
     // ------------------------------------------------------------------------
     int totalScore() const;
     int nQuestionsCompleted() const;
-    double clinicalScore() const;  // same as total score if complete; otherwise scaled to be out of 40
+    double clinicalScore() const;
+    // ... Same as total score if complete; otherwise scaled to be out of
+    // 40.
+
 public:
     static const QString CORE10_TABLENAME;
 };

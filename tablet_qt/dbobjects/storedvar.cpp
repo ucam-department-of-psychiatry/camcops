@@ -21,6 +21,7 @@
 // #define DEBUG_SET_VALUE
 
 #include "storedvar.h"
+
 #include "core/camcopsapp.h"
 #include "db/databasemanager.h"
 #include "lib/uifunc.h"
@@ -61,12 +62,23 @@ const QMap<const int, QString> TYPEMAP{
     {QMetaType::QUuid, "Uuid"},
 };
 
-
-StoredVar::StoredVar(CamcopsApp& app, DatabaseManager& db,
-                     const QString& name, const QMetaType type,
-                     const QVariant& default_value) :
-    DatabaseObject(app, db, STOREDVAR_TABLENAME, dbconst::PK_FIELDNAME,
-                   true, false, false, false),
+StoredVar::StoredVar(
+    CamcopsApp& app,
+    DatabaseManager& db,
+    const QString& name,
+    const QMetaType type,
+    const QVariant& default_value
+) :
+    DatabaseObject(
+        app,
+        db,
+        STOREDVAR_TABLENAME,
+        dbconst::PK_FIELDNAME,
+        true,
+        false,
+        false,
+        false
+    ),
     m_name(name),
     m_type(type),
     m_value_fieldname("")
@@ -76,8 +88,12 @@ StoredVar::StoredVar(CamcopsApp& app, DatabaseManager& db,
     // ------------------------------------------------------------------------
     // Define fields
     // ------------------------------------------------------------------------
-    addField(NAME_FIELDNAME, QMetaType::fromType<QString>(), true, true, false);
-    addField(TYPE_FIELDNAME, QMetaType::fromType<QString>(), true, false, false);
+    addField(
+        NAME_FIELDNAME, QMetaType::fromType<QString>(), true, true, false
+    );
+    addField(
+        TYPE_FIELDNAME, QMetaType::fromType<QString>(), true, false, false
+    );
     QMapIterator<const int, QString> i(COLMAP);
     while (i.hasNext()) {
         i.next();
@@ -98,17 +114,21 @@ StoredVar::StoredVar(CamcopsApp& app, DatabaseManager& db,
         }
     }
     if (m_value_fieldname.isEmpty()) {
-        uifunc::stopApp(QString(
-            "StoredVar::StoredVar: m_value_fieldname unknown to StoredVar "
-            "with name=%1, type=%2; is the type missing from COLMAP "
-            "(in storedvar.cpp)?")
-                        .arg(name, QString::number(type_id)));
+        uifunc::stopApp(
+            QString(
+                "StoredVar::StoredVar: m_value_fieldname unknown to StoredVar "
+                "with name=%1, type=%2; is the type missing from COLMAP "
+                "(in storedvar.cpp)?"
+            )
+                .arg(name, QString::number(type_id))
+        );
     }
     if (!TYPEMAP.contains(type_id)) {
         qCritical() << Q_FUNC_INFO << "QVariant type unknown:" << type_id;
         uifunc::stopApp(
             "StoredVar::StoredVar: type unknown to StoredVar; see debug "
-            "console for details and check TYPEMAP (in storedvar.cpp)");
+            "console for details and check TYPEMAP (in storedvar.cpp)"
+        );
     }
 
     // ------------------------------------------------------------------------
@@ -127,7 +147,6 @@ StoredVar::StoredVar(CamcopsApp& app, DatabaseManager& db,
     }
 }
 
-
 bool StoredVar::setValue(const QVariant& value, const bool save_to_db)
 {
 #ifdef DEBUG_SET_VALUE
@@ -140,7 +159,6 @@ bool StoredVar::setValue(const QVariant& value, const bool save_to_db)
     return changed;
 }
 
-
 QVariant StoredVar::value() const
 {
     QVariant v = value(m_value_fieldname);
@@ -148,15 +166,14 @@ QVariant StoredVar::value() const
     return v;
 }
 
-
 QString StoredVar::name() const
 {
     return m_name;
 }
 
-
 void StoredVar::makeIndexes()
 {
-    m_db.createIndex("_idx_storedvar_name",
-                     STOREDVAR_TABLENAME, {NAME_FIELDNAME});
+    m_db.createIndex(
+        "_idx_storedvar_name", STOREDVAR_TABLENAME, {NAME_FIELDNAME}
+    );
 }

@@ -99,14 +99,22 @@ Files that make up a complete set of classes:
 
 Relevant web discussions include:
 
-    Qt docs: https://doc.qt.io/qt-6.5/layout.html#layout-issues
-    2009-01-16: http://stackoverflow.com/questions/452333/how-to-maintain-widgets-aspect-ratio-in-qt
-    2011-11-21: http://stackoverflow.com/questions/8211982/qt-resizing-a-qlabel-containing-a-qpixmap-while-keeping-its-aspect-ratio
-    2012-12-31: http://stackoverflow.com/questions/14104871/qlabel-cutting-off-text-on-resize
-    2013-01-09: http://stackoverflow.com/questions/14238138/heightforwidth-label
-    2014-06-17: http://stackoverflow.com/questions/24264320/qt-layouts-keep-widget-aspect-ratio-while-resizing
-    2015-03-30: http://www.qtcentre.org/threads/62059-QLabel-Word-Wrapping-adds-unnecessary-line-breaks
-    2015-07-21: http://stackoverflow.com/questions/31535143/how-to-prevent-qlabel-from-unnecessary-word-wrapping
+    Qt docs:
+        https://doc.qt.io/qt-6.5/layout.html#layout-issues
+    2009-01-16:
+        http://stackoverflow.com/questions/452333/how-to-maintain-widgets-aspect-ratio-in-qt
+    2011-11-21:
+        http://stackoverflow.com/questions/8211982/qt-resizing-a-qlabel-containing-a-qpixmap-while-keeping-its-aspect-ratio
+    2012-12-31:
+        http://stackoverflow.com/questions/14104871/qlabel-cutting-off-text-on-resize
+    2013-01-09:
+        http://stackoverflow.com/questions/14238138/heightforwidth-label
+    2014-06-17:
+        http://stackoverflow.com/questions/24264320/qt-layouts-keep-widget-aspect-ratio-while-resizing
+    2015-03-30:
+        http://www.qtcentre.org/threads/62059-QLabel-Word-Wrapping-adds-unnecessary-line-breaks
+    2015-07-21:
+        http://stackoverflow.com/questions/31535143/how-to-prevent-qlabel-from-unnecessary-word-wrapping
 
 */
 
@@ -115,12 +123,12 @@ Relevant web discussions include:
 
 // Switches that follow from it:
 #ifndef GUI_USE_HFW_LAYOUT
-#define GUI_USE_RESIZE_FOR_HEIGHT
+    #define GUI_USE_RESIZE_FOR_HEIGHT
 #endif
 
 // No silly combinations, please:
 #if defined(GUI_USE_HFW_LAYOUT) == defined(GUI_USE_RESIZE_FOR_HEIGHT)
-#error Define GUI_USE_HFW_LAYOUT xor GUI_USE_RESIZE_FOR_HEIGHT
+    #error Define GUI_USE_HFW_LAYOUT xor GUI_USE_RESIZE_FOR_HEIGHT
 #endif
 
 

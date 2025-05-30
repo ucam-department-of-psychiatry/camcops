@@ -21,13 +21,14 @@
 // By Joe Kearney, Rudolf Cardinal.
 
 #include "gbogpc.h"
-#include "maths/mathfunc.h"
+
 #include "lib/datetime.h"
 #include "lib/stringfunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
-#include "questionnairelib/quheading.h"
 #include "questionnairelib/quflowcontainer.h"
+#include "questionnairelib/quheading.h"
 #include "questionnairelib/quhorizontalline.h"
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qumcq.h"
@@ -59,15 +60,14 @@ const QString FN_WHOSE_GOAL_OTHER("whose_goal_other");
 
 const QString TAG_OTHER("other");
 
-
 void initializeGboGPC(TaskFactory& factory)
 {
     static TaskRegistrar<GboGPC> registered(factory);
 }
 
-
 GboGPC::GboGPC(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, GBOGPC_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, GBOGPC_TABLENAME, false, false, false),
+    // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     addField(FN_DATE, QMetaType::fromType<QDate>());
@@ -84,7 +84,6 @@ GboGPC::GboGPC(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     }
 }
 
-
 // ============================================================================
 // Class info
 // ============================================================================
@@ -94,31 +93,28 @@ QString GboGPC::shortname() const
     return "GBO-GPC";
 }
 
-
 QString GboGPC::longname() const
 {
     return tr("Goal-Based Outcomes – 2 – Goal Progress Chart");
 }
 
-
 QString GboGPC::description() const
 {
-    return tr("For recording progress towards the goals of therapy "
-              "(one goal at a time).");
+    return tr(
+        "For recording progress towards the goals of therapy "
+        "(one goal at a time)."
+    );
 }
-
 
 QString GboGPC::infoFilenameStem() const
 {
     return xstringTaskname();
 }
 
-
 QString GboGPC::xstringTaskname() const
 {
     return "gbo";
 }
-
 
 // ============================================================================
 // Instance info
@@ -126,64 +122,66 @@ QString GboGPC::xstringTaskname() const
 
 bool GboGPC::isComplete() const
 {
-    if (anyValuesNullOrEmpty({FN_DATE, FN_SESSION, FN_GOAL_NUMBER,
-                              FN_PROGRESS, FN_WHOSE_GOAL})) {
+    if (anyValuesNullOrEmpty(
+            {FN_DATE, FN_SESSION, FN_GOAL_NUMBER, FN_PROGRESS, FN_WHOSE_GOAL}
+        )) {
         return false;
     }
-    if (value(FN_WHOSE_GOAL) == gbocommon::AGENT_OTHER &&
-            valueIsNullOrEmpty(FN_WHOSE_GOAL_OTHER)) {
+    if (value(FN_WHOSE_GOAL) == gbocommon::AGENT_OTHER
+        && valueIsNullOrEmpty(FN_WHOSE_GOAL_OTHER)) {
         return false;
     }
     return true;
 }
 
-
 QStringList GboGPC::summary() const
 {
     QStringList lines;
-    lines.append(QString("Date: <b>%1</b>.").arg(
-                     datetime::dateToIso(valueDate(FN_DATE))));
+    lines.append(QString("Date: <b>%1</b>.")
+                     .arg(datetime::dateToIso(valueDate(FN_DATE))));
     lines.append(QString("Goal: <b>%1</b>.").arg(prettyValue(FN_GOAL_NUMBER)));
-    lines.append(QString("Progress: <b>%1</b>/%2.").arg(
-                     prettyValue(FN_PROGRESS),
-                     QString::number(gbocommon::PROGRESS_MAX)));
+    lines.append(QString("Progress: <b>%1</b>/%2.")
+                     .arg(
+                         prettyValue(FN_PROGRESS),
+                         QString::number(gbocommon::PROGRESS_MAX)
+                     ));
     return lines;
 }
-
 
 QStringList GboGPC::detail() const
 {
     return summary();
 }
 
-
 OpenableWidget* GboGPC::editor(const bool read_only)
 {
     const NameValueOptions whose_goal_options = NameValueOptions{
-        { xstring("agent_1"), gbocommon::AGENT_PATIENT },
-        { xstring("agent_2"), gbocommon::AGENT_PARENT_CARER },
-        { xstring("agent_3"), gbocommon::AGENT_CLINICIAN },
-        { xstring("agent_4"), gbocommon::AGENT_OTHER },
+        {xstring("agent_1"), gbocommon::AGENT_PATIENT},
+        {xstring("agent_2"), gbocommon::AGENT_PARENT_CARER},
+        {xstring("agent_3"), gbocommon::AGENT_CLINICIAN},
+        {xstring("agent_4"), gbocommon::AGENT_OTHER},
     };
 
-    const NameValueOptions goal_number_options =
-            NameValueOptions::makeNumbers(MIN_GOAL, MAX_GOAL);
-    const NameValueOptions goal_progress_options =
-            NameValueOptions::makeNumbers(gbocommon::PROGRESS_MIN,
-                                          gbocommon::PROGRESS_MAX);
+    const NameValueOptions goal_number_options
+        = NameValueOptions::makeNumbers(MIN_GOAL, MAX_GOAL);
+    const NameValueOptions goal_progress_options
+        = NameValueOptions::makeNumbers(
+            gbocommon::PROGRESS_MIN, gbocommon::PROGRESS_MAX
+        );
 
     QuPagePtr page(new QuPage{
         (new QuText(xstring("gpc_intro")))->setItalic(),
         new QuFlowContainer{
-                new QuHeading(xstring("date")),
-                (new QuDateTime(fieldRef(FN_DATE)))
-                    ->setMode(QuDateTime::DefaultDate)
-                    ->setOfferNowButton(true),
+            new QuHeading(xstring("date")),
+            (new QuDateTime(fieldRef(FN_DATE)))
+                ->setMode(QuDateTime::DefaultDate)
+                ->setOfferNowButton(true),
         },
         new QuFlowContainer{
             new QuHeading(xstring("session")),
-            new QuLineEditInteger(fieldRef(FN_SESSION), MIN_SESSION, MAX_SESSION)
-        },
+            new QuLineEditInteger(
+                fieldRef(FN_SESSION), MIN_SESSION, MAX_SESSION
+            )},
         new QuFlowContainer{
             new QuHeading(xstring("goal_number")),
             (new QuMcq(fieldRef(FN_GOAL_NUMBER), goal_number_options))
@@ -210,11 +208,14 @@ OpenableWidget* GboGPC::editor(const bool read_only)
         new QuSpacer(),
         new QuHorizontalLine(),
         new QuSpacer(),
-        (new QuText(xstring("copyright")))->setItalic()
-    });
+        (new QuText(xstring("copyright")))->setItalic()});
 
-    connect(fieldRef(FN_WHOSE_GOAL).data(), &FieldRef::valueChanged,
-            this, &GboGPC::updateMandatory);
+    connect(
+        fieldRef(FN_WHOSE_GOAL).data(),
+        &FieldRef::valueChanged,
+        this,
+        &GboGPC::updateMandatory
+    );
 
     page->setTitle(longname());
 
@@ -225,7 +226,6 @@ OpenableWidget* GboGPC::editor(const bool read_only)
 
     return m_questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations

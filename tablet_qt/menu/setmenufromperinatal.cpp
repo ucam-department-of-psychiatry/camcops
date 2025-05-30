@@ -19,10 +19,10 @@
 */
 
 #include "setmenufromperinatal.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
-
 #include "tasks/bprs.h"
 #include "tasks/core10.h"
 #include "tasks/epds.h"
@@ -36,25 +36,23 @@
 #include "tasks/phq9.h"
 #include "tasks/ybocs.h"
 
-
 SetMenuFromPerinatal::SetMenuFromPerinatal(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
 {
 }
-
 
 QString SetMenuFromPerinatal::title() const
 {
     return tr("FROM-Perinatal");
 }
 
-
 QString SetMenuFromPerinatal::subtitle() const
 {
-    return tr("RCPsych Framework for Routine Outcome Measurement in "
-              "Perinatal Psychiatry (FROM-Perinatal)");
+    return tr(
+        "RCPsych Framework for Routine Outcome Measurement in "
+        "Perinatal Psychiatry (FROM-Perinatal)"
+    );
 }
-
 
 void SetMenuFromPerinatal::makeItems()
 {

@@ -23,21 +23,28 @@
 
 class IDED3DExemplars;
 
-
 class IDED3DStage : public DatabaseObject
 {
     Q_OBJECT
+
 public:
-    IDED3DStage(CamcopsApp& app, DatabaseManager& db,
-                int load_pk = dbconst::NONEXISTENT_PK);
-    IDED3DStage(int task_id, CamcopsApp& app, DatabaseManager& db,
-                int stage_num_zero_based,
-                const QString& stage_name,
-                const QString& relevant_dimension,
-                const IDED3DExemplars& correct_exemplars,
-                const IDED3DExemplars& incorrect_exemplars,
-                int n_possible_locations,
-                bool incorrect_stimulus_can_overlap);
+    IDED3DStage(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
+    IDED3DStage(
+        int task_id,
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int stage_num_zero_based,
+        const QString& stage_name,
+        const QString& relevant_dimension,
+        const IDED3DExemplars& correct_exemplars,
+        const IDED3DExemplars& incorrect_exemplars,
+        int n_possible_locations,
+        bool incorrect_stimulus_can_overlap
+    );
     int taskId() const;
     int stageNumZeroBased() const;
     int nPossibleLocations() const;
@@ -54,10 +61,12 @@ public:
     void recordTrialCompleted();
     void recordStageEnded(bool passed);
     QString summary() const;
+
 public:
     static const QString STAGE_TABLENAME;
     static const QString FN_FK_TO_TASK;
     static const QString FN_STAGE;
+
 protected:
     bool m_incorrect_stimulus_can_overlap;
     int m_n_possible_locations;

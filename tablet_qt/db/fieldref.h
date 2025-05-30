@@ -26,8 +26,9 @@
 #include <QObject>
 #include <QPixmap>
 #include <QSharedPointer>
-#include "field.h"
+
 #include "databaseobject.h"
+#include "field.h"
 
 class Blob;
 class CamcopsApp;
@@ -69,8 +70,8 @@ The FieldRef manages various kinds of indirection; see FieldRefMethod below.
     */
 
     Q_OBJECT
-public:
 
+public:
     // ========================================================================
     // Helper classes
     // ========================================================================
@@ -78,26 +79,26 @@ public:
     // How is the FieldRef going to operate?
     enum class FieldRefMethod {
         Invalid,
-            // Dummy value indicating "not configured".
+        // Dummy value indicating "not configured".
         Field,
-            // Direct connection to a Field object.
+        // Direct connection to a Field object.
         DatabaseObject,
-            // Connection to a Field object belonging to a DatabaseObject.
+        // Connection to a Field object belonging to a DatabaseObject.
         DatabaseObjectBlobField,
-            // Connection to (a) a field in the DatabaseObject that stores the
-            // PK of a BLOB record, and (b) a record in the BLOB table that
-            // stores the actual blob, and references back to the
-            // table/PK/field of the DatabaseObject in question.
+        // Connection to (a) a field in the DatabaseObject that stores the
+        // PK of a BLOB record, and (b) a record in the BLOB table that
+        // stores the actual blob, and references back to the
+        // table/PK/field of the DatabaseObject in question.
         IsolatedBlobFieldForTesting,
-            // As the name suggests.
+        // As the name suggests.
         Functions,
-            // Getter/setter functions, to allow the use e.g. of Questionnaires
-            // (which use FieldRefs) together with arbitrary C++ objects, e.g.
-            // for setting StoredVar objects.
+        // Getter/setter functions, to allow the use e.g. of Questionnaires
+        // (which use FieldRefs) together with arbitrary C++ objects, e.g.
+        // for setting StoredVar objects.
         StoredVar,
-            // Connection to a named StoredVar of the master app object.
+        // Connection to a named StoredVar of the master app object.
         CachedStoredVar,
-            // Connection to a named CachedStoredVar of the master app object.
+        // Connection to a named CachedStoredVar of the master app object.
     };
 
     // ========================================================================
@@ -112,17 +113,19 @@ public:
 
 protected:
     // Protected constructor
-    FieldRef(FieldRefMethod method,
-             const bool mandatory,
-             Field* p_field,
-             DatabaseObject* p_dbobject,
-             const QString& fieldname,
-             const bool autosave,
-             QSharedPointer<Blob> blob,
-             const GetterFunction& getterfunc,
-             const SetterFunction& setterfunc,
-             CamcopsApp* p_app,
-             const QString& storedvar_name);
+    FieldRef(
+        FieldRefMethod method,
+        const bool mandatory,
+        Field* p_field,
+        DatabaseObject* p_dbobject,
+        const QString& fieldname,
+        const bool autosave,
+        QSharedPointer<Blob> blob,
+        const GetterFunction& getterfunc,
+        const SetterFunction& setterfunc,
+        CamcopsApp* p_app,
+        const QString& storedvar_name
+    );
 
 public:
     // ========================================================================
@@ -134,37 +137,52 @@ public:
 
     // Construct from a Field pointer.
     // Args:
-    //  mandatory: do we require data to be present in the underlying field?
+    // - mandatory: do we require data to be present in the underlying field?
     FieldRef(Field* p_field, bool mandatory);
 
     // Construct from a named field within a DatabaseObject.
     // Args:
-    //  mandatory: do we require data to be present in the underlying field?
-    //  autosave: should the database object write to disk ASAP?
-    //  blob: is this a BLOB field?
-    FieldRef(DatabaseObject* p_dbobject, const QString& fieldname,
-             bool mandatory, bool autosave = true, bool blob = false,
-             CamcopsApp* p_app = nullptr);
+    // - mandatory: do we require data to be present in the underlying field?
+    // - autosave: should the database object write to disk ASAP?
+    // - blob: is this a BLOB field?
+    FieldRef(
+        DatabaseObject* p_dbobject,
+        const QString& fieldname,
+        bool mandatory,
+        bool autosave = true,
+        bool blob = false,
+        CamcopsApp* p_app = nullptr
+    );
 
     // Construct from a Blob pointer.
     // Args:
-    //  mandatory: do we require data to be present in the underlying field?
-    FieldRef(QSharedPointer<Blob> blob, bool mandatory,
-             bool disable_creation_warning = false);  // for widget testing only; specimen BLOB
+    // - mandatory: do we require data to be present in the underlying field?
+    // - disable_creation_warning: for widget testing only; specimen BLOB
+    FieldRef(
+        QSharedPointer<Blob> blob,
+        bool mandatory,
+        bool disable_creation_warning = false
+    );
 
     // Construct from a pair of functions to get/set data.
     // Args:
-    //  mandatory: do we require data to be present in the underlying field?
-    FieldRef(const GetterFunction& getterfunc,
-             const SetterFunction& setterfunc,
-             bool mandatory);
+    // - mandatory: do we require data to be present in the underlying field?
+    FieldRef(
+        const GetterFunction& getterfunc,
+        const SetterFunction& setterfunc,
+        bool mandatory
+    );
 
     // Construct from a named StoredVar within a CamcopsApp.
     // Args:
-    //  mandatory: do we require data to be present in the underlying field?
-    //  cached: operate on the editing cache copy?
-    FieldRef(CamcopsApp* app, const QString& storedvar_name,
-             bool mandatory, bool cached);  // StoredVar
+    // - mandatory: do we require data to be present in the underlying field?
+    // - cached: operate on the editing cache copy?
+    FieldRef(
+        CamcopsApp* app,
+        const QString& storedvar_name,
+        bool mandatory,
+        bool cached
+    );  // StoredVar
 
     // ========================================================================
     // Validity check
@@ -229,7 +247,8 @@ public:
     QVector<int> valueVectorInt() const;
 
     // ========================================================================
-    // BLOB-related functions, overridden by BlobFieldRef for higher performance
+    // BLOB-related functions, overridden by BlobFieldRef for higher
+    // performance
     // ========================================================================
 
     // Is this a BLOB field?
@@ -243,20 +262,23 @@ public:
 
     // Rotates the BLOB.
     // (Low-performance version; overridden by BlobFieldRef.)
-    virtual void rotateImage(int angle_degrees_clockwise,
-                             const QObject* originator = nullptr);
+    virtual void rotateImage(
+        int angle_degrees_clockwise, const QObject* originator = nullptr
+    );
 
     // Sets the BLOB image.
     // (Low-performance version; overridden by BlobFieldRef.)
-    virtual bool setImage(const QImage& image,
-                          const QObject* originator = nullptr);
+    virtual bool
+        setImage(const QImage& image, const QObject* originator = nullptr);
 
     // Sets the BLOB image.
     // (Low-performance version; overridden by BlobFieldRef.)
-    virtual bool setRawImage(const QByteArray& data,
-                             const QString& extension_without_dot,
-                             const QString& mimetype,
-                             const QObject* originator = nullptr);
+    virtual bool setRawImage(
+        const QByteArray& data,
+        const QString& extension_without_dot,
+        const QString& mimetype,
+        const QObject* originator = nullptr
+    );
 
     // ========================================================================
     // Completeness of input
@@ -310,19 +332,16 @@ protected:
 
 signals:
     // "The underlying value has changed."
-    void valueChanged(const FieldRef* fieldref,
-                      const QObject* originator);
+    void valueChanged(const FieldRef* fieldref, const QObject* originator);
 
     // "The mandatory status has changed."
-    void mandatoryChanged(const FieldRef* fieldref,
-                          const QObject* originator);
+    void mandatoryChanged(const FieldRef* fieldref, const QObject* originator);
     // You should NOT cause a valueChanged() signal to be emitted whilst in a
     // mandatoryChanged() signal, but it's fine to emit mandatoryChanged()
     // signals (typically on other fields) whilst processing valueChanged()
     // signals.
 
 protected:
-
     // The data access method we're using.
     FieldRefMethod m_method;
 

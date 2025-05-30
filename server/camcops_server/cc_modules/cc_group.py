@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_group.py
 
@@ -161,8 +159,18 @@ class Group(Base):
         secondary=group_group_table,  # via this mapping table
         primaryjoin=(id == group_group_table.c.group_id),  # "us"
         secondaryjoin=(id == group_group_table.c.can_see_group_id),  # "them"
-        backref="groups_that_can_see_us",
+        back_populates="groups_that_can_see_us",
         lazy="joined",  # not sure this does anything here
+        cascade_backrefs=False,
+    )
+
+    groups_that_can_see_us = relationship(
+        "Group",
+        secondary=group_group_table,  # via this mapping table
+        primaryjoin=(id == group_group_table.c.can_see_group_id),  # "us"
+        secondaryjoin=(id == group_group_table.c.group_id),  # "them"
+        back_populates="can_see_other_groups",
+        cascade_backrefs=False,
     )
 
     def __str__(self) -> str:

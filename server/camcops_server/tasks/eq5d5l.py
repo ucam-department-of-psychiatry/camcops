@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # camcops_server/tasks/eq5d5l.py
 
 """
@@ -253,13 +252,13 @@ class Eq5d5l(TaskHasPatientMixin, Task):
                         ): self.q2,
                         req.snomed(
                             SnomedLookup.EQ5D5L_USUAL_ACTIVITIES_SCORE
-                        ): self.q3,  # noqa
+                        ): self.q3,
                         req.snomed(
                             SnomedLookup.EQ5D5L_PAIN_DISCOMFORT_SCORE
-                        ): self.q4,  # noqa
+                        ): self.q4,
                         req.snomed(
                             SnomedLookup.EQ5D5L_ANXIETY_DEPRESSION_SCORE
-                        ): self.q5,  # noqa
+                        ): self.q5,
                     },
                 )
             )

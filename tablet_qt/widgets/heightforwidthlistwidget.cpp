@@ -21,10 +21,11 @@
 // #define DEBUG_LAYOUT
 
 #include "heightforwidthlistwidget.h"
+
 #include <QDebug>
 #include <QEvent>
 #ifdef DEBUG_LAYOUT
-#include "lib/layoutdumper.h"
+    #include "lib/layoutdumper.h"
 #endif
 
 
@@ -36,44 +37,47 @@ HeightForWidthListWidget::HeightForWidthListWidget(QWidget* parent) :
     setResizeMode(QListView::Adjust);
 }
 
-
 bool HeightForWidthListWidget::event(QEvent* e)
 {
     switch (e->type()) {
-    case QEvent::Resize:  // Alternative is resizeEvent() but we need to trap other events too
-    case QEvent::LayoutRequest:  // See QWidget::updateGeometry() -- they will come here
-        {
-            // At this point, we have already been resized, so can use width();
-            // https://doc.qt.io/qt-6.5/qwidget.html#resizeEvent
-            const int n_items = count();
-            for (int row = 0; row < n_items; ++row) {
-                QListWidgetItem* lwi = item(row);
-                if (!lwi) {
-                    qWarning() << Q_FUNC_INFO << "null item()";
-                    continue;
-                }
-                QWidget* widget = itemWidget(lwi);
-                if (!widget) {
-                    qWarning() << Q_FUNC_INFO << "null itemWidget()";
-                    continue;
-                }
-                const QSize size_hint = widgetSizeHint(widget);
-                lwi->setSizeHint(size_hint);
+        case QEvent::Resize:
+            // ... Alternative is resizeEvent() but we need to trap other
+            // events too
+        case QEvent::LayoutRequest:
+            // See QWidget::updateGeometry() -- they will come here
+            {
+                // At this point, we have already been resized, so can use
+                // width();
+                // https://doc.qt.io/qt-6.5/qwidget.html#resizeEvent
+                const int n_items = count();
+                for (int row = 0; row < n_items; ++row) {
+                    QListWidgetItem* lwi = item(row);
+                    if (!lwi) {
+                        qWarning() << Q_FUNC_INFO << "null item()";
+                        continue;
+                    }
+                    QWidget* widget = itemWidget(lwi);
+                    if (!widget) {
+                        qWarning() << Q_FUNC_INFO << "null itemWidget()";
+                        continue;
+                    }
+                    const QSize size_hint = widgetSizeHint(widget);
+                    lwi->setSizeHint(size_hint);
 #ifdef DEBUG_LAYOUT
-                qDebug() << Q_FUNC_INFO << "resizing list widget to" << size()
-                         << "; setting QListWidgetItem sizeHint for widget"
-                         << LayoutDumper::getWidgetDescriptor(widget) << "to"
-                         << size_hint;
+                    qDebug()
+                        << Q_FUNC_INFO << "resizing list widget to" << size()
+                        << "; setting QListWidgetItem sizeHint for widget"
+                        << LayoutDumper::getWidgetDescriptor(widget) << "to"
+                        << size_hint;
 #endif
+                }
             }
-        }
-        break;
-    default:
-        break;
+            break;
+        default:
+            break;
     }
     return QListWidget::event(e);
 }
-
 
 QSize HeightForWidthListWidget::widgetSizeHint(QWidget* widget) const
 {
@@ -95,9 +99,8 @@ QSize HeightForWidthListWidget::widgetSizeHint(QWidget* widget) const
     QSize result(widget_new_width, widget_new_height);
 #ifdef DEBUG_LAYOUT
     qDebug() << Q_FUNC_INFO << "widget"
-             << LayoutDumper::getWidgetDescriptor(widget)
-             << "widget_size_hint" << widget_size_hint
-             << "result" << result;
+             << LayoutDumper::getWidgetDescriptor(widget) << "widget_size_hint"
+             << widget_size_hint << "result" << result;
 #endif
     return result;
 }

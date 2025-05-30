@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_response.py
 
@@ -111,36 +109,38 @@ class CamcopsResponse(Response):
                     "Content-Security-Policy",
                     # A single string:
                     (
-                        # The secure policy:
-                        "default-src 'self' data:; "
-                        "object-src 'none'; "
-                        "child-src 'self'; "
-                        f"style-src 'nonce-{nonce}' 'self'; "
-                        # ... meaning: allow inline CSS only if it is tagged
-                        # with this nonce, via <style nonce="XXX">, or if it
-                        # comes from our site ('self'). See
-                        # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/style-src  # noqa
-                        # And similarly for scripts:
-                        f"script-src 'nonce-{nonce}' 'self'; "
-                        # ... "unsafe-eval" is currently required by deform.js,
-                        # in addSequenceItem(). Deform stores prototype code
-                        # and then clones it when you add a sequence item; this
-                        # involves evaluation.
-                        "frame-ancestors 'none'; "
-                        "upgrade-insecure-requests; "
-                        "block-all-mixed-content"
-                    )
-                    if DEFORM_SUPPORTS_CSP_NONCE
-                    else (
-                        # The less secure policy, for Deform:
-                        "default-src 'self' data:; "
-                        "object-src 'none'; "
-                        "child-src 'self'; "
-                        "style-src 'self' 'unsafe-inline'; "
-                        "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
-                        "frame-ancestors 'none'; "
-                        "upgrade-insecure-requests; "
-                        "block-all-mixed-content"
+                        (
+                            # The secure policy:
+                            "default-src 'self' data:; "
+                            "object-src 'none'; "
+                            "child-src 'self'; "
+                            f"style-src 'nonce-{nonce}' 'self'; "
+                            # ... meaning: allow inline CSS only if it is
+                            # tagged with this nonce, via <style nonce="XXX">,
+                            # or if it comes from our site ('self'). See
+                            # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/style-src  # noqa E501
+                            # And similarly for scripts:
+                            f"script-src 'nonce-{nonce}' 'self'; "
+                            # ... "unsafe-eval" is currently required by
+                            # deform.js, in addSequenceItem(). Deform stores
+                            # prototype code and then clones it when you add a
+                            # sequence item; this involves evaluation.
+                            "frame-ancestors 'none'; "
+                            "upgrade-insecure-requests; "
+                            "block-all-mixed-content"
+                        )
+                        if DEFORM_SUPPORTS_CSP_NONCE
+                        else (
+                            # The less secure policy, for Deform:
+                            "default-src 'self' data:; "
+                            "object-src 'none'; "
+                            "child-src 'self'; "
+                            "style-src 'self' 'unsafe-inline'; "
+                            "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
+                            "frame-ancestors 'none'; "
+                            "upgrade-insecure-requests; "
+                            "block-all-mixed-content"
+                        )
                     ),
                 ),
                 # -------------------------------------------------------------

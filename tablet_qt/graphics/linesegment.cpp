@@ -21,13 +21,14 @@
 // #define DEBUG_TRANSFORM
 
 #include "linesegment.h"
-#include <QDebug>
-#include <QTransform>
-#include <QtMath>
-#include "maths/mathfunc.h"
-using mathfunc::sgn;
-using mathfunc::rangesOverlap;
 
+#include <QDebug>
+#include <QtMath>
+#include <QTransform>
+
+#include "maths/mathfunc.h"
+using mathfunc::rangesOverlap;
+using mathfunc::sgn;
 
 LineSegment::LineSegment(const QPointF& from, const QPointF& to) :
     from(from),
@@ -58,43 +59,36 @@ LineSegment::LineSegment(const QPointF& from, const QPointF& to) :
     b = x0 - x1;
 }
 
-
 qreal LineSegment::c(const qreal x, const qreal y) const
 {
     // The line has equation a * (x - xm) + b * (y - ym) = c = 0
     return a * (x - xm) + b * (y - ym);
 }
 
-
 qreal LineSegment::c(const QPointF& pt) const
 {
     return c(pt.x(), pt.y());
 }
-
 
 int LineSegment::side(const QPointF& pt) const
 {
     return sgn(c(pt));
 }
 
-
 bool LineSegment::isPoint() const
 {
     return from == to;
 }
-
 
 bool LineSegment::xRangesOverlap(const LineSegment& other) const
 {
     return rangesOverlap(xlow, xhigh, other.xlow, other.xhigh);
 }
 
-
 bool LineSegment::yRangesOverlap(const LineSegment& other) const
 {
     return rangesOverlap(ylow, yhigh, other.ylow, other.yhigh);
 }
-
 
 bool LineSegment::intersects(const LineSegment& other) const
 {
@@ -122,7 +116,6 @@ bool LineSegment::intersects(const LineSegment& other) const
     return true;
 }
 
-
 bool LineSegment::pointOn(const QPointF& point) const
 {
     const qreal x = point.x();
@@ -133,7 +126,6 @@ bool LineSegment::pointOn(const QPointF& point) const
     return qFuzzyIsNull(c(point));
 }
 
-
 qreal LineSegment::angleRad() const
 {
     const qreal dx = to.x() - from.x();
@@ -141,13 +133,11 @@ qreal LineSegment::angleRad() const
     return qAtan2(dy, dx);
 }
 
-
 QRectF LineSegment::rect() const
 {
     const QRectF r(from, to);
     return r.normalized();
 }
-
 
 bool LineSegment::pointInPerpendicularArea(const QPointF& point) const
 {
@@ -159,10 +149,8 @@ bool LineSegment::pointInPerpendicularArea(const QPointF& point) const
     const QPointF rotated_point = tr.map(point);
 #ifdef DEBUG_TRANSFORM
     qDebug() << "pointInPerpendicularArea:"
-             << "point" << point
-             << "angle" << angle
-             << "in degrees" << qRadiansToDegrees(angle)
-             << "rotated_rect" << rotated_rect
+             << "point" << point << "angle" << angle << "in degrees"
+             << qRadiansToDegrees(angle) << "rotated_rect" << rotated_rect
              << "rotated_point" << rotated_point;
 #endif
     const qreal x = rotated_point.x();

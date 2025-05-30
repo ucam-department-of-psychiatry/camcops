@@ -50,9 +50,10 @@ class QWidget;
 
 // One way of scrolling an object in response to a flick gesture.
 
-class FlickCharm: public QObject
+class FlickCharm : public QObject
 {
     Q_OBJECT
+
 public:
     FlickCharm(QObject* parent = nullptr);
     ~FlickCharm();

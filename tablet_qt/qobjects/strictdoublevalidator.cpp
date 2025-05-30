@@ -22,15 +22,17 @@
 
 #include "strictdoublevalidator.h"
 #ifdef DEBUG_VALIDATOR
-#include <QDebug>
+    #include <QDebug>
 #endif
 #include "lib/numericfunc.h"
 
-
 StrictDoubleValidator::StrictDoubleValidator(
-        const double bottom, const double top,
-        const int decimals, const bool allow_empty,
-        QObject* parent) :
+    const double bottom,
+    const double top,
+    const int decimals,
+    const bool allow_empty,
+    QObject* parent
+) :
     QDoubleValidator(bottom, top, decimals, parent),
     m_allow_empty(allow_empty)
 {
@@ -39,9 +41,11 @@ StrictDoubleValidator::StrictDoubleValidator(
     }
 }
 
-
 QValidator::State StrictDoubleValidator::validate(QString& s, int&) const
 {
+    using numeric::containsOnlySignOrZeros;
+
+    // 1. Empty string?
     if (s.isEmpty()) {
         if (m_allow_empty) {
 #ifdef DEBUG_VALIDATOR
@@ -55,6 +59,7 @@ QValidator::State StrictDoubleValidator::validate(QString& s, int&) const
         return QValidator::Intermediate;
     }
 
+    // 2. Too many digits after decimal point?
     const QString decimalPoint = locale().decimalPoint();
     int charsAfterPoint = -1;
     if (s.indexOf(decimalPoint) != -1) {
@@ -62,8 +67,8 @@ QValidator::State StrictDoubleValidator::validate(QString& s, int&) const
     }
     if (charsAfterPoint > decimals()) {  // Too many decimals
 #ifdef DEBUG_VALIDATOR
-        qDebug() << Q_FUNC_INFO <<
-                    "too many digits after decimal point -> Invalid";
+        qDebug() << Q_FUNC_INFO
+                 << "too many digits after decimal point -> Invalid";
 #endif
         return QValidator::Invalid;
     }
@@ -72,19 +77,21 @@ QValidator::State StrictDoubleValidator::validate(QString& s, int&) const
     const double t = top();
     // Guaranteed that b < t
 
+    // 3. A sign (+, -) by itself?
     if (s == "-") {
 #ifdef DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << "plain -";
 #endif
-        return b < 0 ? QValidator::Intermediate  : QValidator::Invalid;
+        return b < 0 ? QValidator::Intermediate : QValidator::Invalid;
     }
     if (s == "+") {
 #ifdef DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << "plain +";
 #endif
-        return t > 0 ? QValidator::Intermediate  : QValidator::Invalid;
+        return t > 0 ? QValidator::Intermediate : QValidator::Invalid;
     }
 
+    // 4. Garbage that isn't a number?
     bool ok;
     const double d = locale().toDouble(s, &ok);
     if (!ok) {  // Not a double
@@ -94,35 +101,36 @@ QValidator::State StrictDoubleValidator::validate(QString& s, int&) const
         return QValidator::Invalid;
     }
 
-    if (d >= b && d <= t) {  // Perfect.
+    // 5. Already within range?
+    if (b <= d && d <= t) {  // Perfect.
 #ifdef DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << "perfect -> Acceptable";
 #endif
         return QValidator::Acceptable;
     }
 
-    // "Negative zero" is a special case -- a string starting with "-" that
-    // evaluates to zero, like "-0" or "--0". The presence of the minus sign
-    // can't be detected in the numeric version, so we have to handle it
-    // specially.
-    if (s.startsWith("-") && d == 0 && charsAfterPoint < decimals()) {
-        // If we get here, we already know that negative numbers are OK.
+    // 6. Contains only leading zeroes?
+    if (containsOnlySignOrZeros(s)) {
+        if (s.startsWith("-") && b > 0) {
 #ifdef DEBUG_VALIDATOR
-        qDebug() << Q_FUNC_INFO << "negative zero -> Intermediate; s"
-                 << s << "charsAfterPoint" << charsAfterPoint;
+            qDebug() << Q_FUNC_INFO << "-0, bottom > 0 -> Invalid";
+#endif
+            return QValidator::Invalid;
+        }
+        if (s.startsWith("+") && t < 0) {
+#ifdef DEBUG_VALIDATOR
+            qDebug() << Q_FUNC_INFO << "+0, top < 0 -> Invalid";
+#endif
+            return QValidator::Invalid;
+        }
+#ifdef DEBUG_VALIDATOR
+        qDebug() << Q_FUNC_INFO << "leading zeros only -> Intermediate";
 #endif
         return QValidator::Intermediate;
     }
 
-    // Is the number on its way to being something valid, or is it already
-    // outside the permissible range?
-    if (t < 0 && !s.startsWith("-")) {
-#ifdef DEBUG_VALIDATOR
-        qDebug() << Q_FUNC_INFO << "top < 0 and number doesn't start with - -> Invalid";
-#endif
-        return QValidator::Invalid;
-    }
-    if (numeric::isValidStartToDouble(d, b, t)) {
+    // 7. Is the number on its way to being something valid?
+    if (numeric::isValidStartToDouble(d, b, t, decimals(), decimalPoint)) {
 #ifdef DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO
                  << "within range for number of digits -> Intermediate; s ="
@@ -130,8 +138,10 @@ QValidator::State StrictDoubleValidator::validate(QString& s, int&) const
 #endif
         return QValidator::Intermediate;
     }
+
+    // 8. By elimination: it is invalid.
 #ifdef DEBUG_VALIDATOR
-        qDebug() << Q_FUNC_INFO << "end of function -> Invalid; s =" << s;
+    qDebug() << Q_FUNC_INFO << "end of function -> Invalid; s =" << s;
 #endif
     return QValidator::Invalid;
 }

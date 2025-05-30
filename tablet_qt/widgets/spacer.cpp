@@ -19,14 +19,13 @@
 */
 
 #include "spacer.h"
-#include "common/uiconst.h"
 
+#include "common/uiconst.h"
 
 Spacer::Spacer(QWidget* parent) :
     Spacer(QSize(uiconst::SPACE, uiconst::SPACE), parent)
 {
 }
-
 
 Spacer::Spacer(const QSize& size, QWidget* parent) :
     QWidget(parent),
@@ -34,7 +33,6 @@ Spacer::Spacer(const QSize& size, QWidget* parent) :
 {
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 }
-
 
 QSize Spacer::sizeHint() const
 {

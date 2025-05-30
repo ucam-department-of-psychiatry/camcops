@@ -19,6 +19,7 @@
 */
 
 #include "apeqcpftperinatal.h"
+
 #include "lib/stringfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
@@ -31,7 +32,8 @@ using stringfunc::strnum;
 using stringfunc::strseq;
 
 
-const QString APEQCPFTPerinatal::APEQCPFTPERINATAL_TABLENAME("apeq_cpft_perinatal");
+const QString
+    APEQCPFTPerinatal::APEQCPFTPERINATAL_TABLENAME("apeq_cpft_perinatal");
 
 const int FIRST_MAIN_Q = 1;
 const int LAST_MAIN_Q = 6;
@@ -50,18 +52,20 @@ const QString XSTRING_Q_FF_WHY("q_ff_why");
 const QString XSTRING_Q_COMMENTS("q_comments");
 const QString MISSING("?");
 
-
 void initializeAPEQCPFTPerinatal(TaskFactory& factory)
 {
     static TaskRegistrar<APEQCPFTPerinatal> registered(factory);
 }
 
 
-APEQCPFTPerinatal::APEQCPFTPerinatal(CamcopsApp& app, DatabaseManager& db,
-                                     const int load_pk) :
-    Task(app, db, APEQCPFTPERINATAL_TABLENAME, true, false, false) // ... anon, clin, resp
+APEQCPFTPerinatal::APEQCPFTPerinatal(
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
+    Task(app, db, APEQCPFTPERINATAL_TABLENAME, true, false, false)
+// ... anon, clin, resp
 {
-    for (const QString& field : strseq(FN_QPREFIX, FIRST_MAIN_Q, LAST_MAIN_Q)) {
+    for (const QString& field :
+         strseq(FN_QPREFIX, FIRST_MAIN_Q, LAST_MAIN_Q)) {
         addField(field, QMetaType::fromType<int>());
     }
     addField(FN_Q_FF_RATING, QMetaType::fromType<int>());
@@ -70,7 +74,6 @@ APEQCPFTPerinatal::APEQCPFTPerinatal(CamcopsApp& app, DatabaseManager& db,
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -81,18 +84,20 @@ QString APEQCPFTPerinatal::shortname() const
     return "APEQ-CPFT-Perinatal";
 }
 
-
 QString APEQCPFTPerinatal::longname() const
 {
-    return tr("Assessment Patient Experience Questionnaire for "
-              "CPFT Perinatal Services");
+    return tr(
+        "Assessment Patient Experience Questionnaire for "
+        "CPFT Perinatal Services"
+    );
 }
-
 
 QString APEQCPFTPerinatal::description() const
 {
-    return tr("Patient feedback questionnaire on assessment by perinatal "
-              "services at Cambridgeshire & Peterborough NHS Foundation Trust.");
+    return tr(
+        "Patient feedback questionnaire on assessment by perinatal "
+        "services at Cambridgeshire & Peterborough NHS Foundation Trust."
+    );
 }
 
 // ============================================================================
@@ -102,34 +107,34 @@ QString APEQCPFTPerinatal::description() const
 bool APEQCPFTPerinatal::isComplete() const
 {
     QStringList required_always{FN_Q_FF_RATING};
-    for (const QString& field : strseq(FN_QPREFIX, FIRST_MAIN_Q, LAST_MAIN_Q)) {
+    for (const QString& field :
+         strseq(FN_QPREFIX, FIRST_MAIN_Q, LAST_MAIN_Q)) {
         required_always.append(field);
     }
     return noValuesNullOrEmpty(required_always);
 }
 
-
 NameValueOptions APEQCPFTPerinatal::optionsMain() const
 {
     NameValueOptions options;
     for (int a = 2; a >= 0; --a) {
-        options.append(NameValuePair(
-                           xstring(strnum(XSTRING_MAIN_A_PREFIX, a)), a));
+        options.append(
+            NameValuePair(xstring(strnum(XSTRING_MAIN_A_PREFIX, a)), a)
+        );
     }
     return options;
 }
-
 
 NameValueOptions APEQCPFTPerinatal::optionsFFRating() const
 {
     NameValueOptions options;
     for (int a = 5; a >= 0; --a) {
-        options.append(NameValuePair(
-                           xstring(strnum(XSTRING_FF_A_PREFIX, a)), a));
+        options.append(
+            NameValuePair(xstring(strnum(XSTRING_FF_A_PREFIX, a)), a)
+        );
     }
     return options;
 }
-
 
 QStringList APEQCPFTPerinatal::summary() const
 {
@@ -137,10 +142,10 @@ QStringList APEQCPFTPerinatal::summary() const
     return QStringList{
         QA_FORMAT.arg(
             xstring(XSTRING_Q_FF_RATING),
-            options_ff_rating.nameFromValue(value(FN_Q_FF_RATING), MISSING)),
+            options_ff_rating.nameFromValue(value(FN_Q_FF_RATING), MISSING)
+        ),
     };
 }
-
 
 QStringList APEQCPFTPerinatal::detail() const
 {
@@ -151,22 +156,22 @@ QStringList APEQCPFTPerinatal::detail() const
     for (int q = FIRST_MAIN_Q; q <= LAST_MAIN_Q; ++q) {
         fieldname = xstringname = strnum(FN_QPREFIX, q);
         lines.append(QA_FORMAT.arg(
-                         xstring(xstringname),
-                         options_main.nameFromValue(value(fieldname), MISSING)));
+            xstring(xstringname),
+            options_main.nameFromValue(value(fieldname), MISSING)
+        ));
     }
     lines.append(QA_FORMAT.arg(
-                     xstring(XSTRING_Q_FF_RATING),
-                     options_ff_rating.nameFromValue(value(FN_Q_FF_RATING),
-                                                     MISSING)));
-    lines.append(QA_FORMAT.arg(
-                     xstring(XSTRING_Q_FF_WHY),
-                     valueString(FN_Q_FF_WHY)));
-    lines.append(QA_FORMAT.arg(
-                     xstring(XSTRING_Q_COMMENTS),
-                     valueString(FN_Q_COMMENTS)));
+        xstring(XSTRING_Q_FF_RATING),
+        options_ff_rating.nameFromValue(value(FN_Q_FF_RATING), MISSING)
+    ));
+    lines.append(
+        QA_FORMAT.arg(xstring(XSTRING_Q_FF_WHY), valueString(FN_Q_FF_WHY))
+    );
+    lines.append(
+        QA_FORMAT.arg(xstring(XSTRING_Q_COMMENTS), valueString(FN_Q_COMMENTS))
+    );
     return lines;
 }
-
 
 OpenableWidget* APEQCPFTPerinatal::editor(const bool read_only)
 {
@@ -182,8 +187,10 @@ OpenableWidget* APEQCPFTPerinatal::editor(const bool read_only)
     auto makeQuestion = [this](const QString& xstringname) -> QuText* {
         return (new QuText(xstring(xstringname)))->setBold();
     };
-    auto makeMCQ = [this](const QString& fieldname,
-                          const NameValueOptions& options) -> QuMcq* {
+    auto makeMCQ
+        = [this](
+              const QString& fieldname, const NameValueOptions& options
+          ) -> QuMcq* {
         QuMcq* mcq = new QuMcq(fieldRef(fieldname), options);
         mcq->setHorizontal(true);
         mcq->setAsTextButton(true);

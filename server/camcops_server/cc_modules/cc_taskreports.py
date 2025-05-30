@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_taskreports.py
 
@@ -34,10 +32,15 @@ from operator import attrgetter
 from typing import Any, List, Sequence, Tuple, Type, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.classes import classproperty
-from cardinal_pythonlib.sqlalchemy.orm_query import (
-    get_rows_fieldnames_from_query,
+from cardinal_pythonlib.sqlalchemy.core_query import (
+    get_rows_fieldnames_from_select,
 )
-from cardinal_pythonlib.sqlalchemy.sqlfunc import extract_month, extract_year
+from cardinal_pythonlib.sqlalchemy.sqlfunc import (
+    extract_month,
+    extract_year,
+    extract_day_of_month,
+)
+from sqlalchemy import cast, Integer
 from sqlalchemy.engine import Row
 from sqlalchemy.sql.elements import UnaryExpression
 from sqlalchemy.sql.expression import desc, func, literal, select
@@ -53,10 +56,12 @@ from camcops_server.cc_modules.cc_forms import (
 from camcops_server.cc_modules.cc_pyramid import ViewParam
 from camcops_server.cc_modules.cc_report import Report, PlainReportType
 from camcops_server.cc_modules.cc_reportschema import (
-    ByYearSelector,
+    ByDayOfMonthSelector,
     ByMonthSelector,
     ByTaskSelector,
     ByUserSelector,
+    ByYearSelector,
+    DEFAULT_BY_DAY_OF_MONTH,
     DEFAULT_BY_MONTH,
     DEFAULT_BY_TASK,
     DEFAULT_BY_USER,
@@ -79,6 +84,8 @@ if TYPE_CHECKING:
 class TaskCountReportSchema(ReportParamSchema):
     by_year = ByYearSelector()  # must match ViewParam.BY_YEAR
     by_month = ByMonthSelector()  # must match ViewParam.BY_MONTH
+    # must match ViewParam.BY_DAY_of_MONTH
+    by_day_of_month = ByDayOfMonthSelector()
     by_task = ByTaskSelector()  # must match ViewParam.BY_TASK
     by_user = ByUserSelector()  # must match ViewParam.BY_USER
     via_index = ViaIndexSelector()  # must match ViewParam.VIA_INDEX
@@ -118,6 +125,7 @@ class TaskCountReport(Report):
         return [
             ViewParam.BY_YEAR,
             ViewParam.BY_MONTH,
+            ViewParam.BY_DAY_OF_MONTH,
             ViewParam.BY_TASK,
             ViewParam.BY_USER,
             ViewParam.VIA_INDEX,
@@ -130,12 +138,16 @@ class TaskCountReport(Report):
 
         by_year = req.get_bool_param(ViewParam.BY_YEAR, DEFAULT_BY_YEAR)
         by_month = req.get_bool_param(ViewParam.BY_MONTH, DEFAULT_BY_MONTH)
+        by_day_of_month = req.get_bool_param(
+            ViewParam.BY_DAY_OF_MONTH, DEFAULT_BY_DAY_OF_MONTH
+        )
         by_task = req.get_bool_param(ViewParam.BY_TASK, DEFAULT_BY_TASK)
         by_user = req.get_bool_param(ViewParam.BY_USER, DEFAULT_BY_USER)
         via_index = req.get_bool_param(ViewParam.VIA_INDEX, True)
 
         label_year = "year"
         label_month = "month"
+        label_day_of_month = "day_of_month"
         label_task = "task"
         label_user = "adding_user_name"
         label_n = "num_tasks_added"
@@ -152,20 +164,31 @@ class TaskCountReport(Report):
             sorters = []  # type: List[Union[str, UnaryExpression]]
             if by_year:
                 selectors.append(
-                    extract_year(TaskIndexEntry.when_created_utc).label(
-                        label_year
-                    )
+                    cast(  # Necessary for SQLite tests
+                        extract_year(TaskIndexEntry.when_created_utc),
+                        Integer(),
+                    ).label(label_year)
                 )
                 groupers.append(label_year)
                 sorters.append(desc(label_year))
             if by_month:
                 selectors.append(
-                    extract_month(TaskIndexEntry.when_created_utc).label(
-                        label_month
-                    )
+                    cast(  # Necessary for SQLite tests
+                        extract_month(TaskIndexEntry.when_created_utc),
+                        Integer(),
+                    ).label(label_month)
                 )
                 groupers.append(label_month)
                 sorters.append(desc(label_month))
+            if by_day_of_month:
+                selectors.append(
+                    cast(  # Necessary for SQLite tests
+                        extract_day_of_month(TaskIndexEntry.when_created_utc),
+                        Integer(),
+                    ).label(label_day_of_month)
+                )
+                groupers.append(label_day_of_month)
+                sorters.append(desc(label_day_of_month))
             if by_task:
                 selectors.append(
                     TaskIndexEntry.task_table_name.label(label_task)
@@ -181,7 +204,7 @@ class TaskCountReport(Report):
 
             # noinspection PyUnresolvedReferences
             query = (
-                select(selectors)
+                select(*selectors)
                 .select_from(TaskIndexEntry.__table__)
                 .group_by(*groupers)
                 .order_by(*sorters)
@@ -196,7 +219,7 @@ class TaskCountReport(Report):
                 # Restrict to accessible groups
                 # noinspection PyProtectedMember
                 query = query.where(TaskIndexEntry.group_id.in_(group_ids))
-            rows, colnames = get_rows_fieldnames_from_query(dbsession, query)
+            rows, colnames = get_rows_fieldnames_from_select(dbsession, query)
             # noinspection PyTypeChecker
             final_rows = rows
         else:
@@ -213,6 +236,9 @@ class TaskCountReport(Report):
             if by_month:
                 groupers.append(label_month)
                 sorters.append((label_month, True))
+            if by_day_of_month:
+                groupers.append(label_day_of_month)
+                sorters.append((label_day_of_month, True))
             if by_task:
                 groupers.append(label_task)
                 # ... redundant in the SQL, which involves multiple queries
@@ -233,15 +259,30 @@ class TaskCountReport(Report):
                         # func.year() is specific to some DBs, e.g. MySQL
                         # so is func.extract();
                         # http://modern-sql.com/feature/extract
-                        extract_year(
-                            isotzdatetime_to_utcdatetime(cls.when_created)
+                        cast(  # Necessary for SQLite tests
+                            extract_year(
+                                isotzdatetime_to_utcdatetime(cls.when_created)
+                            ),
+                            Integer(),
                         ).label(label_year)
                     )
                 if by_month:
                     selectors.append(
-                        extract_month(
-                            isotzdatetime_to_utcdatetime(cls.when_created)
+                        cast(  # Necessary for SQLite tests
+                            extract_month(
+                                isotzdatetime_to_utcdatetime(cls.when_created)
+                            ),
+                            Integer(),
                         ).label(label_month)
+                    )
+                if by_day_of_month:
+                    selectors.append(
+                        cast(  # Necessary for SQLite tests
+                            extract_day_of_month(
+                                isotzdatetime_to_utcdatetime(cls.when_created)
+                            ),
+                            Integer(),
+                        ).label(label_day_of_month)
                     )
                 if by_task:
                     selectors.append(
@@ -254,7 +295,7 @@ class TaskCountReport(Report):
 
                 # noinspection PyUnresolvedReferences
                 query = (
-                    select(selectors)
+                    select(*selectors)
                     .select_from(cls.__table__)
                     .where(cls._current == True)  # noqa: E712
                     .group_by(*groupers)
@@ -268,7 +309,7 @@ class TaskCountReport(Report):
                     # Restrict to accessible groups
                     # noinspection PyProtectedMember
                     query = query.where(cls._group_id.in_(group_ids))
-                rows, colnames = get_rows_fieldnames_from_query(
+                rows, colnames = get_rows_fieldnames_from_select(
                     dbsession, query
                 )
                 if by_task:

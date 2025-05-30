@@ -20,24 +20,25 @@
 
 #pragma once
 
-// #define DEBUG_OFFER_HTTP_TO_SERVER  // should NOT be defined in production (which is HTTPS only)
+// #define DEBUG_OFFER_HTTP_TO_SERVER
+// ... should NOT be defined in production (which is HTTPS only)
 
+#include <QMap>
 #include <QNetworkReply>
 #include <QNetworkRequest>
-#include <QMap>
-#include <QPointer>
 #include <QObject>
+#include <QPointer>
 #include <QSqlDatabase>
 #include <QSslError>
 #include <QString>
 #include <QUrl>
+
 #include "common/aliases_camcops.h"
 
 class CamcopsApp;
 class LogBox;
 class QNetworkAccessManager;
 class Version;
-
 
 // Controls network operations, optionally providing a progress display.
 class NetworkManager : public QObject
@@ -79,14 +80,20 @@ public:
     // ------------------------------------------------------------------------
     // Core
     // ------------------------------------------------------------------------
+
 public:
-    NetworkManager(CamcopsApp& app, DatabaseManager& db,
-                   TaskFactoryPtr p_task_factory, QWidget* parent);
+    NetworkManager(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        TaskFactoryPtr p_task_factory,
+        QWidget* parent
+    );
     ~NetworkManager();
 
     // ------------------------------------------------------------------------
     // User interface
     // ------------------------------------------------------------------------
+
 public:
     // Operate in silent mode (without status information)?
     void enableLogging();
@@ -119,8 +126,8 @@ protected slots:
     // ------------------------------------------------------------------------
     // Basic connection management
     // ------------------------------------------------------------------------
-protected:
 
+protected:
     // Ensure we know the user's upload password (ask if not).
     bool ensurePasswordKnown();
 
@@ -129,11 +136,12 @@ protected:
 
     // Create a generic network request.
     QNetworkRequest createRequest(
-            const QUrl& url,
-            bool offer_cancel,
-            bool ssl,
-            bool ignore_ssl_errors,
-            QSsl::SslProtocol ssl_protocol = QSsl::AnyProtocol);
+        const QUrl& url,
+        bool offer_cancel,
+        bool ssl,
+        bool ignore_ssl_errors,
+        QSsl::SslProtocol ssl_protocol = QSsl::AnyProtocol
+    );
 
     // Returns the URL for the CamCOPS server, as a QUrl.
     QUrl serverUrl(bool& success) const;
@@ -146,8 +154,9 @@ protected:
 
     // Send a message to the server via an HTTP POST, and set up a callback
     // for the results.
-    void serverPost(Dict dict, ReplyFuncPtr reply_func,
-                    bool include_user = true);
+    void serverPost(
+        Dict dict, ReplyFuncPtr reply_func, bool include_user = true
+    );
 
     // Process the server's reply into our internal data structures,
     // principally m_reply_dict.
@@ -170,12 +179,14 @@ protected:
 
     // Doesn't do very much at present (but in theory converts Qt network
     // errors to our own mapping).
-    ErrorCode convertQtNetworkCode(const QNetworkReply::NetworkError error_code);
+    ErrorCode convertQtNetworkCode(const QNetworkReply::NetworkError error_code
+    );
 
 protected slots:
     // We come here when there's an SSL error and we want to ignore it.
-    void sslIgnoringErrorHandler(QNetworkReply* reply,
-                                 const QList<QSslError>& errlist);
+    void sslIgnoringErrorHandler(
+        QNetworkReply* reply, const QList<QSslError>& errlist
+    );
 
 public slots:
     // "User pressed cancel."
@@ -183,7 +194,8 @@ public slots:
 
     // "Network operation failed somehow."
     void fail(
-        const NetworkManager::ErrorCode error_code = NetworkManager::ErrorCode::NoError,
+        const NetworkManager::ErrorCode error_code
+        = NetworkManager::ErrorCode::NoError,
         const QString& error_string = QString()
     );
 
@@ -193,13 +205,17 @@ public slots:
     // ------------------------------------------------------------------------
     // Testing
     // ------------------------------------------------------------------------
+
 public:
     // Tests HTTP GET.
     void testHttpGet(const QString& url, bool offer_cancel = true);
 
     // Tests HTTPS GET.
-    void testHttpsGet(const QString& url, bool offer_cancel = true,
-                      bool ignore_ssl_errors = false);
+    void testHttpsGet(
+        const QString& url,
+        bool offer_cancel = true,
+        bool ignore_ssl_errors = false
+    );
 
 protected:
     // Callback for the tests.
@@ -208,6 +224,7 @@ protected:
     // ------------------------------------------------------------------------
     // Registering a device with the server.
     // ------------------------------------------------------------------------
+
 public:
     // Register with the CamCOPS server.
     void registerWithServer();  // "register" is a C++ keyword
@@ -248,6 +265,7 @@ protected:
     // ------------------------------------------------------------------------
     // Upload
     // ------------------------------------------------------------------------
+
 public:
     // Upload to the server.
     void upload(UploadMethod method);
@@ -373,6 +391,7 @@ protected:
     // ------------------------------------------------------------------------
     // Single-user mode
     // ------------------------------------------------------------------------
+
 public:
     // In single-user mode, send the server a proquint access key and receive
     // patient details, user details, and schedule information.
@@ -413,8 +432,7 @@ protected:
 signals:
     // "Operation was cancelled."
     void cancelled(
-        const NetworkManager::ErrorCode error_code,
-        const QString& error_string
+        const NetworkManager::ErrorCode error_code, const QString& error_string
     );
 
     // "Operation has finished, successfully or not; user has acknowledged."
@@ -423,6 +441,7 @@ signals:
     // ------------------------------------------------------------------------
     // Translatable text
     // ------------------------------------------------------------------------
+
 protected:
     // Provides text to say "please re-fetch server information".
     static QString txtPleaseRefetchServerInfo();
@@ -430,6 +449,7 @@ protected:
     // ------------------------------------------------------------------------
     // Data
     // ------------------------------------------------------------------------
+
 protected:
     // Our app.
     CamcopsApp& m_app;
@@ -498,7 +518,8 @@ protected:
     bool m_recordwise_prune_req_sent;
     bool m_recordwise_pks_pruned;
     QVector<int> m_upload_recordwise_pks_to_send;
-    int m_upload_n_records;  // cached as m_upload_recordwise_pks_to_send shrinks during upload
+    int m_upload_n_records;
+    // ... cached as m_upload_recordwise_pks_to_send shrinks during upload
     QStringList m_upload_tables_to_wipe;
     QString m_upload_patient_info_json;
 

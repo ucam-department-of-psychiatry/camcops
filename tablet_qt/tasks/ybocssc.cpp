@@ -19,6 +19,7 @@
 */
 
 #include "ybocssc.h"
+
 #include "common/textconst.h"
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/questionnaire.h"
@@ -147,7 +148,6 @@ const QStringList ITEMS{
     "com_misc_other",
 };
 
-
 void initializeYbocsSc(TaskFactory& factory)
 {
     static TaskRegistrar<YbocsSc> registered(factory);
@@ -155,7 +155,8 @@ void initializeYbocsSc(TaskFactory& factory)
 
 
 YbocsSc::YbocsSc(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, YBOCSSC_TABLENAME, false, true, false)  // ... anon, clin, resp
+    Task(app, db, YBOCSSC_TABLENAME, false, true, false)
+// ... anon, clin, resp
 {
     for (const QString& item : ITEMS) {
         addField(item + SUFFIX_CURRENT, QMetaType::fromType<bool>());
@@ -169,7 +170,6 @@ YbocsSc::YbocsSc(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
 
-
 // ============================================================================
 // Class info
 // ============================================================================
@@ -179,30 +179,25 @@ QString YbocsSc::shortname() const
     return "Y-BOCS-SC";
 }
 
-
 QString YbocsSc::longname() const
 {
     return tr("Y-BOCS Symptom Checklist, 9/89 revision");
 }
-
 
 QString YbocsSc::description() const
 {
     return tr("Symptom checklist (past, current, principal) for Y-BOCS.");
 }
 
-
 QString YbocsSc::infoFilenameStem() const
 {
     return "ybocs";
 }
 
-
 QString YbocsSc::xstringTaskname() const
 {
     return "ybocs";
 }
-
 
 // ============================================================================
 // Instance info
@@ -213,18 +208,15 @@ bool YbocsSc::isComplete() const
     return true;
 }
 
-
 QStringList YbocsSc::summary() const
 {
     return QStringList{TextConst::seeFacsimile()};
 }
 
-
 QStringList YbocsSc::detail() const
 {
     return completenessInfo() + summary();
 }
-
 
 OpenableWidget* YbocsSc::editor(const bool read_only)
 {
@@ -237,9 +229,11 @@ OpenableWidget* YbocsSc::editor(const bool read_only)
     auto boldtext = [this](const QString& xstringname) -> QuElement* {
         return (new QuText(xstring(xstringname)))->setBold(true);
     };
-    auto booltext = [this](const QString& fieldname,
-                           const QString& text,
-                           bool mandatory = false) -> QuElement* {
+    auto booltext = [this](
+                        const QString& fieldname,
+                        const QString& text,
+                        bool mandatory = false
+                    ) -> QuElement* {
         QuBoolean* b = new QuBoolean(text, fieldRef(fieldname, mandatory));
         b->setAsTextButton(true);
         return b;
@@ -264,18 +258,24 @@ OpenableWidget* YbocsSc::editor(const bool read_only)
                 continue;
             }
             cells.append(QuGridCell(text(SC_PREFIX + item), row, 0, 1, 2));
-            cells.append(QuGridCell(booltext(item + SUFFIX_CURRENT,
-                                             current), row, 2));
-            cells.append(QuGridCell(booltext(item + SUFFIX_PAST,
-                                             past), row, 3));
-            cells.append(QuGridCell(booltext(item + SUFFIX_PRINCIPAL,
-                                             principal), row, 4));
+            cells.append(
+                QuGridCell(booltext(item + SUFFIX_CURRENT, current), row, 2)
+            );
+            cells.append(QuGridCell(booltext(item + SUFFIX_PAST, past), row, 3)
+            );
+            cells.append(QuGridCell(
+                booltext(item + SUFFIX_PRINCIPAL, principal), row, 4
+            ));
             ++row;
             if (item.endsWith(SUFFIX_OTHER)) {
                 cells.append(QuGridCell(textRaw(specify), row, 0));
                 cells.append(QuGridCell(
-                        new QuLineEdit(fieldRef(item + SUFFIX_DETAIL, false)),
-                        row, 1, 1, 4));
+                    new QuLineEdit(fieldRef(item + SUFFIX_DETAIL, false)),
+                    row,
+                    1,
+                    1,
+                    4
+                ));
                 ++row;
             }
         }
@@ -292,15 +292,15 @@ OpenableWidget* YbocsSc::editor(const bool read_only)
 
     QVector<QuPagePtr> pages;
     pages.append(getClinicianDetailsPage());
-    pages.append(QuPagePtr((new QuPage(elements))
-                           ->setTitle(xstring("sc_title"))));
+    pages.append(
+        QuPagePtr((new QuPage(elements))->setTitle(xstring("sc_title")))
+    );
 
     auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations

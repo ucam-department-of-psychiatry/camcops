@@ -24,17 +24,16 @@
 #include "tasks/aims.h"
 #include "tasks/apeqcpftperinatal.h"
 #include "tasks/apeqpt.h"
+#include "tasks/aq.h"
 #include "tasks/asdas.h"
 #include "tasks/audit.h"
 #include "tasks/auditc.h"
-
 #include "tasks/badls.h"
 #include "tasks/basdai.h"
 #include "tasks/bdi.h"
 #include "tasks/bmi.h"
 #include "tasks/bprs.h"
 #include "tasks/bprse.h"
-
 #include "tasks/cage.h"
 #include "tasks/cape42.h"
 #include "tasks/caps.h"
@@ -61,7 +60,6 @@
 #include "tasks/cpftlpsresetresponseclock.h"
 #include "tasks/cpftresearchpreferences.h"
 #include "tasks/ctqsf.h"
-
 #include "tasks/dad.h"
 #include "tasks/das28.h"
 #include "tasks/dast.h"
@@ -69,29 +67,25 @@
 #include "tasks/demoquestionnaire.h"
 #include "tasks/demqol.h"
 #include "tasks/demqolproxy.h"
-#include "tasks/diagnosisicd9cm.h"
 #include "tasks/diagnosisicd10.h"
+#include "tasks/diagnosisicd9cm.h"
 #include "tasks/distressthermometer.h"
-
 #include "tasks/edeq.h"
 #include "tasks/elixhauserci.h"
 #include "tasks/epds.h"
 #include "tasks/eq5d5l.h"
 #include "tasks/esspri.h"
-
-#include "tasks/fast.h"
 #include "tasks/factg.h"
+#include "tasks/fast.h"
 #include "tasks/fft.h"
 #include "tasks/frs.h"
-
 #include "tasks/gad7.h"
 #include "tasks/gaf.h"
+#include "tasks/gbogpc.h"
 #include "tasks/gbogras.h"
 #include "tasks/gbogres.h"
-#include "tasks/gbogpc.h"
 #include "tasks/gds15.h"
 #include "tasks/gmcpq.h"
-
 #include "tasks/hads.h"
 #include "tasks/hadsrespondent.h"
 #include "tasks/hama.h"
@@ -100,7 +94,6 @@
 #include "tasks/honos.h"
 #include "tasks/honos65.h"
 #include "tasks/honosca.h"
-
 #include "tasks/icd10depressive.h"
 #include "tasks/icd10manic.h"
 #include "tasks/icd10mixed.h"
@@ -113,28 +106,22 @@
 #include "tasks/irac.h"
 #include "tasks/isaaq10.h"
 #include "tasks/isaaqed.h"
-
 #include "tasks/khandakerinsightmedical.h"
 #include "tasks/khandakermojomedical.h"
 #include "tasks/khandakermojomedicationtherapy.h"
 #include "tasks/khandakermojosociodemographics.h"
 #include "tasks/kirby.h"
-
-#include "tasks/lynalliammedical.h"
 #include "tasks/lynalliamlife.h"
-
+#include "tasks/lynalliammedical.h"
 #include "tasks/maas.h"
 #include "tasks/mast.h"
 #include "tasks/mdsupdrs.h"
 #include "tasks/mfi20.h"
 #include "tasks/miniace.h"
 #include "tasks/moca.h"
-
 #include "tasks/nart.h"
 #include "tasks/npiq.h"
-
 #include "tasks/ors.h"
-
 #include "tasks/panss.h"
 #include "tasks/paradise24.h"
 #include "tasks/patientsatisfaction.h"
@@ -147,21 +134,18 @@
 #include "tasks/perinatalpoem.h"
 #include "tasks/photo.h"
 #include "tasks/photosequence.h"
+#include "tasks/phq15.h"
 #include "tasks/phq8.h"
 #include "tasks/phq9.h"
-#include "tasks/phq15.h"
 #include "tasks/progressnote.h"
 #include "tasks/pswq.h"
 #include "tasks/psychiatricclerking.h"
-
 #include "tasks/qolbasic.h"
 #include "tasks/qolsg.h"
-
 #include "tasks/rand36.h"
 #include "tasks/rapid3.h"
 #include "tasks/referrersatisfactiongen.h"
 #include "tasks/referrersatisfactionspec.h"
-
 #include "tasks/sfmpq2.h"
 #include "tasks/shaps.h"
 #include "tasks/slums.h"
@@ -169,15 +153,11 @@
 #include "tasks/srs.h"
 #include "tasks/suppsp.h"
 #include "tasks/swemwbs.h"
-
 #include "tasks/wemwbs.h"
 #include "tasks/wsas.h"
-
 #include "tasks/ybocs.h"
 #include "tasks/ybocssc.h"
-
 #include "tasks/zbi12.h"
-
 
 void InitTasks(TaskFactory& factory)
 {
@@ -187,6 +167,7 @@ void InitTasks(TaskFactory& factory)
     initializeAims(factory);
     initializeAPEQCPFTPerinatal(factory);
     initializeApeqpt(factory);
+    initializeAq(factory);
     initializeAsdas(factory);
     initializeAudit(factory);
     initializeAuditC(factory);

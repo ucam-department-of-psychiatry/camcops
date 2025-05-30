@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # noinspection HttpUrlsUsage
 """
 camcops_server/cc_modules/cc_export.py
@@ -190,7 +188,7 @@ from cardinal_pythonlib.pyramid.responses import (
 from cardinal_pythonlib.sizeformatter import bytes2human
 from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_engine
 import lockfile
-from pendulum import DateTime as Pendulum, Duration, Period
+from pendulum import DateTime as Pendulum, Duration
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
@@ -232,6 +230,8 @@ from camcops_server.cc_modules.celery import (
 )
 
 if TYPE_CHECKING:
+    from pendulum import Interval
+
     from camcops_server.cc_modules.cc_request import CamcopsRequest
     from camcops_server.cc_modules.cc_taskcollection import TaskCollection
 
@@ -708,7 +708,9 @@ def write_information_schema_to_dst(
         # Override some specific column types by hand, or they'll fail as
         # SQLAlchemy fails to reflect the MySQL LONGTEXT type properly:
         Column("COLUMN_DEFAULT", Text),
+        Column("COLUMN_KEY", Text),
         Column("COLUMN_TYPE", Text),
+        Column("DATA_TYPE", Text),
         Column("GENERATION_EXPRESSION", Text),
         autoload=True,  # "read (reflect) structure from the database"
         autoload_with=src_engine,  # "read (reflect) structure from the source"
@@ -994,7 +996,7 @@ class TaskCollectionExporter(object):
             a
             :class:`camcops_server.cc_modules.cc_spreadsheet.SpreadsheetCollection`
             object
-        """  # noqa
+        """
         audit_descriptions = []  # type: List[str]
         options = self.options
         if options.spreadsheet_simplified:
@@ -1248,7 +1250,7 @@ class SqliteExporter(TaskCollectionExporter):
                 # SQL text
                 connection = sqlite3.connect(
                     db_filename
-                )  # type: sqlite3.Connection  # noqa
+                )  # type: sqlite3.Connection
                 sql_text = sql_from_sqlite_database(connection)
                 connection.close()
                 return sql_text
@@ -1306,7 +1308,7 @@ class SqlExporter(SqliteExporter):
 DOWNLOADER_CLASSES = {}  # type: Dict[str, Type[TaskCollectionExporter]]
 for _cls in gen_all_subclasses(
     TaskCollectionExporter
-):  # type: Type[TaskCollectionExporter]  # noqa
+):  # type: Type[TaskCollectionExporter]
     # noinspection PyTypeChecker
     DOWNLOADER_CLASSES[_cls.viewtype] = _cls
 
@@ -1464,7 +1466,7 @@ class UserDownloadFile(object):
 
         (Creation time is harder! See
         https://stackoverflow.com/questions/237079/how-to-get-file-creation-modification-date-times-in-python.)
-        """  # noqa
+        """
         if not self.exists:
             return None
         # noinspection PyTypeChecker
@@ -1499,10 +1501,10 @@ class UserDownloadFile(object):
         death = self.when_last_modified + Duration(
             minutes=self.permitted_lifespan_min
         )
-        remaining = death - now  # type: Period
-        # Note that Period is a subclass of Duration, but its __str__()
+        remaining = death - now  # type: Interval
+        # Note that Interval is a subclass of Duration, but its __str__()
         # method is different. Duration maps __str__() to in_words(), but
-        # Period maps __str__() to __repr__().
+        # Interval maps __str__() to __repr__().
         return remaining
 
     @property

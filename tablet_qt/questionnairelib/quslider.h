@@ -23,6 +23,7 @@
 #include <QPointer>
 #include <QSharedPointer>
 #include <QVariant>
+
 #include "db/fieldref.h"
 #include "questionnairelib/quelement.h"
 #include "widgets/tickslider.h"  // or style sheets + tick marks don't mix
@@ -30,18 +31,23 @@
 class QLabel;
 class QTimer;
 
-
 class QuSlider : public QuElement
 {
     // Offers a slider to choose a numerical value.
 
     Q_OBJECT
+
 public:
     // Create a slider ranging from "minimum" to "maximum" with step size
     // "step". The slider always uses integers internally, but can display as
     // a float (see setConvertForRealField).
-    QuSlider(FieldRefPtr fieldref, int minimum, int maximum, int step = 1,
-             QObject* parent = nullptr);
+    QuSlider(
+        FieldRefPtr fieldref,
+        int minimum,
+        int maximum,
+        int step = 1,
+        QObject* parent = nullptr
+    );
 
     // Set the "page step" size, if the user uses the PgUp/PgDn keys.
     // The default is twice the slider's step size.
@@ -70,10 +76,12 @@ public:
     // maximum) is mapped to a float range (from field_minimum to
     // field_maximum), and shown with the specified number of decimal places
     // (display_dp).
-    QuSlider* setConvertForRealField(bool convert_for_real_field,
-                                     double field_minimum = 0,
-                                     double field_maximum = 1,
-                                     int display_dp = 2);
+    QuSlider* setConvertForRealField(
+        bool convert_for_real_field,
+        double field_minimum = 0,
+        double field_maximum = 1,
+        int display_dp = 2
+    );
 
     // Should the slider be horizontal or vertical?
     QuSlider* setHorizontal(bool horizontal);
@@ -115,15 +123,14 @@ public:
     // - If can_shrink is true, the slider can get smaller (for small screens).
     // - If a value <= 0 is passed, the slider returns to its normal sizing
     //   behaviour.
-    QuSlider* setAbsoluteLengthCm(qreal abs_length_cm,
-                                  bool can_shrink = true);
+    QuSlider* setAbsoluteLengthCm(qreal abs_length_cm, bool can_shrink = true);
 
 protected:
-
     // Sets the widget state from our fieldref.
     void setFromField();
 
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
+    ) override;
     virtual FieldRefPtrList fieldrefs() const override;
 
     // Return the slider's integer position corresponding to a value in
@@ -143,8 +150,9 @@ protected slots:
     void completePendingFieldWrite();
 
     // "The field's data has changed."
-    void fieldValueChanged(const FieldRef* fieldref,
-                           const QObject* originator = nullptr);
+    void fieldValueChanged(
+        const FieldRef* fieldref, const QObject* originator = nullptr
+    );
 
 protected:
     // Core
@@ -153,33 +161,43 @@ protected:
     int m_maximum;  // maximum value in slider space
     int m_step;  // step size in slider space
     int m_big_step;  // "big step" (PgUp/PgDn) in slider space
-    bool m_convert_for_real_field;  // translate to real numbers in slider space?
+    bool m_convert_for_real_field;
+    // ... translate to real numbers in slider space?
     double m_field_minimum;  // minimum in "real number field" space
     double m_field_maximum;  // maximum in "real number field" space
-    int m_display_dp;  // number of decimal places to display value in "real number field" space
-    int m_null_apparent_value;  // where (in slider space) should the slider be when the field is NULL?
+    int m_display_dp;
+    // ... number of decimal places to display value in "real number field"
+    // space
+    int m_null_apparent_value;
+    // ... where (in slider space) should the slider be when the field is
+    // NULL?
 
     // Visuals
     bool m_horizontal;  // horizontal, not vertical?
     bool m_show_value;  // show the numerical value too?
     int m_tick_interval;  // intertick interval (in slider space)
-    QSlider::TickPosition m_tick_position;  // ticks above/below/both/none, or left/right/both/none?
+    QSlider::TickPosition m_tick_position;
+    // .. ticks above/below/both/none, or left/right/both/none?
     bool m_use_default_labels;  // use default numerical labels?
-    QMap<int, QString> m_tick_labels;  // manually specified position/label pairs
-    QSlider::TickPosition m_tick_label_position;  // labels above/below/both/none, or left/right/both/none?
+    QMap<int, QString> m_tick_labels;
+    // ... manually specified position/label pairs
+    QSlider::TickPosition m_tick_label_position;
+    // ... labels above/below/both/none, or left/right/both/none?
     bool m_edge_in_extreme_labels;  // see setEdgeInExtremeLabels() above
     bool m_symmetric;  // see setSymmetric() above
     bool m_inverted;  // inverted direction? See setInverted() above.
     qreal m_abs_length_cm;  // absolute length in cm, or <=0 for default size
     bool m_abs_length_can_shrink;
-        // ... if an absolute length is set, can we shrink smaller if we have
-        // to? May be preferable on physically small screens.
+    // ... if an absolute length is set, can we shrink smaller if we have
+    // to? May be preferable on physically small screens.
 
     // Internals
     QPointer<QWidget> m_container_widget;  // outer widget
     QPointer<QLabel> m_value_label;  // value indicator
     QPointer<TickSlider> m_slider;  // slider
     bool m_field_write_pending;  // is a field writes pending?
-    int m_field_write_slider_value;  // the value to be written when m_timer expires
-    QSharedPointer<QTimer> m_timer;  // timer to delay writes for visual performance
+    int m_field_write_slider_value;
+    // ... the value to be written when m_timer expires
+    QSharedPointer<QTimer> m_timer;
+    // ... timer to delay writes for visual performance
 };

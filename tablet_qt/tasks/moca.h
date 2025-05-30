@@ -21,6 +21,7 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -30,25 +31,43 @@ class TaskFactory;
 
 void initializeMoca(TaskFactory& factory);
 
-
 class Moca : public Task
 {
     Q_OBJECT
+
 public:
-    Moca(CamcopsApp& app, DatabaseManager& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
+    Moca(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    virtual TaskImplementationType implementationType() const override {
+
+    virtual TaskImplementationType implementationType() const override
+    {
         return TaskImplementationType::UpgradableSkeleton;
     }
-    virtual bool prohibitsCommercial() const override { return true; }
-    virtual bool prohibitsResearch() const override { return true; }
-    virtual bool prohibitedIfSkeleton() const override { return true; }
+
+    virtual bool prohibitsCommercial() const override
+    {
+        return true;
+    }
+
+    virtual bool prohibitsResearch() const override
+    {
+        return true;
+    }
+
+    virtual bool prohibitedIfSkeleton() const override
+    {
+        return true;
+    }
+
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -59,16 +78,20 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
+
 protected:
     int subScore(int first, int last) const;
     int totalScore() const;
     // ------------------------------------------------------------------------
     // Signal handlers
     // ------------------------------------------------------------------------
+
 protected:
     void updateMandatory();
+
 protected:
     QPointer<Questionnaire> m_questionnaire;
+
 public:
     static const QString MOCA_TABLENAME;
 };

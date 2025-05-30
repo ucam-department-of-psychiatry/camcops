@@ -32,12 +32,12 @@ class CameraQml;
 class QLabel;
 class QWidget;
 
-
 class QuPhoto : public QuElement
 {
     // Allows users to take a photo using the device's camera.
 
     Q_OBJECT
+
 public:
     // Constructor
     QuPhoto(BlobFieldRefPtr fieldref, QObject* parent = nullptr);
@@ -46,7 +46,8 @@ protected:
     // Set widget state (image) from field data.
     void setFromField();
 
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
+    ) override;
     virtual FieldRefPtrList fieldrefs() const override;
 
     // Rotate image.
@@ -84,7 +85,8 @@ protected:
 
     QPointer<Questionnaire> m_questionnaire;  // our questionnaire
     QPointer<QLabel> m_incomplete_optional_label;  // label for incomplete data
-    QPointer<QLabel> m_incomplete_mandatory_label;  // label for incomplete data
+    QPointer<QLabel> m_incomplete_mandatory_label;
+    // ... label for incomplete data
     QPointer<QLabel> m_field_problem_label;  // "something wrong" indicator
     QPointer<AspectRatioPixmap> m_image_widget;  // image display widget
 #ifdef QUPHOTO_USE_CAMERA_QML

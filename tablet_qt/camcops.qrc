@@ -195,5 +195,6 @@
         <file>resources/moca/missing.png</file>
         <file>resources/camcops/prohibited_passwords/PwnedPasswordsTop100k.txt</file>
         <file>resources/camcops/images/dolphin.png</file>
+        <file>resources/camcops/images/neurodiversity.png</file>
     </qresource>
 </RCC>

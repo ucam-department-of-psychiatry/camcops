@@ -21,8 +21,10 @@
 // #define DEBUG_SLOTS
 
 #include "menuheader.h"
+
 #include <QAbstractButton>
 #include <QLabel>
+
 #include "common/cssconst.h"
 #include "common/uiconst.h"
 #include "dbobjects/patient.h"
@@ -37,27 +39,29 @@
 #include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
 
-
-MenuHeader::MenuHeader(QWidget* parent,
-                       CamcopsApp& app,
-                       const bool top,
-                       const QString& title,
-                       const QString& icon_filename,
-                       const bool debug_allowed)
-    : QWidget(parent),
-      m_app(app),
-      m_button_needs_upload(nullptr),  // waste of effort; constructed as nullptr
-      m_button_debug(nullptr),
-      m_button_view(nullptr),
-      m_button_edit(nullptr),
-      m_button_delete(nullptr),
-      m_button_add(nullptr),
-      m_button_locked(nullptr),
-      m_button_unlocked(nullptr),
-      m_button_privileged(nullptr),
-      m_patient_info(nullptr),
-      m_no_patient(nullptr),
-      m_single_user_options(nullptr)
+MenuHeader::MenuHeader(
+    QWidget* parent,
+    CamcopsApp& app,
+    const bool top,
+    const QString& title,
+    const QString& icon_filename,
+    const bool debug_allowed
+) :
+    QWidget(parent),
+    m_app(app),
+    m_button_needs_upload(nullptr),
+    // ... waste of effort; constructed as nullptr
+    m_button_debug(nullptr),
+    m_button_view(nullptr),
+    m_button_edit(nullptr),
+    m_button_delete(nullptr),
+    m_button_add(nullptr),
+    m_button_locked(nullptr),
+    m_button_unlocked(nullptr),
+    m_button_privileged(nullptr),
+    m_patient_info(nullptr),
+    m_no_patient(nullptr),
+    m_single_user_options(nullptr)
 {
     auto mainlayout = new VBoxLayout();
     setLayout(mainlayout);
@@ -80,9 +84,13 @@ MenuHeader::MenuHeader(QWidget* parent,
     if (!top) {
         QAbstractButton* back = new ImageButton(uiconst::CBS_BACK);
         toprowlayout->addWidget(back, 0, button_align);
-        connect(back, &QAbstractButton::clicked,
-                this, &MenuHeader::backClicked,
-                Qt::UniqueConnection);
+        connect(
+            back,
+            &QAbstractButton::clicked,
+            this,
+            &MenuHeader::backClicked,
+            Qt::UniqueConnection
+        );
     }
 
     // Spacing
@@ -112,8 +120,12 @@ MenuHeader::MenuHeader(QWidget* parent,
     // - Debug
     if (debug_allowed) {
         m_button_debug = new QPushButton(tr("Dump layout"));
-        connect(m_button_debug, &QAbstractButton::clicked,
-                this, &MenuHeader::debugLayout);
+        connect(
+            m_button_debug,
+            &QAbstractButton::clicked,
+            this,
+            &MenuHeader::debugLayout
+        );
         rh_icons->addWidget(m_button_debug, text_align);
     }
 
@@ -132,23 +144,44 @@ MenuHeader::MenuHeader(QWidget* parent,
     offerView();
     offerEditDelete();
     offerAdd();
-    connect(m_button_finish_flag, &QAbstractButton::clicked,
-            this, &MenuHeader::finishFlagClicked);
-    connect(m_button_view, &QAbstractButton::clicked,
-            this, &MenuHeader::viewClicked);
-    connect(m_button_edit, &QAbstractButton::clicked,
-            this, &MenuHeader::editClicked);
-    connect(m_button_delete, &QAbstractButton::clicked,
-            this, &MenuHeader::deleteClicked);
-    connect(m_button_add, &QAbstractButton::clicked,
-            this, &MenuHeader::addClicked);
+    connect(
+        m_button_finish_flag,
+        &QAbstractButton::clicked,
+        this,
+        &MenuHeader::finishFlagClicked
+    );
+    connect(
+        m_button_view,
+        &QAbstractButton::clicked,
+        this,
+        &MenuHeader::viewClicked
+    );
+    connect(
+        m_button_edit,
+        &QAbstractButton::clicked,
+        this,
+        &MenuHeader::editClicked
+    );
+    connect(
+        m_button_delete,
+        &QAbstractButton::clicked,
+        this,
+        &MenuHeader::deleteClicked
+    );
+    connect(
+        m_button_add, &QAbstractButton::clicked, this, &MenuHeader::addClicked
+    );
 
     // - Needs upload ("upload")
     m_button_needs_upload = new ImageButton(uiconst::ICON_UPLOAD);
     rh_icons->addWidget(m_button_needs_upload, button_align);
     needsUploadChanged(m_app.needsUpload());
-    connect(m_button_needs_upload, &QAbstractButton::clicked,
-            &m_app, &CamcopsApp::upload);
+    connect(
+        m_button_needs_upload,
+        &QAbstractButton::clicked,
+        &m_app,
+        &CamcopsApp::upload
+    );
 
     // - Locked/unlocked/privileged
     m_button_locked = new ImageButton(uiconst::CBS_LOCKED);
@@ -158,12 +191,18 @@ MenuHeader::MenuHeader(QWidget* parent,
     rh_icons->addWidget(m_button_unlocked, button_align);
     rh_icons->addWidget(m_button_privileged, button_align);
     lockStateChanged(m_app.lockstate());
-    connect(m_button_locked, &QAbstractButton::clicked,
-            &m_app, &CamcopsApp::unlock);
-    connect(m_button_unlocked, &QAbstractButton::clicked,
-            &m_app, &CamcopsApp::lock);
-    connect(m_button_privileged, &QAbstractButton::clicked,
-            &m_app, &CamcopsApp::unlock);
+    connect(
+        m_button_locked, &QAbstractButton::clicked, &m_app, &CamcopsApp::unlock
+    );
+    connect(
+        m_button_unlocked, &QAbstractButton::clicked, &m_app, &CamcopsApp::lock
+    );
+    connect(
+        m_button_privileged,
+        &QAbstractButton::clicked,
+        &m_app,
+        &CamcopsApp::unlock
+    );
 
     // ------------------------------------------------------------------------
     // Horizontal line
@@ -182,30 +221,46 @@ MenuHeader::MenuHeader(QWidget* parent,
     mainlayout->addWidget(patient_bar);
 
     m_patient_info = new LabelWordWrapWide();
-    m_patient_info->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    m_patient_info->setSizePolicy(
+        QSizePolicy::Preferred, QSizePolicy::Preferred
+    );
     m_patient_info->setObjectName(cssconst::MENU_HEADER_PATIENT_INFO);
     patientlayout->addWidget(m_patient_info, 0, text_align);
 
     if (m_app.isSingleUserMode()) {
         m_no_patient = new ClickableLabelWordWrapWide(tr("Register me"));
         m_no_patient->setObjectName(cssconst::MENU_HEADER_SINGLE_USER_BUTTONS);
-        connect(m_no_patient, &QAbstractButton::clicked,
-                this, &MenuHeader::registerPatient);
+        connect(
+            m_no_patient,
+            &QAbstractButton::clicked,
+            this,
+            &MenuHeader::registerPatient
+        );
     } else {
-        m_no_patient = new ClickableLabelWordWrapWide(tr("No patient selected"));
+        m_no_patient
+            = new ClickableLabelWordWrapWide(tr("No patient selected"));
         m_no_patient->setObjectName(cssconst::MENU_HEADER_NO_PATIENT);
     }
 
-    m_no_patient->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    m_no_patient->setSizePolicy(
+        QSizePolicy::Preferred, QSizePolicy::Preferred
+    );
 
     patientlayout->addWidget(m_no_patient, 0, text_align);
     patientlayout->addStretch();
 
     if (top && m_app.isSingleUserMode()) {
-        m_single_user_options = new ClickableLabelWordWrapWide(tr("More options"));
-        m_single_user_options->setObjectName(cssconst::MENU_HEADER_SINGLE_USER_BUTTONS);
-        connect(m_single_user_options, &QAbstractButton::clicked,
-                this, &MenuHeader::openOptionsMenu);
+        m_single_user_options
+            = new ClickableLabelWordWrapWide(tr("More options"));
+        m_single_user_options->setObjectName(
+            cssconst::MENU_HEADER_SINGLE_USER_BUTTONS
+        );
+        connect(
+            m_single_user_options,
+            &QAbstractButton::clicked,
+            this,
+            &MenuHeader::openOptionsMenu
+        );
         patientlayout->addWidget(m_single_user_options, 0, Qt::AlignRight);
     }
 
@@ -216,20 +271,35 @@ MenuHeader::MenuHeader(QWidget* parent,
     // ========================================================================
     // Incoming signals
     // ========================================================================
-    connect(&m_app, &CamcopsApp::lockStateChanged,
-            this, &MenuHeader::lockStateChanged,
-            Qt::UniqueConnection);
-    connect(&m_app, &CamcopsApp::selectedPatientChanged,
-            this, &MenuHeader::selectedPatientChanged,
-            Qt::UniqueConnection);
-    connect(&m_app, &CamcopsApp::selectedPatientDetailsChanged,
-            this, &MenuHeader::selectedPatientDetailsChanged,
-            Qt::UniqueConnection);
-    connect(&m_app, &CamcopsApp::needsUploadChanged,
-            this, &MenuHeader::needsUploadChanged,
-            Qt::UniqueConnection);
+    connect(
+        &m_app,
+        &CamcopsApp::lockStateChanged,
+        this,
+        &MenuHeader::lockStateChanged,
+        Qt::UniqueConnection
+    );
+    connect(
+        &m_app,
+        &CamcopsApp::selectedPatientChanged,
+        this,
+        &MenuHeader::selectedPatientChanged,
+        Qt::UniqueConnection
+    );
+    connect(
+        &m_app,
+        &CamcopsApp::selectedPatientDetailsChanged,
+        this,
+        &MenuHeader::selectedPatientDetailsChanged,
+        Qt::UniqueConnection
+    );
+    connect(
+        &m_app,
+        &CamcopsApp::needsUploadChanged,
+        this,
+        &MenuHeader::needsUploadChanged,
+        Qt::UniqueConnection
+    );
 }
-
 
 void MenuHeader::setTitle(const QString& title)
 {
@@ -239,12 +309,10 @@ void MenuHeader::setTitle(const QString& title)
     m_title_label->setText(title);
 }
 
-
 void MenuHeader::setIcon(const QString& icon_filename)
 {
     setIcon(icon_filename, true);
 }
-
 
 void MenuHeader::setIcon(const QString& icon_filename, bool call_show_or_hide)
 {
@@ -258,29 +326,30 @@ void MenuHeader::setIcon(const QString& icon_filename, bool call_show_or_hide)
     }
 }
 
-
 void MenuHeader::setCrippled(const bool crippled)
 {
     if (m_top_bar) {
-        m_top_bar->setObjectName(crippled ? cssconst::MENU_HEADER_CRIPPLED
-                                          : "");
+        m_top_bar->setObjectName(
+            crippled ? cssconst::MENU_HEADER_CRIPPLED : ""
+        );
     }
 }
-
 
 void MenuHeader::lockStateChanged(const CamcopsApp::LockState lockstate)
 {
     m_button_locked->setVisible(lockstate == CamcopsApp::LockState::Locked);
-    m_button_unlocked->setVisible(lockstate == CamcopsApp::LockState::Unlocked);
-    m_button_privileged->setVisible(lockstate == CamcopsApp::LockState::Privileged);
+    m_button_unlocked->setVisible(
+        lockstate == CamcopsApp::LockState::Unlocked
+    );
+    m_button_privileged->setVisible(
+        lockstate == CamcopsApp::LockState::Privileged
+    );
 }
-
 
 void MenuHeader::needsUploadChanged(const bool needs_upload)
 {
     m_button_needs_upload->setVisible(needs_upload);
 }
-
 
 void MenuHeader::selectedPatientChanged(const Patient* patient)
 {
@@ -290,7 +359,6 @@ void MenuHeader::selectedPatientChanged(const Patient* patient)
     setPatientDetails(patient);
 }
 
-
 void MenuHeader::selectedPatientDetailsChanged(const Patient* patient)
 {
 #ifdef DEBUG_SLOTS
@@ -298,7 +366,6 @@ void MenuHeader::selectedPatientDetailsChanged(const Patient* patient)
 #endif
     setPatientDetails(patient);
 }
-
 
 void MenuHeader::setPatientDetails(const Patient* patient)
 {
@@ -320,38 +387,33 @@ void MenuHeader::setPatientDetails(const Patient* patient)
     m_patient_info->setVisible(selected);
 }
 
-
 void MenuHeader::offerView(const bool offer_view)
 {
     m_button_view->setVisible(offer_view);
 }
 
-
-void MenuHeader::offerEditDelete(const bool offer_edit,
-                                 const bool offer_delete)
+void MenuHeader::offerEditDelete(
+    const bool offer_edit, const bool offer_delete
+)
 {
     m_button_edit->setVisible(offer_edit);
     m_button_delete->setVisible(offer_delete);
 }
-
 
 void MenuHeader::offerAdd(const bool offer_add)
 {
     m_button_add->setVisible(offer_add);
 }
 
-
 void MenuHeader::offerFinishFlag(const bool offer_finish_flag)
 {
     m_button_finish_flag->setVisible(offer_finish_flag);
 }
 
-
 void MenuHeader::openOptionsMenu()
 {
     m_app.openSubWindow(new SingleUserOptionsMenu(m_app));
 }
-
 
 void MenuHeader::registerPatient()
 {

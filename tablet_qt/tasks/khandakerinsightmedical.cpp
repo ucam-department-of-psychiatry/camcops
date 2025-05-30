@@ -19,6 +19,7 @@
 */
 
 #include "khandakerinsightmedical.h"
+
 #include "common/cssconst.h"
 #include "common/textconst.h"
 #include "lib/uifunc.h"
@@ -36,9 +37,10 @@
 #include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
 
-struct KhandakerInsightQInfo {
-    KhandakerInsightQInfo(const QString& stem,
-                          const QString& heading_xml = "") {
+struct KhandakerInsightQInfo
+{
+    KhandakerInsightQInfo(const QString& stem, const QString& heading_xml = "")
+    {
         // Fieldnames:
         fieldname_yn = stem + "_yn";
         fieldname_comment = stem + "_comment";
@@ -46,7 +48,9 @@ struct KhandakerInsightQInfo {
         question_xmlstr = "q_" + stem;
         heading_xmlstr = heading_xml;
     }
-    bool hasHeading() const {
+
+    bool hasHeading() const
+    {
         return !heading_xmlstr.isEmpty();
     }
 
@@ -55,6 +59,7 @@ struct KhandakerInsightQInfo {
     QString question_xmlstr;
     QString heading_xmlstr;
 };
+
 using KQInfo = KhandakerInsightQInfo;
 
 const QVector<KQInfo> QUESTIONS{
@@ -78,7 +83,8 @@ const QVector<KQInfo> QUESTIONS{
 };
 
 const QString KhandakerInsightMedical::KHANDAKERINSIGHTMEDICAL_TABLENAME(
-        "khandaker_1_medicalhistory");  // NB historical name
+    "khandaker_1_medicalhistory"
+);  // NB historical name
 
 const QString X_TITLE("title");
 const QString X_INSTRUCTION("instruction");
@@ -99,7 +105,6 @@ const int STRETCH_COMMENT = 40;
 // This task requires server v2.2.3:
 const Version KHANDAKER1MEDICALHISTORY_MIN_SERVER_VERSION(2, 2, 3);
 
-
 void initializeKhandakerInsightMedical(TaskFactory& factory)
 {
     static TaskRegistrar<KhandakerInsightMedical> registered(factory);
@@ -107,8 +112,10 @@ void initializeKhandakerInsightMedical(TaskFactory& factory)
 
 
 KhandakerInsightMedical::KhandakerInsightMedical(
-        CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, KHANDAKERINSIGHTMEDICAL_TABLENAME, false, false, false)  // ... anon, clin, resp
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
+    Task(app, db, KHANDAKERINSIGHTMEDICAL_TABLENAME, false, false, false)
+// ... anon, clin, resp
 {
     for (const KhandakerInsightQInfo& info : QUESTIONS) {
         addField(info.fieldname_yn, QMetaType::fromType<bool>());
@@ -117,8 +124,6 @@ KhandakerInsightMedical::KhandakerInsightMedical(
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
-
 
 // ============================================================================
 // Class info
@@ -129,30 +134,25 @@ QString KhandakerInsightMedical::shortname() const
     return "Khandaker_Insight_Medical";
 }
 
-
 QString KhandakerInsightMedical::longname() const
 {
     return tr("Khandaker GM — Insight — Medical history");
 }
-
 
 QString KhandakerInsightMedical::description() const
 {
     return tr("Medical history screening for Insight immunopsychiatry study.");
 }
 
-
 QString KhandakerInsightMedical::infoFilenameStem() const
 {
     return "khandaker_insight_medical";
 }
 
-
 Version KhandakerInsightMedical::minimumServerVersion() const
 {
     return KHANDAKER1MEDICALHISTORY_MIN_SERVER_VERSION;
 }
-
 
 // ============================================================================
 // Instance info
@@ -164,39 +164,39 @@ bool KhandakerInsightMedical::isComplete() const
         if (valueIsNull(info.fieldname_yn)) {
             return false;
         }
-        if (valueBool(info.fieldname_yn) &&
-                valueIsNullOrEmpty(info.fieldname_comment)) {
+        if (valueBool(info.fieldname_yn)
+            && valueIsNullOrEmpty(info.fieldname_comment)) {
             return false;
         }
     }
     return true;
 }
 
-
 QStringList KhandakerInsightMedical::summary() const
 {
     return QStringList{TextConst::noSummarySeeFacsimile()};
 }
-
 
 QStringList KhandakerInsightMedical::detail() const
 {
     QStringList lines;
     for (const KhandakerInsightQInfo& info : QUESTIONS) {
         QString comment = "";
-        if (!valueIsNullOrEmpty(info.fieldname_comment) ||
-                valueBool(info.fieldname_yn)) {
+        if (!valueIsNullOrEmpty(info.fieldname_comment)
+            || valueBool(info.fieldname_yn)) {
             // Show comment if the answer was yes or there is a comment.
-            comment = QString(" - %1").arg(valueString(info.fieldname_comment));
+            comment
+                = QString(" - %1").arg(valueString(info.fieldname_comment));
         }
-        lines.append(QString("%1: <b>%2%3</b>").arg(
-                         xstring(info.question_xmlstr),
-                         uifunc::yesNoNull(value(info.fieldname_yn)),
-                         comment));
+        lines.append(QString("%1: <b>%2%3</b>")
+                         .arg(
+                             xstring(info.question_xmlstr),
+                             uifunc::yesNoNull(value(info.fieldname_yn)),
+                             comment
+                         ));
     }
     return completenessInfo() + lines;
 }
-
 
 OpenableWidget* KhandakerInsightMedical::editor(const bool read_only)
 {
@@ -225,7 +225,9 @@ OpenableWidget* KhandakerInsightMedical::editor(const bool read_only)
 
     QuText* heading_comment = new QuText(xstring(X_HEADING_COMMENT));
     heading_comment->setBold(true);
-    QuGridCell headcell_comment(heading_comment, row, COLUMN_COMMENT, 1, 1, cell_alignment);
+    QuGridCell headcell_comment(
+        heading_comment, row, COLUMN_COMMENT, 1, 1, cell_alignment
+    );
     grid->addCell(headcell_comment);
 
     ++row;
@@ -233,11 +235,14 @@ OpenableWidget* KhandakerInsightMedical::editor(const bool read_only)
     // Questions and subheadings
     for (const KhandakerInsightQInfo& info : QUESTIONS) {
         if (info.hasHeading()) {
-            QuBackground* subhead_bg = new QuBackground(cssconst::OPTION_BACKGROUND);
+            QuBackground* subhead_bg
+                = new QuBackground(cssconst::OPTION_BACKGROUND);
             QuGridCell subhead_bg_cell(subhead_bg, row, COLUMN_Q, 1, NCOL);
             grid->addCell(subhead_bg_cell);
             QuText* heading = new QuText(xstring(info.heading_xmlstr));
-            QuGridCell subhead_cell(heading, row, COLUMN_Q, 1, NCOL, cell_alignment);
+            QuGridCell subhead_cell(
+                heading, row, COLUMN_Q, 1, NCOL, cell_alignment
+            );
             grid->addCell(subhead_cell);
             ++row;
         }
@@ -254,8 +259,12 @@ OpenableWidget* KhandakerInsightMedical::editor(const bool read_only)
         grid->addCell(q_cell);
 
         FieldRefPtr yn_fieldref = fieldRef(info.fieldname_yn);
-        connect(yn_fieldref.data(), &FieldRef::valueChanged,
-                this, &KhandakerInsightMedical::updateMandatory);
+        connect(
+            yn_fieldref.data(),
+            &FieldRef::valueChanged,
+            this,
+            &KhandakerInsightMedical::updateMandatory
+        );
         QuMcq* mcq = new QuMcq(yn_fieldref, yn_options);
         mcq->setAsTextButton(true);
         mcq->setHorizontal(true);
@@ -264,7 +273,9 @@ OpenableWidget* KhandakerInsightMedical::editor(const bool read_only)
 
         QuTextEdit* comment = new QuTextEdit(fieldRef(info.fieldname_comment));
         comment->setHint(xstring(X_COMMENT_HINT));
-        QuGridCell comment_cell(comment, row, COLUMN_COMMENT, 1, 1, cell_alignment);
+        QuGridCell comment_cell(
+            comment, row, COLUMN_COMMENT, 1, 1, cell_alignment
+        );
         grid->addCell(comment_cell);
 
         ++row;
@@ -284,7 +295,6 @@ OpenableWidget* KhandakerInsightMedical::editor(const bool read_only)
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Signal handlers

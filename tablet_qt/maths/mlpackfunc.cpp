@@ -21,25 +21,23 @@
 #include "mlpackfunc.h"  // IWYU pragma: keep
 #ifdef USE_MLPACK
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-// Disable warnings for external code:
-// - https://stackoverflow.com/questions/3378560/how-to-disable-gcc-warnings-for-a-few-lines-of-code
-// - https://gcc.gnu.org/onlinedocs/gcc/Diagnostic-Pragmas.html
-// (It seems, empirically, that the warnings have to be disable for the
-// #include rather than the use of template functions.)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
+    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    // Disable warnings for external code:
+    // - https://stackoverflow.com/questions/3378560/how-to-disable-gcc-warnings-for-a-few-lines-of-code
+    // - https://gcc.gnu.org/onlinedocs/gcc/Diagnostic-Pragmas.html
+    // (It seems, empirically, that the warnings have to be disable for the
+    // #include rather than the use of template functions.)
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wunused-parameter"
 // ............................................................................
 
-#include <mlpack/methods/logistic_regression/logistic_regression.hpp>
+    #include <mlpack/methods/logistic_regression/logistic_regression.hpp>
 // unused parameters in op_sum::apply_noalias_proxy_mp() from op_sum_meat.hpp
 
 
 using namespace mlpack::regression;
 
-
-namespace mlpackfunc
-{
+namespace mlpackfunc {
 
 
 // ============================================================================
@@ -47,8 +45,8 @@ namespace mlpackfunc
 // ============================================================================
 
 arma::vec getParamsLogisticFitSinglePredictor(
-        const arma::vec& predictors,
-        const arma::Row<size_t>& responses)
+    const arma::vec& predictors, const arma::Row<size_t>& responses
+)
 {
     LogisticRegression<arma::vec> lr(predictors, responses);
     // the template type is the type of predictors
@@ -58,8 +56,8 @@ arma::vec getParamsLogisticFitSinglePredictor(
 
 }  // namespace mlpackfunc
 
-// ............................................................................
-#pragma GCC diagnostic pop
+    // ........................................................................
+    #pragma GCC diagnostic pop
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 #endif

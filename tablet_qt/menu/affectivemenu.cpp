@@ -19,14 +19,14 @@
 */
 
 #include "affectivemenu.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
-
 #include "tasks/bdi.h"
-#include "tasks/cisr.h"
 #include "tasks/cesd.h"
 #include "tasks/cesdr.h"
+#include "tasks/cisr.h"
 #include "tasks/core10.h"
 #include "tasks/epds.h"
 #include "tasks/gad7.h"
@@ -44,25 +44,22 @@
 #include "tasks/pclm.h"
 #include "tasks/pcls.h"
 #include "tasks/pdss.h"
+#include "tasks/phq15.h"
 #include "tasks/phq8.h"
 #include "tasks/phq9.h"
-#include "tasks/phq15.h"
 #include "tasks/pswq.h"
 #include "tasks/ybocs.h"
 #include "tasks/ybocssc.h"
-
 
 AffectiveMenu::AffectiveMenu(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_AFFECTIVE))
 {
 }
 
-
 QString AffectiveMenu::title() const
 {
     return tr("Affective (mood and anxiety) disorders");
 }
-
 
 void AffectiveMenu::makeItems()
 {

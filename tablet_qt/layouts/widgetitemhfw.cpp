@@ -32,9 +32,11 @@
 // #define DISABLE_SET_GEOMETRY  // for debugging
 
 #include "widgetitemhfw.h"
+
 #include <QDebug>
 #include <QStyle>
 #include <QWidget>
+
 #include "lib/sizehelpers.h"
 
 
@@ -44,14 +46,9 @@
 
 const int IGNORE_SIZEHINT = QSizePolicy::IgnoreFlag;
 const int CAN_SHRINK = QSizePolicy::ShrinkFlag;
-const int CAN_GROW =
-        QSizePolicy::GrowFlag |
-        QSizePolicy::ExpandFlag |
-        QSizePolicy::IgnoreFlag;
-const int WANTS_TO_GROW =
-        QSizePolicy::ExpandFlag |
-        QSizePolicy::IgnoreFlag;
-
+const int CAN_GROW = QSizePolicy::GrowFlag | QSizePolicy::ExpandFlag
+    | QSizePolicy::IgnoreFlag;
+const int WANTS_TO_GROW = QSizePolicy::ExpandFlag | QSizePolicy::IgnoreFlag;
 
 // ============================================================================
 // WidgetItemHfw
@@ -61,7 +58,6 @@ WidgetItemHfw::WidgetItemHfw(QWidget* widget) :
     QWidgetItemV2(widget)
 {
 }
-
 
 QSize WidgetItemHfw::sizeHint() const
 {
@@ -81,9 +77,9 @@ QSize WidgetItemHfw::sizeHint() const
             hint = QSize(0, 0);
         } else {
             hint = wid->sizeHint()
-                    .expandedTo(wid->minimumSizeHint())
-                    .boundedTo(wid->maximumSize())
-                    .expandedTo(wid->minimumSize());
+                       .expandedTo(wid->minimumSizeHint())
+                       .boundedTo(wid->maximumSize())
+                       .expandedTo(wid->minimumSize());
             // But we continue to respect "ignore my size hint":
             const QSizePolicy sp = wid->sizePolicy();
             if (sp.horizontalPolicy() & IGNORE_SIZEHINT) {
@@ -94,27 +90,30 @@ QSize WidgetItemHfw::sizeHint() const
             }
         }
 #ifdef DEBUG_LAYOUT
-        qDebug().nospace()
-                << Q_FUNC_INFO
-                << " [wid->metaObject()->className() == "
-                << wid->metaObject()->className()
-                << ", wid->testAttribute(Qt::WA_LayoutUsesWidgetRect) == "
-                << wid->testAttribute(Qt::WA_LayoutUsesWidgetRect)
-                << ", wid->minimumSize() == " << wid->minimumSize()
-                << ", wid->minimumSizeHint() == " << wid->minimumSizeHint()
-                << ", wid->sizeHint() == " << wid->sizeHint()
-                << ", wid->sizePolicy() == " << wid->sizePolicy()
-                << ", wid->sizePolicy().hasHeightForWidth() == "
-                << wid->sizePolicy().hasHeightForWidth()
-                // << ", wid->sizePolicy().horizontalPolicy() & QSizePolicy::ShrinkFlag == "
-                // << (wid->sizePolicy().horizontalPolicy() & QSizePolicy::ShrinkFlag)
-                << "]";
+        qDebug().nospace(
+        ) << Q_FUNC_INFO
+          << " [wid->metaObject()->className() == "
+          << wid->metaObject()->className()
+          << ", wid->testAttribute(Qt::WA_LayoutUsesWidgetRect) == "
+          << wid->testAttribute(Qt::WA_LayoutUsesWidgetRect)
+          << ", wid->minimumSize() == " << wid->minimumSize()
+          << ", wid->minimumSizeHint() == " << wid->minimumSizeHint()
+          << ", wid->sizeHint() == " << wid->sizeHint()
+          << ", wid->sizePolicy() == " << wid->sizePolicy()
+          << ", wid->sizePolicy().hasHeightForWidth() == "
+          << wid->sizePolicy().hasHeightForWidth()
+          /*
+            << ", wid->sizePolicy().horizontalPolicy() "
+            << "& QSizePolicy::ShrinkFlag == "
+            << (wid->sizePolicy().horizontalPolicy()
+                & QSizePolicy::ShrinkFlag)
+        */
+          << "]";
         qDebug() << Q_FUNC_INFO << "->" << hint;
 #endif
     }
     return hint;
 }
-
 
 QSize WidgetItemHfw::minimumSize() const
 {
@@ -154,7 +153,8 @@ QSize WidgetItemHfw::minimumSize() const
     //        }
     //    }
     //
-    //    void QWidgetItemV2::updateCacheIfNecessary() const  // RNC: NOT VIRTUAL
+    //    void QWidgetItemV2::updateCacheIfNecessary() const
+    //          // RNC: NOT VIRTUAL
     //    {
     //        if (q_cachedMinimumSize.width() != Dirty)
     //            return;
@@ -164,12 +164,16 @@ QSize WidgetItemHfw::minimumSize() const
     //        const QSize minimumSize(wid->minimumSize());
     //        const QSize maximumSize(wid->maximumSize());
     //        const QSizePolicy sizePolicy(wid->sizePolicy());
-    //        const QSize expandedSizeHint(sizeHint.expandedTo(minimumSizeHint));
+    //        const QSize expandedSizeHint(
+    //          sizeHint.expandedTo(minimumSizeHint));
     //
-    //        const QSize smartMinSize(qSmartMinSize(sizeHint, minimumSizeHint, minimumSize, maximumSize, sizePolicy));
-    //        const QSize smartMaxSize(qSmartMaxSize(expandedSizeHint, minimumSize, maximumSize, sizePolicy, align));
+    //        const QSize smartMinSize(qSmartMinSize(sizeHint, minimumSizeHint,
+    //              minimumSize, maximumSize, sizePolicy));
+    //        const QSize smartMaxSize(qSmartMaxSize(expandedSizeHint,
+    //              minimumSize, maximumSize, sizePolicy, align));
     //
-    //        const bool useLayoutItemRect = !wid->testAttribute(Qt::WA_LayoutUsesWidgetRect);
+    //        const bool useLayoutItemRect =
+    //              !wid->testAttribute(Qt::WA_LayoutUsesWidgetRect);
     //
     //        q_cachedMinimumSize = useLayoutItemRect
     //               ? toLayoutItemSize(wid->d_func(), smartMinSize)
@@ -209,7 +213,7 @@ QSize WidgetItemHfw::minimumSize() const
                     minsize.setHeight(0);
                 }
                 minsize = minsize.expandedTo(wid->minimumSize())
-                        .expandedTo(wid->minimumSizeHint());
+                              .expandedTo(wid->minimumSizeHint());
             }
         }
 #ifdef DEBUG_LAYOUT
@@ -218,7 +222,6 @@ QSize WidgetItemHfw::minimumSize() const
     }
     return minsize;
 }
-
 
 QSize WidgetItemHfw::maximumSize() const
 {
@@ -282,7 +285,6 @@ QSize WidgetItemHfw::maximumSize() const
     return maxsize;
 }
 
-
 bool WidgetItemHfw::hasHeightForWidth() const
 {
     if (isEmpty()) {
@@ -290,7 +292,6 @@ bool WidgetItemHfw::hasHeightForWidth() const
     }
     return wid->hasHeightForWidth();
 }
-
 
 int WidgetItemHfw::heightForWidth(int w) const
 {
@@ -307,7 +308,6 @@ int WidgetItemHfw::heightForWidth(int w) const
     return m_width_to_height[w];
 }
 
-
 void WidgetItemHfw::invalidate()
 {
     m_cached_sizehint = QSize();
@@ -315,7 +315,6 @@ void WidgetItemHfw::invalidate()
     m_cached_maxsize = QSize();
     m_width_to_height.clear();
 }
-
 
 void WidgetItemHfw::setGeometry(const QRect& rect)
 {
@@ -345,9 +344,9 @@ void WidgetItemHfw::setGeometry(const QRect& rect)
     // - https://stackoverflow.com/questions/41452512/how-to-remove-margins-of-qlayout-completely-mac-os-specific?noredirect=1&lq=1
     // - https://doc.qt.io/archives/qt-4.8/qmacnativewidget.html
 
-#ifdef DEBUG_SET_GEOMETRY
+    #ifdef DEBUG_SET_GEOMETRY
     qDebug() << Q_FUNC_INFO << ": setting layout item geometry to" << rect;
-#endif
+    #endif
 
     if (isEmpty()) {
         // No visible widget (and not an invisible widget retaining its size).
@@ -366,52 +365,49 @@ void WidgetItemHfw::setGeometry(const QRect& rect)
     const QSizePolicy sp = wid->sizePolicy();  // widget's size policy
 
     // We are trying to get as close as possible to what we were told.
-    const bool any_size_widget = !widget_size.isValid() ||
-            widget_size == QSize(0, 0);
+    const bool any_size_widget
+        = !widget_size.isValid() || widget_size == QSize(0, 0);
     // ... e.g. background stripe widgets made from a generic QWidget
 
-    if (sp.horizontalPolicy() & WANTS_TO_GROW ||
-            (hasHeightForWidth() && sp.horizontalPolicy() & CAN_GROW) ||
-            any_size_widget) {  // e.g. background stripe widgets
+    if (sp.horizontalPolicy() & WANTS_TO_GROW
+        || (hasHeightForWidth() && sp.horizontalPolicy() & CAN_GROW)
+        || any_size_widget) {  // e.g. background stripe widgets
         widget_size.setWidth(available.width());
     }
-    if (sp.verticalPolicy() & WANTS_TO_GROW ||
-            any_size_widget) {
+    if (sp.verticalPolicy() & WANTS_TO_GROW || any_size_widget) {
         widget_size.setHeight(available.height());
     }
 
     // Apply constraints
-    widget_size = widget_size
-            .expandedTo(minimumSize())
-            .boundedTo(maximumSize())
-            .boundedTo(available);
+    widget_size = widget_size.expandedTo(minimumSize())
+                      .boundedTo(maximumSize())
+                      .boundedTo(available);
 
-#ifdef DEBUG_SET_GEOMETRY
+    #ifdef DEBUG_SET_GEOMETRY
     qDebug() << "... widget_size =" << widget_size;
-#endif
+    #endif
 
     if (hasHeightForWidth()) {
         // Redo the height as necessary for a height-for-width widget.
         int h = heightForWidth(widget_size.width());
-#ifdef DEBUG_SET_GEOMETRY
-        qDebug() << "... HFW: width" << widget_size.width() << "-> height" << h;
-#endif
+    #ifdef DEBUG_SET_GEOMETRY
+        qDebug() << "... HFW: width" << widget_size.width() << "-> height"
+                 << h;
+    #endif
         if (sp.verticalPolicy() & WANTS_TO_GROW) {
             h = available.height();
         }
         widget_size.setHeight(h);
         // Re-apply constraints
-        widget_size = widget_size
-                .expandedTo(minimumSize())
-                .boundedTo(maximumSize())
-                .boundedTo(available);
-#ifdef DEBUG_SET_GEOMETRY
-        qDebug().nospace()
-                << "minimumSize() = " << minimumSize()
-                << ", maximumSize() = " << maximumSize()
-                << ", available = " << available;
+        widget_size = widget_size.expandedTo(minimumSize())
+                          .boundedTo(maximumSize())
+                          .boundedTo(available);
+    #ifdef DEBUG_SET_GEOMETRY
+        qDebug().nospace() << "minimumSize() = " << minimumSize()
+                           << ", maximumSize() = " << maximumSize()
+                           << ", available = " << available;
         qDebug() << "... widget_size (after HFW) =" << widget_size;
-#endif
+    #endif
     }
 
     // ------------------------------------------------------------------------
@@ -419,8 +415,8 @@ void WidgetItemHfw::setGeometry(const QRect& rect)
     // ------------------------------------------------------------------------
     int x = rect.x();
     int y = rect.y();
-    const Qt::Alignment align_horiz = QStyle::visualAlignment(
-                wid->layoutDirection(), align);
+    const Qt::Alignment align_horiz
+        = QStyle::visualAlignment(wid->layoutDirection(), align);
     if (align_horiz & Qt::AlignRight) {
         // Right align
         x = x + (rect.width() - widget_size.width());
@@ -441,9 +437,9 @@ void WidgetItemHfw::setGeometry(const QRect& rect)
     // Tell the widget.
     // ------------------------------------------------------------------------
     const QRect widget_geom(x, y, widget_size.width(), widget_size.height());
-#ifdef DEBUG_SET_GEOMETRY
+    #ifdef DEBUG_SET_GEOMETRY
     qDebug() << "... calling widget->setGeometry() with " << widget_geom;
-#endif
+    #endif
     wid->setGeometry(widget_geom);
 #endif
 }

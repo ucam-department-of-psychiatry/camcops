@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/alembic/env.py
 
@@ -28,6 +26,7 @@ camcops_server/alembic/env.py
 **This file configures and runs Alembic.**
 
 It is loaded directly by Alembic, via a pseudo-"main" environment.
+To find
 
 """
 
@@ -40,7 +39,7 @@ import os
 from typing import List, Optional, Tuple, Union
 
 from alembic import context
-from alembic.config import Config
+from alembic.config import Config as AlembicConfig
 from alembic.runtime.migration import MigrationContext
 from alembic.operations.ops import (
     AlterColumnOp,
@@ -63,7 +62,6 @@ from sqlalchemy.sql.schema import Column, MetaData
 
 # No relative imports from within the Alembic zone.
 from camcops_server.cc_modules.cc_baseconstants import ALEMBIC_VERSION_TABLE
-from camcops_server.cc_modules.cc_config import get_default_config_from_os_env
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 
 # noinspection PyUnresolvedReferences
@@ -200,7 +198,9 @@ def process_revision_directives(
 # =============================================================================
 
 
-def run_migrations_offline(config: Config, target_metadata: MetaData) -> None:
+def run_migrations_offline(
+    config: AlembicConfig, target_metadata: MetaData
+) -> None:
     """
     Run migrations in 'offline' mode.
 
@@ -215,20 +215,22 @@ def run_migrations_offline(config: Config, target_metadata: MetaData) -> None:
     context.configure(
         url=url,
         target_metadata=target_metadata,
-        render_as_batch=True,  # for SQLite mode; http://stackoverflow.com/questions/30378233  # noqa
+        render_as_batch=True,
+        # ... for SQLite mode; http://stackoverflow.com/questions/30378233
         literal_binds=True,
         version_table=ALEMBIC_VERSION_TABLE,
         compare_type=custom_compare_type,
         # ... http://blog.code4hire.com/2017/06/setting-up-alembic-to-detect-the-column-length-change/  # noqa
         # ... https://eshlox.net/2017/08/06/alembic-migration-for-string-length-change/  # noqa
-        # process_revision_directives=writer,
         process_revision_directives=process_revision_directives,
     )
     with context.begin_transaction():
         context.run_migrations()
 
 
-def run_migrations_online(config: Config, target_metadata: MetaData) -> None:
+def run_migrations_online(
+    config: AlembicConfig, target_metadata: MetaData
+) -> None:
     """
     Run migrations in 'online' mode.
 
@@ -246,10 +248,10 @@ def run_migrations_online(config: Config, target_metadata: MetaData) -> None:
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
-            render_as_batch=True,  # for SQLite mode; http://stackoverflow.com/questions/30378233  # noqa
+            render_as_batch=True,
+            # ... for SQLite mode; http://stackoverflow.com/questions/30378233
             version_table=ALEMBIC_VERSION_TABLE,
             compare_type=custom_compare_type,
-            # process_revision_directives=writer,
             process_revision_directives=process_revision_directives,
         )
         with context.begin_transaction():
@@ -267,11 +269,19 @@ def run_alembic() -> None:
     """
     Run migrations via Alembic.
     """
-    alembic_config = context.config  # type: Config
+    # Get Alembic config.
+    alembic_config = context.config  # type: AlembicConfig
     target_metadata = Base.metadata
-    camcops_config = get_default_config_from_os_env()
-    dburl = camcops_config.db_url
-    alembic_config.set_main_option("sqlalchemy.url", dburl)
+
+    # Get database URL. Previously via get_default_config_from_os_env(); now
+    # (2025-02-13) explicitly in the Alembic config.
+    dburl = alembic_config.get_main_option("sqlalchemy.url")
+    if not dburl:
+        raise ValueError(
+            "Database URL not set (in sqlalchemy.url option of Alembic config)"
+        )
+
+    # Report
     log.warning(
         "Applying migrations to database at URL: {}",
         get_safe_url_from_url(dburl),
@@ -281,6 +291,7 @@ def run_alembic() -> None:
         get_current_revision(dburl, ALEMBIC_VERSION_TABLE),
     )
 
+    # Apply migrations
     if context.is_offline_mode():
         run_migrations_offline(alembic_config, target_metadata)
     else:

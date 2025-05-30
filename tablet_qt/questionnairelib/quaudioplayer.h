@@ -20,11 +20,11 @@
 
 #pragma once
 #include <QMediaPlayer>
+
 #include "questionnairelib/quelement.h"
 
 class QAbstractButton;
 class QWidget;
-
 
 class QuAudioPlayer : public QuElement
 {
@@ -32,8 +32,8 @@ class QuAudioPlayer : public QuElement
     // Offers a play/stop button, +/- a volume control.
 
     Q_OBJECT
-public:
 
+public:
     // Construct with a URL (e.g. a Qt resource URL for an audio file, such as
     // "qrc:///resources/camcops/sounds/bach_brandenburg_3_3.mp3").
     QuAudioPlayer(const QString& url, QObject* parent = nullptr);
@@ -49,7 +49,8 @@ public:
     QuAudioPlayer* setOfferVolumeControl(bool offer_volume_control = true);
 
 protected:
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
+    ) override;
     virtual void closing() override;
 
 protected slots:
@@ -70,8 +71,10 @@ protected:
     QString m_url;  // URL of sound resource
     int m_volume;  // range [0, 100]
     bool m_offer_volume_control;  // offer a volume control?
-    QPointer<QAbstractButton> m_button_speaker;  // button shown when not playing
-    QPointer<QAbstractButton> m_button_speaker_playing;  // button shown when playing
+    QPointer<QAbstractButton> m_button_speaker;
+    // ... button shown when not playing
+    QPointer<QAbstractButton> m_button_speaker_playing;
+    // ... button shown when playing
     QSharedPointer<QMediaPlayer> m_player;  // not owned by other widgets
     bool m_playing;  // currently playing?
 };

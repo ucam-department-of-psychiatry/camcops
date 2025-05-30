@@ -536,7 +536,7 @@ Non-default options are marked in bold and/or as "[non-default]".
             ``-DCMAKE_C_COMPILER:FILEPATH=%{Compiler:Executable:C}``
             ``-DCMAKE_CXX_COMPILER:FILEPATH=%{Compiler:Executable:Cxx}``
 
-**Custom_Android_x86** -- NOT FULLY TESTED
+**Custom_Android_x86**
 
     .. list-table::
         :header-rows: 1
@@ -548,32 +548,80 @@ Non-default options are marked in bold and/or as "[non-default]".
           - **[non-default]** ``Custom_Android_x86``
         * - File system name
           -
-        * - Device type
+        * - Run device type
           - Android Device
-        * - Device
-          - Run on Android (default for Android)
-        * - Sysroot
-          -
+        * - Run device
+          - Pixel_3a_API_30_x86
+        * - Build device
+          - Desktop (default for Desktop)
         * - Compiler: C
-          - <No compiler>
+          - Android Clang (C, i686, NDK 25.1.8937393)
         * - Compiler: C++
-          - Android GCC (i686-4.9)
+          - Android Clang (C++, i686, NDK 25.1.8937393)
         * - Environment
           - [not editable: "No changes to apply."]
         * - Debugger
-          - Android Debugger for Android GCC (i686-4.9)
+          - Android Debugger (Multi-Abi, NDK 25.1.8937393)
+        * - Sysroot
+          -
         * - Qt version
           - **THE "ANDROID EMULATOR" ONE FROM QT VERSIONS, ABOVE**
         * - Qt mkspec
           -
-        * - CMake Tool
-          - System CMake at ``/usr/bin/cmake``
-        * - CMake Generator
-          - CodeBlocks - Unix Makefiles
-        * - CMake Configuration
-          - [not editable]
         * - Additional Qbs Profile Settings
           -
+        * - CMake Tool
+          - CMake 3.24.2 (Qt)
+        * - CMake Generator
+          - Ninja
+        * - CMake Configuration
+          - [not editable]
+        * - Python
+          - None
+
+**Custom_Android_x86_64**
+
+    .. list-table::
+        :header-rows: 1
+        :stub-columns: 1
+
+        * - Option
+          - Setting
+        * - Name
+          - **[non-default]** ``Custom_Android_x86_64``
+        * - File system name
+          -
+        * - Run device type
+          - Android Device
+        * - Run device
+          - Pixel_3a_API_34
+        * - Build device
+          - Desktop (default for Desktop)
+        * - Compiler: C
+          - Android Clang (C, x86_64, NDK 25.1.8937393)
+        * - Compiler: C++
+          - Android Clang (C++, x86_64, NDK 25.1.8937393)
+        * - Environment
+          - [not editable: "No changes to apply."]
+        * - Debugger
+          - Android Debugger (Multi-Abi, NDK 25.1.8937393)
+        * - Sysroot
+          -
+        * - Qt version
+          - **THE "ANDROID EMULATOR" ONE FROM QT VERSIONS, ABOVE**
+        * - Qt mkspec
+          -
+        * - Additional Qbs Profile Settings
+          -
+        * - CMake Tool
+          - CMake 3.24.2 (Qt)
+        * - CMake Generator
+          - Ninja
+        * - CMake Configuration
+          - [not editable]
+        * - Python
+          - None
+
 
 **Custom_Windows_x86_64**
 

@@ -10,9 +10,9 @@ from Illustrator:
 2. splashscreen layer: Save for Web > Image Size > width 1200, height 1200
     > Apply > Save > splashscreen_source.png
 (3. PDF icon layer: Save for Web > Image Size > width 1000, height auto >
-    Apply > Save > logo_camcops.png ... thence to web site)
+    Apply > Save > logo_camcops.png ... thence to website)
 (4. PDF icon layer: Save for Web > Image Size > width 1000, height auto >
-    Apply > Save > logo_local.png ... thence to web site)
+    Apply > Save > logo_local.png ... thence to website)
 
 ===============================================================================
 OLD: Illustrator slicing technique
@@ -94,6 +94,11 @@ ImageMagick 6.9.7 crash (observed 2019-03-18)
     or similar (the "area" bit may be unimportant; the "memory" bit mattered),
     as per https://github.com/ImageMagick/ImageMagick/issues/396.
 
+    As of ImageMagick 6.9.11-60, the units for "area" are more clearly pixels,
+    not bytes; therefore can e.g. replace "128MP" with "1GP" here; see e.g.
+    - https://bugs.launchpad.net/ubuntu/+source/imagemagick/+bug/1910980
+    - https://www.imagemagick.org/source/policy-open.xml
+
 """
 
 import argparse
@@ -107,13 +112,10 @@ import subprocess
 import tempfile
 from typing import List, Tuple
 
-from cardinal_pythonlib.logs import (
-    BraceStyleAdapter,
-    main_only_quicksetup_rootlogger,
-)
+from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
 from rich_argparse import RichHelpFormatter
 
-log = BraceStyleAdapter(logging.getLogger(__name__))
+log = logging.getLogger(__name__)
 
 
 # =============================================================================
@@ -145,26 +147,49 @@ IDENTIFY = ["magick", "identify"] if WINDOWS else ["identify"]
 
 
 def require(executable: str) -> None:
+    """
+    Require than an executable exist on the path, or raise RuntimeError.
+    """
     if not shutil.which(executable):
         raise RuntimeError("Missing executable: " + repr(executable))
 
 
 def run(args: List[str]) -> None:
-    log.debug("Running command: {!r}", args)
+    """
+    Run an external command and raise CalledProcessError if it fails.
+    """
+    log.debug(f"Running command: {args!r}")
     try:
         subprocess.check_call(args)
     except subprocess.CalledProcessError:
-        log.critical("Command failed: {!r}", args)
+        log.critical(f"Command failed: {args!r}")
         raise
 
 
 def mkdirp(path: str) -> None:
+    """
+    Create a directory without complaining.
+    """
     os.makedirs(path, exist_ok=True)
 
 
 def get_pdf_print_size_inches(
     filename: str, autocrop: bool = False, verbose: bool = False
 ) -> Tuple[float, float]:
+    """
+    Return the print size of a PDF in inches.
+
+    Args:
+        filename:
+            Filename of the PDF.
+        autocrop:
+            Remove borders?
+        verbose:
+            Be verbose?
+
+    Returns:
+        width, height
+    """
     if autocrop:
         # Create a temporary, trimmed, PDF, and measure that instead.
         fd, tmpfname = tempfile.mkstemp(".pdf")
@@ -195,9 +220,9 @@ def get_pdf_print_size_inches(
     try:
         info = output.split()[2]
     except Exception:
-        log.critical("p1args: {!r}", p1args)
-        log.critical("p2args: {!r}", p2args)
-        log.critical("output: {!r}", output)
+        log.critical(f"p1args: {p1args!r}")
+        log.critical(f"p2args: {p2args!r}")
+        log.critical(f"output: {output!r}")
         log.warning(
             "If the error is 'not authorized' from ImageMagick's "
             "identify tool, see source code"
@@ -208,12 +233,17 @@ def get_pdf_print_size_inches(
 
 
 class ProportionPair(object):
+    """
+    Represents a pair of proportions (a, b), such that both are in the range
+    [0, 1] and a < b.
+    """
+
     def __init__(self, a: float, b: float) -> None:
         self.a = a
         self.b = b
 
     def __repr__(self) -> str:
-        return "<ProportionPair({a}, {b})>".format(a=self.a, b=self.b)
+        return f"<ProportionPair({self.a}, {self.b})>"
 
     def is_valid(self) -> bool:
         return (
@@ -222,15 +252,28 @@ class ProportionPair(object):
 
     def validate(self) -> None:
         if not self.is_valid():
-            raise AssertionError(
-                "ProportionPair failed validation: {}".format(self)
-            )
+            raise AssertionError(f"ProportionPair failed validation: {self}")
 
     @property
     def span(self) -> float:
+        """
+        Returns the fraction between a and b.
+        """
         return self.b - self.a
 
     def __mul__(self, other: "ProportionPair") -> "ProportionPair":
+        """
+        Returns the ProportionPair of "other" within "self".
+
+        The resulting span is commutative, but the starting point is not;
+        consider e.g.
+
+        .. code-block:: python
+            x = ProportionPair(0.1, 0.5)
+            y = ProportionPair(0.6, 0.9)
+            x * y  # span 0.12 but approx. (0.34, 0.46)
+            y * x  # span 0.12 but approx. (0.63, 0.75)
+        """
         w = self.span
         return ProportionPair(self.a + other.a * w, self.a + other.b * w)
 
@@ -247,23 +290,50 @@ def crop_pdf(
     img_tb: ProportionPair = None,
     density_dpi: int = None,
     density_default_multiplier: int = 2,
-    transparent: bool = None,
+    transparent: str = None,
     windows_multires_icon: bool = False,
     verbose: bool = False,
 ) -> None:
     """
-    Takes a chunk out of a PDF.
-    Source:
-        src_filename
-    Image transformation:
-        transparent: colour to change to transparent, as per
-            http://www.imagemagick.org/script/command-line-options.php#fill
-        img_lr } describe the image to be taken; e.g. (1/3, 2/3)
-        img_tb }
-    Destination:
-        dest_filename
-        dest_width_px
-        dest_height_px
+    Takes a chunk out of a PDF, and saves it as an image.
+
+    Args:
+        src_filename:
+            The filename of the source PDF.
+        dest_filename:
+            The filename of the destination image.
+        dest_width_px:
+            The width of the destination image.
+        dest_height_px:
+            The height of the destination image.
+        autocrop:
+            Automatically remove blank borders.
+        active_lr:
+            Left/right fraction pair describing active region within source
+            image, e.g. (0, 1). Typically used to remove margins.
+        active_tb:
+            Top/bottom fraction pair describing active region within source
+            image, e.g. (0, 1). Typically used to remove margins.
+        img_lr:
+            Left/right fraction pair describing source image within source
+            active region, e.g. (1/3, 2/3).
+        img_tb:
+            Top/bottom fraction pair describing source image within source
+            active region, e.g. (1/3, 2/3).
+        density_dpi:
+            Working density (dots per inch). Will be autocalculated if not
+            specified.
+        density_default_multiplier:
+            When autocalculating density, multiply up by around this amount,
+            to avoid loss of detail.
+        transparent:
+            Colour to change to transparent, as per
+            https://www.imagemagick.org/script/command-line-options.php#fill.
+        windows_multires_icon:
+            Create an icon for Windows that has multiple resolutions embedded
+            in one file?
+        verbose:
+            Be verbose?
     """
     # Input validation as early as possible
     if dest_width_px is None and dest_height_px is None:
@@ -282,23 +352,17 @@ def crop_pdf(
     final_img_tb = active_tb * img_tb
     log.debug("Starting point: left=0, right=1; top=0, bottom=1")
     log.debug(
-        "After removing margins: left={left}, right={r}; top={t}, "
-        "bottom={b}".format(
-            left=active_lr.a, r=active_lr.b, t=active_tb.a, b=active_tb.b
-        )
+        f"After removing margins: left={active_lr.a}, right={active_lr.b}; "
+        f"top={active_tb.a}, bottom={active_tb.b}"
     )
     log.debug(
-        "With what's left, take image: left={left}, right={r}; top={t}, "
-        "bottom={b}".format(left=img_lr.a, r=img_lr.b, t=img_tb.a, b=img_tb.b)
+        f"With what's left, take image: left={img_lr.a}, right={img_lr.b}; "
+        f"top={img_tb.a}, bottom={img_tb.b}"
     )
     log.debug(
-        "Final image to be taken: left={left}, right={r}; top={t}, "
-        "bottom={b}".format(
-            left=final_img_lr.a,
-            r=final_img_lr.b,
-            t=final_img_tb.a,
-            b=final_img_tb.b,
-        )
+        f"Final image to be taken: "
+        f"left={final_img_lr.a}, right={final_img_lr.b}; "
+        f"top={final_img_tb.a}, bottom={final_img_tb.b}"
     )
 
     # The PDF knows its physical size (and notional density, which we
@@ -309,9 +373,8 @@ def crop_pdf(
         src_filename, autocrop, verbose=verbose
     )
     log.debug(
-        "Source PDF size: {} inches W x {} inches H",
-        src_width_inches,
-        src_height_inches,
+        f"Source PDF size: {src_width_inches} inches W x "
+        f"{src_height_inches} inches H"
     )
 
     img_aspect_ratio = (final_img_lr.span * src_width_inches) / (
@@ -322,20 +385,17 @@ def crop_pdf(
     if dest_width_px is None:
         dest_width_px = round(img_aspect_ratio * dest_height_px)
         log.debug(
-            "Autocalculating: dest_width_px = img_aspect_ratio * "
-            "dest_height_px = {} * {} = {}",
-            img_aspect_ratio,
-            dest_height_px,
-            dest_width_px,
+            f"Autocalculating: dest_width_px"
+            f" = img_aspect_ratio * dest_height_px"
+            f" = {img_aspect_ratio} * {dest_height_px}"
+            f" = {dest_width_px}"
         )
     elif dest_height_px is None:
         dest_height_px = round(dest_width_px / img_aspect_ratio)
         log.debug(
-            "Autocalculating: dest_height_px = dest_width_px / "
-            "img_aspect_ratio = {} / {} = {}",
-            dest_width_px,
-            img_aspect_ratio,
-            dest_height_px,
+            f"Autocalculating: dest_height_px"
+            f" = dest_width_px / img_aspect_ratio"
+            f" = {dest_width_px} / {img_aspect_ratio} = {dest_height_px}"
         )
 
     # Calculate working density, if not specified (in dpi)
@@ -363,12 +423,7 @@ def crop_pdf(
     img_bottom_px = round(final_img_tb.b * src_height_px)
     img_height_px = img_bottom_px - img_top_px
 
-    log.info(
-        "Making {f} at {w}x{h}",
-        f=dest_filename,
-        w=dest_width_px,
-        h=dest_height_px,
-    )
+    log.info(f"Making {dest_filename} at {dest_width_px} x {dest_height_px}")
     directory = os.path.dirname(dest_filename)
     if directory:
         mkdirp(directory)
@@ -385,25 +440,11 @@ def crop_pdf(
     args.extend(
         [
             "-crop",
-            "{w}x{h}+{left}+{t}".format(
-                w=img_width_px, h=img_height_px, left=img_left_px, t=img_top_px
-            ),
+            f"{img_width_px}x{img_height_px}+{img_left_px}+{img_top_px}",
             "+repage",
         ]
     )
     if windows_multires_icon:
-        # https://stackoverflow.com/questions/4354617/how-to-make-get-a-multi-size-ico-file  # noqa
-        # args.extend([
-        #     "(", "-clone", "0", "-resize", "16x16", ")",
-        #     "(", "-clone", "0", "-resize", "32x32", ")",
-        #     "(", "-clone", "0", "-resize", "48x48", ")",
-        #     "(", "-clone", "0", "-resize", "64x64", ")",
-        #     "(", "-clone", "0", "-resize", "256x256", ")",
-        #     "-delete", "0",
-        #     # "-alpha", "off",
-        #     "-colors", "256",
-        # ])
-
         # https://www.imagemagick.org/discourse-server/viewtopic.php?t=26252
         args.extend(["-define", "icon:auto-resize=256,64,48,32,16"])
         # Note that 256x256 icons are stored as PNG (and smaller ones as BMP)
@@ -422,7 +463,7 @@ def crop_pdf(
         args.extend(
             [
                 "-resize",
-                "{w}x{h}!".format(w=dest_width_px, h=dest_height_px),
+                f"{dest_width_px}x{dest_height_px}!",
                 # ... the ! forces it to ignore aspect ratio:
                 #     http://www.imagemagick.org/Usage/resize/
             ]
@@ -443,7 +484,35 @@ def tile_pdf(
     transparent: str = None,
     verbose: bool = False,
 ) -> None:
-    log.debug("Tiling {} -> {}", src_filename, dest_filename_format)
+    """
+    Split a PDF into multiple images.
+
+    Args:
+        src_filename:
+            Source PDF filename.
+        dest_filename_format:
+            Destination filename format, using "%d" for the file number,
+            e.g. "somedir/tile-%d.png".
+        n_wide:
+            Number of images to slice into, in the width (x) direction.
+        n_high:
+            Number of images to slice into, in the height (y) direction.
+        tile_width_px:
+            Width of each tile, in pixels.
+        tile_height_px:
+            Height of each tile, in pixels.
+        autocrop:
+            Trim whitespace off the edges first?
+        density_multiplier:
+            Intermediate filenames have a density that is this factor greater
+            than the final image.
+        transparent:
+            Colour to change to transparent, as per
+            https://www.imagemagick.org/script/command-line-options.php#fill.
+        verbose:
+            Be verbose?
+    """
+    log.debug(f"Tiling {src_filename} -> {dest_filename_format}")
     if tile_width_px is None and tile_height_px is None:
         raise AssertionError("Must specify width/height/both")
 
@@ -452,38 +521,34 @@ def tile_pdf(
         src_filename, autocrop, verbose=verbose
     )
     log.debug(
-        "Source PDF size: {} inches W x {} inches H",
-        src_width_inches,
-        src_height_inches,
+        f"Source PDF size: {src_width_inches} inches W x "
+        f"{src_height_inches} inches H"
     )
 
     src_tile_width_inches = src_width_inches / n_wide
     src_tile_height_inches = src_height_inches / n_high
     src_tile_aspect_ratio = src_tile_width_inches / src_tile_height_inches
     log.debug(
-        "Source PDF tile size: {} inches W x {} inches H " "(aspect ratio {})",
-        src_tile_width_inches,
-        src_tile_height_inches,
-        src_tile_aspect_ratio,
+        f"Source PDF tile size: {src_tile_width_inches} inches W x "
+        f"{src_tile_height_inches} inches H "
+        f"(aspect ratio {src_tile_aspect_ratio})"
     )
 
     if tile_width_px is None:
         tile_width_px = round(src_tile_aspect_ratio * tile_height_px)
         log.debug(
-            "Autocalculating: tile_width_px = src_tile_aspect_ratio * "
-            "tile_height_px = {} * {} = {}",
-            src_tile_aspect_ratio,
-            tile_height_px,
-            tile_width_px,
+            f"Autocalculating: tile_width_px"
+            f" = src_tile_aspect_ratio * tile_height_px"
+            f" = {src_tile_aspect_ratio} * {tile_height_px}"
+            f" = {tile_width_px}"
         )
     elif tile_height_px is None:
         tile_height_px = round(tile_width_px / src_tile_aspect_ratio)
         log.debug(
-            "Autocalculating: tile_height_px = tile_width_px / "
-            "src_tile_aspect_ratio = {} / {} = {}",
-            tile_width_px,
-            src_tile_aspect_ratio,
-            tile_height_px,
+            f"Autocalculating: tile_height_px"
+            f" = tile_width_px / src_tile_aspect_ratio"
+            f" = {tile_width_px} / {src_tile_aspect_ratio}"
+            f" = {tile_height_px}"
         )
 
     intermediate_tile_width_px = density_multiplier * tile_width_px
@@ -531,12 +596,10 @@ def tile_pdf(
     args.extend(
         [
             "-crop",
-            "{w}x{h}".format(
-                w=intermediate_tile_width_px, h=intermediate_tile_height_px
-            ),
+            f"{intermediate_tile_width_px}x{intermediate_tile_height_px}",
             "+repage",
             "-resize",
-            "{w}x{h}".format(w=tile_width_px, h=tile_height_px),
+            f"{tile_width_px}x{tile_height_px}",
             dest_filename_format,
         ]
     )
@@ -589,8 +652,8 @@ def make_splashscreen(
     )
     src_aspect_ratio = src_width_in / src_height_in
     dest_aspect_ratio = width_px / height_px
-    log.debug("source aspect ratio: {}", src_aspect_ratio)
-    log.debug("destination aspect ratio: {}", dest_aspect_ratio)
+    log.debug(f"source aspect ratio: {src_aspect_ratio}")
+    log.debug(f"destination aspect ratio: {dest_aspect_ratio}")
     if dest_aspect_ratio == src_aspect_ratio:
         img_lr = ProportionPair(0, 1)
         img_tb = ProportionPair(0, 1)
@@ -624,7 +687,7 @@ def main() -> None:
     parser.add_argument(
         "--base_dir",
         default=PROJECT_BASE_DIR,
-        help="Base directory (default: {})".format(PROJECT_BASE_DIR),
+        help=f"Base directory (default: {PROJECT_BASE_DIR})",
     )
     parser.add_argument(
         "--ios", action="store_true", help="Process iOS icons/splashscreens"
@@ -672,7 +735,18 @@ def main() -> None:
         args.server = True
         args.tablet = True
         args.windows = True
-    log.info("Using base directory: {}", args.base_dir)
+    if not any(
+        [
+            args.android,
+            args.googleplay,
+            args.ios,
+            args.server,
+            args.tablet,
+            args.windows,
+        ]
+    ):
+        log.warning("No options specified!")
+    log.info(f"Using base directory: {args.base_dir}")
 
     google_play_dir = join(args.base_dir, "working", "google_play_images")
 
@@ -681,11 +755,9 @@ def main() -> None:
     )
     android_res_dir = join(
         args.base_dir, "working", "dummy_image_android_res_dir"
-    )  # !!! # noqa
+    )  # !!!
     android_plt_res = join(args.base_dir, "tablet_qt", "android", "res")
-    ios_dir = join(
-        args.base_dir, "working", "dummy_image_ios_dir"
-    )  # !!! # noqa
+    ios_dir = join(args.base_dir, "working", "dummy_image_ios_dir")  # !!!
     windows_dir = join(args.base_dir, "tablet_qt", "windows")
 
     server_static_dir = join(args.base_dir, "server", "static")
@@ -929,7 +1001,7 @@ def main() -> None:
             "research",
             "unlocked",
             None,
-        ),  # noqa
+        ),
         none_row,
         row(
             "speaker_playing",
@@ -955,7 +1027,14 @@ def main() -> None:
             None,
         ),
         none_row,
-        row("radio_unselected", None, "affective", "clinical", "edit", None),
+        row(
+            "radio_unselected",
+            "neurodiversity",
+            "affective",
+            "clinical",
+            "edit",
+            None,
+        ),
         none_row,
         row("check_true_red", None, "addiction", "anonymous", "delete", None),
         none_row,
@@ -966,7 +1045,7 @@ def main() -> None:
             "check_unselected_required",
             "ok",
             None,
-        ),  # noqa
+        ),
         none_row,
         row(
             "check_true_black",
@@ -975,11 +1054,11 @@ def main() -> None:
             "radio_unselected_required",
             "finish",
             None,
-        ),  # noqa
+        ),
         none_row,
         row(
             "check_false_black", None, "personality", "stop", "zoom", "magnify"
-        ),  # noqa
+        ),
         none_row,
         row(
             "check_false_red",
@@ -988,16 +1067,16 @@ def main() -> None:
             "field_problem",
             "privileged",
             None,
-        ),  # noqa
+        ),
         none_row,
         row(
             "sets_research",
             "sets_clinical",
-            "alltasks",
+            None,  # was "alltasks", but neurodiversity symbol too similar
             "warning",
             "time_now",
-            None,
-        ),  # noqa
+            "alltasks",  # as of 2024-06-25
+        ),
         none_row,
         row(
             "reload",
@@ -1006,7 +1085,7 @@ def main() -> None:
             None,
             "rotate_anticlockwise",
             None,
-        ),  # noqa
+        ),
         none_row,
         row(
             "choose_page",
@@ -1015,7 +1094,7 @@ def main() -> None:
             "field_incomplete_optional",
             "chain",
             "whisker",
-        ),  # noqa
+        ),
         none_row,
         row(
             "fast_forward",
@@ -1024,7 +1103,7 @@ def main() -> None:
             "radio_disabled",
             None,
             None,
-        ),  # noqa
+        ),
         none_row,
     ]
 
@@ -1048,12 +1127,12 @@ def main() -> None:
             tilenum = 0
             for r in range(nrow):
                 for c in range(ncol):
-                    tilename = join(tmpdir, "tile-{}.png".format(tilenum))
+                    tilename = join(tmpdir, f"tile-{tilenum}.png")
                     propername = iconmap[r][c]
                     if propername is not None:
                         for destdir in all_tablet_icon_dirs:
                             fullpath = join(destdir, propername)
-                            log.info("Creating {}", fullpath)
+                            log.info(f"Creating {fullpath}")
                             shutil.copy(tilename, fullpath)
                         os.remove(tilename)
                     tilenum += 1

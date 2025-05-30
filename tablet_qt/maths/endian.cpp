@@ -19,9 +19,10 @@
 */
 
 #include "endian.h"
-#include <QDebug>
-#include "maths/floatbits.h"
 
+#include <QDebug>
+
+#include "maths/floatbits.h"
 
 Endian endianByteOrder()
 {
@@ -35,7 +36,6 @@ Endian endianByteOrder()
 
     return (byte[0] ? Endian::LittleEndian : Endian::BigEndian);
 }
-
 
 Endian endianFloatWordOrder()
 {
@@ -88,18 +88,19 @@ Endian endianFloatWordOrder()
     Endian word;
     const BitRepresentationDouble br(1.0);
     const uint64_t expected_exponent = 0x3FF;
-    if (br.getExponent(Endian::BigEndian,
-                       Endian::BigEndian) == expected_exponent) {
+    if (br.getExponent(Endian::BigEndian, Endian::BigEndian)
+        == expected_exponent) {
         byte = Endian::BigEndian;
         word = Endian::LittleEndian;
-    } else if (br.getExponent(Endian::LittleEndian,
-                              Endian::BigEndian) == expected_exponent) {
+    } else if (br.getExponent(Endian::LittleEndian, Endian::BigEndian) == expected_exponent) {
         byte = Endian::LittleEndian;
         word = Endian::BigEndian;
     } else {
         // Only one option left that I know about:
-        Q_ASSERT(br.getExponent(Endian::LittleEndian,
-                                Endian::BigEndian) == expected_exponent);
+        Q_ASSERT(
+            br.getExponent(Endian::LittleEndian, Endian::BigEndian)
+            == expected_exponent
+        );
         byte = Endian::LittleEndian;
         word = Endian::BigEndian;
     }

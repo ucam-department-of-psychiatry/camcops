@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/tasks/tests/perinatalpoem_tests.py
 
@@ -27,27 +25,16 @@ camcops_server/tasks/tests/perinatalpoem_tests.py
 
 """
 
-from typing import Generator
-
-import pendulum
-
-from camcops_server.cc_modules.cc_unittest import BasicDatabaseTestCase
-from camcops_server.tasks.perinatalpoem import (
-    PerinatalPoem,
-    PerinatalPoemReport,
-)
-
+from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
+from camcops_server.tasks.perinatalpoem import PerinatalPoemReport
+from camcops_server.tasks.tests.factories import PerinatalPoemFactory
 
 # =============================================================================
 # Unit tests
 # =============================================================================
 
 
-class PerinatalPoemReportTestCase(BasicDatabaseTestCase):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        self.id_sequence = self.get_id()
-
+class PerinatalPoemReportTestCase(DemoRequestTestCase):
     def setUp(self) -> None:
         super().setUp()
 
@@ -57,28 +44,6 @@ class PerinatalPoemReportTestCase(BasicDatabaseTestCase):
         self.report.start_datetime = None
         self.report.end_datetime = None
 
-    @staticmethod
-    def get_id() -> Generator[int, None, None]:
-        i = 1
-
-        while True:
-            yield i
-            i += 1
-
-    def create_task(self, **kwargs) -> None:
-        task = PerinatalPoem()
-        self.apply_standard_task_fields(task)
-        task.id = next(self.id_sequence)
-
-        era = kwargs.pop("era", None)
-        if era is not None:
-            task.when_created = pendulum.parse(era)
-
-        for name, value in kwargs.items():
-            setattr(task, name, value)
-
-        self.dbsession.add(task)
-
 
 class PerinatalPoemReportTests(PerinatalPoemReportTestCase):
     """
@@ -86,10 +51,16 @@ class PerinatalPoemReportTests(PerinatalPoemReportTestCase):
     sanity checking here
     """
 
-    def create_tasks(self):
-        self.create_task(general_comments="comment 1")
-        self.create_task(general_comments="comment 2")
-        self.create_task(general_comments="comment 3")
+    def setUp(self) -> None:
+        super().setUp()
+
+        t1 = PerinatalPoemFactory(general_comments="comment 1")
+        t2 = PerinatalPoemFactory(general_comments="comment 2")
+        t3 = PerinatalPoemFactory(general_comments="comment 3")
+
+        self.dbsession.add(t1)
+        self.dbsession.add(t2)
+        self.dbsession.add(t3)
 
         self.dbsession.commit()
 
@@ -148,27 +119,35 @@ class PerinatalPoemReportTests(PerinatalPoemReportTestCase):
 
 
 class PerinatalPoemReportDateRangeTests(PerinatalPoemReportTestCase):
-    def create_tasks(self) -> None:
-        self.create_task(
+    def setUp(self) -> None:
+        super().setUp()
+
+        t1 = PerinatalPoemFactory(
             general_comments="comments 1",
-            era="2018-10-01T00:00:00.000000+00:00",
+            when_created="2018-10-01T00:00:00.000000+00:00",
         )
-        self.create_task(
+        t2 = PerinatalPoemFactory(
             general_comments="comments 2",
-            era="2018-10-02T00:00:00.000000+00:00",
+            when_created="2018-10-02T00:00:00.000000+00:00",
         )
-        self.create_task(
+        t3 = PerinatalPoemFactory(
             general_comments="comments 3",
-            era="2018-10-03T00:00:00.000000+00:00",
+            when_created="2018-10-03T00:00:00.000000+00:00",
         )
-        self.create_task(
+        t4 = PerinatalPoemFactory(
             general_comments="comments 4",
-            era="2018-10-04T00:00:00.000000+00:00",
+            when_created="2018-10-04T00:00:00.000000+00:00",
         )
-        self.create_task(
+        t5 = PerinatalPoemFactory(
             general_comments="comments 5",
-            era="2018-10-05T00:00:00.000000+00:00",
+            when_created="2018-10-05T00:00:00.000000+00:00",
         )
+        self.dbsession.add(t1)
+        self.dbsession.add(t2)
+        self.dbsession.add(t3)
+        self.dbsession.add(t4)
+        self.dbsession.add(t5)
+
         self.dbsession.commit()
 
     def test_comments_filtered_by_date(self) -> None:

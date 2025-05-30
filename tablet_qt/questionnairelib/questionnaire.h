@@ -20,12 +20,14 @@
 
 #pragma once
 
-// #define QUESTIONAIRE_USE_HFW_LAYOUT  // bad; contained scroll area gets too short
+// #define QUESTIONAIRE_USE_HFW_LAYOUT
+// ... bad; contained scroll area gets too short
 
 #include <initializer_list>
 #include <QList>
 #include <QPointer>
 #include <QSharedPointer>
+
 #include "common/aliases_camcops.h"
 #include "common/uiconst.h"  // for FontSize
 #include "layouts/layouts.h"  // IWYU pragma: keep
@@ -37,30 +39,37 @@ class QuestionnaireHeader;
 class QVBoxLayout;
 class QWidget;
 
-
 class Questionnaire : public OpenableWidget
 {
     // Master class controlling a questionnaire.
 
     Q_OBJECT
+
 public:
     // ========================================================================
     // Constructors
     // ========================================================================
-    Questionnaire(CamcopsApp& app,
-                  QWidget* parent = nullptr);
-    Questionnaire(CamcopsApp& app,
-                  const QVector<QuPagePtr>& pages,
-                  QWidget* parent = nullptr);
-    Questionnaire(CamcopsApp& app,
-                  std::initializer_list<QuPagePtr> pages,
-                  QWidget* parent = nullptr);
-    Questionnaire(CamcopsApp& app,
-                  const QVector<QuPage*>& pages,  // takes ownership
-                  QWidget* parent = nullptr);
-    Questionnaire(CamcopsApp& app,
-                  std::initializer_list<QuPage*> pages,  // takes ownership
-                  QWidget* parent = nullptr);
+    Questionnaire(CamcopsApp& app, QWidget* parent = nullptr);
+    Questionnaire(
+        CamcopsApp& app,
+        const QVector<QuPagePtr>& pages,
+        QWidget* parent = nullptr
+    );
+    Questionnaire(
+        CamcopsApp& app,
+        std::initializer_list<QuPagePtr> pages,
+        QWidget* parent = nullptr
+    );
+    Questionnaire(
+        CamcopsApp& app,
+        const QVector<QuPage*>& pages,  // takes ownership
+        QWidget* parent = nullptr
+    );
+    Questionnaire(
+        CamcopsApp& app,
+        std::initializer_list<QuPage*> pages,  // takes ownership
+        QWidget* parent = nullptr
+    );
 
     // ========================================================================
     // Information about the questionnaire
@@ -144,8 +153,8 @@ public:
     // Return pointers to pages matching our criteria:
     // - current_page_only: restrict to the currently displayed page
     // - page_tag: restrict to pages having the specified tag (see QuPage)
-    QVector<QuPage*> getPages(bool current_page_only,
-                              const QString& page_tag = QString());
+    QVector<QuPage*>
+        getPages(bool current_page_only, const QString& page_tag = QString());
 
     // ========================================================================
     // Alter pages
@@ -160,8 +169,9 @@ public:
     // user reports no sleep problems, skip questions about sleep problems".
     // If reset_buttons == true, also calls resetButtons().
     void setPageSkip(int page, bool skip, bool reset_buttons = true);
-    void setPageSkip(const QString& page_tag, bool skip,
-                     bool reset_buttons = true);
+    void setPageSkip(
+        const QString& page_tag, bool skip, bool reset_buttons = true
+    );
 
     // Deletes a page by its (zero-based) index.
     virtual void deletePage(int index);
@@ -179,16 +189,18 @@ public:
     // Return all elements having the specified tag (see QuElement).
     // If current_page_only, restrict to elements from the current page.
     QVector<QuElement*> getElementsByTag(
-            const QString& tag,
-            bool current_page_only = true,
-            const QString& page_tag = QString());
+        const QString& tag,
+        bool current_page_only = true,
+        const QString& page_tag = QString()
+    );
 
     // Returns the first element having the specified tag.
     // Otherwise as per getElementsByTag().
     QuElement* getFirstElementByTag(
-            const QString& tag,
-            bool current_page_only = true,
-            const QString& page_tag = QString());
+        const QString& tag,
+        bool current_page_only = true,
+        const QString& page_tag = QString()
+    );
 
     // ========================================================================
     // Alter elements
@@ -196,9 +208,12 @@ public:
 
     // Find elements having the specified tag -- see getElementsByTag() -- and
     // set their visibility status (visible or invisible).
-    void setVisibleByTag(const QString& tag, bool visible,
-                         bool current_page_only = true,
-                         const QString& page_tag = QString());
+    void setVisibleByTag(
+        const QString& tag,
+        bool visible,
+        bool current_page_only = true,
+        const QString& page_tag = QString()
+    );
 
     // ========================================================================
     // Page control
@@ -328,7 +343,8 @@ protected slots:
 protected:
     CamcopsApp& m_app;  // our app
     QVector<QuPagePtr> m_pages;  // our pages
-    QuPage::PageType m_type;  // our type, e.g. patient/clinician (pages may inherit or override)
+    QuPage::PageType m_type;
+    // ... our type, e.g. patient/clinician (pages may inherit or override)
     bool m_read_only;  // are we in read-only mode?
     bool m_jump_allowed;  // is the user allowed to jump to a page?
     bool m_within_chain;  // set setWithinChain()
@@ -342,7 +358,8 @@ protected:
     QPointer<QVBoxLayout> m_mainlayout;  // see layout described in build()
 #endif
     QPointer<QWidget> m_background_widget;  // see layout described in build()
-    QPointer<QuestionnaireHeader> m_p_header;  // see layout described in build()
+    QPointer<QuestionnaireHeader> m_p_header;
+    // ... see layout described in build()
     int m_current_page_index;  // zero-based index of the current page
     QString m_finish_button_icon_base_filename;  // see setFinishButtonIcon()
 };

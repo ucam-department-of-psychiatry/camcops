@@ -19,10 +19,11 @@
 */
 
 #include "basdai.h"
+
 #include "common/uiconst.h"
-#include "maths/mathfunc.h"
 #include "lib/convert.h"
 #include "lib/stringfunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qugridcell.h"
 #include "questionnairelib/qugridcontainer.h"
@@ -44,22 +45,22 @@ const int DP = 1;
 
 const QString Basdai::BASDAI_TABLENAME("basdai");
 
-
 void initializeBasdai(TaskFactory& factory)
 {
     static TaskRegistrar<Basdai> registered(factory);
 }
 
-
 Basdai::Basdai(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, BASDAI_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, BASDAI_TABLENAME, false, false, false),
+    // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<double>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<double>()
+    );
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -70,33 +71,28 @@ QString Basdai::shortname() const
     return "BASDAI";
 }
 
-
 QString Basdai::longname() const
 {
     return tr("Bath Ankylosing Spondylitis Disease Activity Index");
 }
-
 
 QString Basdai::description() const
 {
     return tr(
         "A self-administered instrument for assessing disease activity in "
         "ankylosing spondylitis"
-     );
+    );
 }
-
 
 QStringList Basdai::fieldNames() const
 {
     return strseq(QPREFIX, FIRST_Q, N_QUESTIONS);
 }
 
-
 QStringList Basdai::scoreAFieldNames() const
 {
     return strseq(QPREFIX, FIRST_Q, N_SCORE_A_QUESTIONS);
 }
-
 
 // ============================================================================
 // Instance info
@@ -110,7 +106,6 @@ bool Basdai::isComplete() const
 
     return true;
 }
-
 
 QVariant Basdai::basdai() const
 {
@@ -126,43 +121,35 @@ QVariant Basdai::basdai() const
         return QVariant();
     }
     const double a = mathfunc::sumDouble(values(scoreAFieldNames()));
-    const double b = mathfunc::mean(
-        value("q5").toDouble(),
-        value("q6").toDouble()
-    );
+    const double b
+        = mathfunc::mean(value("q5").toDouble(), value("q6").toDouble());
     return (a + b) / 5;
 }
 
-
 QStringList Basdai::summary() const
 {
-    return QStringList{
-        QString("%1: %2").arg(
-            xstring("basdai"),
-            convert::prettyValue(basdai(), DP)
-        )
-    };
+    return QStringList{QString("%1: %2").arg(
+        xstring("basdai"), convert::prettyValue(basdai(), DP)
+    )};
 }
-
 
 QStringList Basdai::detail() const
 {
     QStringList lines = completenessInfo();
     const QString spacer = " ";
     const QString suffix = "";
-    lines += fieldSummaries("q", suffix, spacer, QPREFIX, FIRST_Q, N_QUESTIONS);
+    lines
+        += fieldSummaries("q", suffix, spacer, QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");
     lines += summary();
 
     return lines;
 }
 
-
 OpenableWidget* Basdai::editor(const bool read_only)
 {
-    QuPagePtr page((new QuPage{
-                new QuText(xstring("instructions"))
-            })->setTitle(xstring("title_main")));
+    QuPagePtr page((new QuPage{new QuText(xstring("instructions"))})
+                       ->setTitle(xstring("title_main")));
 
     auto slider_grid = new QuGridContainer();
     slider_grid->setExpandHorizontally(false);
@@ -210,26 +197,32 @@ OpenableWidget* Basdai::editor(const bool read_only)
         slider->setSymmetric(true);
 
         const auto question_text = new QuText(xstring(fieldname));
-        slider_grid->addCell(QuGridCell(question_text, row, 0,
-                                        QUESTION_ROW_SPAN, QUESTION_COLUMN_SPAN));
+        slider_grid->addCell(QuGridCell(
+            question_text, row, 0, QUESTION_ROW_SPAN, QUESTION_COLUMN_SPAN
+        ));
         row++;
 
         const auto min_label = new QuText(xstring(fieldname + "_min"));
         min_label->setTextAndWidgetAlignment(align_right);
         const auto max_label = new QuText(xstring(fieldname + "_max"));
         max_label->setTextAndWidgetAlignment(align_left);
-        slider_grid->addCell(QuGridCell(min_label, row, 0,
-                                        row_span, col_span, align_right));
-        slider_grid->addCell(QuGridCell(slider, row, 1,
-                                        row_span, col_span, align_centre));
-        slider_grid->addCell(QuGridCell(max_label, row, 2,
-                                        row_span, col_span, align_left));
+        slider_grid->addCell(
+            QuGridCell(min_label, row, 0, row_span, col_span, align_right)
+        );
+        slider_grid->addCell(
+            QuGridCell(slider, row, 1, row_span, col_span, align_centre)
+        );
+        slider_grid->addCell(
+            QuGridCell(max_label, row, 2, row_span, col_span, align_left)
+        );
         row++;
 
         if (!last_q) {
             slider_grid->addCell(QuGridCell(
-                    new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)),
-                    row, 0));
+                new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)),
+                row,
+                0
+            ));
             row++;
         }
     }

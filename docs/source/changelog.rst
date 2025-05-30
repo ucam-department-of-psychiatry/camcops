@@ -63,6 +63,9 @@ Quick links:
 - :ref:`v2.4.16 <changelog_v2.4.16>`
 - :ref:`v2.4.17 <changelog_v2.4.17>`
 - :ref:`v2.4.18 <changelog_v2.4.18>`
+- :ref:`v2.4.19 <changelog_v2.4.19>`
+- :ref:`v2.4.20 <changelog_v2.4.20>`
+- :ref:`v2.4.21 <changelog_v2.4.21>`
 
 Contributors
 ------------
@@ -3861,7 +3864,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Supported SQLAlchemy version now 1.4.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/172
 
-- New task: :ref:`Compulsive Exercise Test (CET) <cet>`
+- New task: :ref:`Compulsive Exercise Test (CET) <cet>`. (Database revision 0084.)
 
 - Qt version is now 6.5.3. Qt now builds with FFmpeg for multimedia on all
   platforms except iOS (following Qt official releases).
@@ -3878,8 +3881,10 @@ Current C++/SQLite client, Python/SQLAlchemy server
   See ``tablet_qt/widgets/cameraqcamera.h``.
 
 
-**Client and server v2.4.19, IN PROGRESS**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. _changelog_v2.4.19:
+
+**Client and server v2.4.19, released 27 Jun 2024**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Additional optional LGPL licensing for some Qt height-for-width layout code
   to make it suitable for inclusion in libraries elsewhere.
@@ -3895,3 +3900,61 @@ Current C++/SQLite client, Python/SQLAlchemy server
   the previous registration, if available. This should reduce the amount of data
   entry needed following a network or registration failure.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/104
+
+- Provide more information if the app cannot delete the SQLite databases when a user
+  has forgotten their password. Fix a bug where if the initial password dialog was
+  aborted, the next attempt to set up a password would fail.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/346
+
+- Fix undefined behaviour if a task in a taskchain was aborted due to e.g. a missing
+  IP setting. Sometimes the tasks would be displayed if the back button was pressed.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/350
+
+- Fix the Qt build for 32-bit and 64-bit Android emulator.
+
+- Fix the display of various dialogues on smaller screens, particulary when the device
+  is rotated.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/347
+
+- New task: :ref:`The Adult Autism Spectrum Quotient (AQ) <aq>`. (Database revision 0085.)
+
+- Fix a bug where if the user entered an incorrect password and then cancelled the
+  dialog to prompt them to delete the database, it was impossible for them to then
+  enter the correct password.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/353
+
+.. _changelog_v2.4.20:
+
+**Client and server v2.4.20, released 13 Aug 2024**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Fix the BMI task on both the client and server to avoid a division by zero
+  error when the user enters a zero height.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/366
+
+- Fix bugs in the "strict" validation of double-precision floating-point values
+  where valid values were being rejected.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/368
+
+- Fix the installer to set the SSL options in the config file only if using
+  HTTPS directly.
+
+- Modify the task count report to split by day of month.
+
+.. _changelog_v2.4.21:
+
+**Server v2.4.21, released 14 Aug 2024**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Bump ``gunicorn`` to 23.0.0 to fix CVE-2024-1135
+
+
+**Client and server v2.4.22, IN PROGRESS**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Update the Docker image to use Debian 11. Debian 10 has now reached end-of-life.
+
+- **Minimum Python version now Python 3.9.** Python 3.11 and 3.12 supported.
+
+- Fix cursor placement when entering the access key on iOS. The workaround for
+  https://bugreports.qt.io/browse/QTBUG-115756 is now only applied for Android.

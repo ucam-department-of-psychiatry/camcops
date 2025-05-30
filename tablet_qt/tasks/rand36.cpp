@@ -19,19 +19,20 @@
 */
 
 #include "rand36.h"
+
 #include "common/textconst.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
-using mathfunc::seq;
 using mathfunc::meanOrNull;
 using mathfunc::noneNull;
 using mathfunc::scorePhraseVariant;
+using mathfunc::seq;
 using stringfunc::strnum;
 using stringfunc::strseq;
 
@@ -58,8 +59,6 @@ const QVector<int> SOCIAL_FUNCTIONING_Q{20, 32};
 const QVector<int> PAIN_Q{21, 22};
 const QVector<int> GENERAL_HEALTH_Q{1, 33, 34, 35, 36};
 
-
-
 void initializeRand36(TaskFactory& factory)
 {
     static TaskRegistrar<Rand36> registered(factory);
@@ -67,13 +66,15 @@ void initializeRand36(TaskFactory& factory)
 
 
 Rand36::Rand36(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, RAND36_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, RAND36_TABLENAME, false, false, false)
+// ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
+    );
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -84,18 +85,15 @@ QString Rand36::shortname() const
     return "RAND-36";
 }
 
-
 QString Rand36::longname() const
 {
     return tr("RAND 36-Item Short Form Health Survey 1.0");
 }
 
-
 QString Rand36::description() const
 {
     return tr("Patient-reported survey of general health.");
 }
-
 
 // ============================================================================
 // Instance info
@@ -106,37 +104,59 @@ bool Rand36::isComplete() const
     return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
 
-
 QStringList Rand36::summary() const
 {
     return QStringList{
-        scorePhraseVariant(xstring("score_overall"), overallMean(), MAX_QUESTION_SCORE),
+        scorePhraseVariant(
+            xstring("score_overall"), overallMean(), MAX_QUESTION_SCORE
+        ),
     };
 }
-
 
 QStringList Rand36::detail() const
 {
-    return completenessInfo() + summary() + QStringList{
-        scorePhraseVariant(xstring("score_physical_functioning"),
-                           subscaleMean(PHYSICAL_FUNCTIONING_Q), MAX_QUESTION_SCORE),
-        scorePhraseVariant(xstring("score_role_limitations_physical"),
-                           subscaleMean(ROLE_LIMITATIONS_PHYSICAL_Q), MAX_QUESTION_SCORE),
-        scorePhraseVariant(xstring("score_role_limitations_emotional"),
-                           subscaleMean(ROLE_LIMITATIONS_EMOTIONAL_Q), MAX_QUESTION_SCORE),
-        scorePhraseVariant(xstring("score_energy"),
-                           subscaleMean(ENERGY_Q), MAX_QUESTION_SCORE),
-        scorePhraseVariant(xstring("score_emotional_wellbeing"),
-                           subscaleMean(EMOTIONAL_WELLBEING_Q), MAX_QUESTION_SCORE),
-        scorePhraseVariant(xstring("score_social_functioning"),
-                           subscaleMean(SOCIAL_FUNCTIONING_Q), MAX_QUESTION_SCORE),
-        scorePhraseVariant(xstring("score_pain"),
-                           subscaleMean(PAIN_Q), MAX_QUESTION_SCORE),
-        scorePhraseVariant(xstring("score_general_health"),
-                           subscaleMean(GENERAL_HEALTH_Q), MAX_QUESTION_SCORE),
-    };
+    return completenessInfo() + summary()
+        + QStringList{
+            scorePhraseVariant(
+                xstring("score_physical_functioning"),
+                subscaleMean(PHYSICAL_FUNCTIONING_Q),
+                MAX_QUESTION_SCORE
+            ),
+            scorePhraseVariant(
+                xstring("score_role_limitations_physical"),
+                subscaleMean(ROLE_LIMITATIONS_PHYSICAL_Q),
+                MAX_QUESTION_SCORE
+            ),
+            scorePhraseVariant(
+                xstring("score_role_limitations_emotional"),
+                subscaleMean(ROLE_LIMITATIONS_EMOTIONAL_Q),
+                MAX_QUESTION_SCORE
+            ),
+            scorePhraseVariant(
+                xstring("score_energy"),
+                subscaleMean(ENERGY_Q),
+                MAX_QUESTION_SCORE
+            ),
+            scorePhraseVariant(
+                xstring("score_emotional_wellbeing"),
+                subscaleMean(EMOTIONAL_WELLBEING_Q),
+                MAX_QUESTION_SCORE
+            ),
+            scorePhraseVariant(
+                xstring("score_social_functioning"),
+                subscaleMean(SOCIAL_FUNCTIONING_Q),
+                MAX_QUESTION_SCORE
+            ),
+            scorePhraseVariant(
+                xstring("score_pain"), subscaleMean(PAIN_Q), MAX_QUESTION_SCORE
+            ),
+            scorePhraseVariant(
+                xstring("score_general_health"),
+                subscaleMean(GENERAL_HEALTH_Q),
+                MAX_QUESTION_SCORE
+            ),
+        };
 }
-
 
 OpenableWidget* Rand36::editor(const bool read_only)
 {
@@ -210,8 +230,8 @@ OpenableWidget* Rand36::editor(const bool read_only)
     QVector<QuPagePtr> pages;
 
     auto title = [this](int pagenum) -> QString {
-        return xstring("title") + " " + TextConst::page() + " " +
-                QString::number(pagenum);
+        return xstring("title") + " " + TextConst::page() + " "
+            + QString::number(pagenum);
     };
     auto text = [this](const QString& xstringname) -> QuElement* {
         return new QuText(xstring(xstringname));
@@ -222,20 +242,27 @@ OpenableWidget* Rand36::editor(const bool read_only)
     auto q = [&boldtext](int question) -> QuElement* {
         return boldtext(strnum("q", question));
     };
-    auto mcq = [this](int question,
-                      const NameValueOptions& options,
-                      bool mandatory = true) -> QuElement* {
-        return new QuMcq(fieldRef(strnum(QPREFIX, question), mandatory),
-                         options);
+    auto mcq = [this](
+                   int question,
+                   const NameValueOptions& options,
+                   bool mandatory = true
+               ) -> QuElement* {
+        return new QuMcq(
+            fieldRef(strnum(QPREFIX, question), mandatory), options
+        );
     };
-    auto mcqgrid = [this](int firstq, int lastq,
-                          const NameValueOptions& options,
-                          bool mandatory = true) -> QuElement* {
+    auto mcqgrid = [this](
+                       int firstq,
+                       int lastq,
+                       const NameValueOptions& options,
+                       bool mandatory = true
+                   ) -> QuElement* {
         QVector<QuestionWithOneField> qfields;
         for (int q = firstq; q <= lastq; ++q) {
             qfields.append(QuestionWithOneField(
-                               xstring(strnum("q", q)),
-                               fieldRef(strnum(QPREFIX, q), mandatory)));
+                xstring(strnum("q", q)),
+                fieldRef(strnum(QPREFIX, q), mandatory)
+            ));
         }
         return new QuMcqGrid(qfields, options);
     };
@@ -243,67 +270,77 @@ OpenableWidget* Rand36::editor(const bool read_only)
     int pagenum = 1;
 
     pages.append(QuPagePtr((new QuPage{
-        q(1),
-        mcq(1, q1options),
-    })->setTitle(title(pagenum++))));
+                                q(1),
+                                mcq(1, q1options),
+                            })
+                               ->setTitle(title(pagenum++))));
 
     pages.append(QuPagePtr((new QuPage{
-        q(2),
-        mcq(2, q2options),
-    })->setTitle(title(pagenum++))));
+                                q(2),
+                                mcq(2, q2options),
+                            })
+                               ->setTitle(title(pagenum++))));
 
     pages.append(QuPagePtr((new QuPage{
-        boldtext("activities_q"),
-        mcqgrid(3, 12, activities_options),
-    })->setTitle(title(pagenum++))));
+                                boldtext("activities_q"),
+                                mcqgrid(3, 12, activities_options),
+                            })
+                               ->setTitle(title(pagenum++))));
 
     pages.append(QuPagePtr((new QuPage{
-        boldtext("work_activities_physical_q"),
-        mcqgrid(13, 16, yes_no_options),
-    })->setTitle(title(pagenum++))));
+                                boldtext("work_activities_physical_q"),
+                                mcqgrid(13, 16, yes_no_options),
+                            })
+                               ->setTitle(title(pagenum++))));
 
     pages.append(QuPagePtr((new QuPage{
-        boldtext("work_activities_emotional_q"),
-        mcqgrid(17, 19, yes_no_options),
-    })->setTitle(title(pagenum++))));
+                                boldtext("work_activities_emotional_q"),
+                                mcqgrid(17, 19, yes_no_options),
+                            })
+                               ->setTitle(title(pagenum++))));
 
     pages.append(QuPagePtr((new QuPage{
-        q(20),
-        mcq(20, q20options),
-    })->setTitle(title(pagenum++))));
+                                q(20),
+                                mcq(20, q20options),
+                            })
+                               ->setTitle(title(pagenum++))));
 
     pages.append(QuPagePtr((new QuPage{
-        q(21),
-        mcq(21, q21options),
-    })->setTitle(title(pagenum++))));
+                                q(21),
+                                mcq(21, q21options),
+                            })
+                               ->setTitle(title(pagenum++))));
 
     pages.append(QuPagePtr((new QuPage{
-        q(22),
-        mcq(22, q22options),
-    })->setTitle(title(pagenum++))));
+                                q(22),
+                                mcq(22, q22options),
+                            })
+                               ->setTitle(title(pagenum++))));
 
     pages.append(QuPagePtr((new QuPage{
-        text("last4weeks_q_a"),
-        boldtext("last4weeks_q_b"),
-        mcqgrid(23, 31, last4weeks_options),
-    })->setTitle(title(pagenum++))));
+                                text("last4weeks_q_a"),
+                                boldtext("last4weeks_q_b"),
+                                mcqgrid(23, 31, last4weeks_options),
+                            })
+                               ->setTitle(title(pagenum++))));
 
     pages.append(QuPagePtr((new QuPage{
-        q(32),
-        mcq(32, q32options),
-    })->setTitle(title(pagenum++))));
+                                q(32),
+                                mcq(32, q32options),
+                            })
+                               ->setTitle(title(pagenum++))));
 
     pages.append(QuPagePtr((new QuPage{
-        boldtext("q33to36stem"),
-        mcqgrid(33, 36, q33to36_options),
-    })->setTitle(title(pagenum++))));
+                                boldtext("q33to36stem"),
+                                mcqgrid(33, 36, q33to36_options),
+                            })
+                               ->setTitle(title(pagenum++))));
 
     auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations
@@ -366,7 +403,6 @@ QVariant Rand36::recoded(const int question) const
     return QVariant();
 }
 
-
 QVariant Rand36::subscaleMean(const QVector<int>& questions) const
 {
     QVector<QVariant> values;
@@ -375,7 +411,6 @@ QVariant Rand36::subscaleMean(const QVector<int>& questions) const
     }
     return meanOrNull(values, true);
 }
-
 
 QVariant Rand36::overallMean() const
 {

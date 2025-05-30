@@ -32,8 +32,8 @@
 class QLayout;
 class QWidget;
 
-
-class Margins {
+class Margins
+{
     // Generic margin structure, because QRect isn't quite right for this,
     // passing around lots of separate integers is awkward and prone to
     // mis-ordering [was that getContentsMargins(&left, &top, &right, &bottom)
@@ -63,10 +63,25 @@ public:
     bool isZero() const;
 
     // Return components:
-    inline int left() const { return m_left; }
-    inline int top() const { return m_top; }
-    inline int right() const { return m_right; }
-    inline int bottom() const { return m_bottom; }
+    inline int left() const
+    {
+        return m_left;
+    }
+
+    inline int top() const
+    {
+        return m_top;
+    }
+
+    inline int right() const
+    {
+        return m_right;
+    }
+
+    inline int bottom() const
+    {
+        return m_bottom;
+    }
 
     // Set components, and call rationalize():
     void setLeft(int width);

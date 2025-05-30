@@ -19,12 +19,13 @@
 */
 
 #include "screenlikegraphicsview.h"
+
 #include <QDebug>
 #include <QFrame>
 #include <QResizeEvent>
 #include <QTransform>
-#include "common/colourdefs.h"
 
+#include "common/colourdefs.h"
 
 ScreenLikeGraphicsView::ScreenLikeGraphicsView(QWidget* parent) :
     QGraphicsView(parent)
@@ -36,14 +37,15 @@ ScreenLikeGraphicsView::ScreenLikeGraphicsView(QWidget* parent) :
     setFrameShape(QFrame::NoFrame);
 }
 
-
-ScreenLikeGraphicsView::ScreenLikeGraphicsView(QGraphicsScene* scene,
-                                               QWidget* parent) :
+ScreenLikeGraphicsView::ScreenLikeGraphicsView(
+    QGraphicsScene* scene,
+    QWidget* parent
+) :
     ScreenLikeGraphicsView(parent)  // delegating constructor
 {
-    setScene(scene);  // this is what QGraphicsView(scene, parent) does internally
+    setScene(scene);
+    // This is what QGraphicsView(scene, parent) does internally.
 }
-
 
 void ScreenLikeGraphicsView::setBackgroundColour(const QColor& colour)
 {
@@ -51,7 +53,6 @@ void ScreenLikeGraphicsView::setBackgroundColour(const QColor& colour)
     // underlying window or some garbage like that.
     setBackgroundBrush(QBrush(colour, Qt::SolidPattern));
 }
-
 
 void ScreenLikeGraphicsView::resizeEvent(QResizeEvent* event)
 {
@@ -68,14 +69,12 @@ void ScreenLikeGraphicsView::resizeEvent(QResizeEvent* event)
     fitView();
 }
 
-
 void ScreenLikeGraphicsView::showEvent(QShowEvent* event)
 {
-    // http://stackoverflow.com/questions/17028680/qt5-c-qgraphicsview-images-dont-fit-view-frame
+    // http://stackoverflow.com/questions/17028680/
     Q_UNUSED(event)
     fitView();
 }
-
 
 void ScreenLikeGraphicsView::fitView()
 {
@@ -95,8 +94,8 @@ void ScreenLikeGraphicsView::fitView()
 // That was fixed with setFrameShape(QFrame::NoFrame);
 
 void ScreenLikeGraphicsView::fitInView2(
-        const QRectF& rect,
-        Qt::AspectRatioMode aspect_ratio_mode)
+    const QRectF& rect, Qt::AspectRatioMode aspect_ratio_mode
+)
 {
     // Bugfix for default fitInView() implementation
     // - https://bugreports.qt.io/browse/QTBUG-42331
@@ -108,7 +107,7 @@ void ScreenLikeGraphicsView::fitInView2(
     }
     // self.last_scene_roi = rect
     const QRectF unity = transform().mapRect(QRectF(0, 0, 1, 1));
-    scale(1/unity.width(), 1/unity.height());
+    scale(1 / unity.width(), 1 / unity.height());
     QWidget* vp = viewport();
     if (!vp) {
         qWarning() << Q_FUNC_INFO << "No viewport!";
@@ -127,9 +126,9 @@ void ScreenLikeGraphicsView::fitInView2(
     centerOn(rect.center());
 }
 
-
-void ScreenLikeGraphicsView::fitInView2(qreal x, qreal y, qreal w, qreal h,
-                                        Qt::AspectRatioMode aspect_ratio_mode)
+void ScreenLikeGraphicsView::fitInView2(
+    qreal x, qreal y, qreal w, qreal h, Qt::AspectRatioMode aspect_ratio_mode
+)
 {
     fitInView2(QRectF(x, y, w, h), aspect_ratio_mode);
 }

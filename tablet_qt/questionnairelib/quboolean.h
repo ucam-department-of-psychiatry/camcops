@@ -20,6 +20,7 @@
 
 #pragma once
 #include <QSize>
+
 #include "db/fieldref.h"
 #include "questionnairelib/quelement.h"
 
@@ -27,7 +28,6 @@ class AspectRatioPixmap;
 class BooleanWidget;
 class ClickableLabelWordWrapWide;
 class LabelWordWrapWide;
-
 
 class QuBoolean : public QuElement
 {
@@ -59,18 +59,28 @@ class QuBoolean : public QuElement
 
 protected:
     // Protected constructor
-    QuBoolean(const QString& text, const QString& filename, const QSize& size,
-              FieldRefPtr fieldref, QObject* parent = nullptr);
+    QuBoolean(
+        const QString& text,
+        const QString& filename,
+        const QSize& size,
+        FieldRefPtr fieldref,
+        QObject* parent = nullptr
+    );
 
 public:
-
     // Construct with: text to display; fieldref
-    QuBoolean(const QString& text, FieldRefPtr fieldref, QObject* parent = nullptr);
+    QuBoolean(
+        const QString& text, FieldRefPtr fieldref, QObject* parent = nullptr
+    );
 
     // Construct with: icon filename, icon size, fieldref.
     // If size == QSize(), that means "the file's intrinsic image size"
-    QuBoolean(const QString& filename, const QSize& size,
-              FieldRefPtr fieldref, QObject* parent = nullptr);
+    QuBoolean(
+        const QString& filename,
+        const QSize& size,
+        FieldRefPtr fieldref,
+        QObject* parent = nullptr
+    );
 
     // Alter the text (but currently does not set it to text mode if a widget
     // had already been created in image mode).
@@ -129,7 +139,8 @@ protected:
     // Get the pixmap, if applicable (scaled, if that's applicable).
     QPixmap getPixmap() const;
 
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
+    ) override;
     virtual FieldRefPtrList fieldrefs() const override;
 
 protected slots:
@@ -149,13 +160,14 @@ protected:
     bool m_indicator_on_left;  // "indicator widget" not "widget indicator"?
     bool m_big_indicator;  // big indicator?
     bool m_big_text;  // big text?
-    bool m_bold;   // bold text?
+    bool m_bold;  // bold text?
     bool m_italic;  // italic text?
     bool m_allow_unset;  // allow setting back to NULL?
     bool m_as_text_button;  // text button, not tickbox indicator?
     bool m_false_appears_blank;  // false appears unticked?
     QPointer<BooleanWidget> m_indicator;  // tickbox indicator
-    QPointer<ClickableLabelWordWrapWide> m_text_widget_clickable;  // used to change text
+    QPointer<ClickableLabelWordWrapWide> m_text_widget_clickable;
+    // ... used to change text
     QPointer<LabelWordWrapWide> m_text_widget_plain;  // used to change text
     QPointer<AspectRatioPixmap> m_image_widget;  // used to change an image
 };

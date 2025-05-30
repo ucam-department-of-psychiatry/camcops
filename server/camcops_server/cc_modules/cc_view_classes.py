@@ -932,7 +932,7 @@ class ModelFormMixin(FormMixin, SingleObjectMixin):
         Sets properties of the object, from form data.
         """
         # No need to call superclass method; this is the top level.
-        for (model_attr, form_param) in self.get_model_form_dict().items():
+        for model_attr, form_param in self.get_model_form_dict().items():
             try:
                 value = appstruct[form_param]
                 setattr(self.object, model_attr, value)
@@ -948,7 +948,7 @@ class ModelFormMixin(FormMixin, SingleObjectMixin):
         form_values = {}
 
         if self.object is not None:
-            for (model_attr, form_param) in self.get_model_form_dict().items():
+            for model_attr, form_param in self.get_model_form_dict().items():
                 value = getattr(self.object, model_attr)
 
                 # Not sure if this is a good idea. There may be legitimate

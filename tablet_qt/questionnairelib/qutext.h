@@ -19,11 +19,10 @@
 */
 
 #pragma once
-#include "db/fieldref.h"
 #include "common/uiconst.h"
+#include "db/fieldref.h"
 #include "questionnairelib/quelement.h"
 #include "widgets/labelwordwrapwide.h"
-
 
 class QuText : public QuElement
 {
@@ -33,11 +32,11 @@ class QuText : public QuElement
 
 protected:
     // Protected constructor, used internally and by derived classes.
-    QuText(const QString& text, FieldRefPtr fieldref,
-           QObject* parent = nullptr);
+    QuText(
+        const QString& text, FieldRefPtr fieldref, QObject* parent = nullptr
+    );
 
 public:
-
     // Constructor for static text.
     QuText(const QString& text = QString(), QObject* parent = nullptr);
 
@@ -70,7 +69,8 @@ public:
     friend class FontSizeWindow;
 
 protected:
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
+    ) override;
 
     // Force the font size manually. For FontSizeWindow only, to demonstrate
     // font size.

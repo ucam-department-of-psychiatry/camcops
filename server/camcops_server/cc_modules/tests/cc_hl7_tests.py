@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/tests/cc_hl7_tests.py
 
@@ -25,7 +23,6 @@ camcops_server/cc_modules/tests/cc_hl7_tests.py
 
 ===============================================================================
 """
-
 
 import hl7
 from pendulum import Date, DateTime as Pendulum

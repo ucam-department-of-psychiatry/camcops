@@ -19,10 +19,9 @@
 */
 
 #include "clinicalsetsmenu.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
-#include "menulib/menuitem.h"
-
 #include "menu/setmenucpftadrd.h"
 #include "menu/setmenucpftadulteatingdisorders.h"
 #include "menu/setmenucpftcovid.h"
@@ -31,20 +30,17 @@
 #include "menu/setmenufromlp.h"
 #include "menu/setmenufromperinatal.h"
 #include "menu/setmenuobrien.h"
-
+#include "menulib/menuitem.h"
 
 ClinicalSetsMenu::ClinicalSetsMenu(CamcopsApp& app) :
-    MenuWindow(app,
-               uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
 {
 }
-
 
 QString ClinicalSetsMenu::title() const
 {
     return tr("Sets of tasks collected together for clinical purposes");
 }
-
 
 void ClinicalSetsMenu::makeItems()
 {

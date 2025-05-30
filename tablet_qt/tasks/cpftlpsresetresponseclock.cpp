@@ -19,6 +19,7 @@
 */
 
 #include "cpftlpsresetresponseclock.h"
+
 #include "core/camcopsapp.h"
 #include "lib/datetime.h"
 #include "maths/mathfunc.h"
@@ -32,14 +33,15 @@
 using mathfunc::noneNullOrEmpty;
 
 
-const QString CPFTLPSResetResponseClock::CPFTLPSRESETCLOCK_TABLENAME("cpft_lps_resetresponseclock");
+const QString CPFTLPSResetResponseClock::CPFTLPSRESETCLOCK_TABLENAME(
+    "cpft_lps_resetresponseclock"
+);
 
 const QString RESET_START_TIME_TO("reset_start_time_to");
 const QString REASON("reason");
 
 const QString XSTRING_TO("to");
 const QString XSTRING_REASON("reason");
-
 
 void initializeCPFTLPSResetResponseClock(TaskFactory& factory)
 {
@@ -48,15 +50,16 @@ void initializeCPFTLPSResetResponseClock(TaskFactory& factory)
 
 
 CPFTLPSResetResponseClock::CPFTLPSResetResponseClock(
-        CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, CPFTLPSRESETCLOCK_TABLENAME, false, true, false)  // ... anon, clin, resp
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
+    Task(app, db, CPFTLPSRESETCLOCK_TABLENAME, false, true, false)
+// ... anon, clin, resp
 {
     addField(RESET_START_TIME_TO, QMetaType::fromType<QDateTime>());
     addField(REASON, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -67,31 +70,28 @@ QString CPFTLPSResetResponseClock::shortname() const
     return "CPFT_LPS_ResetResponseClock";
 }
 
-
 QString CPFTLPSResetResponseClock::longname() const
 {
     return tr("CPFT LPS – reset response clock");
 }
 
-
 QString CPFTLPSResetResponseClock::description() const
 {
-    return tr("Reset referral response clock "
-              "(CPFT Liaison Psychiatry Service).");
+    return tr(
+        "Reset referral response clock "
+        "(CPFT Liaison Psychiatry Service)."
+    );
 }
-
 
 QString CPFTLPSResetResponseClock::infoFilenameStem() const
 {
     return "clinical";
 }
 
-
 QString CPFTLPSResetResponseClock::xstringTaskname() const
 {
     return "cpft_lps_resetresponseclock";
 }
-
 
 // ============================================================================
 // Instance info
@@ -99,39 +99,39 @@ QString CPFTLPSResetResponseClock::xstringTaskname() const
 
 bool CPFTLPSResetResponseClock::isComplete() const
 {
-    return noneNullOrEmpty(values(QStringList{RESET_START_TIME_TO,
-                                              REASON}));
+    return noneNullOrEmpty(values(QStringList{RESET_START_TIME_TO, REASON}));
 }
-
 
 QStringList CPFTLPSResetResponseClock::summary() const
 {
     return QStringList{
-        QString("%1: <b>%2</b>.").arg(xstring(XSTRING_TO),
-                                      datetime::textDateTime(value(RESET_START_TIME_TO))),
-        QString("%1: <b>%2</b>.").arg(xstring(XSTRING_REASON),
-                                      prettyValue(REASON)),
+        QString("%1: <b>%2</b>.")
+            .arg(
+                xstring(XSTRING_TO),
+                datetime::textDateTime(value(RESET_START_TIME_TO))
+            ),
+        QString("%1: <b>%2</b>.")
+            .arg(xstring(XSTRING_REASON), prettyValue(REASON)),
     };
 }
-
 
 QStringList CPFTLPSResetResponseClock::detail() const
 {
     return completenessInfo() + summary();
 }
 
-
 OpenableWidget* CPFTLPSResetResponseClock::editor(const bool read_only)
 {
     QuPagePtr page((new QuPage{
-        getClinicianQuestionnaireBlockRawPointer(),
-        new QuText(xstring(XSTRING_TO)),
-        (new QuDateTime(fieldRef(RESET_START_TIME_TO)))
-                       ->setMode(QuDateTime::Mode::DefaultDateTime)
-                       ->setOfferNowButton(true),
-        new QuText(xstring(XSTRING_REASON)),
-        new QuTextEdit(fieldRef(REASON)),
-    })->setTitle(longname()));
+                        getClinicianQuestionnaireBlockRawPointer(),
+                        new QuText(xstring(XSTRING_TO)),
+                        (new QuDateTime(fieldRef(RESET_START_TIME_TO)))
+                            ->setMode(QuDateTime::Mode::DefaultDateTime)
+                            ->setOfferNowButton(true),
+                        new QuText(xstring(XSTRING_REASON)),
+                        new QuTextEdit(fieldRef(REASON)),
+                    })
+                       ->setTitle(longname()));
 
     auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Clinician);

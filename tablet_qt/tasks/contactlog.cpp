@@ -19,14 +19,15 @@
 */
 
 #include "contactlog.h"
+
 #include "common/textconst.h"
 #include "lib/datetime.h"
-#include "maths/mathfunc.h"
 #include "lib/uifunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/quboolean.h"
+#include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qulineedit.h"
-#include "questionnairelib/qudatetime.h"
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
@@ -44,15 +45,17 @@ const QString STAFF_LIAISON("staff_liaison");
 const QString OTHER_LIAISON("other_liaison");
 const QString COMMENT("comment");
 
-
 void initializeContactLog(TaskFactory& factory)
 {
     static TaskRegistrar<ContactLog> registered(factory);
 }
 
 
-ContactLog::ContactLog(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, CONTACTLOG_TABLENAME, false, true, false)  // ... anon, clin, resp
+ContactLog::ContactLog(
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
+    Task(app, db, CONTACTLOG_TABLENAME, false, true, false)
+// ... anon, clin, resp
 {
     addField(LOCATION, QMetaType::fromType<QString>());
     addField(START, QMetaType::fromType<QDateTime>());
@@ -65,7 +68,6 @@ ContactLog::ContactLog(CamcopsApp& app, DatabaseManager& db, const int load_pk) 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
 
-
 // ============================================================================
 // Class info
 // ============================================================================
@@ -75,24 +77,20 @@ QString ContactLog::shortname() const
     return "Contact";
 }
 
-
 QString ContactLog::longname() const
 {
     return tr("Contact log");
 }
-
 
 QString ContactLog::description() const
 {
     return tr("Record of clinical contact with times.");
 }
 
-
 QString ContactLog::infoFilenameStem() const
 {
     return "clinical";
 }
-
 
 // ============================================================================
 // Instance info
@@ -100,29 +98,28 @@ QString ContactLog::infoFilenameStem() const
 
 bool ContactLog::isComplete() const
 {
-    return noneNull(values(QStringList{CLINICIAN_NAME,
-                                       START,
-                                       END,
-                                       PATIENT_CONTACT,
-                                       STAFF_LIAISON,
-                                       OTHER_LIAISON}));
+    return noneNull(values(QStringList{
+        CLINICIAN_NAME,
+        START,
+        END,
+        PATIENT_CONTACT,
+        STAFF_LIAISON,
+        OTHER_LIAISON}));
 }
-
 
 QStringList ContactLog::summary() const
 {
     return QStringList{
-        QString("%1: <b>%2</b>.").arg(xstring("start"),
-                                      datetime::textDateTime(value(START))),
-        QString("%1: <b>%2</b>.").arg(xstring("end"),
-                                      datetime::textDateTime(value(END))),
+        QString("%1: <b>%2</b>.")
+            .arg(xstring("start"), datetime::textDateTime(value(START))),
+        QString("%1: <b>%2</b>.")
+            .arg(xstring("end"), datetime::textDateTime(value(END))),
         QString("%1: <b>%2</b> %3.")
-                .arg(xstring("time_taken"))
-                .arg(timeTakenMinutes())
-                .arg(xstring("minutes")),
+            .arg(xstring("time_taken"))
+            .arg(timeTakenMinutes())
+            .arg(xstring("minutes")),
     };
 }
-
 
 QStringList ContactLog::detail() const
 {
@@ -140,30 +137,33 @@ QStringList ContactLog::detail() const
     return lines;
 }
 
-
 OpenableWidget* ContactLog::editor(const bool read_only)
 {
-    QuPagePtr page((new QuPage{
-        getClinicianQuestionnaireBlockRawPointer(),
-        new QuText(xstring("location")),
-        new QuLineEdit(fieldRef(LOCATION, false)),
-        new QuText(xstring("comment")),
-        new QuTextEdit(fieldRef(COMMENT, false)),
-        new QuText(xstring("start")),
-        (new QuDateTime(fieldRef(START)))->setOfferNowButton(true),
-        new QuText(xstring("end")),
-        (new QuDateTime(fieldRef(END)))->setOfferNowButton(true),
-        new QuBoolean(xstring("patient_contact"), fieldRef(PATIENT_CONTACT)),
-        new QuBoolean(xstring("staff_liaison"), fieldRef(STAFF_LIAISON)),
-        new QuBoolean(xstring("other_liaison"), fieldRef(OTHER_LIAISON)),
-    })->setTitle(xstring("title")));
+    QuPagePtr page(
+        (new QuPage{
+             getClinicianQuestionnaireBlockRawPointer(),
+             new QuText(xstring("location")),
+             new QuLineEdit(fieldRef(LOCATION, false)),
+             new QuText(xstring("comment")),
+             new QuTextEdit(fieldRef(COMMENT, false)),
+             new QuText(xstring("start")),
+             (new QuDateTime(fieldRef(START)))->setOfferNowButton(true),
+             new QuText(xstring("end")),
+             (new QuDateTime(fieldRef(END)))->setOfferNowButton(true),
+             new QuBoolean(
+                 xstring("patient_contact"), fieldRef(PATIENT_CONTACT)
+             ),
+             new QuBoolean(xstring("staff_liaison"), fieldRef(STAFF_LIAISON)),
+             new QuBoolean(xstring("other_liaison"), fieldRef(OTHER_LIAISON)),
+         })
+            ->setTitle(xstring("title"))
+    );
 
     auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations

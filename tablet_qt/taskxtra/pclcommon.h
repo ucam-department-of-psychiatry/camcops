@@ -20,23 +20,26 @@
 
 #pragma once
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
 class OpenableWidget;
 class TaskFactory;
 
-
 class PclCommon : public Task
 {
     // abstract base class
     Q_OBJECT  // for tr()
-public:
-    PclCommon(CamcopsApp& app, DatabaseManager& db,
-              const QString& tablename,
-              const QString& xstring_prefix,
-              bool specific_event,
-              int load_pk = dbconst::NONEXISTENT_PK);
+        public :
+        PclCommon(
+            CamcopsApp& app,
+            DatabaseManager& db,
+            const QString& tablename,
+            const QString& xstring_prefix,
+            bool specific_event,
+            int load_pk = dbconst::NONEXISTENT_PK
+        );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -55,11 +58,13 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
+
 protected:
     int totalScore() const;
     int numSymptomatic(int first, int last) const;
     int numNull(int first, int last) const;
     QVariant hasPtsd() const;
+
 protected:
     QString m_xstring_prefix;
     bool m_specific_event;

@@ -40,9 +40,9 @@ void setBackgroundColour(QWidget* widget, const QColor& colour);
 
 // Set a widget's background colour and "pressed" background colour
 // by setting its CSS stylesheet.
-void setBackgroundAndPressedColour(QWidget* widget,
-                                   const QColor& background,
-                                   const QColor& pressed);
+void setBackgroundAndPressedColour(
+    QWidget* widget, const QColor& background, const QColor& pressed
+);
 
 // Delete all children of a widget.
 void removeAllChildWidgets(QObject* object);
@@ -57,8 +57,12 @@ void repolish(QWidget* widget);
 
 // Calls the widget's setProperty() with a property name/value pair, converting
 // to the requisite Qt types on the way. Optionally, repolishes the widget.
-void setProperty(QWidget* widget, const QString& property,
-                 const QVariant& value, bool repolish = true);
+void setProperty(
+    QWidget* widget,
+    const QString& property,
+    const QVariant& value,
+    bool repolish = true
+);
 
 // Converts a bool to "true" or "false" (for use in CSS).
 QString cssBoolean(bool value);
@@ -69,8 +73,7 @@ QString cssBoolean(bool value);
 void setPropertyItalic(QWidget* widget, bool italic, bool repolish = true);
 
 // Sets the widget's "missing" property.
-void setPropertyMissing(QWidget* widget, bool missing,
-                        bool repolish = true);
+void setPropertyMissing(QWidget* widget, bool missing, bool repolish = true);
 
 // Clear all widgets from a layout
 void clearLayout(QLayout* layout, bool delete_widgets = true);

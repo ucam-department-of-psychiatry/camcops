@@ -20,6 +20,7 @@
 
 #pragma once
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -28,13 +29,16 @@ class TaskFactory;
 
 void initializeIcd10Mixed(TaskFactory& factory);
 
-
 class Icd10Mixed : public Task
 {
     Q_OBJECT
+
 public:
-    Icd10Mixed(CamcopsApp& app, DatabaseManager& db,
-               int load_pk = dbconst::NONEXISTENT_PK);
+    Icd10Mixed(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -53,6 +57,7 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     QVariant meetsCriteria() const;
+
 public:
     static const QString ICD10MIXED_TABLENAME;
 };

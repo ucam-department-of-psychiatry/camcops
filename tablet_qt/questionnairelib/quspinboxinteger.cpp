@@ -21,25 +21,34 @@
 // #define DEBUG_SIGNALS
 
 #include "quspinboxinteger.h"
+
 #include <QSpinBox>
+
 #include "lib/widgetfunc.h"
 #include "questionnairelib/questionnaire.h"
 
-
-QuSpinBoxInteger::QuSpinBoxInteger(FieldRefPtr fieldref, const int minimum,
-                                   const int maximum, QObject* parent) :
+QuSpinBoxInteger::QuSpinBoxInteger(
+    FieldRefPtr fieldref, const int minimum, const int maximum, QObject* parent
+) :
     QuElement(parent),
     m_fieldref(fieldref),
     m_minimum(minimum),
     m_maximum(maximum)
 {
     Q_ASSERT(m_fieldref);
-    connect(m_fieldref.data(), &FieldRef::valueChanged,
-            this, &QuSpinBoxInteger::fieldValueChanged);
-    connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
-            this, &QuSpinBoxInteger::fieldValueChanged);
+    connect(
+        m_fieldref.data(),
+        &FieldRef::valueChanged,
+        this,
+        &QuSpinBoxInteger::fieldValueChanged
+    );
+    connect(
+        m_fieldref.data(),
+        &FieldRef::mandatoryChanged,
+        this,
+        &QuSpinBoxInteger::fieldValueChanged
+    );
 }
-
 
 void QuSpinBoxInteger::setFromField()
 {
@@ -48,7 +57,6 @@ void QuSpinBoxInteger::setFromField()
     // check in fieldValueChanged
 }
 
-
 QPointer<QWidget> QuSpinBoxInteger::makeWidget(Questionnaire* questionnaire)
 {
     const bool read_only = questionnaire->readOnly();
@@ -56,7 +64,8 @@ QPointer<QWidget> QuSpinBoxInteger::makeWidget(Questionnaire* questionnaire)
     m_spinbox->setEnabled(!read_only);
     m_spinbox->setRange(m_minimum, m_maximum);
     m_spinbox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    m_spinbox->setMinimumHeight(uiconst::g_min_spinbox_height);  // room for spin arrows
+    m_spinbox->setMinimumHeight(uiconst::g_min_spinbox_height);
+    // ... room for spin arrows
     m_spinbox->setButtonSymbols(uiconst::SPINBOX_SYMBOLS);
     m_spinbox->setInputMethodHints(Qt::ImhFormattedNumbersOnly);
 
@@ -67,45 +76,51 @@ QPointer<QWidget> QuSpinBoxInteger::makeWidget(Questionnaire* questionnaire)
     // Disambiguate like this:
     if (!read_only) {
         void (QSpinBox::*vc_signal)(int) = &QSpinBox::valueChanged;
-        connect(m_spinbox.data(), vc_signal,
-                this, &QuSpinBoxInteger::widgetValueChanged);
+        connect(
+            m_spinbox.data(),
+            vc_signal,
+            this,
+            &QuSpinBoxInteger::widgetValueChanged
+        );
 #ifdef DEBUG_SIGNALS
         void (QSpinBox::*vc_sig_str)(const QString&) = &QSpinBox::valueChanged;
-        connect(m_spinbox.data(), vc_sig_str,
-                this, &QuSpinBoxInteger::widgetValueChangedString);
+        connect(
+            m_spinbox.data(),
+            vc_sig_str,
+            this,
+            &QuSpinBoxInteger::widgetValueChangedString
+        );
 #endif
     }
     setFromField();
     return QPointer<QWidget>(m_spinbox);
 }
 
-
 FieldRefPtrList QuSpinBoxInteger::fieldrefs() const
 {
     return FieldRefPtrList{m_fieldref};
 }
-
 
 void QuSpinBoxInteger::widgetValueChanged(const int value)
 {
 #ifdef DEBUG_SIGNALS
     qDebug() << Q_FUNC_INFO << value;
 #endif
-    const bool changed = m_fieldref->setValue(value, this);  // Will trigger valueChanged
+    const bool changed = m_fieldref->setValue(value, this);
+    // ... Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
     }
 }
-
 
 void QuSpinBoxInteger::widgetValueChangedString(const QString& text)
 {
     qDebug() << Q_FUNC_INFO << text;
 }
 
-
-void QuSpinBoxInteger::fieldValueChanged(const FieldRef* fieldref,
-                                         const QObject* originator)
+void QuSpinBoxInteger::fieldValueChanged(
+    const FieldRef* fieldref, const QObject* originator
+)
 {
     if (!m_spinbox) {
         return;

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/camcops_server.py
 
@@ -56,8 +54,6 @@ from cardinal_pythonlib.sqlalchemy.dialect import (
     ALL_SQLA_DIALECTS,
     SqlaDialectName,
 )
-from cardinal_pythonlib.wsgi.constants import WsgiEnvVar
-from cardinal_pythonlib.wsgi.reverse_proxied_mw import ReverseProxiedConfig
 from rich_argparse import (
     ArgumentDefaultsRichHelpFormatter,
     RawDescriptionRichHelpFormatter,
@@ -90,7 +86,6 @@ from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 if TYPE_CHECKING:
     # noinspection PyProtectedMember,PyUnresolvedReferences
     from argparse import _SubParsersAction
-    from pyramid.router import Router
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -159,7 +154,7 @@ def print_demo_apache_config(rootpath: str) -> None:
 
 
 def _upgrade_database_to_head(
-    show_sql_only: bool, reindex: bool = False
+    cfg: "CamcopsConfig", show_sql_only: bool, reindex: bool = False
 ) -> None:
     import camcops_server.camcops_server_core as core
 
@@ -169,15 +164,13 @@ def _upgrade_database_to_head(
         upgrade_database_to_head,
     )  # delayed import
 
-    upgrade_database_to_head(show_sql_only=show_sql_only)
-
+    upgrade_database_to_head(camcops_cfg=cfg, show_sql_only=show_sql_only)
     if reindex and not show_sql_only:
-        cfg = get_default_config_from_os_env()
         core.reindex(cfg)
 
 
 def _upgrade_database_to_revision(
-    revision: str, show_sql_only: bool = False
+    cfg: "CamcopsConfig", revision: str, show_sql_only: bool = False
 ) -> None:
     import camcops_server.camcops_server_core as core  # noqa: F401
 
@@ -188,11 +181,12 @@ def _upgrade_database_to_revision(
     )  # delayed import
 
     upgrade_database_to_revision(
-        revision=revision, show_sql_only=show_sql_only
+        camcops_cfg=cfg, revision=revision, show_sql_only=show_sql_only
     )
 
 
 def _downgrade_database_to_revision(
+    cfg: "CamcopsConfig",
     revision: str,
     show_sql_only: bool = False,
     confirm_downgrade_db: bool = False,
@@ -206,6 +200,7 @@ def _downgrade_database_to_revision(
     )  # delayed import
 
     downgrade_database_to_revision(
+        camcops_cfg=cfg,
         revision=revision,
         show_sql_only=show_sql_only,
         confirm_downgrade_db=confirm_downgrade_db,
@@ -230,7 +225,7 @@ def _create_database_from_scratch(cfg: "CamcopsConfig") -> None:
         create_database_from_scratch,
     )  # delayed import
 
-    create_database_from_scratch(cfg=cfg)
+    create_database_from_scratch(camcops_cfg=cfg)
 
 
 def _print_database_title() -> None:
@@ -426,92 +421,28 @@ def _cmd_cris_dd(filename: str, recipient_name: str) -> None:
 # -----------------------------------------------------------------------------
 
 
-def make_wsgi_app_from_config() -> "Router":
-    """
-    Reads the config file and creates a WSGI application.
-    """
+def _test_serve_pyramid(cfg: "CamcopsConfig") -> None:
     import camcops_server.camcops_server_core as core
 
     # ... delayed import; import side effects
 
-    cfg = get_default_config_from_os_env()
-    reverse_proxied_config = ReverseProxiedConfig(
-        trusted_proxy_headers=cfg.trusted_proxy_headers,
-        http_host=cfg.proxy_http_host,
-        remote_addr=cfg.proxy_remote_addr,
-        script_name=(
-            cfg.proxy_script_name or os.environ.get(WsgiEnvVar.SCRIPT_NAME, "")
-        ),
-        server_port=cfg.proxy_server_port,
-        server_name=cfg.proxy_server_name,
-        url_scheme=cfg.proxy_url_scheme,
-        rewrite_path_info=cfg.proxy_rewrite_path_info,
-    )
-    return core.make_wsgi_app(
-        debug_toolbar=cfg.debug_toolbar,
-        reverse_proxied_config=reverse_proxied_config,
-        debug_reverse_proxy=cfg.debug_reverse_proxy,
-        show_requests=cfg.show_requests,
-        show_request_immediately=cfg.show_request_immediately,
-        show_response=cfg.show_response,
-        show_timing=cfg.show_timing,
-        static_cache_duration_s=cfg.static_cache_duration_s,
-    )
+    core.test_serve_pyramid(cfg)
 
 
-def _test_serve_pyramid() -> None:
+def _serve_cherrypy(cfg: "CamcopsConfig") -> None:
     import camcops_server.camcops_server_core as core
 
     # ... delayed import; import side effects
 
-    application = make_wsgi_app_from_config()
-    cfg = get_default_config_from_os_env()
-    core.test_serve_pyramid(
-        application=application, host=cfg.host, port=cfg.port
-    )
+    core.serve_cherrypy(cfg)
 
 
-def _serve_cherrypy() -> None:
+def _serve_gunicorn(cfg: "CamcopsConfig") -> None:
     import camcops_server.camcops_server_core as core
 
     # ... delayed import; import side effects
 
-    application = make_wsgi_app_from_config()
-    cfg = get_default_config_from_os_env()
-    core.serve_cherrypy(
-        application=application,
-        host=cfg.host,
-        port=cfg.port,
-        unix_domain_socket_filename=cfg.unix_domain_socket,
-        threads_start=cfg.cherrypy_threads_start,
-        threads_max=cfg.cherrypy_threads_max,
-        server_name=cfg.cherrypy_server_name,
-        log_screen=cfg.cherrypy_root_path,
-        ssl_certificate=cfg.ssl_certificate,
-        ssl_private_key=cfg.ssl_private_key,
-        root_path=cfg.cherrypy_root_path,
-    )
-
-
-def _serve_gunicorn() -> None:
-    import camcops_server.camcops_server_core as core
-
-    # ... delayed import; import side effects
-
-    application = make_wsgi_app_from_config()
-    cfg = get_default_config_from_os_env()
-    core.serve_gunicorn(
-        application=application,
-        host=cfg.host,
-        port=cfg.port,
-        unix_domain_socket_filename=cfg.unix_domain_socket,
-        num_workers=cfg.gunicorn_num_workers,
-        ssl_certificate=cfg.ssl_certificate,
-        ssl_private_key=cfg.ssl_private_key,
-        reload=cfg.gunicorn_debug_reload,
-        timeout_s=cfg.gunicorn_timeout_s,
-        debug_show_gunicorn_options=cfg.debug_show_gunicorn_options,
-    )
+    core.serve_gunicorn(cfg)
 
 
 # -----------------------------------------------------------------------------
@@ -519,20 +450,22 @@ def _serve_gunicorn() -> None:
 # -----------------------------------------------------------------------------
 
 
-def _launch_celery_workers(verbose: bool = False) -> None:
+def _launch_celery_workers(
+    cfg: "CamcopsConfig", verbose: bool = False
+) -> None:
     import camcops_server.camcops_server_core as core
 
     # ... delayed import; import side effects
 
-    core.launch_celery_workers(verbose=verbose)
+    core.launch_celery_workers(config=cfg, verbose=verbose)
 
 
-def _launch_celery_beat(verbose: bool = False) -> None:
+def _launch_celery_beat(cfg: "CamcopsConfig", verbose: bool = False) -> None:
     import camcops_server.camcops_server_core as core
 
     # ... delayed import; import side effects
 
-    core.launch_celery_beat(verbose=verbose)
+    core.launch_celery_beat(config=cfg, verbose=verbose)
 
 
 def _launch_celery_flower(
@@ -562,12 +495,12 @@ def _purge_jobs() -> None:
 # -----------------------------------------------------------------------------
 
 
-def _dev_cli() -> None:
+def _dev_cli(cfg: "CamcopsConfig") -> None:
     import camcops_server.camcops_server_core as core
 
     # ... delayed import; import side effects
 
-    core.dev_cli()
+    core.dev_cli(config=cfg)
 
 
 def _list_tasks() -> None:
@@ -830,7 +763,9 @@ def camcops_main() -> int:
     )
     upgradedb_parser.set_defaults(
         func=lambda args: _upgrade_database_to_head(
-            show_sql_only=args.show_sql_only, reindex=not args.no_reindex
+            cfg=get_default_config_from_os_env(),
+            show_sql_only=args.show_sql_only,
+            reindex=not args.no_reindex,
         )
     )
 
@@ -855,6 +790,7 @@ def camcops_main() -> int:
     )
     dev_upgrade_db_parser.set_defaults(
         func=lambda args: _upgrade_database_to_revision(
+            cfg=get_default_config_from_os_env(),
             revision=args.destination_db_revision,
             show_sql_only=args.show_sql_only,
         )
@@ -886,6 +822,7 @@ def camcops_main() -> int:
     )
     dev_downgrade_parser.set_defaults(
         func=lambda args: _downgrade_database_to_revision(
+            cfg=get_default_config_from_os_env(),
             revision=args.destination_db_revision,
             show_sql_only=args.show_sql_only,
             confirm_downgrade_db=args.confirm_downgrade_db,
@@ -1318,7 +1255,9 @@ def camcops_main() -> int:
     serve_cp_parser = add_sub(
         subparsers, "serve_cherrypy", help="Start web server via CherryPy"
     )
-    serve_cp_parser.set_defaults(func=lambda args: _serve_cherrypy())
+    serve_cp_parser.set_defaults(
+        func=lambda args: _serve_cherrypy(cfg=get_default_config_from_os_env())
+    )
 
     # Serve via Gunicorn
     serve_gu_parser = add_sub(
@@ -1326,7 +1265,9 @@ def camcops_main() -> int:
         "serve_gunicorn",
         help="Start web server via Gunicorn (not available under Windows)",
     )
-    serve_gu_parser.set_defaults(func=lambda args: _serve_gunicorn())
+    serve_gu_parser.set_defaults(
+        func=lambda args: _serve_gunicorn(cfg=get_default_config_from_os_env())
+    )
 
     # Serve via the Pyramid test server
     serve_pyr_parser = add_sub(
@@ -1335,7 +1276,11 @@ def camcops_main() -> int:
         help="Start test web server via Pyramid (single-thread, "
         "single-process, HTTP-only; for development use only)",
     )
-    serve_pyr_parser.set_defaults(func=lambda args: _test_serve_pyramid())
+    serve_pyr_parser.set_defaults(
+        func=lambda args: _test_serve_pyramid(
+            cfg=get_default_config_from_os_env()
+        )
+    )
 
     # -------------------------------------------------------------------------
     # Preprocessing options
@@ -1392,7 +1337,9 @@ def camcops_main() -> int:
         help="Launch Celery workers, for background processing",
     )
     celery_worker_parser.set_defaults(
-        func=lambda args: _launch_celery_workers(verbose=args.verbose)
+        func=lambda args: _launch_celery_workers(
+            cfg=get_default_config_from_os_env(), verbose=args.verbose
+        )
     )
 
     # Launch Celery Bear
@@ -1402,7 +1349,9 @@ def camcops_main() -> int:
         help="Launch Celery Beat scheduler, to schedule background jobs",
     )
     celery_beat_parser.set_defaults(
-        func=lambda args: _launch_celery_beat(verbose=args.verbose)
+        func=lambda args: _launch_celery_beat(
+            cfg=get_default_config_from_os_env(), verbose=args.verbose
+        )
     )
 
     # Launch Celery Flower monitor
@@ -1456,7 +1405,9 @@ def camcops_main() -> int:
         help="Developer command-line interface, with config loaded as "
         "'config'.",
     )
-    dev_cli_parser.set_defaults(func=lambda args: _dev_cli())
+    dev_cli_parser.set_defaults(
+        func=lambda args: _dev_cli(cfg=get_default_config_from_os_env())
+    )
 
     # Show tasklist
     list_tasks_parser = add_sub(

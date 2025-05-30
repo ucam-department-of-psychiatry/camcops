@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_report.py
 
@@ -83,10 +81,10 @@ if TYPE_CHECKING:
         ReportParamForm,
         ReportParamSchema,
     )
-    from camcops_server.cc_modules.cc_request import (  # noqa: F401
+    from camcops_server.cc_modules.cc_request import (
         CamcopsRequest,
     )
-    from camcops_server.cc_modules.cc_task import Task  # noqa: F401
+    from camcops_server.cc_modules.cc_task import Task
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -523,7 +521,7 @@ class PercentageSummaryReportMixin(object):
 
             # noinspection PyUnresolvedReferences
             total_query = (
-                select([func.count(column_name)])
+                select(func.count(column_name))
                 .select_from(self.task_class.__table__)
                 .where(and_(*wheres))
             )
@@ -541,10 +539,8 @@ class PercentageSummaryReportMixin(object):
             # noinspection PyUnresolvedReferences
             query = (
                 select(
-                    [
-                        column(column_name),
-                        ((100 * func.count(column_name)) / total_responses),
-                    ]
+                    column(column_name),
+                    ((100 * func.count(column_name)) / total_responses),
                 )
                 .select_from(self.task_class.__table__)
                 .where(and_(*wheres))

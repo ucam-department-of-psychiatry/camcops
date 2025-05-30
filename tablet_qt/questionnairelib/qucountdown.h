@@ -26,7 +26,6 @@ class QMediaPlayer;
 class QPushButton;
 class QTimer;
 
-
 class QuCountdown : public QuElement
 {
     // Offers a countdown timer (which plays a sound on timeout), e.g. for
@@ -34,6 +33,7 @@ class QuCountdown : public QuElement
     // Offers start/stop/reset controls.
 
     Q_OBJECT
+
 public:
     // Construct with the timer's duration.
     QuCountdown(int time_s, QObject* parent = nullptr);
@@ -45,7 +45,8 @@ public:
     QuCountdown* setVolume(int volume);
 
 protected:
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
+    ) override;
 
     // Update the textual display to show time left, or "FINISHED", etc.
     void updateDisplay();
@@ -76,6 +77,7 @@ protected:
     QPointer<QPushButton> m_reset_button;  // "Reset"
     QPointer<QLabel> m_label;  // text containing time-to-go information
     QSharedPointer<QTimer> m_timer;  // timer
-    QSharedPointer<QMediaPlayer> m_player;  // sound player; not owned by other widgets
+    QSharedPointer<QMediaPlayer> m_player;
+    // ... sound player; not owned by other widgets
     double m_seconds_left;  // time left
 };

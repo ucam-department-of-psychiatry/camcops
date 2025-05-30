@@ -21,6 +21,7 @@
 #pragma once
 
 #include <QPointer>
+
 #include "questionnairelib/qupage.h"
 #include "widgets/basewidget.h"
 
@@ -29,19 +30,24 @@ class QAbstractButton;
 class QLabel;
 class QPushButton;
 
-
 class QuestionnaireHeader : public BaseWidget
 {
     // Provides a questionnaire's title and its control buttons (e.g. page
     // movement, cancellation).
 
     Q_OBJECT
+
 public:
     // Construct, deciding which buttons to offer, etc.
     QuestionnaireHeader(
-            QWidget* parent, const QString& title,
-            bool read_only, bool offer_page_jump, bool within_chain,
-            const QString& css_name, bool debug_allowed = false);
+        QWidget* parent,
+        const QString& title,
+        bool read_only,
+        bool offer_page_jump,
+        bool within_chain,
+        const QString& css_name,
+        bool debug_allowed = false
+    );
 
     // Decide whether we offer previous/next/finish buttons.
     // ("Next" and "Finish" should not be simultaneously shown!)
@@ -78,5 +84,6 @@ protected:
     QPointer<QAbstractButton> m_button_previous;  // "previous page"
     QPointer<QAbstractButton> m_button_next;  // "next page"
     QPointer<ImageButton> m_button_finish;  // "finish"
-    QPointer<QLabel> m_icon_no_next;  // icon to show when next unavailable, e.g. warning triangle
+    QPointer<QLabel> m_icon_no_next;
+    // ... icon to show when next unavailable, e.g. warning triangle
 };

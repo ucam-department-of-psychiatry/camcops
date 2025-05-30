@@ -19,10 +19,11 @@
 */
 
 #include "esspri.h"
+
 #include "common/uiconst.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qugridcell.h"
 #include "questionnairelib/qugridcontainer.h"
@@ -50,16 +51,17 @@ void initializeEsspri(TaskFactory& factory)
     static TaskRegistrar<Esspri> registered(factory);
 }
 
-
 Esspri::Esspri(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, ESSPRI_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, ESSPRI_TABLENAME, false, false, false),
+    // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
+    );
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -70,25 +72,23 @@ QString Esspri::shortname() const
     return "ESSPRI";
 }
 
-
 QString Esspri::longname() const
 {
     return tr("EULAR Sjögren’s Syndrome Patient Reported Index");
 }
 
-
 QString Esspri::description() const
 {
-    return tr("A patient-reported index designed to assess the severity of "
-              "symptoms in primary Sjögren’s syndrome.");
+    return tr(
+        "A patient-reported index designed to assess the severity of "
+        "symptoms in primary Sjögren’s syndrome."
+    );
 }
-
 
 QStringList Esspri::fieldNames() const
 {
     return strseq(QPREFIX, FIRST_Q, N_QUESTIONS);
 }
-
 
 // ============================================================================
 // Instance info
@@ -103,7 +103,6 @@ bool Esspri::isComplete() const
     return true;
 }
 
-
 QVariant Esspri::overallScore() const
 {
     const bool ignore_null = false;
@@ -111,27 +110,27 @@ QVariant Esspri::overallScore() const
     return meanOrNull(values(fieldNames()), ignore_null);
 }
 
-
 QStringList Esspri::summary() const
 {
     return QStringList{
-        scorePhraseVariant(xstring("overall_score"), overallScore(), MAX_QUESTION_SCORE),
+        scorePhraseVariant(
+            xstring("overall_score"), overallScore(), MAX_QUESTION_SCORE
+        ),
     };
 }
-
 
 QStringList Esspri::detail() const
 {
     QStringList lines = completenessInfo();
     const QString spacer = " ";
     const QString suffix = "";
-    lines += fieldSummaries("q", suffix, spacer, QPREFIX, FIRST_Q, N_QUESTIONS);
+    lines
+        += fieldSummaries("q", suffix, spacer, QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");
     lines += summary();
 
     return lines;
 }
-
 
 OpenableWidget* Esspri::editor(const bool read_only)
 {
@@ -163,21 +162,30 @@ OpenableWidget* Esspri::editor(const bool read_only)
         slider->setShowValue(false);
         slider->setSymmetric(true);
 
-        slider_grid->addCell(QuGridCell(new QuText(xstring(fieldname)), row, 0,
-                                        QUESTION_ROW_SPAN, QUESTION_COLUMN_SPAN));
+        slider_grid->addCell(QuGridCell(
+            new QuText(xstring(fieldname)),
+            row,
+            0,
+            QUESTION_ROW_SPAN,
+            QUESTION_COLUMN_SPAN
+        ));
         row++;
 
-        slider_grid->addCell(QuGridCell(new QuText(xstring(fieldname + "_min")), row, 0));
+        slider_grid->addCell(
+            QuGridCell(new QuText(xstring(fieldname + "_min")), row, 0)
+        );
         slider_grid->addCell(QuGridCell(slider, row, 1));
-        slider_grid->addCell(QuGridCell(new QuText(xstring(fieldname + "_max")), row, 2));
+        slider_grid->addCell(
+            QuGridCell(new QuText(xstring(fieldname + "_max")), row, 2)
+        );
 
         row++;
 
-        slider_grid->addCell(QuGridCell(new QuSpacer(QSize(uiconst::BIGSPACE,
-                                                           uiconst::BIGSPACE)), row, 0));
+        slider_grid->addCell(QuGridCell(
+            new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)), row, 0
+        ));
 
         row++;
-
     }
 
     m_questionnaire = new Questionnaire(m_app, {page});

@@ -20,8 +20,8 @@
 
 #pragma once
 #include <QSharedPointer>
-#include "menulib/menuwindow.h"
 
+#include "menulib/menuwindow.h"
 
 class SingleUserOptionsMenu : public MenuWindow
 {
@@ -30,6 +30,7 @@ class SingleUserOptionsMenu : public MenuWindow
 public:
     SingleUserOptionsMenu(CamcopsApp& app);
     virtual QString title() const override;
+
 protected:
     virtual void makeItems() override;
     void registerPatient();

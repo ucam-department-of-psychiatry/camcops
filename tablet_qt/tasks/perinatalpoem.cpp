@@ -19,6 +19,7 @@
 */
 
 #include "perinatalpoem.h"
+
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/questionnaire.h"
@@ -85,7 +86,6 @@ const QString TAG_RESPONDENT("resp");
 const QString TAG_MBU("mbu");
 const QString TAG_CONTACT_DETAILS("contact");
 
-
 // ============================================================================
 // Register task
 // ============================================================================
@@ -100,9 +100,12 @@ void initializePerinatalPoem(TaskFactory& factory)
 // Constructor
 // ============================================================================
 
-PerinatalPoem::PerinatalPoem(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, PERINATAL_POEM_TABLENAME, true, false, false)  // ... anon, clin, resp
-    // no need, QPointer handles this: // m_questionnaire(nullptr)
+PerinatalPoem::PerinatalPoem(
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
+    Task(app, db, PERINATAL_POEM_TABLENAME, true, false, false)
+// ... anon, clin, resp
+// no need, QPointer handles this: // m_questionnaire(nullptr)
 {
     addField(FN_QA_RESPONDENT, QMetaType::fromType<int>());
     addField(FN_QB_SERVICE_TYPE, QMetaType::fromType<int>());
@@ -118,13 +121,22 @@ PerinatalPoem::PerinatalPoem(CamcopsApp& app, DatabaseManager& db, const int loa
     addField(FN_Q2H_STAFF_HELPED_ME_UNDERSTAND, QMetaType::fromType<int>());
     addField(FN_Q2I_STAFF_NOT_SENSITIVE_TO_BABY, QMetaType::fromType<int>());
     addField(FN_Q2J_STAFF_HELPED_MY_CONFIDENCE, QMetaType::fromType<int>());
-    addField(FN_Q2K_SERVICE_INVOLVED_OTHERS_HELPFULLY, QMetaType::fromType<int>());
+    addField(
+        FN_Q2K_SERVICE_INVOLVED_OTHERS_HELPFULLY, QMetaType::fromType<int>()
+    );
     addField(FN_Q2L_I_WOULD_RECOMMEND_SERVICE, QMetaType::fromType<int>());
     addField(FN_Q3A_UNIT_CLEAN, QMetaType::fromType<int>());
-    addField(FN_Q3B_UNIT_NOT_GOOD_PLACE_TO_RECOVER, QMetaType::fromType<int>());
-    addField(FN_Q3C_UNIT_DID_NOT_PROVIDE_ACTIVITIES, QMetaType::fromType<int>());
+    addField(
+        FN_Q3B_UNIT_NOT_GOOD_PLACE_TO_RECOVER, QMetaType::fromType<int>()
+    );
+    addField(
+        FN_Q3C_UNIT_DID_NOT_PROVIDE_ACTIVITIES, QMetaType::fromType<int>()
+    );
     addField(FN_Q3D_UNIT_GOOD_PLACE_FOR_BABY, QMetaType::fromType<int>());
-    addField(FN_Q3E_UNIT_SUPPORTED_FAMILY_FRIENDS_CONTACT, QMetaType::fromType<int>());
+    addField(
+        FN_Q3E_UNIT_SUPPORTED_FAMILY_FRIENDS_CONTACT,
+        QMetaType::fromType<int>()
+    );
     addField(FN_Q3F_FOOD_NOT_ACCEPTABLE, QMetaType::fromType<int>());
     addField(FN_GENERAL_COMMENTS, QMetaType::fromType<QString>());
     addField(FN_FUTURE_PARTICIPATION, QMetaType::fromType<QString>());
@@ -132,7 +144,6 @@ PerinatalPoem::PerinatalPoem(CamcopsApp& app, DatabaseManager& db, const int loa
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -143,19 +154,18 @@ QString PerinatalPoem::shortname() const
     return "Perinatal-POEM";
 }
 
-
 QString PerinatalPoem::longname() const
 {
     return tr("Perinatal Patient-rated Outcome and Experience Measure");
 }
 
-
 QString PerinatalPoem::description() const
 {
-    return tr("2 questions on mental health; 12 questions on patient "
-              "experience; ±6 questions specific to mother/baby units.");
+    return tr(
+        "2 questions on mental health; 12 questions on patient "
+        "experience; ±6 questions specific to mother/baby units."
+    );
 }
-
 
 // ============================================================================
 // Instance info
@@ -203,12 +213,10 @@ bool PerinatalPoem::isComplete() const
     return true;
 }
 
-
 QStringList PerinatalPoem::summary() const
 {
     return QStringList{"No summary; see facsimile."};
 }
-
 
 OpenableWidget* PerinatalPoem::editor(const bool read_only)
 {
@@ -260,8 +268,9 @@ OpenableWidget* PerinatalPoem::editor(const bool read_only)
     auto makeQ = [this](const QString& xstringname) -> QuText* {
         return new QuText(xstring(xstringname));
     };
-    auto makeGrid = [](const QVector<QuestionWithOneField>& question_field_pairs,
-                       const NameValueOptions& options) -> QuMcqGrid* {
+    auto makeGrid
+        = [](const QVector<QuestionWithOneField>& question_field_pairs,
+             const NameValueOptions& options) -> QuMcqGrid* {
         const int n_options = options.size();
         const int width_per_option = 1;
         const QVector<int> option_widths(n_options, width_per_option);
@@ -275,167 +284,272 @@ OpenableWidget* PerinatalPoem::editor(const bool read_only)
     // Page 1
     // ------------------------------------------------------------------------
 
-    QuPagePtr page_1((new QuPage{
-        // note to respondent is already part of preamble text.
-        new QuHeading(xstring("intro_title")),
-        new QuText(xstring("intro_para_1")),
-        new QuText(xstring("intro_para_2")),
-        new QuText(xstring("intro_para_3")),
-    })->setTitle(makeTitle()));
+    QuPagePtr page_1(
+        (new QuPage{
+             // note to respondent is already part of preamble text.
+             new QuHeading(xstring("intro_title")),
+             new QuText(xstring("intro_para_1")),
+             new QuText(xstring("intro_para_2")),
+             new QuText(xstring("intro_para_3")),
+         })
+            ->setTitle(makeTitle())
+    );
 
     // ------------------------------------------------------------------------
     // Page 2
     // ------------------------------------------------------------------------
 
     FieldRefPtr fr_respondent = fieldRef(FN_QA_RESPONDENT);
-    connect(fr_respondent.data(), &FieldRef::valueChanged,
-            this, &PerinatalPoem::respondentTypeChanged);
+    connect(
+        fr_respondent.data(),
+        &FieldRef::valueChanged,
+        this,
+        &PerinatalPoem::respondentTypeChanged
+    );
 
     FieldRefPtr fr_service = fieldRef(FN_QB_SERVICE_TYPE);
-    connect(fr_service.data(), &FieldRef::valueChanged,
-            this, &PerinatalPoem::serviceTypeChanged);
+    connect(
+        fr_service.data(),
+        &FieldRef::valueChanged,
+        this,
+        &PerinatalPoem::serviceTypeChanged
+    );
 
-    QuPagePtr page_2((new QuPage{
-        makeQ("qa_q"),
-        new QuMcq(fieldRef(FN_QA_RESPONDENT), options_respondent),
-        makeRespondentSpacer(),
-        makeNoteToRespondent(),
-        makeRespondentSpacer(),
-        makeQ("qb_q"),
-        new QuMcq(fr_service, options_service),
-    })->setTitle(makeTitle()));
+    QuPagePtr page_2(
+        (new QuPage{
+             makeQ("qa_q"),
+             new QuMcq(fieldRef(FN_QA_RESPONDENT), options_respondent),
+             makeRespondentSpacer(),
+             makeNoteToRespondent(),
+             makeRespondentSpacer(),
+             makeQ("qb_q"),
+             new QuMcq(fr_service, options_service),
+         })
+            ->setTitle(makeTitle())
+    );
 
     // ------------------------------------------------------------------------
     // Page 3
     // ------------------------------------------------------------------------
 
-    QuPagePtr page_3((new QuPage{
-        makeNoteToRespondent(),
-        makeRespondentSpacer(),
-        makeQ("q1_stem"),
-        makeGrid(
-            {
-                QuestionWithOneField(xstring("q1a_q"), fieldRef(FN_Q1A_MH_FIRST_CONTACT)),
-                QuestionWithOneField(xstring("q1b_q"), fieldRef(FN_Q1B_MH_DISCHARGE)),
-            },
-            options_mh
-        ),
-    })->setTitle(makeTitle()));
+    QuPagePtr page_3(
+        (new QuPage{
+             makeNoteToRespondent(),
+             makeRespondentSpacer(),
+             makeQ("q1_stem"),
+             makeGrid(
+                 {
+                     QuestionWithOneField(
+                         xstring("q1a_q"), fieldRef(FN_Q1A_MH_FIRST_CONTACT)
+                     ),
+                     QuestionWithOneField(
+                         xstring("q1b_q"), fieldRef(FN_Q1B_MH_DISCHARGE)
+                     ),
+                 },
+                 options_mh
+             ),
+         })
+            ->setTitle(makeTitle())
+    );
 
     // ------------------------------------------------------------------------
     // Page 4
     // ------------------------------------------------------------------------
 
-    QuPagePtr page_4((new QuPage{
-        makeNoteToRespondent(),
-        makeRespondentSpacer(),
-        makeQ("q2_stem"),
-        makeGrid(
-            {
-                QuestionWithOneField(xstring("q2a_q"), fieldRef(FN_Q2A_STAFF_DID_NOT_COMMUNICATE)),
-                QuestionWithOneField(xstring("q2b_q"), fieldRef(FN_Q2B_STAFF_GAVE_RIGHT_SUPPORT)),
-                QuestionWithOneField(xstring("q2c_q"), fieldRef(FN_Q2C_HELP_NOT_QUICK_ENOUGH)),
-                QuestionWithOneField(xstring("q2d_q"), fieldRef(FN_Q2D_STAFF_LISTENED)),
-            },
-            options_agreement
-        ),
-    })->setTitle(makeTitle()));
+    QuPagePtr page_4(
+        (new QuPage{
+             makeNoteToRespondent(),
+             makeRespondentSpacer(),
+             makeQ("q2_stem"),
+             makeGrid(
+                 {
+                     QuestionWithOneField(
+                         xstring("q2a_q"),
+                         fieldRef(FN_Q2A_STAFF_DID_NOT_COMMUNICATE)
+                     ),
+                     QuestionWithOneField(
+                         xstring("q2b_q"),
+                         fieldRef(FN_Q2B_STAFF_GAVE_RIGHT_SUPPORT)
+                     ),
+                     QuestionWithOneField(
+                         xstring("q2c_q"),
+                         fieldRef(FN_Q2C_HELP_NOT_QUICK_ENOUGH)
+                     ),
+                     QuestionWithOneField(
+                         xstring("q2d_q"), fieldRef(FN_Q2D_STAFF_LISTENED)
+                     ),
+                 },
+                 options_agreement
+             ),
+         })
+            ->setTitle(makeTitle())
+    );
 
     // ------------------------------------------------------------------------
     // Page 5
     // ------------------------------------------------------------------------
 
-    QuPagePtr page_5((new QuPage{
-        makeNoteToRespondent(),
-        makeRespondentSpacer(),
-        makeQ("q2_stem"),
-        makeGrid(
-            {
-                QuestionWithOneField(xstring("q2e_q"), fieldRef(FN_Q2E_STAFF_DID_NOT_INVOLVE_ME)),
-                QuestionWithOneField(xstring("q2f_q"), fieldRef(FN_Q2F_SERVICE_PROVIDED_INFO)),
-                QuestionWithOneField(xstring("q2g_q"), fieldRef(FN_Q2G_STAFF_NOT_SENSITIVE_TO_ME)),
-                QuestionWithOneField(xstring("q2h_q"), fieldRef(FN_Q2H_STAFF_HELPED_ME_UNDERSTAND)),
-            },
-            options_agreement
-        ),
-    })->setTitle(makeTitle()));
+    QuPagePtr page_5(
+        (new QuPage{
+             makeNoteToRespondent(),
+             makeRespondentSpacer(),
+             makeQ("q2_stem"),
+             makeGrid(
+                 {
+                     QuestionWithOneField(
+                         xstring("q2e_q"),
+                         fieldRef(FN_Q2E_STAFF_DID_NOT_INVOLVE_ME)
+                     ),
+                     QuestionWithOneField(
+                         xstring("q2f_q"),
+                         fieldRef(FN_Q2F_SERVICE_PROVIDED_INFO)
+                     ),
+                     QuestionWithOneField(
+                         xstring("q2g_q"),
+                         fieldRef(FN_Q2G_STAFF_NOT_SENSITIVE_TO_ME)
+                     ),
+                     QuestionWithOneField(
+                         xstring("q2h_q"),
+                         fieldRef(FN_Q2H_STAFF_HELPED_ME_UNDERSTAND)
+                     ),
+                 },
+                 options_agreement
+             ),
+         })
+            ->setTitle(makeTitle())
+    );
 
     // ------------------------------------------------------------------------
     // Page 6
     // ------------------------------------------------------------------------
 
-    QuPagePtr page_6((new QuPage{
-        makeNoteToRespondent(),
-        makeRespondentSpacer(),
-        makeQ("q2_stem"),
-        makeGrid(
-            {
-                QuestionWithOneField(xstring("q2i_q"), fieldRef(FN_Q2I_STAFF_NOT_SENSITIVE_TO_BABY)),
-                QuestionWithOneField(xstring("q2j_q"), fieldRef(FN_Q2J_STAFF_HELPED_MY_CONFIDENCE)),
-                QuestionWithOneField(xstring("q2k_q"), fieldRef(FN_Q2K_SERVICE_INVOLVED_OTHERS_HELPFULLY)),
-                QuestionWithOneField(xstring("q2l_q"), fieldRef(FN_Q2L_I_WOULD_RECOMMEND_SERVICE)),
-            },
-            options_agreement
-        ),
-    })->setTitle(makeTitle()));
+    QuPagePtr page_6(
+        (new QuPage{
+             makeNoteToRespondent(),
+             makeRespondentSpacer(),
+             makeQ("q2_stem"),
+             makeGrid(
+                 {
+                     QuestionWithOneField(
+                         xstring("q2i_q"),
+                         fieldRef(FN_Q2I_STAFF_NOT_SENSITIVE_TO_BABY)
+                     ),
+                     QuestionWithOneField(
+                         xstring("q2j_q"),
+                         fieldRef(FN_Q2J_STAFF_HELPED_MY_CONFIDENCE)
+                     ),
+                     QuestionWithOneField(
+                         xstring("q2k_q"),
+                         fieldRef(FN_Q2K_SERVICE_INVOLVED_OTHERS_HELPFULLY)
+                     ),
+                     QuestionWithOneField(
+                         xstring("q2l_q"),
+                         fieldRef(FN_Q2L_I_WOULD_RECOMMEND_SERVICE)
+                     ),
+                 },
+                 options_agreement
+             ),
+         })
+            ->setTitle(makeTitle())
+    );
 
     // ------------------------------------------------------------------------
     // Page 7
     // ------------------------------------------------------------------------
 
-    QuPagePtr page_7((new QuPage{
-        makeNoteToRespondent(),
-        makeRespondentSpacer(),
-        makeQ("q3_stem")->addTag(TAG_MBU),
-        makeGrid(
-            {
-                QuestionWithOneField(xstring("q3a_q"), fieldRef(FN_Q3A_UNIT_CLEAN)),
-                QuestionWithOneField(xstring("q3b_q"), fieldRef(FN_Q3B_UNIT_NOT_GOOD_PLACE_TO_RECOVER)),
-                QuestionWithOneField(xstring("q3c_q"), fieldRef(FN_Q3C_UNIT_DID_NOT_PROVIDE_ACTIVITIES)),
-                QuestionWithOneField(xstring("q3d_q"), fieldRef(FN_Q3D_UNIT_GOOD_PLACE_FOR_BABY)),
-                QuestionWithOneField(xstring("q3e_q"), fieldRef(FN_Q3E_UNIT_SUPPORTED_FAMILY_FRIENDS_CONTACT)),
-                QuestionWithOneField(xstring("q3f_q"), fieldRef(FN_Q3F_FOOD_NOT_ACCEPTABLE)),
-            },
-            options_agreement
-        )->addTag(TAG_MBU),
-        makeQ("general_comments_q"),
-        new QuTextEdit(fieldRef(FN_GENERAL_COMMENTS, false)),
-    })->setTitle(makeTitle()));
+    QuPagePtr page_7(
+        (new QuPage{
+             makeNoteToRespondent(),
+             makeRespondentSpacer(),
+             makeQ("q3_stem")->addTag(TAG_MBU),
+             makeGrid(
+                 {
+                     QuestionWithOneField(
+                         xstring("q3a_q"), fieldRef(FN_Q3A_UNIT_CLEAN)
+                     ),
+                     QuestionWithOneField(
+                         xstring("q3b_q"),
+                         fieldRef(FN_Q3B_UNIT_NOT_GOOD_PLACE_TO_RECOVER)
+                     ),
+                     QuestionWithOneField(
+                         xstring("q3c_q"),
+                         fieldRef(FN_Q3C_UNIT_DID_NOT_PROVIDE_ACTIVITIES)
+                     ),
+                     QuestionWithOneField(
+                         xstring("q3d_q"),
+                         fieldRef(FN_Q3D_UNIT_GOOD_PLACE_FOR_BABY)
+                     ),
+                     QuestionWithOneField(
+                         xstring("q3e_q"),
+                         fieldRef(FN_Q3E_UNIT_SUPPORTED_FAMILY_FRIENDS_CONTACT)
+                     ),
+                     QuestionWithOneField(
+                         xstring("q3f_q"), fieldRef(FN_Q3F_FOOD_NOT_ACCEPTABLE)
+                     ),
+                 },
+                 options_agreement
+             )
+                 ->addTag(TAG_MBU),
+             makeQ("general_comments_q"),
+             new QuTextEdit(fieldRef(FN_GENERAL_COMMENTS, false)),
+         })
+            ->setTitle(makeTitle())
+    );
 
     // ------------------------------------------------------------------------
     // Page 8
     // ------------------------------------------------------------------------
 
     m_fr_participation = fieldRef(FN_FUTURE_PARTICIPATION);
-    connect(m_fr_participation.data(), &FieldRef::valueChanged,
-            this, &PerinatalPoem::participationChanged);
+    connect(
+        m_fr_participation.data(),
+        &FieldRef::valueChanged,
+        this,
+        &PerinatalPoem::participationChanged
+    );
     m_fr_contact_details = fieldRef(FN_CONTACT_DETAILS);
 
-    QuPagePtr page_8((new QuPage{
-        makeNoteToRespondent(),
-        makeRespondentSpacer(),
-        makeQ("participation_q"),
-        new QuMcq(m_fr_participation, options_yn),
-        makeQ("contact_details_q")->addTag(TAG_CONTACT_DETAILS),
-        (new QuTextEdit(m_fr_contact_details))->addTag(TAG_CONTACT_DETAILS),
-    })->setTitle(makeTitle()));
+    QuPagePtr page_8(
+        (new QuPage{
+             makeNoteToRespondent(),
+             makeRespondentSpacer(),
+             makeQ("participation_q"),
+             new QuMcq(m_fr_participation, options_yn),
+             makeQ("contact_details_q")->addTag(TAG_CONTACT_DETAILS),
+             (new QuTextEdit(m_fr_contact_details))
+                 ->addTag(TAG_CONTACT_DETAILS),
+         })
+            ->setTitle(makeTitle())
+    );
 
     // ------------------------------------------------------------------------
     // Page 9
     // ------------------------------------------------------------------------
 
     QuPagePtr page_9((new QuPage{
-        new QuText(xstring("conclusion_thanks")),
-        new QuText(xstring("contact_info_pqn_project_team")),
-    })->setTitle(makeTitle()));
+                          new QuText(xstring("conclusion_thanks")),
+                          new QuText(xstring("contact_info_pqn_project_team")),
+                      })
+                         ->setTitle(makeTitle()));
 
     // ------------------------------------------------------------------------
     // Questionnaire
     // ------------------------------------------------------------------------
 
-    m_questionnaire = new Questionnaire(m_app, {
-        page_1, page_2, page_3, page_4, page_5, page_6, page_7, page_8, page_9,
-    });
+    m_questionnaire = new Questionnaire(
+        m_app,
+        {
+            page_1,
+            page_2,
+            page_3,
+            page_4,
+            page_5,
+            page_6,
+            page_7,
+            page_8,
+            page_9,
+        }
+    );
     m_questionnaire->setType(QuPage::PageType::Patient);
     m_questionnaire->setReadOnly(read_only);
 
@@ -454,7 +568,6 @@ OpenableWidget* PerinatalPoem::editor(const bool read_only)
     return m_questionnaire;
 }
 
-
 // ============================================================================
 // Task-specific calculations
 // ============================================================================
@@ -464,18 +577,15 @@ bool PerinatalPoem::wasInpatient() const
     return valueInt(FN_QB_SERVICE_TYPE) == VAL_QB_INPATIENT;
 }
 
-
 bool PerinatalPoem::respondentNotPatient() const
 {
     return valueInt(FN_QA_RESPONDENT) == VAL_QA_PARTNER_OTHER;
 }
 
-
 bool PerinatalPoem::offeringParticipation() const
 {
     return valueInt(FN_FUTURE_PARTICIPATION) == CommonOptions::YES_INT;
 }
-
 
 // ============================================================================
 // Signal handlers
@@ -490,7 +600,6 @@ void PerinatalPoem::respondentTypeChanged()
     m_questionnaire->setVisibleByTag(TAG_RESPONDENT, visible, false);
 }
 
-
 void PerinatalPoem::serviceTypeChanged()
 {
     if (!m_questionnaire) {
@@ -499,7 +608,6 @@ void PerinatalPoem::serviceTypeChanged()
     const bool visible = wasInpatient();
     m_questionnaire->setVisibleByTag(TAG_MBU, visible, false);
 }
-
 
 void PerinatalPoem::participationChanged()
 {

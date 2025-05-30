@@ -19,6 +19,7 @@
 */
 
 #include "uiconst.h"
+
 #include <QDate>
 #include <QObject>  // for tr()
 
@@ -53,14 +54,15 @@ const int DEFAULT_COLSPAN_Q = 1;
 const int DEFAULT_COLSPAN_A = 2;
 const int MIN_SPINBOX_HEIGHT_FOR_DEFAULT_DPI = 48;
 int g_min_spinbox_height = MIN_SPINBOX_HEIGHT_FOR_DEFAULT_DPI;
-const QAbstractSpinBox::ButtonSymbols SPINBOX_SYMBOLS = QAbstractSpinBox::UpDownArrows;
-    // QAbstractSpinBox::PlusMinus works but vertically stretched "+"
-    // QAbstractSpinBox::UpDownArrows -- just looks blank on Linux and Android
-    // ... missing actually looks slightly better than distorted!
+const QAbstractSpinBox::ButtonSymbols SPINBOX_SYMBOLS
+    = QAbstractSpinBox::UpDownArrows;
+// QAbstractSpinBox::PlusMinus works but vertically stretched "+"
+// QAbstractSpinBox::UpDownArrows -- just looks blank on Linux and Android
+// ... missing actually looks slightly better than distorted!
 const int SLIDER_HANDLE_SIZE_PX_FOR_DEFAULT_DPI = 40;
-    // ... 10 too small for smartphones
-    // At 96 (approx. 100) dpi, 20 px gives 0.2 inches = 5mm,
-    // so perhaps 40. This is slightly "big print", bu that's appropriate.
+// ... 10 too small for smartphones
+// At 96 (approx. 100) dpi, 20 px gives 0.2 inches = 5mm,
+// so perhaps 40. This is slightly "big print", bu that's appropriate.
 int g_slider_handle_size_px = SLIDER_HANDLE_SIZE_PX_FOR_DEFAULT_DPI;
 const int SLIDER_GROOVE_MARGIN_PX = 2;
 const int DIAL_DIAMETER_PX_FOR_DEFAULT_DPI = 192;
@@ -72,7 +74,8 @@ const QFont::Weight QCALENDARWIDGET_HEADER_FONTWEIGHT = QFont::Bold;
 const QColor QCALENDARWIDGET_TEXT_WEEKDAY(0, 0, 0);  // black
 const QColor QCALENDARWIDGET_TEXT_WEEKEND(255, 0, 0);  // red
 const QDate QCALENDARWIDGET_MIN_DATE(1880, 1, 1);  // no older
-const QDate QCALENDARWIDGET_MAX_DATE = QDate();  // QCalendarWidget default ("no limit")
+const QDate QCALENDARWIDGET_MAX_DATE = QDate();
+// ... QCalendarWidget default ("no limit")
 
 const QMargins NO_MARGINS(0, 0, 0, 0);
 
@@ -80,15 +83,17 @@ const QMargins NO_MARGINS(0, 0, 0, 0);
 // Stylesheets
 // ============================================================================
 
-#define camcopsStylesheetFilename(filename) (":/resources/camcops/stylesheets/" filename)
+#define camcopsStylesheetFilename(filename)                                   \
+    (":/resources/camcops/stylesheets/" filename)
 
 const QString CSS_CAMCOPS_MAIN(camcopsStylesheetFilename("main.css"));
 const QString CSS_CAMCOPS_MENU(camcopsStylesheetFilename("menu.css"));
-const QString CSS_CAMCOPS_QUESTIONNAIRE(camcopsStylesheetFilename(
-            "questionnaire.css"));
+const QString
+    CSS_CAMCOPS_QUESTIONNAIRE(camcopsStylesheetFilename("questionnaire.css"));
 const QString CSS_CAMCOPS_CAMERA(camcopsStylesheetFilename("camera.css"));
 const QString CSS_CAMCOPS_DIAGNOSTIC_CODE(
-        camcopsStylesheetFilename("diagnostic_code.css"));
+    camcopsStylesheetFilename("diagnostic_code.css")
+);
 
 // ============================================================================
 // Fonts, colours
@@ -96,9 +101,12 @@ const QString CSS_CAMCOPS_DIAGNOSTIC_CODE(
 
 const QString WARNING_COLOUR_CSS("red");
 
-const QColor BUTTON_UNPRESSED_COLOUR(127, 127, 127, 100);  // translucent mid-grey
-const QColor BUTTON_PRESSED_COLOUR(100, 100, 255, 200);  // translucent light blue
-const QColor BUTTON_DISABLED_COLOUR(127, 127, 127, 200);  // very translucent mid-grey
+const QColor BUTTON_UNPRESSED_COLOUR(127, 127, 127, 100);
+// ... translucent mid-grey
+const QColor BUTTON_PRESSED_COLOUR(100, 100, 255, 200);
+// ... translucent light blue
+const QColor BUTTON_DISABLED_COLOUR(127, 127, 127, 200);
+// ... very translucent mid-grey
 const qreal DISABLED_ICON_OPACITY = 0.5;
 
 // ============================================================================
@@ -117,13 +125,15 @@ const QString ICON_CLINICAL("clinical.png");
 const QString ICON_COGNITIVE("cognitive.png");
 const QString ICON_DOLPHIN("dolphin.png");
 const QString ICON_EXECUTIVE("executive.png");
-const QString ICON_FIELD_INCOMPLETE_MANDATORY("field_incomplete_mandatory.png");
+const QString ICON_FIELD_INCOMPLETE_MANDATORY("field_incomplete_mandatory.png"
+);
 const QString ICON_FIELD_INCOMPLETE_OPTIONAL("field_incomplete_optional.png");
 const QString ICON_FIELD_PROBLEM("field_problem.png");
 const QString ICON_GLOBAL("global.png");
 const QString ICON_HASCHILD("hasChild.png");
 const QString ICON_HASPARENT("hasParent.png");
 const QString ICON_INFO("info.png");
+const QString ICON_NEURODIVERSITY("neurodiversity.png");
 const QString ICON_PATIENT_SUMMARY("patient_summary.png");
 const QString ICON_PERSONALITY("personality.png");
 const QString ICON_PHYSICAL("physical.png");
@@ -174,9 +184,14 @@ const QString CBS_ZOOM("zoom.png");
 const int MIN_VOLUME_QT = 0;
 const int MAX_VOLUME_QT = 100;
 
-const QString DEMO_SOUND_URL_1("qrc:///resources/camcops/sounds/bach_brandenburg_3_3.mp3");
-const QString DEMO_SOUND_URL_2("qrc:///resources/camcops/sounds/mozart_laudate.mp3");
-const QString SOUND_COUNTDOWN_FINISHED("qrc:///resources/camcops/sounds/countdown_finished.wav");
+const QString DEMO_SOUND_URL_1(
+    "qrc:///resources/camcops/sounds/bach_brandenburg_3_3.mp3"
+);
+const QString
+    DEMO_SOUND_URL_2("qrc:///resources/camcops/sounds/mozart_laudate.mp3");
+const QString SOUND_COUNTDOWN_FINISHED(
+    "qrc:///resources/camcops/sounds/countdown_finished.wav"
+);
 
 // ============================================================================
 // Network

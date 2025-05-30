@@ -23,8 +23,8 @@
 #include <QDebug>
 #include <QString>
 
-
-class WhiskerInboundMessage {
+class WhiskerInboundMessage
+{
 
     // A message inbound to us from a Whisker server.
 
@@ -43,11 +43,13 @@ public:
     //          is there an associated timestamp from the server?
     //      server_timestamp_ms:
     //          server timestamp, in ms
-    WhiskerInboundMessage(const QString& msg = "",
-                          bool immediate_socket = false,
-                          const QDateTime& timestamp = QDateTime(),
-                          bool has_server_timestamp = false,
-                          quint64 server_timestamp_ms = 0);
+    WhiskerInboundMessage(
+        const QString& msg = "",
+        bool immediate_socket = false,
+        const QDateTime& timestamp = QDateTime(),
+        bool has_server_timestamp = false,
+        quint64 server_timestamp_ms = 0
+    );
 
     // Return the message.
     QString message() const;
@@ -118,7 +120,6 @@ public:
     bool isPingAck() const;
 
 protected:
-
     // Parse m_msg into a server timestamp (if present) and the rest of the
     // message.
     void splitServerTimestamp();
@@ -140,9 +141,12 @@ protected:
     int m_key_code = 0;  // (If key event) Key code
     bool m_key_down = false;  // (If key event) Key being depressed?
     bool m_key_up = false;  // (If key event) Key being released?
-    QString m_key_doc;  // (If key event) Whisker document receiving the keypress
-    bool m_is_client_message = false;  // Is this a message from another Whisker client?
-    int m_client_message_source_clientnum = -1;  // (If client message) The sender's client number
+    QString m_key_doc;
+    // ... (If key event) Whisker document receiving the keypress
+    bool m_is_client_message = false;
+    // ... Is this a message from another Whisker client?
+    int m_client_message_source_clientnum = -1;
+    // ... (If client message) The sender's client number
     QString m_client_message;  // (If client message) The message
     bool m_is_warning = false;  // Is this a warning?
     bool m_is_syntax_error = false;  // Is this a syntax error?

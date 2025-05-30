@@ -19,12 +19,13 @@
 */
 
 #include "setmenucpftadulteatingdisorders.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
-
-#include "taskchains/cpftadulteatingdisorderss3clinicalchain.h"
 #include "taskchains/cpftadulteatingdisorderscoiinanchain.h"
+#include "taskchains/cpftadulteatingdisorderss3clinicalchain.h"
+#include "tasks/aq.h"
 #include "tasks/bmi.h"
 #include "tasks/cet.h"
 #include "tasks/chit.h"
@@ -32,9 +33,9 @@
 #include "tasks/edeq.h"
 #include "tasks/eq5d5l.h"
 #include "tasks/gad7.h"
+#include "tasks/gbogpc.h"
 #include "tasks/gbogras.h"
 #include "tasks/gbogres.h"
-#include "tasks/gbogpc.h"
 #include "tasks/ided3d.h"
 #include "tasks/isaaq10.h"
 #include "tasks/isaaqed.h"
@@ -43,33 +44,37 @@
 #include "tasks/suppsp.h"
 #include "tasks/swemwbs.h"
 
-
-SetMenuCpftAdultEatingDisorders::SetMenuCpftAdultEatingDisorders(CamcopsApp& app) :
+SetMenuCpftAdultEatingDisorders::SetMenuCpftAdultEatingDisorders(
+    CamcopsApp& app
+) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_DOLPHIN))
 {
 }
-
 
 QString SetMenuCpftAdultEatingDisorders::title() const
 {
     return tr("CPFT Adult Eating Disorders Service");
 }
 
-
 QString SetMenuCpftAdultEatingDisorders::subtitle() const
 {
-    return tr("Cambridgeshire and Peterborough NHS Foundation Trust, UK — "
-              "adult eating disorders service");
+    return tr(
+        "Cambridgeshire and Peterborough NHS Foundation Trust, UK — "
+        "adult eating disorders service"
+    );
 }
-
 
 void SetMenuCpftAdultEatingDisorders::makeItems()
 {
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
         MenuItem(tr("Task chains")).setLabelOnly(),
-        MAKE_TASK_CHAIN_MENU_ITEM(new CpftAdultEatingDisordersS3ClinicalChain(m_app)),
-        MAKE_TASK_CHAIN_MENU_ITEM(new CpftAdultEatingDisordersCoiinAnChain(m_app)),
+        MAKE_TASK_CHAIN_MENU_ITEM(
+            new CpftAdultEatingDisordersS3ClinicalChain(m_app)
+        ),
+        MAKE_TASK_CHAIN_MENU_ITEM(
+            new CpftAdultEatingDisordersCoiinAnChain(m_app)
+        ),
 
         MenuItem(tr("Generic measures")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(Eq5d5l::EQ5D5L_TABLENAME, m_app),
@@ -77,6 +82,7 @@ void SetMenuCpftAdultEatingDisorders::makeItems()
         MAKE_TASK_MENU_ITEM(Paradise24::PARADISE24_TABLENAME, m_app),
 
         MenuItem(tr("Specific conditions")).setLabelOnly(),
+        MAKE_TASK_MENU_ITEM(Aq::AQ_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Cet::CET_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Cia::CIA_TABLENAME, m_app),

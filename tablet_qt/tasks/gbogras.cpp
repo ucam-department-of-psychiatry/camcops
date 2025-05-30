@@ -19,9 +19,10 @@
 */
 
 #include "gbogras.h"
-#include "maths/mathfunc.h"
+
 #include "lib/datetime.h"
 #include "lib/stringfunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
@@ -57,7 +58,6 @@ const QString FN_COMPLETED_BY_OTHER("completed_by_other");
 
 const QString TAG_OTHER("other");
 
-
 // ============================================================================
 // Helper functions
 // ============================================================================
@@ -66,7 +66,6 @@ QString getGoalTag(const int goalnum)
 {
     return QString("goal%1").arg(goalnum);
 }
-
 
 // ============================================================================
 // Registration
@@ -77,13 +76,13 @@ void initializeGboGRaS(TaskFactory& factory)
     static TaskRegistrar<GboGRaS> registered(factory);
 }
 
-
 // ============================================================================
 // Constructor
 // ============================================================================
 
 GboGRaS::GboGRaS(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, GBOGRAS_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, GBOGRAS_TABLENAME, false, false, false),
+    // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     addField(FN_DATE, QMetaType::fromType<QDate>());
@@ -105,7 +104,6 @@ GboGRaS::GboGRaS(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     }
 }
 
-
 // ============================================================================
 // Class info
 // ============================================================================
@@ -115,31 +113,28 @@ QString GboGRaS::shortname() const
     return "GBO-GRaS";
 }
 
-
 QString GboGRaS::longname() const
 {
     return tr("Goal-Based Outcomes – 3 – Goal Rating Sheet");
 }
 
-
 QString GboGRaS::description() const
 {
-    return tr("For recording progress towards the goals of therapy "
-              "(up to 3 goals).");
+    return tr(
+        "For recording progress towards the goals of therapy "
+        "(up to 3 goals)."
+    );
 }
-
 
 QString GboGRaS::infoFilenameStem() const
 {
     return xstringTaskname();
 }
 
-
 QString GboGRaS::xstringTaskname() const
 {
     return "gbo";
 }
-
 
 // ============================================================================
 // Instance info
@@ -150,15 +145,17 @@ bool GboGRaS::isComplete() const
     if (anyValuesNullOrEmpty({FN_DATE, FN_COMPLETED_BY})) {
         return false;
     }
-    if (value(FN_COMPLETED_BY) == gbocommon::AGENT_OTHER &&
-            valueIsNullOrEmpty(FN_COMPLETED_BY_OTHER)) {
+    if (value(FN_COMPLETED_BY) == gbocommon::AGENT_OTHER
+        && valueIsNullOrEmpty(FN_COMPLETED_BY_OTHER)) {
         return false;
     }
     int n_goals_completed = 0;
 
-    auto goalOK = [this, &n_goals_completed]
-                  (const QString& fn_rate,  const QString& fn_desc,
-                   const QString& fn_progress) -> bool {
+    auto goalOK = [this, &n_goals_completed](
+                      const QString& fn_rate,
+                      const QString& fn_desc,
+                      const QString& fn_progress
+                  ) -> bool {
         if (valueBool(fn_rate)) {
             ++n_goals_completed;
             if (anyValuesNullOrEmpty({fn_desc, fn_progress})) {
@@ -180,38 +177,39 @@ bool GboGRaS::isComplete() const
     return n_goals_completed > 0;
 }
 
-
 QStringList GboGRaS::summary() const
 {
     QStringList lines;
 
-    auto doGoal = [this, &lines]
-                  (const int goalnum, const QString& fn_rate,
-                   const QString& fn_progress) -> void {
+    auto doGoal = [this, &lines](
+                      const int goalnum,
+                      const QString& fn_rate,
+                      const QString& fn_progress
+                  ) -> void {
         if (!valueBool(fn_rate)) {
             return;
         }
-        QString line = QString("Goal <b>%1</b>: progress <b>%2</b>/%3.").arg(
-                    QString::number(goalnum),
-                    prettyValue(fn_progress),
-                    QString::number(gbocommon::PROGRESS_MAX));
+        QString line = QString("Goal <b>%1</b>: progress <b>%2</b>/%3.")
+                           .arg(
+                               QString::number(goalnum),
+                               prettyValue(fn_progress),
+                               QString::number(gbocommon::PROGRESS_MAX)
+                           );
         lines.append(line);
     };
 
-    lines.append(QString("Date: <b>%1</b>.").arg(
-                     datetime::dateToIso(valueDate(FN_DATE))));
+    lines.append(QString("Date: <b>%1</b>.")
+                     .arg(datetime::dateToIso(valueDate(FN_DATE))));
     doGoal(1, FN_RATE_GOAL_1, FN_GOAL_1_PROGRESS);
     doGoal(2, FN_RATE_GOAL_2, FN_GOAL_2_PROGRESS);
     doGoal(3, FN_RATE_GOAL_3, FN_GOAL_3_PROGRESS);
     return lines;
 }
 
-
 QStringList GboGRaS::detail() const
 {
     return summary();
 }
-
 
 OpenableWidget* GboGRaS::editor(const bool read_only)
 {
@@ -220,23 +218,23 @@ OpenableWidget* GboGRaS::editor(const bool read_only)
     // ------------------------------------------------------------------------
 
     const NameValueOptions completed_by_options = NameValueOptions{
-        { xstring("agent_1"), gbocommon::AGENT_PATIENT },
-        { xstring("agent_2"), gbocommon::AGENT_PARENT_CARER },
+        {xstring("agent_1"), gbocommon::AGENT_PATIENT},
+        {xstring("agent_2"), gbocommon::AGENT_PARENT_CARER},
         // not 3: clinician
-        { xstring("agent_4"), gbocommon::AGENT_OTHER },
+        {xstring("agent_4"), gbocommon::AGENT_OTHER},
     };
 
     QMap<int, QString> slider_tick_map;
     for (int r = gbocommon::PROGRESS_MIN; r <= gbocommon::PROGRESS_MAX; ++r) {
         QString label;
         switch (r) {
-        case 0:
-        case 5:
-        case 10:
-            label = xstring(QString("gras_anchor_%1").arg(r));
-            break;
-        default:
-            break;
+            case 0:
+            case 5:
+            case 10:
+                label = xstring(QString("gras_anchor_%1").arg(r));
+                break;
+            default:
+                break;
         }
         label = label + "\n" + QString::number(r);
         slider_tick_map[r] = label;
@@ -248,15 +246,15 @@ OpenableWidget* GboGRaS::editor(const bool read_only)
 
     QVector<QuElement*> elements{
         new QuFlowContainer{
-                new QuHeading(xstring("date")),
-                (new QuDateTime(fieldRef(FN_DATE)))
-                    ->setMode(QuDateTime::DefaultDate)
-                    ->setOfferNowButton(true),
+            new QuHeading(xstring("date")),
+            (new QuDateTime(fieldRef(FN_DATE)))
+                ->setMode(QuDateTime::DefaultDate)
+                ->setOfferNowButton(true),
         },
         (new QuText(xstring("gras_question")))
-                ->setBig()
-                ->setBold()
-                ->setItalic(),
+            ->setBig()
+            ->setBold()
+            ->setItalic(),
         new QuText(xstring("gras_instruction")),
         (new QuText(xstring("progress_explanation")))->setItalic(),
         new QuSpacer(),
@@ -266,24 +264,30 @@ OpenableWidget* GboGRaS::editor(const bool read_only)
     // Goal rating elements
     // ------------------------------------------------------------------------
 
-    auto addGoal = [this, &elements, &slider_tick_map]
-                   (const int goalnum, const QString& fn_rate,
-                    const QString& fn_desc,
-                    const QString& fn_progress) -> void {
+    auto addGoal = [this, &elements, &slider_tick_map](
+                       const int goalnum,
+                       const QString& fn_rate,
+                       const QString& fn_desc,
+                       const QString& fn_progress
+                   ) -> void {
         const QString tag = getGoalTag(goalnum);
         // I tried with a QuMcqGrid but a slider is much better at an evenly
         // distributed set of responses where some have (textually lengthy)
         // anchor points.
-        QuSlider* slider = new QuSlider(fieldRef(fn_progress),
-                                        gbocommon::PROGRESS_MIN,
-                                        gbocommon::PROGRESS_MAX);
+        QuSlider* slider = new QuSlider(
+            fieldRef(fn_progress),
+            gbocommon::PROGRESS_MIN,
+            gbocommon::PROGRESS_MAX
+        );
         slider->setTickPosition(QSlider::TicksBothSides);
         slider->setTickLabelPosition(QSlider::TicksAbove);
         slider->addTag(tag);
         slider->setTickLabels(slider_tick_map);
         slider->setBigStep(1);
         elements.append({
-            new QuHeading(xstring(QString("goal_rating_heading_%1").arg(goalnum))),
+            new QuHeading(
+                xstring(QString("goal_rating_heading_%1").arg(goalnum))
+            ),
             (new QuBoolean(xstring("rate_goal"), fieldRef(fn_rate))),
             (new QuText(xstring("gras_desc_instruction")))->addTag(tag),
             (new QuTextEdit(fieldRef(fn_desc)))->addTag(tag),
@@ -291,8 +295,12 @@ OpenableWidget* GboGRaS::editor(const bool read_only)
             slider,
             (new QuSpacer())->addTag(tag),
         });
-        connect(fieldRef(fn_rate).data(), &FieldRef::valueChanged,
-                this, &GboGRaS::updateMandatory);
+        connect(
+            fieldRef(fn_rate).data(),
+            &FieldRef::valueChanged,
+            this,
+            &GboGRaS::updateMandatory
+        );
     };
 
     addGoal(1, FN_RATE_GOAL_1, FN_GOAL_1_DESC, FN_GOAL_1_PROGRESS);
@@ -303,18 +311,19 @@ OpenableWidget* GboGRaS::editor(const bool read_only)
     // Closing elements
     // ------------------------------------------------------------------------
 
-    elements.append({
-        (new QuText(xstring("completed_by")))->setBold(true),
-        (new QuMcq(fieldRef(FN_COMPLETED_BY), completed_by_options))
-                        ->setHorizontal(true)
-                        ->setAsTextButton(true),
-        (new QuTextEdit(fieldRef(FN_COMPLETED_BY_OTHER), false))->addTag(TAG_OTHER),
+    elements.append(
+        {(new QuText(xstring("completed_by")))->setBold(true),
+         (new QuMcq(fieldRef(FN_COMPLETED_BY), completed_by_options))
+             ->setHorizontal(true)
+             ->setAsTextButton(true),
+         (new QuTextEdit(fieldRef(FN_COMPLETED_BY_OTHER), false))
+             ->addTag(TAG_OTHER),
 
-        new QuSpacer(),
-        new QuHorizontalLine(),
-        new QuSpacer(),
-        (new QuText(xstring("copyright")))->setItalic()
-    });
+         new QuSpacer(),
+         new QuHorizontalLine(),
+         new QuSpacer(),
+         (new QuText(xstring("copyright")))->setItalic()}
+    );
 
     // ------------------------------------------------------------------------
     // Page, questionnaire, other setup
@@ -322,8 +331,12 @@ OpenableWidget* GboGRaS::editor(const bool read_only)
 
     m_page = new QuPage(elements);
 
-    connect(fieldRef(FN_COMPLETED_BY).data(), &FieldRef::valueChanged,
-            this, &GboGRaS::updateMandatory);
+    connect(
+        fieldRef(FN_COMPLETED_BY).data(),
+        &FieldRef::valueChanged,
+        this,
+        &GboGRaS::updateMandatory
+    );
 
     m_page->setTitle(longname());
 
@@ -334,7 +347,6 @@ OpenableWidget* GboGRaS::editor(const bool read_only)
 
     return m_questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations
@@ -350,8 +362,8 @@ void GboGRaS::updateMandatory()
     m_questionnaire->setVisibleByTag(TAG_OTHER, other);
 
     int n_goals = 0;
-    auto doGoal = [this, &n_goals](const int goalnum,
-                                   const QString& fn_rate) -> void {
+    auto doGoal
+        = [this, &n_goals](const int goalnum, const QString& fn_rate) -> void {
         const QString tag = getGoalTag(goalnum);
         const bool rate = valueBool(fn_rate);
         m_questionnaire->setVisibleByTag(tag, rate);

@@ -19,28 +19,31 @@
 */
 
 #include "datetime.h"
+
 #include <QTimeZone>
 #include <QVariant>
 
 namespace datetime {
 
 
-const QString LONG_DATE_FORMAT("dddd d MMMM yyyy");  // Thursday 31 December 2000
-const QString TIMESTAMP_FORMAT("yyyy-MM-dd HH:mm:ss.zzz");  // 2000-12-31 23:59:59.999
+const QString LONG_DATE_FORMAT("dddd d MMMM yyyy");
+// Thursday 31 December 2000
+const QString TIMESTAMP_FORMAT("yyyy-MM-dd HH:mm:ss.zzz");
+// 2000-12-31 23:59:59.999
 const QString SHORT_DATETIME_FORMAT("yyyy-MM-dd HH:mm");  // 2000-12-31 23:59
 const QString ISO_DATE_FORMAT("yyyy-MM-dd");  // 2000-12-31
 const QString SHORT_DATE_FORMAT(ISO_DATE_FORMAT);
 const QString TEXT_DATE_FORMAT("dd MMM yyyy");  // 31 Dec 2000
-const QString TEXT_DATETIME_FORMAT("ddd dd MMM yyyy, HH:mm");  // Thu 31 Dec 2000, 23:59
-const QString LONG_DATETIME_FORMAT("dddd d MMMM yyyy, HH:mm");  // Thursday 31 December 2000, 23:59
+const QString TEXT_DATETIME_FORMAT("ddd dd MMM yyyy, HH:mm");
+// Thu 31 Dec 2000, 23:59
+const QString LONG_DATETIME_FORMAT("dddd d MMMM yyyy, HH:mm");
+// Thursday 31 December 2000, 23:59
 const QString UNKNOWN("?");
-
 
 QString dateToIso(const QDate& d)
 {
     return d.toString(ISO_DATE_FORMAT);
 }
-
 
 // http://stackoverflow.com/questions/21976264/qt-isodate-formatted-date-time-including-timezone
 
@@ -54,8 +57,8 @@ QString datetimeToIsoMs(const QDateTime& dt, const bool use_z_timezone)
     //    => default use_z_timezone to false
 
     // In Qt, BEWARE:
-    //      dt;  // QDateTime(2016-06-02 10:28:06.708 BST Qt::TimeSpec(LocalTime))
-    //      dt.toString(Qt::ISODate);  // "2016-06-02T10:28:06" -- DROPS timezone
+    //   dt;  // QDateTime(2016-06-02 10:28:06.708 BST Qt::TimeSpec(LocalTime))
+    //   dt.toString(Qt::ISODate);  // "2016-06-02T10:28:06" -- DROPS timezone
     if (!dt.isValid()) {
         return "";
     }
@@ -70,21 +73,20 @@ QString datetimeToIsoMs(const QDateTime& dt, const bool use_z_timezone)
         offset_from_utc_s = abs(offset_from_utc_s);
         const int hours = offset_from_utc_s / 3600;
         const int minutes = (offset_from_utc_s % 3600) / 60;
-        tzinfo += QString("%1%2:%3").arg(sign)
-            .arg(hours, 2, 10, QChar('0'))
-            .arg(minutes, 2, 10, QChar('0'));
+        tzinfo += QString("%1%2:%3")
+                      .arg(sign)
+                      .arg(hours, 2, 10, QChar('0'))
+                      .arg(minutes, 2, 10, QChar('0'));
         // http://stackoverflow.com/questions/2618414/convert-an-int-to-a-qstring-with-zero-padding-leading-zeroes
     }
     return localtime + tzinfo;
 }
-
 
 QString datetimeToIsoMsUtc(const QDateTime& dt, const bool use_z_timezone)
 {
     const QDateTime utc_dt = dt.toTimeSpec(Qt::UTC);
     return datetimeToIsoMs(utc_dt, use_z_timezone);
 }
-
 
 QDate isoToDate(const QString& iso)
 {
@@ -96,7 +98,6 @@ QDate isoToDate(const QString& iso)
     // YYYY-MM-DDTHH:mm:ss, YYYY-MM-DDTHH:mm:ssTZD (e.g.,
     // 1997-07-16T19:20:30+01:00) for combined dates and times.
 }
-
 
 QDateTime isoToDateTime(const QString& iso)
 {
@@ -110,84 +111,70 @@ QDateTime isoToDateTime(const QString& iso)
     // QDateTime::fromString (qdatetime.cpp), treated identically to ISODate!
 }
 
-
 QDateTime now()
 {
     return QDateTime::currentDateTime();
 }
-
 
 QDate nowDate()
 {
     return QDate::currentDate();
 }
 
-
 QString nowTimestamp()
 {
     return timestampDateTime(now());
 }
-
 
 QString timestampDateTime(const QDateTime& dt)
 {
     return dt.toString(TIMESTAMP_FORMAT);
 }
 
-
 QString timestampDateTime(const QVariant& dt)
 {
     return dt.isNull() ? UNKNOWN : timestampDateTime(dt.toDateTime());
 }
-
 
 QString shortDateTime(const QDateTime& dt)
 {
     return dt.toString(SHORT_DATETIME_FORMAT);
 }
 
-
 QString shortDateTime(const QVariant& dt)
 {
     return dt.isNull() ? UNKNOWN : shortDateTime(dt.toDateTime());
 }
-
 
 QString textDateTime(const QDateTime& dt)
 {
     return dt.toString(TEXT_DATETIME_FORMAT);
 }
 
-
 QString textDateTime(const QVariant& dt)
 {
     return dt.isNull() ? UNKNOWN : textDateTime(dt.toDateTime());
 }
-
 
 QString shortDate(const QDate& d)
 {
     return d.toString(SHORT_DATE_FORMAT);
 }
 
-
 QString shortDate(const QVariant& d)
 {
     return d.isNull() ? UNKNOWN : shortDate(d.toDate());
 }
-
 
 QString textDate(const QDate& d)
 {
     return d.toString(TEXT_DATE_FORMAT);
 }
 
-
 QString textDate(const QVariant& d)
 {
     return d.isNull() ? UNKNOWN : textDate(d.toDate());
 }
-
 
 int ageYearsFrom(const QDate& from, const QDate& to)
 {
@@ -204,13 +191,12 @@ int ageYearsFrom(const QDate& from, const QDate& to)
     // * 2 Jun 2000 ->  1 Jun 2001 = age 0      1           -1
     // * 2 Jun 2000 ->  2 Jun 2001 = age 1      1           0
     int years = to.year() - from.year();
-    if (to.month() < from.month() ||
-            (to.month() == from.month() && to.day() < from.day())) {
+    if (to.month() < from.month()
+        || (to.month() == from.month() && to.day() < from.day())) {
         years -= 1;
     }
     return years;
 }
-
 
 int ageYears(const QVariant& dob, const int default_years)
 {
@@ -220,24 +206,20 @@ int ageYears(const QVariant& dob, const int default_years)
     return ageYearsFrom(dob.toDate(), nowDate());
 }
 
-
 double doubleSecondsFrom(const QDateTime& from, const QDateTime& to)
 {
     return msToSec(from.msecsTo(to));
 }
-
 
 double msToSec(const double ms)
 {
     return ms / 1000.0;
 }
 
-
 double secToMin(const double sec)
 {
     return sec / 60.0;
 }
-
 
 int secToIntMs(const double sec)
 {
@@ -245,4 +227,4 @@ int secToIntMs(const double sec)
 }
 
 
-} // namespace datetime
+}  // namespace datetime

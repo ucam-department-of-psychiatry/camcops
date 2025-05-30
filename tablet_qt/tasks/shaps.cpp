@@ -19,6 +19,7 @@
 */
 
 #include "shaps.h"
+
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "db/databaseobject.h"
@@ -58,16 +59,15 @@ void initializeShaps(TaskFactory& factory)
     static TaskRegistrar<Shaps> registered(factory);
 }
 
-
 Shaps::Shaps(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, SHAPS_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, SHAPS_TABLENAME, false, false, false),
+    // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     addFields(fieldNames(), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -78,18 +78,15 @@ QString Shaps::shortname() const
     return "SHAPS";
 }
 
-
 QString Shaps::longname() const
 {
     return tr("Snaith–Hamilton Pleasure Scale");
 }
 
-
 QString Shaps::description() const
 {
     return tr("A scale to measure hedonic tone.");
 }
-
 
 QStringList Shaps::fieldNames() const
 {
@@ -110,13 +107,11 @@ bool Shaps::isComplete() const
     return true;
 }
 
-
 int Shaps::totalScore() const
 {
     const QVector<QVariant> responses = values(fieldNames());
     return countWhere(responses, SCORING_RESPONSES);
 }
-
 
 int Shaps::scoreResponse(const QString& fieldname) const
 {
@@ -131,23 +126,29 @@ int Shaps::scoreResponse(const QString& fieldname) const
     return 0;
 }
 
-
 QStringList Shaps::summary() const
 {
-    auto rangeScore = [](const QString& description, const int score,
-                         const int min, const int max) {
-        return QString("%1: <b>%2</b> [%3–%4].").arg(
-                    description,
-                    QString::number(score),
-                    QString::number(min),
-                    QString::number(max));
+    auto rangeScore = [](const QString& description,
+                         const int score,
+                         const int min,
+                         const int max) {
+        return QString("%1: <b>%2</b> [%3–%4].")
+            .arg(
+                description,
+                QString::number(score),
+                QString::number(min),
+                QString::number(max)
+            );
     };
     return QStringList{
-        rangeScore(TextConst::totalScore(), totalScore(),
-                   MIN_QUESTION_SCORE, MAX_QUESTION_SCORE),
+        rangeScore(
+            TextConst::totalScore(),
+            totalScore(),
+            MIN_QUESTION_SCORE,
+            MAX_QUESTION_SCORE
+        ),
     };
 }
-
 
 QStringList Shaps::detail() const
 {
@@ -155,14 +156,13 @@ QStringList Shaps::detail() const
 
     for (int q_number = 1; q_number <= N_QUESTIONS; q_number++) {
         const QString fieldname = strnum(QPREFIX, q_number);
-        lines.append(
-            QString("%1. %2 %3 (%4)").arg(
-                QString::number(q_number),
-                xstring(fieldname),
-                getAnswerText(q_number, fieldname),
-                QString::number(scoreResponse(fieldname))
-            )
-        );
+        lines.append(QString("%1. %2 %3 (%4)")
+                         .arg(
+                             QString::number(q_number),
+                             xstring(fieldname),
+                             getAnswerText(q_number, fieldname),
+                             QString::number(scoreResponse(fieldname))
+                         ));
     }
 
     lines.append("");
@@ -171,7 +171,6 @@ QStringList Shaps::detail() const
     return lines;
 }
 
-
 QString Shaps::getAnswerText(int q_number, const QString& fieldname) const
 {
     const QVariant response = value(fieldname);
@@ -179,21 +178,20 @@ QString Shaps::getAnswerText(int q_number, const QString& fieldname) const
         return "?";
     }
     switch (response.toInt()) {
-    case STRONGLY_DISAGREE:
-        return xstring("strongly_disagree");
-    case DISAGREE:
-        return xstring("disagree");
-    case AGREE:
-        return xstring("agree");
-    case STRONGLY_OR_DEFINITELY_AGREE:
-        return REVERSE_QUESTIONS.contains(q_number)
+        case STRONGLY_DISAGREE:
+            return xstring("strongly_disagree");
+        case DISAGREE:
+            return xstring("disagree");
+        case AGREE:
+            return xstring("agree");
+        case STRONGLY_OR_DEFINITELY_AGREE:
+            return REVERSE_QUESTIONS.contains(q_number)
                 ? xstring("definitely_agree")
                 : xstring("strongly_disagree");
-    default:
-        return "?";
+        default:
+            return "?";
     }
 }
-
 
 OpenableWidget* Shaps::editor(const bool read_only)
 {
@@ -212,24 +210,29 @@ OpenableWidget* Shaps::editor(const bool read_only)
     };
 
     m_questionnaire = new Questionnaire(m_app);
-    QuPagePtr page((new QuPage{
-        new QuText(xstring("instructions")),
-        new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE))
-    })->setTitle(xstring("title_main")));
+    QuPagePtr page(
+        (new QuPage{
+             new QuText(xstring("instructions")),
+             new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE))})
+            ->setTitle(xstring("title_main"))
+    );
 
     m_questionnaire->addPage(page);
 
     for (int q_number = 1; q_number <= N_QUESTIONS; q_number++) {
         const NameValueOptions options = REVERSE_QUESTIONS.contains(q_number)
-                ? reverse_agreement_options
-                : agreement_options;
+            ? reverse_agreement_options
+            : agreement_options;
 
         const QString fieldname = strnum(QPREFIX, q_number);
-        page->addElement(new QuText(QString("<b>%1. %2</b>").arg(
-                                        QString::number(q_number),
-                                        xstring(fieldname))));
+        page->addElement(
+            new QuText(QString("<b>%1. %2</b>")
+                           .arg(QString::number(q_number), xstring(fieldname)))
+        );
         page->addElement(new QuMcq(fieldRef(fieldname), options));
-        page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
+        page->addElement(
+            new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE))
+        );
     }
 
     m_questionnaire->setType(QuPage::PageType::Patient);

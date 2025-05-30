@@ -43,6 +43,7 @@ Comments
 // #define DEBUG_STEP_DETAIL
 
 #include "ided3d.h"
+
 #include <functional>
 #include <QDebug>
 #include <QGraphicsScene>
@@ -51,6 +52,7 @@ Comments
 #include <QPushButton>
 #include <QTimer>
 #include <QtMath>
+
 #include "common/colourdefs.h"
 #include "common/textconst.h"
 #include "db/ancillaryfunc.h"
@@ -71,15 +73,15 @@ Comments
 #include "taskxtra/ided3dexemplars.h"
 #include "taskxtra/ided3dstage.h"
 #include "taskxtra/ided3dtrial.h"
-#include "widgets/svgwidgetclickable.h"
 #include "widgets/openablewidget.h"
+#include "widgets/svgwidgetclickable.h"
 using ccrandom::dwor;
 using graphicsfunc::ButtonAndProxy;
 using graphicsfunc::centredRect;
+using graphicsfunc::makeObscuringRect;
 using graphicsfunc::makeSvg;
 using graphicsfunc::makeText;
 using graphicsfunc::makeTextButton;
-using graphicsfunc::makeObscuringRect;
 using graphicsfunc::SvgTransform;
 using graphicsfunc::SvgWidgetAndProxy;
 using mathfunc::distribute;
@@ -116,7 +118,8 @@ const QString FN_VOLUME("volume");
 const QString FN_OFFER_ABORT("offer_abort");
 const QString FN_DEBUG_DISPLAY_STIMULI_ONLY("debug_display_stimuli_only");
 const QString FN_SHAPE_DEFINITIONS_SVG("shape_definitions_svg");
-const QString FN_COLOUR_DEFINITIONS_RGB("colour_definitions_rgb");  // new in v2.0.0
+const QString FN_COLOUR_DEFINITIONS_RGB("colour_definitions_rgb");
+// ... new in v2.0.0
 const QString FN_ABORTED("aborted");
 const QString FN_FINISHED("finished");
 const QString FN_LAST_TRIAL_COMPLETED("last_trial_completed");
@@ -167,7 +170,9 @@ const QColor TEST_BACKGROUND(QCOLOR_GREEN);
 const QColor TEST_COLOUR(QCOLOR_PURPLE);
 
 // Sound
-const QString SOUND_COUNTDOWN_FINISHED("qrc:///resources/camcops/sounds/countdown_finished.wav");
+const QString SOUND_COUNTDOWN_FINISHED(
+    "qrc:///resources/camcops/sounds/countdown_finished.wav"
+);
 
 const QString SOUND_FILE_CORRECT("ided3d/correct.wav");
 const QString SOUND_FILE_INCORRECT("ided3d/incorrect.wav");
@@ -184,44 +189,61 @@ const int MAX_COUNTERBALANCE_DIMENSIONS = 5;
 const QRectF SCENE_RECT(0, 0, SCENE_WIDTH, SCENE_HEIGHT);
 const QPen BORDER_PEN(QBrush(EDGE_COLOUR), BORDER_WIDTH_PX);
 const ButtonConfig BASE_BUTTON_CONFIG(
-        PADDING, TEXT_SIZE_PX, TEXT_COLOUR, BUTTON_TEXT_ALIGN,
-        BUTTON_BACKGROUND, BUTTON_PRESSED_BACKGROUND,
-        BORDER_PEN, BUTTON_RADIUS);
+    PADDING,
+    TEXT_SIZE_PX,
+    TEXT_COLOUR,
+    BUTTON_TEXT_ALIGN,
+    BUTTON_BACKGROUND,
+    BUTTON_PRESSED_BACKGROUND,
+    BORDER_PEN,
+    BUTTON_RADIUS
+);
 const ButtonConfig STIM_BUTTON_CONFIG(
-        PADDING, TEXT_SIZE_PX, TEXT_COLOUR, BUTTON_TEXT_ALIGN,
-        QCOLOR_TRANSPARENT, BUTTON_PRESSED_BACKGROUND,
-        BORDER_PEN, BUTTON_RADIUS);
+    PADDING,
+    TEXT_SIZE_PX,
+    TEXT_COLOUR,
+    BUTTON_TEXT_ALIGN,
+    QCOLOR_TRANSPARENT,
+    BUTTON_PRESSED_BACKGROUND,
+    BORDER_PEN,
+    BUTTON_RADIUS
+);
 const ButtonConfig EMPTYBOX_BUTTON_CONFIG(
-        PADDING, TEXT_SIZE_PX, TEXT_COLOUR, BUTTON_TEXT_ALIGN,
-        QCOLOR_TRANSPARENT, QCOLOR_TRANSPARENT,
-        BORDER_PEN, BUTTON_RADIUS);
-const TextConfig BASE_TEXT_CONFIG(TEXT_SIZE_PX, TEXT_COLOUR,
-                                  static_cast<int>(SCENE_WIDTH), TEXT_ALIGN);
+    PADDING,
+    TEXT_SIZE_PX,
+    TEXT_COLOUR,
+    BUTTON_TEXT_ALIGN,
+    QCOLOR_TRANSPARENT,
+    QCOLOR_TRANSPARENT,
+    BORDER_PEN,
+    BUTTON_RADIUS
+);
+const TextConfig BASE_TEXT_CONFIG(
+    TEXT_SIZE_PX, TEXT_COLOUR, static_cast<int>(SCENE_WIDTH), TEXT_ALIGN
+);
 
 const qreal BOXWIDTH = SCENE_WIDTH * 0.45;  // use 90%
 const qreal BOXHEIGHT = SCENE_HEIGHT * 0.3;  // use 90%
 const QBrush BOXBRUSH;
 const QVector<qreal> VDIST(distribute(3, 0, SCENE_HEIGHT));
 const QVector<qreal> HDIST{
-    SCENE_WIDTH * 0.25,
-    SCENE_WIDTH * 0.5,
-    SCENE_WIDTH * 0.75
-};
-const QVector<QPointF> LOCATIONS{  // centre points
+    SCENE_WIDTH * 0.25, SCENE_WIDTH * 0.5, SCENE_WIDTH * 0.75};
+const QVector<QPointF> LOCATIONS{
+    // centre points
     QPointF(HDIST.at(1), VDIST.at(0)),  // top
     QPointF(HDIST.at(2), VDIST.at(1)),  // right
     QPointF(HDIST.at(1), VDIST.at(2)),  // bottom
     QPointF(HDIST.at(0), VDIST.at(1)),  // left
 };
 const QPointF SCENE_CENTRE(SCENE_WIDTH * 0.5, SCENE_HEIGHT * 0.5);
-const QRectF ANSWER_BACKDROP_RECT(centredRect(SCENE_CENTRE,
-                                              0.3 * SCENE_WIDTH,
-                                              0.1 * SCENE_HEIGHT));
+const QRectF ANSWER_BACKDROP_RECT(
+    centredRect(SCENE_CENTRE, 0.3 * SCENE_WIDTH, 0.1 * SCENE_HEIGHT)
+);
 
 
 }  // namespace ided3dconst
-using namespace ided3dconst;
 
+using namespace ided3dconst;
 
 // ============================================================================
 // Factory method
@@ -238,14 +260,16 @@ void initializeIDED3D(TaskFactory& factory)
 // ============================================================================
 
 IDED3D::IDED3D(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, IDED3D_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, IDED3D_TABLENAME, false, false, false)
+// ... anon, clin, resp
 {
     m_default_values = initDefaultValues();
     m_types = initTypes();
     m_min_values = initMinValues();
     m_max_values = initMaxValues();
 
-    for (auto it = m_types.constBegin(), end = m_types.constEnd(); it != end; ++it ) {
+    for (auto it = m_types.constBegin(), end = m_types.constEnd(); it != end;
+         ++it) {
         addField(it.key(), it.value());
     }
 
@@ -259,7 +283,10 @@ IDED3D::IDED3D(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     load(load_pk);
 
     if (load_pk == dbconst::NONEXISTENT_PK) {
-        for (auto it = m_default_values.constBegin(), end = m_default_values.constEnd(); it != end; ++it ) {
+        for (auto it = m_default_values.constBegin(),
+                  end = m_default_values.constEnd();
+             it != end;
+             ++it) {
             setValue(it.key(), it.value(), false);
         }
     }
@@ -270,7 +297,8 @@ IDED3D::IDED3D(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     timerfunc::makeSingleShotTimer(m_timer);
 }
 
-QMap<QString, QMetaType> IDED3D::initTypes() {
+QMap<QString, QMetaType> IDED3D::initTypes()
+{
     QMap<QString, QMetaType> map;
     map.insert(FN_LAST_STAGE, QMetaType::fromType<int>());
     map.insert(FN_MAX_TRIALS_PER_STAGE, QMetaType::fromType<int>());
@@ -290,7 +318,8 @@ QMap<QString, QMetaType> IDED3D::initTypes() {
     return map;
 }
 
-QMap<QString, QVariant> IDED3D::initDefaultValues() {
+QMap<QString, QVariant> IDED3D::initDefaultValues()
+{
     QMap<QString, QVariant> map;
     map.insert(FN_LAST_STAGE, QVariant(MAX_STAGES));
     map.insert(FN_MAX_TRIALS_PER_STAGE, QVariant(50));
@@ -307,7 +336,8 @@ QMap<QString, QVariant> IDED3D::initDefaultValues() {
     return map;
 }
 
-QMap<QString, QVariant> IDED3D::initMinValues() {
+QMap<QString, QVariant> IDED3D::initMinValues()
+{
     QMap<QString, QVariant> map;
 
     map.insert(FN_LAST_STAGE, 1);
@@ -324,8 +354,8 @@ QMap<QString, QVariant> IDED3D::initMinValues() {
     return map;
 }
 
-
-QMap<QString, QVariant> IDED3D::initMaxValues() {
+QMap<QString, QVariant> IDED3D::initMaxValues()
+{
     QMap<QString, QVariant> map;
 
     const int no_max = std::numeric_limits<int>::max();
@@ -344,14 +374,12 @@ QMap<QString, QVariant> IDED3D::initMaxValues() {
     return map;
 }
 
-
 IDED3D::~IDED3D()
 {
     // Necessary: for rationale, see QuAudioPlayer::~QuAudioPlayer()
     soundfunc::finishMediaPlayer(m_player_correct);
     soundfunc::finishMediaPlayer(m_player_incorrect);
 }
-
 
 // ============================================================================
 // Class info
@@ -362,21 +390,22 @@ QString IDED3D::shortname() const
     return "ID/ED-3D";
 }
 
-
 QString IDED3D::longname() const
 {
-    return tr("Three-dimensional intradimensional/extradimensional "
-              "set-shifting task");
+    return tr(
+        "Three-dimensional intradimensional/extradimensional "
+        "set-shifting task"
+    );
 }
-
 
 QString IDED3D::description() const
 {
-    return tr("Simple discrimination, reversal, compound discrimination, "
-              "reversal, ID set shift, reversal, ED set shift, reversal. "
-              "Dimensions of shape/colour/number.");
+    return tr(
+        "Simple discrimination, reversal, compound discrimination, "
+        "reversal, ID set shift, reversal, ED set shift, reversal. "
+        "Dimensions of shape/colour/number."
+    );
 }
-
 
 // ============================================================================
 // Settings
@@ -384,34 +413,34 @@ QString IDED3D::description() const
 
 void IDED3D::applySettings(const QJsonObject& settings)
 {
-    for (const auto& fieldname: SETTINGS_FIELDNAMES) {
+    for (const auto& fieldname : SETTINGS_FIELDNAMES) {
         if (settings.contains(fieldname)) {
             applySetting(fieldname, settings.value(fieldname));
         }
     }
 }
 
-
-void IDED3D::applySetting(const QString fieldname, const QJsonValue value) {
+void IDED3D::applySetting(const QString fieldname, const QJsonValue value)
+{
     auto type = m_types.value(fieldname).id();
 
     switch (type) {
-    case QMetaType::Int:
-        setValue(fieldname, value.toInt());
-        break;
+        case QMetaType::Int:
+            setValue(fieldname, value.toInt());
+            break;
 
-    case QMetaType::Double:
-        setValue(fieldname, value.toDouble());
-        break;
+        case QMetaType::Double:
+            setValue(fieldname, value.toDouble());
+            break;
 
-    case QMetaType::Bool:
-        setValue(fieldname, value.toBool());
-        break;
+        case QMetaType::Bool:
+            setValue(fieldname, value.toBool());
+            break;
 
-    default:
-        qDebug("Unexpected field type: %d", type);
-        Q_ASSERT(false);
-        break;
+        default:
+            qDebug("Unexpected field type: %d", type);
+            Q_ASSERT(false);
+            break;
     }
 }
 
@@ -421,10 +450,9 @@ void IDED3D::applySetting(const QString fieldname, const QJsonValue value) {
 
 QStringList IDED3D::ancillaryTables() const
 {
-    return QStringList{IDED3DStage::STAGE_TABLENAME,
-                       IDED3DTrial::TRIAL_TABLENAME};
+    return QStringList{
+        IDED3DStage::STAGE_TABLENAME, IDED3DTrial::TRIAL_TABLENAME};
 }
-
 
 QString IDED3D::ancillaryTableFKToTaskFieldname() const
 {
@@ -432,19 +460,17 @@ QString IDED3D::ancillaryTableFKToTaskFieldname() const
     return IDED3DStage::FN_FK_TO_TASK;
 }
 
-
 void IDED3D::loadAllAncillary(int pk)
 {
     const OrderBy stage_order_by{{IDED3DStage::FN_STAGE, true}};
     ancillaryfunc::loadAncillary<IDED3DStage, IDED3DStagePtr>(
-                m_stages, m_app, m_db,
-                IDED3DStage::FN_FK_TO_TASK, stage_order_by, pk);
+        m_stages, m_app, m_db, IDED3DStage::FN_FK_TO_TASK, stage_order_by, pk
+    );
     const OrderBy trial_order_by{{IDED3DTrial::FN_TRIAL, true}};
     ancillaryfunc::loadAncillary<IDED3DTrial, IDED3DTrialPtr>(
-                m_trials, m_app, m_db,
-                IDED3DTrial::FN_FK_TO_TASK, trial_order_by, pk);
+        m_trials, m_app, m_db, IDED3DTrial::FN_FK_TO_TASK, trial_order_by, pk
+    );
 }
-
 
 QVector<DatabaseObjectPtr> IDED3D::getAncillarySpecimens() const
 {
@@ -453,7 +479,6 @@ QVector<DatabaseObjectPtr> IDED3D::getAncillarySpecimens() const
         IDED3DTrialPtr(new IDED3DTrial(m_app, m_db)),
     };
 }
-
 
 QVector<DatabaseObjectPtr> IDED3D::getAllAncillary() const
 {
@@ -467,7 +492,6 @@ QVector<DatabaseObjectPtr> IDED3D::getAllAncillary() const
     return ancillaries;
 }
 
-
 // ============================================================================
 // Instance info
 // ============================================================================
@@ -476,7 +500,6 @@ bool IDED3D::isComplete() const
 {
     return valueBool(FN_DEBUG_DISPLAY_STIMULI_ONLY) || valueBool(FN_FINISHED);
 }
-
 
 QStringList IDED3D::summary() const
 {
@@ -489,11 +512,10 @@ QStringList IDED3D::summary() const
     if (n_trials > 0) {
         IDED3DTrialPtr last_trial = m_trials.at(n_trials - 1);
         lines.append(tr("Last trial was at stage %1.")
-                     .arg(last_trial->valueInt(IDED3DTrial::FN_STAGE)));
+                         .arg(last_trial->valueInt(IDED3DTrial::FN_STAGE)));
     }
     return lines;
 }
-
 
 QStringList IDED3D::detail() const
 {
@@ -511,7 +533,6 @@ QStringList IDED3D::detail() const
     return lines;
 }
 
-
 OpenableWidget* IDED3D::editor(const bool read_only)
 {
     // ------------------------------------------------------------------------
@@ -526,14 +547,17 @@ OpenableWidget* IDED3D::editor(const bool read_only)
     // Configure the task using a Questionnaire
     // ------------------------------------------------------------------------
 
-    const QString warning_progress_criterion(tr(
-            "WARNING: cannot proceed: must satisfy "
-            "progress_criterion_x <= progress_criterion_y"));
-    const QString warning_min_max(tr(
-            "WARNING: cannot proceed: must satisfy "
-            "min_number <= max_number"));
+    const QString warning_progress_criterion(
+        tr("WARNING: cannot proceed: must satisfy "
+           "progress_criterion_x <= progress_criterion_y")
+    );
+    const QString warning_min_max(
+        tr("WARNING: cannot proceed: must satisfy "
+           "min_number <= max_number")
+    );
 
-    auto lineEditInteger = [this](const QString& fieldname) -> QuLineEditInteger* {
+    auto lineEditInteger
+        = [this](const QString& fieldname) -> QuLineEditInteger* {
         return new QuLineEditInteger(
             fieldRef(fieldname),
             m_min_values.value(fieldname).toInt(),
@@ -541,7 +565,8 @@ OpenableWidget* IDED3D::editor(const bool read_only)
         );
     };
 
-    auto lineEditDouble = [this](const QString& fieldname, const int dp) -> QuLineEditDouble* {
+    auto lineEditDouble
+        = [this](const QString& fieldname, const int dp) -> QuLineEditDouble* {
         return new QuLineEditDouble(
             fieldRef(fieldname),
             m_min_values.value(fieldname).toDouble(),
@@ -550,64 +575,90 @@ OpenableWidget* IDED3D::editor(const bool read_only)
         );
     };
 
-    QuPagePtr page((new QuPage{
-        questionnairefunc::defaultGridRawPointer({
-            {xstring("last_stage"),
-             lineEditInteger(FN_LAST_STAGE)},
-            {xstring("max_trials_per_stage"),
-             lineEditInteger(FN_MAX_TRIALS_PER_STAGE)},
-            {xstring("progress_criterion_x"),
-             lineEditInteger(FN_PROGRESS_CRITERION_X)},
-            {xstring("progress_criterion_y"),
-             lineEditInteger(FN_PROGRESS_CRITERION_Y)},
-            {xstring("min_number"),
-             lineEditInteger(FN_MIN_NUMBER)},
-            {xstring("max_number"),
-             lineEditInteger(FN_MAX_NUMBER)},
-            {xstring("pause_after_beep_ms"),
-             lineEditInteger(FN_PAUSE_AFTER_BEEP_MS)},
-            {xstring("iti_ms"),
-             lineEditInteger(FN_ITI_MS)},
-            {xstring("counterbalance_dimensions"),
-             lineEditInteger(FN_COUNTERBALANCE_DIMENSIONS)},
-            {xstring("volume"),
-             lineEditDouble(FN_VOLUME, VOLUME_DP)},
-            {xstring("offer_abort"),
-             (new QuBoolean(xstring("offer_abort"),
-                            fieldRef(FN_OFFER_ABORT)))->setAsTextButton(true)},
-            {xstring("debug_display_stimuli_only"),
-             (new QuBoolean(xstring("debug_display_stimuli_only"),
-                            fieldRef(FN_DEBUG_DISPLAY_STIMULI_ONLY)))->setAsTextButton(true)},
-        }),
-        (new QuText(warning_progress_criterion))
-                        ->setWarning(true)
-                        ->addTag(TAG_WARNING_PROGRESS_CRITERION),
-        (new QuText(warning_min_max))
-                        ->setWarning(true)
-                        ->addTag(TAG_WARNING_MIN_MAX),
-    })->setTitle(longname()));
+    QuPagePtr page(
+        (new QuPage{
+             questionnairefunc::defaultGridRawPointer({
+                 {xstring("last_stage"), lineEditInteger(FN_LAST_STAGE)},
+                 {xstring("max_trials_per_stage"),
+                  lineEditInteger(FN_MAX_TRIALS_PER_STAGE)},
+                 {xstring("progress_criterion_x"),
+                  lineEditInteger(FN_PROGRESS_CRITERION_X)},
+                 {xstring("progress_criterion_y"),
+                  lineEditInteger(FN_PROGRESS_CRITERION_Y)},
+                 {xstring("min_number"), lineEditInteger(FN_MIN_NUMBER)},
+                 {xstring("max_number"), lineEditInteger(FN_MAX_NUMBER)},
+                 {xstring("pause_after_beep_ms"),
+                  lineEditInteger(FN_PAUSE_AFTER_BEEP_MS)},
+                 {xstring("iti_ms"), lineEditInteger(FN_ITI_MS)},
+                 {xstring("counterbalance_dimensions"),
+                  lineEditInteger(FN_COUNTERBALANCE_DIMENSIONS)},
+                 {xstring("volume"), lineEditDouble(FN_VOLUME, VOLUME_DP)},
+                 {xstring("offer_abort"),
+                  (new QuBoolean(
+                       xstring("offer_abort"), fieldRef(FN_OFFER_ABORT)
+                   ))
+                      ->setAsTextButton(true)},
+                 {xstring("debug_display_stimuli_only"),
+                  (new QuBoolean(
+                       xstring("debug_display_stimuli_only"),
+                       fieldRef(FN_DEBUG_DISPLAY_STIMULI_ONLY)
+                   ))
+                      ->setAsTextButton(true)},
+             }),
+             (new QuText(warning_progress_criterion))
+                 ->setWarning(true)
+                 ->addTag(TAG_WARNING_PROGRESS_CRITERION),
+             (new QuText(warning_min_max))
+                 ->setWarning(true)
+                 ->addTag(TAG_WARNING_MIN_MAX),
+         })
+            ->setTitle(longname())
+    );
 
     m_questionnaire = new Questionnaire(m_app, {page});
     m_questionnaire->setType(QuPage::PageType::Clinician);
     m_questionnaire->setReadOnly(read_only);
     m_questionnaire->setWithinChain(true);  // fast forward button, not stop
 
-    connect(fieldRef(FN_PROGRESS_CRITERION_X).data(), &FieldRef::valueChanged,
-            this, &IDED3D::validateQuestionnaire);
-    connect(fieldRef(FN_PROGRESS_CRITERION_Y).data(), &FieldRef::valueChanged,
-            this, &IDED3D::validateQuestionnaire);
-    connect(fieldRef(FN_MIN_NUMBER).data(), &FieldRef::valueChanged,
-            this, &IDED3D::validateQuestionnaire);
-    connect(fieldRef(FN_MAX_NUMBER).data(), &FieldRef::valueChanged,
-            this, &IDED3D::validateQuestionnaire);
+    connect(
+        fieldRef(FN_PROGRESS_CRITERION_X).data(),
+        &FieldRef::valueChanged,
+        this,
+        &IDED3D::validateQuestionnaire
+    );
+    connect(
+        fieldRef(FN_PROGRESS_CRITERION_Y).data(),
+        &FieldRef::valueChanged,
+        this,
+        &IDED3D::validateQuestionnaire
+    );
+    connect(
+        fieldRef(FN_MIN_NUMBER).data(),
+        &FieldRef::valueChanged,
+        this,
+        &IDED3D::validateQuestionnaire
+    );
+    connect(
+        fieldRef(FN_MAX_NUMBER).data(),
+        &FieldRef::valueChanged,
+        this,
+        &IDED3D::validateQuestionnaire
+    );
 
-    connect(m_questionnaire.data(), &Questionnaire::cancelled,
-            this, &IDED3D::abort);
-    connect(m_questionnaire.data(), &Questionnaire::completed,
-            this, &IDED3D::startTask);
+    connect(
+        m_questionnaire.data(), &Questionnaire::cancelled, this, &IDED3D::abort
+    );
+    connect(
+        m_questionnaire.data(),
+        &Questionnaire::completed,
+        this,
+        &IDED3D::startTask
+    );
     // Because our main m_widget isn't itself a questionnaire, we need to hook
     // up these, too:
-    questionnairefunc::connectQuestionnaireToTask(m_questionnaire.data(), this);
+    questionnairefunc::connectQuestionnaireToTask(
+        m_questionnaire.data(), this
+    );
 
     validateQuestionnaire();
 
@@ -618,15 +669,19 @@ OpenableWidget* IDED3D::editor(const bool read_only)
 
     m_scene = new QGraphicsScene(SCENE_RECT);
     m_scene->setBackgroundBrush(QBrush(SCENE_BACKGROUND));
-    m_graphics_widget = makeGraphicsWidget(m_scene, SCENE_BACKGROUND,
-                                           true, true);
-    connect(m_graphics_widget.data(), &OpenableWidget::aborting,
-            this, &IDED3D::abort);
+    m_graphics_widget
+        = makeGraphicsWidget(m_scene, SCENE_BACKGROUND, true, true);
+    connect(
+        m_graphics_widget.data(),
+        &OpenableWidget::aborting,
+        this,
+        &IDED3D::abort
+    );
 
     m_widget = new OpenableWidget();
 
-    bool skip_setup =  (m_app.isSingleUserMode() &&
-                        page->mayProgressIgnoringValidators());
+    bool skip_setup
+        = (m_app.isSingleUserMode() && page->mayProgressIgnoringValidators());
     if (skip_setup) {
         // Single user mode and parameters are already set up for the patient
         startTask();
@@ -637,7 +692,6 @@ OpenableWidget* IDED3D::editor(const bool read_only)
 
     return m_widget;
 }
-
 
 // ============================================================================
 // Config questionnaire internals
@@ -652,7 +706,8 @@ void IDED3D::validateQuestionnaire()
     Q_ASSERT(pages.size() == 1);
     QuPage* page = pages.at(0);
 
-    const bool duff_pc = valueInt(FN_PROGRESS_CRITERION_Y) < valueInt(FN_PROGRESS_CRITERION_X);
+    const bool duff_pc = valueInt(FN_PROGRESS_CRITERION_Y)
+        < valueInt(FN_PROGRESS_CRITERION_X);
     const bool duff_minmax = valueInt(FN_MAX_NUMBER) < valueInt(FN_MIN_NUMBER);
     const bool ok_settings = validateSettings();
 
@@ -661,93 +716,108 @@ void IDED3D::validateQuestionnaire()
     page->blockProgress(duff_pc || duff_minmax || !ok_settings);
 }
 
-
 bool IDED3D::validateSettings()
 {
     bool ok = true;
 
     // Check JSON settings in single user mode are within the limits
-    for (auto it = m_min_values.constBegin(), end = m_min_values.constEnd(); it != end; ++it) {
+    for (auto it = m_min_values.constBegin(), end = m_min_values.constEnd();
+         it != end;
+         ++it) {
         const auto fieldname = it.key();
         const auto type = m_types.value(fieldname).id();
         const auto min = it.value();
 
         switch (type) {
-        case QMetaType::Int:
-            if (value(fieldname).toInt() < min.toInt()) {
-                setValue(fieldname, QVariant());
-                ok = false;
-            }
-            break;
+            case QMetaType::Int:
+                if (value(fieldname).toInt() < min.toInt()) {
+                    setValue(fieldname, QVariant());
+                    ok = false;
+                }
+                break;
 
-        case QMetaType::Double:
-            if (value(fieldname).toDouble() < min.toDouble()) {
-                setValue(fieldname, QVariant());
-                ok = false;
-            }
-            break;
+            case QMetaType::Double:
+                if (value(fieldname).toDouble() < min.toDouble()) {
+                    setValue(fieldname, QVariant());
+                    ok = false;
+                }
+                break;
 
-        default:
-            qDebug("Unexpected field type: %d", type);
-            Q_ASSERT(false);
-            break;
+            default:
+                qDebug("Unexpected field type: %d", type);
+                Q_ASSERT(false);
+                break;
         }
     }
 
-    for (auto it = m_max_values.constBegin(), end = m_max_values.constEnd(); it != end; ++it) {
+    for (auto it = m_max_values.constBegin(), end = m_max_values.constEnd();
+         it != end;
+         ++it) {
         const auto fieldname = it.key();
         const auto type = m_types.value(fieldname).id();
         const auto max = it.value();
 
         switch (type) {
-        case QMetaType::Int:
-            if (value(fieldname).toInt() > max.toInt()) {
-                setValue(fieldname, QVariant());
-                ok = false;
-            }
-            break;
+            case QMetaType::Int:
+                if (value(fieldname).toInt() > max.toInt()) {
+                    setValue(fieldname, QVariant());
+                    ok = false;
+                }
+                break;
 
-        case QMetaType::Double:
-            if (value(fieldname).toDouble() > max.toDouble()) {
-                setValue(fieldname, QVariant());
-                ok = false;
-            }
-            break;
+            case QMetaType::Double:
+                if (value(fieldname).toDouble() > max.toDouble()) {
+                    setValue(fieldname, QVariant());
+                    ok = false;
+                }
+                break;
 
-        default:
-            qDebug("Unexpected field type: %d", type);
-            Q_ASSERT(false);
-            break;
+            default:
+                qDebug("Unexpected field type: %d", type);
+                Q_ASSERT(false);
+                break;
         }
     }
 
     return ok;
 }
 
-
 // ============================================================================
 // Connection macros
 // ============================================================================
 
 // MUST USE Qt::QueuedConnection - see comments in clearScene()
-#define CONNECT_BUTTON(b, funcname) \
-    connect((b).button, &QPushButton::clicked, \
-            this, &IDED3D::funcname, \
-            Qt::QueuedConnection)
+#define CONNECT_BUTTON(b, funcname)                                           \
+    connect(                                                                  \
+        (b).button,                                                           \
+        &QPushButton::clicked,                                                \
+        this,                                                                 \
+        &IDED3D::funcname,                                                    \
+        Qt::QueuedConnection                                                  \
+    )
 // To use a Qt::ConnectionType parameter with a functor, we need a context
 // See https://doc.qt.io/qt-6.5/qobject.html#connect-5
 // That's the reason for the extra "this":
-#define CONNECT_BUTTON_PARAM(b, funcname, param) \
-    connect((b).button, &QPushButton::clicked, \
-            this, std::bind(&IDED3D::funcname, this, param), \
-            Qt::QueuedConnection)
+#define CONNECT_BUTTON_PARAM(b, funcname, param)                              \
+    connect(                                                                  \
+        (b).button,                                                           \
+        &QPushButton::clicked,                                                \
+        this,                                                                 \
+        std::bind(&IDED3D::funcname, this, param),                            \
+        Qt::QueuedConnection                                                  \
+    )
 // For debugging:
-#define CONNECT_SVG_CLICKED(svg, funcname) \
-    connect((svg).widget, &SvgWidgetClickable::clicked, \
-            this, &IDED3D::funcname, \
-            Qt::QueuedConnection)
-    // ... svg is an SvgItemAndRenderer
-    // ... use "pressed" not "clicked" for rapid response detection.
+#define CONNECT_SVG_CLICKED(svg, funcname)                                    \
+    connect(                                                                  \
+        (svg).widget,                                                         \
+        &SvgWidgetClickable::clicked,                                         \
+        this,                                                                 \
+        &IDED3D::funcname,                                                    \
+        Qt::QueuedConnection                                                  \
+    )
+
+// ... svg is an SvgItemAndRenderer
+// ... use "pressed" not "clicked" for rapid response detection.
 
 
 // ============================================================================
@@ -760,20 +830,24 @@ void IDED3D::makeStages()
     const QStringList poss_dimensions = Exemplars::possibleDimensions();
     const int n_dimensions = poss_dimensions.length();
     const QVector<QVector<int>> possibilities = Exemplars::possibilities(
-                valueInt(FN_MIN_NUMBER),
-                valueInt(FN_MAX_NUMBER));
+        valueInt(FN_MIN_NUMBER), valueInt(FN_MAX_NUMBER)
+    );
 
     // Counterbalancing
     const int cb_dim = valueInt(FN_COUNTERBALANCE_DIMENSIONS);
     const int cb1max = n_dimensions;
     const int cb2max = n_dimensions - 1;
     const int cb1 = cb_dim % cb1max;
-    const int cb2 = static_cast<int>(floor(static_cast<double>(cb_dim) /
-                                           static_cast<double>(cb1max))) % cb2max;
+    const int cb2
+        = static_cast<int>(
+              floor(static_cast<double>(cb_dim) / static_cast<double>(cb1max))
+          )
+        % cb2max;
     // Dimensions
     const int first_dim_index = cb1;
     const int second_dim_index = (first_dim_index + 1 + cb2) % n_dimensions;
-    const int third_dim_index = (first_dim_index + 1 + (cb2max - 1 - cb2)) % n_dimensions;
+    const int third_dim_index
+        = (first_dim_index + 1 + (cb2max - 1 - cb2)) % n_dimensions;
 
     // Exemplars ("poss" = possibilities)
     QVector<int> poss_first_dim = possibilities.at(first_dim_index);
@@ -826,61 +900,109 @@ void IDED3D::makeStages()
         poss_dimensions.at(third_dim_index),
     };
     // SD: simple discrimination
-    const Exemplars sd_correct(dimensions, {{sd_correct_exemplar},
-                                            {sd_irrelevant_exemplar_second_dim},
-                                            {sd_irrelevant_exemplar_third_dim}});
-    const Exemplars sd_incorrect(dimensions, {{sd_incorrect_exemplar},
-                                              {sd_irrelevant_exemplar_second_dim},
-                                              {sd_irrelevant_exemplar_third_dim}});
+    const Exemplars sd_correct(
+        dimensions,
+        {{sd_correct_exemplar},
+         {sd_irrelevant_exemplar_second_dim},
+         {sd_irrelevant_exemplar_third_dim}}
+    );
+    const Exemplars sd_incorrect(
+        dimensions,
+        {{sd_incorrect_exemplar},
+         {sd_irrelevant_exemplar_second_dim},
+         {sd_irrelevant_exemplar_third_dim}}
+    );
     // SDR: SD reversal
-    const Exemplars sdr_correct(dimensions, {{sd_incorrect_exemplar},
-                                             {sd_irrelevant_exemplar_second_dim},
-                                             {sd_irrelevant_exemplar_third_dim}});
-    const Exemplars sdr_incorrect(dimensions, {{sd_correct_exemplar},
-                                               {sd_irrelevant_exemplar_second_dim},
-                                               {sd_irrelevant_exemplar_third_dim}});
+    const Exemplars sdr_correct(
+        dimensions,
+        {{sd_incorrect_exemplar},
+         {sd_irrelevant_exemplar_second_dim},
+         {sd_irrelevant_exemplar_third_dim}}
+    );
+    const Exemplars sdr_incorrect(
+        dimensions,
+        {{sd_correct_exemplar},
+         {sd_irrelevant_exemplar_second_dim},
+         {sd_irrelevant_exemplar_third_dim}}
+    );
     // CD: concurrent discrimination
-    const Exemplars cd_correct(dimensions, {{sd_incorrect_exemplar},
-                                            cd_irrelevant_exemplars_second_dim,
-                                            cd_irrelevant_exemplars_third_dim});
-    const Exemplars cd_incorrect(dimensions, {{sd_correct_exemplar},
-                                              cd_irrelevant_exemplars_second_dim,
-                                              cd_irrelevant_exemplars_third_dim});
+    const Exemplars cd_correct(
+        dimensions,
+        {{sd_incorrect_exemplar},
+         cd_irrelevant_exemplars_second_dim,
+         cd_irrelevant_exemplars_third_dim}
+    );
+    const Exemplars cd_incorrect(
+        dimensions,
+        {{sd_correct_exemplar},
+         cd_irrelevant_exemplars_second_dim,
+         cd_irrelevant_exemplars_third_dim}
+    );
     // CDR: CD reversal
-    const Exemplars cdr_correct(dimensions, {{sd_correct_exemplar},
-                                             cd_irrelevant_exemplars_second_dim,
-                                             cd_irrelevant_exemplars_third_dim});
-    const Exemplars cdr_incorrect(dimensions, {{sd_incorrect_exemplar},
-                                               cd_irrelevant_exemplars_second_dim,
-                                               cd_irrelevant_exemplars_third_dim});
+    const Exemplars cdr_correct(
+        dimensions,
+        {{sd_correct_exemplar},
+         cd_irrelevant_exemplars_second_dim,
+         cd_irrelevant_exemplars_third_dim}
+    );
+    const Exemplars cdr_incorrect(
+        dimensions,
+        {{sd_incorrect_exemplar},
+         cd_irrelevant_exemplars_second_dim,
+         cd_irrelevant_exemplars_third_dim}
+    );
     // ID: intradimensional set shift
-    const Exemplars id_correct(dimensions, {{id_correct_exemplar},
-                                            id_irrelevant_exemplars_second_dim,
-                                            id_irrelevant_exemplars_third_dim});
-    const Exemplars id_incorrect(dimensions, {{id_incorrect_exemplar},
-                                              id_irrelevant_exemplars_second_dim,
-                                              id_irrelevant_exemplars_third_dim});
+    const Exemplars id_correct(
+        dimensions,
+        {{id_correct_exemplar},
+         id_irrelevant_exemplars_second_dim,
+         id_irrelevant_exemplars_third_dim}
+    );
+    const Exemplars id_incorrect(
+        dimensions,
+        {{id_incorrect_exemplar},
+         id_irrelevant_exemplars_second_dim,
+         id_irrelevant_exemplars_third_dim}
+    );
     // IDR: ID reversal
-    const Exemplars idr_correct(dimensions, {{id_incorrect_exemplar},
-                                             id_irrelevant_exemplars_second_dim,
-                                             id_irrelevant_exemplars_third_dim});
-    const Exemplars idr_incorrect(dimensions, {{id_correct_exemplar},
-                                               id_irrelevant_exemplars_second_dim,
-                                               id_irrelevant_exemplars_third_dim});
+    const Exemplars idr_correct(
+        dimensions,
+        {{id_incorrect_exemplar},
+         id_irrelevant_exemplars_second_dim,
+         id_irrelevant_exemplars_third_dim}
+    );
+    const Exemplars idr_incorrect(
+        dimensions,
+        {{id_correct_exemplar},
+         id_irrelevant_exemplars_second_dim,
+         id_irrelevant_exemplars_third_dim}
+    );
     // ED: extradimensional set shift
-    const Exemplars ed_correct(dimensions, {ed_irrelevant_exemplars_first_dim,
-                                            {ed_correct_exemplar},
-                                            ed_irrelevant_exemplars_third_dim});
-    const Exemplars ed_incorrect(dimensions, {ed_irrelevant_exemplars_first_dim,
-                                              {ed_incorrect_exemplar},
-                                              ed_irrelevant_exemplars_third_dim});
+    const Exemplars ed_correct(
+        dimensions,
+        {ed_irrelevant_exemplars_first_dim,
+         {ed_correct_exemplar},
+         ed_irrelevant_exemplars_third_dim}
+    );
+    const Exemplars ed_incorrect(
+        dimensions,
+        {ed_irrelevant_exemplars_first_dim,
+         {ed_incorrect_exemplar},
+         ed_irrelevant_exemplars_third_dim}
+    );
     // EDR: ED reversal
-    const Exemplars edr_correct(dimensions, {ed_irrelevant_exemplars_first_dim,
-                                             {ed_incorrect_exemplar},
-                                             ed_irrelevant_exemplars_third_dim});
-    const Exemplars edr_incorrect(dimensions, {ed_irrelevant_exemplars_first_dim,
-                                               {ed_correct_exemplar},
-                                               ed_irrelevant_exemplars_third_dim});
+    const Exemplars edr_correct(
+        dimensions,
+        {ed_irrelevant_exemplars_first_dim,
+         {ed_incorrect_exemplar},
+         ed_irrelevant_exemplars_third_dim}
+    );
+    const Exemplars edr_incorrect(
+        dimensions,
+        {ed_irrelevant_exemplars_first_dim,
+         {ed_correct_exemplar},
+         ed_irrelevant_exemplars_third_dim}
+    );
 
     // Stages
     const QString& first_dim_name = poss_dimensions.at(first_dim_index);
@@ -892,17 +1014,41 @@ void IDED3D::makeStages()
     const int n_locations = LOCATIONS.length();
     const int pk = pkvalueInt();
     m_stages.append(IDED3DStagePtr(new IDED3DStage(
-            pk, m_app, m_db, stage++, "SD",  // Only a single dimension varies
-            first_dim_name, sd_correct, sd_incorrect, n_locations,
-            true)));  // incorrect_stimulus_can_overlap
+        pk,
+        m_app,
+        m_db,
+        stage++,
+        "SD",  // Only a single dimension varies
+        first_dim_name,
+        sd_correct,
+        sd_incorrect,
+        n_locations,
+        true
+    )));  // incorrect_stimulus_can_overlap
     m_stages.append(IDED3DStagePtr(new IDED3DStage(
-            pk, m_app, m_db, stage++, "SDr",  // Reversal of SD
-            first_dim_name, sdr_correct, sdr_incorrect, n_locations,
-            true)));  // incorrect_stimulus_can_overlap
+        pk,
+        m_app,
+        m_db,
+        stage++,
+        "SDr",  // Reversal of SD
+        first_dim_name,
+        sdr_correct,
+        sdr_incorrect,
+        n_locations,
+        true
+    )));  // incorrect_stimulus_can_overlap
     m_stages.append(IDED3DStagePtr(new IDED3DStage(
-            pk, m_app, m_db, stage++, "CD",  // "Compound discrimination"
-            first_dim_name, cd_correct, cd_incorrect, n_locations,
-            false)));  // incorrect_stimulus_can_overlap
+        pk,
+        m_app,
+        m_db,
+        stage++,
+        "CD",  // "Compound discrimination"
+        first_dim_name,
+        cd_correct,
+        cd_incorrect,
+        n_locations,
+        false
+    )));  // incorrect_stimulus_can_overlap
     /*
     The phrase "compound discrimination" is ambiguous.
     The discrimination is not that a compound stimulus is correct
@@ -911,27 +1057,66 @@ void IDED3D::makeStages()
     irrelevant dimensions (e.g. two/four, square/circle).
     */
     m_stages.append(IDED3DStagePtr(new IDED3DStage(
-            pk, m_app, m_db, stage++, "CDr",  // Reversal of CD
-            first_dim_name, cdr_correct, cdr_incorrect, n_locations,
-            false)));  // incorrect_stimulus_can_overlap
+        pk,
+        m_app,
+        m_db,
+        stage++,
+        "CDr",  // Reversal of CD
+        first_dim_name,
+        cdr_correct,
+        cdr_incorrect,
+        n_locations,
+        false
+    )));  // incorrect_stimulus_can_overlap
     m_stages.append(IDED3DStagePtr(new IDED3DStage(
-            pk, m_app, m_db, stage++, "ID",  // Intradimensional shift
-            first_dim_name, id_correct, id_incorrect, n_locations,
-            false)));  // incorrect_stimulus_can_overlap
+        pk,
+        m_app,
+        m_db,
+        stage++,
+        "ID",  // Intradimensional shift
+        first_dim_name,
+        id_correct,
+        id_incorrect,
+        n_locations,
+        false
+    )));  // incorrect_stimulus_can_overlap
     m_stages.append(IDED3DStagePtr(new IDED3DStage(
-            pk, m_app, m_db, stage++, "IDr",  // ID reversal
-            first_dim_name, idr_correct, idr_incorrect, n_locations,
-            false)));  // incorrect_stimulus_can_overlap
+        pk,
+        m_app,
+        m_db,
+        stage++,
+        "IDr",  // ID reversal
+        first_dim_name,
+        idr_correct,
+        idr_incorrect,
+        n_locations,
+        false
+    )));  // incorrect_stimulus_can_overlap
     m_stages.append(IDED3DStagePtr(new IDED3DStage(
-            pk, m_app, m_db, stage++, "ED",  // Extradimensional shift
-            second_dim_name, ed_correct, ed_incorrect, n_locations,
-            false)));  // incorrect_stimulus_can_overlap
+        pk,
+        m_app,
+        m_db,
+        stage++,
+        "ED",  // Extradimensional shift
+        second_dim_name,
+        ed_correct,
+        ed_incorrect,
+        n_locations,
+        false
+    )));  // incorrect_stimulus_can_overlap
     m_stages.append(IDED3DStagePtr(new IDED3DStage(
-            pk, m_app, m_db, stage++, "EDr",  // ED reversal
-            second_dim_name, edr_correct, edr_incorrect, n_locations,
-            false)));  // incorrect_stimulus_can_overlap
+        pk,
+        m_app,
+        m_db,
+        stage++,
+        "EDr",  // ED reversal
+        second_dim_name,
+        edr_correct,
+        edr_incorrect,
+        n_locations,
+        false
+    )));  // incorrect_stimulus_can_overlap
 }
-
 
 void IDED3D::debugDisplayStimuli()
 {
@@ -943,13 +1128,14 @@ void IDED3D::debugDisplayStimuli()
     const int ny = x_y.second;
     const QVector<qreal> x_centres = distribute(nx, 0, SCENE_WIDTH);
     const QVector<qreal> y_centres = distribute(ny, 0, SCENE_HEIGHT);
-    const qreal scale = 0.8 * qMin(SCENE_WIDTH / nx, SCENE_HEIGHT / ny) / STIMSIZE;
+    const qreal scale
+        = 0.8 * qMin(SCENE_WIDTH / nx, SCENE_HEIGHT / ny) / STIMSIZE;
     int n = 0;
     for (int y = 0; y < ny && n < n_stimuli; ++y) {
         for (int x = 0; x < nx && n < n_stimuli; ++x) {
             QPointF centre(x_centres[x], y_centres[y]);
-            SvgWidgetAndProxy stim = showIndividualStimulus(
-                        n, TEST_COLOUR, centre, scale, true);
+            SvgWidgetAndProxy stim
+                = showIndividualStimulus(n, TEST_COLOUR, centre, scale, true);
             QString label = QString::number(n);
             makeText(m_scene, centre, BASE_TEXT_CONFIG, label);
             CONNECT_SVG_CLICKED(stim, finish);
@@ -958,28 +1144,34 @@ void IDED3D::debugDisplayStimuli()
     }
 }
 
-
 SvgWidgetAndProxy IDED3D::showIndividualStimulus(
-        const int stimulus_num, const QColor& colour,
-        const QPointF& centre, const qreal scale,
-        const bool debug)
+    const int stimulus_num,
+    const QColor& colour,
+    const QPointF& centre,
+    const qreal scale,
+    const bool debug
+)
 {
     Q_ASSERT(stimulus_num >= 0 && stimulus_num < IDED3DExemplars::nShapes());
     const QString& path_contents = IDED3DExemplars::shapeSvg(stimulus_num);
     SvgTransform transform;
     transform.scale(scale);
     const QString svg = graphicsfunc::svgFromPathContents(
-                path_contents, colour, STIM_STROKE_WIDTH, colour, transform);
+        path_contents, colour, STIM_STROKE_WIDTH, colour, transform
+    );
 #ifdef DEBUG_SVG
     qDebug().noquote() << "showIndividualStimulus: svg:" << svg;
 #endif
     bool transparent_for_mouse = !debug;
-    return makeSvg(m_scene, centre, svg,
-                   debug ? STIM_PRESSED_BG_COLOUR : QCOLOR_TRANSPARENT,
-                   QCOLOR_TRANSPARENT,
-                   transparent_for_mouse);
+    return makeSvg(
+        m_scene,
+        centre,
+        svg,
+        debug ? STIM_PRESSED_BG_COLOUR : QCOLOR_TRANSPARENT,
+        QCOLOR_TRANSPARENT,
+        transparent_for_mouse
+    );
 }
-
 
 QVector<QPointF> IDED3D::stimCentres(const int n) const
 {
@@ -995,27 +1187,26 @@ QVector<QPointF> IDED3D::stimCentres(const int n) const
 
     switch (n) {
 
-    // horizontal row:
-    case 1:
-    case 2:
-        x = distribute(n, left, right);
-        y = rep(0.0, n);
-        break;
+        // horizontal row:
+        case 1:
+        case 2:
+            x = distribute(n, left, right);
+            y = rep(0.0, n);
+            break;
 
-    // two rows:
-    case 4:
-    case 6:  // Rogers 1999 gives this example
-    case 8:
-        x = rep(distribute(n / 2, left, right), 1, 2);
-        y = rep(distribute(2, top, bottom), n / 2, 1);
-        break;
+        // two rows:
+        case 4:
+        case 6:  // Rogers 1999 gives this example
+        case 8:
+            x = rep(distribute(n / 2, left, right), 1, 2);
+            y = rep(distribute(2, top, bottom), n / 2, 1);
+            break;
 
-    // one fewer on bottom than top:
-    case 3:  // Rogers 1999 gives this example
-    case 5:
-    case 7:
-    case 9:
-        {
+        // one fewer on bottom than top:
+        case 3:  // Rogers 1999 gives this example
+        case 5:
+        case 7:
+        case 9: {
             int ntop = qFloor(n / 2.0);
             int nbottom = qCeil(n / 2.0);
             QVector<qreal> topx = distribute(ntop, left, right);
@@ -1028,9 +1219,9 @@ QVector<QPointF> IDED3D::stimCentres(const int n) const
             break;
         }
 
-    // something wrong:
-    default:
-        Q_ASSERT(false);
+        // something wrong:
+        default:
+            Q_ASSERT(false);
     }
 
     Q_ASSERT(x.size() == y.size());
@@ -1042,39 +1233,41 @@ QVector<QPointF> IDED3D::stimCentres(const int n) const
     return points;
 }
 
-
 QRectF IDED3D::locationRect(const int location) const
 {
     Q_ASSERT(location >= 0 && location < LOCATIONS.size());
     const QPointF centre = LOCATIONS.at(location);
-    return QRectF(centre.x() - BOXWIDTH / 2,
-                  centre.y() - BOXHEIGHT / 2,
-                  BOXWIDTH,
-                  BOXHEIGHT);
+    return QRectF(
+        centre.x() - BOXWIDTH / 2,
+        centre.y() - BOXHEIGHT / 2,
+        BOXWIDTH,
+        BOXHEIGHT
+    );
 }
 
-
-void IDED3D::showEmptyBox(const int location,
-                          const bool touchable,
-                          const bool correct)
+void IDED3D::showEmptyBox(
+    const int location, const bool touchable, const bool correct
+)
 {
     const QRectF rect = locationRect(location);
     ButtonAndProxy box = makeTextButton(
-                m_scene,
-                rect,
-                touchable ? STIM_BUTTON_CONFIG : EMPTYBOX_BUTTON_CONFIG,
-                "");
+        m_scene,
+        rect,
+        touchable ? STIM_BUTTON_CONFIG : EMPTYBOX_BUTTON_CONFIG,
+        ""
+    );
     if (touchable) {
         CONNECT_BUTTON_PARAM(box, recordResponse, correct);
     }
 }
 
-
-void IDED3D::showCompositeStimulus(const int shape,
-                                   const int colour_number,
-                                   const int number,
-                                   const int location,
-                                   bool correct)
+void IDED3D::showCompositeStimulus(
+    const int shape,
+    const int colour_number,
+    const int number,
+    const int location,
+    bool correct
+)
 {
     Q_ASSERT(location >= 0 && location < LOCATIONS.size());
     const QPointF overall_centre = LOCATIONS.at(location);
@@ -1097,46 +1290,40 @@ void IDED3D::showCompositeStimulus(const int shape,
     }
 }
 
-
 void IDED3D::clearScene()
 {
     m_scene->clear();  // be careful not to do m_scene.clear() instead!
 }
 
-
 void IDED3D::setTimeout(int time_ms, FuncPtr callback)
 {
     m_timer->stop();
     m_timer->disconnect();
-    connect(m_timer.data(), &QTimer::timeout,
-            this, callback,
-            Qt::QueuedConnection);
+    connect(
+        m_timer.data(), &QTimer::timeout, this, callback, Qt::QueuedConnection
+    );
     m_timer->start(time_ms);
 }
-
 
 bool IDED3D::stagePassed() const
 {
     // X of the last Y correct?
     int n_correct = 0;
     const int first = m_trials.size() - valueInt(FN_PROGRESS_CRITERION_Y);
-    for (int i = m_current_trial;
-            i >= 0 && i >= first && m_trials.at(i)->stageZeroBased() == m_current_stage;
-            --i) {
+    for (int i = m_current_trial; i >= 0 && i >= first
+         && m_trials.at(i)->stageZeroBased() == m_current_stage;
+         --i) {
         if (m_trials.at(i)->wasCorrect()) {
             n_correct += 1;
         }
     }
     bool passed = n_correct >= valueInt(FN_PROGRESS_CRITERION_X);
-    qDebug().nospace()
-            << n_correct << " correct (need X="
-            << valueInt(FN_PROGRESS_CRITERION_X) << ") of last Y="
-            << valueInt(FN_PROGRESS_CRITERION_Y)
-            << " trials this stage => stage passed = "
-            << passed;
+    qDebug().nospace() << n_correct << " correct (need X="
+                       << valueInt(FN_PROGRESS_CRITERION_X)
+                       << ") of last Y=" << valueInt(FN_PROGRESS_CRITERION_Y)
+                       << " trials this stage => stage passed = " << passed;
     return passed;
 }
-
 
 int IDED3D::getNumTrialsThisStage() const
 {
@@ -1151,19 +1338,15 @@ int IDED3D::getNumTrialsThisStage() const
     return n;
 }
 
-
 bool IDED3D::stageFailed() const
 {
     const int n_this_stage = getNumTrialsThisStage();
     const bool failed = n_this_stage >= valueInt(FN_MAX_TRIALS_PER_STAGE);
-    qDebug().nospace()
-            << n_this_stage
-            << " trials performed this stage (max="
-            << valueInt(FN_MAX_TRIALS_PER_STAGE) << ") => stage failed = "
-            << failed;
+    qDebug().nospace() << n_this_stage << " trials performed this stage (max="
+                       << valueInt(FN_MAX_TRIALS_PER_STAGE)
+                       << ") => stage failed = " << failed;
     return failed;
 }
-
 
 // ============================================================================
 // Main task internals
@@ -1182,7 +1365,8 @@ void IDED3D::startTask()
     setValue(FN_SHAPE_DEFINITIONS_SVG, IDED3DExemplars::allShapesAsJson());
     // Similarly for colours
     setValue(FN_COLOUR_DEFINITIONS_RGB, IDED3DExemplars::allColoursAsJson());
-    onEditStarted();  // will have been stopped by the end of the questionnaire?
+    onEditStarted();
+    // ... will have been stopped by the end of the questionnaire?
 
     // Double-check we have a PK before we create stages/trials
     save();
@@ -1202,21 +1386,33 @@ void IDED3D::startTask()
     m_player_incorrect->setSource(uifunc::resourceUrl(SOUND_FILE_INCORRECT));
     soundfunc::setVolume(m_player_correct, valueDouble(FN_VOLUME));
     soundfunc::setVolume(m_player_incorrect, valueDouble(FN_VOLUME));
-    connect(m_player_correct.data(), &QMediaPlayer::mediaStatusChanged,
-            this, &IDED3D::mediaStatusChanged);
-    connect(m_player_incorrect.data(), &QMediaPlayer::mediaStatusChanged,
-            this, &IDED3D::mediaStatusChanged);
+    connect(
+        m_player_correct.data(),
+        &QMediaPlayer::mediaStatusChanged,
+        this,
+        &IDED3D::mediaStatusChanged
+    );
+    connect(
+        m_player_incorrect.data(),
+        &QMediaPlayer::mediaStatusChanged,
+        this,
+        &IDED3D::mediaStatusChanged
+    );
 
     // Start
     ButtonAndProxy start = makeTextButton(
-                m_scene,
-                QRectF(0.2 * SCENE_WIDTH, 0.6 * SCENE_HEIGHT,
-                       0.6 * SCENE_WIDTH, 0.1 * SCENE_HEIGHT),
-                BASE_BUTTON_CONFIG,
-                TextConst::touchToStart());
+        m_scene,
+        QRectF(
+            0.2 * SCENE_WIDTH,
+            0.6 * SCENE_HEIGHT,
+            0.6 * SCENE_WIDTH,
+            0.1 * SCENE_HEIGHT
+        ),
+        BASE_BUTTON_CONFIG,
+        TextConst::touchToStart()
+    );
     CONNECT_BUTTON(start, nextTrial);
 }
-
 
 void IDED3D::nextTrial()
 {
@@ -1241,8 +1437,8 @@ void IDED3D::nextTrial()
         return;
     }
     // Finished last stage?
-    if (m_current_stage >= m_stages.size() ||
-            m_current_stage >= valueInt(FN_LAST_STAGE)) {
+    if (m_current_stage >= m_stages.size()
+        || m_current_stage >= valueInt(FN_LAST_STAGE)) {
         qDebug() << "Completed task";
         thanks();
         return;
@@ -1251,19 +1447,18 @@ void IDED3D::nextTrial()
     stage = m_stages.at(m_current_stage);  // a different one, perhaps
     qDebug().noquote() << stage->summary();
     m_current_trial += 1;
-    IDED3DTrialPtr tr = IDED3DTrialPtr(new IDED3DTrial(
-                                *stage, m_current_trial, m_app, m_db));
+    IDED3DTrialPtr tr
+        = IDED3DTrialPtr(new IDED3DTrial(*stage, m_current_trial, m_app, m_db)
+        );
     m_trials.append(tr);
     Q_ASSERT(m_current_trial == m_trials.size() - 1);
     stage->setFirstTrialIfBlank(m_current_trial);
     startTrial();
 }
 
-
 void IDED3D::startTrial()
 {
-    qDebug() << Q_FUNC_INFO
-             << "m_current_stage" << m_current_stage
+    qDebug() << Q_FUNC_INFO << "m_current_stage" << m_current_stage
              << "m_current_trial" << m_current_trial;
     Q_ASSERT(0 <= m_current_trial && m_current_trial < m_trials.size());
     IDED3DTrialPtr trial = m_trials.at(m_current_trial);
@@ -1277,18 +1472,20 @@ void IDED3D::startTrial()
     for (int l = 0; l < LOCATIONS.size(); ++l) {
         if (l == trial->correctLocation()) {
             showCompositeStimulus(
-                        trial->correctShape(),
-                        trial->correctColour(),
-                        trial->correctNumber(),
-                        trial->correctLocation(),
-                        true);
+                trial->correctShape(),
+                trial->correctColour(),
+                trial->correctNumber(),
+                trial->correctLocation(),
+                true
+            );
         } else if (l == trial->incorrectLocation()) {
             showCompositeStimulus(
-                        trial->incorrectShape(),
-                        trial->incorrectColour(),
-                        trial->incorrectNumber(),
-                        trial->incorrectLocation(),
-                        false);
+                trial->incorrectShape(),
+                trial->incorrectColour(),
+                trial->incorrectNumber(),
+                trial->incorrectLocation(),
+                false
+            );
         } else {
             showEmptyBox(l);
         }
@@ -1297,16 +1494,20 @@ void IDED3D::startTrial()
         ButtonConfig abort_cfg = BASE_BUTTON_CONFIG;
         abort_cfg.background_colour = ABORT_BUTTON_BACKGROUND;
         ButtonAndProxy abort_button = makeTextButton(
-                    m_scene,
-                    QRectF(0.01 * SCENE_WIDTH, 0.94 * SCENE_HEIGHT,
-                           0.07 * SCENE_WIDTH, 0.05 * SCENE_HEIGHT),
-                    abort_cfg,
-                    TextConst::abort());
+            m_scene,
+            QRectF(
+                0.01 * SCENE_WIDTH,
+                0.94 * SCENE_HEIGHT,
+                0.07 * SCENE_WIDTH,
+                0.05 * SCENE_HEIGHT
+            ),
+            abort_cfg,
+            TextConst::abort()
+        );
         CONNECT_BUTTON(abort_button, abort);
     }
     trial->recordTrialStart();
 }
-
 
 void IDED3D::recordResponse(const bool correct)
 {
@@ -1321,7 +1522,6 @@ void IDED3D::recordResponse(const bool correct)
     setValue(FN_LAST_TRIAL_COMPLETED, m_current_trial + 1);  // one-based
     showAnswer(correct);
 }
-
 
 void IDED3D::showAnswer(bool correct)
 {
@@ -1342,7 +1542,6 @@ void IDED3D::showAnswer(bool correct)
     }
 }
 
-
 void IDED3D::mediaStatusChanged(const QMediaPlayer::MediaStatus status)
 {
     if (status == QMediaPlayer::EndOfMedia) {
@@ -1353,7 +1552,6 @@ void IDED3D::mediaStatusChanged(const QMediaPlayer::MediaStatus status)
     }
 }
 
-
 void IDED3D::waitAfterBeep()
 {
 #ifdef DEBUG_STEP_DETAIL
@@ -1361,7 +1559,6 @@ void IDED3D::waitAfterBeep()
 #endif
     setTimeout(valueInt(FN_PAUSE_AFTER_BEEP_MS), &IDED3D::iti);
 }
-
 
 void IDED3D::iti()
 {
@@ -1372,7 +1569,6 @@ void IDED3D::iti()
     setTimeout(valueInt(FN_ITI_MS), &IDED3D::nextTrial);
 }
 
-
 void IDED3D::thanks()
 {
 #ifdef DEBUG_STEP_DETAIL
@@ -1380,14 +1576,18 @@ void IDED3D::thanks()
 #endif
     clearScene();
     ButtonAndProxy thx = makeTextButton(
-                m_scene,
-                QRectF(0.3 * SCENE_WIDTH, 0.6 * SCENE_HEIGHT,
-                       0.4 * SCENE_WIDTH, 0.1 * SCENE_HEIGHT),
-                BASE_BUTTON_CONFIG,
-                TextConst::thankYouTouchToExit());
+        m_scene,
+        QRectF(
+            0.3 * SCENE_WIDTH,
+            0.6 * SCENE_HEIGHT,
+            0.4 * SCENE_WIDTH,
+            0.1 * SCENE_HEIGHT
+        ),
+        BASE_BUTTON_CONFIG,
+        TextConst::thankYouTouchToExit()
+    );
     CONNECT_BUTTON(thx, finish);
 }
-
 
 void IDED3D::abort()
 {
@@ -1399,7 +1599,6 @@ void IDED3D::abort()
     onEditFinishedAbort();
     emit m_widget->finished();
 }
-
 
 void IDED3D::finish()
 {

@@ -19,21 +19,22 @@
 */
 
 #include "qupickerpopup.h"
+
 #include <QDialog>
 #include <QHBoxLayout>
+
 #include "common/cssconst.h"
 #include "dialogs/nvpchoicedialog.h"
 #include "lib/widgetfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/clickablelabelwordwrapwide.h"
 
-
 // const int MAX_LENGTH = 100;
 
 
-QuPickerPopup::QuPickerPopup(FieldRefPtr fieldref,
-                             const NameValueOptions& options,
-                             QObject* parent) :
+QuPickerPopup::QuPickerPopup(
+    FieldRefPtr fieldref, const NameValueOptions& options, QObject* parent
+) :
     QuElement(parent),
     m_fieldref(fieldref),
     m_options(options),
@@ -42,12 +43,19 @@ QuPickerPopup::QuPickerPopup(FieldRefPtr fieldref,
 {
     m_options.validateOrDie();
     Q_ASSERT(m_fieldref);
-    connect(m_fieldref.data(), &FieldRef::valueChanged,
-            this, &QuPickerPopup::fieldValueChanged);
-    connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
-            this, &QuPickerPopup::fieldValueChanged);
+    connect(
+        m_fieldref.data(),
+        &FieldRef::valueChanged,
+        this,
+        &QuPickerPopup::fieldValueChanged
+    );
+    connect(
+        m_fieldref.data(),
+        &FieldRef::mandatoryChanged,
+        this,
+        &QuPickerPopup::fieldValueChanged
+    );
 }
-
 
 QuPickerPopup* QuPickerPopup::setRandomize(const bool randomize)
 {
@@ -55,13 +63,11 @@ QuPickerPopup* QuPickerPopup::setRandomize(const bool randomize)
     return this;
 }
 
-
 QuPickerPopup* QuPickerPopup::setPopupTitle(const QString& popup_title)
 {
     m_popup_title = popup_title;
     return this;
 }
-
 
 QPointer<QWidget> QuPickerPopup::makeWidget(Questionnaire* questionnaire)
 {
@@ -75,15 +81,18 @@ QPointer<QWidget> QuPickerPopup::makeWidget(Questionnaire* questionnaire)
     m_label->setObjectName(cssconst::PICKER_POPUP);
     m_label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     if (!read_only) {
-        connect(m_label.data(), &ClickableLabelWordWrapWide::clicked,
-                this, &QuPickerPopup::clicked);
+        connect(
+            m_label.data(),
+            &ClickableLabelWordWrapWide::clicked,
+            this,
+            &QuPickerPopup::clicked
+        );
     }
     m_label->setEnabled(!read_only);
 
     setFromField();
     return QPointer<QWidget>(m_label);
 }
-
 
 void QuPickerPopup::clicked()
 {
@@ -95,18 +104,17 @@ void QuPickerPopup::clicked()
     if (dlg.choose(&newvalue) != QDialog::Accepted) {
         return;  // user pressed cancel, or some such
     }
-    const bool changed = m_fieldref->setValue(newvalue);  // Will trigger valueChanged
+    const bool changed = m_fieldref->setValue(newvalue);
+    // ... Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
     }
 }
 
-
 void QuPickerPopup::setFromField()
 {
     fieldValueChanged(m_fieldref.data());
 }
-
 
 void QuPickerPopup::fieldValueChanged(const FieldRef* fieldref)
 {
@@ -119,7 +127,6 @@ void QuPickerPopup::fieldValueChanged(const FieldRef* fieldref)
     const QString text = m_options.nameFromIndex(index);
     m_label->setText(text);
 }
-
 
 FieldRefPtrList QuPickerPopup::fieldrefs() const
 {

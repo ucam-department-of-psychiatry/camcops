@@ -65,11 +65,13 @@ Then a general linear model is
 
 A generalized linear model extends this with a link function [11]:
     eta = Xb                        // linear predictor
-    E(Y) = mu = invlink(eta)        // Y = invlink(eta) or eta = link(y), ignoring error etc.
+    E(Y) = mu = invlink(eta)        // Y = invlink(eta) or eta = link(y),
+                                    // ignoring error etc.
 
 i.e.
 
-    Y = invlink(Xb + e)             // or Y = invlink(Xb) + e?  In any case, Y_predicted = invlink(Xb)
+    Y = invlink(Xb + e)             // or Y = invlink(Xb) + e?  In any case,
+                                    // Y_predicted = invlink(Xb)
     link(Y) = Xb + e
     g(Y) = Xb + e                   // the link function is called g()
 
@@ -80,15 +82,18 @@ i.e.
 For logistic regression, then:
 
     Y = logistic(Xb + e)            // logistic is the INVERSE link function
-    logit(Y) = Xb + e               // logit (= inverse logistic) is the link fn
+    logit(Y) = Xb + e               // logit (= inverse logistic) is the link
+                                    // function
 
 */
 
 // #define DEBUG_DESIGN_MATRIX
 
 #include "glm.h"
+
 #include <algorithm>
 #include <QDebug>
+
 #include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "maths/dqrls.h"
 #include "maths/eigenfunc.h"
@@ -112,16 +117,17 @@ using namespace Eigen;
 const double NA = std::numeric_limits<double>::quiet_NaN();
 const double INF = std::numeric_limits<double>::infinity();
 
-
 // ============================================================================
 // Constructors
 // ============================================================================
 
-Glm::Glm(const LinkFunctionFamily& link_fn_family,
-         const SolveMethod solve_method,
-         const int max_iterations,
-         const double tolerance,
-         const RankDeficiencyMethod rank_deficiency_method) :
+Glm::Glm(
+    const LinkFunctionFamily& link_fn_family,
+    const SolveMethod solve_method,
+    const int max_iterations,
+    const double tolerance,
+    const RankDeficiencyMethod rank_deficiency_method
+) :
     m_link_fn_family(link_fn_family),
     m_solve_method(solve_method),
     m_max_iterations(max_iterations),
@@ -132,23 +138,22 @@ Glm::Glm(const LinkFunctionFamily& link_fn_family,
     reset();
 }
 
-
-Glm::Glm(const Eigen::MatrixXd& predictors,
-         const Eigen::VectorXd& dependent_variable,
-         const LinkFunctionFamily& link_fn_family,
-         bool add_intercept,
-         SolveMethod solve_method,
-         int max_iterations,
-         double tolerance,
-         RankDeficiencyMethod rank_deficiency_method) :
+Glm::Glm(
+    const Eigen::MatrixXd& predictors,
+    const Eigen::VectorXd& dependent_variable,
+    const LinkFunctionFamily& link_fn_family,
+    bool add_intercept,
+    SolveMethod solve_method,
+    int max_iterations,
+    double tolerance,
+    RankDeficiencyMethod rank_deficiency_method
+) :
     // Delegating constructor:
-    Glm(
-        link_fn_family,
+    Glm(link_fn_family,
         solve_method,
         max_iterations,
         tolerance,
-        rank_deficiency_method
-    )
+        rank_deficiency_method)
 {
     if (add_intercept) {
         fitAddingIntercept(predictors, dependent_variable);
@@ -156,7 +161,6 @@ Glm::Glm(const Eigen::MatrixXd& predictors,
         fit(predictors, dependent_variable);
     }
 }
-
 
 // ============================================================================
 // Set options
@@ -167,14 +171,13 @@ void Glm::setVerbose(bool verbose)
     m_verbose = verbose;
 }
 
-
 // ============================================================================
 // Fit method
 // ============================================================================
 
-void Glm::fit(const MatrixXd& predictors,
-              const VectorXd& depvar,
-              VectorXd* p_weights)
+void Glm::fit(
+    const MatrixXd& predictors, const VectorXd& depvar, VectorXd* p_weights
+)
 {
     if (m_verbose) {
         qInfo() << "Glm::fit() starting";
@@ -194,36 +197,44 @@ void Glm::fit(const MatrixXd& predictors,
     addInfo(QString("Number of observations: %1").arg(n_observations));
     addInfo(QString("Number of predictors: %1").arg(n_predictors));
     if (m_predictors.rows() != n_observations) {  // n
-        addError(QString(
+        addError(
+            QString(
                 "Mismatch: 'predictors' has %1 rows but 'dependent_variable' "
                 "has %2 rows; should match (and be: number of observations)!"
-            ).arg(m_predictors.rows()).arg(n_observations));
+            )
+                .arg(m_predictors.rows())
+                .arg(n_observations)
+        );
         ok = false;
     }
     if (m_p_weights && m_p_weights->rows() != n_predictors) {
-        addError(QString(
+        addError(
+            QString(
                 "Mismatch: '*p_weights' has %1 rows but 'predictors' "
                 "has %2 columns; should match (and be: number of predictors)!"
-            ).arg(m_p_weights->rows()).arg(n_predictors));
+            )
+                .arg(m_p_weights->rows())
+                .arg(n_predictors)
+        );
         ok = false;
     }
 
     // Perform fit
     if (ok) {
         switch (m_solve_method) {
-        case SolveMethod::IRLS_KaneLewis:
-            fitIRLSKaneLewis();
-            break;
-        case SolveMethod::IRLS_SVDNewton_KaneLewis:
-            fitIRLSSVDNewtonKaneLewis();
-            break;
-        case SolveMethod::IRLS_R_glmfit:
-            fitIRLSRglmfit();
-            break;
+            case SolveMethod::IRLS_KaneLewis:
+                fitIRLSKaneLewis();
+                break;
+            case SolveMethod::IRLS_SVDNewton_KaneLewis:
+                fitIRLSSVDNewtonKaneLewis();
+                break;
+            case SolveMethod::IRLS_R_glmfit:
+                fitIRLSRglmfit();
+                break;
 #ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
-        default:
-            addError("Unknown solve method!");
-            break;
+            default:
+                addError("Unknown solve method!");
+                break;
 #endif
         }
     }
@@ -253,16 +264,15 @@ void Glm::fit(const MatrixXd& predictors,
     }
 }
 
-
 void Glm::fitAddingIntercept(
-        const Eigen::MatrixXd& predictors_excluding_intercept,
-        const Eigen::VectorXd& dependent_variable)
+    const Eigen::MatrixXd& predictors_excluding_intercept,
+    const Eigen::VectorXd& dependent_variable
+)
 {
-    const MatrixXd predictors = eigenfunc::addOnesAsFirstColumn(
-                predictors_excluding_intercept);
+    const MatrixXd predictors
+        = eigenfunc::addOnesAsFirstColumn(predictors_excluding_intercept);
     fit(predictors, dependent_variable);
 }
-
 
 // ============================================================================
 // Re-retrieve config
@@ -273,30 +283,25 @@ LinkFunctionFamily Glm::getLinkFunctionFamily() const
     return m_link_fn_family;
 }
 
-
 Glm::SolveMethod Glm::getSolveMethod() const
 {
     return m_solve_method;
 }
-
 
 int Glm::getMaxIterations() const
 {
     return m_max_iterations;
 }
 
-
 double Glm::getTolerance() const
 {
     return m_tolerance;
 }
 
-
 Glm::RankDeficiencyMethod Glm::getRankDeficiencyMethod() const
 {
     return m_rank_deficiency_method;
 }
-
 
 // ============================================================================
 // Design matrix
@@ -306,12 +311,12 @@ MatrixXd Glm::addInterceptToPredictors(const MatrixXd& x) const
 {
     const MatrixXd x_design = eigenfunc::addOnesAsFirstColumn(x);
 #ifdef DEBUG_DESIGN_MATRIX
-    addInfo("Design matrix: " +
-            eigenfunc::qStringFromEigenMatrixOrArray(x_design));
+    addInfo(
+        "Design matrix: " + eigenfunc::qStringFromEigenMatrixOrArray(x_design)
+    );
 #endif
     return x_design;
 }
-
 
 // ============================================================================
 // Re-retrieve input
@@ -322,30 +327,25 @@ VectorXd Glm::getDependentVariable() const
     return m_dependent_variable;
 }
 
-
 MatrixXd Glm::getPredictors() const
 {
     return m_predictors;
 }
-
 
 Eigen::VectorXd* Glm::getWeightsPointer() const
 {
     return m_p_weights;
 }
 
-
 Eigen::Index Glm::nObservations() const
 {
     return m_dependent_variable.rows();
 }
 
-
 Eigen::Index Glm::nPredictors() const
 {
     return m_predictors.cols();
 }
-
 
 // ============================================================================
 // Get output
@@ -356,24 +356,20 @@ bool Glm::fitted() const
     return m_fitted;
 }
 
-
 bool Glm::converged() const
 {
     return m_converged;
 }
-
 
 int Glm::nIterations() const
 {
     return m_n_iterations;
 }
 
-
 VectorXd Glm::coefficients() const
 {
     return m_coefficients;
 }
-
 
 VectorXd Glm::predict(const MatrixXd& predictors) const
 {
@@ -388,12 +384,10 @@ VectorXd Glm::predict(const MatrixXd& predictors) const
     return predicted.matrix();
 }
 
-
 VectorXd Glm::predict() const
 {
     return predict(m_predictors);
 }
-
 
 Eigen::VectorXd Glm::residuals(const Eigen::MatrixXd& predictors) const
 {
@@ -404,12 +398,10 @@ Eigen::VectorXd Glm::residuals(const Eigen::MatrixXd& predictors) const
     return predict(predictors) - m_dependent_variable;
 }
 
-
 VectorXd Glm::residuals() const
 {
     return residuals(m_predictors);
 }
-
 
 Eigen::ArrayXXd Glm::predictEta(const Eigen::MatrixXd& predictors) const
 {
@@ -421,12 +413,10 @@ Eigen::ArrayXXd Glm::predictEta(const Eigen::MatrixXd& predictors) const
     return (predictors * m_coefficients).array();
 }
 
-
 Eigen::ArrayXXd Glm::predictEta() const
 {
     return predictEta(m_predictors);
 }
-
 
 // ============================================================================
 // Dumb stuff
@@ -453,7 +443,6 @@ VectorXd Glm::retrodictUnivariatePredictor(const VectorXd& y) const
     return (eta - b0) / b1;
 }
 
-
 // ============================================================================
 // Get debugging info
 // ============================================================================
@@ -463,18 +452,15 @@ QStringList Glm::calculationErrors() const
     return m_calculation_errors;
 }
 
-
 QStringList Glm::getInfo() const
 {
     return m_info;
 }
 
-
 qint64 Glm::timeToFitMs() const
 {
     return m_fit_start_time.msecsTo(m_fit_end_time);
 }
-
 
 // ============================================================================
 // Internals
@@ -496,7 +482,6 @@ void Glm::reset()
     m_fit_start_time = m_fit_end_time = QDateTime();
 }
 
-
 void Glm::warnReturningGarbage() const
 {
     QString not_fitted("Not fitted! Returning garbage.");
@@ -504,18 +489,15 @@ void Glm::warnReturningGarbage() const
     addError(not_fitted);
 }
 
-
 void Glm::addInfo(const QString& msg) const
 {
     m_info.append(msg);
 }
 
-
 void Glm::addError(const QString& msg) const
 {
     m_calculation_errors.append(msg);
 }
-
 
 // ============================================================================
 // The interesting parts
@@ -523,8 +505,10 @@ void Glm::addError(const QString& msg) const
 
 void Glm::fitIRLSKaneLewis()
 {
-    addInfo("Fitting GLM using iteratively reweighted least squares (IRLS) "
-            "estimation");
+    addInfo(
+        "Fitting GLM using iteratively reweighted least squares (IRLS) "
+        "estimation"
+    );
     // https://bwlewis.github.io/GLM/
 
     // Renaming:
@@ -535,39 +519,43 @@ void Glm::fitIRLSKaneLewis()
     //      depvar      Y                               b
     //      predictors  X                               A
     //      coeffs      b                               x
-    const MatrixXd& A = m_predictors;   // n,k
+    const MatrixXd& A = m_predictors;  // n,k
     const ArrayXXd& b = m_dependent_variable.array();  // n,1
     const LinkFunctionFamily& family = m_link_fn_family;
     const Eigen::Index n_predictors = nPredictors();
     using statsfunc::svdSolve;
 
     if (m_p_weights) {
-        addError("Warning: weights specified but not supported by "
-                 "fitIRLSKaneLewis(); will be IGNORED");
+        addError(
+            "Warning: weights specified but not supported by "
+            "fitIRLSKaneLewis(); will be IGNORED"
+        );
     }
 
     VectorXd x = VectorXd::Zero(n_predictors);  // k,1
     VectorXd xold = VectorXd::Zero(n_predictors);  // k,1
-    for (m_n_iterations = 1;
-            m_n_iterations <= m_max_iterations;
-            ++m_n_iterations) {
+    for (m_n_iterations = 1; m_n_iterations <= m_max_iterations;
+         ++m_n_iterations) {
         // Note also, for debugging, that you can inspect matrices, but not
         // arrays, in the Qt debugger.
-        const ArrayXXd eta = (A   * x).array();
-                           // n,k * k,1  -> n,1
-        const ArrayXXd g = family.inv_link_fn(eta);  // apply invlink to eta -> n,1
+        const ArrayXXd eta = (A * x).array();
+        // n,k * k,1  -> n,1
+        const ArrayXXd g = family.inv_link_fn(eta);
+        // ... apply invlink to eta -> n,1
         const ArrayXXd gprime = family.derivative_inv_link_fn(eta);  // -> n,1
         const ArrayXXd gprime_squared = gprime.square();  // -> n,1
         const VectorXd z = (eta + (b - g) / gprime).matrix();  // n,1
         const ArrayXXd var_g = family.variance_fn(g);
-        const MatrixXd W = (gprime_squared / var_g).matrix().asDiagonal();  // n,n
+        const MatrixXd W = (gprime_squared / var_g).matrix().asDiagonal();
+        // n,n
         xold = x;
 
         // Now the tricky bit.
         // The source has:
         //      Let x[j+1] = (A_T W A)^−1 A_T W z
         // In R, it uses:
-        //      x = solve(crossprod(A,W*A), crossprod(A,W*z), tol=2*.Machine$double.eps)
+        //      x = solve(crossprod(A,W*A), crossprod(A,W*z),
+        //                tol=2*.Machine$double.eps)
         // R says "solve" solves "a %*% x = b" for x
         // ... i.e.
         //              a * x = b
@@ -584,10 +572,12 @@ void Glm::fitIRLSKaneLewis()
         //      x = A.jacobiSvd(options).solve(b)
         // So we end up with:
 
-        x = svdSolve(CROSSPROD(A,     W   * A),
-                            // n,k ; (n,n * n,k) -> n,k        --> k,k
-                     CROSSPROD(A,     W   * z));
-                            // n,k ; (n,n * n,1) -> n,1        --> k,1
+        x = svdSolve(
+            CROSSPROD(A, W * A),
+            // n,k ; (n,n * n,k) -> n,k        --> k,k
+            CROSSPROD(A, W * z)
+        );
+        // n,k ; (n,n * n,1) -> n,1        --> k,1
         // -> k,1
 
         double euclidean_norm_of_change = (x - xold).norm();
@@ -602,11 +592,12 @@ void Glm::fitIRLSKaneLewis()
     m_coefficients = x;  // k,1
 }
 
-
 void Glm::fitIRLSSVDNewtonKaneLewis()
 {
-    addInfo("Fitting GLM using iteratively reweighted least squares (IRLS) "
-            "estimation, SVD (singular value decomposition) Newton variant");
+    addInfo(
+        "Fitting GLM using iteratively reweighted least squares (IRLS) "
+        "estimation, SVD (singular value decomposition) Newton variant"
+    );
     // https://bwlewis.github.io/GLM/
     // Because of the variability in variable names, for dimensional analysis
     // we'll use nobs, npred.
@@ -629,11 +620,11 @@ void Glm::fitIRLSSVDNewtonKaneLewis()
         weights = ArrayXd::Ones(m);
     }
     if (weights.rows() != m) {
-        addError(QString(
-                     "'weights' is of length %1, but should match number of "
-                     "observations, %2").arg(
-                     QString::number(weights.rows()),
-                     QString::number(m)));
+        addError(
+            QString("'weights' is of length %1, but should match number of "
+                    "observations, %2")
+                .arg(QString::number(weights.rows()), QString::number(m))
+        );
         return;
     }
 
@@ -659,44 +650,51 @@ void Glm::fitIRLSSVDNewtonKaneLewis()
     }
     IndexArray select_pred_indices = indexSeq(0, n_predictors - 1);
     ArrayXb tiny_singular_values = S_d / S_d(0) < m_tolerance;
-    Eigen::Index k = tiny_singular_values.cast<Eigen::Index>().sum();  // number of tiny singular values; ntiny
+    Eigen::Index k = tiny_singular_values.cast<Eigen::Index>().sum();
+    // ... number of tiny singular values; ntiny
     if (k > 0) {
         addInfo("Numerically rank-deficient model matrix");
         switch (m_rank_deficiency_method) {
-        case RankDeficiencyMethod::SelectColumns:
-            addInfo("RankDeficiencyMethod::SelectColumns");
-            select_pred_indices = svdsubsel(A, n - k);
-            S = svd(subsetByColumnIndex(A, select_pred_indices));
-            S_d = S.singularValues().array();  // Since we change S, rewrite S_d
-            break;
-        case RankDeficiencyMethod::MinimumNorm:
-            addInfo("RankDeficiencyMethod::MinimiumNorm");
-            // Dealt with at the end; see below
-            break;
-        case RankDeficiencyMethod::Error:
-            addError("Near rank-deficient model matrix");
-            return;
+            case RankDeficiencyMethod::SelectColumns:
+                addInfo("RankDeficiencyMethod::SelectColumns");
+                select_pred_indices = svdsubsel(A, n - k);
+                S = svd(subsetByColumnIndex(A, select_pred_indices));
+                // Since we change S, rewrite S_d
+                S_d = S.singularValues().array();
+                break;
+            case RankDeficiencyMethod::MinimumNorm:
+                addInfo("RankDeficiencyMethod::MinimiumNorm");
+                // Dealt with at the end; see below
+                break;
+            case RankDeficiencyMethod::Error:
+                addError("Near rank-deficient model matrix");
+                return;
 #ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
-        default:
-            addError("Unknown rank deficiency method!");
-            return;
+            default:
+                addError("Unknown rank deficiency method!");
+                return;
 #endif
         }
     }
 
-    ArrayXd t = ArrayXd::Zero(m);  // nobs,1  // NB confusing name choice, cf. R's t() for transpose
-    MatrixXd s = VectorXd::Zero(select_pred_indices.size());  // npred_unless_subselected,1
+    ArrayXd t = ArrayXd::Zero(m);  // nobs,1
+        // ... NB confusing name choice, cf. R's t() for transpose
+    MatrixXd s = VectorXd::Zero(select_pred_indices.size());
+    // ... npred_unless_subselected,1
     MatrixXd s_old = s;  // npred_unless_subselected,1
-    ArrayXb select_pred_bool = selectBoolFromIndices(select_pred_indices, n_predictors);
+    ArrayXb select_pred_bool
+        = selectBoolFromIndices(select_pred_indices, n_predictors);
     ArrayXb good = weights > 0;  // nobs,1
     double two_epsilon = 2.0 * std::numeric_limits<double>::epsilon();
 
-    for (m_n_iterations = 1;
-            m_n_iterations <= m_max_iterations;
-            ++m_n_iterations) {
-        const ArrayXd t_good = subsetByElementBoolean(t, good);  // nobs_where_good,1
-        const ArrayXd b_good = subsetByElementBoolean(b, good);  // nobs_where_good,1
-        const ArrayXd weights_good = subsetByElementBoolean(weights, good);  // nobs_where_good,1
+    for (m_n_iterations = 1; m_n_iterations <= m_max_iterations;
+         ++m_n_iterations) {
+        const ArrayXd t_good = subsetByElementBoolean(t, good);
+        // ... nobs_where_good,1
+        const ArrayXd b_good = subsetByElementBoolean(b, good);
+        // ... nobs_where_good,1
+        const ArrayXd weights_good = subsetByElementBoolean(weights, good);
+        // ... nobs_where_good,1
 
         const ArrayXd g = family.inv_link_fn(t_good);  // nobs_where_good,1
 
@@ -704,42 +702,50 @@ void Glm::fitIRLSSVDNewtonKaneLewis()
         if (varg.isNaN().any()) {
             // As per original...
             addError(QString("NAs in variance of the inverse link function "
-                             "(iteration %1)").arg(m_n_iterations));
+                             "(iteration %1)")
+                         .arg(m_n_iterations));
             return;
         }
         // But also (RNC):
         if (varg.isInf().any()) {
             // As per original...
             addError(QString("Infinities in variance of the inverse link "
-                             "function (iteration %1)").arg(m_n_iterations));
+                             "function (iteration %1)")
+                         .arg(m_n_iterations));
             return;
         }
         if ((varg == 0).any()) {
             addError(QString("Zero value in variance of the inverse link "
-                             "function (iteration %1)").arg(m_n_iterations));
+                             "function (iteration %1)")
+                         .arg(m_n_iterations));
             return;
         }
 
-        const ArrayXd gprime = family.derivative_inv_link_fn(t_good);  // nobs_where_good,1
+        const ArrayXd gprime = family.derivative_inv_link_fn(t_good);
+        // ... nobs_where_good,1
         if (gprime.isNaN().any()) {
             // As per original...
             addError(QString("NAs in the inverse link function derivative "
-                             "(iteration %1)").arg(m_n_iterations));
+                             "(iteration %1)")
+                         .arg(m_n_iterations));
             return;
         }
         // But also (RNC):
         if (gprime.isInf().any()) {
             // As per original...
             addError(QString("Infinities in the inverse link function "
-                             "derivative (iteration %1)").arg(m_n_iterations));
+                             "derivative (iteration %1)")
+                         .arg(m_n_iterations));
             return;
         }
 
         ArrayXd z = ArrayXd::Zero(m);  // nobs,1
         ArrayXd W = ArrayXd::Zero(m);  // nobs,1
-        ArrayXd to_z_good = t_good + (b_good - g) / gprime;  // nobs_where_ngood,1
+        ArrayXd to_z_good = t_good + (b_good - g) / gprime;
+        // ... nobs_where_good,1
         assignByBooleanSequentially(z, good, to_z_good);
-        ArrayXd W_new_good = weights_good * (gprime.square() / varg);  // nobs_where_ngood,1
+        ArrayXd W_new_good = weights_good * (gprime.square() / varg);
+        // ... nobs_where_good,1
         assignByBooleanSequentially(W, good, W_new_good);
         good = W > two_epsilon;
         // --------------------------------------------------------------------
@@ -748,29 +754,33 @@ void Glm::fitIRLSSVDNewtonKaneLewis()
         int n_good = good.cast<int>().sum();
         if (n_good < m) {
             addInfo(QString("Warning: tiny weights encountered (iteration "
-                            "%1)").arg(m_n_iterations));
+                            "%1)")
+                        .arg(m_n_iterations));
         }
         s_old = s;
 
         const MatrixXd& S_u = S.matrixU();  // nobs,npred
-        const ArrayXXd S_u_good = subsetByRowBoolean(S_u, good);  // nobs_where_ngood,npred
+        const ArrayXXd S_u_good = subsetByRowBoolean(S_u, good);
+        // ... nobs_where_ngood,npred
         // Note that mat[boolvec] gives a 1-d result, whereas
         // mat[boolvec,] gives a 2-d result.
-        const ArrayXd W_good = subsetByElementBoolean(W, good);  // nobs_where_ngood,1
-        const ArrayXd z_good = subsetByElementBoolean(z, good);  // nobs_where_ngood,1
+        const ArrayXd W_good = subsetByElementBoolean(W, good);
+        // ... nobs_where_ngood,1
+        const ArrayXd z_good = subsetByElementBoolean(z, good);
+        // ... nobs_where_ngood,1
         // Now, about W_good * S_u_good, where S_u_good is e.g. 20x2:
         // In R, if W_good is 20x1, you get a "non-conformable arrays" error,
         // but if W_good is a 20-length vector, it works, applying it across
         // all columns of S_u_good.
         // Let's create a new multiplication function:
         MatrixXd tmp_matrix_to_chol = CROSSPROD(
-                    S_u_good,  // nobs_where_ngood,npred
-                    multiply(W_good, S_u_good)  // nobs_where_ngood,npred
+            S_u_good,  // nobs_where_ngood,npred
+            multiply(W_good, S_u_good)  // nobs_where_ngood,npred
         );  // npred,npred
         MatrixXd C = chol(tmp_matrix_to_chol);  // npred,npred
         MatrixXd tmp_matrix_rhs = CROSSPROD(
-                    S_u_good,  // nobs_where_ngood,npred
-                    W_good * z_good  // nobs_where_ngood,1
+            S_u_good,  // nobs_where_ngood,npred
+            W_good * z_good  // nobs_where_ngood,1
         );  // npred,1
         s = forwardsolve(C.transpose(), tmp_matrix_rhs);  // npred,1
         s = backsolve(C, s);  // npred,1
@@ -794,18 +804,19 @@ void Glm::fitIRLSSVDNewtonKaneLewis()
         S_d = tiny_singular_values.select(INF, S_d);
     }
 
-    const ArrayXd t_good = subsetByElementBoolean(t, good);  // nobs_where_good,1
+    const ArrayXd t_good = subsetByElementBoolean(t, good);
+    // ... nobs_where_good,1
     const MatrixXd S_u = S.matrixU();  // nobs,npred
-    const MatrixXd S_u_good = subsetByRowBoolean(S_u, good);  // nobs_where_good,npred
+    const MatrixXd S_u_good = subsetByRowBoolean(S_u, good);
+    // ... nobs_where_good,npred
     const MatrixXd S_v = S.matrixV();
-    const MatrixXd x_possible = S_v * ((1 / S_d) * CROSSPROD(
-                                           S_u_good,
-                                           t_good).array()).matrix();  // npred,1
+    const MatrixXd x_possible
+        = S_v * ((1 / S_d) * CROSSPROD(S_u_good, t_good).array()).matrix();
+    // ... npred,1
     x = select_pred_bool.select(x_possible, x);
 
     m_fitted = true;
 }
-
 
 eigenfunc::IndexArray Glm::svdsubsel(const MatrixXd& A, Eigen::Index k)
 {
@@ -840,7 +851,9 @@ eigenfunc::IndexArray Glm::svdsubsel(const MatrixXd& A, Eigen::Index k)
             addInfo("k was reduced to match the rank of A");
         }
     }
-    MatrixXd subsetted = subsetByColumnIndex(S.matrixV(), indexSeq(0, index_k)).transpose();  // k,?
+    MatrixXd subsetted
+        = subsetByColumnIndex(S.matrixV(), indexSeq(0, index_k)).transpose();
+    // ... k,?
     // The original uses qr(..., LAPACK=TRUE), and R's ?qr says "Using
     // LAPACK... uses column pivoting..." so the Eigen equivalent is probably:
     ColPivHouseholderQR<MatrixXd> Q = subsetted.colPivHouseholderQr();
@@ -854,7 +867,6 @@ eigenfunc::IndexArray Glm::svdsubsel(const MatrixXd& A, Eigen::Index k)
     sort(column_indices);
     return column_indices;
 }
-
 
 void Glm::fitIRLSRglmfit()
 {
@@ -895,7 +907,8 @@ void Glm::fitIRLSRglmfit()
     }
 
     // A priori known component to incorporate in the linear predictor
-    ArrayXd offset = ArrayXd::Zero(nobs);  // specifying it is not yet supported
+    ArrayXd offset = ArrayXd::Zero(nobs);
+    // ... specifying it is not yet supported
 
     // Include an intercept term?
     // const bool intercept = true;  // specifying it is not yet supported
@@ -904,7 +917,7 @@ void Glm::fitIRLSRglmfit()
     // etc.)
     const LinkFunctionFamily& family = m_link_fn_family;
 
-        // Shorthands for the various parts of the family:
+    // Shorthands for the various parts of the family:
 
     // Link function, eta = linkfun(mu)
     const LinkFunctionFamily::LinkFnType linkfun = family.link_fn;
@@ -922,14 +935,17 @@ void Glm::fitIRLSRglmfit()
     const LinkFunctionFamily::ValidMuFnType validmu = family.valid_mu_fn;
 
     // Derivative of the inverse link function, d(mu)/d(eta); "mu.eta" in R
-    const LinkFunctionFamily::DerivativeInvLinkFnType mu_eta = family.derivative_inv_link_fn;
+    const LinkFunctionFamily::DerivativeInvLinkFnType mu_eta
+        = family.derivative_inv_link_fn;
 
     // GLM initialization function
-    const LinkFunctionFamily::InitializeFnType initialize = family.initialize_fn;
+    const LinkFunctionFamily::InitializeFnType initialize
+        = family.initialize_fn;
 
     // Function to calculate the deviance for each observation as a function
     // of (y, mu, wt).
-    const LinkFunctionFamily::DevResidsFnType dev_resids = family.dev_resids_fn;
+    const LinkFunctionFamily::DevResidsFnType dev_resids
+        = family.dev_resids_fn;
 
 #ifdef LINK_FUNCTION_FAMILY_USE_AIC
     // AIC calculation function
@@ -1023,14 +1039,30 @@ void Glm::fitIRLSRglmfit()
 
     // Initialize as the link family dictates
     if (mustart.size() == 0) {
-        initialize(m_calculation_errors, family,
-                   y, n, m, weights,
-                   start, etastart, mustart);
+        initialize(
+            m_calculation_errors,
+            family,
+            y,
+            n,
+            m,
+            weights,
+            start,
+            etastart,
+            mustart
+        );
     } else {
         ArrayXd mukeep(mustart);
-        initialize(m_calculation_errors, family,
-                   y, n, m, weights,
-                   start, etastart, mustart);
+        initialize(
+            m_calculation_errors,
+            family,
+            y,
+            n,
+            m,
+            weights,
+            start,
+            etastart,
+            mustart
+        );
         mustart = mukeep;
     }
 
@@ -1060,10 +1092,7 @@ void Glm::fitIRLSRglmfit()
 
         // ?
         ArrayXd mu_eta_of_eta = mu_eta(eta);
-        w = (
-            (weights * mu_eta_of_eta.square()) /
-            variance(mu)
-        ).sqrt();
+        w = ((weights * mu_eta_of_eta.square()) / variance(mu)).sqrt();
 
         // Calculate residuals.
         residuals = (y - mu) / mu_eta_of_eta;
@@ -1107,9 +1136,9 @@ void Glm::fitIRLSRglmfit()
                 // User has given initial coefficients.
                 // Use eta = offset + X * initial_coeffs.
                 if (start.size() != nvars) {
-                    addError(QString(
-                                 "length of 'start' should equal %1 and "
-                                 "correspond to initial coefs...").arg(nvars));
+                    addError(QString("length of 'start' should equal %1 and "
+                                     "correspond to initial coefs...")
+                                 .arg(nvars));
                     return;
                 }
                 coefold = start;
@@ -1185,28 +1214,29 @@ void Glm::fitIRLSRglmfit()
             if (!good.any()) {
                 conv = false;
                 addError(QString("no observations informative at iteration "
-                                 "%1").arg(iter));
+                                 "%1")
+                             .arg(iter));
                 break;
             }
 
             // For good values, calculate
             //      z = (eta - offset) + [(y - mu) / mu']
             ArrayXd mu_eta_val_good = subsetByElementBoolean(mu_eta_val, good);
-            z = subsetByElementBoolean(eta - offset, good) +
-                    subsetByElementBoolean(y - mu, good) /
-                    mu_eta_val_good;  // n_good,1
+            z = subsetByElementBoolean(eta - offset, good)
+                + subsetByElementBoolean(y - mu, good)
+                    / mu_eta_val_good;  // n_good,1
 
             // For good values, calculate
             //      w = sqrt( weights * mu'^2 / V(mu) )
-            w = (
-                (subsetByElementBoolean(weights, good) *
-                    mu_eta_val_good.square()) /
-                varmu
-                // R doesn't re-use varmu but recalculates variance(mu)[good],
-                // which is less efficient.
-                // So we'll use varmu instead of repeating:
-                //      subsetByElementBoolean(variance(mu), good)
-            ).sqrt();  // n_good,1
+            w = ((subsetByElementBoolean(weights, good)
+                  * mu_eta_val_good.square())
+                 / varmu
+                 // R doesn't re-use varmu but recalculates variance(mu)[good],
+                 // which is less efficient.
+                 // So we'll use varmu instead of repeating:
+                 //      subsetByElementBoolean(variance(mu), good)
+            )
+                    .sqrt();  // n_good,1
 
             // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             // Main moment of fitting
@@ -1223,21 +1253,26 @@ void Glm::fitIRLSRglmfit()
             // Solve an equation of the form XB = Y, for B.
             // Here, we solve (x * w)B = (z * w)
             // The result, B, is returned in fit.coeffiecients.
-            fit = dqrls::Cdqrls(x_good_times_w.matrix(),  // "X"
-                                (z * w).matrix(),  // "Y"
-                                qr_tol,
-                                false);  // check
+            fit = dqrls::Cdqrls(
+                x_good_times_w.matrix(),  // "X"
+                (z * w).matrix(),  // "Y"
+                qr_tol,
+                false
+            );  // check
 
             // Checks
             if (!fit.coefficients.array().isFinite().all()) {
                 conv = false;
                 addError(QString("non-finite coefficients at iteration "
-                                 "%1").arg(iter));
+                                 "%1")
+                             .arg(iter));
                 break;
             }
             if (nobs < fit.rank) {
                 addError(QString("X matrix has rank %1, but only %2 "
-                                 "observation(s)").arg(fit.rank).arg(nobs));
+                                 "observation(s)")
+                             .arg(fit.rank)
+                             .arg(nobs));
                 return;
             }
 
@@ -1253,7 +1288,8 @@ void Glm::fitIRLSRglmfit()
             //      eta = X[predictors] * b[coefficients]
             //
             // eta <- drop(x %*% start)
-            // ... the drop() bit takes a one-dimensional matrix and makes a vector
+            // ... the drop() bit takes a one-dimensional matrix and makes a
+            //     vector
             eta = (x * start.matrix()).array();
 
             // Apply offset to eta.
@@ -1269,8 +1305,9 @@ void Glm::fitIRLSRglmfit()
             // and mu (potentially weighted).
             dev = dev_resids(y, mu, weights).sum();
             if (trace) {
-                addInfo(QString("Deviance = %1 Iterations - %2")
-                        .arg(dev).arg(iter));
+                addInfo(
+                    QString("Deviance = %1 Iterations - %2").arg(dev).arg(iter)
+                );
             }
 
             // Check validity.
@@ -1278,8 +1315,10 @@ void Glm::fitIRLSRglmfit()
             if (!std::isfinite(dev)) {
                 // Infinite deviance.
                 if (coefold.size() == 0) {
-                    addError("no valid set of coefficients has been found: "
-                             "please supply starting values");
+                    addError(
+                        "no valid set of coefficients has been found: "
+                        "please supply starting values"
+                    );
                     return;
                 }
                 // Try reducing step size.
@@ -1299,14 +1338,17 @@ void Glm::fitIRLSRglmfit()
                 }
                 boundary = true;
                 if (trace) {
-                    addInfo(QString("Step halved: new deviance = %1").arg(dev));
+                    addInfo(QString("Step halved: new deviance = %1").arg(dev)
+                    );
                 }
             }
             if (!(valideta(eta) && validmu(mu))) {
                 // Either the linear predictors or the means are invalid.
                 if (coefold.size() == 0) {
-                    addError("no valid set of coefficients has been found: "
-                             "please supply starting values");
+                    addError(
+                        "no valid set of coefficients has been found: "
+                        "please supply starting values"
+                    );
                     return;
                 }
                 addInfo("step size truncated: out of bounds");
@@ -1325,7 +1367,8 @@ void Glm::fitIRLSRglmfit()
                 boundary = true;
                 dev = dev_resids(y, mu, weights).sum();
                 if (trace) {
-                    addInfo(QString("Step halved: new deviance = %1").arg(dev));
+                    addInfo(QString("Step halved: new deviance = %1").arg(dev)
+                    );
                 }
             }
 
@@ -1365,7 +1408,9 @@ void Glm::fitIRLSRglmfit()
         const double eps = 10 * std::numeric_limits<double>::epsilon();
         if (family.family_name == LINK_FAMILY_NAME_BINOMIAL) {
             if ((mu > 1 - eps).any() || (mu < eps).any()) {
-                addError("warning: fitted probabilities numerically 0 or 1 occurred");
+                addError(
+                    "warning: fitted probabilities numerically 0 or 1 occurred"
+                );
             }
         }
         if (family.family_name == LINK_FAMILY_NAME_POISSON) {
@@ -1377,8 +1422,10 @@ void Glm::fitIRLSRglmfit()
         // ?
         if (fit.rank < nvars) {
             // coef[fit$pivot][seq.int(fit$rank + 1, nvars)] <- NA
-            addError("Not sure how to wipe out duff coefficients with full "
-                     "pivoting; may be discrepancy with R");
+            addError(
+                "Not sure how to wipe out duff coefficients with full "
+                "pivoting; may be discrepancy with R"
+            );
         }
 
 #if 0
@@ -1397,7 +1444,6 @@ void Glm::fitIRLSRglmfit()
         colnames(fit$qr) <- xxnames
         dimnames(Rmat) <- list(xxnames, xxnames)
 #endif
-
     }
 
 #if 0

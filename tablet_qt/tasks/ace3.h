@@ -21,6 +21,7 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+
 #include "acefamily.h"
 
 class OpenableWidget;
@@ -28,20 +29,25 @@ class TaskFactory;
 
 void initializeAce3(TaskFactory& factory);
 
-
 class Ace3 : public AceFamily
 {
     Q_OBJECT
+
 public:
-    Ace3(CamcopsApp& app, DatabaseManager& db,
-         int load_pk = dbconst::NONEXISTENT_PK, QObject* parent = nullptr);
+    Ace3(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK,
+        QObject* parent = nullptr
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    virtual bool isTaskProperlyCreatable(QString& why_not_creatable) const override;
+    virtual bool isTaskProperlyCreatable(QString& why_not_creatable
+    ) const override;
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -58,6 +64,7 @@ public:
     int getVisuospatialScore() const;  // out of 16
     int totalScore() const;  // out of 100
     int miniAceScore() const;  // out of 30
+
 protected:
     // ------------------------------------------------------------------------
     // Internal scoring/completeness tests
@@ -91,8 +98,8 @@ protected:
     bool isAddressRecogCorrectColumnInfoValid() const;
 
     // Is the given "correct column" information valid?
-    bool isAddressRecogCorrectColumnInfoValid(
-            const QVector<int>& correct_cols) const;
+    bool isAddressRecogCorrectColumnInfoValid(const QVector<int>& correct_cols
+    ) const;
 
     // The correct option for each of the 5 lines for address recognition, for
     // the current task version. Guaranteed to return correctly formatted data,
@@ -101,8 +108,8 @@ protected:
 
     // The correct option for each of the 5 lines for address recognition, for
     // any given task version. May return invalid data.
-    QVector<int> correctColumnsAddressRecog(
-            const QString& task_address_version) const;
+    QVector<int> correctColumnsAddressRecog(const QString& task_address_version
+    ) const;
 
     // MCQ options for a given address recognition line
     NameValueOptions getAddressRecogOptions(int line) const;

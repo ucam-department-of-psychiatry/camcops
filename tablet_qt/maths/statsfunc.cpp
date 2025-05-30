@@ -19,8 +19,10 @@
 */
 
 #include "statsfunc.h"
+
 #include <cmath>
 #include <limits>
+
 #include "maths/eigenfunc.h"
 using namespace Eigen;
 using eigenfunc::ArrayXb;
@@ -33,36 +35,29 @@ using eigenfunc::ArrayXb;
 // - https://github.com/wch/r-source/blob/trunk/src/library/stats/src/family.c
 
 #ifdef STATSFUNC_OFFER_AIC
-static const double PI = 3.141592653589793238462643383279502884197169399375;  // as per R's Constants.h
+static const double PI = 3.141592653589793238462643383279502884197169399375;
+// ... as per R's Constants.h
 #endif
 
 static const double DOUBLE_EPS = std::numeric_limits<double>::epsilon();
 static const double THRESH = 30.;
 static const double MTHRESH = -30.;
-static const double INVEPS = 1/DOUBLE_EPS;
+static const double INVEPS = 1 / DOUBLE_EPS;
 
-
-static inline
-double x_d_opx(const double x)
+static inline double x_d_opx(const double x)
 {
     return x / (1 + x);
 }
 
-
-static inline
-double x_d_omx(const double x)
+static inline double x_d_omx(const double x)
 {
     return x / (1 - x);
 }
 
-
-static inline
-double y_log_y(const double y, const double mu)
+static inline double y_log_y(const double y, const double mu)
 {
     return (y != 0.) ? (y * std::log(y / mu)) : 0;
 }
-
-
 
 namespace statsfunc {
 
@@ -75,12 +70,10 @@ double identity(const double x)
     return x;
 }
 
-
 ArrayXXd identityArray(const ArrayXXd& x)
 {
     return x;
 }
-
 
 double one(const double x)
 {
@@ -91,7 +84,6 @@ double one(const double x)
     return 1.0;
 }
 
-
 ArrayXXd oneArray(const ArrayXXd& x)
 {
     ArrayXXd result(x.rows(), x.cols());
@@ -99,18 +91,15 @@ ArrayXXd oneArray(const ArrayXXd& x)
     return result;
 }
 
-
 Eigen::ArrayXXd logArray(const Eigen::ArrayXXd& x)
 {
     return x.log();  // or Eigen::log(x)
 }
 
-
 Eigen::ArrayXXd expArray(const Eigen::ArrayXXd& x)
 {
     return x.exp();  // or Eigen::exp(x);
 }
-
 
 double logistic(const double x)
 {
@@ -122,24 +111,22 @@ double logistic(const double x)
     // - Curiously, that does exp(x)/(1 + exp(x)), which is mathematically
     //   equivalent but maybe performs better; I shall trust R.
     //   It also checks for numerical limits, as follows.
-    const double tmp = x < MTHRESH ? DOUBLE_EPS
-                                   : (x > THRESH ? INVEPS : exp(x));
+    const double tmp
+        = x < MTHRESH ? DOUBLE_EPS : (x > THRESH ? INVEPS : exp(x));
     return x_d_opx(tmp);
 }
-
 
 ArrayXXd logisticArray(const ArrayXXd& x)
 {
     return x.unaryExpr(&logistic);
 }
 
-
-double logisticInterceptSlope(const double x,
-                              const double intercept, const double slope)
+double logisticInterceptSlope(
+    const double x, const double intercept, const double slope
+)
 {
     return logistic(intercept + slope * x);
 }
-
 
 double logisticX0K(const double x, const double x0, const double k)
 {
@@ -150,7 +137,6 @@ double logisticX0K(const double x, const double x0, const double k)
     // HOWEVER, note that there are other formulations of slope/intercept:
     // see e.g. mathfunc::LogisticDescriptives, and as above.
 }
-
 
 double derivativeOfLogistic(const double x)
 {
@@ -168,12 +154,10 @@ double derivativeOfLogistic(const double x)
     return std::exp(x) / (opexp * opexp);
 }
 
-
 ArrayXXd derivativeOfLogisticArray(const ArrayXXd& x)
 {
     return x.unaryExpr(&derivativeOfLogistic);
 }
-
 
 double logit(const double p)
 {
@@ -185,19 +169,16 @@ double logit(const double p)
     return std::log(x_d_omx(p));
 }
 
-
 ArrayXXd logitArray(const ArrayXXd& p)
 {
     return p.unaryExpr(&logit);
 }
-
 
 bool alwaysTrue(const ArrayXd& x)
 {
     Q_UNUSED(x)
     return true;
 }
-
 
 bool allInteger(const Eigen::ArrayXd& x, double threshold)
 {
@@ -207,7 +188,6 @@ bool allInteger(const Eigen::ArrayXd& x, double threshold)
     //      ^^^^^^^^^^^^^^^^^^^^^
     //      absolute non-integer part
 }
-
 
 // ============================================================================
 // Functions for specific GLM families
@@ -224,10 +204,8 @@ ArrayXXd binomialVariance(const ArrayXXd& mu)
     return mu * (1.0 - mu);
 }
 
-
-ArrayXd binomialDevResids(const ArrayXd& y,
-                          const ArrayXd& mu,
-                          const ArrayXd& wt)
+ArrayXd
+    binomialDevResids(const ArrayXd& y, const ArrayXd& mu, const ArrayXd& wt)
 {
     // R: binomial_dev_resids() in src/library/stats/src/family.c
     // ... but it's much simpler in Eigen! At least if you assume conformable
@@ -238,13 +216,12 @@ ArrayXd binomialDevResids(const ArrayXd& y,
     for (Index i = 0; i < n; ++i) {
         const double y_i = y(i);
         const double mu_i = mu(i);
-        yly_y(i)   = y_log_y(    y_i,     mu_i);
+        yly_y(i) = y_log_y(y_i, mu_i);
         yly_omy(i) = y_log_y(1 - y_i, 1 - mu_i);
     }
 
     return 2 * wt * (yly_y + yly_omy);
 }
-
 
 bool binomialValidMu(const ArrayXd& mu)
 {
@@ -252,16 +229,17 @@ bool binomialValidMu(const ArrayXd& mu)
     return mu.isFinite().all() && (mu > 0 && mu < 1).all();
 }
 
-
-bool binomialInitialize(QStringList& errors,
-                        const LinkFunctionFamily& family,
-                        Eigen::ArrayXd& y,
-                        Eigen::ArrayXd& n,
-                        Eigen::ArrayXd& m,
-                        Eigen::ArrayXd& weights,
-                        Eigen::ArrayXd& start,
-                        Eigen::ArrayXd& etastart,
-                        Eigen::ArrayXd& mustart)
+bool binomialInitialize(
+    QStringList& errors,
+    const LinkFunctionFamily& family,
+    Eigen::ArrayXd& y,
+    Eigen::ArrayXd& n,
+    Eigen::ArrayXd& m,
+    Eigen::ArrayXd& weights,
+    Eigen::ArrayXd& start,
+    Eigen::ArrayXd& etastart,
+    Eigen::ArrayXd& mustart
+)
 {
     // returns: OK?
     // R: binomial()$initialize
@@ -283,7 +261,8 @@ bool binomialInitialize(QStringList& errors,
         mustart = (weights * y + 0.5) / (weights + 1);
         m = weights * y;
         if (!allInteger(m)) {
-            errors.append("warning: non-integer #successes in a binomial glm!");
+            errors.append("warning: non-integer #successes in a binomial glm!"
+            );
             // ... but continue
         }
     } else if (ncol_y == 2) {
@@ -297,10 +276,11 @@ bool binomialInitialize(QStringList& errors,
         mustart = (n * y + 0.5) / (n + 1);
     } else {
         errors.append(
-                    "for the 'binomial' family, y must be a vector of 0 and "
-                    "1's or a 2 column matrix where col 1 is no. successes and "
-                    "col 2 is no. failures [THOUGH probably not all of that "
-                    "implemented!]");
+            "for the 'binomial' family, y must be a vector of 0 and "
+            "1's or a 2 column matrix where col 1 is no. successes and "
+            "col 2 is no. failures [THOUGH probably not all of that "
+            "implemented!]"
+        );
         return false;
     }
 
@@ -309,15 +289,14 @@ bool binomialInitialize(QStringList& errors,
 
 
 #ifdef STATSFUNC_OFFER_AIC
-double dbinom(const double x,
-              const int n, const double p, const bool log)
+double dbinom(const double x, const int n, const double p, const bool log)
 {
     // As per R's dbinom.c
 }
 
-
-ArrayXd dbinom(const ArrayXd& x, const ArrayXi& n, const ArrayXd& p,
-               const bool log)
+ArrayXd dbinom(
+    const ArrayXd& x, const ArrayXi& n, const ArrayXd& p, const bool log
+)
 {
     // R recycles arguments, I think; we'll ignore that for now.
     Q_ASSERT(n.size() == x.size());
@@ -329,12 +308,13 @@ ArrayXd dbinom(const ArrayXd& x, const ArrayXi& n, const ArrayXd& p,
     }
 }
 
-
-double binomialAIC(const ArrayXd& y,
-                   const ArrayXd& n,
-                   const ArrayXd& mu,
-                   const ArrayXd& wt,
-                   const double dev)
+double binomialAIC(
+    const ArrayXd& y,
+    const ArrayXd& n,
+    const ArrayXd& mu,
+    const ArrayXd& wt,
+    const double dev
+)
 {
     // R: binomial()$aic
     const int nobs = y.size();
@@ -364,24 +344,24 @@ double binomialAIC(const ArrayXd& y,
 // gaussian
 // ----------------------------------------------------------------------------
 
-ArrayXd gaussianDevResids(const ArrayXd& y,
-                          const ArrayXd& mu,
-                          const ArrayXd& wt)
+ArrayXd
+    gaussianDevResids(const ArrayXd& y, const ArrayXd& mu, const ArrayXd& wt)
 {
     // R: gaussian()$dev.resids
     return wt * ((y - mu).square());
 }
 
-
-bool gaussianInitialize(QStringList& errors,
-                        const LinkFunctionFamily& family,
-                        Eigen::ArrayXd& y,
-                        Eigen::ArrayXd& n,
-                        Eigen::ArrayXd& m,
-                        Eigen::ArrayXd& weights,
-                        Eigen::ArrayXd& start,
-                        Eigen::ArrayXd& etastart,
-                        Eigen::ArrayXd& mustart)
+bool gaussianInitialize(
+    QStringList& errors,
+    const LinkFunctionFamily& family,
+    Eigen::ArrayXd& y,
+    Eigen::ArrayXd& n,
+    Eigen::ArrayXd& m,
+    Eigen::ArrayXd& weights,
+    Eigen::ArrayXd& start,
+    Eigen::ArrayXd& etastart,
+    Eigen::ArrayXd& mustart
+)
 {
     // returns: OK?
     // R: gaussian()$initialize
@@ -405,11 +385,13 @@ bool gaussianInitialize(QStringList& errors,
 
 #ifdef STATSFUNC_OFFER_AIC
 
-double gaussianAIC(const ArrayXd& y,
-                   const ArrayXd& n,
-                   const ArrayXd& mu,
-                   const ArrayXd& wt,
-                   const double dev)
+double gaussianAIC(
+    const ArrayXd& y,
+    const ArrayXd& n,
+    const ArrayXd& mu,
+    const ArrayXd& wt,
+    const double dev
+)
 {
     // R: gaussian()$aic
     Q_UNUSED(n)
@@ -430,10 +412,8 @@ bool poissonValidMu(const Eigen::ArrayXd& mu)
     return mu.isFinite().all() && (mu > 0).all();
 }
 
-
-ArrayXd poissonDevResids(const ArrayXd& y,
-                         const ArrayXd& mu,
-                         const ArrayXd& wt)
+ArrayXd
+    poissonDevResids(const ArrayXd& y, const ArrayXd& mu, const ArrayXd& wt)
 {
     // R: poisson()$dev.resids
     // Original:
@@ -452,16 +432,17 @@ ArrayXd poissonDevResids(const ArrayXd& y,
     return 2 * r;
 }
 
-
-bool poissonInitialize(QStringList& errors,
-                       const LinkFunctionFamily& family,
-                       Eigen::ArrayXd& y,
-                       Eigen::ArrayXd& n,
-                       Eigen::ArrayXd& m,
-                       Eigen::ArrayXd& weights,
-                       Eigen::ArrayXd& start,
-                       Eigen::ArrayXd& etastart,
-                       Eigen::ArrayXd& mustart)
+bool poissonInitialize(
+    QStringList& errors,
+    const LinkFunctionFamily& family,
+    Eigen::ArrayXd& y,
+    Eigen::ArrayXd& n,
+    Eigen::ArrayXd& m,
+    Eigen::ArrayXd& weights,
+    Eigen::ArrayXd& start,
+    Eigen::ArrayXd& etastart,
+    Eigen::ArrayXd& mustart
+)
 {
     // R: poisson()$initialize
 
@@ -484,14 +465,14 @@ bool poissonInitialize(QStringList& errors,
     return true;
 }
 
-
 // ============================================================================
 // Solving
 // ============================================================================
 
 VectorXd svdSolve(const MatrixXd& A, const VectorXd& b)
 {
-    // solves Ax = b [or b = Ax + e], for x, minimizing e (in a least-squares sense)
+    // Solves Ax = b [or b = Ax + e], for x, minimizing e (in a least-squares
+    // sense).
     // https://eigen.tuxfamily.org/dox/group__LeastSquares.html
     return A.jacobiSvd(ComputeThinU | ComputeThinV).solve(b);
 }

@@ -21,8 +21,8 @@
 #pragma once
 #include <QByteArray>
 #include <QImage>
-#include "db/databaseobject.h"
 
+#include "db/databaseobject.h"
 
 // Represents a BLOB (binary large object) record.
 //
@@ -41,11 +41,13 @@ public:
     //  src_table: the table for which we are providing the BLOB (source table)
     //  src_pk: the PK of the source record (within the source table)
     //  src_field: the field containing the FK to us
-    Blob(CamcopsApp& app,
-         DatabaseManager& db,
-         const QString& src_table = "",  // defaults for specimen construction
-         int src_pk = -1,
-         const QString& src_field = "");
+    Blob(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        const QString& src_table = "",  // defaults for specimen construction
+        int src_pk = -1,
+        const QString& src_field = ""
+    );
 
     // Destructor
     virtual ~Blob();
@@ -56,10 +58,12 @@ public:
 
     // Sets the BLOB itself.
     // Returns: changed?
-    bool setBlob(const QVariant& value,
-                 bool save_to_db = true,
-                 const QString& extension_without_dot = "png",
-                 const QString& mimetype = "image/png");
+    bool setBlob(
+        const QVariant& value,
+        bool save_to_db = true,
+        const QString& extension_without_dot = "png",
+        const QString& mimetype = "image/png"
+    );
 
     // Returns the BLOB as a QVariant.
     QVariant blobVariant() const;
@@ -84,10 +88,12 @@ public:
 
     // Sets the BLOB from a QByteArray.
     // Returns: changed?
-    bool setRawImage(const QByteArray& data,
-                     bool save_to_db,
-                     const QString& extension_without_dot,
-                     const QString& mimetype);
+    bool setRawImage(
+        const QByteArray& data,
+        bool save_to_db,
+        const QString& extension_without_dot,
+        const QString& mimetype
+    );
 
     // Makes indexes for the BLOB table.
     // (Resembles a Python classmethod; sort-of static function.)

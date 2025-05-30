@@ -209,7 +209,7 @@ Eating disorders
 
 |dolphin|
 
-- :ref:`The Clinical Impairment Assessment questionnaire (CIA) <cia>`
+- :ref:`Clinical Impairment Assessment questionnaire (CIA) <cia>`
 
 - :ref:`Compulsive Exercise Test (CET) <cet>`
 
@@ -284,6 +284,14 @@ Global function and multiple aspects of psychopathology
 - :ref:`Work and Social Adjustment Scale (WSAS) <wsas>`
 
 - :ref:`Zarit Burden Inventory (ZBI), 12-item version <zbi>`
+
+
+Neurodiversity
+--------------
+
+|neurodiversity|
+
+- :ref:`Adult Autism Spectrum Quotient (AQ) <aq>`
 
 
 Personality and experience

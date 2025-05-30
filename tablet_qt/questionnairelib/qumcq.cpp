@@ -19,7 +19,9 @@
 */
 
 #include "qumcq.h"
+
 #include <QWidget>
+
 #include "common/cssconst.h"
 #include "layouts/flowlayouthfw.h"
 #include "layouts/layouts.h"
@@ -32,9 +34,12 @@
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/labelwordwrapwide.h"
 
-
-QuMcq::QuMcq(FieldRefPtr fieldref, const NameValueOptions& options,
-             const QStringList* label_styles, QObject* parent) :
+QuMcq::QuMcq(
+    FieldRefPtr fieldref,
+    const NameValueOptions& options,
+    const QStringList* label_styles,
+    QObject* parent
+) :
     QuElement(parent),
     m_fieldref(fieldref),
     m_options(options),
@@ -51,12 +56,19 @@ QuMcq::QuMcq(FieldRefPtr fieldref, const NameValueOptions& options,
     }
 
     Q_ASSERT(m_fieldref);
-    connect(m_fieldref.data(), &FieldRef::valueChanged,
-            this, &QuMcq::fieldValueChanged);
-    connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
-            this, &QuMcq::fieldValueChanged);
+    connect(
+        m_fieldref.data(),
+        &FieldRef::valueChanged,
+        this,
+        &QuMcq::fieldValueChanged
+    );
+    connect(
+        m_fieldref.data(),
+        &FieldRef::mandatoryChanged,
+        this,
+        &QuMcq::fieldValueChanged
+    );
 }
-
 
 QuMcq* QuMcq::setRandomize(const bool randomize)
 {
@@ -64,13 +76,11 @@ QuMcq* QuMcq::setRandomize(const bool randomize)
     return this;
 }
 
-
 QuMcq* QuMcq::setShowInstruction(const bool show_instruction)
 {
     m_show_instruction = show_instruction;
     return this;
 }
-
 
 QuMcq* QuMcq::setHorizontal(const bool horizontal)
 {
@@ -78,20 +88,17 @@ QuMcq* QuMcq::setHorizontal(const bool horizontal)
     return this;
 }
 
-
 QuMcq* QuMcq::setAsTextButton(const bool as_text_button)
 {
     m_as_text_button = as_text_button;
     return this;
 }
 
-
 QuMcq* QuMcq::setBold(const bool bold)
 {
     m_bold = bold;
     return this;
 }
-
 
 bool QuMcq::setOptionNames(const NameValueOptions& options)
 {
@@ -122,7 +129,6 @@ bool QuMcq::setOptionNames(const NameValueOptions& options)
 
     return true;
 }
-
 
 QPointer<QWidget> QuMcq::makeWidget(Questionnaire* questionnaire)
 {
@@ -157,16 +163,21 @@ QPointer<QWidget> QuMcq::makeWidget(Questionnaire* questionnaire)
         // MCQ touch-me widget
         QPointer<BooleanWidget> w = new BooleanWidget();
         w->setReadOnly(read_only);
-        w->setAppearance(m_as_text_button ? BooleanWidget::Appearance::Text
-                                          : BooleanWidget::Appearance::Radio);
+        w->setAppearance(
+            m_as_text_button ? BooleanWidget::Appearance::Text
+                             : BooleanWidget::Appearance::Radio
+        );
         if (m_as_text_button) {
             w->setText(nvp.name());
             w->setBold(m_bold);
         }
         if (!read_only) {
             // Safe object lifespan signal: can use std::bind
-            connect(w, &BooleanWidget::clicked,
-                    std::bind(&QuMcq::clicked, this, position));
+            connect(
+                w,
+                &BooleanWidget::clicked,
+                std::bind(&QuMcq::clicked, this, position)
+            );
         }
         m_boolean_widgets.append(w);
 
@@ -182,7 +193,8 @@ QPointer<QWidget> QuMcq::makeWidget(Questionnaire* questionnaire)
             auto namelabel = new ClickableLabelWordWrapWide(nvp.name());
             m_label_widgets.append(namelabel);
             namelabel->setEnabled(!read_only);
-            const int fontsize = questionnaire->fontSizePt(uiconst::FontSize::Normal);
+            const int fontsize
+                = questionnaire->fontSizePt(uiconst::FontSize::Normal);
             const bool italic = false;
             QString css = uifunc::textCSS(fontsize, m_bold, italic);
 
@@ -195,14 +207,18 @@ QPointer<QWidget> QuMcq::makeWidget(Questionnaire* questionnaire)
 
             if (!read_only) {
                 // Safe object lifespan signal: can use std::bind
-                connect(namelabel, &ClickableLabelWordWrapWide::clicked,
-                        std::bind(&QuMcq::clicked, this, position));
+                connect(
+                    namelabel,
+                    &ClickableLabelWordWrapWide::clicked,
+                    std::bind(&QuMcq::clicked, this, position)
+                );
             }
             auto itemlayout = new HBoxLayout();
             itemlayout->setContentsMargins(uiconst::NO_MARGINS);
             itemwidget->setLayout(itemlayout);
             itemlayout->addWidget(w, 0, Qt::AlignTop);
-            itemlayout->addWidget(namelabel, 0, Qt::AlignVCenter);  // different
+            itemlayout->addWidget(namelabel, 0, Qt::AlignVCenter);
+            // ... different
             itemlayout->addStretch();
 
             mainlayout->addWidget(itemwidget);
@@ -224,7 +240,9 @@ QPointer<QWidget> QuMcq::makeWidget(Questionnaire* questionnaire)
         layout_w_instr->addWidget(mainwidget);
         QPointer<QWidget> widget_w_instr = new BaseWidget();
         widget_w_instr->setLayout(layout_w_instr);
-        widget_w_instr->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+        widget_w_instr->setSizePolicy(
+            QSizePolicy::Preferred, QSizePolicy::Maximum
+        );
         final_widget = widget_w_instr;
     } else {
         final_widget = mainwidget;
@@ -235,7 +253,6 @@ QPointer<QWidget> QuMcq::makeWidget(Questionnaire* questionnaire)
     return final_widget;
 }
 
-
 void QuMcq::clicked(const int position)
 {
     if (!m_options.validIndex(position)) {
@@ -243,24 +260,22 @@ void QuMcq::clicked(const int position)
         return;
     }
     const QVariant newvalue = m_options.valueFromPosition(position);
-    const bool changed = m_fieldref->setValue(newvalue);  // Will trigger valueChanged
+    const bool changed = m_fieldref->setValue(newvalue);
+    // ... Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
     }
 }
-
 
 void QuMcq::setFromField()
 {
     fieldValueChanged(m_fieldref.data());
 }
 
-
 void QuMcq::fieldValueChanged(const FieldRef* fieldref)
 {
     mcqfunc::setResponseWidgets(m_options, m_boolean_widgets, fieldref);
 }
-
 
 FieldRefPtrList QuMcq::fieldrefs() const
 {

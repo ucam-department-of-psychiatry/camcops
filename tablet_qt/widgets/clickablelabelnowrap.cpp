@@ -19,23 +19,26 @@
 */
 
 #include "clickablelabelnowrap.h"
+
 #include <QApplication>
 #include <QDebug>
 #include <QLabel>
 #include <QMouseEvent>
 #include <QStyleOptionButton>
 #include <QVBoxLayout>
+
 #include "common/uiconst.h"
 #include "lib/sizehelpers.h"
 
-
-ClickableLabelNoWrap::ClickableLabelNoWrap(const QString& text,
-                                           QWidget* parent) :
+ClickableLabelNoWrap::ClickableLabelNoWrap(
+    const QString& text,
+    QWidget* parent
+) :
     ClickableLabelNoWrap(parent)  // delegating constructor
 {
-    m_label->setText(text);  // this is what the QLabel(text, parent) constructor does
+    m_label->setText(text);
+    // This is what the QLabel(text, parent) constructor does.
 }
-
 
 ClickableLabelNoWrap::ClickableLabelNoWrap(QWidget* parent) :
     QPushButton(parent),
@@ -57,12 +60,10 @@ ClickableLabelNoWrap::ClickableLabelNoWrap(QWidget* parent) :
     setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
 }
 
-
 void ClickableLabelNoWrap::setTextFormat(const Qt::TextFormat format)
 {
     m_label->setTextFormat(format);
 }
-
 
 void ClickableLabelNoWrap::setWordWrap(const bool on)
 {
@@ -70,19 +71,16 @@ void ClickableLabelNoWrap::setWordWrap(const bool on)
     updateGeometry();
 }
 
-
 void ClickableLabelNoWrap::setAlignment(const Qt::Alignment alignment)
 {
     m_label->setAlignment(alignment);
     m_layout->setAlignment(m_label, alignment);
 }
 
-
 void ClickableLabelNoWrap::setOpenExternalLinks(const bool open)
 {
     m_label->setOpenExternalLinks(open);
 }
-
 
 void ClickableLabelNoWrap::setPixmap(const QPixmap& pixmap)
 {
@@ -92,13 +90,12 @@ void ClickableLabelNoWrap::setPixmap(const QPixmap& pixmap)
     updateGeometry();
 }
 
-
 QSize ClickableLabelNoWrap::sizeHint() const
 {
     ensurePolished();
     QStyleOptionButton opt;
     initStyleOption(&opt);  // protected
     const QSize base_size = m_label->sizeHint();
-    return base_size + sizehelpers::pushButtonExtraSizeRequired(this, &opt,
-                                                                base_size);
+    return base_size
+        + sizehelpers::pushButtonExtraSizeRequired(this, &opt, base_size);
 }

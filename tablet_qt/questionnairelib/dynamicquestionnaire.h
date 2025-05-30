@@ -20,6 +20,7 @@
 
 #pragma once
 #include <functional>
+
 #include "questionnairelib/questionnaire.h"
 
 /*
@@ -103,9 +104,11 @@ class DynamicQuestionnaire : public Questionnaire
     //     on now) and returning a bool
 
 public:
-    DynamicQuestionnaire(CamcopsApp& app,
-                         const MakePageFn& make_page_fn,
-                         const MorePagesToGoFn& more_pages_to_go_fn);
+    DynamicQuestionnaire(
+        CamcopsApp& app,
+        const MakePageFn& make_page_fn,
+        const MorePagesToGoFn& more_pages_to_go_fn
+    );
 
     // ------------------------------------------------------------------------
     // Override in order to block functionality:
@@ -155,7 +158,6 @@ protected:
     bool mayProgress(QuPage* page) const;
 
 protected:
-
     // User-supplied function to make a page dynamically
     MakePageFn m_make_page_fn;
 

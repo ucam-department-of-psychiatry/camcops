@@ -24,7 +24,6 @@
 #include <QString>
 class WhiskerInboundMessage;
 
-
 class WhiskerCallbackDefinition
 {
     // Represents a Whisker callback, i.e. a user function that will be called
@@ -39,14 +38,15 @@ public:
     //
     // Note that the function doesn't even need to accept the
     // WhiskerInboundMessage, if called via std::bind.
-    // See https://stackoverflow.com/questions/29159140/why-stdbind-can-be-assigned-to-argument-mismatched-stdfunction.
+    // See https://stackoverflow.com/questions/29159140/.
 
     // How should our callback behave?
     enum class ExpiryType {
         Infinite,  // Always call
         Count,  // Call a certain number of times, then stop calling
         Time,  // Call during a specified lifetime, then stop calling
-        TimeOrCount  // Call until either a lifetime expires or a count is exceeded
+        TimeOrCount
+        // ... Call until either a lifetime expires or a count is exceeded
     };
 
 public:
@@ -69,13 +69,15 @@ public:
     //      returned by swallowEvent(); meaning is: "if this callback fires,
     //      should processing of this event cease?" (so, if false, the event
     //      may be offered to other callbacks).
-    WhiskerCallbackDefinition(const QString& event,
-                              const CallbackFunction& callback,
-                              const QString& name = "",
-                              ExpiryType how_expires = ExpiryType::Infinite,
-                              int target_n_calls = 0,
-                              qint64 lifetime_ms = 0,
-                              bool swallow_event = false);
+    WhiskerCallbackDefinition(
+        const QString& event,
+        const CallbackFunction& callback,
+        const QString& name = "",
+        ExpiryType how_expires = ExpiryType::Infinite,
+        int target_n_calls = 0,
+        qint64 lifetime_ms = 0,
+        bool swallow_event = false
+    );
 
     // Default constructor, so we can live in a QVector.
     WhiskerCallbackDefinition();

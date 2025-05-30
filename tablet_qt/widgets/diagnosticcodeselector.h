@@ -22,6 +22,7 @@
 #include <QModelIndex>
 #include <QPointer>
 #include <QSharedPointer>
+
 #include "common/aliases_camcops.h"
 #include "openablewidget.h"
 
@@ -39,19 +40,20 @@ class QModelIndex;
 class QStandardItemModel;
 class QTreeView;
 
-
 class DiagnosticCodeSelector : public OpenableWidget
 {
     // Offers both a tree browser and a search box for diagnostic codes.
 
     Q_OBJECT
-public:
 
+public:
     // Constructor. The codeset might be, for example, ICD-10 or ICD-9-CM.
-    DiagnosticCodeSelector(const QString& stylesheet,
-                           const DiagnosticCodeSetPtr& codeset,
-                           const QModelIndex& selected = QModelIndex(),
-                           QWidget* parent = nullptr);
+    DiagnosticCodeSelector(
+        const QString& stylesheet,
+        const DiagnosticCodeSetPtr& codeset,
+        const QModelIndex& selected = QModelIndex(),
+        QWidget* parent = nullptr
+    );
 
 signals:
     // "The user has chosen a new code/description."
@@ -59,12 +61,15 @@ signals:
 
 protected slots:
     // "A new item has been selected."
-    void selectionChanged(const QItemSelection& selected,
-                          const QItemSelection& deselected);
+    void selectionChanged(
+        const QItemSelection& selected, const QItemSelection& deselected
+    );
 
     // "A new item has been selected from a proxy model."
-    void proxySelectionChanged(const QItemSelection& proxy_selected,
-                               const QItemSelection& proxy_deselected);
+    void proxySelectionChanged(
+        const QItemSelection& proxy_selected,
+        const QItemSelection& proxy_deselected
+    );
 
     // "An item has been clicked/touched in the search view."
     void searchItemClicked(const QModelIndex& index);
@@ -87,7 +92,6 @@ protected slots:
     void debugLayout();
 
 protected:
-
     // "A new item has been chosen."
     // Will emit codeChanged(), then finished().
     void itemChosen(const QModelIndex& index);
@@ -107,17 +111,19 @@ protected:
     DiagnosticCodeSetPtr m_codeset;  // our set of diagnoses
     QPointer<QTreeView> m_treeview;  // for exploring
     QPointer<QListView> m_flatview;  // for searching
-    QPointer<QLineEdit> m_search_lineedit;  // where the user types search terms
+    QPointer<QLineEdit> m_search_lineedit;
+    // ... where the user types search terms
     QPointer<QLabel> m_heading_tree;  // heading for the tree view
     QPointer<QLabel> m_heading_search;  // heading for the search view
     QPointer<QAbstractButton> m_search_button;  // "Go to search"
     QPointer<QAbstractButton> m_tree_button;  // "Go to tree"
-    QSharedPointer<QItemSelectionModel> m_selection_model;  // model of our codeset
+    QSharedPointer<QItemSelectionModel> m_selection_model;
+    // ... model of our codeset
     QSharedPointer<FlatProxyModel> m_flat_proxy_model;
-        // ... a flat model made from our codeset's tree (for searching)
+    // ... a flat model made from our codeset's tree (for searching)
     QSharedPointer<DiagnosisSortFilterModel> m_diag_filter_model;
-        // ... a model for searching/filtering; uses m_flat_proxy_model
+    // ... a model for searching/filtering; uses m_flat_proxy_model
     QSharedPointer<QItemSelectionModel> m_proxy_selection_model;
-        // ... item selection model for m_diag_filter_model
+    // ... item selection model for m_diag_filter_model
     bool m_searching;  // are we currently searching (rather than at the tree)?
 };

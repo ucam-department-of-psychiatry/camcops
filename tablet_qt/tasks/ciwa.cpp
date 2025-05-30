@@ -19,13 +19,14 @@
 */
 
 #include "ciwa.h"
-#include "maths/mathfunc.h"
+
 #include "lib/stringfunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/namevaluepair.h"
+#include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionnairefunc.h"
 #include "questionnairelib/qulineeditdouble.h"
 #include "questionnairelib/qulineeditinteger.h"
-#include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
@@ -48,18 +49,20 @@ const QString SBP("sbp");
 const QString DBP("dbp");
 const QString RR("rr");
 
-
 void initializeCiwa(TaskFactory& factory)
 {
     static TaskRegistrar<Ciwa> registered(factory);
 }
 
-
 Ciwa::Ciwa(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CIWA_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_SCORED_QUESTIONS), QMetaType::fromType<int>());
-    addField(T, QMetaType::fromType<double>());  // previously int, which was wrong (is temp in degrees C)
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_SCORED_QUESTIONS),
+        QMetaType::fromType<int>()
+    );
+    addField(T, QMetaType::fromType<double>());
+    // ... previously int, which was wrong (is temp in degrees C)
     addField(HR, QMetaType::fromType<int>());
     addField(SBP, QMetaType::fromType<int>());
     addField(DBP, QMetaType::fromType<int>());
@@ -67,7 +70,6 @@ Ciwa::Ciwa(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -78,19 +80,18 @@ QString Ciwa::shortname() const
     return "CIWA-Ar";
 }
 
-
 QString Ciwa::longname() const
 {
-    return tr("Clinical Institute Withdrawal Assessment for Alcohol Scale, "
-              "Revised");
+    return tr(
+        "Clinical Institute Withdrawal Assessment for Alcohol Scale, "
+        "Revised"
+    );
 }
-
 
 QString Ciwa::description() const
 {
     return tr("10-item clinician-administered scale.");
 }
-
 
 // ============================================================================
 // Instance info
@@ -101,12 +102,10 @@ bool Ciwa::isComplete() const
     return noneNull(values(strseq(QPREFIX, FIRST_Q, N_SCORED_QUESTIONS)));
 }
 
-
 QStringList Ciwa::summary() const
 {
     return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
-
 
 QStringList Ciwa::detail() const
 {
@@ -114,14 +113,14 @@ QStringList Ciwa::detail() const
     const QString severity = severityDescription(total_score);
     const QString sep(": ");
     QStringList lines = completenessInfo();
-    lines += fieldSummaries("q", "_s", " ",
-                            QPREFIX, FIRST_Q, N_SCORED_QUESTIONS);
+    lines += fieldSummaries(
+        "q", "_s", " ", QPREFIX, FIRST_Q, N_SCORED_QUESTIONS
+    );
     lines.append("");
     lines.append(fieldSummary(T, xstring("t"), sep));
     lines.append(fieldSummary(HR, xstring("hr"), sep));
-    lines.append(QString("%1: <b>%2/%3</b>").arg(xstring("bp"),
-                                                 prettyValue(SBP),
-                                                 prettyValue(DBP)));
+    lines.append(QString("%1: <b>%2/%3</b>")
+                     .arg(xstring("bp"), prettyValue(SBP), prettyValue(DBP)));
     lines.append(fieldSummary(RR, xstring("rr"), sep));
     lines.append("");
     lines += summary();
@@ -130,7 +129,6 @@ QStringList Ciwa::detail() const
     return lines;
 }
 
-
 OpenableWidget* Ciwa::editor(const bool read_only)
 {
     QVector<QuPagePtr> pages;
@@ -138,16 +136,18 @@ OpenableWidget* Ciwa::editor(const bool read_only)
     auto addpage = [this, &pages](int n, int lastoption) -> void {
         NameValueOptions options;
         for (int i = 0; i <= lastoption; ++i) {
-            const QString name = xstring(QString("q%1_option%2").arg(n).arg(i));
+            const QString name
+                = xstring(QString("q%1_option%2").arg(n).arg(i));
             options.append(NameValuePair(name, i));
         }
         const QString pagetitle = xstring(QString("q%1_title").arg(n));
         const QString question = xstring(QString("q%1_question").arg(n));
         const QString fieldname = strnum(QPREFIX, n);
         QuPagePtr page((new QuPage{
-            new QuText(question),
-            new QuMcq(fieldRef(fieldname), options),
-        })->setTitle(pagetitle));
+                            new QuText(question),
+                            new QuMcq(fieldRef(fieldname), options),
+                        })
+                           ->setTitle(pagetitle));
         pages.append(page);
     };
 
@@ -158,23 +158,34 @@ OpenableWidget* Ciwa::editor(const bool read_only)
     }
     addpage(10, 4);
 
-    pages.append(QuPagePtr((new QuPage{
-        new QuText(xstring("vitals_question")),
-        questionnairefunc::defaultGridRawPointer({
-            {xstring("t"), new QuLineEditDouble(fieldRef(T, false), 0, 50, 2)},
-            {xstring("hr"), new QuLineEditInteger(fieldRef(HR, false), 0, 400)},
-            {xstring("sbp"), new QuLineEditInteger(fieldRef(SBP, false), 0, 400)},
-            {xstring("dbp"), new QuLineEditInteger(fieldRef(DBP, false), 0, 400)},
-            {xstring("rr"), new QuLineEditInteger(fieldRef(RR, false), 0, 400)},
-        }, uiconst::DEFAULT_COLSPAN_Q, uiconst::DEFAULT_COLSPAN_A),
-    })->setTitle(xstring("vitals_title"))));
+    pages.append(QuPagePtr(
+        (new QuPage{
+             new QuText(xstring("vitals_question")),
+             questionnairefunc::defaultGridRawPointer(
+                 {
+                     {xstring("t"),
+                      new QuLineEditDouble(fieldRef(T, false), 0, 50, 2)},
+                     {xstring("hr"),
+                      new QuLineEditInteger(fieldRef(HR, false), 0, 400)},
+                     {xstring("sbp"),
+                      new QuLineEditInteger(fieldRef(SBP, false), 0, 400)},
+                     {xstring("dbp"),
+                      new QuLineEditInteger(fieldRef(DBP, false), 0, 400)},
+                     {xstring("rr"),
+                      new QuLineEditInteger(fieldRef(RR, false), 0, 400)},
+                 },
+                 uiconst::DEFAULT_COLSPAN_Q,
+                 uiconst::DEFAULT_COLSPAN_A
+             ),
+         })
+            ->setTitle(xstring("vitals_title"))
+    ));
 
     auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations
@@ -184,7 +195,6 @@ int Ciwa::totalScore() const
 {
     return sumInt(values(strseq(QPREFIX, FIRST_Q, N_SCORED_QUESTIONS)));
 }
-
 
 QString Ciwa::severityDescription(const int total_score) const
 {

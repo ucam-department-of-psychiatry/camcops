@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_patient.py
 
@@ -154,7 +152,7 @@ class Patient(GenericTabletRecordMixin, Base):
         TABLET_ID_FIELD,
         Integer,
         nullable=False,
-        comment="Primary key (patient ID) on the source tablet device"
+        comment="Primary key (patient ID) on the source tablet device",
         # client PK
     )
     uuid = CamcopsColumn(
@@ -185,7 +183,7 @@ class Patient(GenericTabletRecordMixin, Base):
         index=True,
         identifies_patient=True,
         include_in_anon_staging_db=True,
-        comment="Date of birth"
+        comment="Date of birth",
         # ... e.g. "2013-02-04"
     )
     sex = CamcopsColumn(
@@ -239,7 +237,10 @@ class Patient(GenericTabletRecordMixin, Base):
     )  # type: List[PatientIdNum]
 
     task_schedules = relationship(
-        "PatientTaskSchedule", back_populates="patient", cascade="all, delete"
+        "PatientTaskSchedule",
+        back_populates="patient",
+        cascade="all, delete",
+        cascade_backrefs=False,
     )  # type: List[PatientTaskSchedule]
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1166,7 +1167,7 @@ class Patient(GenericTabletRecordMixin, Base):
         """
         for lineage_member in self._gen_unique_lineage_objects(
             self.idnums
-        ):  # type: PatientIdNum  # noqa
+        ):  # type: PatientIdNum
             yield lineage_member
 
     def delete_with_dependants(self, req: "CamcopsRequest") -> None:
@@ -1372,7 +1373,7 @@ class DistinctPatientReport(Report):
             Patient.sex,
         ]
         query = (
-            select(select_fields)
+            select(*select_fields)
             .select_from(select_from)
             .where(and_(*wheres))
             .order_by(*order_by)

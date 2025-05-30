@@ -19,11 +19,11 @@
 */
 
 #pragma once
+#include <QFrame>
 #include <QImage>
 #include <QPen>
 #include <QPoint>
 #include <QSize>
-#include <QFrame>
 
 class QColor;
 class QPaintEvent;
@@ -38,16 +38,19 @@ class CanvasWidget : public QFrame
     // image).
 
     Q_OBJECT
-public:
 
+public:
     // Construct with a blank size.
-    CanvasWidget(QImage::Format format = QImage::Format_RGB32,
-                 QWidget* parent = nullptr);
+    CanvasWidget(
+        QImage::Format format = QImage::Format_RGB32, QWidget* parent = nullptr
+    );
 
     // Construct with a known size.
-    CanvasWidget(const QSize& size,
-                 QImage::Format format = QImage::Format_RGB32,
-                 QWidget* parent = nullptr);
+    CanvasWidget(
+        const QSize& size,
+        QImage::Format format = QImage::Format_RGB32,
+        QWidget* parent = nullptr
+    );
 
     // Destructor.
     ~CanvasWidget() override;
@@ -105,7 +108,6 @@ signals:
     void imageChanged();
 
 protected:
-
     // Standard Qt widget overrides.
     virtual void paintEvent(QPaintEvent* event) override;
     virtual void mousePressEvent(QMouseEvent* event) override;
@@ -126,7 +128,6 @@ protected:
     QSize desiredDisplaySize() const;
 
 protected:
-
     // There are three relevant sizes:
     // - imageSize() = m_image.size(): the size of the image being edited
     // - the size of the entire canvas area, from contentsRect()
@@ -137,9 +138,12 @@ protected:
 
     QImage::Format m_format;  // underlying image format
     QImage m_image;  // our image
-    bool m_allow_shrink;  // allow the widget/image to shrink, for small screens?
-    int m_minimum_shrink_height;  // if m_allow_shrink: what's our minimum height?
-    bool m_adjust_display_for_dpi;  // adjust image size for the current DPI setting?
+    bool m_allow_shrink;
+    // ... allow the widget/image to shrink, for small screens?
+    int m_minimum_shrink_height;
+    // ... if m_allow_shrink: what's our minimum height?
+    bool m_adjust_display_for_dpi;
+    // ... adjust image size for the current DPI setting?
 
     int m_border_width_px;  // border width, in pixels
     QColor m_border_colour;  // border colour

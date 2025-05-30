@@ -20,28 +20,33 @@
 
 #pragma once
 #include <QString>
+
 #include "menulib/menuwindow.h"
 class Patient;
-
 
 class SingleTaskMenu : public MenuWindow
 {
     // This is the menu class that serves all tasks.
 
     Q_OBJECT
+
 public:
     SingleTaskMenu(const QString& tablename, CamcopsApp& app);
     virtual QString title() const override;
+
 protected:
     virtual void extraLayoutCreation() override;
     virtual void makeItems() override;
     virtual void afterBuild() override;
-public slots:  // http://stackoverflow.com/questions/19129133/qt-signals-and-slots-permissions
+public slots:
+    // http://stackoverflow.com/questions/19129133/qt-signals-and-slots-permissions
     void addTask();
     void selectedPatientChanged(const Patient* patient);
+
 protected:
     void showTaskStatus() const;
     void refreshTaskList();
+
 protected:
     QString m_tablename;
     bool m_anonymous;

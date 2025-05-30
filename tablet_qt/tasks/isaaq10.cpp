@@ -19,6 +19,7 @@
 */
 
 #include "isaaq10.h"
+
 #include "lib/stringfunc.h"
 #include "lib/version.h"
 #include "questionnairelib/questionnaire.h"
@@ -38,7 +39,6 @@ const QString Isaaq10::ISAAQ10_TABLENAME("isaaq10");
 const QString OLD_ISAAQ_TABLENAME("isaaq");
 const Version ISAAQ10_REPLACES_ISAAQ(2, 4, 15);
 
-
 void initializeIsaaq10(TaskFactory& factory)
 {
     static TaskRegistrar<Isaaq10> registered(factory);
@@ -47,12 +47,15 @@ void initializeIsaaq10(TaskFactory& factory)
 Isaaq10::Isaaq10(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     IsaaqCommon(app, db, ISAAQ10_TABLENAME)
 {
-    addFields(strseq(A_PREFIX, FIRST_Q, N_A_QUESTIONS), QMetaType::fromType<int>());
-    addFields(strseq(B_PREFIX, FIRST_Q, N_B_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(A_PREFIX, FIRST_Q, N_A_QUESTIONS), QMetaType::fromType<int>()
+    );
+    addFields(
+        strseq(B_PREFIX, FIRST_Q, N_B_QUESTIONS), QMetaType::fromType<int>()
+    );
 
     load(load_pk);
 }
-
 
 // ============================================================================
 // Class info
@@ -63,32 +66,31 @@ QString Isaaq10::shortname() const
     return "ISAAQ-10";
 }
 
-
 QString Isaaq10::longname() const
 {
-    return tr("Internet Severity and Activities Addiction Questionnaire, 10-items");
+    return tr(
+        "Internet Severity and Activities Addiction Questionnaire, 10-items"
+    );
 }
-
 
 QString Isaaq10::description() const
 {
     return tr("Questionnaire on problematic internet use.");
 }
 
-
 QStringList Isaaq10::fieldNames() const
 {
-    return strseq(A_PREFIX, FIRST_Q, N_A_QUESTIONS) +
-        strseq(B_PREFIX, FIRST_Q, N_B_QUESTIONS);
+    return strseq(A_PREFIX, FIRST_Q, N_A_QUESTIONS)
+        + strseq(B_PREFIX, FIRST_Q, N_B_QUESTIONS);
 }
 
-
-void Isaaq10::upgradeDatabase(const Version& old_version,
-                              const Version& new_version)
+void Isaaq10::upgradeDatabase(
+    const Version& old_version, const Version& new_version
+)
 {
     Q_UNUSED(old_version)
     if (old_version < ISAAQ10_REPLACES_ISAAQ
-            && new_version >= ISAAQ10_REPLACES_ISAAQ) {
+        && new_version >= ISAAQ10_REPLACES_ISAAQ) {
         // The actual version check is a bit redundant. In principle we might
         // care if we ever re-introduce the "isaaq" table, but we shouldn't do
         // that. The purpose here is that if we upgrade the client in place
@@ -99,7 +101,6 @@ void Isaaq10::upgradeDatabase(const Version& old_version,
     }
 }
 
-
 // ============================================================================
 // Instance info
 // ============================================================================
@@ -107,16 +108,13 @@ void Isaaq10::upgradeDatabase(const Version& old_version,
 QVector<QuElement*> Isaaq10::buildElements()
 {
     auto instructions = new QuHeading(xstring("instructions"));
-    auto grid_a = buildGrid(A_PREFIX, FIRST_Q, N_A_QUESTIONS, xstring("a_title"));
+    auto grid_a
+        = buildGrid(A_PREFIX, FIRST_Q, N_A_QUESTIONS, xstring("a_title"));
     auto grid_b_heading = new QuHeading(xstring("b_heading"));
-    auto grid_b = buildGrid(B_PREFIX, FIRST_Q, N_B_QUESTIONS, xstring("b_title"));
+    auto grid_b
+        = buildGrid(B_PREFIX, FIRST_Q, N_B_QUESTIONS, xstring("b_title"));
 
-    QVector<QuElement*> elements{
-                    instructions,
-                    grid_a,
-                    grid_b_heading,
-                    grid_b
-    };
+    QVector<QuElement*> elements{instructions, grid_a, grid_b_heading, grid_b};
 
     return elements;
 }

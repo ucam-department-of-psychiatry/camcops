@@ -19,8 +19,10 @@
 */
 
 #include "qulineedit.h"
+
 #include <QTimer>
 #include <QValidator>
+
 #include "common/textconst.h"
 #include "lib/timerfunc.h"
 #include "lib/widgetfunc.h"
@@ -29,7 +31,6 @@
 
 
 const int WRITE_DELAY_MS = 400;
-
 
 QuLineEdit::QuLineEdit(FieldRefPtr fieldref, QObject* parent) :
     QuElement(parent),
@@ -41,14 +42,25 @@ QuLineEdit::QuLineEdit(FieldRefPtr fieldref, QObject* parent) :
 {
     Q_ASSERT(m_fieldref);
     timerfunc::makeSingleShotTimer(m_timer);
-    connect(m_timer.data(), &QTimer::timeout,
-            this, &QuLineEdit::widgetTextChangedMaybeValid);
-    connect(m_fieldref.data(), &FieldRef::valueChanged,
-            this, &QuLineEdit::fieldValueChanged);
-    connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
-            this, &QuLineEdit::fieldValueChanged);
+    connect(
+        m_timer.data(),
+        &QTimer::timeout,
+        this,
+        &QuLineEdit::widgetTextChangedMaybeValid
+    );
+    connect(
+        m_fieldref.data(),
+        &FieldRef::valueChanged,
+        this,
+        &QuLineEdit::fieldValueChanged
+    );
+    connect(
+        m_fieldref.data(),
+        &FieldRef::mandatoryChanged,
+        this,
+        &QuLineEdit::fieldValueChanged
+    );
 }
-
 
 QuLineEdit* QuLineEdit::setHint(const QString& hint)
 {
@@ -56,13 +68,11 @@ QuLineEdit* QuLineEdit::setHint(const QString& hint)
     return this;
 }
 
-
 QuLineEdit* QuLineEdit::setEchoMode(const QLineEdit::EchoMode echo_mode)
 {
     m_echo_mode = echo_mode;
     return this;
 }
-
 
 void QuLineEdit::setFromField()
 {
@@ -70,7 +80,6 @@ void QuLineEdit::setFromField()
     // special; pretend "it didn't come from us" to disable the efficiency
     // check in fieldValueChanged
 }
-
 
 QPointer<QWidget> QuLineEdit::makeWidget(Questionnaire* questionnaire)
 {
@@ -82,10 +91,18 @@ QPointer<QWidget> QuLineEdit::makeWidget(Questionnaire* questionnaire)
     m_editor->setEchoMode(m_echo_mode);
     extraLineEditCreation(m_editor.data());  // allow subclasses to modify
     if (!read_only) {
-        connect(m_editor.data(), &QLineEdit::textChanged,
-                this, &QuLineEdit::keystroke);
-        connect(m_editor.data(), &QLineEdit::editingFinished,
-                this, &QuLineEdit::widgetTextChangedAndValid);
+        connect(
+            m_editor.data(),
+            &QLineEdit::textChanged,
+            this,
+            &QuLineEdit::keystroke
+        );
+        connect(
+            m_editor.data(),
+            &QLineEdit::editingFinished,
+            this,
+            &QuLineEdit::widgetTextChangedAndValid
+        );
         // QLineEdit::textChanged: emitted whenever text changed.
         // QLineEdit::textEdited: NOT emitted when the widget's value is set
         //      programmatically.
@@ -96,32 +113,32 @@ QPointer<QWidget> QuLineEdit::makeWidget(Questionnaire* questionnaire)
         // So, if we lose focus without validation, how are we going to revert
         // to something sensible?
         m_focus_watcher = new FocusWatcher(m_editor.data());
-        connect(m_focus_watcher.data(), &FocusWatcher::focusChanged,
-                this, &QuLineEdit::widgetFocusChanged);
+        connect(
+            m_focus_watcher.data(),
+            &FocusWatcher::focusChanged,
+            this,
+            &QuLineEdit::widgetFocusChanged
+        );
     }
     setFromField();
     return QPointer<QWidget>(m_editor);
 }
-
 
 void QuLineEdit::extraLineEditCreation(QLineEdit* editor)
 {
     Q_UNUSED(editor)
 }
 
-
 FieldRefPtrList QuLineEdit::fieldrefs() const
 {
     return FieldRefPtrList{m_fieldref};
 }
-
 
 void QuLineEdit::keystroke()
 {
     m_timer->start(WRITE_DELAY_MS);  // will restart if already timing
     // ... goes to widgetTextChangedMaybeValid()
 }
-
 
 void QuLineEdit::widgetTextChangedMaybeValid()
 {
@@ -140,7 +157,6 @@ void QuLineEdit::widgetTextChangedMaybeValid()
     widgetTextChangedAndValid();
 }
 
-
 void QuLineEdit::widgetTextChangedAndValid()
 {
     if (!m_editor) {
@@ -152,15 +168,16 @@ void QuLineEdit::widgetTextChangedAndValid()
     // to set numeric fields (where "" will be converted to 0).
     const QString text = m_editor->text();
     const QVariant value = text.isEmpty() ? QVariant() : QVariant(text);
-    const bool changed = m_fieldref->setValue(value, this);  // Will trigger valueChanged
+    const bool changed = m_fieldref->setValue(value, this);
+    // ... Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
     }
 }
 
-
-void QuLineEdit::fieldValueChanged(const FieldRef* fieldref,
-                                   const QObject* originator)
+void QuLineEdit::fieldValueChanged(
+    const FieldRef* fieldref, const QObject* originator
+)
 {
     if (!m_editor) {
         return;
@@ -174,7 +191,6 @@ void QuLineEdit::fieldValueChanged(const FieldRef* fieldref,
         m_editor->setText(text);
     }
 }
-
 
 void QuLineEdit::widgetFocusChanged(const bool in)
 {

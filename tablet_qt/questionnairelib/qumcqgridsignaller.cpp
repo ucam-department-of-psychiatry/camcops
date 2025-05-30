@@ -19,17 +19,17 @@
 */
 
 #include "qumcqgridsignaller.h"
+
 #include "db/fieldref.h"
 #include "questionnairelib/qumcqgrid.h"
 
-
-QuMcqGridSignaller::QuMcqGridSignaller(QuMcqGrid* recipient,
-                                       const int question_index) :
+QuMcqGridSignaller::QuMcqGridSignaller(
+    QuMcqGrid* recipient, const int question_index
+) :
     m_recipient(recipient),
     m_question_index(question_index)
 {
 }
-
 
 void QuMcqGridSignaller::valueOrMandatoryChanged(const FieldRef* fieldref)
 {

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/tasks/hads.py
 
@@ -394,10 +392,10 @@ class Hads(HadsBase):
                     {
                         req.snomed(
                             SnomedLookup.HADS_ANXIETY_SCORE
-                        ): self.anxiety_score(),  # noqa
+                        ): self.anxiety_score(),
                         req.snomed(
                             SnomedLookup.HADS_DEPRESSION_SCORE
-                        ): self.depression_score(),  # noqa
+                        ): self.depression_score(),
                     },
                 )
             )

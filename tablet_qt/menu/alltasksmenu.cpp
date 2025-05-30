@@ -19,33 +19,33 @@
 */
 
 #include "alltasksmenu.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 #include "tasklib/taskfactory.h"
 
-
 AllTasksMenu::AllTasksMenu(CamcopsApp& app) :
-    MenuWindow(app,
-               uifunc::iconFilename(uiconst::ICON_ALLTASKS),
-               false,  // top
-               true)  // offer_search
+    MenuWindow(
+        app,
+        uifunc::iconFilename(uiconst::ICON_ALLTASKS),
+        false,  // top
+        true
+    )  // offer_search
 {
 }
-
 
 QString AllTasksMenu::title() const
 {
     return tr("Search all tasks");
 }
 
-
 void AllTasksMenu::makeItems()
 {
     TaskFactory* factory = m_app.taskFactory();
     // Sort by what you see:
-    QStringList tablenames = factory->tablenames(
-                TaskFactory::TaskClassSortMethod::Longname);
+    QStringList tablenames
+        = factory->tablenames(TaskFactory::TaskClassSortMethod::Longname);
     for (const QString& tablename : qAsConst(tablenames)) {
         m_items.append(MAKE_TASK_MENU_ITEM(tablename, m_app));
     }

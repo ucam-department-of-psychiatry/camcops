@@ -19,12 +19,13 @@
 */
 
 #include "icd10schizotypal.h"
+
 #include "common/appstrings.h"
 #include "common/textconst.h"
 #include "lib/datetime.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
@@ -49,16 +50,17 @@ const QString B("b");
 const QString DATE_PERTAINS_TO("date_pertains_to");
 const QString COMMENTS("comments");
 
-
 void initializeIcd10Schizotypal(TaskFactory& factory)
 {
     static TaskRegistrar<Icd10Schizotypal> registered(factory);
 }
 
 
-Icd10Schizotypal::Icd10Schizotypal(CamcopsApp& app, DatabaseManager& db,
-                                   const int load_pk) :
-    Task(app, db, ICD10SZTYPAL_TABLENAME, false, true, false)  // ... anon, clin, resp
+Icd10Schizotypal::Icd10Schizotypal(
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
+    Task(app, db, ICD10SZTYPAL_TABLENAME, false, true, false)
+// ... anon, clin, resp
 {
     addFields(strseq(A_PREFIX, 1, N_A), QMetaType::fromType<bool>());
     addField(B, QMetaType::fromType<bool>());
@@ -73,7 +75,6 @@ Icd10Schizotypal::Icd10Schizotypal(CamcopsApp& app, DatabaseManager& db,
     }
 }
 
-
 // ============================================================================
 // Class info
 // ============================================================================
@@ -83,24 +84,20 @@ QString Icd10Schizotypal::shortname() const
     return "ICD10-schizotypal";
 }
 
-
 QString Icd10Schizotypal::longname() const
 {
     return tr("ICD-10 criteria for schizotypal disorder (F21)");
 }
-
 
 QString Icd10Schizotypal::description() const
 {
     return TextConst::icd10();
 }
 
-
 QString Icd10Schizotypal::infoFilenameStem() const
 {
     return "icd";
 }
-
 
 // ============================================================================
 // Instance info
@@ -108,71 +105,70 @@ QString Icd10Schizotypal::infoFilenameStem() const
 
 bool Icd10Schizotypal::isComplete() const
 {
-    return !valueIsNull(DATE_PERTAINS_TO) &&
-            !anyNull(values(strseq(A_PREFIX, 1, N_A))) &&
-            !valueIsNull(B);
+    return !valueIsNull(DATE_PERTAINS_TO)
+        && !anyNull(values(strseq(A_PREFIX, 1, N_A))) && !valueIsNull(B);
 }
-
 
 QStringList Icd10Schizotypal::summary() const
 {
     return QStringList{
-        standardResult(appstring(appstrings::DATE_PERTAINS_TO),
-                       shortDate(value(DATE_PERTAINS_TO))),
-        standardResult(TextConst::meetsCriteria(),
-                       yesNoUnknown(meetsCriteria())),
+        standardResult(
+            appstring(appstrings::DATE_PERTAINS_TO),
+            shortDate(value(DATE_PERTAINS_TO))
+        ),
+        standardResult(
+            TextConst::meetsCriteria(), yesNoUnknown(meetsCriteria())
+        ),
     };
 }
-
 
 QStringList Icd10Schizotypal::detail() const
 {
     QStringList lines = completenessInfo() + summary();
-    lines.append(fieldSummary(COMMENTS,
-                              TextConst::examinerComments()));
+    lines.append(fieldSummary(COMMENTS, TextConst::examinerComments()));
     return lines;
 }
-
 
 OpenableWidget* Icd10Schizotypal::editor(const bool read_only)
 {
     const NameValueOptions options = CommonOptions::falseTrueBoolean();
 
-    auto grid = [this, &options]
-            (const QStringList& fields_xstrings) -> QuElement* {
+    auto grid
+        = [this, &options](const QStringList& fields_xstrings) -> QuElement* {
         // Assumes the xstring name matches the fieldname (as it does)
         QVector<QuestionWithOneField> qfields;
         for (const QString& fieldname : fields_xstrings) {
-            qfields.append(QuestionWithOneField(xstring(fieldname),
-                                                fieldRef(fieldname, true)));
+            qfields.append(QuestionWithOneField(
+                xstring(fieldname), fieldRef(fieldname, true)
+            ));
         }
         const int n = options.size();
         const QVector<int> v(n, 1);
         return (new QuMcqGrid(qfields, options))
-                ->setExpand(true)
-                ->setWidth(n, v);
+            ->setExpand(true)
+            ->setWidth(n, v);
     };
 
     QuPagePtr page((new QuPage{
-        getClinicianQuestionnaireBlockRawPointer(),
-        new QuText(appstring(appstrings::DATE_PERTAINS_TO)),
-        (new QuDateTime(fieldRef(DATE_PERTAINS_TO)))
-            ->setMode(QuDateTime::Mode::DefaultDate)
-            ->setOfferNowButton(true),
-        new QuHeading(xstring("a")),
-        grid(strseq(A_PREFIX, 1, N_A)),
-        new QuHeading(TextConst::txtAnd()),
-        grid({B}),
-        new QuHeading(TextConst::comments()),
-        new QuTextEdit(fieldRef(COMMENTS, false)),
-    })->setTitle(longname()));
+                        getClinicianQuestionnaireBlockRawPointer(),
+                        new QuText(appstring(appstrings::DATE_PERTAINS_TO)),
+                        (new QuDateTime(fieldRef(DATE_PERTAINS_TO)))
+                            ->setMode(QuDateTime::Mode::DefaultDate)
+                            ->setOfferNowButton(true),
+                        new QuHeading(xstring("a")),
+                        grid(strseq(A_PREFIX, 1, N_A)),
+                        new QuHeading(TextConst::txtAnd()),
+                        grid({B}),
+                        new QuHeading(TextConst::comments()),
+                        new QuTextEdit(fieldRef(COMMENTS, false)),
+                    })
+                       ->setTitle(longname()));
 
     auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations

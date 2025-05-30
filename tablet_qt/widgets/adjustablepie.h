@@ -23,8 +23,8 @@
 #include <QPen>
 #include <QPoint>
 #include <QWidget>
-#include "graphics/penbrush.h"
 
+#include "graphics/penbrush.h"
 
 class AdjustablePie : public QWidget
 {
@@ -196,7 +196,12 @@ public:
     // ========================================================================
 
     virtual QSize sizeHint() const override;
-    virtual bool hasHeightForWidth() const override { return false; }
+
+    virtual bool hasHeightForWidth() const override
+    {
+        return false;
+    }
+
     virtual void paintEvent(QPaintEvent* event) override;
     virtual void mousePressEvent(QMouseEvent* event) override;
     virtual void mouseMoveEvent(QMouseEvent* event) override;
@@ -231,8 +236,8 @@ signals:
     // ========================================================================
     // Internals
     // ========================================================================
-protected:
 
+protected:
     // Ensures that all configuration vectors are the same length, and
     // proportions are normalized. (This "lots of vectors" technique is not
     // especially elegant code.)
@@ -247,8 +252,8 @@ protected:
 
     // Qt uses geometric angles that start at 3 o'clock and go anticlockwise.
     // ... https://doc.qt.io/qt-6.5/qpainter.html#drawPie
-    // In our minds we're using angles that start at 6 o'clock and go clockwise.
-    // This takes angles from the second to the first.
+    // In our minds we're using angles that start at 6 o'clock and go
+    // clockwise. This takes angles from the second to the first.
     qreal convertAngleToQt(qreal degrees) const;
 
     // Reverses convertAngleToQt().
@@ -281,7 +286,6 @@ protected:
     void report();
 
 protected:
-
     // Fairly static:
 
     int m_n_sectors;  // number of sectors, n
@@ -290,24 +294,28 @@ protected:
     QVector<QString> m_labels;  // sector labels; length n
     QVector<QColor> m_label_colours;  // sector label colours; length n
     QVector<PenBrush> m_cursor_penbrushes;  // cursor colours; length n - 1
-    QVector<PenBrush> m_cursor_active_penbrushes;  // "active" cursor colours; length n - 1
+    QVector<PenBrush> m_cursor_active_penbrushes;
+    // ... "active" cursor colours; length n - 1
     QFont m_outer_label_font;  // font for sector labels
     QFont m_centre_label_font;  // font for centre label
     QColor m_centre_label_colour;  // colour for centre label
     qreal m_sector_radius;  // radius of the sectors
     qreal m_cursor_inner_radius;  // inner radius of the cursors
     qreal m_cursor_outer_radius;  // outer radius of the cursors
-    qreal m_cursor_angle_degrees;  // sector angle of the cursors (visual style)
+    qreal m_cursor_angle_degrees;
+    // ... sector angle of the cursors (visual style)
     qreal m_label_start_radius;  // radius at which to draw sector labels
     QString m_centre_label;  // text for centre label
     qreal m_overall_radius;  // overall widget radius
-    qreal m_base_compass_heading_deg;  // pie orientation; see setBaseCompassHeading()
+    qreal m_base_compass_heading_deg;
+    // ... pie orientation; see setBaseCompassHeading()
     int m_reporting_delay_ms;  // delay between user movement and reporting
     bool m_rotate_labels;  // rotate the labels? See setLabelRotation().
 
     // Dynamic:
 
-    QVector<qreal> m_cursor_props_cum;  // cumulative proportions for each cursor; length n - 1
+    QVector<qreal> m_cursor_props_cum;
+    // ... cumulative proportions for each cursor; length n - 1
 
     // Internal state:
 
@@ -315,10 +323,10 @@ protected:
     int m_cursor_num_being_dragged;  // which cursor number is being dragged?
     QPoint m_last_mouse_pos;  // last mouse/touch coordinate
     qreal m_angle_offset_from_cursor_centre;
-        // ... if a cursor is "picked up" by the user by touching somewhere
-        // other than the very centre of the cursor, we need to know this
-        // offset (and it's the angle we care about), so that as the user
-        // drags the cursor, it doesn't appear to slip under their
-        // mouse/finger.
+    // ... if a cursor is "picked up" by the user by touching somewhere
+    // other than the very centre of the cursor, we need to know this
+    // offset (and it's the angle we care about), so that as the user
+    // drags the cursor, it doesn't appear to slip under their
+    // mouse/finger.
     QSharedPointer<QTimer> m_timer;  // timer for reporting delay
 };

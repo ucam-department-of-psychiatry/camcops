@@ -2,10 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.camcops.camcops"
     android:installLocation="auto"
-    android:versionCode="42"
-    android:versionName="2.4.18">
-    <!-- %%INSERT_PERMISSIONS -->
-    <!-- %%INSERT_FEATURES -->
+    android:versionCode="-- %%INSERT_VERSION_CODE%% --"
+    android:versionName="2.4.20">
     <supports-screens
         android:anyDensity="true"
         android:largeScreens="true"
@@ -16,9 +14,8 @@
         android:hardwareAccelerated="true"
         android:label="CamCOPS"
         android:icon="@drawable/icon"
-        android:requestLegacyExternalStorage="true"
-        android:allowNativeHeapPointerTagging="false"
         android:allowBackup="false">
+        <!-- singleTask is necessary to stop a second, inactive window from opening when the app is launched both from URL and icon -->
         <activity
             android:name="org.camcops.camcops.CamcopsActivity"
             android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|density"
@@ -30,34 +27,39 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter android:autoVerify="true">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="camcops" android:host="camcops.org" android:path="/register/" />
+            <intent-filter>
+              <action android:name="android.intent.action.VIEW" />
+              <category android:name="android.intent.category.DEFAULT" />
+              <category android:name="android.intent.category.BROWSABLE" />
+              <data android:scheme="https"
+                    android:host="martinburchell.github.io"
+                    android:path="/register/.*" />
             </intent-filter>
-
-          <meta-data
-                android:name="android.app.extract_android_style"
-                android:value="minimal" />
-
-          <meta-data
-                android:name="android.app.background_running"
-                android:value="false" />
-
-          <meta-data
+            <meta-data android:name="android.app.lib_name" android:value="camcops" />
+            <meta-data android:name="android.app.background_running" android:value="false" />
+            <!-- auto screen scale factor -->
+            <meta-data
                 android:name="android.app.auto_screen_scale_factor"
                 android:value="false" />
-          <meta-data
+            <meta-data
                 android:name="android.app.splash_screen_drawable"
                 android:resource="@drawable/logo" />
-          <meta-data
+            <meta-data
                 android:name="android.app.splash_screen_drawable_portrait"
                 android:resource="@drawable/logo_portrait" />
-          <meta-data
+            <meta-data
                 android:name="android.app.splash_screen_drawable_landscape"
                 android:resource="@drawable/logo_landscape" />
         </activity>
     </application>
-    <uses-sdk android:minSdkVersion="23" android:targetSdkVersion="33" />
+    <!-- minSdkVersion and targetSdkVersion moved to build.gradle -->
+
+    <!-- The following comment will be replaced upon deployment with default permissions based on the dependencies of the application.
+         Remove the comment if you do not require these default permissions. -->
+    <!-- %%INSERT_PERMISSIONS -->
+
+    <!-- The following comment will be replaced upon deployment with default features based on the dependencies of the application.
+         Remove the comment if you do not require these default features. -->
+    <!-- %%INSERT_FEATURES -->
+
 </manifest>

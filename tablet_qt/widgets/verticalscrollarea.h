@@ -55,8 +55,8 @@ class VerticalScrollArea : public QScrollArea
     //     QAbstractScrollArea::viewport().
 
     Q_OBJECT
-public:
 
+public:
     // Constructor
     explicit VerticalScrollArea(QWidget* parent = nullptr);
 
@@ -70,7 +70,6 @@ public:
     void setWidget(QWidget* widget);  // hides parent version of this function
 
 protected:
-
     // Called when our child widget resizes, via eventFilter().
     // Sets min width and min/max height. Updates our geometry.
     // We use this code plus the Expanding policy.
@@ -85,8 +84,10 @@ protected:
     void swipeTriggered(QSwipeGesture* gesture);
 
 protected:
-    int m_last_widget_width;  // Last widget width we were told about. Set in resetSizeLimits().
-    int m_reentry_depth;  // Used during resize events to prevent infinite recursion.
+    // Last widget width we were told about. Set in resetSizeLimits().
+    int m_last_widget_width;
+    // Used during resize events to prevent infinite recursion.
+    int m_reentry_depth;
     QSize m_widget_size_back_1;  // 1-back size of our owned widget
     QSize m_widget_size_back_2;  // 2-back size of our owned widget
 };

@@ -19,6 +19,7 @@
 */
 
 #include "cgi.h"
+
 #include "maths/mathfunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
@@ -43,12 +44,10 @@ const int MAX_SCORE_TOTAL = 30;
 const int MAX_SCORE_Q1_Q2 = 7;
 const int MAX_SCORE_Q3 = 16;
 
-
 void initializeCgi(TaskFactory& factory)
 {
     static TaskRegistrar<Cgi> registered(factory);
 }
-
 
 Cgi::Cgi(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, CGI_TABLENAME, false, true, false)  // ... anon, clin, resp
@@ -62,7 +61,6 @@ Cgi::Cgi(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
 
-
 // ============================================================================
 // Class info
 // ============================================================================
@@ -72,19 +70,18 @@ QString Cgi::shortname() const
     return "CGI";
 }
 
-
 QString Cgi::longname() const
 {
     return tr("Clinical Global Impressions");
 }
 
-
 QString Cgi::description() const
 {
-    return tr("Clinician-administered; briefly rates illness severity, global "
-              "improvement, and efficacy/side-effect balance of treatment.");
+    return tr(
+        "Clinician-administered; briefly rates illness severity, global "
+        "improvement, and efficacy/side-effect balance of treatment."
+    );
 }
-
 
 // ============================================================================
 // Instance info
@@ -95,7 +92,6 @@ bool Cgi::isComplete() const
     return noneNull(values(QStringList{Q1, Q2, Q3T, Q3S}));
 }
 
-
 QStringList Cgi::summary() const
 {
     return QStringList{
@@ -105,7 +101,6 @@ QStringList Cgi::summary() const
         scorePhrase(xstring("efficacy"), valueInt(Q3), MAX_SCORE_Q3),
     };
 }
-
 
 QStringList Cgi::detail() const
 {
@@ -121,29 +116,36 @@ QStringList Cgi::detail() const
     return lines;
 }
 
-
 OpenableWidget* Cgi::editor(const bool read_only)
 {
     QVector<QuPagePtr> pages;
 
-    auto addpage = [this, &pages](const QString& fieldname,
-                                  int lastoption, bool update_q3) -> void {
+    auto addpage = [this, &pages](
+                       const QString& fieldname, int lastoption, bool update_q3
+                   ) -> void {
         NameValueOptions options;
         for (int i = 0; i <= lastoption; ++i) {
-            QString name = xstring(QString("%1_option%2").arg(fieldname).arg(i));
+            QString name
+                = xstring(QString("%1_option%2").arg(fieldname).arg(i));
             options.append(NameValuePair(name, i));
         }
         const QString pagetitle = xstring(QString("%1_title").arg(fieldname));
-        const QString question = xstring(QString("%1_question").arg(fieldname));
+        const QString question
+            = xstring(QString("%1_question").arg(fieldname));
         FieldRefPtr fr = fieldRef(fieldname);
         if (update_q3) {
-            connect(fr.data(), &FieldRef::valueChanged,
-                    this, &Cgi::setEfficacyIndex);
+            connect(
+                fr.data(),
+                &FieldRef::valueChanged,
+                this,
+                &Cgi::setEfficacyIndex
+            );
         }
         QuPagePtr page((new QuPage{
-            new QuText(question),
-            new QuMcq(fr, options),
-        })->setTitle(pagetitle));
+                            new QuText(question),
+                            new QuMcq(fr, options),
+                        })
+                           ->setTitle(pagetitle));
         pages.append(page);
     };
 
@@ -159,7 +161,6 @@ OpenableWidget* Cgi::editor(const bool read_only)
     return questionnaire;
 }
 
-
 // ============================================================================
 // Task-specific calculations
 // ============================================================================
@@ -169,15 +170,10 @@ int Cgi::totalScore() const
     return sumInt(values(QStringList{Q1, Q2, Q3}));
 }
 
-
 void Cgi::setEfficacyIndex()
 {
-    if (valueIsNull(Q3T) ||
-            valueInt(Q3T) <= 0 ||
-            valueInt(Q3T) > 4 ||
-            valueIsNull(Q3S) ||
-            valueInt(Q3S) <= 0 ||
-            valueInt(Q3S) > 4) {
+    if (valueIsNull(Q3T) || valueInt(Q3T) <= 0 || valueInt(Q3T) > 4
+        || valueIsNull(Q3S) || valueInt(Q3S) <= 0 || valueInt(Q3S) > 4) {
         setValue(Q3, 0);  // not assessed, or silly values
     } else {
         setValue(Q3, (valueInt(Q3T) - 1) * 4 + valueInt(Q3S));

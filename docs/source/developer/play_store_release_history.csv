@@ -1,0 +1,33 @@
+Google Play Store release name,AndroidManifest.xml version code,AndroidManifest.xml name,To Play Store on,Minimum Android API,Target Android API
+2.0.1 (beta),2,2.0.1,2017-08-04,16,23
+2.0.4 (beta),3,2.0.4,2017-10-22,16,23
+2.2.3 (beta),5,2.2.3,2018-06-25,16,26
+2.2.4 (beta),6,2.2.4,2018-07-18,23,26
+2.2.6 (beta),7,2.2.6,2018-07-31,23,26
+2.2.7,8,2.2.7,2018-08-19,23,26
+2.2.8 to 2.3.0,"N/A, internal only","N/A, internal only","N/A, internal only",N/A,N/A
+2.3.1,9,2.3.1,2019-03-24,23,26
+2.3.2,10,2.3.2,2019-04-05,23,26
+2.3.3,11,2.3.3,2019-06-15,23,26
+2.3.4,12,2.3.4,2019-06-21,23,26
+2.4.1,15 (32-bit ARM); 16 (64-bit ARM),2.4.1,2021-02-10,23,29
+2.4.2,"N/A, identical to 2.4.3",N/A,N/A,N/A,N/A
+2.4.3,17 (32-bit ARM); 18 (64-bit ARM),2.4.3,2021-03-30,23,29
+2.4.4,"N/A, server only",N/A,N/A,N/A,N/A
+2.4.5,"N/A, macOS only",N/A,N/A,N/A,N/A
+2.4.6,19 (32-bit ARM); 20 (64-bit ARM),2.4.6,2021-05-08,23,29
+2.4.7,"N/A, server only",N/A,N/A,N/A,N/A
+2.4.8,21 (32-bit ARM); 22 (64-bit ARM),2.4.8,2021-07-15,23,29
+2.4.9,23 (32-bit ARM); 24 (64-bit ARM),2.4.9,2021-08-10,23,29
+2.4.10,"N/A, server only",N/A,N/A,N/A,N/A
+2.4.11,25 (32-bit ARM); 26 (64-bit ARM),2.4.11,2021-10-08,23,29
+2.4.12,"N/A, server only",N/A,N/A,N/A,N/A
+2.4.13,27 (32-bit ARM); 28 (64-bit ARM),2.4.13,2022-08-19,23,30
+2.4.14,"N/A, server only",N/A,N/A,N/A,N/A
+2.4.15,29 (32-bit ARM); 30 (64-bit ARM),2.4.15,2023-03-27,23,31
+2.4.16,31 (32-bit ARM); 32 (64-bit ARM),2.4.16,2023-06-15,23,31
+2.4.17,33 (32-bit ARM); 34 (64-bit ARM),2.4.17,2023-08-21,23,33
+2.4.18,41 (32-bit ARM); 42 (64-bit ARM),2.4.18,2024-02-08,23,33
+2.4.19,47 (32-bit ARM); 48 (64-bit ARM),2.4.19,2024-06-27,23,33
+2.4.20,49 (32-bit ARM); 50 (64-bit ARM),2.4.20,2024-08-14,23,34
+2.4.21,"N/A, server only",N/A,N/A,N/A,N/A

@@ -18,6 +18,8 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "taskscheduleitemeditor.h"
+
 #include "core/camcopsapp.h"
 #include "lib/datetime.h"
 #include "lib/stringfunc.h"
@@ -25,16 +27,14 @@
 #include "menulib/menuwindow.h"
 #include "tasklib/taskfactory.h"
 #include "tasklib/taskscheduleitem.h"
-#include "taskscheduleitemeditor.h"
 
 TaskScheduleItemEditor::TaskScheduleItemEditor(
-        CamcopsApp& app,
-        TaskScheduleItemPtr task_schedule_item) :
+    CamcopsApp& app, TaskScheduleItemPtr task_schedule_item
+) :
     m_app(app),
     m_p_task_schedule_item(task_schedule_item)
 {
 }
-
 
 void TaskScheduleItemEditor::editTask()
 {
@@ -71,31 +71,36 @@ void TaskScheduleItemEditor::editTask()
 
     Task* ptask = task.data();
 
-    MenuWindow::connectQuestionnaireToTask(widget, ptask);  // in case it's a questionnaire
-    QObject::connect(ptask, &Task::editingFinished,
-                     this, &TaskScheduleItemEditor::onTaskFinished);
+    MenuWindow::connectQuestionnaireToTask(widget, ptask);
+    // ... in case it's a questionnaire
+    QObject::connect(
+        ptask,
+        &Task::editingFinished,
+        this,
+        &TaskScheduleItemEditor::onTaskFinished
+    );
 
     m_app.openSubWindow(widget, task, true);
 }
-
 
 bool TaskScheduleItemEditor::canEditTask(TaskPtr task)
 {
     QString failure_reason;
 
     if (!task) {
-        uifunc::alert(tr("Null task pointer"),
-                      tr("Unable to complete task"));
+        uifunc::alert(tr("Null task pointer"), tr("Unable to complete task"));
         return false;
     }
 
     if (!task->isTaskPermissible(failure_reason)
-            || !task->isTaskUploadable(failure_reason)) {
-        const QString reason = QString("%1<br><br>%2: %3").arg(
-            tr("You cannot complete this task at this time."),
-            tr("Current reason"),
-            stringfunc::bold(failure_reason)
-        );
+        || !task->isTaskUploadable(failure_reason)) {
+        const QString reason
+            = QString("%1<br><br>%2: %3")
+                  .arg(
+                      tr("You cannot complete this task at this time."),
+                      tr("Current reason"),
+                      stringfunc::bold(failure_reason)
+                  );
         uifunc::alert(reason, tr("Not permitted to complete task"));
         return false;
     }

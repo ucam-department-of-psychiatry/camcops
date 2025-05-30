@@ -26,7 +26,6 @@ class QLabel;
 class QPixmap;
 class QVBoxLayout;
 
-
 class ClickableLabelNoWrap : public QPushButton
 {
     // Label (showing text or an image) that responds to clicks.
@@ -59,8 +58,8 @@ class ClickableLabelNoWrap : public QPushButton
     //               order problem]
 
     Q_OBJECT
-public:
 
+public:
     // Construct with text.
     ClickableLabelNoWrap(const QString& text, QWidget* parent = nullptr);
 

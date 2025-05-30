@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_exportrecipient.py
 
@@ -88,7 +86,7 @@ class ExportRecipient(ExportRecipientInfo, Base):
     (q.v.).
 
     Full details of parameters are in the docs for the config file.
-    """  # noqa
+    """
 
     __tablename__ = "_export_recipients"
 
@@ -703,7 +701,7 @@ def _check_current(
 
     As per
     https://stackoverflow.com/questions/6269469/mark-a-single-row-in-a-table-in-sqlalchemy.
-    """  # noqa
+    """
     if target.current:
         # noinspection PyUnresolvedReferences
         connection.execute(

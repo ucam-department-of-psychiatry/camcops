@@ -21,6 +21,7 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -30,13 +31,16 @@ class TaskFactory;
 
 void initializeHamD(TaskFactory& factory);
 
-
 class HamD : public Task
 {
     Q_OBJECT
+
 public:
-    HamD(CamcopsApp& app, DatabaseManager& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
+    HamD(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -54,15 +58,19 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     int totalScore() const;
+
 protected:
     QString whichWeightVar(bool other = false) const;
     // ------------------------------------------------------------------------
     // Signal handlers
     // ------------------------------------------------------------------------
+
 protected:
     void chooseWeightPage();
+
 protected:
     QPointer<Questionnaire> m_questionnaire;
+
 public:
     static const QString HAMD_TABLENAME;
 };

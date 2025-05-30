@@ -18,23 +18,20 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include <QtTest/QtTest>
-
 #include <QGraphicsScene>
 #include <QPushButton>
+#include <QtTest/QtTest>
 #include <QVBoxLayout>
 
 #include "graphics/graphicsfunc.h"
 
-
-class TestGraphicsfunc: public QObject
+class TestGraphicsfunc : public QObject
 {
     Q_OBJECT
 
 private slots:
     void testMakeTextButtonSetsMarginToZero();
 };
-
 
 using namespace graphicsfunc;
 
@@ -43,9 +40,16 @@ void TestGraphicsfunc::testMakeTextButtonSetsMarginToZero()
     QGraphicsScene scene = QGraphicsScene();
     const QRectF rect(0, 0, 100, 100);
     // These values are not important for the test
-    const ButtonConfig config(5, 20, QColor(255,255,255), Qt::AlignCenter,
-                              QColor(0,0,255), QColor(0,255,0),
-                              QPen(QBrush(QColor(255,0,0)), 5), 5);
+    const ButtonConfig config(
+        5,
+        20,
+        QColor(255, 255, 255),
+        Qt::AlignCenter,
+        QColor(0, 0, 255),
+        QColor(0, 255, 0),
+        QPen(QBrush(QColor(255, 0, 0)), 5),
+        5
+    );
 
     const QString text = "Test";
     auto button_and_proxy = makeTextButton(&scene, rect, config, text);

@@ -19,24 +19,28 @@
 */
 
 #include "debugdialog.h"
+
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QVariant>
 #include <QVBoxLayout>
+
 #include "common/cssconst.h"
 #include "common/uiconst.h"
 #include "layouts/vboxlayouthfw.h"
 #include "qobjects/keypresswatcher.h"
 #include "qobjects/showwatcher.h"
+#include "qobjects/widgetpositioner.h"
 
-
-DebugDialog::DebugDialog(QWidget* parent,
-                         QWidget* widget,
-                         const bool set_background_by_name,
-                         const bool set_background_by_stylesheet,
-                         const layoutdumper::DumperConfig& config,
-                         const bool use_hfw_layout,
-                         const QString* dialog_stylesheet) :
+DebugDialog::DebugDialog(
+    QWidget* parent,
+    QWidget* widget,
+    const bool set_background_by_name,
+    const bool set_background_by_stylesheet,
+    const layoutdumper::DumperConfig& config,
+    const bool use_hfw_layout,
+    const QString* dialog_stylesheet
+) :
     QDialog(parent)
 {
     QDialogButtonBox::StandardButtons buttons = QDialogButtonBox::Close;
@@ -80,18 +84,22 @@ DebugDialog::DebugDialog(QWidget* parent,
         // Safe object lifespan signal: can use std::bind
         keywatcher->addKeyEvent(
             Qt::Key_D,
-            std::bind(&layoutdumper::dumpWidgetHierarchy, this, config));
+            std::bind(&layoutdumper::dumpWidgetHierarchy, this, config)
+        );
         keywatcher->addKeyEvent(
-            Qt::Key_A,
-            std::bind(&QWidget::adjustSize, widget));
+            Qt::Key_A, std::bind(&QWidget::adjustSize, widget)
+        );
     } else {
         qDebug() << Q_FUNC_INFO << "null widget";
     }
 
     auto buttonbox = new QDialogButtonBox(buttons);
-    connect(buttonbox, &QDialogButtonBox::rejected, this,
-            &DebugDialog::reject);
+    connect(
+        buttonbox, &QDialogButtonBox::rejected, this, &DebugDialog::reject
+    );
     layout->addWidget(buttonbox);
+
+    new WidgetPositioner(this);
 
     setLayout(layout);
 }

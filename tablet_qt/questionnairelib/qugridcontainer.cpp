@@ -21,16 +21,18 @@
 // #define DEBUG_GRID_CREATION
 
 #include "qugridcontainer.h"
+
 #include <QDebug>
 #include <QWidget>
+
 #include "layouts/layouts.h"
 #include "lib/sizehelpers.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/basewidget.h"
 
 #ifdef DEBUG_GRID_CREATION
-#include "common/cssconst.h"
-#include "lib/layoutdumper.h"
+    #include "common/cssconst.h"
+    #include "lib/layoutdumper.h"
 #endif
 
 
@@ -79,7 +81,8 @@ What does not work properly:
         sp.setHorizontalStretch(1);
         w->setSizePolicy(sp);
 
-    Compare https://stackoverflow.com/questions/27808440/how-to-make-qt-grid-layout-auto-size-column-widths
+    Compare
+     https://stackoverflow.com/questions/27808440/how-to-make-qt-grid-layout-auto-size-column-widths
     ... not sure you can just modify the returned size policy directly, though!
     sizePolicy() returns QSizePolicy, not a reference or pointer.
 
@@ -103,37 +106,46 @@ QuGridContainer::QuGridContainer(QObject* parent) :
 {
 }
 
-
-QuGridContainer::QuGridContainer(const QVector<QuGridCell>& cells,
-                                 QObject* parent) :
+QuGridContainer::QuGridContainer(
+    const QVector<QuGridCell>& cells, QObject* parent
+) :
     QuElement(parent),
     m_cells(cells),
     m_expand(true),
     m_fixed_grid(true)
-
 {
 }
 
 
-QuGridContainer::QuGridContainer(std::initializer_list<QuGridCell> cells,
-                                 QObject* parent) :
-    QuGridContainer(QVector<QuGridCell>(cells), parent)  // delegating constructor
+QuGridContainer::QuGridContainer(
+    std::initializer_list<QuGridCell> cells, QObject* parent
+) :
+    QuGridContainer(QVector<QuGridCell>(cells), parent)
+// ... delegating constructor
 {
 }
-
 
 template<typename ElementList>
-void constructFromElementList(const int n_columns,
-                              ElementList elements,
-                              const bool override_element_alignment,
-                              QVector<QuGridCell>& cells)
+void constructFromElementList(
+    const int n_columns,
+    ElementList elements,
+    const bool override_element_alignment,
+    QVector<QuGridCell>& cells
+)
 {
     // Better than #define!
     int column = 0;
     int row = 0;
     for (auto e : (elements)) {
-        QuGridCell cell(e, row, column, 1, 1, Qt::AlignLeft | Qt::AlignTop,
-                        override_element_alignment);
+        QuGridCell cell(
+            e,
+            row,
+            column,
+            1,
+            1,
+            Qt::AlignLeft | Qt::AlignTop,
+            override_element_alignment
+        );
         column = (column + 1) % n_columns;
         if (column == 0) {
             ++row;
@@ -142,50 +154,57 @@ void constructFromElementList(const int n_columns,
     }
 }
 
-
-QuGridContainer::QuGridContainer(const int n_columns,
-                                 const QVector<QuElementPtr>& elements,
-                                 const bool override_element_alignment,
-                                 QObject* parent) :
+QuGridContainer::QuGridContainer(
+    const int n_columns,
+    const QVector<QuElementPtr>& elements,
+    const bool override_element_alignment,
+    QObject* parent
+) :
     QuGridContainer(QVector<QuGridCell>(), parent)  // delegating constructor
 {
-    constructFromElementList(n_columns, elements, override_element_alignment,
-                             m_cells);
+    constructFromElementList(
+        n_columns, elements, override_element_alignment, m_cells
+    );
 }
 
-
-QuGridContainer::QuGridContainer(const int n_columns,
-                                 const QVector<QuElement*>& elements,
-                                 const bool override_element_alignment,
-                                 QObject* parent) :
+QuGridContainer::QuGridContainer(
+    const int n_columns,
+    const QVector<QuElement*>& elements,
+    const bool override_element_alignment,
+    QObject* parent
+) :
     QuGridContainer(QVector<QuGridCell>(), parent)  // delegating constructor
 {
-    constructFromElementList(n_columns, elements, override_element_alignment,
-                             m_cells);
+    constructFromElementList(
+        n_columns, elements, override_element_alignment, m_cells
+    );
 }
 
-
-QuGridContainer::QuGridContainer(const int n_columns,
-                                 std::initializer_list<QuElementPtr> elements,
-                                 const bool override_element_alignment,
-                                 QObject* parent) :
+QuGridContainer::QuGridContainer(
+    const int n_columns,
+    std::initializer_list<QuElementPtr> elements,
+    const bool override_element_alignment,
+    QObject* parent
+) :
     QuGridContainer(QVector<QuGridCell>(), parent)  // delegating constructor
 {
-    constructFromElementList(n_columns, elements, override_element_alignment,
-                             m_cells);
+    constructFromElementList(
+        n_columns, elements, override_element_alignment, m_cells
+    );
 }
 
-
-QuGridContainer::QuGridContainer(const int n_columns,
-                                 std::initializer_list<QuElement*> elements,
-                                 const bool override_element_alignment,
-                                 QObject* parent) :
+QuGridContainer::QuGridContainer(
+    const int n_columns,
+    std::initializer_list<QuElement*> elements,
+    const bool override_element_alignment,
+    QObject* parent
+) :
     QuGridContainer(QVector<QuGridCell>(), parent)  // delegating constructor
 {
-    constructFromElementList(n_columns, elements, override_element_alignment,
-                             m_cells);
+    constructFromElementList(
+        n_columns, elements, override_element_alignment, m_cells
+    );
 }
-
 
 QuGridContainer* QuGridContainer::addCell(const QuGridCell& cell)
 {
@@ -193,16 +212,16 @@ QuGridContainer* QuGridContainer::addCell(const QuGridCell& cell)
     return this;
 }
 
-
-QuGridContainer* QuGridContainer::setColumnStretch(
-        const int column, const int stretch)
+QuGridContainer*
+    QuGridContainer::setColumnStretch(const int column, const int stretch)
 {
     m_column_stretch[column] = stretch;
     return this;
 }
 
 QuGridContainer* QuGridContainer::setColumnMinimumWidthInPixels(
-        const int column, const int width)
+    const int column, const int width
+)
 {
     m_column_minimum_width_in_pixels[column] = width;
     return this;
@@ -214,13 +233,11 @@ QuGridContainer* QuGridContainer::setFixedGrid(const bool fixed_grid)
     return this;
 }
 
-
 QuGridContainer* QuGridContainer::setExpandHorizontally(const bool expand)
 {
     m_expand = expand;
     return this;
 }
-
 
 QPointer<QWidget> QuGridContainer::makeWidget(Questionnaire* questionnaire)
 {
@@ -265,7 +282,7 @@ QPointer<QWidget> QuGridContainer::makeWidget(Questionnaire* questionnaire)
             w->setSizePolicy(sp);
 #ifdef DEBUG_GRID_CREATION
             qDebug().noquote()
-                    << "... forcing widget horizontal size policy to Expanding";
+                << "... forcing widget horizontal size policy to Expanding";
 #endif
 
             // Set column minimum width, and column stretch (may be modified
@@ -276,15 +293,16 @@ QPointer<QWidget> QuGridContainer::makeWidget(Questionnaire* questionnaire)
 #ifdef DEBUG_GRID_CREATION
         {
             QSizePolicy sp = w->sizePolicy();
-            qDebug().noquote() << "... widget sizePolicy():"
-                               << layoutdumper::toString(sp);
+            qDebug().noquote()
+                << "... widget sizePolicy():" << layoutdumper::toString(sp);
         }
 #endif
         const auto alignment = c.override_element_alignment
-                ? c.alignment
-                : e->getWidgetAlignment();
-        grid->addWidget(w, c.row, c.column,
-                        c.row_span, c.column_span, alignment);
+            ? c.alignment
+            : e->getWidgetAlignment();
+        grid->addWidget(
+            w, c.row, c.column, c.row_span, c.column_span, alignment
+        );
     }
     QMapIterator<int, int> stretch_it(m_column_stretch);
     while (stretch_it.hasNext()) {
@@ -292,8 +310,8 @@ QPointer<QWidget> QuGridContainer::makeWidget(Questionnaire* questionnaire)
         const int column = stretch_it.key();
         const int stretch = stretch_it.value();
 #ifdef DEBUG_GRID_CREATION
-        qDebug().nospace() << "... setColumnStretch(" << column
-                           << "," << stretch << ")";
+        qDebug().nospace() << "... setColumnStretch(" << column << ","
+                           << stretch << ")";
 #endif
         grid->setColumnStretch(column, stretch);
     }
@@ -304,15 +322,14 @@ QPointer<QWidget> QuGridContainer::makeWidget(Questionnaire* questionnaire)
         const int column = width_it.key();
         const int width = width_it.value();
 #ifdef DEBUG_GRID_CREATION
-        qDebug().nospace() << "... setMinimumWidthInPixels(" << column
-                           << "," << width << ")";
+        qDebug().nospace() << "... setMinimumWidthInPixels(" << column << ","
+                           << width << ")";
 #endif
         grid->setColumnMinimumWidth(column, width);
     }
 
     return widget;
 }
-
 
 QVector<QuElementPtr> QuGridContainer::subelements() const
 {
@@ -323,14 +340,13 @@ QVector<QuElementPtr> QuGridContainer::subelements() const
     return elements;
 }
 
-
 QDebug operator<<(QDebug debug, const QuGridContainer& grid)
 {
-    debug.nospace()
-            << "QuGridContainer(m_cells=" << grid.m_cells
-            << ", m_column_stretch=" << grid.m_column_stretch
-            << ", m_column_minimum_width_in_pixels=" << grid.m_column_minimum_width_in_pixels
-            << ", m_expand=" << grid.m_expand
-            << ", m_fixed_grid=" << grid.m_fixed_grid;
+    debug.nospace() << "QuGridContainer(m_cells=" << grid.m_cells
+                    << ", m_column_stretch=" << grid.m_column_stretch
+                    << ", m_column_minimum_width_in_pixels="
+                    << grid.m_column_minimum_width_in_pixels
+                    << ", m_expand=" << grid.m_expand
+                    << ", m_fixed_grid=" << grid.m_fixed_grid;
     return debug;
 }

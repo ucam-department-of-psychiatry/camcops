@@ -20,31 +20,33 @@
 
 #pragma once
 #include <QPointer>
+
 #include "db/fieldref.h"
 #include "questionnairelib/quelement.h"
 
 class QDateTimeEdit;
 class QCalendarWidget;
 
-
 class QuDateTime : public QuElement
 {
     // Manual or calendar-assisted date/time entry.
 
     Q_OBJECT
-public:
 
+public:
     // How to display?
     enum Mode {
         DefaultDateTime,  // e.g. 2000 01 31 08:00
         DefaultDate,  // e.g. 2000 01 31
         DefaultTime,  // e.g. 08:00
-        CustomDateTime,  // user-specified format as per https://doc.qt.io/qt-6.5/qdatetime.html#toString-2
-        CustomDate,  // user-specified format as per https://doc.qt.io/qt-6.5/qdatetime.html#toString-2
-        CustomTime,  // user-specified format as per https://doc.qt.io/qt-6.5/qdatetime.html#toString-2
+        CustomDateTime,
+        CustomDate,
+        CustomTime,
+        // CustomDateTime, CustomDate, CustomTime: user-specified format as per
+        // https://doc.qt.io/qt-6.5/qdatetime.html#toString-2
     };
-public:
 
+public:
     // Constructor.
     QuDateTime(FieldRefPtr fieldref, QObject* parent = nullptr);
 
@@ -55,8 +57,9 @@ public:
     // date/time), and the input method hint mode (e.g. for Android keyboard:
     // "numbers-only keyboard" or similar).
     QuDateTime* setCustomFormat(
-            const QString& format,
-            Qt::InputMethodHints input_method_hint = Qt::ImhNone);
+        const QString& format,
+        Qt::InputMethodHints input_method_hint = Qt::ImhNone
+    );
 
     // Offer a "set date/time to now" button? A common thing to set.
     QuDateTime* setOfferNowButton(bool offer_now_button);
@@ -67,13 +70,14 @@ public:
     // Set the minimum/maximum date permitted.
     QuDateTime* setMinimumDate(const QDate& min_date);
     QuDateTime* setMaximumDate(const QDate& max_date);
-protected:
 
+protected:
     // Sets the widget state from our fieldref.
     void setFromField();
 
     virtual FieldRefPtrList fieldrefs() const override;
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
+    ) override;
 
     // Does our variable have a date component?
     bool hasDateComponent() const;
@@ -88,12 +92,11 @@ protected slots:
 
     // Set the field to a specific date/time. Optionally, tell the internal
     // widget to set itself to the same value.
-    void setField(const QDateTime& datetime,
-                  bool reset_this_widget = false);
+    void setField(const QDateTime& datetime, bool reset_this_widget = false);
 
     // "Fieldref reports that the field's data has changed."
-    void fieldValueChanged(const FieldRef* fieldref,
-                           const QObject* originator);
+    void
+        fieldValueChanged(const FieldRef* fieldref, const QObject* originator);
 
     // Set the field to the date/time now.
     void setToNow();

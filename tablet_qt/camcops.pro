@@ -300,15 +300,26 @@ android {
     # CAMCOPS_OPENSSL_LINKAGE = "static"
     CAMCOPS_OPENSSL_LINKAGE = "dynamic"
 
+    CAMCOPS_32_BIT_VERSION_CODE = "49"
+    CAMCOPS_64_BIT_VERSION_CODE = "50"
+
     contains(ANDROID_TARGET_ARCH, x86) {
-        message("Building for Android/x86 (e.g. Android emulator)")
-        CAMCOPS_ARCH_TAG = "android_x86"
+        ANDROID_VERSION_CODE = $${CAMCOPS_32_BIT_VERSION_CODE}
+        message("Building for Android/x86_32 (e.g. Android emulator)")
+        CAMCOPS_ARCH_TAG = "android_x86_32"
+    }
+    contains(ANDROID_TARGET_ARCH, x86_64) {
+        ANDROID_VERSION_CODE = $${CAMCOPS_64_BIT_VERSION_CODE}
+        message("Building for Android/x86_64 (e.g. Android emulator)")
+        CAMCOPS_ARCH_TAG = "android_x86_64"
     }
     contains(ANDROID_TARGET_ARCH, armeabi-v7a) {
+        ANDROID_VERSION_CODE = $${CAMCOPS_32_BIT_VERSION_CODE}
         message("Building for Android/ARMv7 32-bit architecture")
         CAMCOPS_ARCH_TAG = "android_armv7"
     }
     contains(ANDROID_TARGET_ARCH, arm64-v8a) {
+        ANDROID_VERSION_CODE = $${CAMCOPS_64_BIT_VERSION_CODE}
         message("Building for Android/ARMv8 64-bit architecture")
         CAMCOPS_ARCH_TAG = "android_armv8_64"
     }
@@ -656,6 +667,7 @@ SOURCES += \
     lib/containers.cpp \
     lib/convert.cpp \
     lib/css.cpp \
+    lib/customtypes.cpp \
     lib/datetime.cpp \
     lib/debugfunc.cpp \
     lib/diagnosticstyle.cpp \
@@ -705,6 +717,7 @@ SOURCES += \
     menu/globalmenu.cpp \
     menu/helpmenu.cpp \
     menu/mainmenu.cpp \
+    menu/neurodiversitymenu.cpp \
     menu/patientsummarymenu.cpp \
     menu/personalitymenu.cpp \
     menu/physicalillnessmenu.cpp \
@@ -766,6 +779,7 @@ SOURCES += \
     qobjects/threadworker.cpp \
     qobjects/urlhandler.cpp \
     qobjects/urlvalidator.cpp \
+    qobjects/widgetpositioner.cpp \
     questionnairelib/commonoptions.cpp \
     questionnairelib/dynamicquestionnaire.cpp \
     questionnairelib/mcqfunc.cpp \
@@ -847,6 +861,7 @@ SOURCES += \
     tasks/aims.cpp \
     tasks/apeqcpftperinatal.cpp \
     tasks/apeqpt.cpp \
+    tasks/aq.cpp \
     tasks/asdas.cpp \
     tasks/audit.cpp \
     tasks/auditc.cpp \
@@ -1009,6 +1024,7 @@ SOURCES += \
     whisker/whiskerinboundmessage.cpp \
     whisker/whiskermanager.cpp \
     whisker/whiskeroutboundcommand.cpp \
+    whisker/whiskertypes.cpp \
     whisker/whiskerworker.cpp \
     widgets/adjustablepie.cpp \
     widgets/aspectratiopixmap.cpp \
@@ -1146,6 +1162,7 @@ HEADERS += \
     lib/containers.h \
     lib/convert.h \
     lib/css.h \
+    lib/customtypes.h \
     lib/datetime.h \
     lib/debugfunc.h \
     lib/diagnosticstyle.h \
@@ -1199,6 +1216,7 @@ HEADERS += \
     menu/globalmenu.h \
     menu/helpmenu.h \
     menu/mainmenu.h \
+    menu/neurodiversitymenu.h \
     menu/patientsummarymenu.h \
     menu/personalitymenu.h \
     menu/physicalillnessmenu.h \
@@ -1259,6 +1277,7 @@ HEADERS += \
     qobjects/threadworker.h \
     qobjects/urlhandler.h \
     qobjects/urlvalidator.h \
+    qobjects/widgetpositioner.h \
     questionnairelib/commonoptions.h \
     questionnairelib/dynamicquestionnaire.h \
     questionnairelib/mcqfunc.h \
@@ -1340,6 +1359,7 @@ HEADERS += \
     tasks/aims.h \
     tasks/apeqcpftperinatal.h \
     tasks/apeqpt.h \
+    tasks/aq.h \
     tasks/asdas.h \
     tasks/audit.h \
     tasks/auditc.h \
@@ -1502,6 +1522,7 @@ HEADERS += \
     whisker/whiskerinboundmessage.h \
     whisker/whiskermanager.h \
     whisker/whiskeroutboundcommand.h \
+    whisker/whiskertypes.h \
     whisker/whiskerworker.h \
     widgets/adjustablepie.h \
     widgets/aspectratiopixmap.h \

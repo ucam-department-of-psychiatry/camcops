@@ -19,11 +19,12 @@
 */
 
 #include "asdas.h"
+
 #include "common/uiconst.h"
-#include "maths/mathfunc.h"
 #include "lib/convert.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qugridcell.h"
 #include "questionnairelib/qugridcontainer.h"
@@ -49,25 +50,25 @@ const int CRP_ESR_DP = 2;
 
 const QString Asdas::ASDAS_TABLENAME("asdas");
 
-
 void initializeAsdas(TaskFactory& factory)
 {
     static TaskRegistrar<Asdas> registered(factory);
 }
 
-
 Asdas::Asdas(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, ASDAS_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, ASDAS_TABLENAME, false, false, false),
+    // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_SCALE_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_SCALE_QUESTIONS), QMetaType::fromType<int>()
+    );
 
     addField(Q_CRP, QMetaType::fromType<double>());
     addField(Q_ESR, QMetaType::fromType<double>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -78,25 +79,23 @@ QString Asdas::shortname() const
     return "ASDAS";
 }
 
-
 QString Asdas::longname() const
 {
     return tr("Ankylosing Spondylitis Disease Activity Score");
 }
 
-
 QString Asdas::description() const
 {
-    return tr("An ASAS-endorsed disease activity score (ASDAS) in patients "
-              "with ankylosing spondylitis.");
+    return tr(
+        "An ASAS-endorsed disease activity score (ASDAS) in patients "
+        "with ankylosing spondylitis."
+    );
 }
-
 
 QStringList Asdas::fieldNames() const
 {
     return strseq(QPREFIX, FIRST_Q, N_QUESTIONS);
 }
-
 
 QStringList Asdas::scaleFieldNames() const
 {
@@ -120,31 +119,25 @@ bool Asdas::isComplete() const
     return true;
 }
 
-
 double Asdas::backPain() const
 {
     return value("q1").toDouble();
 }
 
-
 double Asdas::morningStiffness() const
 {
     return value("q2").toDouble();
-
 }
-
 
 double Asdas::patientGlobal() const
 {
     return value("q3").toDouble();
 }
 
-
 double Asdas::peripheralPain() const
 {
     return value("q4").toDouble();
 }
-
 
 QVariant Asdas::asdasCrp() const
 {
@@ -155,13 +148,10 @@ QVariant Asdas::asdasCrp() const
 
     const double adjusted_crp = std::max(crp.toDouble(), 2.0);
 
-    return 0.12 * backPain() +
-        0.06 * morningStiffness() +
-        0.11 * patientGlobal() +
-        0.07 * peripheralPain() +
-        0.58 * std::log(adjusted_crp + 1);
+    return 0.12 * backPain() + 0.06 * morningStiffness()
+        + 0.11 * patientGlobal() + 0.07 * peripheralPain()
+        + 0.58 * std::log(adjusted_crp + 1);
 }
-
 
 QVariant Asdas::asdasEsr() const
 {
@@ -170,13 +160,10 @@ QVariant Asdas::asdasEsr() const
         return QVariant();
     }
 
-    return 0.08 * backPain() +
-        0.07 * morningStiffness() +
-        0.11 * patientGlobal() +
-        0.09 * peripheralPain() +
-        0.29 * std::sqrt(esr.toDouble());
+    return 0.08 * backPain() + 0.07 * morningStiffness()
+        + 0.11 * patientGlobal() + 0.09 * peripheralPain()
+        + 0.29 * std::sqrt(esr.toDouble());
 }
-
 
 QString Asdas::activityState(QVariant measurement) const
 {
@@ -200,7 +187,6 @@ QString Asdas::activityState(QVariant measurement) const
     return xstring("high");
 }
 
-
 QStringList Asdas::summary() const
 {
     using stringfunc::bold;
@@ -209,30 +195,33 @@ QStringList Asdas::summary() const
     const QVariant esr = asdasEsr();
 
     return QStringList{
-        QString("%1: %2 (%3)").arg(xstring("asdas_crp"),
-                                   convert::prettyValue(crp, CRP_ESR_DP),
-                                   bold(activityState(crp))
-        ),
-        QString("%1: %2 (%3)").arg(xstring("asdas_esr"),
-                                   convert::prettyValue(esr, CRP_ESR_DP),
-                                   bold(activityState(esr))
-        ),
+        QString("%1: %2 (%3)")
+            .arg(
+                xstring("asdas_crp"),
+                convert::prettyValue(crp, CRP_ESR_DP),
+                bold(activityState(crp))
+            ),
+        QString("%1: %2 (%3)")
+            .arg(
+                xstring("asdas_esr"),
+                convert::prettyValue(esr, CRP_ESR_DP),
+                bold(activityState(esr))
+            ),
     };
 }
-
 
 QStringList Asdas::detail() const
 {
     QStringList lines = completenessInfo();
     const QString spacer = " ";
     const QString suffix = "";
-    lines += fieldSummaries("q", suffix, spacer, QPREFIX, FIRST_Q, N_QUESTIONS);
+    lines
+        += fieldSummaries("q", suffix, spacer, QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");
     lines += summary();
 
     return lines;
 }
-
 
 OpenableWidget* Asdas::editor(const bool read_only)
 {
@@ -266,8 +255,9 @@ OpenableWidget* Asdas::editor(const bool read_only)
 
         const auto question_text = new QuText(xstring(fieldname));
         question_text->setBold(true);
-        slider_grid->addCell(QuGridCell(question_text, row, 0,
-                                        QUESTION_ROW_SPAN, QUESTION_COLUMN_SPAN));
+        slider_grid->addCell(QuGridCell(
+            question_text, row, 0, QUESTION_ROW_SPAN, QUESTION_COLUMN_SPAN
+        ));
         row++;
 
         const auto min_label = new QuText(xstring(fieldname + "_min"));
@@ -279,11 +269,11 @@ OpenableWidget* Asdas::editor(const bool read_only)
 
         row++;
 
-        slider_grid->addCell(QuGridCell(new QuSpacer(QSize(uiconst::BIGSPACE,
-                                                           uiconst::BIGSPACE)), row, 0));
+        slider_grid->addCell(QuGridCell(
+            new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)), row, 0
+        ));
 
         row++;
-
     }
 
     const auto crp_esr_inst = new QuText(xstring("crp_esr_instructions"));
@@ -292,22 +282,28 @@ OpenableWidget* Asdas::editor(const bool read_only)
     page->addElement(crp_esr_inst);
 
     page->addElement(new QuText(xstring(Q_CRP)));
-    const auto crp_field = new QuLineEditDouble(
-        fieldRef(Q_CRP), 0, CRP_MAX, CRP_ESR_DP
-    );
+    const auto crp_field
+        = new QuLineEditDouble(fieldRef(Q_CRP), 0, CRP_MAX, CRP_ESR_DP);
     page->addElement(crp_field);
 
     page->addElement(new QuText(xstring(Q_ESR)));
-    const auto esr_field = new QuLineEditDouble(
-        fieldRef(Q_ESR), 0, ESR_MAX, CRP_ESR_DP
-    );
+    const auto esr_field
+        = new QuLineEditDouble(fieldRef(Q_ESR), 0, ESR_MAX, CRP_ESR_DP);
     page->addElement(esr_field);
 
-    connect(fieldRef(Q_CRP).data(), &FieldRef::valueChanged,
-            this, &Asdas::crpChanged);
+    connect(
+        fieldRef(Q_CRP).data(),
+        &FieldRef::valueChanged,
+        this,
+        &Asdas::crpChanged
+    );
 
-    connect(fieldRef(Q_ESR).data(), &FieldRef::valueChanged,
-            this, &Asdas::esrChanged);
+    connect(
+        fieldRef(Q_ESR).data(),
+        &FieldRef::valueChanged,
+        this,
+        &Asdas::esrChanged
+    );
 
     crpChanged();
     esrChanged();
@@ -319,14 +315,12 @@ OpenableWidget* Asdas::editor(const bool read_only)
     return m_questionnaire;
 }
 
-
 void Asdas::crpChanged()
 {
     const bool esrMandatory = value(Q_CRP).isNull();
 
     fieldRef(Q_ESR)->setMandatory(esrMandatory);
 }
-
 
 void Asdas::esrChanged()
 {

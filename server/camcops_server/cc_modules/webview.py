@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/webview.py
 
@@ -452,6 +450,7 @@ def errormsg_task_live(req: "CamcopsRequest") -> str:
 # Error views
 # =============================================================================
 
+
 # noinspection PyUnusedLocal
 @notfound_view_config(renderer="not_found.mako", http_cache=NEVER_CACHE)
 def not_found(req: "CamcopsRequest") -> Dict[str, Any]:
@@ -489,6 +488,7 @@ def bad_request(req: "CamcopsRequest") -> Dict[str, Any]:
 # =============================================================================
 # Test pages
 # =============================================================================
+
 
 # noinspection PyUnusedLocal
 @view_config(
@@ -1675,7 +1675,7 @@ class EditOwnUserMfaView(LoggedInUserMfaMixin, UpdateView):
     If you subclass A(B, C), then B's superclass methods are called before C's:
     https://www.python.org/download/releases/2.3/mro/;
     https://makina-corpus.com/blog/metier/2014/python-tutorial-understanding-python-mro-class-search-path;
-    """  # noqa
+    """
 
     STEP_MFA_METHOD = "mfa_method"
     STEP_TOTP = MfaMethod.TOTP
@@ -2307,7 +2307,7 @@ def serve_tracker_or_ctv(req: "CamcopsRequest", as_ctv: bool) -> Response:
     taskfilter = TaskFilter()
     taskfilter.task_types = [
         tc.__tablename__ for tc in task_classes
-    ]  # a bit silly...  # noqa
+    ]  # a bit silly...
     taskfilter.idnum_criteria = iddefs
     taskfilter.start_datetime = start_datetime
     taskfilter.end_datetime = end_datetime
@@ -3881,7 +3881,7 @@ def any_records_use_user(req: "CamcopsRequest", user: User) -> bool:
     # Uploaded records?
     for cls in gen_orm_classes_from_base(
         GenericTabletRecordMixin
-    ):  # type: Type[GenericTabletRecordMixin]  # noqa
+    ):  # type: Type[GenericTabletRecordMixin]
         # noinspection PyProtectedMember
         q = CountStarSpecializedQuery(cls, session=dbsession).filter(
             or_(
@@ -3995,7 +3995,7 @@ def view_groups(req: "CamcopsRequest") -> Dict[str, Any]:
     dbsession = req.dbsession
     groups = (
         dbsession.query(Group).order_by(Group.name).all()
-    )  # type: List[Group]  # noqa
+    )  # type: List[Group]
     page = CamcopsPage(
         collection=groups,
         page=page_num,
@@ -4158,7 +4158,7 @@ def any_records_use_group(req: "CamcopsRequest", group: Group) -> bool:
     # Uploaded records?
     for cls in gen_orm_classes_from_base(
         GenericTabletRecordMixin
-    ):  # type: Type[GenericTabletRecordMixin]  # noqa
+    ):  # type: Type[GenericTabletRecordMixin]
         # noinspection PyProtectedMember
         q = CountStarSpecializedQuery(cls, session=dbsession).filter(
             cls._group_id == group_id
@@ -4335,7 +4335,7 @@ def edit_id_definition(req: "CamcopsRequest") -> Dict[str, Any]:
             ViewParam.VALIDATION_METHOD: iddef.validation_method or "",
             ViewParam.HL7_ID_TYPE: iddef.hl7_id_type or "",
             ViewParam.HL7_ASSIGNING_AUTHORITY: iddef.hl7_assigning_authority
-            or "",  # noqa
+            or "",
             ViewParam.FHIR_ID_SYSTEM: iddef.fhir_id_system or "",
         }
         rendered_form = form.render(appstruct)
@@ -4911,7 +4911,7 @@ def forcibly_finalize(req: "CamcopsRequest") -> Response:
                 for clienttable in CLIENT_TABLE_MAP.values():
                     # noinspection PyPropertyAccess
                     count_query = (
-                        select([func.count()])
+                        select(func.count())
                         .select_from(clienttable)
                         .where(clienttable.c[FN_DEVICE_ID] == device_id)
                         .where(clienttable.c[FN_ERA] == ERA_NOW)
@@ -5323,7 +5323,7 @@ class EditServerCreatedPatientView(EditPatientBaseView):
             else:
                 settings = schedule_dict[ViewParam.ADVANCED][
                     ViewParam.SETTINGS
-                ]  # noqa
+                ]
 
             if pts_id is None:
                 pts = PatientTaskSchedule()
@@ -5343,9 +5343,9 @@ class EditServerCreatedPatientView(EditPatientBaseView):
 
                 updates = {}
                 if old_pts.start_datetime != start_datetime:
-                    updates[
-                        PatientTaskSchedule.start_datetime
-                    ] = start_datetime
+                    updates[PatientTaskSchedule.start_datetime] = (
+                        start_datetime
+                    )
 
                 if old_pts.schedule_id != schedule_id:
                     updates[PatientTaskSchedule.schedule_id] = schedule_id
@@ -5538,7 +5538,7 @@ class AddPatientView(PatientMixin, CreateView):
             else:
                 settings = task_schedule[ViewParam.ADVANCED][
                     ViewParam.SETTINGS
-                ]  # noqa
+                ]
             patient_task_schedule = PatientTaskSchedule()
             patient_task_schedule.patient_pk = patient.pk
             patient_task_schedule.schedule_id = schedule_id

@@ -19,20 +19,22 @@
 */
 
 #include "task.h"
+
 #include <QObject>
 #include <QVariant>
-#include "core/camcopsapp.h"
+
 #include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "common/varconst.h"
+#include "core/camcopsapp.h"
 #include "db/databasemanager.h"
 #include "dbobjects/patient.h"
 #include "lib/datetime.h"
-#include "lib/version.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "lib/version.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnairefunc.h"
 #include "questionnairelib/qulineedit.h"
@@ -50,7 +52,9 @@ const QString Task::EDITING_TIME_S_FIELDNAME("editing_time_s");
 
 const QString Task::CLINICIAN_SPECIALTY("clinician_specialty");
 const QString Task::CLINICIAN_NAME("clinician_name");
-const QString Task::CLINICIAN_PROFESSIONAL_REGISTRATION("clinician_professional_registration");
+const QString Task::CLINICIAN_PROFESSIONAL_REGISTRATION(
+    "clinician_professional_registration"
+);
 const QString Task::CLINICIAN_POST("clinician_post");
 const QString Task::CLINICIAN_SERVICE("clinician_service");
 const QString Task::CLINICIAN_CONTACT_DETAILS("clinician_contact_details");
@@ -58,16 +62,26 @@ const QString Task::CLINICIAN_CONTACT_DETAILS("clinician_contact_details");
 const QString Task::RESPONDENT_NAME("respondent_name");
 const QString Task::RESPONDENT_RELATIONSHIP("respondent_relationship");
 
-
-Task::Task(CamcopsApp& app,
-           DatabaseManager& db,
-           const QString& tablename,
-           const bool is_anonymous,
-           const bool has_clinician,
-           const bool has_respondent,
-           QObject* parent) :
-    DatabaseObject(app, db, tablename, dbconst::PK_FIELDNAME,
-                   true, true, true, true, parent),
+Task::Task(
+    CamcopsApp& app,
+    DatabaseManager& db,
+    const QString& tablename,
+    const bool is_anonymous,
+    const bool has_clinician,
+    const bool has_respondent,
+    QObject* parent
+) :
+    DatabaseObject(
+        app,
+        db,
+        tablename,
+        dbconst::PK_FIELDNAME,
+        true,
+        true,
+        true,
+        true,
+        parent
+    ),
     m_patient(nullptr),
     m_editing(false),
     m_is_complete_is_cached(false),
@@ -83,7 +97,7 @@ Task::Task(CamcopsApp& app,
     addField(FIRSTEXIT_IS_ABORT_FIELDNAME, QMetaType::fromType<bool>());
     addField(WHEN_FIRSTEXIT_FIELDNAME, QMetaType::fromType<QDateTime>());
     addField(Field(EDITING_TIME_S_FIELDNAME, QMetaType::fromType<double>())
-             .setCppDefaultValue(0.0));
+                 .setCppDefaultValue(0.0));
 
     if (!is_anonymous) {
         addField(PATIENT_FK_FIELDNAME, QMetaType::fromType<int>());
@@ -91,7 +105,9 @@ Task::Task(CamcopsApp& app,
     if (has_clinician) {
         addField(CLINICIAN_SPECIALTY, QMetaType::fromType<QString>());
         addField(CLINICIAN_NAME, QMetaType::fromType<QString>());
-        addField(CLINICIAN_PROFESSIONAL_REGISTRATION, QMetaType::fromType<QString>());
+        addField(
+            CLINICIAN_PROFESSIONAL_REGISTRATION, QMetaType::fromType<QString>()
+        );
         addField(CLINICIAN_POST, QMetaType::fromType<QString>());
         addField(CLINICIAN_SERVICE, QMetaType::fromType<QString>());
         addField(CLINICIAN_CONTACT_DETAILS, QMetaType::fromType<QString>());
@@ -101,10 +117,8 @@ Task::Task(CamcopsApp& app,
         addField(RESPONDENT_RELATIONSHIP, QMetaType::fromType<QString>());
     }
 
-    connect(this, &DatabaseObject::dataChanged,
-            this, &Task::onDataChanged);
+    connect(this, &DatabaseObject::dataChanged, this, &Task::onDataChanged);
 }
-
 
 // ============================================================================
 // General info
@@ -113,18 +127,17 @@ Task::Task(CamcopsApp& app,
 QString Task::implementationTypeDescription() const
 {
     switch (implementationType()) {
-    case TaskImplementationType::Full:
+        case TaskImplementationType::Full:
 #ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
-    default:
+        default:
 #endif
-        return TextConst::fullTask();
-    case TaskImplementationType::UpgradableSkeleton:
-        return TextConst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SYMBOL;
-    case TaskImplementationType::Skeleton:
-        return TextConst::DATA_COLLECTION_ONLY_SYMBOL;
+            return TextConst::fullTask();
+        case TaskImplementationType::UpgradableSkeleton:
+            return TextConst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SYMBOL;
+        case TaskImplementationType::Skeleton:
+            return TextConst::DATA_COLLECTION_ONLY_SYMBOL;
     }
 }
-
 
 QString Task::menuTitleSuffix() const
 {
@@ -136,14 +149,14 @@ QString Task::menuTitleSuffix() const
         suffixes += TextConst::HAS_RESPONDENT_SYMBOL;
     }
     switch (implementationType()) {
-    case TaskImplementationType::Full:
-        break;
-    case TaskImplementationType::UpgradableSkeleton:
-        suffixes += TextConst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SYMBOL;
-        break;
-    case TaskImplementationType::Skeleton:
-        suffixes += TextConst::DATA_COLLECTION_ONLY_SYMBOL;
-        break;
+        case TaskImplementationType::Full:
+            break;
+        case TaskImplementationType::UpgradableSkeleton:
+            suffixes += TextConst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SYMBOL;
+            break;
+        case TaskImplementationType::Skeleton:
+            suffixes += TextConst::DATA_COLLECTION_ONLY_SYMBOL;
+            break;
     }
     if (isExperimental()) {
         suffixes += TextConst::EXPERIMENTAL_SYMBOL;
@@ -155,17 +168,16 @@ QString Task::menuTitleSuffix() const
                               : QString(" <i>[%1]</i>").arg(suffixes.join(""));
 }
 
-
 QString Task::menutitle() const
 {
-    return QString("%1 (%2)%3").arg(longname(), shortname(), menuTitleSuffix());
+    return QString("%1 (%2)%3")
+        .arg(longname(), shortname(), menuTitleSuffix());
 }
-
 
 QString Task::menuSubtitleSuffix() const
 {
-    auto makeSuffix = [](const QString& title,
-                         const QString& subtitle) -> QString {
+    auto makeSuffix
+        = [](const QString& title, const QString& subtitle) -> QString {
         return QString("%1: %2").arg(title, subtitle);
     };
 
@@ -183,20 +195,20 @@ QString Task::menuSubtitleSuffix() const
         );
     }
     switch (implementationType()) {
-    case TaskImplementationType::Full:
-        break;
-    case TaskImplementationType::UpgradableSkeleton:
-        suffixes += makeSuffix(
-            TextConst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SYMBOL,
-            TextConst::dataCollectionOnlyUnlessUpgradedSubtitleSuffix()
-        );
-        break;
-    case TaskImplementationType::Skeleton:
-        suffixes += makeSuffix(
-            TextConst::DATA_COLLECTION_ONLY_SYMBOL,
-            TextConst::dataCollectionOnlySubtitleSuffix()
-        );
-        break;
+        case TaskImplementationType::Full:
+            break;
+        case TaskImplementationType::UpgradableSkeleton:
+            suffixes += makeSuffix(
+                TextConst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SYMBOL,
+                TextConst::dataCollectionOnlyUnlessUpgradedSubtitleSuffix()
+            );
+            break;
+        case TaskImplementationType::Skeleton:
+            suffixes += makeSuffix(
+                TextConst::DATA_COLLECTION_ONLY_SYMBOL,
+                TextConst::dataCollectionOnlySubtitleSuffix()
+            );
+            break;
     }
     if (isExperimental()) {
         suffixes += makeSuffix(
@@ -206,81 +218,73 @@ QString Task::menuSubtitleSuffix() const
     }
     if (isDefunct()) {
         suffixes += makeSuffix(
-            TextConst::DEFUNCT_SYMBOL,
-            TextConst::defunctSubtitleSuffix()
+            TextConst::DEFUNCT_SYMBOL, TextConst::defunctSubtitleSuffix()
         );
     }
-    return suffixes.isEmpty() ? ""
-                              : QString(" <i>[%1]</i>").arg(suffixes.join(" "));
+    return suffixes.isEmpty()
+        ? ""
+        : QString(" <i>[%1]</i>").arg(suffixes.join(" "));
 }
-
 
 QString Task::menusubtitle() const
 {
     return description() + menuSubtitleSuffix();
 }
 
-
 bool Task::isCrippled() const
 {
     QString failure_reason_dummy;
-    return implementationType() == TaskImplementationType::Skeleton ||
-            !hasExtraStrings() ||
-            !isTaskProperlyCreatable(failure_reason_dummy) ||
-            !isTaskUploadable(failure_reason_dummy);
+    return implementationType() == TaskImplementationType::Skeleton
+        || !hasExtraStrings() || !isTaskProperlyCreatable(failure_reason_dummy)
+        || !isTaskUploadable(failure_reason_dummy);
 }
-
 
 bool Task::hasExtraStrings() const
 {
     return m_app.hasExtraStrings(xstringTaskname());
 }
 
-
 QString Task::infoFilenameStem() const
 {
     return m_tablename;
 }
-
 
 QString Task::xstringTaskname() const
 {
     return m_tablename;
 }
 
-
 QString Task::instanceTitle(bool with_pid) const
 {
     if (isAnonymous() || !with_pid) {
         return QString("%1; %2").arg(
             shortname(),
-            whenCreated().toString(datetime::SHORT_DATETIME_FORMAT));
+            whenCreated().toString(datetime::SHORT_DATETIME_FORMAT)
+        );
     }
     Patient* pt = patient();
-    return QString("%1; %2; %3").arg(
-        shortname(),
-        pt ? pt->surnameUpperForename() : tr("MISSING PATIENT"),
-        whenCreated().toString(datetime::SHORT_DATETIME_FORMAT));
+    return QString("%1; %2; %3")
+        .arg(
+            shortname(),
+            pt ? pt->surnameUpperForename() : tr("MISSING PATIENT"),
+            whenCreated().toString(datetime::SHORT_DATETIME_FORMAT)
+        );
 }
-
 
 bool Task::isAnonymous() const
 {
     return m_is_anonymous;
 }
 
-
 bool Task::hasClinician() const
 {
     return m_has_clinician;
 }
 
-
 bool Task::hasRespondent() const
 {
     return m_has_respondent;
 }
-
 
 bool Task::isTaskPermissible(QString& failure_reason) const
 {
@@ -296,46 +300,46 @@ bool Task::isTaskPermissible(QString& failure_reason) const
         return v.isNull() || v.toInt() == CommonOptions::UNKNOWN_INT;
     };
 
-    const QString PROHIBITED_YES(" " + tr(
-        "You have said you ARE using this software in that context "
-        "(see Settings). To use this task, you must seek permission "
-        "from the copyright holder (see Task Information)."));
-    const QString PROHIBITED_UNKNOWN(" " + tr(
-        "You have NOT SAID whether you are using this "
-        "software in that context (see Settings)."));
+    const QString PROHIBITED_YES(
+        " "
+        + tr("You have said you ARE using this software in that context "
+             "(see Settings). To use this task, you must seek permission "
+             "from the copyright holder (see Task Information).")
+    );
+    const QString PROHIBITED_UNKNOWN(
+        " "
+        + tr("You have NOT SAID whether you are using this "
+             "software in that context (see Settings).")
+    );
 
     if (prohibitsCommercial() && not_definitely_false(commercial)) {
-        failure_reason =
-            tr("Task not allowed for commercial use (see Task Information).") +
-            (is_unknown(commercial) ? PROHIBITED_UNKNOWN
-                                    : PROHIBITED_YES);
+        failure_reason
+            = tr("Task not allowed for commercial use (see Task Information).")
+            + (is_unknown(commercial) ? PROHIBITED_UNKNOWN : PROHIBITED_YES);
         return false;
     }
     if (prohibitsClinical() && not_definitely_false(clinical)) {
-        failure_reason =
-            tr("Task not allowed for clinical use (see Task Information).") +
-            (is_unknown(clinical) ? PROHIBITED_UNKNOWN
-                                  : PROHIBITED_YES);
+        failure_reason
+            = tr("Task not allowed for clinical use (see Task Information).")
+            + (is_unknown(clinical) ? PROHIBITED_UNKNOWN : PROHIBITED_YES);
         return false;
     }
     if (prohibitsEducational() && not_definitely_false(educational)) {
-        failure_reason =
-            tr("Task not allowed for educational use (see Task Information).") +
-            (is_unknown(educational) ? PROHIBITED_UNKNOWN
-                                     : PROHIBITED_YES);
+        failure_reason
+            = tr("Task not allowed for educational use (see Task Information)."
+              )
+            + (is_unknown(educational) ? PROHIBITED_UNKNOWN : PROHIBITED_YES);
         return false;
     }
     if (prohibitsResearch() && not_definitely_false(research)) {
-        failure_reason =
-            tr("Task not allowed for research use (see Task Information).") +
-            (is_unknown(research) ? PROHIBITED_UNKNOWN
-                                  : PROHIBITED_YES);
+        failure_reason
+            = tr("Task not allowed for research use (see Task Information).")
+            + (is_unknown(research) ? PROHIBITED_UNKNOWN : PROHIBITED_YES);
         return false;
     }
 
-    if (implementationType() == TaskImplementationType::UpgradableSkeleton &&
-            prohibitedIfSkeleton() &&
-            !hasExtraStrings()) {
+    if (implementationType() == TaskImplementationType::UpgradableSkeleton
+        && prohibitedIfSkeleton() && !hasExtraStrings()) {
         failure_reason = tr(
             "Task may not be created in 'skeleton' form "
             "(strings need to be downloaded from server)."
@@ -351,12 +355,10 @@ bool Task::isTaskPermissible(QString& failure_reason) const
     return true;
 }
 
-
 Version Task::minimumServerVersion() const
 {
     return camcopsversion::MINIMUM_SERVER_VERSION;
 }
-
 
 bool Task::isTaskUploadable(QString& failure_reason) const
 {
@@ -367,8 +369,12 @@ bool Task::isTaskUploadable(QString& failure_reason) const
     const Version server_version = m_app.serverVersion();
     const QString table = tablename();
     const bool may_upload = m_app.mayUploadTable(
-                table, server_version,
-                server_has_table, min_client_version, min_server_version);
+        table,
+        server_version,
+        server_has_table,
+        min_client_version,
+        min_server_version
+    );
 #if 0
     qDebug() << "table" << table
              << "server_version" << server_version
@@ -381,42 +387,39 @@ bool Task::isTaskUploadable(QString& failure_reason) const
         return true;
     }
     if (!server_has_table) {
-        failure_reason = tr(
-            "Table '%1' absent on server."
-        ).arg(table);
+        failure_reason = tr("Table '%1' absent on server.").arg(table);
     } else if (camcopsversion::CAMCOPS_CLIENT_VERSION < min_client_version) {
-        failure_reason = tr(
-            "Server requires client version >=%1 for table '%2', "
-            "but we are only client version %3."
-        ).arg(
-            min_client_version.toString(),
-            table,
-            camcopsversion::CAMCOPS_CLIENT_VERSION.toString()
-        );
+        failure_reason
+            = tr("Server requires client version >=%1 for table '%2', "
+                 "but we are only client version %3.")
+                  .arg(
+                      min_client_version.toString(),
+                      table,
+                      camcopsversion::CAMCOPS_CLIENT_VERSION.toString()
+                  );
     } else if (server_version < overall_min_server_version) {
-        failure_reason = tr(
-            "This client requires server version >=%1, "
-            "but the server is only version %2."
-        ).arg(
-            overall_min_server_version.toString(),
-            server_version.toString()
-        );
+        failure_reason = tr("This client requires server version >=%1, "
+                            "but the server is only version %2.")
+                             .arg(
+                                 overall_min_server_version.toString(),
+                                 server_version.toString()
+                             );
     } else if (server_version < min_server_version) {
-        failure_reason = tr(
-            "This client requires server version >=%1 for table '%2', "
-            "but the server is only version %3."
-        ).arg(
-            min_server_version.toString(),
-            table,
-            server_version.toString()
-        );
+        failure_reason
+            = tr("This client requires server version >=%1 for table '%2', "
+                 "but the server is only version %3.")
+                  .arg(
+                      min_server_version.toString(),
+                      table,
+                      server_version.toString()
+                  );
     } else {
-        failure_reason = "? [bug in Task::isTaskUploadable, "
-                         "versus CamcopsApp::mayUploadTable]";
+        failure_reason
+            = "? [bug in Task::isTaskUploadable, "
+              "versus CamcopsApp::mayUploadTable]";
     }
     return false;
 }
-
 
 bool Task::isTaskProperlyCreatable(QString& failure_reason) const
 {
@@ -424,26 +427,27 @@ bool Task::isTaskProperlyCreatable(QString& failure_reason) const
     return true;
 }
 
-
-bool Task::isServerStringVersionEnough(const Version& minimum_server_version,
-                                       QString& failure_reason) const
+bool Task::isServerStringVersionEnough(
+    const Version& minimum_server_version, QString& failure_reason
+) const
 {
     const Version server_version = m_app.serverVersion();
     if (server_version < minimum_server_version) {
-        failure_reason = tr(
-            "This client requires content strings from server version >=%1, "
-            "but the server is only version %2. If the server has recently "
-            "been updated, re-fetch the server information from the Settings "
-            "menu."
-        ).arg(
-            minimum_server_version.toString(),
-            server_version.toString()
-        );
+        failure_reason = tr("This client requires content strings from server "
+                            "version >=%1, "
+                            "but the server is only version %2. If the server "
+                            "has recently "
+                            "been updated, re-fetch the server information "
+                            "from the Settings "
+                            "menu.")
+                             .arg(
+                                 minimum_server_version.toString(),
+                                 server_version.toString()
+                             );
         return false;
     }
     return true;
 }
-
 
 // ============================================================================
 // Tables
@@ -456,19 +460,16 @@ QStringList Task::allTables() const
     return all_tables;
 }
 
-
 void Task::makeTables()
 {
     makeTable();
     makeAncillaryTables();
 }
 
-
 int Task::count(const WhereConditions& where) const
 {
     return m_db.count(m_tablename, where);
 }
-
 
 int Task::countForPatient(const int patient_id) const
 {
@@ -476,13 +477,13 @@ int Task::countForPatient(const int patient_id) const
         return 0;
     }
     WhereConditions where;
-    where.add(PATIENT_FK_FIELDNAME,  patient_id);
+    where.add(PATIENT_FK_FIELDNAME, patient_id);
     return count(where);
 }
 
-
-void Task::upgradeDatabase(const Version& old_version,
-                           const Version& new_version)
+void Task::upgradeDatabase(
+    const Version& old_version, const Version& new_version
+)
 {
     Q_UNUSED(old_version)
     Q_UNUSED(new_version)
@@ -500,17 +501,17 @@ bool Task::load(const int pk)
     return DatabaseObject::load(pk);
 }
 
-
 bool Task::save()
 {
     // Sanity checks before we permit saving
     if (!isAnonymous() && value(PATIENT_FK_FIELDNAME).isNull()) {
-        uifunc::stopApp("Task has no patient ID (and is not anonymous); "
-                        "cannot save");
+        uifunc::stopApp(
+            "Task has no patient ID (and is not anonymous); "
+            "cannot save"
+        );
     }
     return DatabaseObject::save();
 }
-
 
 // ============================================================================
 // Specific info
@@ -525,18 +526,15 @@ bool Task::isCompleteCached() const
     return m_is_complete_cached_value;
 }
 
-
 void Task::onDataChanged()
 {
     m_is_complete_is_cached = false;
 }
 
-
 QStringList Task::summary() const
 {
     return QStringList{tr("MISSING SUMMARY")};
 }
-
 
 QStringList Task::detail() const
 {
@@ -546,7 +544,6 @@ QStringList Task::detail() const
     return result;
 }
 
-
 OpenableWidget* Task::editor(const bool read_only)
 {
     Q_UNUSED(read_only)
@@ -554,17 +551,14 @@ OpenableWidget* Task::editor(const bool read_only)
     return nullptr;
 }
 
-
 // ============================================================================
 // Assistance functions
 // ============================================================================
 
 QDateTime Task::whenCreated() const
 {
-    return value(dbconst::CREATION_TIMESTAMP_FIELDNAME)
-        .toDateTime();
+    return value(dbconst::CREATION_TIMESTAMP_FIELDNAME).toDateTime();
 }
-
 
 QStringList Task::completenessInfo() const
 {
@@ -575,66 +569,68 @@ QStringList Task::completenessInfo() const
     return result;
 }
 
-
-QString Task::xstring(const QString& stringname,
-                      const QString& default_str) const
+QString
+    Task::xstring(const QString& stringname, const QString& default_str) const
 {
     return m_app.xstring(xstringTaskname(), stringname, default_str);
 }
 
-
-QString Task::appstring(const QString& stringname,
-                        const QString& default_str) const
+QString Task::appstring(
+    const QString& stringname, const QString& default_str
+) const
 {
     return m_app.appstring(stringname, default_str);
 }
 
-
-QStringList Task::fieldSummaries(const QString& xstringprefix,
-                                 const QString& xstringsuffix,
-                                 const QString& spacer,
-                                 const QString& fieldprefix,
-                                 const int first,
-                                 const int last,
-                                 const QString& suffix) const
+QStringList Task::fieldSummaries(
+    const QString& xstringprefix,
+    const QString& xstringsuffix,
+    const QString& spacer,
+    const QString& fieldprefix,
+    const int first,
+    const int last,
+    const QString& suffix
+) const
 {
     using stringfunc::strseq;
-    const QStringList xstringnames = strseq(xstringprefix, first, last,
-                                            xstringsuffix);
+    const QStringList xstringnames
+        = strseq(xstringprefix, first, last, xstringsuffix);
     const QStringList fieldnames = strseq(fieldprefix, first, last);
     QStringList list;
     for (int i = 0; i < fieldnames.length(); ++i) {
         const QString& fieldname = fieldnames.at(i);
         const QString& xstringname = xstringnames.at(i);
-        list.append(fieldSummary(fieldname, xstring(xstringname),
-                                 spacer, suffix));
+        list.append(
+            fieldSummary(fieldname, xstring(xstringname), spacer, suffix)
+        );
     }
     return list;
 }
 
-
-QStringList Task::fieldSummariesYesNo(const QString& xstringprefix,
-                                      const QString& xstringsuffix,
-                                      const QString& spacer,
-                                      const QString& fieldprefix,
-                                      const int first,
-                                      const int last,
-                                      const QString& suffix) const
+QStringList Task::fieldSummariesYesNo(
+    const QString& xstringprefix,
+    const QString& xstringsuffix,
+    const QString& spacer,
+    const QString& fieldprefix,
+    const int first,
+    const int last,
+    const QString& suffix
+) const
 {
     using stringfunc::strseq;
-    const QStringList xstringnames = strseq(xstringprefix, first, last,
-                                            xstringsuffix);
+    const QStringList xstringnames
+        = strseq(xstringprefix, first, last, xstringsuffix);
     const QStringList fieldnames = strseq(fieldprefix, first, last);
     QStringList list;
     for (int i = 0; i < fieldnames.length(); ++i) {
         const QString& fieldname = fieldnames.at(i);
         const QString& xstringname = xstringnames.at(i);
-        list.append(fieldSummaryYesNo(fieldname, xstring(xstringname),
-                                      spacer, suffix));
+        list.append(
+            fieldSummaryYesNo(fieldname, xstring(xstringname), spacer, suffix)
+        );
     }
     return list;
 }
-
 
 QStringList Task::clinicianDetails(const QString& separator) const
 {
@@ -642,20 +638,26 @@ QStringList Task::clinicianDetails(const QString& separator) const
         return QStringList();
     }
     return QStringList{
-        fieldSummary(CLINICIAN_SPECIALTY, TextConst::clinicianSpecialty(),
-                     separator),
+        fieldSummary(
+            CLINICIAN_SPECIALTY, TextConst::clinicianSpecialty(), separator
+        ),
         fieldSummary(CLINICIAN_NAME, TextConst::clinicianName(), separator),
-        fieldSummary(CLINICIAN_PROFESSIONAL_REGISTRATION,
-                     TextConst::clinicianProfessionalRegistration(),
-                     separator),
+        fieldSummary(
+            CLINICIAN_PROFESSIONAL_REGISTRATION,
+            TextConst::clinicianProfessionalRegistration(),
+            separator
+        ),
         fieldSummary(CLINICIAN_POST, TextConst::clinicianPost(), separator),
-        fieldSummary(CLINICIAN_SERVICE, TextConst::clinicianService(),
-                     separator),
-        fieldSummary(CLINICIAN_CONTACT_DETAILS,
-                     TextConst::clinicianContactDetails(), separator),
+        fieldSummary(
+            CLINICIAN_SERVICE, TextConst::clinicianService(), separator
+        ),
+        fieldSummary(
+            CLINICIAN_CONTACT_DETAILS,
+            TextConst::clinicianContactDetails(),
+            separator
+        ),
     };
 }
-
 
 QStringList Task::respondentDetails() const
 {
@@ -664,11 +666,12 @@ QStringList Task::respondentDetails() const
     }
     return QStringList{
         fieldSummary(RESPONDENT_NAME, TextConst::respondentNameThirdPerson()),
-        fieldSummary(RESPONDENT_RELATIONSHIP,
-                     TextConst::respondentRelationshipThirdPerson()),
+        fieldSummary(
+            RESPONDENT_RELATIONSHIP,
+            TextConst::respondentRelationshipThirdPerson()
+        ),
     };
 }
-
 
 // ============================================================================
 // Editing
@@ -684,32 +687,45 @@ void Task::setupForEditingAndSave(const int patient_id)
     save();
 }
 
-
 double Task::editingTimeSeconds() const
 {
     return valueDouble(EDITING_TIME_S_FIELDNAME);
 }
-
 
 void Task::setDefaultClinicianVariablesAtFirstUse()
 {
     if (!m_has_clinician) {
         return;
     }
-    setValue(CLINICIAN_SPECIALTY, m_app.varString(varconst::DEFAULT_CLINICIAN_SPECIALTY));
-    setValue(CLINICIAN_NAME, m_app.varString(varconst::DEFAULT_CLINICIAN_NAME));
-    setValue(CLINICIAN_PROFESSIONAL_REGISTRATION, m_app.varString(varconst::DEFAULT_CLINICIAN_PROFESSIONAL_REGISTRATION));
-    setValue(CLINICIAN_POST, m_app.varString(varconst::DEFAULT_CLINICIAN_POST));
-    setValue(CLINICIAN_SERVICE, m_app.varString(varconst::DEFAULT_CLINICIAN_SERVICE));
-    setValue(CLINICIAN_CONTACT_DETAILS, m_app.varString(varconst::DEFAULT_CLINICIAN_CONTACT_DETAILS));
+    setValue(
+        CLINICIAN_SPECIALTY,
+        m_app.varString(varconst::DEFAULT_CLINICIAN_SPECIALTY)
+    );
+    setValue(
+        CLINICIAN_NAME, m_app.varString(varconst::DEFAULT_CLINICIAN_NAME)
+    );
+    setValue(
+        CLINICIAN_PROFESSIONAL_REGISTRATION,
+        m_app.varString(varconst::DEFAULT_CLINICIAN_PROFESSIONAL_REGISTRATION)
+    );
+    setValue(
+        CLINICIAN_POST, m_app.varString(varconst::DEFAULT_CLINICIAN_POST)
+    );
+    setValue(
+        CLINICIAN_SERVICE, m_app.varString(varconst::DEFAULT_CLINICIAN_SERVICE)
+    );
+    setValue(
+        CLINICIAN_CONTACT_DETAILS,
+        m_app.varString(varconst::DEFAULT_CLINICIAN_CONTACT_DETAILS)
+    );
 }
 
-
 OpenableWidget* Task::makeGraphicsWidget(
-        QGraphicsScene* scene,
-        const QColor& background_colour,
-        const bool fullscreen,
-        const bool esc_can_abort)
+    QGraphicsScene* scene,
+    const QColor& background_colour,
+    const bool fullscreen,
+    const bool esc_can_abort
+)
 {
     auto view = new ScreenLikeGraphicsView(scene);
     view->setBackgroundColour(background_colour);
@@ -718,56 +734,56 @@ OpenableWidget* Task::makeGraphicsWidget(
     return widget;
 }
 
-
 OpenableWidget* Task::makeGraphicsWidgetForImmediateEditing(
-        QGraphicsScene* scene,
-        const QColor& background_colour,
-        const bool fullscreen,
-        const bool esc_can_abort)
+    QGraphicsScene* scene,
+    const QColor& background_colour,
+    const bool fullscreen,
+    const bool esc_can_abort
+)
 {
-    OpenableWidget* widget = makeGraphicsWidget(scene, background_colour,
-                                                fullscreen, esc_can_abort);
-    connect(widget, &OpenableWidget::aborting,
-            this, &Task::onEditFinishedAbort);
+    OpenableWidget* widget = makeGraphicsWidget(
+        scene, background_colour, fullscreen, esc_can_abort
+    );
+    connect(
+        widget, &OpenableWidget::aborting, this, &Task::onEditFinishedAbort
+    );
     onEditStarted();
     return widget;
 }
 
-
 QuElement* Task::getClinicianQuestionnaireBlockRawPointer()
 {
-    return questionnairefunc::defaultGridRawPointer({
-        {TextConst::clinicianSpecialty(),
-         new QuLineEdit(fieldRef(CLINICIAN_SPECIALTY))},
-        {TextConst::clinicianName(),
-         new QuLineEdit(fieldRef(CLINICIAN_NAME))},
-        {TextConst::clinicianProfessionalRegistration(),
-         new QuLineEdit(fieldRef(CLINICIAN_PROFESSIONAL_REGISTRATION))},
-        {TextConst::clinicianPost(),
-         new QuLineEdit(fieldRef(CLINICIAN_POST))},
-        {TextConst::clinicianService(),
-         new QuLineEdit(fieldRef(CLINICIAN_SERVICE))},
-        {TextConst::clinicianContactDetails(),
-         new QuLineEdit(fieldRef(CLINICIAN_CONTACT_DETAILS))},
-    }, uiconst::DEFAULT_COLSPAN_Q, uiconst::DEFAULT_COLSPAN_A);
+    return questionnairefunc::defaultGridRawPointer(
+        {
+            {TextConst::clinicianSpecialty(),
+             new QuLineEdit(fieldRef(CLINICIAN_SPECIALTY))},
+            {TextConst::clinicianName(),
+             new QuLineEdit(fieldRef(CLINICIAN_NAME))},
+            {TextConst::clinicianProfessionalRegistration(),
+             new QuLineEdit(fieldRef(CLINICIAN_PROFESSIONAL_REGISTRATION))},
+            {TextConst::clinicianPost(),
+             new QuLineEdit(fieldRef(CLINICIAN_POST))},
+            {TextConst::clinicianService(),
+             new QuLineEdit(fieldRef(CLINICIAN_SERVICE))},
+            {TextConst::clinicianContactDetails(),
+             new QuLineEdit(fieldRef(CLINICIAN_CONTACT_DETAILS))},
+        },
+        uiconst::DEFAULT_COLSPAN_Q,
+        uiconst::DEFAULT_COLSPAN_A
+    );
 }
-
 
 QuElementPtr Task::getClinicianQuestionnaireBlockElementPtr()
 {
     return QuElementPtr(getClinicianQuestionnaireBlockRawPointer());
 }
 
-
 QuPagePtr Task::getClinicianDetailsPage()
 {
-    return QuPagePtr(
-        (new QuPage{getClinicianQuestionnaireBlockRawPointer()})
-            ->setTitle(TextConst::clinicianDetails())
-            ->setType(QuPage::PageType::Clinician)
-    );
+    return QuPagePtr((new QuPage{getClinicianQuestionnaireBlockRawPointer()})
+                         ->setTitle(TextConst::clinicianDetails())
+                         ->setType(QuPage::PageType::Clinician));
 }
-
 
 bool Task::isClinicianComplete() const
 {
@@ -777,16 +793,14 @@ bool Task::isClinicianComplete() const
     return !valueIsNullOrEmpty(CLINICIAN_NAME);
 }
 
-
 bool Task::isRespondentComplete() const
 {
     if (!m_has_respondent) {
         return false;
     }
-    return !valueIsNullOrEmpty(RESPONDENT_NAME) &&
-            !valueIsNullOrEmpty(RESPONDENT_RELATIONSHIP);
+    return !valueIsNullOrEmpty(RESPONDENT_NAME)
+        && !valueIsNullOrEmpty(RESPONDENT_RELATIONSHIP);
 }
-
 
 QVariant Task::respondentRelationship() const
 {
@@ -796,87 +810,95 @@ QVariant Task::respondentRelationship() const
     return value(RESPONDENT_RELATIONSHIP);
 }
 
-
-QuElement* Task::getRespondentQuestionnaireBlockRawPointer(
-        const bool second_person)
+QuElement*
+    Task::getRespondentQuestionnaireBlockRawPointer(const bool second_person)
 {
     const QString name = second_person
-            ? TextConst::respondentNameSecondPerson()
-            : TextConst::respondentNameThirdPerson();
+        ? TextConst::respondentNameSecondPerson()
+        : TextConst::respondentNameThirdPerson();
     const QString relationship = second_person
-            ? TextConst::respondentRelationshipSecondPerson()
-            : TextConst::respondentRelationshipThirdPerson();
-    return questionnairefunc::defaultGridRawPointer({
-        {name, new QuLineEdit(fieldRef(RESPONDENT_NAME))},
-        {relationship, new QuLineEdit(fieldRef(RESPONDENT_RELATIONSHIP))},
-    }, uiconst::DEFAULT_COLSPAN_Q, uiconst::DEFAULT_COLSPAN_A);
+        ? TextConst::respondentRelationshipSecondPerson()
+        : TextConst::respondentRelationshipThirdPerson();
+    return questionnairefunc::defaultGridRawPointer(
+        {
+            {name, new QuLineEdit(fieldRef(RESPONDENT_NAME))},
+            {relationship, new QuLineEdit(fieldRef(RESPONDENT_RELATIONSHIP))},
+        },
+        uiconst::DEFAULT_COLSPAN_Q,
+        uiconst::DEFAULT_COLSPAN_A
+    );
 }
 
-
-QuElementPtr Task::getRespondentQuestionnaireBlockElementPtr(
-        const bool second_person)
+QuElementPtr
+    Task::getRespondentQuestionnaireBlockElementPtr(const bool second_person)
 {
-    return QuElementPtr(getRespondentQuestionnaireBlockRawPointer(second_person));
+    return QuElementPtr(getRespondentQuestionnaireBlockRawPointer(second_person
+    ));
 }
-
 
 QuPagePtr Task::getRespondentDetailsPage(const bool second_person)
 {
     return QuPagePtr(
         (new QuPage{getRespondentQuestionnaireBlockRawPointer(second_person)})
             ->setTitle(TextConst::respondentDetails())
-            ->setType(second_person ? QuPage::PageType::Patient
-                                    : QuPage::PageType::Clinician)
+            ->setType(
+                second_person ? QuPage::PageType::Patient
+                              : QuPage::PageType::Clinician
+            )
     );
 }
-
 
 QuPagePtr Task::getClinicianAndRespondentDetailsPage(const bool second_person)
 {
     return QuPagePtr(
         (new QuPage{
-            getClinicianQuestionnaireBlockRawPointer(),
-            questionnairefunc::defaultGridRawPointer({
-                {"", new QuSpacer()},
-            }, uiconst::DEFAULT_COLSPAN_Q, uiconst::DEFAULT_COLSPAN_A),
-            getRespondentQuestionnaireBlockRawPointer(second_person)
-        })
+             getClinicianQuestionnaireBlockRawPointer(),
+             questionnairefunc::defaultGridRawPointer(
+                 {
+                     {"", new QuSpacer()},
+                 },
+                 uiconst::DEFAULT_COLSPAN_Q,
+                 uiconst::DEFAULT_COLSPAN_A
+             ),
+             getRespondentQuestionnaireBlockRawPointer(second_person)})
             ->setTitle(TextConst::clinicianAndRespondentDetails())
-            ->setType(second_person ? QuPage::PageType::ClinicianWithPatient
-                                    : QuPage::PageType::Clinician)
+            ->setType(
+                second_person ? QuPage::PageType::ClinicianWithPatient
+                              : QuPage::PageType::Clinician
+            )
     );
 }
 
-
-NameValueOptions Task::makeOptionsFromXstrings(const QString& xstring_prefix,
-                                               const int first, const int last,
-                                               const QString& xstring_suffix)
+NameValueOptions Task::makeOptionsFromXstrings(
+    const QString& xstring_prefix,
+    const int first,
+    const int last,
+    const QString& xstring_suffix
+)
 {
     using stringfunc::strnum;
     NameValueOptions options;
     if (first > last) {  // descending order
         for (int i = first; i >= last; --i) {
             options.append(NameValuePair(
-                               xstring(strnum(xstring_prefix, i, xstring_suffix)),
-                               i));
+                xstring(strnum(xstring_prefix, i, xstring_suffix)), i
+            ));
         }
     } else {  // ascending order
         for (int i = first; i <= last; ++i) {
             options.append(NameValuePair(
-                               xstring(strnum(xstring_prefix, i, xstring_suffix)),
-                               i));
+                xstring(strnum(xstring_prefix, i, xstring_suffix)), i
+            ));
         }
     }
     return options;
 }
-
 
 void Task::onEditStarted()
 {
     m_editing = true;
     m_editing_started = datetime::now();
 }
-
 
 void Task::onEditFinished(const bool aborted)
 {
@@ -892,7 +914,7 @@ void Task::onEditFinished(const bool aborted)
     setValue(EDITING_TIME_S_FIELDNAME, editing_time_s);
     // Exit flags
     if (!valueBool(FIRSTEXIT_IS_FINISH_FIELDNAME)
-            && !valueBool(FIRSTEXIT_IS_ABORT_FIELDNAME)) {
+        && !valueBool(FIRSTEXIT_IS_ABORT_FIELDNAME)) {
         // First exit, so set flags:
         setValue(WHEN_FIRSTEXIT_FIELDNAME, now);
         setValue(FIRSTEXIT_IS_ABORT_FIELDNAME, aborted);
@@ -906,18 +928,15 @@ void Task::onEditFinished(const bool aborted)
     }
 }
 
-
 void Task::onEditFinishedProperly()
 {
     onEditFinished(false);
 }
 
-
 void Task::onEditFinishedAbort()
 {
     onEditFinished(true);
 }
-
 
 // ============================================================================
 // Patient functions (for non-anonymous tasks)
@@ -937,7 +956,6 @@ void Task::setPatient(const int patient_id)
     m_patient.clear();
 }
 
-
 void Task::moveToPatient(const int patient_id)
 {
     // This is used for patient merges.
@@ -950,20 +968,19 @@ void Task::moveToPatient(const int patient_id)
     m_patient.clear();
 }
 
-
 Patient* Task::patient() const
 {
     if (!m_patient && !isAnonymous()) {
         const QVariant patient_id_var = value(PATIENT_FK_FIELDNAME);
         if (!patient_id_var.isNull()) {
             const int patient_id = patient_id_var.toInt();
-            m_patient = QSharedPointer<Patient>(
-                    new Patient(m_app, m_db, patient_id));
+            m_patient
+                = QSharedPointer<Patient>(new Patient(m_app, m_db, patient_id)
+                );
         }
     }
     return m_patient.data();
 }
-
 
 QString Task::getPatientName() const
 {
@@ -974,20 +991,17 @@ QString Task::getPatientName() const
     return pt->forenameSurname();
 }
 
-
 bool Task::isFemale() const
 {
     Patient* pt = patient();
     return pt ? pt->isFemale() : false;
 }
 
-
 bool Task::isMale() const
 {
     Patient* pt = patient();
     return pt ? pt->isMale() : false;
 }
-
 
 // ============================================================================
 // Translatable text

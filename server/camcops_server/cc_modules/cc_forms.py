@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_forms.py
 
@@ -122,7 +120,7 @@ Form titles need to be dynamically written via
     <https://docs.pylonsproject.org/projects/deform/en/latest/glossary.html#term-pstruct>`_
     in the Deform_ docs.
 
-"""  # noqa
+"""
 
 from io import BytesIO
 import json
@@ -646,7 +644,7 @@ class CSRFToken(SchemaNode, RequestAwareMixin):
 
     RNC: Serialized values are always STRINGS.
 
-    """  # noqa
+    """
 
     schema_type = String
     default = ""
@@ -2583,7 +2581,7 @@ class MfaMethodSelector(SchemaNode, RequestAwareMixin):
         ]
 
         choices = []
-        for (label, description) in all_mfa_choices:
+        for label, description in all_mfa_choices:
             if label in request.config.mfa_methods:
                 choices.append((label, description))
         values, pv = get_values_and_permissible(choices)
@@ -2778,18 +2776,14 @@ class AuditTrailSchema(CSRFSchema):
     rows_per_page = RowsPerPageSelector()  # must match ViewParam.ROWS_PER_PAGE
     start_datetime = (
         StartPendulumSelector()
-    )  # must match ViewParam.START_DATETIME  # noqa
+    )  # must match ViewParam.START_DATETIME
     end_datetime = EndPendulumSelector()  # must match ViewParam.END_DATETIME
-    source = OptionalAuditSourceNode()  # must match ViewParam.SOURCE  # noqa
+    source = OptionalAuditSourceNode()  # must match ViewParam.SOURCE
     remote_ip_addr = (
         OptionalIPAddressNode()
-    )  # must match ViewParam.REMOTE_IP_ADDR  # noqa
-    username = (
-        OptionalUserNameSelector()
-    )  # must match ViewParam.USERNAME  # noqa
-    table_name = (
-        OptionalSingleTaskSelector()
-    )  # must match ViewParam.TABLENAME  # noqa
+    )  # must match ViewParam.REMOTE_IP_ADDR
+    username = OptionalUserNameSelector()  # must match ViewParam.USERNAME
+    table_name = OptionalSingleTaskSelector()  # must match ViewParam.TABLENAME
     server_pk = ServerPkSelector()  # must match ViewParam.SERVER_PK
     truncate = BooleanNode(default=True)  # must match ViewParam.TRUNCATE
 
@@ -2870,15 +2864,13 @@ class ExportedTaskListSchema(CSRFSchema):
     rows_per_page = RowsPerPageSelector()  # must match ViewParam.ROWS_PER_PAGE
     recipient_name = (
         OptionalExportRecipientNameSelector()
-    )  # must match ViewParam.RECIPIENT_NAME  # noqa
-    table_name = (
-        OptionalSingleTaskSelector()
-    )  # must match ViewParam.TABLENAME  # noqa
+    )  # must match ViewParam.RECIPIENT_NAME
+    table_name = OptionalSingleTaskSelector()  # must match ViewParam.TABLENAME
     server_pk = ServerPkSelector()  # must match ViewParam.SERVER_PK
-    id = OptionalIntNode()  # must match ViewParam.ID  # noqa
+    id = OptionalIntNode()  # must match ViewParam.ID
     start_datetime = (
         StartDateTimeSelector()
-    )  # must match ViewParam.START_DATETIME  # noqa
+    )  # must match ViewParam.START_DATETIME
     end_datetime = EndDateTimeSelector()  # must match ViewParam.END_DATETIME
 
     # noinspection PyUnusedLocal
@@ -3021,15 +3013,13 @@ class EditTaskFilterWhoSchema(Schema, RequestAwareMixin):
     Schema to edit the "who" parts of a task filter.
     """
 
-    surname = OptionalPatientNameNode()  # must match ViewParam.SURNAME  # noqa
-    forename = (
-        OptionalPatientNameNode()
-    )  # must match ViewParam.FORENAME  # noqa
+    surname = OptionalPatientNameNode()  # must match ViewParam.SURNAME
+    forename = OptionalPatientNameNode()  # must match ViewParam.FORENAME
     dob = SchemaNode(Date(), missing=None)  # must match ViewParam.DOB
     sex = OptionalSexSelector()  # must match ViewParam.SEX
     id_references = (
         IdNumSequenceAnyCombination()
-    )  # must match ViewParam.ID_REFERENCES  # noqa
+    )  # must match ViewParam.ID_REFERENCES
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
@@ -3051,7 +3041,7 @@ class EditTaskFilterWhenSchema(Schema):
 
     start_datetime = (
         StartPendulumSelector()
-    )  # must match ViewParam.START_DATETIME  # noqa
+    )  # must match ViewParam.START_DATETIME
     end_datetime = EndPendulumSelector()  # must match ViewParam.END_DATETIME
 
 
@@ -3062,10 +3052,10 @@ class EditTaskFilterWhatSchema(Schema, RequestAwareMixin):
 
     text_contents = (
         TextContentsSequence()
-    )  # must match ViewParam.TEXT_CONTENTS  # noqa
+    )  # must match ViewParam.TEXT_CONTENTS
     complete_only = BooleanNode(
         default=False
-    )  # must match ViewParam.COMPLETE_ONLY  # noqa
+    )  # must match ViewParam.COMPLETE_ONLY
     tasks = MultiTaskSelector()  # must match ViewParam.TASKS
 
     # noinspection PyUnusedLocal
@@ -3271,21 +3261,17 @@ class ChooseTrackerSchema(CSRFSchema):
 
     which_idnum = (
         MandatoryWhichIdNumSelector()
-    )  # must match ViewParam.WHICH_IDNUM  # noqa
-    idnum_value = (
-        MandatoryIdNumValue()
-    )  # must match ViewParam.IDNUM_VALUE  # noqa
+    )  # must match ViewParam.WHICH_IDNUM
+    idnum_value = MandatoryIdNumValue()  # must match ViewParam.IDNUM_VALUE
     start_datetime = (
         StartPendulumSelector()
-    )  # must match ViewParam.START_DATETIME  # noqa
+    )  # must match ViewParam.START_DATETIME
     end_datetime = EndPendulumSelector()  # must match ViewParam.END_DATETIME
     all_tasks = BooleanNode(default=True)  # match ViewParam.ALL_TASKS
     tasks = MultiTaskSelector()  # must match ViewParam.TASKS
     # tracker_tasks_only will be set via the binding
     via_index = ViaIndexSelector()  # must match ViewParam.VIA_INDEX
-    viewtype = (
-        TaskTrackerOutputTypeSelector()
-    )  # must match ViewParam.VIEWTYPE  # noqa
+    viewtype = TaskTrackerOutputTypeSelector()  # must match ViewParam.VIEWTYPE
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
@@ -3488,31 +3474,31 @@ class UserGroupPermissionsGroupAdminSchema(CSRFSchema):
     # defaults will be used instead.
     may_upload = BooleanNode(
         default=False
-    )  # match ViewParam.MAY_UPLOAD and User attribute  # noqa
+    )  # match ViewParam.MAY_UPLOAD and User attribute
     may_register_devices = BooleanNode(
         default=False
-    )  # match ViewParam.MAY_REGISTER_DEVICES and User attribute  # noqa
+    )  # match ViewParam.MAY_REGISTER_DEVICES and User attribute
     may_use_webviewer = BooleanNode(
         default=False
-    )  # match ViewParam.MAY_USE_WEBVIEWER and User attribute  # noqa
+    )  # match ViewParam.MAY_USE_WEBVIEWER and User attribute
     may_manage_patients = BooleanNode(
         default=False
-    )  # match ViewParam.MAY_MANAGE_PATIENTS  # noqa
+    )  # match ViewParam.MAY_MANAGE_PATIENTS
     may_email_patients = BooleanNode(
         default=False
-    )  # match ViewParam.MAY_EMAIL_PATIENTS  # noqa
+    )  # match ViewParam.MAY_EMAIL_PATIENTS
     view_all_patients_when_unfiltered = BooleanNode(
         default=False
     )  # match ViewParam.VIEW_ALL_PATIENTS_WHEN_UNFILTERED and User attribute  # noqa
     may_dump_data = BooleanNode(
         default=False
-    )  # match ViewParam.MAY_DUMP_DATA and User attribute  # noqa
+    )  # match ViewParam.MAY_DUMP_DATA and User attribute
     may_run_reports = BooleanNode(
         default=False
-    )  # match ViewParam.MAY_RUN_REPORTS and User attribute  # noqa
+    )  # match ViewParam.MAY_RUN_REPORTS and User attribute
     may_add_notes = BooleanNode(
         default=False
-    )  # match ViewParam.MAY_ADD_NOTES and User attribute  # noqa
+    )  # match ViewParam.MAY_ADD_NOTES and User attribute
 
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
@@ -3585,16 +3571,16 @@ class EditUserGroupAdminSchema(CSRFSchema):
 
     username = (
         UsernameNode()
-    )  # name must match ViewParam.USERNAME and User attribute  # noqa
+    )  # name must match ViewParam.USERNAME and User attribute
     fullname = OptionalStringNode(  # name must match ViewParam.FULLNAME and User attribute  # noqa
         validator=Length(0, StringLengths.FULLNAME_MAX_LEN)
     )
     email = (
         OptionalEmailNode()
-    )  # name must match ViewParam.EMAIL and User attribute  # noqa
+    )  # name must match ViewParam.EMAIL and User attribute
     must_change_password = (
         MustChangePasswordNode()
-    )  # match ViewParam.MUST_CHANGE_PASSWORD and User attribute  # noqa
+    )  # match ViewParam.MUST_CHANGE_PASSWORD and User attribute
     language = LanguageSelector()  # must match ViewParam.LANGUAGE
     group_ids = AdministeredGroupsSequence()  # must match ViewParam.GROUP_IDS
 
@@ -3614,7 +3600,7 @@ class EditUserFullSchema(EditUserGroupAdminSchema):
 
     superuser = BooleanNode(
         default=False
-    )  # match ViewParam.SUPERUSER and User attribute  # noqa
+    )  # match ViewParam.SUPERUSER and User attribute
     group_ids = AllGroupsSequence()  # must match ViewParam.GROUP_IDS
 
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
@@ -3681,11 +3667,11 @@ class AddUserSuperuserSchema(CSRFSchema):
 
     username = (
         UsernameNode()
-    )  # name must match ViewParam.USERNAME and User attribute  # noqa
+    )  # name must match ViewParam.USERNAME and User attribute
     new_password = NewPasswordNode()  # name must match ViewParam.NEW_PASSWORD
     must_change_password = (
         MustChangePasswordNode()
-    )  # match ViewParam.MUST_CHANGE_PASSWORD and User attribute  # noqa
+    )  # match ViewParam.MUST_CHANGE_PASSWORD and User attribute
     group_ids = AllGroupsSequence()  # must match ViewParam.GROUP_IDS
 
 
@@ -3726,7 +3712,7 @@ class SetUserUploadGroupSchema(CSRFSchema):
 
     upload_group_id = (
         OptionalGroupIdSelectorUserGroups()
-    )  # must match ViewParam.UPLOAD_GROUP_ID  # noqa
+    )  # must match ViewParam.UPLOAD_GROUP_ID
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
@@ -4370,9 +4356,7 @@ class OfferBasicDumpSchema(CSRFSchema):
     sort = SortTsvByHeadingsNode()  # must match ViewParam.SORT
     include_schema = IncludeSchemaNode()  # must match ViewParam.INCLUDE_SCHEMA
     manual = OfferDumpManualSchema()  # must match ViewParam.MANUAL
-    viewtype = (
-        SpreadsheetFormatSelector()
-    )  # must match ViewParam.VIEWTYPE  # noqa
+    viewtype = SpreadsheetFormatSelector()  # must match ViewParam.VIEWTYPE
     delivery_mode = DeliveryModeNode()  # must match ViewParam.DELIVERY_MODE
 
 
@@ -4402,7 +4386,7 @@ class OfferSqlDumpSchema(CSRFSchema):
     include_blobs = IncludeBlobsNode()  # must match ViewParam.INCLUDE_BLOBS
     patient_id_per_row = (
         PatientIdPerRowNode()
-    )  # must match ViewParam.PATIENT_ID_PER_ROW  # noqa
+    )  # must match ViewParam.PATIENT_ID_PER_ROW
     manual = OfferDumpManualSchema()  # must match ViewParam.MANUAL
     delivery_mode = DeliveryModeNode()  # must match ViewParam.DELIVERY_MODE
 
@@ -4608,20 +4592,20 @@ class EditIdDefinitionSchema(CSRFSchema):
     which_idnum = HiddenIntegerNode()  # must match ViewParam.WHICH_IDNUM
     description = (
         IdDefinitionDescriptionNode()
-    )  # must match ViewParam.DESCRIPTION  # noqa
+    )  # must match ViewParam.DESCRIPTION
     short_description = (
         IdDefinitionShortDescriptionNode()
-    )  # must match ViewParam.SHORT_DESCRIPTION  # noqa
+    )  # must match ViewParam.SHORT_DESCRIPTION
     validation_method = (
         IdValidationMethodNode()
-    )  # must match ViewParam.VALIDATION_METHOD  # noqa
+    )  # must match ViewParam.VALIDATION_METHOD
     hl7_id_type = Hl7IdTypeNode()  # must match ViewParam.HL7_ID_TYPE
     hl7_assigning_authority = (
         Hl7AssigningAuthorityNode()
-    )  # must match ViewParam.HL7_ASSIGNING_AUTHORITY  # noqa
+    )  # must match ViewParam.HL7_ASSIGNING_AUTHORITY
     fhir_id_system = (
         FHIRIdSystemUrlNode()
-    )  # must match ViewParam.FHIR_ID_SYSTEM  # noqa
+    )  # must match ViewParam.FHIR_ID_SYSTEM
 
     def validator(self, node: SchemaNode, value: Any) -> None:
         request = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
@@ -4678,13 +4662,13 @@ class AddIdDefinitionSchema(CSRFSchema):
     )
     description = (
         IdDefinitionDescriptionNode()
-    )  # must match ViewParam.DESCRIPTION  # noqa
+    )  # must match ViewParam.DESCRIPTION
     short_description = (
         IdDefinitionShortDescriptionNode()
-    )  # must match ViewParam.SHORT_DESCRIPTION  # noqa
+    )  # must match ViewParam.SHORT_DESCRIPTION
     validation_method = (
         IdValidationMethodNode()
-    )  # must match ViewParam.VALIDATION_METHOD  # noqa
+    )  # must match ViewParam.VALIDATION_METHOD
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
@@ -4854,11 +4838,11 @@ class DeletePatientChooseSchema(CSRFSchema):
 
     which_idnum = (
         MandatoryWhichIdNumSelector()
-    )  # must match ViewParam.WHICH_IDNUM  # noqa
+    )  # must match ViewParam.WHICH_IDNUM
     idnum_value = MandatoryIdNumValue()  # must match ViewParam.IDNUM_VALUE
     group_id = (
         MandatoryGroupIdSelectorAdministeredGroups()
-    )  # must match ViewParam.GROUP_ID  # noqa
+    )  # must match ViewParam.GROUP_ID
     danger = TranslatableValidateDangerousOperationNode()
 
 
@@ -5178,7 +5162,7 @@ class EditPatientSchema(CSRFSchema):
     other = OptionalStringNode()  # must match ViewParam.OTHER
     id_references = (
         IdNumSequenceUniquePerWhichIdnum()
-    )  # must match ViewParam.ID_REFERENCES  # noqa
+    )  # must match ViewParam.ID_REFERENCES
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
@@ -5337,7 +5321,7 @@ class TaskScheduleSchema(CSRFSchema):
     name = OptionalStringNode()
     group_id = (
         MandatoryGroupIdSelectorAdministeredGroups()
-    )  # must match ViewParam.GROUP_ID  # noqa
+    )  # must match ViewParam.GROUP_ID
     email_from = EmailFromNode()  # must match ViewParam.EMAIL_FROM
     email_cc = EmailCcNode()  # must match ViewParam.EMAIL_CC
     email_bcc = EmailBccNode()  # must match ViewParam.EMAIL_BCC
@@ -5829,7 +5813,7 @@ class UserDownloadDeleteSchema(CSRFSchema):
 
     filename = (
         HiddenDownloadFilenameNode()
-    )  # name must match ViewParam.FILENAME  # noqa
+    )  # name must match ViewParam.FILENAME
 
 
 class UserDownloadDeleteForm(SimpleSubmitForm):

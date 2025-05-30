@@ -22,30 +22,34 @@
 // #define DEBUG_PRESS_D_TO_DUMP_LAYOUT
 
 #include "nvpchoicedialog.h"
+
 #include <functional>
 #include <QDialogButtonBox>
 #include <QEvent>
 #include <QLabel>
 #include <QVariant>
 #include <QWidget>
+
 #include "layouts/layouts.h"
 #include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
+#include "qobjects/widgetpositioner.h"
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/verticalscrollarea.h"
 
-#if defined DEBUG_PRESS_A_TO_ADJUST_SIZE || defined DEBUG_PRESS_D_TO_DUMP_LAYOUT
+#if defined DEBUG_PRESS_A_TO_ADJUST_SIZE                                      \
+    || defined DEBUG_PRESS_D_TO_DUMP_LAYOUT
     #include "qobjects/keypresswatcher.h"
 #endif
 #ifdef DEBUG_PRESS_D_TO_DUMP_LAYOUT
     #include "lib/layoutdumper.h"
-    const layoutdumper::DumperConfig dumper_config;
+const layoutdumper::DumperConfig dumper_config;
 #endif
 
 
-NvpChoiceDialog::NvpChoiceDialog(QWidget* parent,
-                                 const NameValueOptions& options,
-                                 const QString& title) :
+NvpChoiceDialog::NvpChoiceDialog(
+    QWidget* parent, const NameValueOptions& options, const QString& title
+) :
     QDialog(parent),
     m_options(options),
     m_title(title),
@@ -55,16 +59,16 @@ NvpChoiceDialog::NvpChoiceDialog(QWidget* parent,
 {
 }
 
-
-void NvpChoiceDialog::showExistingChoice(const bool show_existing_choice,
-                                         const QString& icon_filename,
-                                         const QSize& icon_size)
+void NvpChoiceDialog::showExistingChoice(
+    const bool show_existing_choice,
+    const QString& icon_filename,
+    const QSize& icon_size
+)
 {
     m_show_existing_choice = show_existing_choice;
     m_icon_filename = icon_filename;
     m_icon_size = icon_size;
 }
-
 
 int NvpChoiceDialog::choose(QVariant* new_value)
 {
@@ -77,7 +81,8 @@ int NvpChoiceDialog::choose(QVariant* new_value)
 
     m_resized_to_contents = false;
 
-    auto contentwidget = new QWidget();  // doesn't need to be BaseWidget; contains scroll area
+    auto contentwidget = new QWidget();
+    // ... doesn't need to be BaseWidget; contains scroll area
     auto contentlayout = new VBoxLayout();
     contentwidget->setLayout(contentlayout);
     for (int position = 0; position < m_options.size(); ++position) {
@@ -87,8 +92,10 @@ int NvpChoiceDialog::choose(QVariant* new_value)
         if (m_show_existing_choice) {
             const bool this_is_it = old_value == nvp.value();
             QLabel* icon = this_is_it
-                    ? uifunc::iconWidget(m_icon_filename, nullptr, true, m_icon_size)
-                    : uifunc::blankIcon(nullptr, m_icon_size);
+                ? uifunc::iconWidget(
+                    m_icon_filename, nullptr, true, m_icon_size
+                )
+                : uifunc::blankIcon(nullptr, m_icon_size);
             auto hlayout = new HBoxLayout();
             hlayout->addWidget(icon);
             hlayout->addWidget(label);
@@ -97,8 +104,11 @@ int NvpChoiceDialog::choose(QVariant* new_value)
             contentlayout->addWidget(label);
         }
         // Safe object lifespan signal: can use std::bind
-        connect(label, &ClickableLabelWordWrapWide::clicked,
-                std::bind(&NvpChoiceDialog::itemClicked, this, position));
+        connect(
+            label,
+            &ClickableLabelWordWrapWide::clicked,
+            std::bind(&NvpChoiceDialog::itemClicked, this, position)
+        );
     }
 
     auto scroll = new VerticalScrollArea();
@@ -110,19 +120,24 @@ int NvpChoiceDialog::choose(QVariant* new_value)
 
     mainlayout->addStretch();
 
+    new WidgetPositioner(this);
+
     // Offer a cancel button
     auto standard_buttons = new QDialogButtonBox(QDialogButtonBox::Cancel);
-    connect(standard_buttons, &QDialogButtonBox::rejected,
-            this, &NvpChoiceDialog::reject);
+    connect(
+        standard_buttons,
+        &QDialogButtonBox::rejected,
+        this,
+        &NvpChoiceDialog::reject
+    );
     mainlayout->addWidget(standard_buttons);
 
-#if defined DEBUG_PRESS_A_TO_ADJUST_SIZE || defined DEBUG_PRESS_D_TO_DUMP_LAYOUT
+#if defined DEBUG_PRESS_A_TO_ADJUST_SIZE                                      \
+    || defined DEBUG_PRESS_D_TO_DUMP_LAYOUT
     auto keywatcher = new KeyPressWatcher(this);
 #endif
 #ifdef DEBUG_PRESS_A_TO_ADJUST_SIZE
-    keywatcher->addKeyEvent(
-        Qt::Key_A,
-        std::bind(&QWidget::adjustSize, this));
+    keywatcher->addKeyEvent(Qt::Key_A, std::bind(&QWidget::adjustSize, this));
 #endif
 #ifdef DEBUG_PRESS_D_TO_DUMP_LAYOUT
     // keywatcher becomes child of this,
@@ -130,14 +145,14 @@ int NvpChoiceDialog::choose(QVariant* new_value)
     // Safe object lifespan signal: can use std::bind
     keywatcher->addKeyEvent(
         Qt::Key_D,
-        std::bind(&layoutdumper::dumpWidgetHierarchy, this, dumper_config));
+        std::bind(&layoutdumper::dumpWidgetHierarchy, this, dumper_config)
+    );
 #endif
 
     // no help: // adjustSize();
 
     return exec();
 }
-
 
 void NvpChoiceDialog::itemClicked(const int position)
 {
@@ -147,7 +162,6 @@ void NvpChoiceDialog::itemClicked(const int position)
     *m_p_new_value = m_options.valueFromPosition(position);
     accept();
 }
-
 
 bool NvpChoiceDialog::event(QEvent* e)
 {

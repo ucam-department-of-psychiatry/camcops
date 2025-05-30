@@ -19,24 +19,32 @@
 */
 
 #include "dumpsql.h"
+
 #include <QDebug>
-#include <QSqlRecord>
 #include <QSqlQuery>
+#include <QSqlRecord>
+
 #include "db/databasemanager.h"
 #include "db/queryresult.h"
 #include "lib/stringfunc.h"
 using stringfunc::replaceFirst;
 
-const QString NL("\n"); // newline
-const QString DUMP_T_START("PRAGMA foreign_keys=OFF;" + NL +
-                           "BEGIN TRANSACTION;" + NL);
-const QString DUMP_Q_1("SELECT name, type, sql FROM sqlite_master "
-                       "WHERE sql NOT NULL AND type=='table' "
-                       "AND name!='sqlite_sequence' ORDER BY name");
-const QString DUMP_Q_2("SELECT name, type, sql FROM sqlite_master "
-                       "WHERE name=='sqlite_sequence'");
-const QString DUMP_Q_3("SELECT sql FROM sqlite_master WHERE sql NOT NULL "
-                       "AND type IN ('index','trigger','view')");
+const QString NL("\n");  // newline
+const QString
+    DUMP_T_START("PRAGMA foreign_keys=OFF;" + NL + "BEGIN TRANSACTION;" + NL);
+const QString DUMP_Q_1(
+    "SELECT name, type, sql FROM sqlite_master "
+    "WHERE sql NOT NULL AND type=='table' "
+    "AND name!='sqlite_sequence' ORDER BY name"
+);
+const QString DUMP_Q_2(
+    "SELECT name, type, sql FROM sqlite_master "
+    "WHERE name=='sqlite_sequence'"
+);
+const QString DUMP_Q_3(
+    "SELECT sql FROM sqlite_master WHERE sql NOT NULL "
+    "AND type IN ('index','trigger','view')"
+);
 const QString DUMP_E_START_1("SAVEPOINT dump;");
 const QString DUMP_E_START_2("PRAGMA writable_schema=ON;");
 const QString DUMP_E_WSOFF("PRAGMA writable_schema=OFF;");
@@ -53,14 +61,17 @@ const QString ANALYSE_MASTER("ANALYZE sqlite_master;" + NL);
 const QString PREFIX("sqlite_");
 const QString CREATE_VT("CREATE VIRTUAL TABLE");
 const QString INSERT_INTO_MASTER(
-        "INSERT INTO sqlite_master(type,name,tbl_name,"
-        "rootpage,sql) VALUES('table','%','%',0,'%');" + NL);
+    "INSERT INTO sqlite_master(type,name,tbl_name,"
+    "rootpage,sql) VALUES('table','%','%',0,'%');"
+    + NL
+);
 const QString PLACEHOLDER("%");
 // ... we'll replace with a regex-based function, so don't use "?"
 const QString TYPE_TABLE("table");
 const QString PRAGMA_TABLEINFO("PRAGMA table_info(\"%\");");
 const QString DATASELECT_1_SELECT_INSERT_INTO_VALUES(
-        "SELECT 'INSERT INTO ' || '\"%\"' || ' VALUES(' || ");
+    "SELECT 'INSERT INTO ' || '\"%\"' || ' VALUES(' || "
+);
 const QString DATASELECT_2_QUOTE("quote(\"%\")");
 const QString DATASELECT_3_FROM("|| ')' FROM \"%\"");
 const QString COMMENT_STARTING(NL + "-- Starting" + NL + NL);
@@ -70,13 +81,17 @@ const QString COMMENT_OTHER(NL + "-- Indexes, triggers, views" + NL + NL);
 const QString COMMENT_ENDING(NL + "-- Ending" + NL + NL);
 // For comments "-- ", the space isn't standard SQL but some engines need it.
 const QString GET_VERSION("SELECT sqlite_version() FROM sqlite_master");
-const QString VALUE_SEP_COMMA = ", ";  // space less efficient but easier to read
+const QString VALUE_SEP_COMMA = ", ";
+
+// ... the space is less efficient but easier to read
 
 
-void dumpsql::runTableDumpQuery(QTextStream& os,
-                                DatabaseManager& db,
-                                const QString& sql,
-                                const QString& firstrow)
+void dumpsql::runTableDumpQuery(
+    QTextStream& os,
+    DatabaseManager& db,
+    const QString& sql,
+    const QString& firstrow
+)
 {
     const QueryResult result = db.query(sql);
     if (!result.succeeded()) {
@@ -93,17 +108,18 @@ void dumpsql::runTableDumpQuery(QTextStream& os,
             os << result.at(row, col).toString();
         }
         if (ncols == 1 && result.at(row, 0).toString().contains("--")) {
-            os << NL; // so comments don't subsume the final ";"
+            os << NL;  // so comments don't subsume the final ";"
         }
         os << DUMP_T_SQL_TERMINATOR;
     }
 }
 
-
-bool dumpsql::runSchemaDumpQuery(QTextStream& os,
-                                 DatabaseManager& db,
-                                 const QString& schema_query_sql,
-                                 bool writable_schema)
+bool dumpsql::runSchemaDumpQuery(
+    QTextStream& os,
+    DatabaseManager& db,
+    const QString& schema_query_sql,
+    bool writable_schema
+)
 {
     const QueryResult result_a = db.query(schema_query_sql);
     if (!result_a.succeeded()) {
@@ -179,7 +195,6 @@ bool dumpsql::runSchemaDumpQuery(QTextStream& os,
     return writable_schema;
 }
 
-
 void dumpsql::dumpDatabase(QTextStream& os, DatabaseManager& db)
 {
     bool success = true;  // not really used?
@@ -193,13 +208,13 @@ void dumpsql::dumpDatabase(QTextStream& os, DatabaseManager& db)
 
     // Tables
     os << COMMENT_TABLES;
-    writable_schema = runSchemaDumpQuery(os, db, DUMP_Q_1, writable_schema) ||
-            writable_schema;
+    writable_schema = runSchemaDumpQuery(os, db, DUMP_Q_1, writable_schema)
+        || writable_schema;
 
     // Sequences
     os << COMMENT_SEQUENCES;
-    writable_schema = runSchemaDumpQuery(os, db, DUMP_Q_2, writable_schema) ||
-            writable_schema;
+    writable_schema = runSchemaDumpQuery(os, db, DUMP_Q_2, writable_schema)
+        || writable_schema;
 
     // Indexes, triggers, views
     os << COMMENT_OTHER;

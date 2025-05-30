@@ -28,11 +28,15 @@ class StrictUInt64Validator : public QValidator
     Q_OBJECT
     Q_PROPERTY(int bottom READ bottom WRITE setBottom NOTIFY bottomChanged)
     Q_PROPERTY(int top READ top WRITE setTop NOTIFY topChanged)
+
 public:
     StrictUInt64Validator(bool allow_empty = false, QObject* parent = nullptr);
-    StrictUInt64Validator(quint64 bottom, quint64 top,
-                          bool allow_empty = false,
-                          QObject* parent = nullptr);
+    StrictUInt64Validator(
+        quint64 bottom,
+        quint64 top,
+        bool allow_empty = false,
+        QObject* parent = nullptr
+    );
     virtual ~StrictUInt64Validator() override;
 
     QValidator::State validate(QString& input, int& pos) const override;
@@ -41,8 +45,15 @@ public:
     void setTop(quint64 top);
     virtual void setRange(quint64 bottom, quint64 top);
 
-    quint64 bottom() const { return m_b; }
-    quint64 top() const { return m_t; }
+    quint64 bottom() const
+    {
+        return m_b;
+    }
+
+    quint64 top() const
+    {
+        return m_t;
+    }
 
 signals:
     void bottomChanged(quint64 bottom);

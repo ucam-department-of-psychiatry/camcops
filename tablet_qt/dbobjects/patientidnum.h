@@ -21,23 +21,32 @@
 #pragma once
 #include "db/databaseobject.h"
 
-
 // Represents a patient ID number.
 
 class PatientIdNum : public DatabaseObject
 {
     Q_OBJECT
+
 public:
     // Normal constructor; loads if required.
-    PatientIdNum(CamcopsApp& app, DatabaseManager& db,
-                 int load_pk = dbconst::NONEXISTENT_PK);
+    PatientIdNum(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
 
     // Create-and-save constructor.
-    PatientIdNum(int patient_fk, int which_idnum,
-                 CamcopsApp& app, DatabaseManager& db);
+    PatientIdNum(
+        int patient_fk, int which_idnum, CamcopsApp& app, DatabaseManager& db
+    );
 
-    PatientIdNum(int patient_fk, int which_idnum,
-                 qint64 idnum_value, CamcopsApp& app, DatabaseManager& db);
+    PatientIdNum(
+        int patient_fk,
+        int which_idnum,
+        qint64 idnum_value,
+        CamcopsApp& app,
+        DatabaseManager& db
+    );
 
     // Returns the ID number type (e.g. "3 meaning NHS number")
     int whichIdNum() const;

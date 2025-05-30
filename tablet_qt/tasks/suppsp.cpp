@@ -19,17 +19,18 @@
 */
 
 #include "suppsp.h"
+
 #include "common/textconst.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
 using mathfunc::anyNull;
-using mathfunc::sumInt;
 using mathfunc::scorePhrase;
+using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
 using stringfunc::strnumlist;
@@ -59,16 +60,17 @@ void initializeSuppsp(TaskFactory& factory)
     static TaskRegistrar<Suppsp> registered(factory);
 }
 
-
 Suppsp::Suppsp(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, SUPPSP_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, SUPPSP_TABLENAME, false, false, false),
+    // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
+    );
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -79,18 +81,17 @@ QString Suppsp::shortname() const
     return "SUPPS-P";
 }
 
-
 QString Suppsp::longname() const
 {
     return tr("Short UPPS-P Impulsive Behaviour Scale");
 }
 
-
 QString Suppsp::description() const
 {
-    return tr("A short English version of the UPPS-P Impulsive Behaviour Scale.");
+    return tr(
+        "A short English version of the UPPS-P Impulsive Behaviour Scale."
+    );
 }
-
 
 QStringList Suppsp::fieldNames() const
 {
@@ -111,82 +112,103 @@ bool Suppsp::isComplete() const
     return true;
 }
 
-
 int Suppsp::totalScore() const
 {
     return sumInt(values(fieldNames()));
 }
-
 
 int Suppsp::negativeUrgency() const
 {
     return sumInt(values(strnumlist(QPREFIX, NEGATIVE_URGENCY_QUESTIONS)));
 }
 
-
 int Suppsp::lackOfPerseverance() const
 {
     return sumInt(values(strnumlist(QPREFIX, LACK_OF_PERSEVERANCE_QUESTIONS)));
 }
 
-
 int Suppsp::lackOfPremeditation() const
 {
-    return sumInt(values(strnumlist(QPREFIX, LACK_OF_PREMEDITATION_QUESTIONS)));
+    return sumInt(values(strnumlist(QPREFIX, LACK_OF_PREMEDITATION_QUESTIONS))
+    );
 }
-
 
 int Suppsp::sensationSeeking() const
 {
     return sumInt(values(strnumlist(QPREFIX, SENSATION_SEEKING_QUESTIONS)));
 }
 
-
 int Suppsp::positiveUrgency() const
 {
     return sumInt(values(strnumlist(QPREFIX, POSITIVE_URGENCY_QUESTIONS)));
 }
 
-
 QStringList Suppsp::summary() const
 {
-    auto rangeScore = [](const QString& description, const int score,
-                         const int min, const int max) {
-        return QString("%1: <b>%2</b> [%3–%4].").arg(
-                    description,
-                    QString::number(score),
-                    QString::number(min),
-                    QString::number(max));
+    auto rangeScore = [](const QString& description,
+                         const int score,
+                         const int min,
+                         const int max) {
+        return QString("%1: <b>%2</b> [%3–%4].")
+            .arg(
+                description,
+                QString::number(score),
+                QString::number(min),
+                QString::number(max)
+            );
     };
     return QStringList{
-        rangeScore(TextConst::totalScore(), totalScore(),
-                   MIN_QUESTION_SCORE, MAX_QUESTION_SCORE),
-        rangeScore(xstring("negative_urgency"), negativeUrgency(),
-                   MIN_SUBSCALE, MAX_SUBSCALE),
-        rangeScore(xstring("lack_of_perseverance"), lackOfPerseverance(),
-                   MIN_SUBSCALE, MAX_SUBSCALE),
-        rangeScore(xstring("lack_of_premeditation"), lackOfPremeditation(),
-                   MIN_SUBSCALE, MAX_SUBSCALE),
-        rangeScore(xstring("sensation_seeking"), sensationSeeking(),
-                   MIN_SUBSCALE, MAX_SUBSCALE),
-        rangeScore(xstring("positive_urgency"), positiveUrgency(),
-                   MIN_SUBSCALE, MAX_SUBSCALE),
+        rangeScore(
+            TextConst::totalScore(),
+            totalScore(),
+            MIN_QUESTION_SCORE,
+            MAX_QUESTION_SCORE
+        ),
+        rangeScore(
+            xstring("negative_urgency"),
+            negativeUrgency(),
+            MIN_SUBSCALE,
+            MAX_SUBSCALE
+        ),
+        rangeScore(
+            xstring("lack_of_perseverance"),
+            lackOfPerseverance(),
+            MIN_SUBSCALE,
+            MAX_SUBSCALE
+        ),
+        rangeScore(
+            xstring("lack_of_premeditation"),
+            lackOfPremeditation(),
+            MIN_SUBSCALE,
+            MAX_SUBSCALE
+        ),
+        rangeScore(
+            xstring("sensation_seeking"),
+            sensationSeeking(),
+            MIN_SUBSCALE,
+            MAX_SUBSCALE
+        ),
+        rangeScore(
+            xstring("positive_urgency"),
+            positiveUrgency(),
+            MIN_SUBSCALE,
+            MAX_SUBSCALE
+        ),
     };
 }
-
 
 QStringList Suppsp::detail() const
 {
     QStringList lines = completenessInfo();
     const QString spacer = " ";
     const QString suffix = "";
-    lines += fieldSummaries("q", suffix, spacer, QPREFIX, FIRST_Q, N_QUESTIONS);
+    lines
+        += fieldSummaries("q", suffix, spacer, QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");
     lines += summary();
 
     return lines;
 }
-
 
 OpenableWidget* Suppsp::editor(const bool read_only)
 {
@@ -205,15 +227,17 @@ OpenableWidget* Suppsp::editor(const bool read_only)
     };
 
     // Items 3, 6, 8, 9, 10, 13, 14, 15, 16, 17, 18, 20 are reverse coded.
-    const QVector<int> reverse_q_nums{3, 6, 8, 9, 10, 13, 14, 15, 16, 17, 18, 20};
+    const QVector<int> reverse_q_nums{
+        3, 6, 8, 9, 10, 13, 14, 15, 16, 17, 18, 20};
 
     QVector<QuestionWithOneField> q_field_pairs;
 
     const auto fieldnames = fieldNames();
     for (const QString& fieldname : fieldnames) {
         const QString& description = xstring(fieldname);
-        q_field_pairs.append(QuestionWithOneField(description,
-                                                  fieldRef(fieldname)));
+        q_field_pairs.append(
+            QuestionWithOneField(description, fieldRef(fieldname))
+        );
     }
     auto grid = new QuMcqGrid(q_field_pairs, agreement_options);
 
@@ -221,7 +245,9 @@ OpenableWidget* Suppsp::editor(const bool read_only)
     for (const int qnum : reverse_q_nums) {
         reversed_indexes.append(qnum - 1);  // zero-based indexes
     }
-    grid->setAlternateNameValueOptions(reversed_indexes, reverse_agreement_options);
+    grid->setAlternateNameValueOptions(
+        reversed_indexes, reverse_agreement_options
+    );
 
     const int question_width = 4;
     const QVector<int> option_widths = {1, 1, 1, 1};
@@ -235,9 +261,7 @@ OpenableWidget* Suppsp::editor(const bool read_only)
     };
     grid->setSubtitles(subtitles);
 
-    QuPagePtr page((new QuPage{
-                        grid
-                    })->setTitle(xstring("title_main")));
+    QuPagePtr page((new QuPage{grid})->setTitle(xstring("title_main")));
 
     m_questionnaire = new Questionnaire(m_app, {page});
     m_questionnaire->setType(QuPage::PageType::Patient);

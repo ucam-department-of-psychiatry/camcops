@@ -19,13 +19,14 @@
 */
 
 #include "honosca.h"
-#include "maths/mathfunc.h"
+
 #include "lib/stringfunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
+#include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
-#include "questionnairelib/qulineedit.h"
 #include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
 using mathfunc::noneNull;
@@ -45,7 +46,6 @@ const QString PERIOD_RATED("period_rated");
 const QString Q8("q8");
 const QString VALUE_OTHER("J");
 
-
 void initializeHonosca(TaskFactory& factory)
 {
     static TaskRegistrar<Honosca> registered(factory);
@@ -53,14 +53,16 @@ void initializeHonosca(TaskFactory& factory)
 
 
 Honosca::Honosca(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, HONOSCA_TABLENAME, false, true, false)  // ... anon, clin, resp
+    Task(app, db, HONOSCA_TABLENAME, false, true, false)
+// ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
+    );
     addField(PERIOD_RATED, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -71,24 +73,20 @@ QString Honosca::shortname() const
     return "HoNOSCA";
 }
 
-
 QString Honosca::longname() const
 {
     return tr("Health of the Nation Outcome Scales, Children and Adolescents");
 }
-
 
 QString Honosca::description() const
 {
     return tr("13- to 15-item clinician-rated scale.");
 }
 
-
 QString Honosca::infoFilenameStem() const
 {
     return "honos";
 }
-
 
 // ============================================================================
 // Instance info
@@ -96,16 +94,14 @@ QString Honosca::infoFilenameStem() const
 
 bool Honosca::isComplete() const
 {
-    return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS))) &&
-            !valueIsNullOrEmpty(PERIOD_RATED);
+    return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)))
+        && !valueIsNullOrEmpty(PERIOD_RATED);
 }
-
 
 QStringList Honosca::summary() const
 {
     return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
-
 
 QStringList Honosca::detail() const
 {
@@ -114,14 +110,15 @@ QStringList Honosca::detail() const
     QStringList lines = completenessInfo();
     lines += fieldSummaries("q", "_s", " ", QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");
-    lines += standardResult(xstring("section_a_total"),
-                            QString::number(section_a));
-    lines += standardResult(xstring("section_b_total"),
-                            QString::number(section_b));
+    lines += standardResult(
+        xstring("section_a_total"), QString::number(section_a)
+    );
+    lines += standardResult(
+        xstring("section_b_total"), QString::number(section_b)
+    );
     lines += summary();
     return lines;
 }
-
 
 OpenableWidget* Honosca::editor(const bool read_only)
 {
@@ -130,15 +127,17 @@ OpenableWidget* Honosca::editor(const bool read_only)
     auto getoptions = [this](int n) -> NameValueOptions {
         NameValueOptions options;
         for (int i = 0; i <= 4; ++i) {
-            const QString name = xstring(QString("q%1_option%2").arg(n).arg(i));
+            const QString name
+                = xstring(QString("q%1_option%2").arg(n).arg(i));
             options.append(NameValuePair(name, i));
         }
         options.append(NameValuePair(xstring("option9"), 9));
         return options;
     };
 
-    auto addpage = [this, &pages, &getoptions]
-                   (int n, const QString& titleprefix) -> void {
+    auto addpage = [this,
+                    &pages,
+                    &getoptions](int n, const QString& titleprefix) -> void {
         const NameValueOptions options = getoptions(n);
         const QString pagetitle = titleprefix + QString::number(n);
         const QString question = xstring(strnum("q", n));
@@ -153,21 +152,24 @@ OpenableWidget* Honosca::editor(const bool read_only)
     pages.append(getClinicianDetailsPage());
 
     pages.append(QuPagePtr((new QuPage{
-        new QuText(xstring("period_rated")),
-        new QuLineEdit(fieldRef(PERIOD_RATED)),
-    })->setTitle(xstring("firstpage_title"))));
+                                new QuText(xstring("period_rated")),
+                                new QuLineEdit(fieldRef(PERIOD_RATED)),
+                            })
+                               ->setTitle(xstring("firstpage_title"))));
 
     pages.append(QuPagePtr((new QuPage{
-        new QuText(xstring("section_a_instructions")),
-    })->setTitle(xstring("section_a_title"))));
+                                new QuText(xstring("section_a_instructions")),
+                            })
+                               ->setTitle(xstring("section_a_title"))));
 
     for (int n = FIRST_Q; n <= 13; ++n) {
         addpage(n, xstring("section_a_title_prefix"));
     }
 
     pages.append(QuPagePtr((new QuPage{
-        new QuText(xstring("section_b_instructions")),
-    })->setTitle(xstring("section_b_title"))));
+                                new QuText(xstring("section_b_instructions")),
+                            })
+                               ->setTitle(xstring("section_b_title"))));
 
     for (int n = 14; n <= N_QUESTIONS; ++n) {
         addpage(n, xstring("section_b_title_prefix"));
@@ -179,7 +181,6 @@ OpenableWidget* Honosca::editor(const bool read_only)
     return questionnaire;
 }
 
-
 // ============================================================================
 // Task-specific calculations
 // ============================================================================
@@ -188,7 +189,6 @@ int Honosca::totalScore() const
 {
     return scoreSum(FIRST_Q, N_QUESTIONS);
 }
-
 
 int Honosca::scoreSum(const int first, const int last) const
 {

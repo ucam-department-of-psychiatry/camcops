@@ -19,8 +19,9 @@
 */
 
 #include "pbq.h"
-#include "maths/mathfunc.h"
+
 #include "lib/stringfunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
@@ -36,25 +37,25 @@ const int N_QUESTIONS = 25;
 const int MAX_PER_QUESTION = 5;  // each question scored 0-5
 const int MAX_QUESTION_SCORE = N_QUESTIONS * MAX_PER_QUESTION;
 const QString QPREFIX("q");
-const QVector<int> SCORED_A0N5_Q{1, 4, 8, 9, 11, 16, 22, 25};  // rest scored A5N0
+const QVector<int> SCORED_A0N5_Q{1, 4, 8, 9, 11, 16, 22, 25};
+// ... rest scored A5N0
 
 const QString Pbq::PBQ_TABLENAME("pbq");
-
 
 void initializePbq(TaskFactory& factory)
 {
     static TaskRegistrar<Pbq> registered(factory);
 }
 
-
 Pbq::Pbq(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, PBQ_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
+    );
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -65,18 +66,15 @@ QString Pbq::shortname() const
     return "PBQ";
 }
 
-
 QString Pbq::longname() const
 {
     return tr("Postpartum Bonding Questionnaire");
 }
 
-
 QString Pbq::description() const
 {
     return tr("25-item self-report scale.");
 }
-
 
 // ============================================================================
 // Instance info
@@ -87,7 +85,6 @@ bool Pbq::isComplete() const
     return noValuesNull(strseq(QPREFIX, FIRST_Q, N_QUESTIONS));
 }
 
-
 QStringList Pbq::summary() const
 {
     return QStringList{
@@ -95,13 +92,10 @@ QStringList Pbq::summary() const
     };
 }
 
-
 QStringList Pbq::detail() const
 {
     return completenessInfo() + summary();
-
 }
-
 
 OpenableWidget* Pbq::editor(const bool read_only)
 {
@@ -157,7 +151,6 @@ OpenableWidget* Pbq::editor(const bool read_only)
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations

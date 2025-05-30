@@ -25,11 +25,11 @@
 #include <QPointer>
 #include <QSharedPointer>
 #include <QStringList>
+
 #include "common/aliases_camcops.h"
 
 class QWidget;
 class Questionnaire;
-
 
 class QuElement : public QObject
 {
@@ -132,10 +132,10 @@ protected:
     QPointer<QWidget> m_widget;  // used to cache a widget pointer
     QStringList m_tags;  // our tags
     bool m_visible;  // are we visible?
-    Qt::Alignment m_widget_alignment;  // intended alignment of widget in layout
+    Qt::Alignment m_widget_alignment;
+    // ... intended alignment of widget in layout
     Qt::InputMethodHints m_widget_input_method_hints;
 };
-
 
 /*
 ===============================================================================
@@ -146,7 +146,8 @@ Constructing element lists and pages
    going to be using polymorphic objects that inherit from Element, and we
    can't have a list of Elements (that may not be base class Elements)
    without using pointers.
-   Example: http://stackoverflow.com/questions/7223613/c-polymorphism-without-pointers
+   Example:
+   http://stackoverflow.com/questions/7223613/c-polymorphism-without-pointers
  - Moreover, we cannot create a plain object then take a pointer from
    its address, since we'd be constructing the objects on the stack (by a
    task's edit() function), and they'd be destroyed before we want to use

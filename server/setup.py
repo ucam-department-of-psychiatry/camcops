@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 setup.py
 
@@ -67,38 +65,36 @@ INSTALL_REQUIRES = [
     # -------------------------------------------------------------------------
     # Direct dependencies of CamCOPS
     # -------------------------------------------------------------------------
+    # The GitHub syntax (for development only) is:
+    # "libraryname @ git+https://github.com/owner/reponame@commitsignature#egg==libraryname-version"  # noqa: E501
     "alembic==1.4.2",  # database migrations
     "asteval==0.9.25",  # safe-ish alternative to eval
-    "cardinal_pythonlib==1.1.25",  # RNC libraries
-    "celery==5.2.2",  # background tasks
+    "cardinal_pythonlib==2.0.3",  # RNC libraries
+    "celery==5.3.6",  # background tasks
     "colander==1.7.0",  # serialization/deserialization from web forms
     "CherryPy==18.6.0",  # web server
     (  # deform: web forms
-        "deform @ git+https://github.com/RudolfCardinal/deform@b40ea6ccf5fdd3116405e0d5233387bf34e20b37#egg=deform-3.0.0.dev0a"  # noqa
+        "deform @ git+https://github.com/RudolfCardinal/deform@b40ea6ccf5fdd3116405e0d5233387bf34e20b37#egg=deform-3.0.0.dev0a"  # noqa: E501
         # ... "a" appended
         if DEFORM_SUPPORTS_CSP_NONCE
         else "deform==2.0.15"
     ),
     # 'deform-bootstrap==0.2.9',  # deform with layout made easier
-    "distro==1.3.0",  # detecting Linux distribution  # REMOVE ONCE DOCKER PREFERRED  # noqa
+    "distro==1.3.0",  # detecting Linux distribution  # REMOVE ONCE DOCKER PREFERRED  # noqa: E501
     "dogpile.cache==0.9.2",  # web caching
     "factory_boy==3.2.1",  # easier test data creation
     "Faker==4.1.1",  # create fake data; for test and dummy database creation
-    # FHIR export, our fork until https://github.com/smart-on-fhir/client-py/pull/105 is merged  # noqa
+    # FHIR export, our fork until https://github.com/smart-on-fhir/client-py/pull/105 is merged  # noqa: E501
     "fhirclient @ git+https://github.com/ucam-department-of-psychiatry/client-py@128bbe3c2194a51ba6ff8cf880ef2fdb9bfcc2d6#egg=fhirclient-4.0.0.1",  # noqa: E501
-    "flower==1.2.0",  # monitor for Celery
-    "gunicorn==20.1.0",  # web server (Unix only)
+    "flower==2.0.1",  # monitor for Celery
+    "gunicorn==23.0.0",  # web server (Unix only)
     "hl7==0.3.5",  # For HL7 export
-    # Celery dependency for Python <= 3.7; workaround import error
-    # https://github.com/celery/celery/issues/7783; scheduled to be fixed in
-    # Celery 5.3
-    "importlib-metadata<5.0",
     "lockfile==0.12.2",  # File locking for background tasks
-    "lxml==4.9.1",  # Will speed up openpyxl export [NO LONGER CRITICAL]
-    "matplotlib==3.2.2",  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
-    "numpy==1.23.5",  # Used by some tasks. SLOW INSTALLATION.
+    "lxml==4.9.4",  # Will speed up openpyxl export [NO LONGER CRITICAL]
+    "matplotlib==3.9.4",  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa: E501
+    "numpy==1.26.4",  # Used by some tasks. SLOW INSTALLATION.
     "paginate==0.5.6",  # pagination for web server
-    "pendulum==2.1.2",  # date/time classes
+    "pendulum==3.0.0",  # date/time classes
     "pexpect==4.8.0",  # for open_sqlcipher.py
     "pdfkit==1.0.0",  # wkhtmltopdf interface, for PDF generation from HTML
     "phonenumbers==8.12.30",  # phone number parsing, storing and validating
@@ -112,15 +108,15 @@ INSTALL_REQUIRES = [
     "pyramid_debugtoolbar==4.6.1",  # debugging for Pyramid
     "pytest==7.2.0",  # automatic testing
     "qrcode[pil]==7.2",  # for registering with Authenticators
-    "requests==2.31.0",  # in fetch_snomed_codes.py and cc_sms.py, but also required by something else?  # noqa
+    "requests==2.32.2",  # in fetch_snomed_codes.py and cc_sms.py, but also required by something else?  # noqa: E501
     "rich-argparse==0.5.0",  # colourful help
     "sadisplay==0.4.9",  # SQL Alchemy schema display script
-    "scipy==1.10.1",  # used by some tasks. slow installation.
+    "scipy==1.13.1",  # used by some tasks. slow installation.
     "semantic_version==2.8.5",  # semantic versioning; better than semver
     "sqlalchemy==1.4.49",  # database access
-    "statsmodels==0.13.5",  # e.g. logistic regression
+    "statsmodels==0.14.4",  # e.g. logistic regression
     "twilio==7.9.3",  # SMS backend for Multi-factor authentication
-    "urllib3==1.26.18",  # dependency, pinned to avoid vulnerabilities
+    "urllib3==1.26.19",  # dependency, pinned to avoid vulnerabilities
     "Wand==0.6.1",  # ImageMagick binding
     # -------------------------------------------------------------------------
     # Not installed here
@@ -133,7 +129,7 @@ INSTALL_REQUIRES = [
     # -------------------------------------------------------------------------
     # Direct requirements of CamCOPS development tools
     # -------------------------------------------------------------------------
-    "Babel==2.9.1",  # reads code, generates gettext files; dev only but was already installed  # noqa
+    "Babel==2.9.1",  # reads code, generates gettext files; dev only but was already installed  # noqa: E501
     "pre-commit==2.20.0",  # development only, various sanity checks on code
     "sphinx==4.2.0",  # development only
     "sphinxcontrib-applehelp==1.0.4",  # development only
@@ -150,13 +146,13 @@ INSTALL_REQUIRES = [
     "beautifulsoup4==4.9.1",
     "colorlog==4.1.0",
     "isodate==0.6.0",
-    "openpyxl==3.0.4",  # also for pyexcel-xlsx
-    "pandas==1.3.4",
+    "openpyxl==3.0.7",  # also for pyexcel-xlsx
+    "pandas==1.4.4",
     "prettytable==0.7.2",
     "psutil==5.7.0",
     "pyparsing==2.4.7",
     "pypdf==3.17.0",  # Used by cardinal_pythonlib.pdf
-    "python-dateutil==2.8.1",  # date/time extensions.
+    "python-dateutil==2.9.0.post0",  # date/time extensions.
     "sqlparse==0.5.0",
     # extra
     "py-bcrypt==0.4",  # used by cardinal_pythonlib.crypto
@@ -164,10 +160,10 @@ INSTALL_REQUIRES = [
     # Dependencies of other things above
     # -------------------------------------------------------------------------
     "alabaster==0.7.12",  # for sphinx
-    "amqp==5.0.6",  # for celery
+    "amqp==5.3.1",  # for celery
     "Chameleon==3.8.1",  # for Deform
-    "tornado==6.3.3",  # for celery
-    "webob==1.8.6",  # for pyramid
+    "tornado==6.4.2",  # for celery
+    "webob==1.8.8",  # for pyramid
 ]
 
 
@@ -195,13 +191,14 @@ setup(
         "Intended Audience :: Healthcare Industry",
         "Intended Audience :: Science/Research",
         # Pick your license as you wish (should match "license" above)
-        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",  # noqa
+        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",  # noqa: E501
         "Natural Language :: English",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Topic :: Scientific/Engineering :: Medical Science Apps.",
     ],
     keywords="cardinal",
@@ -213,10 +210,10 @@ setup(
             # Format is 'script=module:function".
             "camcops_server=camcops_server.camcops_server:main",
             "camcops_server_meta=camcops_server.camcops_server_meta:meta_main",
-            "camcops_backup_mysql_database=cardinal_pythonlib.tools.backup_mysql_database:main",  # noqa
-            "camcops_windows_service=camcops_server.camcops_windows_service:main",  # noqa
-            "camcops_print_latest_github_version=camcops_server.tools.print_latest_github_version:main",  # noqa
-            "camcops_fetch_snomed_codes=camcops_server.tools.fetch_snomed_codes:main",  # noqa
+            "camcops_backup_mysql_database=cardinal_pythonlib.tools.backup_mysql_database:main",  # noqa: E501
+            "camcops_windows_service=camcops_server.camcops_windows_service:main",  # noqa: E501
+            "camcops_print_latest_github_version=camcops_server.tools.print_latest_github_version:main",  # noqa: E501
+            "camcops_fetch_snomed_codes=camcops_server.tools.fetch_snomed_codes:main",  # noqa: E501
         ]
     },
 )

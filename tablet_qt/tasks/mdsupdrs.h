@@ -20,6 +20,7 @@
 
 #pragma once
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -28,22 +29,28 @@ class TaskFactory;
 
 void initializeMdsUpdrs(TaskFactory& factory);
 
-
 class MdsUpdrs : public Task
 {
     Q_OBJECT
+
 public:
-    MdsUpdrs(CamcopsApp& app, DatabaseManager& db,
-             int load_pk = dbconst::NONEXISTENT_PK);
+    MdsUpdrs(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
-    virtual TaskImplementationType implementationType() const override {
+
+    virtual TaskImplementationType implementationType() const override
+    {
         return TaskImplementationType::Skeleton;
     }
+
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -57,8 +64,10 @@ public:
     // ------------------------------------------------------------------------
     // Signal handlers
     // ------------------------------------------------------------------------
+
 protected:
     void levodopaChanged(const FieldRef* fieldref);
+
 public:
     static const QString MDS_UPDRS_TABLENAME;
 };

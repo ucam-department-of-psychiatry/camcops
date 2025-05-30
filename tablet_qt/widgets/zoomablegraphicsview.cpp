@@ -21,20 +21,21 @@
 // #define DEBUG_COORDS
 
 #include "zoomablegraphicsview.h"
+
 #include <QDebug>
 #include <QWheelEvent>
-
 
 // ============================================================================
 // Constructor
 // ============================================================================
 
 ZoomableGraphicsView::ZoomableGraphicsView(
-        QGraphicsScene* scene,
-        const bool can_scale_smaller_than_viewport,
-        const qreal min_scale,
-        const qreal max_scale,
-        const qreal scale_step_factor) :
+    QGraphicsScene* scene,
+    const bool can_scale_smaller_than_viewport,
+    const qreal min_scale,
+    const qreal max_scale,
+    const qreal scale_step_factor
+) :
     QGraphicsView(scene),
     m_can_scale_smaller_than_viewport(can_scale_smaller_than_viewport),
     m_min_scale(min_scale),
@@ -46,14 +47,15 @@ ZoomableGraphicsView::ZoomableGraphicsView(
     m_two_finger_zooming(false),
     m_two_finger_start_scale(1.0)
 {
-    // For touch zoom and touch drag:
-    // See https://code.qt.io/cgit/qt/qtbase.git/tree/examples/widgets/touch/pinchzoom/graphicsview.cpp?h=5.13
+    // For touch zoom and touch drag. See
+    // https://code.qt.io/cgit/qt/qtbase.git/tree/examples/widgets/touch/pinchzoom/graphicsview.cpp?h=5.13
     viewport()->setAttribute(Qt::WA_AcceptTouchEvents);
     setDragMode(ScrollHandDrag);
 
     // Scroll bars:
     const Qt::ScrollBarPolicy sbp = Qt::ScrollBarAlwaysOn;
-    // const Qt::ScrollBarPolicy sbp = Qt::ScrollBarAsNeeded;  // too tricky; see resizeEvent()
+    // const Qt::ScrollBarPolicy sbp = Qt::ScrollBarAsNeeded;
+    // ... too tricky; see resizeEvent()
     setHorizontalScrollBarPolicy(sbp);
     setVerticalScrollBarPolicy(sbp);
 
@@ -64,7 +66,6 @@ ZoomableGraphicsView::ZoomableGraphicsView(
     // contents are visible.
     setAlignment(Qt::AlignLeft | Qt::AlignTop);
 }
-
 
 // ============================================================================
 // Ways that the zoom can change
@@ -90,25 +91,26 @@ void ZoomableGraphicsView::wheelEvent(QWheelEvent* event)
     rescale();
 }
 
-
 bool ZoomableGraphicsView::viewportEvent(QEvent* event)
 {
-    // See https://code.qt.io/cgit/qt/qtbase.git/tree/examples/widgets/touch/pinchzoom/graphicsview.cpp?h=5.13
+    // See
+    // https://code.qt.io/cgit/qt/qtbase.git/tree/examples/widgets/touch/pinchzoom/graphicsview.cpp?h=5.13
     // ... but modified.
     const QEvent::Type type = event->type();
     switch (type) {
-    case QEvent::TouchBegin:
-    case QEvent::TouchUpdate:
-    case QEvent::TouchEnd:
-        {
+        case QEvent::TouchBegin:
+        case QEvent::TouchUpdate:
+        case QEvent::TouchEnd: {
 #ifdef DEBUG_COORDS
             qDebug() << Q_FUNC_INFO << type;
 #endif
             QTouchEvent* touch_event = static_cast<QTouchEvent*>(event);
-            QList<QTouchEvent::TouchPoint> touch_points = touch_event->points();
-            if (type == QEvent::TouchEnd ||  // touch is over
-                    touch_points.count() != 2 ||  // not using 2 fingers
-                    touch_event->touchPointStates() & Qt::TouchPointReleased) {  // a finger has been released
+            QList<QTouchEvent::TouchPoint> touch_points
+                = touch_event->points();
+            if (type == QEvent::TouchEnd || touch_points.count() != 2
+                || touch_event->touchPointStates() & Qt::TouchPointReleased) {
+                // Touch is over, or not using two fingers, or a finger has
+                // been released.
                 m_two_finger_zooming = false;
                 return true;
             }
@@ -120,18 +122,17 @@ bool ZoomableGraphicsView::viewportEvent(QEvent* event)
             // Determine scale factor
             const QTouchEvent::TouchPoint& p0 = touch_points.first();
             const QTouchEvent::TouchPoint& p1 = touch_points.last();
-            const qreal current_scale_factor =
-                    QLineF(p0.position(), p1.position()).length()
-                    / QLineF(p0.pressPosition(), p1.pressPosition()).length();
+            const qreal current_scale_factor
+                = QLineF(p0.position(), p1.position()).length()
+                / QLineF(p0.pressPosition(), p1.pressPosition()).length();
             rescale(m_two_finger_start_scale * current_scale_factor);
             return true;
         }
-    default:
-        break;
+        default:
+            break;
     }
     return QGraphicsView::viewportEvent(event);
 }
-
 
 // ============================================================================
 // Other events
@@ -155,7 +156,6 @@ void ZoomableGraphicsView::resizeEvent(QResizeEvent* event)
     fitView();
 }
 
-
 void ZoomableGraphicsView::showEvent(QShowEvent* event)
 {
     Q_UNUSED(event)
@@ -164,7 +164,6 @@ void ZoomableGraphicsView::showEvent(QShowEvent* event)
 #endif
     fitView();
 }
-
 
 // ============================================================================
 // Scaling
@@ -175,7 +174,6 @@ void ZoomableGraphicsView::rescale(qreal scale)
     m_scale = scale;
     rescale();
 }
-
 
 void ZoomableGraphicsView::rescale()
 {
@@ -203,19 +201,17 @@ void ZoomableGraphicsView::rescale()
     update();
 }
 
-
 void ZoomableGraphicsView::fitView()
 {
     const QSize viewport_size = viewportContentsSize();
     const QRectF scene_rect = sceneRect();
     const QSize contents_size = scene_rect.size().toSize();
 #ifdef DEBUG_COORDS
-    qDebug().nospace() << Q_FUNC_INFO
-                       << ": viewport_size " << viewport_size
+    qDebug().nospace() << Q_FUNC_INFO << ": viewport_size " << viewport_size
                        << ", contents_size " << contents_size;
 #endif
-    if (contents_size.height() <= viewport_size.height() &&
-            contents_size.width() <= viewport_size.width()) {
+    if (contents_size.height() <= viewport_size.height()
+        && contents_size.width() <= viewport_size.width()) {
         // The contents fits within the viewport.
         // We're not trying to zoom in unless asked to do so.
         // (Though we may have had to zoom out -- shrink -- for small screens.)
@@ -248,7 +244,8 @@ void ZoomableGraphicsView::fitView()
     }
 #endif
     if (horiz_scale > 1.0) {
-        qWarning() << Q_FUNC_INFO << "BUG? horiz_scale > 1.0 despite previous check";
+        qWarning() << Q_FUNC_INFO
+                   << "BUG? horiz_scale > 1.0 despite previous check";
         horiz_scale = 1.0;
         setTransform(QTransform());  // identity matrix
         // We hope not to get here; that's potentially inefficient
@@ -256,12 +253,11 @@ void ZoomableGraphicsView::fitView()
     }
     m_previous_scale = m_scale = m_smallest_fit_scale = horiz_scale;
 #ifdef DEBUG_COORDS
-    qDebug().nospace()
-            << Q_FUNC_INFO
-             << ": Setting m_scale and m_smallest_fit_scale to " << m_scale;
+    qDebug().nospace() << Q_FUNC_INFO
+                       << ": Setting m_scale and m_smallest_fit_scale to "
+                       << m_scale;
 #endif
 }
-
 
 QSize ZoomableGraphicsView::viewportContentsSize() const
 {

@@ -19,29 +19,26 @@
 */
 
 #include "researchsetsmenu.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
-#include "menulib/menuitem.h"
-
 #include "menu/setmenucpftadrd.h"
 #include "menu/setmenudeakin.h"
 #include "menu/setmenukhandakerinsight.h"
 #include "menu/setmenukhandakermojo.h"
 #include "menu/setmenulynalliam.h"
 #include "menu/setmenuobrien.h"
-
+#include "menulib/menuitem.h"
 
 ResearchSetsMenu::ResearchSetsMenu(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_RESEARCH))
 {
 }
 
-
 QString ResearchSetsMenu::title() const
 {
     return tr("Sets of tasks collected together for research purposes");
 }
-
 
 void ResearchSetsMenu::makeItems()
 {

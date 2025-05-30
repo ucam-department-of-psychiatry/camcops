@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/tasks/pbq.py
 
@@ -149,7 +147,7 @@ class Pbq(TaskHasPatientMixin, Task, metaclass=PbqMetaclass):
         15,
         16,
         17,
-    ]  # 12 questions  # noqa
+    ]  # 12 questions
     FACTOR_2_Q = [3, 4, 5, 11, 14, 21, 23]  # 7 questions
     FACTOR_3_Q = [19, 20, 22, 25]  # 4 questions
     FACTOR_4_Q = [18, 24]  # 2 questions

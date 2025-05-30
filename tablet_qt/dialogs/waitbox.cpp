@@ -19,11 +19,14 @@
 */
 
 #include "waitbox.h"
+
 #include <QApplication>
 #include <QDebug>
 #include <QKeyEvent>
 #include <QThread>
+
 #include "lib/uifunc.h"
+#include "qobjects/widgetpositioner.h"
 
 /*
 
@@ -71,8 +74,12 @@
 */
 
 
-WaitBox::WaitBox(QWidget* parent, const QString& text, const QString& title,
-                 const int minimum_duration_ms) :
+WaitBox::WaitBox(
+    QWidget* parent,
+    const QString& text,
+    const QString& title,
+    const int minimum_duration_ms
+) :
     QProgressDialog(text, "", 0, 0, parent)
 {
     // if min = max = 0, you get an infinite wait bar.
@@ -99,8 +106,9 @@ WaitBox::WaitBox(QWidget* parent, const QString& text, const QString& title,
 
     // Without the setMinimumDuration() call, you never see the dialog.
     setMinimumDuration(minimum_duration_ms);
-}
 
+    new WidgetPositioner(this);
+}
 
 WaitBox::~WaitBox()
 {
@@ -108,7 +116,6 @@ WaitBox::~WaitBox()
     QApplication::restoreOverrideCursor();
     // qDebug() << Q_FUNC_INFO << "done";
 }
-
 
 void WaitBox::keyPressEvent(QKeyEvent* event)
 {

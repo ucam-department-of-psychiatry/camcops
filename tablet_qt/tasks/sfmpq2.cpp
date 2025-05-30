@@ -19,9 +19,10 @@
 */
 
 #include "sfmpq2.h"
-#include "maths/mathfunc.h"
+
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
@@ -56,16 +57,17 @@ void initializeSfmpq2(TaskFactory& factory)
     static TaskRegistrar<Sfmpq2> registered(factory);
 }
 
-
 Sfmpq2::Sfmpq2(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, SFMPQ2_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, SFMPQ2_TABLENAME, false, false, false),
+    // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
+    );
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -76,25 +78,23 @@ QString Sfmpq2::shortname() const
     return "SF-MPQ2";
 }
 
-
 QString Sfmpq2::longname() const
 {
     return tr("Short-Form McGill Pain Questionnaire 2");
 }
 
-
 QString Sfmpq2::description() const
 {
-    return tr("22-item self-report measure of pain symptoms of both "
-              "neuropathic and non-neuropathic pain conditions.");
+    return tr(
+        "22-item self-report measure of pain symptoms of both "
+        "neuropathic and non-neuropathic pain conditions."
+    );
 }
-
 
 QStringList Sfmpq2::fieldNames() const
 {
     return strseq(QPREFIX, FIRST_Q, N_QUESTIONS);
 }
-
 
 // ============================================================================
 // Instance info
@@ -109,70 +109,76 @@ bool Sfmpq2::isComplete() const
     return true;
 }
 
-
 QVariant Sfmpq2::totalPain() const
 {
     return meanOrNull(values(fieldNames()), IGNORE_NULL_FOR_MEAN);
 }
 
-
 QVariant Sfmpq2::continuousPain() const
 {
-    return meanOrNull(values(strnumlist(QPREFIX, CONTINUOUS_PAIN_QUESTIONS)),
-                      IGNORE_NULL_FOR_MEAN);
+    return meanOrNull(
+        values(strnumlist(QPREFIX, CONTINUOUS_PAIN_QUESTIONS)),
+        IGNORE_NULL_FOR_MEAN
+    );
 }
-
 
 QVariant Sfmpq2::intermittentPain() const
 {
-    return meanOrNull(values(strnumlist(QPREFIX, INTERMITTENT_PAIN_QUESTIONS)),
-                      IGNORE_NULL_FOR_MEAN);
+    return meanOrNull(
+        values(strnumlist(QPREFIX, INTERMITTENT_PAIN_QUESTIONS)),
+        IGNORE_NULL_FOR_MEAN
+    );
 }
-
 
 QVariant Sfmpq2::neuropathicPain() const
 {
-    return meanOrNull(values(strnumlist(QPREFIX, NEUROPATHIC_PAIN_QUESTIONS)),
-                      IGNORE_NULL_FOR_MEAN);
+    return meanOrNull(
+        values(strnumlist(QPREFIX, NEUROPATHIC_PAIN_QUESTIONS)),
+        IGNORE_NULL_FOR_MEAN
+    );
 }
-
 
 QVariant Sfmpq2::affectivePain() const
 {
-    return meanOrNull(values(strnumlist(QPREFIX, AFFECTIVE_PAIN_QUESTIONS)),
-                      IGNORE_NULL_FOR_MEAN);
+    return meanOrNull(
+        values(strnumlist(QPREFIX, AFFECTIVE_PAIN_QUESTIONS)),
+        IGNORE_NULL_FOR_MEAN
+    );
 }
-
 
 QStringList Sfmpq2::summary() const
 {
     return QStringList{
-        scorePhraseVariant(xstring("total_pain"), totalPain(),
-                           MAX_SCORE_PER_Q),
-        scorePhraseVariant(xstring("continuous_pain"), continuousPain(),
-                           MAX_SCORE_PER_Q),
-        scorePhraseVariant(xstring("intermittent_pain"), intermittentPain(),
-                           MAX_SCORE_PER_Q),
-        scorePhraseVariant(xstring("neuropathic_pain"), neuropathicPain(),
-                           MAX_SCORE_PER_Q),
-        scorePhraseVariant(xstring("affective_pain"), affectivePain(),
-                           MAX_SCORE_PER_Q),
+        scorePhraseVariant(
+            xstring("total_pain"), totalPain(), MAX_SCORE_PER_Q
+        ),
+        scorePhraseVariant(
+            xstring("continuous_pain"), continuousPain(), MAX_SCORE_PER_Q
+        ),
+        scorePhraseVariant(
+            xstring("intermittent_pain"), intermittentPain(), MAX_SCORE_PER_Q
+        ),
+        scorePhraseVariant(
+            xstring("neuropathic_pain"), neuropathicPain(), MAX_SCORE_PER_Q
+        ),
+        scorePhraseVariant(
+            xstring("affective_pain"), affectivePain(), MAX_SCORE_PER_Q
+        ),
     };
 }
-
 
 QStringList Sfmpq2::detail() const
 {
     QStringList lines = completenessInfo();
     const QString spacer = " ";
     const QString suffix = "";
-    lines += fieldSummaries("q", suffix, spacer, QPREFIX, FIRST_Q, N_QUESTIONS);
+    lines
+        += fieldSummaries("q", suffix, spacer, QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");
     lines += summary();
 
     return lines;
 }
-
 
 OpenableWidget* Sfmpq2::editor(const bool read_only)
 {
@@ -190,8 +196,9 @@ OpenableWidget* Sfmpq2::editor(const bool read_only)
 
     for (const QString& fieldname : fieldNames()) {
         const QString& description = xstring(fieldname);
-        q_field_pairs.append(QuestionWithOneField(description,
-                                                  fieldRef(fieldname)));
+        q_field_pairs.append(
+            QuestionWithOneField(description, fieldRef(fieldname))
+        );
     }
     auto grid = new QuMcqGrid(q_field_pairs, intensity_options);
 
@@ -207,10 +214,8 @@ OpenableWidget* Sfmpq2::editor(const bool read_only)
     };
     grid->setSubtitles(subtitles);
 
-    QuPagePtr page((new QuPage{
-                        new QuText(xstring("instructions")),
-                        grid
-                    })->setTitle(xstring("title_main")));
+    QuPagePtr page((new QuPage{new QuText(xstring("instructions")), grid})
+                       ->setTitle(xstring("title_main")));
 
     m_questionnaire = new Questionnaire(m_app, {page});
     m_questionnaire->setType(QuPage::PageType::Patient);

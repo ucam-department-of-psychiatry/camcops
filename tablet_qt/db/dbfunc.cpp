@@ -25,18 +25,19 @@
 // #define DEBUG_QUERY_TIMING
 
 #include "dbfunc.h"
+
 #include <QDateTime>
 #include <QObject>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QSqlRecord>
+
 #include "db/databasemanager.h"
 #include "db/sqlitepragmainfofield.h"
 #include "db/whichdb.h"
 #include "lib/debugfunc.h"
+#include "lib/errorfunc.h"
 #include "lib/filefunc.h"
-#include "lib/uifunc.h"
-
 
 namespace dbfunc {
 
@@ -51,7 +52,6 @@ const QString TABLE_TEMP_SUFFIX("_temp");
 
 // Private to this file:
 const QString CONNECTION_ENCRYPTION_TEMP_PLAIN("encryption_temp_plain");
-
 
 // ============================================================================
 // SQL fragments
@@ -68,17 +68,15 @@ QString delimit(const QString& identifier)
     return "\"" + identifier + "\"";
 }
 
-
 QString selectColumns(const QStringList& columns, const QString& table)
 {
     QStringList delimited_columns;
     for (const QString& column : columns) {
         delimited_columns.append(delimit(column));
     }
-    return QString("SELECT %1 FROM %2").arg(delimited_columns.join(","),
-                                            delimit(table));
+    return QString("SELECT %1 FROM %2")
+        .arg(delimited_columns.join(","), delimit(table));
 }
-
 
 SqlArgs updateColumns(const UpdateValues& updatevalues, const QString& table)
 {
@@ -92,11 +90,10 @@ SqlArgs updateColumns(const UpdateValues& updatevalues, const QString& table)
         columns.append(QString("%1=?").arg(delimit(column)));
         args.append(value);
     }
-    const QString sql = QString("UPDATE %1 SET %2").arg(delimit(table),
-                                                        columns.join(", "));
+    const QString sql
+        = QString("UPDATE %1 SET %2").arg(delimit(table), columns.join(", "));
     return SqlArgs(sql, args);
 }
-
 
 // ============================================================================
 // Queries
@@ -112,12 +109,11 @@ void addOrderByClause(const OrderBy& order_by, SqlArgs& sqlargs_altered)
         const QString fieldname = pair.first;
         const bool ascending = pair.second;
         order_by_clauses.append(QString("%1 %2").arg(
-                                    delimit(fieldname),
-                                    ascending ? "ASC" : "DESC"));
+            delimit(fieldname), ascending ? "ASC" : "DESC"
+        ));
     }
     sqlargs_altered.sql += " ORDER BY " + order_by_clauses.join(", ");
 }
-
 
 void addArgs(QSqlQuery& query, const ArgList& args)
 {
@@ -128,16 +124,19 @@ void addArgs(QSqlQuery& query, const ArgList& args)
     }
 }
 
-
-bool execQuery(QSqlQuery& query, const SqlArgs& sqlargs,
-               const bool suppress_errors)
+bool execQuery(
+    QSqlQuery& query, const SqlArgs& sqlargs, const bool suppress_errors
+)
 {
     return execQuery(query, sqlargs.sql, sqlargs.args, suppress_errors);
 }
 
-
-bool execQuery(QSqlQuery& query, const QString& sql, const ArgList& args,
-               const bool suppress_errors)
+bool execQuery(
+    QSqlQuery& query,
+    const QString& sql,
+    const ArgList& args,
+    const bool suppress_errors
+)
 {
     // Executes an existing query (in place) with the supplied SQL/args.
     // THIS IS THE MAIN POINT THROUGH WHICH ALL QUERIES SHOULD BE EXECUTED.
@@ -164,8 +163,8 @@ bool execQuery(QSqlQuery& query, const QString& sql, const ArgList& args,
     qDebug() << "... query finished";
 #endif
 #ifdef DEBUG_QUERY_TIMING
-    qDebug() << (query.isSelect() ? "SELECT" : "Non-SELECT")
-             << "query took" << start_time.msecsTo(end_time) << "ms";
+    qDebug() << (query.isSelect() ? "SELECT" : "Non-SELECT") << "query took"
+             << start_time.msecsTo(end_time) << "ms";
 #endif
     if (!success && !suppress_errors) {
         qCritical() << "Query failed; error was:" << query.lastError();
@@ -202,7 +201,6 @@ bool execQuery(QSqlQuery& query, const QString& sql, const ArgList& args,
     // https://doc.qt.io/qt-6.5/sql-sqlstatements.html
 }
 
-
 QString sqlParamHolders(const int n)
 {
     // String like "?,?,?" for n parameter holders
@@ -216,7 +214,6 @@ QString sqlParamHolders(const int n)
     return paramholders;
 }
 
-
 ArgList argListFromIntList(const QVector<int>& intlist)
 {
     ArgList args;
@@ -226,14 +223,13 @@ ArgList argListFromIntList(const QVector<int>& intlist)
     return args;
 }
 
-
 // ============================================================================
 // Database structure
 // ============================================================================
 
 QStringList fieldNamesFromPragmaInfo(
-        const QVector<SqlitePragmaInfoField>& infolist,
-        const bool delimited)
+    const QVector<SqlitePragmaInfoField>& infolist, const bool delimited
+)
 {
     QStringList fieldnames;
     const int size = infolist.size();
@@ -247,10 +243,9 @@ QStringList fieldNamesFromPragmaInfo(
     return fieldnames;
 }
 
-
 QString makeCreationSqlFromPragmaInfo(
-        const QString& tablename,
-        const QVector<SqlitePragmaInfoField>& infolist)
+    const QString& tablename, const QVector<SqlitePragmaInfoField>& infolist
+)
 {
     QStringList fieldspecs;
     const int size = infolist.size();
@@ -271,60 +266,64 @@ QString makeCreationSqlFromPragmaInfo(
         }
         fieldspecs.append(elements.join(" "));
     }
-    return QString("CREATE TABLE IF NOT EXISTS %1 (%2)").arg(
-        delimit(tablename), fieldspecs.join(", "));
+    return QString("CREATE TABLE IF NOT EXISTS %1 (%2)")
+        .arg(delimit(tablename), fieldspecs.join(", "));
 }
-
 
 // ============================================================================
 // Altering structure
 // ============================================================================
 
-QString sqlCreateTable(const QString& tablename,
-                       const QVector<Field>& fieldlist)
+QString
+    sqlCreateTable(const QString& tablename, const QVector<Field>& fieldlist)
 {
     QStringList coldefs;
     for (const Field& field : fieldlist) {
         const QString coltype = field.sqlColumnDef();
         coldefs << QString("%1 %2").arg(delimit(field.name()), coltype);
     }
-    const QString sql = QString("CREATE TABLE IF NOT EXISTS %1 (%2)").arg(
-        delimit(tablename), coldefs.join(", "));
+    const QString sql = QString("CREATE TABLE IF NOT EXISTS %1 (%2)")
+                            .arg(delimit(tablename), coldefs.join(", "));
     return sql;
 }
-
 
 // ============================================================================
 // Encryption queries, via SQLCipher
 // ============================================================================
 
-bool encryptPlainDatabaseInPlace(const QString& filename,
-                                 const QString& tempfilename,
-                                 const QString& passphrase)
+bool encryptPlainDatabaseInPlace(
+    const QString& filename,
+    const QString& tempfilename,
+    const QString& passphrase
+)
 {
     // If the database was not empty, we have to use a temporary database
     // method:
     // https://discuss.zetetic.net/t/how-to-encrypt-a-plaintext-sqlite-database-to-use-sqlcipher-and-avoid-file-is-encrypted-or-is-not-a-database-errors/868
-    qInfo().nospace()
-            << "Converting plain database ("
-            << filename << ") to encrypted database (using temporary file: "
-            << tempfilename << ")";
-    const QString title(QObject::tr("Error encrypting databases"));
+    qInfo().nospace() << "Converting plain database (" << filename
+                      << ") to encrypted database (using temporary file: "
+                      << tempfilename << ")";
+
+    const QString error_format
+        = QObject::tr("Error encrypting databases:\n%1");
 
     // 1. Check files exist/don't exist.
     if (!filefunc::fileExists(filename)) {
-        uifunc::stopApp("Missing database: " + filename, title);
+        errorfunc::fatalError(error_format.arg("Missing database: " + filename)
+        );
     }
     if (filefunc::fileExists(tempfilename)) {
-        uifunc::stopApp("Temporary file exists but shouldn't: " + tempfilename,
-                        title);
+        errorfunc::fatalError(error_format.arg(
+            "Temporary file exists but shouldn't: " + tempfilename
+        ));
     }
 
     bool success = false;
     {  // scope to close db automatically
         // 2. Open the plain-text database
-        DatabaseManager db(filename, CONNECTION_ENCRYPTION_TEMP_PLAIN,
-                           whichdb::DBTYPE);
+        DatabaseManager db(
+            filename, CONNECTION_ENCRYPTION_TEMP_PLAIN, whichdb::DBTYPE
+        );
 
         // 3. Encrypt it to another database.
         success = db.encryptToAnother(tempfilename, passphrase);

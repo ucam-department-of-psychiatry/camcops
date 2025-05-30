@@ -21,13 +21,15 @@
 // #define DEBUG_JSON
 
 #include "patient.h"
+
 #include <limits>
 #include <QDebug>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 #include <QtAlgorithms>  // for qsort()
-#include "core/camcopsapp.h"
+
 #include "common/dbconst.h"
+#include "core/camcopsapp.h"
 #include "db/ancillaryfunc.h"
 #include "db/dbfunc.h"
 #include "db/dbnestabletransaction.h"
@@ -49,8 +51,8 @@
 #include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qulineeditemail.h"
 #include "questionnairelib/qulineeditint64.h"
-#include "questionnairelib/qumcq.h"
 #include "questionnairelib/qulineeditnhsnumber.h"
+#include "questionnairelib/qumcq.h"
 #include "questionnairelib/qupage.h"
 #include "questionnairelib/qutext.h"
 #include "questionnairelib/qutextedit.h"
@@ -104,11 +106,14 @@ const QString KEY_SEX("sex");  // C->S, in JSON, v2.3.0
 const QString KEY_SURNAME("surname");  // C->S, in JSON, v2.3.0
 
 const QStringList MAIN_FIELDS{
-    FORENAME_FIELD, SURNAME_FIELD,
-    SEX_FIELD, DOB_FIELD,
-    EMAIL_FIELD, ADDRESS_FIELD,
-    GP_FIELD, OTHER_DETAILS_FIELD
-};  // Everything except the (linked) ID numbers.
+    FORENAME_FIELD,
+    SURNAME_FIELD,
+    SEX_FIELD,
+    DOB_FIELD,
+    EMAIL_FIELD,
+    ADDRESS_FIELD,
+    GP_FIELD,
+    OTHER_DETAILS_FIELD};  // Everything except the (linked) ID numbers.
 
 const QMap<QString, QString> FIELDNAMES_TO_JSON_KEYS{
     {FORENAME_FIELD, KEY_FORENAME},
@@ -120,7 +125,6 @@ const QMap<QString, QString> FIELDNAMES_TO_JSON_KEYS{
     {GP_FIELD, KEY_GP},
     {OTHER_DETAILS_FIELD, KEY_OTHER},
 };
-
 
 // ============================================================================
 // Creation
@@ -149,29 +153,30 @@ Patient::Patient(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
 
-
-Patient::Patient(CamcopsApp& app, DatabaseManager& db,
-                 const QJsonObject& json_obj) : Patient(app, db)
+Patient::Patient(
+    CamcopsApp& app, DatabaseManager& db, const QJsonObject& json_obj
+) :
+    Patient(app, db)
 {
     setPatientDetailsFromJson(json_obj);
 }
-
 
 void Patient::setPatientDetailsFromJson(const QJsonObject& json_obj)
 {
     setValuesFromJson(json_obj, FIELDNAMES_TO_JSON_KEYS);
 }
 
-
 void Patient::addIdNums(const QJsonObject& json_obj)
 {
-    const QRegularExpression regex(QString("%1(\\d+)").arg(IDNUM_FIELD_PREFIX));
+    const QRegularExpression regex(QString("%1(\\d+)").arg(IDNUM_FIELD_PREFIX)
+    );
 
-    foreach(const QString& key, json_obj.keys()) {
+    foreach (const QString& key, json_obj.keys()) {
         const QRegularExpressionMatch match = regex.match(key);
         if (match.hasMatch()) {
             const int which_idnum = match.captured(1).toInt();
-            const qint64 idnum_value = json_obj.value(key).toVariant().toLongLong();
+            const qint64 idnum_value
+                = json_obj.value(key).toVariant().toLongLong();
 
             PatientIdNumPtr new_id(
                 new PatientIdNum(id(), which_idnum, idnum_value, m_app, m_db)
@@ -181,13 +186,11 @@ void Patient::addIdNums(const QJsonObject& json_obj)
     }
 }
 
-
 void Patient::setIdNums(const QJsonObject& json_obj)
 {
     deleteAllIdNums();
     addIdNums(json_obj);
 }
-
 
 // ============================================================================
 // Ancillary management
@@ -197,10 +200,9 @@ void Patient::loadAllAncillary(const int pk)
 {
     const OrderBy order_by{{PatientIdNum::FN_WHICH_IDNUM, true}};
     ancillaryfunc::loadAncillary<PatientIdNum, PatientIdNumPtr>(
-                m_idnums, m_app, m_db,
-                PatientIdNum::FK_PATIENT, order_by, pk);
+        m_idnums, m_app, m_db, PatientIdNum::FK_PATIENT, order_by, pk
+    );
 }
-
 
 QVector<DatabaseObjectPtr> Patient::getAncillarySpecimens() const
 {
@@ -208,7 +210,6 @@ QVector<DatabaseObjectPtr> Patient::getAncillarySpecimens() const
         PatientIdNumPtr(new PatientIdNum(m_app, m_db)),
     };
 }
-
 
 QVector<DatabaseObjectPtr> Patient::getAllAncillary() const
 {
@@ -219,7 +220,6 @@ QVector<DatabaseObjectPtr> Patient::getAllAncillary() const
     return ancillaries;
 }
 
-
 // ============================================================================
 // Information about patients
 // ============================================================================
@@ -229,13 +229,11 @@ int Patient::id() const
     return pkvalueInt();
 }
 
-
 QString Patient::forename() const
 {
     const QString forename = valueString(FORENAME_FIELD);
     return forename.isEmpty() ? "?" : forename;
 }
-
 
 QString Patient::surname() const
 {
@@ -243,49 +241,41 @@ QString Patient::surname() const
     return surname.isEmpty() ? "?" : surname;
 }
 
-
 QString Patient::sex() const
 {
     const QString sex = valueString(SEX_FIELD);
     return sex.isEmpty() ? "?" : sex;
 }
 
-
 bool Patient::isFemale() const
 {
     return sex() == CommonOptions::SEX_FEMALE;
 }
-
 
 bool Patient::isMale() const
 {
     return sex() == CommonOptions::SEX_MALE;
 }
 
-
 QDate Patient::dob() const
 {
     return valueDate(DOB_FIELD);
 }
-
 
 QString Patient::dobText() const
 {
     return datetime::textDate(value(DOB_FIELD));
 }
 
-
 int Patient::ageYears() const
 {
     return datetime::ageYears(value(DOB_FIELD));
 }
 
-
 bool Patient::hasIdnum(int which_idnum) const
 {
     return !idnumVariant(which_idnum).isNull();
 }
-
 
 QVector<int> Patient::whichIdnumsPresent() const
 {
@@ -298,7 +288,6 @@ QVector<int> Patient::whichIdnumsPresent() const
     return which;
 }
 
-
 QVector<int> Patient::whichIdnumsHaveEntries() const
 {
     QVector<int> which;
@@ -307,7 +296,6 @@ QVector<int> Patient::whichIdnumsHaveEntries() const
     }
     return which;
 }
-
 
 QVariant Patient::idnumVariant(const int which_idnum) const
 {
@@ -322,63 +310,54 @@ QVariant Patient::idnumVariant(const int which_idnum) const
     return QVariant();
 }
 
-
 qint64 Patient::idnumInteger(const int which_idnum) const
 {
     return idnumVariant(which_idnum).toLongLong();  // 0 in case of failure
 }
-
 
 bool Patient::hasForename() const
 {
     return !valueString(FORENAME_FIELD).isEmpty();
 }
 
-
 bool Patient::hasSurname() const
 {
     return !valueString(SURNAME_FIELD).isEmpty();
 }
-
 
 bool Patient::hasSex() const
 {
     return !valueString(SEX_FIELD).isEmpty();
 }
 
-
 bool Patient::hasDob() const
 {
     return !value(DOB_FIELD).isNull();
 }
-
 
 bool Patient::hasEmail() const
 {
     return !value(EMAIL_FIELD).isNull();
 }
 
-
 bool Patient::hasAddress() const
 {
     return !valueString(ADDRESS_FIELD).isEmpty();
 }
-
 
 bool Patient::hasGP() const
 {
     return !valueString(GP_FIELD).isEmpty();
 }
 
-
 bool Patient::hasOtherDetails() const
 {
     return !valueString(OTHER_DETAILS_FIELD).isEmpty();
 }
 
-
 Patient::AttributesType Patient::policyAttributes(
-        const QVector<int>& policy_mentioned_idnums) const
+    const QVector<int>& policy_mentioned_idnums
+) const
 {
     AttributesType map;
     map[FORENAME_FIELD] = hasForename();
@@ -406,7 +385,6 @@ Patient::AttributesType Patient::policyAttributes(
     return map;
 }
 
-
 QJsonObject Patient::jsonDescription() const
 {
     QJsonObject j;
@@ -420,7 +398,8 @@ QJsonObject Patient::jsonDescription() const
         const int which_idnum = idnum->whichIdNum();
         const qint64 idnum_value = idnum->idnumAsInteger();
         const QString idkey = QString("%1%2").arg(
-                    KEY_IDNUM_PREFIX, QString::number(which_idnum));
+            KEY_IDNUM_PREFIX, QString::number(which_idnum)
+        );
         j[idkey] = idnum_value;
     }
 
@@ -430,39 +409,35 @@ QJsonObject Patient::jsonDescription() const
     return j;
 }
 
-
 bool Patient::compliesWith(const IdPolicy& policy) const
 {
-    return policy.complies(policyAttributes(
-                               policy.specificallyMentionedIdNums()));
+    return policy.complies(policyAttributes(policy.specificallyMentionedIdNums(
+    )));
 }
-
 
 bool Patient::compliesWithTablet() const
 {
     return compliesWith(TABLET_ID_POLICY);
 }
 
-
 bool Patient::compliesWithUpload() const
 {
     return compliesWith(m_app.uploadPolicy());
 }
-
 
 bool Patient::compliesWithFinalize() const
 {
     return compliesWith(m_app.finalizePolicy());
 }
 
-
 QString Patient::shortIdnumSummary() const
 {
     QStringList details;
     for (const PatientIdNumPtr& idnum : m_idnums) {
-        details.append(QString("%1 %2")
-                       .arg(m_app.idShortDescription(idnum->whichIdNum()),
-                            idnum->idnumAsString()));
+        details.append(QString("%1 %2").arg(
+            m_app.idShortDescription(idnum->whichIdNum()),
+            idnum->idnumAsString()
+        ));
     }
     if (details.isEmpty()) {
         return tr("[No ID numbers]");
@@ -470,9 +445,9 @@ QString Patient::shortIdnumSummary() const
     return details.join(", ");
 }
 
-
-void Patient::updateQuestionnaireIndicators(const FieldRef* fieldref,
-                                            const QObject* originator)
+void Patient::updateQuestionnaireIndicators(
+    const FieldRef* fieldref, const QObject* originator
+)
 {
     // qDebug() << Q_FUNC_INFO;
     Q_UNUSED(fieldref)
@@ -488,10 +463,9 @@ void Patient::updateQuestionnaireIndicators(const FieldRef* fieldref,
         fieldRef(fieldname)->setMandatory(!tablet_ok);
     }
     for (const PatientIdNumPtr& idnum : m_idnums) {
-        // idnum->fieldRef(PatientIdNum::FN_IDNUM_VALUE)->setMandatory(!tablet_ok);
         idnum->fieldRef(PatientIdNum::FN_IDNUM_VALUE)->setMandatory(true);
-        // ... mandatory was "!tablet_ok", but that makes it easier to create blank
-        // ID number entries, which help nobody; changed 2019-03-23.
+        // ... mandatory was "!tablet_ok", but that makes it easier to create
+        // blank ID number entries, which help nobody; changed 2019-03-23.
     }
 
     const bool upload_ok = compliesWithUpload();
@@ -512,18 +486,17 @@ void Patient::updateQuestionnaireIndicators(const FieldRef* fieldref,
         }
     }
     const QString idclash_text = id_ok
-            ? "No clashes"
-            : ("The following IDs clash: " + clashing_ids.join(", "));
+        ? "No clashes"
+        : ("The following IDs clash: " + clashing_ids.join(", "));
     m_questionnaire->setVisibleByTag(TAG_IDCLASH_OK, id_ok);
     m_questionnaire->setVisibleByTag(TAG_IDCLASH_FAIL, !id_ok);
-    QuElement* element = m_questionnaire->getFirstElementByTag(
-                TAG_IDCLASH_DETAIL, false);
+    QuElement* element
+        = m_questionnaire->getFirstElementByTag(TAG_IDCLASH_DETAIL, false);
     auto textelement = dynamic_cast<QuText*>(element);
     if (textelement) {
         textelement->setText(idclash_text);
     }
 }
-
 
 bool Patient::othersClashOnIdnum(const int which_idnum) const
 {
@@ -541,16 +514,17 @@ bool Patient::othersClashOnIdnum(const int which_idnum) const
     const int patient_pk = id();
     const SqlArgs sqlargs(
         QString("SELECT COUNT(*) FROM %1 WHERE %2 = ? AND %3 = ? AND %4 <> ?")
-            .arg(delimit(PatientIdNum::PATIENT_IDNUM_TABLENAME),
-                 delimit(PatientIdNum::FN_WHICH_IDNUM),
-                 delimit(PatientIdNum::FN_IDNUM_VALUE),
-                 delimit(PatientIdNum::FK_PATIENT)),
+            .arg(
+                delimit(PatientIdNum::PATIENT_IDNUM_TABLENAME),
+                delimit(PatientIdNum::FN_WHICH_IDNUM),
+                delimit(PatientIdNum::FN_IDNUM_VALUE),
+                delimit(PatientIdNum::FK_PATIENT)
+            ),
         ArgList{which_idnum, idnum, patient_pk}
     );
     const int c = m_db.fetchInt(sqlargs);
     return c > 0;
 }
-
 
 bool Patient::anyIdClash() const
 {
@@ -559,24 +533,29 @@ bool Patient::anyIdClash() const
     // numbers with this patient)?"
     using dbfunc::delimit;
     ArgList args;
-    const QString sql = QString(
-                "SELECT COUNT(*) "
-                "FROM %1 otherpt "
-                "INNER JOIN %1 thispt "
-                "  ON otherpt.%2 = thispt.%2 "  // which_idnum
-                "  AND otherpt.%3 = thispt.%3 "  // idnum value; will automatically ignore NULLs
-                "  AND otherpt.%4 <> thispt.%4 "  // patient PK
-                "WHERE thispt.%4 = ?")  // patient PK
-            .arg(delimit(PatientIdNum::PATIENT_IDNUM_TABLENAME),  // %1
-                 delimit(PatientIdNum::FN_WHICH_IDNUM),  // %2
-                 delimit(PatientIdNum::FN_IDNUM_VALUE),  // %3
-                 delimit(PatientIdNum::FK_PATIENT));  // %4
+    const QString sql
+        = QString(
+              "SELECT COUNT(*) "
+              "FROM %1 otherpt "
+              "INNER JOIN %1 thispt "
+              "  ON otherpt.%2 = thispt.%2 "
+              "  AND otherpt.%3 = thispt.%3 "
+              "  AND otherpt.%4 <> thispt.%4 "
+              "WHERE thispt.%4 = ?"
+        )
+              .arg(
+                  delimit(PatientIdNum::PATIENT_IDNUM_TABLENAME),  // %1
+                  delimit(PatientIdNum::FN_WHICH_IDNUM),  // %2
+                  delimit(PatientIdNum::FN_IDNUM_VALUE),  // %3
+                  delimit(PatientIdNum::FK_PATIENT)
+              );  // %4
+    // ... %3: idnum value; comparison will automatically ignore NULLs
+    // ... %4: patient PK
     args.append(id());
     const SqlArgs sqlargs(sql, args);
     const int c = m_db.fetchInt(sqlargs);
     return c > 0;
 }
-
 
 int Patient::numTasks() const
 {
@@ -592,7 +571,6 @@ int Patient::numTasks() const
     return n;
 }
 
-
 void Patient::deleteFromDatabase()
 {
     // Delete any associated tasks
@@ -602,20 +580,21 @@ void Patient::deleteFromDatabase()
     }
     DbNestableTransaction trans(m_db);
     TaskFactory* factory = m_app.taskFactory();
-    for (const TaskPtr& p_task : factory->fetchAllTasksForPatient(patient_id)) {
+    for (const TaskPtr& p_task :
+         factory->fetchAllTasksForPatient(patient_id)) {
         p_task->deleteFromDatabase();
     }
     // Delete ourself
     DatabaseObject::deleteFromDatabase();
 }
 
-
 bool Patient::matchesForMerge(const Patient* other) const
 {
     Q_ASSERT(other);
-    auto sameOrOneNullOrBlank = [this, &other](const QString& fieldname) -> bool {
-        if (valueIsNullOrEmpty(fieldname) ||
-                other->valueIsNullOrEmpty(fieldname)) {
+    auto sameOrOneNullOrBlank
+        = [this, &other](const QString& fieldname) -> bool {
+        if (valueIsNullOrEmpty(fieldname)
+            || other->valueIsNullOrEmpty(fieldname)) {
             return true;  // one is null or empty
         }
         const QVariant a = value(fieldname);
@@ -624,16 +603,16 @@ bool Patient::matchesForMerge(const Patient* other) const
     };
 
     if (id() == other->id()) {
-        qWarning() << Q_FUNC_INFO << "Asked to compare two patients with the "
-                                     "same PK for merge! Bug.";
+        qWarning() << Q_FUNC_INFO
+                   << "Asked to compare two patients with the "
+                      "same PK for merge! Bug.";
         return false;
     }
     // All ID numbers must match or be blank:
     for (const PatientIdNumPtr& this_id : m_idnums) {
         const int which_idnum = this_id->whichIdNum();
-        if (this_id->idnumIsPresent() &&
-                other->hasIdnum(which_idnum) &&
-                other->idnumInteger(which_idnum) != idnumInteger(which_idnum)) {
+        if (this_id->idnumIsPresent() && other->hasIdnum(which_idnum)
+            && other->idnumInteger(which_idnum) != idnumInteger(which_idnum)) {
             return false;
         }
     }
@@ -646,59 +625,46 @@ bool Patient::matchesForMerge(const Patient* other) const
     return true;
 }
 
-
 QString Patient::descriptionForMerge() const
 {
-    return QString("<b>%1</b><br>%2<br>%3").arg(surnameUpperForename(),
-                                                sexAgeDob(),
-                                                shortIdnumSummary());
+    return QString("<b>%1</b><br>%2<br>%3")
+        .arg(surnameUpperForename(), sexAgeDob(), shortIdnumSummary());
 }
-
 
 QString Patient::forenameSurname() const
 {
     return QString("%1 %2").arg(forename(), surname());
 }
 
-
 QString Patient::surnameUpperForename() const
 {
     return QString("%1, %2").arg(surname().toUpper(), forename());
 }
 
-
 QString Patient::sexAgeDob() const
 {
-    return QString("%1, %2y, DOB %3").arg(sex(),
-                                          QString::number(ageYears()),
-                                          dobText());
+    return QString("%1, %2y, DOB %3")
+        .arg(sex(), QString::number(ageYears()), dobText());
 }
-
 
 QString Patient::ageSexDob() const
 {
     // "A 37-year-old woman..."
-    return QString("%1y, %2, DOB %3").arg(QString::number(ageYears()),
-                                          sex(),
-                                          dobText());
+    return QString("%1y, %2, DOB %3")
+        .arg(QString::number(ageYears()), sex(), dobText());
 }
-
 
 QString Patient::twoLineDetailString() const
 {
-    return QString("%1 (%2)\n%3").arg(surnameUpperForename(),
-                                      sexAgeDob(),
-                                      shortIdnumSummary());
+    return QString("%1 (%2)\n%3")
+        .arg(surnameUpperForename(), sexAgeDob(), shortIdnumSummary());
 }
-
 
 QString Patient::oneLineHtmlDetailString() const
 {
-    return QString("<b>%1</b> (%2); %3").arg(surnameUpperForename(),
-                                             sexAgeDob(),
-                                             shortIdnumSummary());
+    return QString("<b>%1</b> (%2); %3")
+        .arg(surnameUpperForename(), sexAgeDob(), shortIdnumSummary());
 }
-
 
 QString Patient::oneLineHtmlSimpleString() const
 {
@@ -713,7 +679,6 @@ QString Patient::oneLineHtmlSimpleString() const
     return QString("<b>%1</b>").arg(patient_info);
 }
 
-
 // ============================================================================
 // Editing and other manipulations
 // ============================================================================
@@ -727,13 +692,13 @@ OpenableWidget* Patient::editor(const bool read_only)
     return m_questionnaire;
 }
 
-
 void Patient::buildPage(bool read_only)
 {
     auto addIcon = [this](const QString& name, const QString& tag) {
-        auto image = new QuImage(uifunc::iconFilename(name),
-                                 uiconst::g_iconsize);
-        image->setAdjustForDpi(false);  // uiconst::ICONSIZE already corrects for this
+        auto image
+            = new QuImage(uifunc::iconFilename(name), uiconst::g_iconsize);
+        image->setAdjustForDpi(false);
+        // ... uiconst::ICONSIZE already corrects for this
         image->addTag(tag);
         m_page->addElement(image);
     };
@@ -758,43 +723,70 @@ void Patient::buildPage(bool read_only)
     // ------------------------------------------------------------------------
     // Basic demographics
     // ------------------------------------------------------------------------
-    grid->addCell(QuGridCell(new QuText(tr("Surname")),
-                             row, 0, rowspan, colspan, ralign));
-    grid->addCell(QuGridCell(new QuLineEdit(fieldRef(SURNAME_FIELD, false)),
-                             row++, 1));
-    grid->addCell(QuGridCell(new QuText(tr("Forename")),
-                             row, 0, rowspan, colspan, ralign));
-    grid->addCell(QuGridCell(new QuLineEdit(fieldRef(FORENAME_FIELD, false)),
-                             row++, 1));
-    grid->addCell(QuGridCell(new QuText(tr("Sex")),
-                             row, 0, rowspan, colspan, ralign));
+    grid->addCell(
+        QuGridCell(new QuText(tr("Surname")), row, 0, rowspan, colspan, ralign)
+    );
+    grid->addCell(
+        QuGridCell(new QuLineEdit(fieldRef(SURNAME_FIELD, false)), row++, 1)
+    );
     grid->addCell(QuGridCell(
-        (new QuMcq(fieldRef(SEX_FIELD),  // properly mandatory
-                   CommonOptions::sexes()))->setHorizontal(true),
-        row++, 1));
-    grid->addCell(QuGridCell(new QuText(tr("Date of birth")),
-                             row, 0, rowspan, colspan, ralign));
+        new QuText(tr("Forename")), row, 0, rowspan, colspan, ralign
+    ));
+    grid->addCell(
+        QuGridCell(new QuLineEdit(fieldRef(FORENAME_FIELD, false)), row++, 1)
+    );
+    grid->addCell(
+        QuGridCell(new QuText(tr("Sex")), row, 0, rowspan, colspan, ralign)
+    );
+    grid->addCell(QuGridCell(
+        (new QuMcq(
+             fieldRef(SEX_FIELD),  // properly mandatory
+             CommonOptions::sexes()
+         ))
+            ->setHorizontal(true),
+        row++,
+        1
+    ));
+    grid->addCell(QuGridCell(
+        new QuText(tr("Date of birth")), row, 0, rowspan, colspan, ralign
+    ));
     grid->addCell(QuGridCell(
         (new QuDateTime(fieldRef(DOB_FIELD, false)))
-                      ->setMode(QuDateTime::DefaultDate)
-                      ->setOfferNullButton(true),  // in case policy disallows DOB
-        row++, 1));
-    grid->addCell(QuGridCell(new QuText(tr("Email")),
-                             row, 0, rowspan, colspan, ralign));
-    grid->addCell(QuGridCell(new QuLineEditEmail(fieldRef(EMAIL_FIELD, false)),
-                             row++, 1));
-    grid->addCell(QuGridCell(new QuText(tr("Address")),
-                             row, 0, rowspan, colspan, ralign));
-    grid->addCell(QuGridCell(new QuTextEdit(fieldRef(ADDRESS_FIELD, false)),
-                             row++, 1));
-    grid->addCell(QuGridCell(new QuText(tr("General practitioner (GP)")),
-                             row, 0, rowspan, colspan, ralign));
-    grid->addCell(QuGridCell(new QuTextEdit(fieldRef(GP_FIELD, false)),
-                             row++, 1));
-    grid->addCell(QuGridCell(new QuText(tr("Other details")),
-                             row, 0, rowspan, colspan, ralign));
-    grid->addCell(QuGridCell(new QuTextEdit(fieldRef(OTHER_DETAILS_FIELD, false)),
-                             row++, 1));
+            ->setMode(QuDateTime::DefaultDate)
+            ->setOfferNullButton(true),
+        // ... offer null button in case policy disallows DOB
+        row++,
+        1
+    ));
+    grid->addCell(
+        QuGridCell(new QuText(tr("Email")), row, 0, rowspan, colspan, ralign)
+    );
+    grid->addCell(
+        QuGridCell(new QuLineEditEmail(fieldRef(EMAIL_FIELD, false)), row++, 1)
+    );
+    grid->addCell(
+        QuGridCell(new QuText(tr("Address")), row, 0, rowspan, colspan, ralign)
+    );
+    grid->addCell(
+        QuGridCell(new QuTextEdit(fieldRef(ADDRESS_FIELD, false)), row++, 1)
+    );
+    grid->addCell(QuGridCell(
+        new QuText(tr("General practitioner (GP)")),
+        row,
+        0,
+        rowspan,
+        colspan,
+        ralign
+    ));
+    grid->addCell(
+        QuGridCell(new QuTextEdit(fieldRef(GP_FIELD, false)), row++, 1)
+    );
+    grid->addCell(QuGridCell(
+        new QuText(tr("Other details")), row, 0, rowspan, colspan, ralign
+    ));
+    grid->addCell(QuGridCell(
+        new QuTextEdit(fieldRef(OTHER_DETAILS_FIELD, false)), row++, 1
+    ));
 
     // ------------------------------------------------------------------------
     // Patient ID numbers
@@ -809,17 +801,19 @@ void Patient::buildPage(bool read_only)
         const int which_idnum = idnum->whichIdNum();
         IdNumDescriptionConstPtr idinfo = m_app.getIdInfo(which_idnum);
         auto delete_id = new QuButton(
-                QString("%1 %2 (%3)").arg(
+            QString("%1 %2 (%3)")
+                .arg(
                     tr("Delete ID#"),
                     QString::number(which_idnum),
                     m_app.idDescription(which_idnum)
                 ),
-                std::bind(&Patient::deleteIdNum, this, which_idnum));
-        idgrid->addCell(QuGridCell(delete_id,
-                                   row, 0, rowspan, colspan, lalign));
+            std::bind(&Patient::deleteIdNum, this, which_idnum)
+        );
+        idgrid->addCell(QuGridCell(delete_id, row, 0, rowspan, colspan, lalign)
+        );
         auto id_label = new QuText(m_app.idDescription(which_idnum));
-        idgrid->addCell(QuGridCell(id_label,
-                                   row, 1, rowspan, colspan, ralign));
+        idgrid->addCell(QuGridCell(id_label, row, 1, rowspan, colspan, ralign)
+        );
 
         auto id_fr = idnum->fieldRef(PatientIdNum::FN_IDNUM_VALUE, true);
         // ... mandatory was false, but that makes it easier to create blank
@@ -829,15 +823,15 @@ void Patient::buildPage(bool read_only)
             num_editor = new QuLineEditNHSNumber(id_fr);
         } else {
             num_editor = new QuLineEditInt64(
-                        id_fr, MIN_ID_NUM_VALUE, MAX_ID_NUM_VALUE);
+                id_fr, MIN_ID_NUM_VALUE, MAX_ID_NUM_VALUE
+            );
         }
         idgrid->addCell(QuGridCell(num_editor, row++, 2));
     }
     auto add_id = new QuButton(
-                tr("Add ID number"),
-                std::bind(&Patient::addIdNum, this));
-    idgrid->addCell(QuGridCell(add_id,
-                               row++, 0, rowspan, colspan, lalign));
+        tr("Add ID number"), std::bind(&Patient::addIdNum, this)
+    );
+    idgrid->addCell(QuGridCell(add_id, row++, 0, rowspan, colspan, lalign));
     m_page->addElement(idgrid);
 
     // ------------------------------------------------------------------------
@@ -848,17 +842,23 @@ void Patient::buildPage(bool read_only)
     addIcon(uiconst::CBS_OK, TAG_POLICY_APP_OK);
     addIcon(uiconst::ICON_STOP, TAG_POLICY_APP_FAIL);
 
-    m_page->addElement(new QuHeading(tr("Minimum ID required for upload to server:")));
+    m_page->addElement(
+        new QuHeading(tr("Minimum ID required for upload to server:"))
+    );
     m_page->addElement(new QuText(m_app.uploadPolicy().pretty()));
     addIcon(uiconst::CBS_OK, TAG_POLICY_UPLOAD_OK);
     addIcon(uiconst::ICON_STOP, TAG_POLICY_UPLOAD_FAIL);
 
-    m_page->addElement(new QuHeading(tr("Minimum ID required to finalize on server:")));
+    m_page->addElement(
+        new QuHeading(tr("Minimum ID required to finalize on server:"))
+    );
     m_page->addElement(new QuText(m_app.finalizePolicy().pretty()));
     addIcon(uiconst::CBS_OK, TAG_POLICY_FINALIZE_OK);
     addIcon(uiconst::ICON_STOP, TAG_POLICY_FINALIZE_FAIL);
 
-    m_page->addElement(new QuHeading(tr("ID numbers must not clash with another patient:")));
+    m_page->addElement(
+        new QuHeading(tr("ID numbers must not clash with another patient:"))
+    );
     m_page->addElement((new QuText("?"))->addTag(TAG_IDCLASH_DETAIL));
     addIcon(uiconst::CBS_OK, TAG_IDCLASH_OK);
     addIcon(uiconst::ICON_STOP, TAG_IDCLASH_FAIL);
@@ -868,16 +868,23 @@ void Patient::buildPage(bool read_only)
     // ------------------------------------------------------------------------
     for (const QString& fieldname : MAIN_FIELDS) {
         FieldRefPtr fr = fieldRef(fieldname);
-        connect(fr.data(), &FieldRef::valueChanged,
-                this, &Patient::updateQuestionnaireIndicators);
+        connect(
+            fr.data(),
+            &FieldRef::valueChanged,
+            this,
+            &Patient::updateQuestionnaireIndicators
+        );
     }
     for (const PatientIdNumPtr& idnum : m_idnums) {
         FieldRefPtr fr = idnum->fieldRef(PatientIdNum::FN_IDNUM_VALUE);
-        connect(fr.data(), &FieldRef::valueChanged,
-                this, &Patient::updateQuestionnaireIndicators);
+        connect(
+            fr.data(),
+            &FieldRef::valueChanged,
+            this,
+            &Patient::updateQuestionnaireIndicators
+        );
     }
 }
-
 
 void Patient::mergeInDetailsAndTakeTasksFrom(const Patient* other)
 {
@@ -902,22 +909,26 @@ void Patient::mergeInDetailsAndTakeTasksFrom(const Patient* other)
             for (const PatientIdNumPtr& this_id : m_idnums) {
                 if (this_id->whichIdNum() == which_idnum) {
                     found = true;
-                    if (this_id->idnumIsPresent() &&
-                            this_id->idnumAsInteger() != other_idnum_value) {
+                    if (this_id->idnumIsPresent()
+                        && this_id->idnumAsInteger() != other_idnum_value) {
                         qWarning().nospace()
-                                << Q_FUNC_INFO
-                                << " Something has gone wrong! ID number mismatch for ID#"
-                                << which_idnum
-                                << " (this: " << this_id->idnumAsVariant()
-                                << ", other: " << other_id->idnumAsVariant()
-                                << ") yet we shouldn't be copying if there is mismatch!";
+                            << Q_FUNC_INFO
+                            << " Something has gone wrong! ID number mismatch "
+                               "for ID#"
+                            << which_idnum
+                            << " (this: " << this_id->idnumAsVariant()
+                            << ", other: " << other_id->idnumAsVariant()
+                            << ") yet we shouldn't be copying if there is "
+                               "mismatch!";
                     }
-                    this_id->setIdnumValue(other_id->idnumAsInteger(), true);  // save
+                    this_id->setIdnumValue(other_id->idnumAsInteger(), true);
+                    // ... save
                 }
             }
             if (!found) {
-                PatientIdNumPtr new_id(new PatientIdNum(this_pk, which_idnum,
-                                                        m_app, m_db));
+                PatientIdNumPtr new_id(
+                    new PatientIdNum(this_pk, which_idnum, m_app, m_db)
+                );
                 m_idnums.append(new_id);
                 please_sort = true;
             }
@@ -933,8 +944,9 @@ void Patient::mergeInDetailsAndTakeTasksFrom(const Patient* other)
     for (const QString& fieldname : MAIN_FIELDS) {
         QVariant this_value = value(fieldname);
         QVariant other_value = other->value(fieldname);
-        if (this_value.isNull() || (this_value.toString().isEmpty() &&
-                                    !other_value.toString().isEmpty())) {
+        if (this_value.isNull()
+            || (this_value.toString().isEmpty()
+                && !other_value.toString().isEmpty())) {
             setValue(fieldname, other_value);
         }
     }
@@ -954,28 +966,30 @@ void Patient::mergeInDetailsAndTakeTasksFrom(const Patient* other)
     qInfo() << Q_FUNC_INFO << "Move complete";
 }
 
-
 void Patient::addIdNum()
 {
     const QVector<int> present = whichIdnumsHaveEntries();
     const QVector<int> possible = m_app.whichIdNumsAvailable();
     const QVector<int> unused = containers::setSubtract(possible, present);
     if (unused.isEmpty()) {
-        QString msg = tr("All ID numbers offered by the server are already here!");
+        QString msg
+            = tr("All ID numbers offered by the server are already here!");
         if (present.isEmpty()) {
-            msg += " " + tr("(There are no ID numbers at all – have you "
-                            "registered with a server?)");
+            msg += " "
+                + tr("(There are no ID numbers at all – have you "
+                     "registered with a server?)");
         }
         uifunc::alert(msg);
         return;
     }
     NameValueOptions options;
     for (const int which_idnum : unused) {
-        const QString description = QString("<b>%1</b> <i>[%2 %3]</i>").arg(
-            m_app.idDescription(which_idnum),
-            TextConst::idNumberType(),
-            QString::number(which_idnum)
-        );
+        const QString description = QString("<b>%1</b> <i>[%2 %3]</i>")
+                                        .arg(
+                                            m_app.idDescription(which_idnum),
+                                            TextConst::idNumberType(),
+                                            QString::number(which_idnum)
+                                        );
         const NameValuePair pair(description, which_idnum);
         options.append(pair);
     }
@@ -985,22 +999,28 @@ void Patient::addIdNum()
         return;  // user pressed cancel, or some such
     }
     const int chosen_idnum = chosen_idnum_var.toInt();
-    PatientIdNumPtr new_id = PatientIdNumPtr(new PatientIdNum(
-                            id(), chosen_idnum, m_app, m_db));  // will save
+    PatientIdNumPtr new_id
+        = PatientIdNumPtr(new PatientIdNum(id(), chosen_idnum, m_app, m_db)
+        );  // will save
     m_idnums.append(new_id);
     sortIdNums();
 }
 
-
 void Patient::deleteIdNum(const int which_idnum)
 {
     const QString strnum = QString::number(which_idnum);
-    const QString text(tr("Really delete ID number") + " " + strnum + " (" +
-                       m_app.idDescription(which_idnum) + ")?");
+    const QString text(
+        tr("Really delete ID number") + " " + strnum + " ("
+        + m_app.idDescription(which_idnum) + ")?"
+    );
     const QString title(tr("Delete ID#") + strnum + "?");
-    if (!uifunc::confirm(text, title,
-                         tr("Yes, delete it"), tr("No, cancel"),
-                         m_questionnaire)) {
+    if (!uifunc::confirm(
+            text,
+            title,
+            tr("Yes, delete it"),
+            tr("No, cancel"),
+            m_questionnaire
+        )) {
         return;
     }
     for (int i = 0; i < m_idnums.size(); ++i) {
@@ -1014,7 +1034,6 @@ void Patient::deleteIdNum(const int which_idnum)
     }
 }
 
-
 void Patient::deleteAllIdNums()
 {
     for (int i = 0; i < m_idnums.size(); ++i) {
@@ -1023,7 +1042,6 @@ void Patient::deleteAllIdNums()
     }
     m_idnums.clear();
 }
-
 
 void Patient::sortIdNums()
 {

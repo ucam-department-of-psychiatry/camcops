@@ -22,11 +22,11 @@
 #include <QString>
 class Field;
 
-
 // Describes the way in which we'd like to change a field/column when
 // modifying a database.
 
-class FieldCreationPlan {
+class FieldCreationPlan
+{
 public:
     // Field name
     QString name;
@@ -51,6 +51,7 @@ public:
 
     // Are we modifying this field?
     bool change = false;
+
 public:
     friend QDebug operator<<(QDebug debug, const FieldCreationPlan& plan);
 };

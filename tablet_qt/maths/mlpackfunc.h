@@ -25,20 +25,20 @@
 #ifdef USE_MLPACK
 
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
+    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wunused-parameter"
 // ............................................................................
 
-#include <mlpack/core.hpp>
+    #include <mlpack/core.hpp>
 
-// ............................................................................
-#pragma GCC diagnostic pop
+    // .......................................................................-
+    #pragma GCC diagnostic pop
+
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
-namespace mlpackfunc
-{
+namespace mlpackfunc {
 
 // ============================================================================
 // Conversion between Qt and Armadillo types
@@ -55,22 +55,19 @@ DestContainerT armaVectorFromQVector(const QVector<SourceContentsT>& v)
     return m;
 }
 
-
 template<typename DestContentsT, typename SourceContentsT>
-arma::Col<DestContentsT> armaColumnVectorFromQVector(
-        const QVector<SourceContentsT>& v)
+arma::Col<DestContentsT>
+    armaColumnVectorFromQVector(const QVector<SourceContentsT>& v)
 {
     return armaVectorFromQVector<arma::Col<DestContentsT>>(v);
 }
 
-
 template<typename DestContentsT, typename SourceContentsT>
-arma::Row<DestContentsT> armaRowVectorFromQVector(
-        const QVector<SourceContentsT>& v)
+arma::Row<DestContentsT>
+    armaRowVectorFromQVector(const QVector<SourceContentsT>& v)
 {
     return armaVectorFromQVector<arma::Row<DestContentsT>>(v);
 }
-
 
 template<typename DestContentsT, typename SourceContainerT>
 QVector<DestContentsT> qVectorFromArmaVector(const SourceContainerT& m)
@@ -83,14 +80,13 @@ QVector<DestContentsT> qVectorFromArmaVector(const SourceContainerT& m)
     return v;
 }
 
-
 // ============================================================================
 // Logistic regression
 // ============================================================================
 
 arma::vec getParamsLogisticFitSinglePredictor(
-        const arma::vec& predictors,
-        const arma::Row<size_t>& responses);
+    const arma::vec& predictors, const arma::Row<size_t>& responses
+);
 
 
 }  // namespace mlpackfunc

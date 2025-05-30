@@ -19,10 +19,11 @@
 */
 
 #include "pclcommon.h"
+
 #include "core/camcopsapp.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
@@ -44,26 +45,29 @@ const QString QPREFIX("q");
 const QString EVENT("event");
 const QString EVENTDATE("eventdate");
 
-
-PclCommon::PclCommon(CamcopsApp& app,
-                     DatabaseManager& db,
-                     const QString& tablename,
-                     const QString& xstring_prefix,
-                     const bool specific_event,
-                     const int load_pk) :
+PclCommon::PclCommon(
+    CamcopsApp& app,
+    DatabaseManager& db,
+    const QString& tablename,
+    const QString& xstring_prefix,
+    const bool specific_event,
+    const int load_pk
+) :
     Task(app, db, tablename, false, false, false),  // ... anon, clin, resp
     m_xstring_prefix(xstring_prefix),
     m_specific_event(specific_event)
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
+    );
     if (m_specific_event) {
         addField(EVENT, QMetaType::fromType<QString>());
-        addField(EVENTDATE, QMetaType::fromType<QString>());  // free text from subject
+        addField(EVENTDATE, QMetaType::fromType<QString>());
+        // ... free text from subject
     }
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -74,18 +78,15 @@ QString PclCommon::description() const
     return tr("17-item self-report scale, based on DSM-IV-TR criteria.");
 }
 
-
 QString PclCommon::infoFilenameStem() const
 {
     return "pcl";
 }
 
-
 QString PclCommon::xstringTaskname() const
 {
     return "pcl";
 }
-
 
 // ============================================================================
 // Instance info
@@ -93,23 +94,19 @@ QString PclCommon::xstringTaskname() const
 
 bool PclCommon::isComplete() const
 {
-    return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS))) &&
-            (!m_specific_event || (
-                 !valueIsNullOrEmpty(EVENT) &&
-                 !valueIsNull(EVENTDATE)
-            ));
+    return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)))
+        && (!m_specific_event
+            || (!valueIsNullOrEmpty(EVENT) && !valueIsNull(EVENTDATE)));
 }
-
 
 QStringList PclCommon::summary() const
 {
     return QStringList{
         totalScorePhrase(totalScore(), MAX_QUESTION_SCORE),
-        standardResult(xstring("dsm_criteria_met"),
-                       uifunc::yesNoUnknown(hasPtsd()))
-    };
+        standardResult(
+            xstring("dsm_criteria_met"), uifunc::yesNoUnknown(hasPtsd())
+        )};
 }
-
 
 QStringList PclCommon::detail() const
 {
@@ -123,7 +120,6 @@ QStringList PclCommon::detail() const
     return lines;
 }
 
-
 OpenableWidget* PclCommon::editor(const bool read_only)
 {
     const NameValueOptions options{
@@ -136,25 +132,30 @@ OpenableWidget* PclCommon::editor(const bool read_only)
 
     QVector<QuestionWithOneField> qfields;
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
-        QString xstringname = strnum(i <= 8 ? m_xstring_prefix + "_q" : "q", i);
-        qfields.append(QuestionWithOneField(xstring(xstringname),
-                                            fieldRef(strnum(QPREFIX, i))));
+        QString xstringname
+            = strnum(i <= 8 ? m_xstring_prefix + "_q" : "q", i);
+        qfields.append(QuestionWithOneField(
+            xstring(xstringname), fieldRef(strnum(QPREFIX, i))
+        ));
     }
 
     QVector<QuElement*> elements;
-    auto addtext = [this, &elements](const QString& xstringname,
-                                     bool bold = false) -> void {
+    auto addtext
+        = [this,
+           &elements](const QString& xstringname, bool bold = false) -> void {
         auto text = new QuText(xstring(xstringname));
         if (bold) {
             text->setBold(true);
         }
         elements.append(text);
     };
-    auto addedit = [this, &elements](const QString& fieldname,
-                                     const QString& xstringname,
-                                     bool mandatory = true) -> void {
+    auto addedit = [this, &elements](
+                       const QString& fieldname,
+                       const QString& xstringname,
+                       bool mandatory = true
+                   ) -> void {
         elements.append((new QuTextEdit(fieldRef(fieldname, mandatory)))
-                     ->setHint(xstring(xstringname)));
+                            ->setHint(xstring(xstringname)));
     };
 
     if (m_specific_event) {
@@ -168,17 +169,18 @@ OpenableWidget* PclCommon::editor(const bool read_only)
         {5, ""},
         {12, ""},
     };
-    elements.append((new QuMcqGrid(qfields, options))->setSubtitles(subtitles));
+    elements.append((new QuMcqGrid(qfields, options))->setSubtitles(subtitles)
+    );
 
-    QuPagePtr page((new QuPage(elements))
-                   ->setTitle(xstring(m_xstring_prefix + "_title")));
+    QuPagePtr page(
+        (new QuPage(elements))->setTitle(xstring(m_xstring_prefix + "_title"))
+    );
 
     auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations
@@ -188,7 +190,6 @@ int PclCommon::totalScore() const
 {
     return sumInt(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
-
 
 int PclCommon::numSymptomatic(const int first, const int last) const
 {
@@ -203,12 +204,10 @@ int PclCommon::numSymptomatic(const int first, const int last) const
     return total;
 }
 
-
 int PclCommon::numNull(const int first, const int last) const
 {
     return countNull(values(strseq(QPREFIX, first, last)));
 }
-
 
 QVariant PclCommon::hasPtsd() const
 {
@@ -235,14 +234,13 @@ QVariant PclCommon::hasPtsd() const
     int null_c = numNull(first_c, last_c);
     int null_d = numNull(first_d, last_d);
 
-    if (symptomatic_b >= criterion_b &&
-            symptomatic_c >= criterion_c &&
-            symptomatic_d >= criterion_d) {
+    if (symptomatic_b >= criterion_b && symptomatic_c >= criterion_c
+        && symptomatic_d >= criterion_d) {
         return true;  // has PTSD
     }
-    if (symptomatic_b + null_b >= criterion_b &&
-            symptomatic_c + null_c >= criterion_c &&
-            symptomatic_d + null_d >= criterion_d) {
+    if (symptomatic_b + null_b >= criterion_b
+        && symptomatic_c + null_c >= criterion_c
+        && symptomatic_d + null_d >= criterion_d) {
         return QVariant();  // might have PTSD, depending on more info
     }
     return false;  // not PTSD

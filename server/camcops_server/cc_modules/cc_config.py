@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # noinspection HttpUrlsUsage
 """
 camcops_server/cc_modules/cc_config.py
@@ -189,7 +187,7 @@ DEFAULT_LINUX_CAMCOPS_EXECUTABLE = os.path.join(
 DEFAULT_LINUX_CAMCOPS_STATIC_DIR = os.path.join(
     DEFAULT_LINUX_CAMCOPS_VENV_DIR,
     "lib",
-    "python3.8",
+    "python3.9",
     "site-packages",
     "camcops_server",
     "static",
@@ -1940,7 +1938,7 @@ class CamcopsConfig(object):
         Returns:
             list: of
             :class:`camcops_server.cc_modules.cc_exportrecipientinfo.ExportRecipientInfo`
-        """  # noqa
+        """
         return self._export_recipients
 
     # -------------------------------------------------------------------------

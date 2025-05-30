@@ -31,7 +31,8 @@ extern const QString ISO_DATE_FORMAT;  // e.g. 2000-12-31
 extern const QString SHORT_DATE_FORMAT;  // e.g. 2000-12-31
 extern const QString TEXT_DATE_FORMAT;  // e.g. 31 Dec 2000
 extern const QString TEXT_DATETIME_FORMAT;  // e.g. Thu 31 Dec 2000, 23:59
-extern const QString LONG_DATETIME_FORMAT;  // e.g. Thursday 31 December 2000, 23:59
+extern const QString LONG_DATETIME_FORMAT;
+// ... e.g. Thursday 31 December 2000, 23:59
 extern const QString UNKNOWN;  // "?"
 
 // Converts a date to ISO_DATE_FORMAT

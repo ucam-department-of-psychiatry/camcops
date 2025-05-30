@@ -19,10 +19,11 @@
 */
 
 #include "caps.h"
+
 #include "lib/convert.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quhorizontalline.h"
@@ -51,25 +52,35 @@ const QString FN_FREQ_PREFIX("frequency");
 
 const QString TAG_DETAIL("detail");
 
-
 void initializeCaps(TaskFactory& factory)
 {
     static TaskRegistrar<Caps> registered(factory);
 }
 
-
 Caps::Caps(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, CAPS_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, CAPS_TABLENAME, false, false, false),
+    // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addFields(strseq(FN_ENDORSE_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
-    addFields(strseq(FN_DISTRESS_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
-    addFields(strseq(FN_INTRUSIVE_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
-    addFields(strseq(FN_FREQ_PREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(FN_ENDORSE_PREFIX, FIRST_Q, N_QUESTIONS),
+        QMetaType::fromType<int>()
+    );
+    addFields(
+        strseq(FN_DISTRESS_PREFIX, FIRST_Q, N_QUESTIONS),
+        QMetaType::fromType<int>()
+    );
+    addFields(
+        strseq(FN_INTRUSIVE_PREFIX, FIRST_Q, N_QUESTIONS),
+        QMetaType::fromType<int>()
+    );
+    addFields(
+        strseq(FN_FREQ_PREFIX, FIRST_Q, N_QUESTIONS),
+        QMetaType::fromType<int>()
+    );
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -80,18 +91,15 @@ QString Caps::shortname() const
     return "CAPS";
 }
 
-
 QString Caps::longname() const
 {
     return tr("Cardiff Anomalous Perceptions Scale");
 }
 
-
 QString Caps::description() const
 {
     return tr("32-item self-rated scale for perceptual anomalies.");
 }
-
 
 // ============================================================================
 // Instance info
@@ -107,33 +115,43 @@ bool Caps::isComplete() const
     return true;
 }
 
-
 QStringList Caps::summary() const
 {
     const QString sep(": ");
     const QString suffix(".");
     return QStringList{
         totalScorePhrase(totalScore(), MAX_RAW_TOTAL_SCORE, sep, suffix),
-        scorePhrase("Distress", distressScore(), MAX_SUBSCALE_SCORE, sep, suffix),
-        scorePhrase("Intrusiveness", intrusivenessScore(), MAX_SUBSCALE_SCORE, sep, suffix),
-        scorePhrase("Frequency", frequencyScore(), MAX_SUBSCALE_SCORE, sep, suffix),
+        scorePhrase(
+            "Distress", distressScore(), MAX_SUBSCALE_SCORE, sep, suffix
+        ),
+        scorePhrase(
+            "Intrusiveness",
+            intrusivenessScore(),
+            MAX_SUBSCALE_SCORE,
+            sep,
+            suffix
+        ),
+        scorePhrase(
+            "Frequency", frequencyScore(), MAX_SUBSCALE_SCORE, sep, suffix
+        ),
     };
 }
-
 
 QStringList Caps::detail() const
 {
     QStringList lines = completenessInfo();
     for (int q = FIRST_Q; q <= N_QUESTIONS; ++q) {
         const QVariant e = endorse(q);
-        QString msg = QString("%1 %2")
-                .arg(xstring(strnum("q", q)),
-                     bold(yesNoNull(e)));
+        QString msg = QString("%1 %2").arg(
+            xstring(strnum("q", q)), bold(yesNoNull(e))
+        );
         if (e.toInt() > 0) {
             msg += QString(" (D %1, I %2, F %3)")
-                .arg(bold(convert::prettyValue(distress(q))),
-                     bold(convert::prettyValue(intrusiveness(q))),
-                     bold(convert::prettyValue(frequency(q))));
+                       .arg(
+                           bold(convert::prettyValue(distress(q))),
+                           bold(convert::prettyValue(intrusiveness(q))),
+                           bold(convert::prettyValue(frequency(q)))
+                       );
         }
         lines.append(msg);
     }
@@ -141,7 +159,6 @@ QStringList Caps::detail() const
     lines += summary();
     return lines;
 }
-
 
 OpenableWidget* Caps::editor(const bool read_only)
 {
@@ -174,11 +191,16 @@ OpenableWidget* Caps::editor(const bool read_only)
     m_fr_intrusiveness.clear();
     m_fr_frequency.clear();
 
-    auto addpage = [this, &pages, &options_endorse, &options_distress,
-                    &options_intrusiveness, &options_frequency,
+    auto addpage = [this,
+                    &pages,
+                    &options_endorse,
+                    &options_distress,
+                    &options_intrusiveness,
+                    &options_frequency,
                     &detail_prompt](int q) -> void {
         const bool need_detail = needsDetail(q);
-        const QString pagetitle = QString("CAPS (%1 / %2)").arg(q).arg(N_QUESTIONS);
+        const QString pagetitle
+            = QString("CAPS (%1 / %2)").arg(q).arg(N_QUESTIONS);
         const QString question = xstring(strnum("q", q));
         const QString pagetag = QString::number(q);
         const QString endorse_fieldname = strnum(FN_ENDORSE_PREFIX, q);
@@ -189,39 +211,43 @@ OpenableWidget* Caps::editor(const bool read_only)
         fr_endorse->setHint(q);
         FieldRefPtr fr_distress = fieldRef(distress_fieldname, need_detail);
         m_fr_distress[q] = fr_distress;
-        FieldRefPtr fr_intrusive = fieldRef(intrusiveness_fieldname, need_detail);
+        FieldRefPtr fr_intrusive
+            = fieldRef(intrusiveness_fieldname, need_detail);
         m_fr_intrusiveness[q] = fr_intrusive;
         FieldRefPtr fr_freq = fieldRef(freq_fieldname, need_detail);
         m_fr_frequency[q] = fr_freq;
         QuPagePtr page((new QuPage{
-            (new QuText(question))
-                ->setBold(),
-            new QuMcq(fr_endorse, options_endorse),
-            (new QuText(detail_prompt))
-                ->setBold()
-                ->addTag(TAG_DETAIL)
-                ->setVisible(need_detail),
-            (new QuMcq(fr_distress, options_distress))
-                ->addTag(TAG_DETAIL)
-                ->setVisible(need_detail),
-            (new QuHorizontalLine())
-                ->addTag(TAG_DETAIL)
-                ->setVisible(need_detail),
-            (new QuMcq(fr_intrusive, options_intrusiveness))
-                ->addTag(TAG_DETAIL)
-                ->setVisible(need_detail),
-            (new QuHorizontalLine())
-                ->addTag(TAG_DETAIL)
-                ->setVisible(need_detail),
-            (new QuMcq(fr_freq, options_frequency))
-                ->addTag(TAG_DETAIL)
-                ->setVisible(need_detail),
-        })
-            ->setTitle(pagetitle)
-            ->addTag(pagetag));
+                            (new QuText(question))->setBold(),
+                            new QuMcq(fr_endorse, options_endorse),
+                            (new QuText(detail_prompt))
+                                ->setBold()
+                                ->addTag(TAG_DETAIL)
+                                ->setVisible(need_detail),
+                            (new QuMcq(fr_distress, options_distress))
+                                ->addTag(TAG_DETAIL)
+                                ->setVisible(need_detail),
+                            (new QuHorizontalLine())
+                                ->addTag(TAG_DETAIL)
+                                ->setVisible(need_detail),
+                            (new QuMcq(fr_intrusive, options_intrusiveness))
+                                ->addTag(TAG_DETAIL)
+                                ->setVisible(need_detail),
+                            (new QuHorizontalLine())
+                                ->addTag(TAG_DETAIL)
+                                ->setVisible(need_detail),
+                            (new QuMcq(fr_freq, options_frequency))
+                                ->addTag(TAG_DETAIL)
+                                ->setVisible(need_detail),
+                        })
+                           ->setTitle(pagetitle)
+                           ->addTag(pagetag));
         pages.append(page);
-        connect(fr_endorse.data(), &FieldRef::valueChanged,
-                this, &Caps::endorseChanged);
+        connect(
+            fr_endorse.data(),
+            &FieldRef::valueChanged,
+            this,
+            &Caps::endorseChanged
+        );
     };
 
     for (int q = FIRST_Q; q <= N_QUESTIONS; ++q) {
@@ -234,7 +260,6 @@ OpenableWidget* Caps::editor(const bool read_only)
     return m_questionnaire;
 }
 
-
 // ============================================================================
 // Task-specific calculations
 // ============================================================================
@@ -243,7 +268,6 @@ int Caps::totalScore() const
 {
     return countTrue(values(strseq(FN_ENDORSE_PREFIX, FIRST_Q, N_QUESTIONS)));
 }
-
 
 int Caps::distressScore() const
 {
@@ -256,7 +280,6 @@ int Caps::distressScore() const
     return score;
 }
 
-
 int Caps::intrusivenessScore() const
 {
     int score = 0;
@@ -267,7 +290,6 @@ int Caps::intrusivenessScore() const
     }
     return score;
 }
-
 
 int Caps::frequencyScore() const
 {
@@ -280,7 +302,6 @@ int Caps::frequencyScore() const
     return score;
 }
 
-
 bool Caps::questionComplete(const int q) const
 {
     const QVariant e = endorse(q);
@@ -290,34 +311,29 @@ bool Caps::questionComplete(const int q) const
     if (e.toInt() == 0) {
         return true;
     }
-    return !distress(q).isNull() && !intrusiveness(q).isNull() &&
-            !frequency(q).isNull();
+    return !distress(q).isNull() && !intrusiveness(q).isNull()
+        && !frequency(q).isNull();
 }
-
 
 QVariant Caps::endorse(const int q) const
 {
     return value(strnum(FN_ENDORSE_PREFIX, q));
 }
 
-
 QVariant Caps::distress(const int q) const
 {
     return value(strnum(FN_DISTRESS_PREFIX, q));
 }
-
 
 QVariant Caps::intrusiveness(const int q) const
 {
     return value(strnum(FN_INTRUSIVE_PREFIX, q));
 }
 
-
 QVariant Caps::frequency(const int q) const
 {
     return value(strnum(FN_FREQ_PREFIX, q));
 }
-
 
 // ============================================================================
 // Signal handlers
@@ -350,7 +366,6 @@ void Caps::endorseChanged(const FieldRef* fieldref)
     intrusive_fieldref->setMandatory(need_detail);
     freq_fieldref->setMandatory(need_detail);
 }
-
 
 bool Caps::needsDetail(const int q)
 {

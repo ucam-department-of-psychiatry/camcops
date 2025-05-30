@@ -19,27 +19,32 @@
 */
 
 #pragma once
-#include "db/databaseobject.h"
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QVector>
 
+#include "db/databaseobject.h"
+
 class TaskSchedule : public DatabaseObject
 {
     Q_OBJECT
-public:
 
+public:
     // ------------------------------------------------------------------------
     // Creation
     // ------------------------------------------------------------------------
 
     // Normal constructor.
-    TaskSchedule(CamcopsApp& app, DatabaseManager& db,
-                 int load_pk = dbconst::NONEXISTENT_PK);
+    TaskSchedule(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
 
     // Construct from JSON.
-    TaskSchedule(CamcopsApp& app, DatabaseManager& db,
-                 const QJsonObject& json_obj);
+    TaskSchedule(
+        CamcopsApp& app, DatabaseManager& db, const QJsonObject& json_obj
+    );
 
     // Add schedule items from JSON.
     void addItems(const QJsonArray& items_json_array);

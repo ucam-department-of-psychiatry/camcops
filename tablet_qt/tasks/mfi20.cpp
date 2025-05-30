@@ -19,18 +19,19 @@
 */
 
 #include "mfi20.h"
+
 #include "common/textconst.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
 using mathfunc::anyNull;
-using mathfunc::sumInt;
 using mathfunc::scorePhrase;
+using mathfunc::sumInt;
 using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
 using stringfunc::strnumlist;
@@ -47,8 +48,8 @@ const int MIN_SUBSCALE = MIN_SCORE_PER_Q * N_Q_PER_SUBSCALE;
 const int MAX_SUBSCALE = MAX_SCORE_PER_Q * N_Q_PER_SUBSCALE;
 const QString QPREFIX("q");
 
-const QStringList REVERSE_QUESTIONS = strnumlist(
-    QPREFIX, {2, 5, 9, 10, 13, 14, 16, 17, 18, 19});
+const QStringList REVERSE_QUESTIONS
+    = strnumlist(QPREFIX, {2, 5, 9, 10, 13, 14, 16, 17, 18, 19});
 
 const QVector<int> GENERAL_FATIGUE_QUESTIONS{1, 5, 12, 16};
 const QVector<int> PHYSICAL_FATIGUE_QUESTIONS{2, 8, 14, 20};
@@ -64,16 +65,17 @@ void initializeMfi20(TaskFactory& factory)
     static TaskRegistrar<Mfi20> registered(factory);
 }
 
-
 Mfi20::Mfi20(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, MFI20_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, MFI20_TABLENAME, false, false, false),
+    // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
+    );
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -84,18 +86,15 @@ QString Mfi20::shortname() const
     return "MFI-20";
 }
 
-
 QString Mfi20::longname() const
 {
     return tr("Multidimensional Fatigue Inventory");
 }
 
-
 QString Mfi20::description() const
 {
     return tr("A 20-item self-report instrument designed to measure fatigue.");
 }
-
 
 QStringList Mfi20::fieldNames() const
 {
@@ -116,7 +115,6 @@ bool Mfi20::isComplete() const
     return true;
 }
 
-
 QVector<QVariant> Mfi20::normalizeValues(const QStringList& fieldnames) const
 {
     QVector<QVariant> values;
@@ -124,7 +122,8 @@ QVector<QVariant> Mfi20::normalizeValues(const QStringList& fieldnames) const
         QVariant normalized_value = value(fieldname);
         if (!normalized_value.isNull()) {
             if (REVERSE_QUESTIONS.contains(fieldname)) {
-                normalized_value = MAX_SCORE_PER_Q + 1 - normalized_value.toInt();
+                normalized_value
+                    = MAX_SCORE_PER_Q + 1 - normalized_value.toInt();
             }
         }
 
@@ -134,82 +133,111 @@ QVector<QVariant> Mfi20::normalizeValues(const QStringList& fieldnames) const
     return values;
 }
 
-
 int Mfi20::totalScore() const
 {
     return sumInt(normalizeValues(fieldNames()));
 }
 
-
 int Mfi20::generalFatigue() const
 {
-    return sumInt(normalizeValues(strnumlist(QPREFIX, GENERAL_FATIGUE_QUESTIONS)));
+    return sumInt(
+        normalizeValues(strnumlist(QPREFIX, GENERAL_FATIGUE_QUESTIONS))
+    );
 }
-
 
 int Mfi20::physicalFatigue() const
 {
-    return sumInt(normalizeValues(strnumlist(QPREFIX, PHYSICAL_FATIGUE_QUESTIONS)));
+    return sumInt(
+        normalizeValues(strnumlist(QPREFIX, PHYSICAL_FATIGUE_QUESTIONS))
+    );
 }
-
 
 int Mfi20::reducedActivity() const
 {
-    return sumInt(normalizeValues(strnumlist(QPREFIX, REDUCED_ACTIVITY_QUESTIONS)));
+    return sumInt(
+        normalizeValues(strnumlist(QPREFIX, REDUCED_ACTIVITY_QUESTIONS))
+    );
 }
-
 
 int Mfi20::reducedMotivation() const
 {
-    return sumInt(normalizeValues(strnumlist(QPREFIX, REDUCED_MOTIVATION_QUESTIONS)));
+    return sumInt(
+        normalizeValues(strnumlist(QPREFIX, REDUCED_MOTIVATION_QUESTIONS))
+    );
 }
-
 
 int Mfi20::mentalFatigue() const
 {
-    return sumInt(normalizeValues(strnumlist(QPREFIX, MENTAL_FATIGUE_QUESTIONS)));
+    return sumInt(normalizeValues(strnumlist(QPREFIX, MENTAL_FATIGUE_QUESTIONS)
+    ));
 }
-
 
 QStringList Mfi20::summary() const
 {
-    auto rangeScore = [](const QString& description, const int score,
-                         const int min, const int max) {
-        return QString("%1: <b>%2</b> [%3–%4].").arg(
-                    description,
-                    QString::number(score),
-                    QString::number(min),
-                    QString::number(max));
+    auto rangeScore = [](const QString& description,
+                         const int score,
+                         const int min,
+                         const int max) {
+        return QString("%1: <b>%2</b> [%3–%4].")
+            .arg(
+                description,
+                QString::number(score),
+                QString::number(min),
+                QString::number(max)
+            );
     };
     return QStringList{
-        rangeScore(TextConst::totalScore(), totalScore(),
-                   MIN_QUESTION_SCORE, MAX_QUESTION_SCORE),
-        rangeScore(xstring("general_fatigue"), generalFatigue(),
-                   MIN_SUBSCALE, MAX_SUBSCALE),
-        rangeScore(xstring("physical_fatigue"), physicalFatigue(),
-                   MIN_SUBSCALE, MAX_SUBSCALE),
-        rangeScore(xstring("reduced_activity"), reducedActivity(),
-                   MIN_SUBSCALE, MAX_SUBSCALE),
-        rangeScore(xstring("reduced_motivation"), reducedMotivation(),
-                   MIN_SUBSCALE, MAX_SUBSCALE),
-        rangeScore(xstring("mental_fatigue"), mentalFatigue(),
-                   MIN_SUBSCALE, MAX_SUBSCALE),
+        rangeScore(
+            TextConst::totalScore(),
+            totalScore(),
+            MIN_QUESTION_SCORE,
+            MAX_QUESTION_SCORE
+        ),
+        rangeScore(
+            xstring("general_fatigue"),
+            generalFatigue(),
+            MIN_SUBSCALE,
+            MAX_SUBSCALE
+        ),
+        rangeScore(
+            xstring("physical_fatigue"),
+            physicalFatigue(),
+            MIN_SUBSCALE,
+            MAX_SUBSCALE
+        ),
+        rangeScore(
+            xstring("reduced_activity"),
+            reducedActivity(),
+            MIN_SUBSCALE,
+            MAX_SUBSCALE
+        ),
+        rangeScore(
+            xstring("reduced_motivation"),
+            reducedMotivation(),
+            MIN_SUBSCALE,
+            MAX_SUBSCALE
+        ),
+        rangeScore(
+            xstring("mental_fatigue"),
+            mentalFatigue(),
+            MIN_SUBSCALE,
+            MAX_SUBSCALE
+        ),
     };
 }
-
 
 QStringList Mfi20::detail() const
 {
     QStringList lines = completenessInfo();
     const QString spacer = " ";
     const QString suffix = "";
-    lines += fieldSummaries("q", suffix, spacer, QPREFIX, FIRST_Q, N_QUESTIONS);
+    lines
+        += fieldSummaries("q", suffix, spacer, QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");
     lines += summary();
 
     return lines;
 }
-
 
 OpenableWidget* Mfi20::editor(const bool read_only)
 {
@@ -225,8 +253,9 @@ OpenableWidget* Mfi20::editor(const bool read_only)
 
     for (const QString& fieldname : fieldNames()) {
         const QString& description = xstring(fieldname);
-        q_field_pairs.append(QuestionWithOneField(description,
-                                                  fieldRef(fieldname)));
+        q_field_pairs.append(
+            QuestionWithOneField(description, fieldRef(fieldname))
+        );
     }
     auto grid = new QuMcqGrid(q_field_pairs, agreement_options);
 
@@ -242,10 +271,8 @@ OpenableWidget* Mfi20::editor(const bool read_only)
     };
     grid->setSubtitles(subtitles);
 
-    QuPagePtr page((new QuPage{
-                        new QuText(xstring("instructions")),
-                        grid
-                    })->setTitle(xstring("title_main")));
+    QuPagePtr page((new QuPage{new QuText(xstring("instructions")), grid})
+                       ->setTitle(xstring("title_main")));
 
     m_questionnaire = new Questionnaire(m_app, {page});
     m_questionnaire->setType(QuPage::PageType::Patient);

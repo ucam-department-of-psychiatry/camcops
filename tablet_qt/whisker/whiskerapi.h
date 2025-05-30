@@ -20,11 +20,12 @@
 
 #pragma once
 #include <QColor>
-#include <QDebug>
 #include <QDateTime>
+#include <QDebug>
 #include <QRect>
 #include <QString>
 #include <QStringList>
+
 #include "whisker/whiskerconstants.h"
 
 namespace whiskerapi {
@@ -45,7 +46,8 @@ QString onVal(bool on);
 // Helper structs
 // ============================================================================
 
-struct Pen {
+struct Pen
+{
     // Describes a pen to draw with.
 
     // Constructor. See member variables below.
@@ -62,16 +64,20 @@ struct Pen {
     whiskerconstants::PenStyle style;  // solid, dashed, etc.
 };
 
-
-struct Brush {
+struct Brush
+{
     // Describes a brush to fill with.
 
     // Constructor. See member variables below.
-    Brush(const QColor& colour = whiskerconstants::WHITE,
-          const QColor& bg_colour = whiskerconstants::BLACK,
-          bool opaque = true,
-          whiskerconstants::BrushStyle style = whiskerconstants::BrushStyle::Solid,
-          whiskerconstants::BrushHatchStyle hatch_style = whiskerconstants::BrushHatchStyle::Cross);
+    Brush(
+        const QColor& colour = whiskerconstants::WHITE,
+        const QColor& bg_colour = whiskerconstants::BLACK,
+        bool opaque = true,
+        whiskerconstants::BrushStyle style
+        = whiskerconstants::BrushStyle::Solid,
+        whiskerconstants::BrushHatchStyle hatch_style
+        = whiskerconstants::BrushHatchStyle::Cross
+    );
 
     // Return the Whisker parameters, e.g. "-brushsolid 0 0 100".
     QString whiskerOptionString() const;
@@ -80,11 +86,12 @@ struct Brush {
     QColor bg_colour;  // background colour for hatched brushes (if opaque)
     bool opaque;  // for hatched brushes: opaque?
     whiskerconstants::BrushStyle style;  // e.g. solid, hollow, hatched
-    whiskerconstants::BrushHatchStyle hatch_style;  // for hatched: e.g. horizontal, fdiagonal, cross
+    whiskerconstants::BrushHatchStyle hatch_style;
+    // ... for hatched: e.g. horizontal, fdiagonal, cross
 };
 
-
-struct LogOptions {
+struct LogOptions
+{
     // Options to control what's written to a Whisker server disk log.
 
     bool events = true;  // log events?
@@ -94,8 +101,8 @@ struct LogOptions {
     bool signature = true;  // sign the log?
 };
 
-
-struct DisplayCreationOptions {
+struct DisplayCreationOptions
+{
     // Options to control how a Whisker dynamic display window is created.
 
     bool resize = true;  // allow the window to be resized?
@@ -104,16 +111,15 @@ struct DisplayCreationOptions {
     QRect rectangle;  // window rectangle on the server's screen
 };
 
-
 // ============================================================================
 // Display object definition classes
 // ============================================================================
 
-class DisplayObject {
+class DisplayObject
+{
     // Base class for graphical objects.
 
 public:
-
     // Return the Whisker options string, beginning with the type of the
     // display object (as a list).
     virtual QStringList options() const = 0;
@@ -126,12 +132,14 @@ public:
     QString optionString() const;
 };
 
-
-class Arc : public DisplayObject {
+class Arc : public DisplayObject
+{
     // Draws an arc.
 
 public:
-    Arc(const QRect& rect, const QPoint& start, const QPoint& end,
+    Arc(const QRect& rect,
+        const QPoint& start,
+        const QPoint& end,
         const Pen& pen = Pen());
     virtual QStringList options() const override;
 
@@ -141,13 +149,18 @@ public:
     Pen pen;  // Pen to draw with.
 };
 
-
-class Bezier : public DisplayObject {
+class Bezier : public DisplayObject
+{
     // Draws a Bezier curve.
 
 public:
-    Bezier(const QPoint& start, const QPoint& control1, const QPoint& control2,
-           const QPoint& end, const Pen& pen = Pen());
+    Bezier(
+        const QPoint& start,
+        const QPoint& control1,
+        const QPoint& control2,
+        const QPoint& end,
+        const Pen& pen = Pen()
+    );
     virtual QStringList options() const override;
 
     QPoint start;  // Start of the curve.
@@ -157,42 +170,57 @@ public:
     Pen pen;  // Pen to draw with.
 };
 
-
-class Bitmap : public DisplayObject {
+class Bitmap : public DisplayObject
+{
     // Displays a bitmap, loaded by the server via a filename.
 
 public:
-    Bitmap(const QPoint& pos, const QString& filename,
-           bool stretch = false, int height = -1, int width = -1,
-           whiskerconstants::VerticalAlign valign = whiskerconstants::VerticalAlign::Top,
-           whiskerconstants::HorizontalAlign halign = whiskerconstants::HorizontalAlign::Left);
+    Bitmap(
+        const QPoint& pos,
+        const QString& filename,
+        bool stretch = false,
+        int height = -1,
+        int width = -1,
+        whiskerconstants::VerticalAlign valign
+        = whiskerconstants::VerticalAlign::Top,
+        whiskerconstants::HorizontalAlign halign
+        = whiskerconstants::HorizontalAlign::Left
+    );
     virtual QStringList options() const override;
 
-    QPoint pos;  // Coordinate of the bitmap (meaning depends on valign/halign).
+    QPoint pos;
+    // ... Coordinate of the bitmap (meaning depends on valign/halign).
     QString filename;  // Filename
     bool stretch = false;  // Stretch, rather than clip?
     int height = -1;  // Height (or -1 for the bitmap's own)
     int width = -1;  // Width (or -1 for the bitmap's own)
-    whiskerconstants::VerticalAlign valign = whiskerconstants::VerticalAlign::Top;  // vertical alignment
-    whiskerconstants::HorizontalAlign halign = whiskerconstants::HorizontalAlign::Left;  // horizontal alignment
+    whiskerconstants::VerticalAlign valign
+        = whiskerconstants::VerticalAlign::Top;
+    // ... vertical alignment
+    whiskerconstants::HorizontalAlign halign
+        = whiskerconstants::HorizontalAlign::Left;
+    // ... horizontal alignment
 };
 
-
-class CamcogQuadPattern : public DisplayObject {
+class CamcogQuadPattern : public DisplayObject
+{
     // Displays a CamcogQuadPattern, being a 2x2 grid (four quadrants), each of
     // 8x8 grids of chunky pixels in a quadrant colour.
 
 public:
-    CamcogQuadPattern(const QPoint& pos, const QSize& pixel_size,
-                      const QVector<uint8_t>& top_left_patterns,
-                      const QVector<uint8_t>& top_right_patterns,
-                      const QVector<uint8_t>& bottom_left_patterns,
-                      const QVector<uint8_t>& bottom_right_patterns,
-                      const QColor& top_left_colour,
-                      const QColor& top_right_colour,
-                      const QColor& bottom_left_colour,
-                      const QColor& bottom_right_colour,
-                      const QColor& bg_colour);
+    CamcogQuadPattern(
+        const QPoint& pos,
+        const QSize& pixel_size,
+        const QVector<uint8_t>& top_left_patterns,
+        const QVector<uint8_t>& top_right_patterns,
+        const QVector<uint8_t>& bottom_left_patterns,
+        const QVector<uint8_t>& bottom_right_patterns,
+        const QColor& top_left_colour,
+        const QColor& top_right_colour,
+        const QColor& bottom_left_colour,
+        const QColor& bottom_right_colour,
+        const QColor& bg_colour
+    );
     virtual QStringList options() const override;
 
     // See Whisker docs.
@@ -209,13 +237,18 @@ public:
     QColor bg_colour;
 };
 
-
-class Chord : public DisplayObject {
+class Chord : public DisplayObject
+{
     // Displays a chord (an ellipse with a bit sliced off).
 
 public:
-    Chord(const QRect& rect, const QPoint& line_start, const QPoint& line_end,
-          const Pen& pen = Pen(), const Brush& brush = Brush());
+    Chord(
+        const QRect& rect,
+        const QPoint& line_start,
+        const QPoint& line_end,
+        const Pen& pen = Pen(),
+        const Brush& brush = Brush()
+    );
     virtual QStringList options() const override;
 
     // The chord is the intersection of an ellipse (defined by the rect)
@@ -227,13 +260,14 @@ public:
     Brush brush;
 };
 
-
-class Ellipse : public DisplayObject {
+class Ellipse : public DisplayObject
+{
     // Displays an ellipse.
 
 public:
-    Ellipse(const QRect& rect,
-            const Pen& pen = Pen(), const Brush& brush = Brush());
+    Ellipse(
+        const QRect& rect, const Pen& pen = Pen(), const Brush& brush = Brush()
+    );
     virtual QStringList options() const override;
 
     // The ellipse fits into the rectangle (and its centre is at the centre
@@ -243,8 +277,8 @@ public:
     Brush brush;
 };
 
-
-class Line : public DisplayObject {
+class Line : public DisplayObject
+{
     // Displays a line.
 
 public:
@@ -256,13 +290,16 @@ public:
     Pen pen;
 };
 
-
-class Pie : public DisplayObject {
+class Pie : public DisplayObject
+{
     // Displays a pie slice (a "solid" arc).
 
 public:
-    Pie(const QRect& rect, const QPoint& arc_start, const QPoint& arc_end,
-        const Pen& pen = Pen(), const Brush& brush = Brush());
+    Pie(const QRect& rect,
+        const QPoint& arc_start,
+        const QPoint& arc_end,
+        const Pen& pen = Pen(),
+        const Brush& brush = Brush());
     virtual QStringList options() const override;
 
     // See Whisker docs.
@@ -273,14 +310,17 @@ public:
     Brush brush;
 };
 
-
-class Polygon : public DisplayObject {
+class Polygon : public DisplayObject
+{
     // Displays a polygon.
 
 public:
-    Polygon(const QVector<QPoint>& points,
-            const Pen& pen = Pen(), const Brush& brush = Brush(),
-            bool alternate = false);
+    Polygon(
+        const QVector<QPoint>& points,
+        const Pen& pen = Pen(),
+        const Brush& brush = Brush(),
+        bool alternate = false
+    );
     virtual QStringList options() const override;
 
     // See Whisker docs.
@@ -290,13 +330,14 @@ public:
     bool alternate = false;
 };
 
-
-class Rectangle : public DisplayObject {
+class Rectangle : public DisplayObject
+{
     // Displays a rectangle.
 
 public:
-    Rectangle(const QRect& rect,
-              const Pen& pen = Pen(), const Brush& brush = Brush());
+    Rectangle(
+        const QRect& rect, const Pen& pen = Pen(), const Brush& brush = Brush()
+    );
     virtual QStringList options() const override;
 
     // See Whisker docs.
@@ -305,13 +346,17 @@ public:
     Brush brush;
 };
 
-
-class RoundRect : public DisplayObject {
+class RoundRect : public DisplayObject
+{
     // Displays a rectangle with rounded corners.
 
 public:
-    RoundRect(const QRect& rect, const QSize& ellipse_size,
-              const Pen& pen = Pen(), const Brush& brush = Brush());
+    RoundRect(
+        const QRect& rect,
+        const QSize& ellipse_size,
+        const Pen& pen = Pen(),
+        const Brush& brush = Brush()
+    );
     virtual QStringList options() const override;
 
     // See Whisker docs.
@@ -321,13 +366,17 @@ public:
     Brush brush;
 };
 
-
-class Text : public DisplayObject {
+class Text : public DisplayObject
+{
     // Displays text.
 
 public:
-    Text(const QPoint& pos, const QString& text, int height = 0,
-         const QString& font = "");
+    Text(
+        const QPoint& pos,
+        const QString& text,
+        int height = 0,
+        const QString& font = ""
+    );
     virtual QStringList options() const override;
 
     QPoint pos;  // Coordinates of the text (meaning depends on valign/halign).
@@ -339,34 +388,52 @@ public:
     int weight = 0;  // Weight ("bold"); 0 for default weight
     QColor colour = whiskerconstants::WHITE;  // Text colour
     bool opaque = false;  // Opaque, not transparent?
-    QColor bg_colour = whiskerconstants::BLACK;  // Background colour (if opaque)
-    whiskerconstants::TextVerticalAlign valign = whiskerconstants::TextVerticalAlign::Top;  // vertical alignment
-    whiskerconstants::TextHorizontalAlign halign = whiskerconstants::TextHorizontalAlign::Left;  // horizontal alignment
+    QColor bg_colour = whiskerconstants::BLACK;
+    // ... Background colour (if opaque)
+    whiskerconstants::TextVerticalAlign valign
+        = whiskerconstants::TextVerticalAlign::Top;
+    // ... vertical alignment
+    whiskerconstants::TextHorizontalAlign halign
+        = whiskerconstants::TextHorizontalAlign::Left;
+    // ... horizontal alignment
 };
 
-
-class Video : public DisplayObject {
+class Video : public DisplayObject
+{
     // Displays a video.
 
 public:
-    Video(const QPoint& pos, const QString& filename, bool loop = false,
-          whiskerconstants::VideoPlayMode playmode = whiskerconstants::VideoPlayMode::Wait,
-          int width = -1, int height = -1);
+    Video(
+        const QPoint& pos,
+        const QString& filename,
+        bool loop = false,
+        whiskerconstants::VideoPlayMode playmode
+        = whiskerconstants::VideoPlayMode::Wait,
+        int width = -1,
+        int height = -1
+    );
     virtual QStringList options() const override;
 
     // See Whisker docs.
-    QPoint pos;  // Coordinates of the video (meaning depends on valign/halign).
+    QPoint pos;
+    // ... Coordinates of the video (meaning depends on valign/halign).
     QString filename;  // Filename, as seen by the Whisker server.
     bool loop = false;  // Loop once it's finished?
-    whiskerconstants::VideoPlayMode playmode = whiskerconstants::VideoPlayMode::Wait;  // How to start?
+    whiskerconstants::VideoPlayMode playmode
+        = whiskerconstants::VideoPlayMode::Wait;
+    // ... How to start?
     int width = -1;  // Width in pixels (-1 for the video's own)
     int height = -1;  // Height in pixels (-1 for the video's own)
     bool play_audio = true;  // Play any audio track?
-    whiskerconstants::VerticalAlign valign = whiskerconstants::VerticalAlign::Top;  // vertical alignment
-    whiskerconstants::HorizontalAlign halign = whiskerconstants::HorizontalAlign::Left;  // horizontal alignment
-    QColor bg_colour = whiskerconstants::BLACK;  // background colour, e.g. before playback (see docs)
+    whiskerconstants::VerticalAlign valign
+        = whiskerconstants::VerticalAlign::Top;
+    // ... vertical alignment
+    whiskerconstants::HorizontalAlign halign
+        = whiskerconstants::HorizontalAlign::Left;
+    // ... horizontal alignment
+    QColor bg_colour = whiskerconstants::BLACK;
+    // ... background colour, e.g. before playback (see docs)
 };
-
 
 // ============================================================================
 // Helper functions

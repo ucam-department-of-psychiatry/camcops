@@ -19,10 +19,10 @@
 */
 
 #include "setmenucpftpsychooncology.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
-
 #include "tasks/cesd.h"
 #include "tasks/cesdr.h"
 #include "tasks/cgii.h"
@@ -35,25 +35,23 @@
 #include "tasks/phq9.h"
 #include "tasks/wsas.h"
 
-
 SetMenuCpftPsychooncology::SetMenuCpftPsychooncology(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
 {
 }
-
 
 QString SetMenuCpftPsychooncology::title() const
 {
     return tr("CPFT Psycho-oncology Service");
 }
 
-
 QString SetMenuCpftPsychooncology::subtitle() const
 {
-    return tr("Cambridgeshire and Peterborough NHS Foundation Trust, UK — "
-              "psycho-oncology service");
+    return tr(
+        "Cambridgeshire and Peterborough NHS Foundation Trust, UK — "
+        "psycho-oncology service"
+    );
 }
-
 
 void SetMenuCpftPsychooncology::makeItems()
 {

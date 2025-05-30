@@ -23,7 +23,6 @@
 #include <QPushButton>
 #include <QSize>
 
-
 class ImageButton : public QPushButton
 {
     // Button that shows an icon image, and another when being pressed (to
@@ -35,8 +34,8 @@ class ImageButton : public QPushButton
     // for that.
 
     Q_OBJECT
-public:
 
+public:
     // Plain constructor.
     ImageButton(QWidget* parent = nullptr, const QSize& size = QSize());
 
@@ -48,10 +47,12 @@ public:
     //          displayed while the user is pressing
     //      size:
     //          if specified, overrides the images' size
-    ImageButton(const QString& normal_filename,
-                const QString& pressed_filename,
-                const QSize& size = QSize(),
-                QWidget* parent = nullptr);
+    ImageButton(
+        const QString& normal_filename,
+        const QString& pressed_filename,
+        const QSize& size = QSize(),
+        QWidget* parent = nullptr
+    );
 
     // Construct with single image, making the "normal" and "pressed" images
     // from it. This is the default way that CamCOPS makes its buttons.
@@ -66,11 +67,13 @@ public:
     //      disabled:
     //          makes both images identical and in a "disabled" style, via
     //          uifunc::makeDisabledIcon().
-    ImageButton(const QString& base_filename,
-                bool filename_is_camcops_stem = true,
-                bool alter_unpressed_image = true,
-                bool disabled = false,
-                QWidget* parent = nullptr);  // Default button maker
+    ImageButton(
+        const QString& base_filename,
+        bool filename_is_camcops_stem = true,
+        bool alter_unpressed_image = true,
+        bool disabled = false,
+        QWidget* parent = nullptr
+    );  // Default button maker
 
     // Set the unpressed and pressed images.
     // Args:
@@ -85,23 +88,27 @@ public:
     //      read_only:
     //          applicable if not disabled; sets the unpressed/pressed images
     //          to the base image, without modification
-    void setImages(const QString& base_filename,
-                   bool filename_is_camcops_stem = true,
-                   bool alter_unpressed_image = true,
-                   bool pressed_marker_behind = true,
-                   bool disabled = false,
-                   bool read_only = false);
+    void setImages(
+        const QString& base_filename,
+        bool filename_is_camcops_stem = true,
+        bool alter_unpressed_image = true,
+        bool pressed_marker_behind = true,
+        bool disabled = false,
+        bool read_only = false
+    );
 
     // Sets the "normal" ("unpressed") image from a filename.
-    void setNormalImage(const QString& filename, const QSize& size = QSize(),
-                        bool cache = true);
+    void setNormalImage(
+        const QString& filename, const QSize& size = QSize(), bool cache = true
+    );
 
     // Sets the "normal" ("unpressed") image from a pixmap.
     void setNormalImage(const QPixmap& pixmap, bool scale = true);
 
     // Sets the "pressed" image from a filename.
-    void setPressedImage(const QString& filename, const QSize& size = QSize(),
-                         bool cache = true);
+    void setPressedImage(
+        const QString& filename, const QSize& size = QSize(), bool cache = true
+    );
 
     // Sets the "pressed" image from a pixmal.
     void setPressedImage(const QPixmap& pixmap, bool scale = true);

@@ -23,7 +23,6 @@
 #include <QObject>
 #include <QString>
 
-
 // ========================================================================
 // PRINCIPLES: (see internationalization.rst)
 // ========================================================================
@@ -54,8 +53,8 @@
 class TextConst : public QObject
 {
     Q_OBJECT
-public:
 
+public:
     // ========================================================================
     // Common text
     // ========================================================================
@@ -92,7 +91,8 @@ public:
     static QString defaultHintText();
     static QString DEFUNCT_SYMBOL;
     static QString defunctSubtitleSuffix();
-    static QString delete_();  // "delete" is a C++ keyword; "DELETE" also breaks Visual C++
+    static QString delete_();
+    // ... "delete" is a C++ keyword; "DELETE" also breaks Visual C++
     static QString description();
     static QString diagnosis();
 
@@ -207,8 +207,6 @@ public:
     static QString LOREM_IPSUM_1;
     static QString LOREM_IPSUM_2;
     static QString LOREM_IPSUM_3;
-
 };
-
 
 extern const TextConst textconst;

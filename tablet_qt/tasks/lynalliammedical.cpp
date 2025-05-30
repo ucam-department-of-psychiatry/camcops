@@ -19,6 +19,7 @@
 */
 
 #include "lynalliammedical.h"
+
 #include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "common/textconst.h"
 #include "db/fieldref.h"
@@ -39,7 +40,8 @@
 
 
 const QString LynallIamMedical::LYNALL_IAM_MEDICAL_TABLENAME(
-        "lynall_1_iam_medical");  // historically fixed
+    "lynall_1_iam_medical"
+);  // historically fixed
 
 // "Sx" symptoms; "PH" personal history; "FH" family history
 const QString FN_Q1_AGE_FIRST_INFLAMMATORY_SX("q1_age_first_inflammatory_sx");
@@ -111,7 +113,6 @@ const QString TAG_13E("13E");
 const QString TAG_13F("13F");
 const QString TAG_13G("13G");
 
-
 void initializeLynallIamMedical(TaskFactory& factory)
 {
     static TaskRegistrar<LynallIamMedical> registered(factory);
@@ -119,8 +120,10 @@ void initializeLynallIamMedical(TaskFactory& factory)
 
 
 LynallIamMedical::LynallIamMedical(
-        CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, LYNALL_IAM_MEDICAL_TABLENAME, false, false, false)  // ... anon, clin, resp
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
+    Task(app, db, LYNALL_IAM_MEDICAL_TABLENAME, false, false, false)
+// ... anon, clin, resp
 {
     addField(FN_Q1_AGE_FIRST_INFLAMMATORY_SX, QMetaType::fromType<int>());
     addField(FN_Q2_WHEN_PSYCH_SX_STARTED, QMetaType::fromType<int>());
@@ -166,7 +169,6 @@ LynallIamMedical::LynallIamMedical(
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
 
-
 // ============================================================================
 // Class info
 // ============================================================================
@@ -176,36 +178,30 @@ QString LynallIamMedical::shortname() const
     return "Lynall_IAM_Medical";
 }
 
-
 QString LynallIamMedical::longname() const
 {
     return tr("Lynall M-E — IAM — Medical history");
 }
-
 
 QString LynallIamMedical::description() const
 {
     return tr("Medical history details for IAM immunopsychiatry study.");
 }
 
-
 Version LynallIamMedical::minimumServerVersion() const
 {
     return Version(2, 3, 3);
 }
-
 
 QString LynallIamMedical::xstringTaskname() const
 {
     return "lynall_iam_medical";
 }
 
-
 QString LynallIamMedical::infoFilenameStem() const
 {
     return xstringTaskname();
 }
-
 
 // ============================================================================
 // Instance info
@@ -214,48 +210,49 @@ QString LynallIamMedical::infoFilenameStem() const
 bool LynallIamMedical::isComplete() const
 {
     if (anyValuesNull({
-                      FN_Q1_AGE_FIRST_INFLAMMATORY_SX,
-                      FN_Q2_WHEN_PSYCH_SX_STARTED,
-                      FN_Q3_WORST_SYMPTOM_LAST_MONTH,
-                      FN_Q4A_SYMPTOM_TIMING,
-                      FN_Q5_ANTIBIOTICS,
-                      FN_Q6A_INPATIENT_LAST_Y,
-                      FN_Q7A_SX_LAST_2Y,
-                      FN_Q8_SMOKING,
-                      FN_Q9_PREGNANT,
-                      FN_Q10A_EFFECTIVE_RX_PHYSICAL,
-                      FN_Q10B_EFFECTIVE_RX_PSYCH,
-                      FN_Q13A_BEHCET,
-            })) {
+            FN_Q1_AGE_FIRST_INFLAMMATORY_SX,
+            FN_Q2_WHEN_PSYCH_SX_STARTED,
+            FN_Q3_WORST_SYMPTOM_LAST_MONTH,
+            FN_Q4A_SYMPTOM_TIMING,
+            FN_Q5_ANTIBIOTICS,
+            FN_Q6A_INPATIENT_LAST_Y,
+            FN_Q7A_SX_LAST_2Y,
+            FN_Q8_SMOKING,
+            FN_Q9_PREGNANT,
+            FN_Q10A_EFFECTIVE_RX_PHYSICAL,
+            FN_Q10B_EFFECTIVE_RX_PSYCH,
+            FN_Q13A_BEHCET,
+        })) {
         return false;
     }
     if (anyValuesNullOrEmpty({
-                      FN_Q10A_EFFECTIVE_RX_PHYSICAL,
-                      FN_Q10B_EFFECTIVE_RX_PSYCH,
-            })) {
+            FN_Q10A_EFFECTIVE_RX_PHYSICAL,
+            FN_Q10B_EFFECTIVE_RX_PSYCH,
+        })) {
         return false;
     }
     const int q4a = valueInt(FN_Q4A_SYMPTOM_TIMING);
-    if (q4a == Q4_OPTION_PSYCH_BEFORE_PHYSICAL &&
-            valueIsNull(FN_Q4B_DAYS_PSYCH_BEFORE_PHYS)) {
+    if (q4a == Q4_OPTION_PSYCH_BEFORE_PHYSICAL
+        && valueIsNull(FN_Q4B_DAYS_PSYCH_BEFORE_PHYS)) {
         return false;
     }
-    if (q4a == Q4_OPTION_PSYCH_AFTER_PHYSICAL &&
-            valueIsNull(FN_Q4C_DAYS_PSYCH_AFTER_PHYS)) {
+    if (q4a == Q4_OPTION_PSYCH_AFTER_PHYSICAL
+        && valueIsNull(FN_Q4C_DAYS_PSYCH_AFTER_PHYS)) {
         return false;
     }
-    if (valueBool(FN_Q6A_INPATIENT_LAST_Y) && valueIsNull(FN_Q6B_INPATIENT_WEEKS)) {
+    if (valueBool(FN_Q6A_INPATIENT_LAST_Y)
+        && valueIsNull(FN_Q6B_INPATIENT_WEEKS)) {
         return false;
     }
     if (valueBool(FN_Q7A_SX_LAST_2Y) && valueIsNull(FN_Q7B_VARIABILITY)) {
         return false;
     }
-    if (valueBool(FN_Q11H_PH_OTHER_PSYCH) &&
-            valueIsNullOrEmpty(FN_Q11H_PH_OTHER_DETAIL)) {
+    if (valueBool(FN_Q11H_PH_OTHER_PSYCH)
+        && valueIsNullOrEmpty(FN_Q11H_PH_OTHER_DETAIL)) {
         return false;
     }
-    if (valueBool(FN_Q12H_FH_OTHER_PSYCH) &&
-            valueIsNullOrEmpty(FN_Q12H_FH_OTHER_DETAIL)) {
+    if (valueBool(FN_Q12H_FH_OTHER_PSYCH)
+        && valueIsNullOrEmpty(FN_Q12H_FH_OTHER_DETAIL)) {
         return false;
     }
     if (valueBool(FN_Q13A_BEHCET)) {
@@ -263,14 +260,15 @@ bool LynallIamMedical::isComplete() const
             return false;
         }
         if (valueBool(FN_Q13B_ORAL_ULCERS)) {
-            if (anyValuesNull({FN_Q13C_ORAL_AGE_FIRST,
-                               FN_Q13D_ORAL_SCARRING})) {
+            if (anyValuesNull({FN_Q13C_ORAL_AGE_FIRST, FN_Q13D_ORAL_SCARRING}
+                )) {
                 return false;
             }
         }
         if (valueBool(FN_Q13E_GENITAL_ULCERS)) {
-            if (anyValuesNull({FN_Q13F_GENITAL_AGE_FIRST,
-                               FN_Q13E_GENITAL_ULCERS})) {
+            if (anyValuesNull(
+                    {FN_Q13F_GENITAL_AGE_FIRST, FN_Q13E_GENITAL_ULCERS}
+                )) {
                 return false;
             }
         }
@@ -278,18 +276,15 @@ bool LynallIamMedical::isComplete() const
     return true;
 }
 
-
 QStringList LynallIamMedical::summary() const
 {
     return QStringList{textconst.noSummarySeeFacsimile()};
 }
 
-
 QStringList LynallIamMedical::detail() const
 {
     return QStringList{textconst.noDetailSeeFacsimile()};
 }
-
 
 OpenableWidget* LynallIamMedical::editor(const bool read_only)
 {
@@ -299,8 +294,9 @@ OpenableWidget* LynallIamMedical::editor(const bool read_only)
 
     int pagenum = 1;
     QVector<QuPage*> pages;
-    auto addPage = [this, &pagenum, &pages]
-            (std::initializer_list<QuElement*> elements) -> void {
+    auto addPage
+        = [this, &pagenum, &pages](std::initializer_list<QuElement*> elements
+          ) -> void {
         const QString title = xstring(QString("q%1_title").arg(pagenum++));
         auto page = new QuPage(elements);
         page->setTitle(title);
@@ -316,99 +312,114 @@ OpenableWidget* LynallIamMedical::editor(const bool read_only)
     };
 
     // Q1
-    addPage({
-        qtext("q1_question"),
-        new QuLineEditInteger(fieldRef(FN_Q1_AGE_FIRST_INFLAMMATORY_SX),
-                              MIN_AGE_Y, MAX_AGE_Y)
-    });
+    addPage(
+        {qtext("q1_question"),
+         new QuLineEditInteger(
+             fieldRef(FN_Q1_AGE_FIRST_INFLAMMATORY_SX), MIN_AGE_Y, MAX_AGE_Y
+         )}
+    );
 
     // Q2
-    addPage({
-        qtext("q2_question"),
-        new QuMcq(fieldRef(FN_Q2_WHEN_PSYCH_SX_STARTED),
-                  makeOptionsFromXstrings("q2_option", 1, Q2_N_OPTIONS))
-    });
+    addPage(
+        {qtext("q2_question"),
+         new QuMcq(
+             fieldRef(FN_Q2_WHEN_PSYCH_SX_STARTED),
+             makeOptionsFromXstrings("q2_option", 1, Q2_N_OPTIONS)
+         )}
+    );
 
     // Q3
-    addPage({
-        qtext("q3_question"),
-        new QuMcq(fieldRef(FN_Q3_WORST_SYMPTOM_LAST_MONTH),
-                  makeOptionsFromXstrings("q3_option", 1, Q3_N_OPTIONS))
-    });
+    addPage(
+        {qtext("q3_question"),
+         new QuMcq(
+             fieldRef(FN_Q3_WORST_SYMPTOM_LAST_MONTH),
+             makeOptionsFromXstrings("q3_option", 1, Q3_N_OPTIONS)
+         )}
+    );
 
     // Q4
     addPage({
         qtext("q4a_question"),
-        new QuMcq(fieldRef(FN_Q4A_SYMPTOM_TIMING),
-                  makeOptionsFromXstrings("q4a_option", 1, Q4_N_OPTIONS)),
+        new QuMcq(
+            fieldRef(FN_Q4A_SYMPTOM_TIMING),
+            makeOptionsFromXstrings("q4a_option", 1, Q4_N_OPTIONS)
+        ),
         qtext("q4b_question")->addTag(TAG_4B),
-        (new QuLineEditInteger(fieldRef(FN_Q4B_DAYS_PSYCH_BEFORE_PHYS),
-                               MIN_TIMING_DIFFERENCE_DAYS,
-                               MAX_TIMING_DIFFERENCE_DAYS))
-                ->addTag(TAG_4B),
+        (new QuLineEditInteger(
+             fieldRef(FN_Q4B_DAYS_PSYCH_BEFORE_PHYS),
+             MIN_TIMING_DIFFERENCE_DAYS,
+             MAX_TIMING_DIFFERENCE_DAYS
+         ))
+            ->addTag(TAG_4B),
         qtext("q4c_question")->addTag(TAG_4C),
-        (new QuLineEditInteger(fieldRef(FN_Q4C_DAYS_PSYCH_AFTER_PHYS),
-                               MIN_TIMING_DIFFERENCE_DAYS,
-                               MAX_TIMING_DIFFERENCE_DAYS))
-                ->addTag(TAG_4C),
+        (new QuLineEditInteger(
+             fieldRef(FN_Q4C_DAYS_PSYCH_AFTER_PHYS),
+             MIN_TIMING_DIFFERENCE_DAYS,
+             MAX_TIMING_DIFFERENCE_DAYS
+         ))
+            ->addTag(TAG_4C),
     });
 
     // Q5
-    addPage({
-        qtext("q5_question"),
-        ynQuestion(FN_Q5_ANTIBIOTICS)
-    });
+    addPage({qtext("q5_question"), ynQuestion(FN_Q5_ANTIBIOTICS)});
 
     // Q6
-    addPage({
-        qtext("q6a_question"),
-        ynQuestion(FN_Q6A_INPATIENT_LAST_Y),
-        qtext("q6b_question")->addTag(TAG_6B),
-        (new QuLineEditInteger(fieldRef(FN_Q6B_INPATIENT_WEEKS),
-                               MIN_WEEKS_INPATIENT,
-                               MAX_WEEKS_INPATIENT))
-                ->addTag(TAG_6B)
-    });
+    addPage(
+        {qtext("q6a_question"),
+         ynQuestion(FN_Q6A_INPATIENT_LAST_Y),
+         qtext("q6b_question")->addTag(TAG_6B),
+         (new QuLineEditInteger(
+              fieldRef(FN_Q6B_INPATIENT_WEEKS),
+              MIN_WEEKS_INPATIENT,
+              MAX_WEEKS_INPATIENT
+          ))
+             ->addTag(TAG_6B)}
+    );
 
     // Q7
     const NameValueOptions q7a_options({
         {xstring("q7a_option1"), 1},
         {xstring("q7a_option0"), 0},
     });
-    NameValueOptions q7b_options = NameValueOptions::makeNumbers(Q7B_MIN, Q7B_MAX);
+    NameValueOptions q7b_options
+        = NameValueOptions::makeNumbers(Q7B_MIN, Q7B_MAX);
     q7b_options.replace(NameValuePair("1: " + xstring("q7b_anchor_1"), 1));
     q7b_options.replace(NameValuePair("10: " + xstring("q7b_anchor_10"), 10));
-    addPage({
-        qtext("q7a_question"),
-        new QuMcq(fieldRef(FN_Q7A_SX_LAST_2Y), q7a_options),
-        qtext("q7b_question")->addTag(TAG_7B),
-        // The text is very long, so even a vertical slider looks silly.
-        (new QuMcq(fieldRef(FN_Q7B_VARIABILITY), q7b_options))
-                ->addTag(TAG_7B)
-    });
+    addPage(
+        {qtext("q7a_question"),
+         new QuMcq(fieldRef(FN_Q7A_SX_LAST_2Y), q7a_options),
+         qtext("q7b_question")->addTag(TAG_7B),
+         // The text is very long, so even a vertical slider looks silly.
+         (new QuMcq(fieldRef(FN_Q7B_VARIABILITY), q7b_options))
+             ->addTag(TAG_7B)}
+    );
 
     // Q8
-    addPage({
-        qtext("q8_question"),
-        new QuMcq(fieldRef(FN_Q8_SMOKING),
-                  makeOptionsFromXstrings("q8_option", 2, 0))
-    });
+    addPage(
+        {qtext("q8_question"),
+         new QuMcq(
+             fieldRef(FN_Q8_SMOKING),
+             makeOptionsFromXstrings("q8_option", 2, 0)
+         )}
+    );
 
     // Q9
-    addPage({
-        qtext("q9_question"),
-        new QuMcq(fieldRef(FN_Q9_PREGNANT),
-                  makeOptionsFromXstrings("q9_option", 1, 0))
-    });
+    addPage(
+        {qtext("q9_question"),
+         new QuMcq(
+             fieldRef(FN_Q9_PREGNANT),
+             makeOptionsFromXstrings("q9_option", 1, 0)
+         )}
+    );
 
     // Q10
-    addPage({
-        qtext("q10_stem"),
-        qtext("q10a_question"),
-        new QuTextEdit(fieldRef(FN_Q10A_EFFECTIVE_RX_PHYSICAL)),
-        qtext("q10b_question"),
-        new QuTextEdit(fieldRef(FN_Q10B_EFFECTIVE_RX_PSYCH))
-    });
+    addPage(
+        {qtext("q10_stem"),
+         qtext("q10a_question"),
+         new QuTextEdit(fieldRef(FN_Q10A_EFFECTIVE_RX_PHYSICAL)),
+         qtext("q10b_question"),
+         new QuTextEdit(fieldRef(FN_Q10B_EFFECTIVE_RX_PSYCH))}
+    );
 
     // Q11
     const QString depression = xstring("depression");
@@ -429,12 +440,12 @@ OpenableWidget* LynallIamMedical::editor(const bool read_only)
         {personality_disorder, fieldRef(FN_Q11G_PH_PERSONALITY_DISORDER)},
         {other_psych, fieldRef(FN_Q11H_PH_OTHER_PSYCH)},
     };
-    addPage({
-        qtext("q11_question"),
-        new QuMultipleResponse(q11_parts),
-        (new QuTextEdit(fieldRef(FN_Q11H_PH_OTHER_DETAIL)))
-                ->addTag(TAG_11OTHER)
-    });
+    addPage(
+        {qtext("q11_question"),
+         new QuMultipleResponse(q11_parts),
+         (new QuTextEdit(fieldRef(FN_Q11H_PH_OTHER_DETAIL)))
+             ->addTag(TAG_11OTHER)}
+    );
 
     // Q12
     QVector<QuestionWithOneField> q12_parts{
@@ -447,12 +458,12 @@ OpenableWidget* LynallIamMedical::editor(const bool read_only)
         {personality_disorder, fieldRef(FN_Q12G_FH_PERSONALITY_DISORDER)},
         {other_psych, fieldRef(FN_Q12H_FH_OTHER_PSYCH)},
     };
-    addPage({
-        qtext("q12_question"),
-        new QuMultipleResponse(q12_parts),
-        (new QuTextEdit(fieldRef(FN_Q12H_FH_OTHER_DETAIL)))
-                ->addTag(TAG_12OTHER)
-    });
+    addPage(
+        {qtext("q12_question"),
+         new QuMultipleResponse(q12_parts),
+         (new QuTextEdit(fieldRef(FN_Q12H_FH_OTHER_DETAIL)))
+             ->addTag(TAG_12OTHER)}
+    );
 
     // Q13
     // We add indentation via a grid.
@@ -477,11 +488,14 @@ OpenableWidget* LynallIamMedical::editor(const bool read_only)
     // says "'indent_px' cannot be implicitly captured because no default
     // capture mode has been specified". The clang perspective is described at
     // https://stackoverflow.com/questions/43467095/why-is-a-const-variable-sometimes-not-required-to-be-captured-in-a-lambda
-    auto addCell = [&grid, &row, &align
+    auto addCell = [&grid,
+                    &row,
+                    &align
 #ifdef COMPILER_WANTS_EXPLICIT_LAMBDA_CAPTURES
-            , &indent_px
+                    ,
+                    &indent_px
 #endif
-            ](int level, const QString& tag, QuElement* element) -> void {
+    ](int level, const QString& tag, QuElement* element) -> void {
         const int rowspan = 1;
         const int col = level;
         const int colspan = 3 - level;
@@ -491,20 +505,31 @@ OpenableWidget* LynallIamMedical::editor(const bool read_only)
             grid->addCell(QuGridCell(spacer, row, i, 1, 1));
         }
         element->addTag(tag);
-        grid->addCell(QuGridCell(element, row++, col, rowspan, colspan, align));
+        grid->addCell(QuGridCell(element, row++, col, rowspan, colspan, align)
+        );
     };
     addCell(1, TAG_13B, qtext("q13b_question"));
     addCell(1, TAG_13B, ynQuestion(FN_Q13B_ORAL_ULCERS));
     addCell(2, TAG_13C, qtext("q13c_question"));
-    addCell(2, TAG_13C, new QuLineEditInteger(fieldRef(FN_Q13C_ORAL_AGE_FIRST),
-                                              MIN_AGE_Y, MAX_AGE_Y));
+    addCell(
+        2,
+        TAG_13C,
+        new QuLineEditInteger(
+            fieldRef(FN_Q13C_ORAL_AGE_FIRST), MIN_AGE_Y, MAX_AGE_Y
+        )
+    );
     addCell(2, TAG_13D, qtext("q13d_question"));
     addCell(2, TAG_13D, ynQuestion(FN_Q13D_ORAL_SCARRING));
     addCell(1, TAG_13E, qtext("q13e_question"));
     addCell(1, TAG_13E, ynQuestion(FN_Q13E_GENITAL_ULCERS));
     addCell(2, TAG_13F, qtext("q13f_question"));
-    addCell(2, TAG_13F, new QuLineEditInteger(fieldRef(FN_Q13F_GENITAL_AGE_FIRST),
-                                              MIN_AGE_Y, MAX_AGE_Y));
+    addCell(
+        2,
+        TAG_13F,
+        new QuLineEditInteger(
+            fieldRef(FN_Q13F_GENITAL_AGE_FIRST), MIN_AGE_Y, MAX_AGE_Y
+        )
+    );
     addCell(2, TAG_13G, qtext("q13g_question"));
     addCell(2, TAG_13G, ynQuestion(FN_Q13G_GENITAL_SCARRING));
     addPage({
@@ -514,22 +539,54 @@ OpenableWidget* LynallIamMedical::editor(const bool read_only)
     });
 
     // Signals
-    connect(fieldRef(FN_Q4A_SYMPTOM_TIMING).data(), &FieldRef::valueChanged,
-            this, &LynallIamMedical::updateMandatory);
-    connect(fieldRef(FN_Q6A_INPATIENT_LAST_Y).data(), &FieldRef::valueChanged,
-            this, &LynallIamMedical::updateMandatory);
-    connect(fieldRef(FN_Q7A_SX_LAST_2Y).data(), &FieldRef::valueChanged,
-            this, &LynallIamMedical::updateMandatory);
-    connect(fieldRef(FN_Q11H_PH_OTHER_PSYCH).data(), &FieldRef::valueChanged,
-            this, &LynallIamMedical::updateMandatory);
-    connect(fieldRef(FN_Q12H_FH_OTHER_PSYCH).data(), &FieldRef::valueChanged,
-            this, &LynallIamMedical::updateMandatory);
-    connect(fieldRef(FN_Q13A_BEHCET).data(), &FieldRef::valueChanged,
-            this, &LynallIamMedical::updateMandatory);
-    connect(fieldRef(FN_Q13B_ORAL_ULCERS).data(), &FieldRef::valueChanged,
-            this, &LynallIamMedical::updateMandatory);
-    connect(fieldRef(FN_Q13E_GENITAL_ULCERS).data(), &FieldRef::valueChanged,
-            this, &LynallIamMedical::updateMandatory);
+    connect(
+        fieldRef(FN_Q4A_SYMPTOM_TIMING).data(),
+        &FieldRef::valueChanged,
+        this,
+        &LynallIamMedical::updateMandatory
+    );
+    connect(
+        fieldRef(FN_Q6A_INPATIENT_LAST_Y).data(),
+        &FieldRef::valueChanged,
+        this,
+        &LynallIamMedical::updateMandatory
+    );
+    connect(
+        fieldRef(FN_Q7A_SX_LAST_2Y).data(),
+        &FieldRef::valueChanged,
+        this,
+        &LynallIamMedical::updateMandatory
+    );
+    connect(
+        fieldRef(FN_Q11H_PH_OTHER_PSYCH).data(),
+        &FieldRef::valueChanged,
+        this,
+        &LynallIamMedical::updateMandatory
+    );
+    connect(
+        fieldRef(FN_Q12H_FH_OTHER_PSYCH).data(),
+        &FieldRef::valueChanged,
+        this,
+        &LynallIamMedical::updateMandatory
+    );
+    connect(
+        fieldRef(FN_Q13A_BEHCET).data(),
+        &FieldRef::valueChanged,
+        this,
+        &LynallIamMedical::updateMandatory
+    );
+    connect(
+        fieldRef(FN_Q13B_ORAL_ULCERS).data(),
+        &FieldRef::valueChanged,
+        this,
+        &LynallIamMedical::updateMandatory
+    );
+    connect(
+        fieldRef(FN_Q13E_GENITAL_ULCERS).data(),
+        &FieldRef::valueChanged,
+        this,
+        &LynallIamMedical::updateMandatory
+    );
 
     // Questionnaire
     m_questionnaire = new Questionnaire(m_app, pages);
@@ -539,17 +596,16 @@ OpenableWidget* LynallIamMedical::editor(const bool read_only)
     return m_questionnaire;
 }
 
-
 // ============================================================================
 // Signal handlers
 // ============================================================================
 
 void LynallIamMedical::updateMandatory()
 {
-    const bool need_q4b_before =
-            valueInt(FN_Q4A_SYMPTOM_TIMING) == Q4_OPTION_PSYCH_BEFORE_PHYSICAL;
-    const bool need_q4c_after =
-            valueInt(FN_Q4A_SYMPTOM_TIMING) == Q4_OPTION_PSYCH_AFTER_PHYSICAL;
+    const bool need_q4b_before
+        = valueInt(FN_Q4A_SYMPTOM_TIMING) == Q4_OPTION_PSYCH_BEFORE_PHYSICAL;
+    const bool need_q4c_after
+        = valueInt(FN_Q4A_SYMPTOM_TIMING) == Q4_OPTION_PSYCH_AFTER_PHYSICAL;
     const bool need_inpatient_time = valueBool(FN_Q6A_INPATIENT_LAST_Y);
     const bool need_variability = valueBool(FN_Q7A_SX_LAST_2Y);
     const bool need_ph_other = valueBool(FN_Q11H_PH_OTHER_PSYCH);
@@ -577,12 +633,24 @@ void LynallIamMedical::updateMandatory()
         return;
     }
     const bool current_page_only = false;
-    m_questionnaire->setVisibleByTag(TAG_4B, need_q4b_before, current_page_only);
-    m_questionnaire->setVisibleByTag(TAG_4C, need_q4c_after, current_page_only);
-    m_questionnaire->setVisibleByTag(TAG_6B, need_inpatient_time, current_page_only);
-    m_questionnaire->setVisibleByTag(TAG_7B, need_variability, current_page_only);
-    m_questionnaire->setVisibleByTag(TAG_11OTHER, need_ph_other, current_page_only);
-    m_questionnaire->setVisibleByTag(TAG_12OTHER, need_fh_other, current_page_only);
+    m_questionnaire->setVisibleByTag(
+        TAG_4B, need_q4b_before, current_page_only
+    );
+    m_questionnaire->setVisibleByTag(
+        TAG_4C, need_q4c_after, current_page_only
+    );
+    m_questionnaire->setVisibleByTag(
+        TAG_6B, need_inpatient_time, current_page_only
+    );
+    m_questionnaire->setVisibleByTag(
+        TAG_7B, need_variability, current_page_only
+    );
+    m_questionnaire->setVisibleByTag(
+        TAG_11OTHER, need_ph_other, current_page_only
+    );
+    m_questionnaire->setVisibleByTag(
+        TAG_12OTHER, need_fh_other, current_page_only
+    );
 
     m_questionnaire->setVisibleByTag(TAG_13B, need_behcet, current_page_only);
     m_questionnaire->setVisibleByTag(TAG_13C, need_oral, current_page_only);
@@ -590,5 +658,4 @@ void LynallIamMedical::updateMandatory()
     m_questionnaire->setVisibleByTag(TAG_13E, need_behcet, current_page_only);
     m_questionnaire->setVisibleByTag(TAG_13F, need_genital, current_page_only);
     m_questionnaire->setVisibleByTag(TAG_13G, need_genital, current_page_only);
-
 }

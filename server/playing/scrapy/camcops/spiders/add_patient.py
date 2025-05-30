@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 r"""
 playing/scrapy/camcops/spiders/add_patient.py
 

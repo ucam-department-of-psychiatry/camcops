@@ -19,12 +19,13 @@
 */
 
 #include "slums.h"
+
 #include "common/colourdefs.h"
 #include "common/textconst.h"
 #include "lib/datetime.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/qucanvas.h"
 #include "questionnairelib/qucountdown.h"
@@ -67,27 +68,8 @@ const QString Q11B("q11b");  // scores 2
 const QString Q11C("q11c");  // scores 2
 const QString Q11D("q11d");  // scores 2
 const QStringList QLIST{
-    Q1,
-    Q2,
-    Q3,
-    Q5A,
-    Q5B,
-    Q6,
-    Q7A,
-    Q7B,
-    Q7C,
-    Q7D,
-    Q7E,
-    Q8B,
-    Q8C,
-    Q9A,
-    Q9B,
-    Q10A,
-    Q10B,
-    Q11A,
-    Q11B,
-    Q11C,
-    Q11D,
+    Q1,  Q2,  Q3,  Q5A, Q5B,  Q6,   Q7A,  Q7B,  Q7C,  Q7D,  Q7E,
+    Q8B, Q8C, Q9A, Q9B, Q10A, Q10B, Q11A, Q11B, Q11C, Q11D,
 };
 const QString CLOCKPICTURE_BLOBID("clockpicture_blobid");
 const QString SHAPESPICTURE_BLOBID("shapespicture_blobid");
@@ -103,12 +85,10 @@ const int COUNTDOWN_TIME_S = 60;
 const QString IMAGE_CIRCLE("slums/circle.png");
 const QString IMAGE_SHAPES("slums/shapes.png");
 
-
 void initializeSlums(TaskFactory& factory)
 {
     static TaskRegistrar<Slums> registered(factory);
 }
-
 
 Slums::Slums(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, SLUMS_TABLENAME, false, true, false)  // ... anon, clin, resp
@@ -116,13 +96,14 @@ Slums::Slums(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     addField(ALERT, QMetaType::fromType<int>());
     addField(HIGHSCHOOLEDUCATION, QMetaType::fromType<int>());
     addFields(QLIST, QMetaType::fromType<int>());
-    addField(CLOCKPICTURE_BLOBID, QMetaType::fromType<int>());  // FK to BLOB table
-    addField(SHAPESPICTURE_BLOBID, QMetaType::fromType<int>());  // FK to BLOB table
+    addField(CLOCKPICTURE_BLOBID, QMetaType::fromType<int>());
+    // ... FK to BLOB table
+    addField(SHAPESPICTURE_BLOBID, QMetaType::fromType<int>());
+    // ... FK to BLOB table
     addField(COMMENTS, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -133,18 +114,15 @@ QString Slums::shortname() const
     return "SLUMS";
 }
 
-
 QString Slums::longname() const
 {
     return tr("St Louis University Mental Status");
 }
 
-
 QString Slums::description() const
 {
     return tr("30-point clinician-administered brief cognitive assessment.");
 }
-
 
 // ============================================================================
 // Instance info
@@ -152,37 +130,35 @@ QString Slums::description() const
 
 bool Slums::isComplete() const
 {
-    return noneNull(values({ALERT, HIGHSCHOOLEDUCATION})) &&
-            noneNull(values(QLIST));
+    return noneNull(values({ALERT, HIGHSCHOOLEDUCATION}))
+        && noneNull(values(QLIST));
 }
-
 
 QStringList Slums::summary() const
 {
     return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
 
-
 QStringList Slums::detail() const
 {
     const int score = totalScore();
-    const QString category =
-        valueBool(HIGHSCHOOLEDUCATION)
-            ? (score >= NORMAL_IF_GEQ_HIGHSCHOOL
+    const QString category = valueBool(HIGHSCHOOLEDUCATION)
+        ? (score >= NORMAL_IF_GEQ_HIGHSCHOOL
                ? TextConst::normal()
                : (score >= MCI_IF_GEQ_HIGHSCHOOL
-                  ? xstring("category_mci")
-                  : xstring("category_dementia")))
-            : (score >= NORMAL_IF_GEQ_NO_HIGHSCHOOL
+                      ? xstring("category_mci")
+                      : xstring("category_dementia")))
+        : (score >= NORMAL_IF_GEQ_NO_HIGHSCHOOL
                ? TextConst::normal()
                : (score >= MCI_IF_GEQ_NO_HIGHSCHOOL
-                  ? xstring("category_mci")
-                  : xstring("category_dementia")));
+                      ? xstring("category_mci")
+                      : xstring("category_dementia")));
 
     QStringList lines = completenessInfo();
     lines.append(fieldSummaryYesNoNull(ALERT, xstring("alert_s")));
-    lines.append(fieldSummaryYesNoNull(HIGHSCHOOLEDUCATION,
-                                       xstring("highschool_s")));
+    lines.append(
+        fieldSummaryYesNoNull(HIGHSCHOOLEDUCATION, xstring("highschool_s"))
+    );
     for (const QString& q : QLIST) {
         lines.append(fieldSummary(q, xstring(q)));
     }
@@ -193,27 +169,31 @@ QStringList Slums::detail() const
     return lines;
 }
 
-
 OpenableWidget* Slums::editor(const bool read_only)
 {
-    auto qfields = [this]
-            (const QVector<QPair<QString, QString>>& fieldnames_xstringnames,
-             bool mandatory = true) ->
-            QVector<QuestionWithOneField> {
+    auto qfields
+        = [this](
+              const QVector<QPair<QString, QString>>& fieldnames_xstringnames,
+              bool mandatory = true
+          ) -> QVector<QuestionWithOneField> {
         QVector<QuestionWithOneField> qf;
         for (const QPair<QString, QString>& fx : fieldnames_xstringnames) {
-            qf.append(QuestionWithOneField(fieldRef(fx.first, mandatory),
-                                           xstring(fx.second)));
+            qf.append(QuestionWithOneField(
+                fieldRef(fx.first, mandatory), xstring(fx.second)
+            ));
         }
         return qf;
     };
-    auto mcqgrid = [this](const QStringList& field_and_xstring_names,
-                          const NameValueOptions& options,
-                          bool mandatory = true) -> QuElement* {
+    auto mcqgrid = [this](
+                       const QStringList& field_and_xstring_names,
+                       const NameValueOptions& options,
+                       bool mandatory = true
+                   ) -> QuElement* {
         QVector<QuestionWithOneField> qfields;
         for (const QString& qx : field_and_xstring_names) {
-            qfields.append(QuestionWithOneField(xstring(qx),
-                                                fieldRef(qx, mandatory)));
+            qfields.append(
+                QuestionWithOneField(xstring(qx), fieldRef(qx, mandatory))
+            );
         }
         return new QuMcqGrid(qfields, options);
     };
@@ -226,14 +206,18 @@ OpenableWidget* Slums::editor(const bool read_only)
     auto textRawItalic = [](const QString& string) -> QuElement* {
         return (new QuText(string))->setItalic();
     };
-    auto textItalic = [this, textRawItalic](const QString& stringname) -> QuElement* {
+    auto textItalic
+        = [this, textRawItalic](const QString& stringname) -> QuElement* {
         return textRawItalic(xstring(stringname));
     };
-    auto canvas = [this](const QString& blob_id_fieldname,
-                         const QString& image_filename) -> QuElement* {
+    auto canvas
+        = [this](
+              const QString& blob_id_fieldname, const QString& image_filename
+          ) -> QuElement* {
         QuCanvas* c = new QuCanvas(
-                    blobFieldRef(blob_id_fieldname, true),
-                    uifunc::resourceFilename(image_filename));
+            blobFieldRef(blob_id_fieldname, true),
+            uifunc::resourceFilename(image_filename)
+        );
         c->setBorderWidth(0);
         c->setBorderColour(QCOLOR_TRANSPARENT);
         c->setBackgroundColour(QCOLOR_TRANSPARENT);
@@ -244,8 +228,8 @@ OpenableWidget* Slums::editor(const bool read_only)
     const QString plural = xstring("title_prefix_plural");
     const QString singular = xstring("title_prefix_singular");
     const QString scoring = xstring("scoring");
-    const NameValueOptions incorrect_correct_options =
-            CommonOptions::incorrectCorrectInteger();
+    const NameValueOptions incorrect_correct_options
+        = CommonOptions::incorrectCorrectInteger();
     const NameValueOptions incorr_0_corr_2_options{
         {CommonOptions::incorrect(), 0},
         {CommonOptions::correct(), 2},  // NB different scoring
@@ -265,86 +249,110 @@ OpenableWidget* Slums::editor(const bool read_only)
     QVector<QuPagePtr> pages;
 
     pages.append(QuPagePtr((new QuPage{
-        getClinicianQuestionnaireBlockRawPointer(),
-        new QuMcqGrid(qfields({{ALERT, "q_alert"},
-                               {HIGHSCHOOLEDUCATION, "q_highschool"}}),
-                      CommonOptions::noYesInteger()),
-    })->setTitle(xstring("title_preamble"))));
+                                getClinicianQuestionnaireBlockRawPointer(),
+                                new QuMcqGrid(
+                                    qfields(
+                                        {{ALERT, "q_alert"},
+                                         {HIGHSCHOOLEDUCATION, "q_highschool"}}
+                                    ),
+                                    CommonOptions::noYesInteger()
+                                ),
+                            })
+                               ->setTitle(xstring("title_preamble"))));
+
+    pages.append(
+        QuPagePtr((new QuPage{
+                       mcqgrid({Q1, Q2, Q3}, incorrect_correct_options),
+                       textItalic("date_now_is"),
+                       textRawItalic(correct_date),
+                   })
+                      ->setTitle(plural + " 1–3"))
+    );
 
     pages.append(QuPagePtr((new QuPage{
-        mcqgrid({Q1, Q2, Q3}, incorrect_correct_options),
-        textItalic("date_now_is"),
-        textRawItalic(correct_date),
-    })->setTitle(plural + " 1–3")));
+                                text("q4"),
+                            })
+                               ->setTitle(singular + " 4")));
 
     pages.append(QuPagePtr((new QuPage{
-        text("q4"),
-    })->setTitle(singular + " 4")));
+                                text("q5"),
+                                mcqgrid({Q5A}, incorrect_correct_options),
+                                mcqgrid({Q5B}, incorr_0_corr_2_options),
+                            })
+                               ->setTitle(singular + " 5")));
 
     pages.append(QuPagePtr((new QuPage{
-        text("q5"),
-        mcqgrid({Q5A}, incorrect_correct_options),
-        mcqgrid({Q5B}, incorr_0_corr_2_options),
-    })->setTitle(singular + " 5")));
+                                text("q6"),
+                                new QuCountdown(COUNTDOWN_TIME_S),
+                                mcqgrid({Q6}, q6_options),
+                            })
+                               ->setTitle(singular + " 6")));
 
     pages.append(QuPagePtr((new QuPage{
-        text("q6"),
-        new QuCountdown(COUNTDOWN_TIME_S),
-        mcqgrid({Q6}, q6_options),
-    })->setTitle(singular + " 6")));
+                                text("q7"),
+                                mcqgrid({Q7A, Q7B, Q7C, Q7D, Q7E}, q7_options),
+                            })
+                               ->setTitle(singular + " 7")));
 
     pages.append(QuPagePtr((new QuPage{
-        text("q7"),
-        mcqgrid({Q7A, Q7B, Q7C, Q7D, Q7E}, q7_options),
-    })->setTitle(singular + " 7")));
+                                text("q8"),
+                                mcqgrid({Q8B, Q8C}, incorrect_correct_options),
+                            })
+                               ->setTitle(singular + " 8")));
 
     pages.append(QuPagePtr((new QuPage{
-        text("q8"),
-        mcqgrid({Q8B, Q8C}, incorrect_correct_options),
-    })->setTitle(singular + " 8")));
+                                text("q9"),
+                                canvas(CLOCKPICTURE_BLOBID, IMAGE_CIRCLE),
+                            })
+                               ->setTitle(singular + " 9")
+                               ->allowScroll(false)
+                               ->setType(QuPage::PageType::ClinicianWithPatient
+                               )));
 
     pages.append(QuPagePtr((new QuPage{
-        text("q9"),
-        canvas(CLOCKPICTURE_BLOBID, IMAGE_CIRCLE),
-    })
-        ->setTitle(singular + " 9")
-        ->allowScroll(false)
-        ->setType(QuPage::PageType::ClinicianWithPatient)));
+                                mcqgrid({Q9A, Q9B}, incorr_0_corr_2_options),
+                            })
+                               ->setTitle(singular + " 9 " + scoring)));
 
     pages.append(QuPagePtr((new QuPage{
-        mcqgrid({Q9A, Q9B}, incorr_0_corr_2_options),
-    })->setTitle(singular + " 9 " + scoring)));
+                                canvas(SHAPESPICTURE_BLOBID, IMAGE_SHAPES),
+                                text("q10_part1"),
+                                text("q10_part2"),
+                            })
+                               ->setTitle(singular + " 10")
+                               ->allowScroll(false)
+                               ->setType(QuPage::PageType::ClinicianWithPatient
+                               )));
 
-    pages.append(QuPagePtr((new QuPage{
-        canvas(SHAPESPICTURE_BLOBID, IMAGE_SHAPES),
-        text("q10_part1"),
-        text("q10_part2"),
-    })
-        ->setTitle(singular + " 10")
-        ->allowScroll(false)
-        ->setType(QuPage::PageType::ClinicianWithPatient)));
+    pages.append(
+        QuPagePtr((new QuPage{
+                       mcqgrid({Q10A, Q10B}, incorrect_correct_options),
+                   })
+                      ->setTitle(singular + " 10 " + scoring))
+    );
 
-    pages.append(QuPagePtr((new QuPage{
-        mcqgrid({Q10A, Q10B}, incorrect_correct_options),
-    })->setTitle(singular + " 10 " + scoring)));
+    pages.append(QuPagePtr(
+        (new QuPage{
+             text("q11"),
+             mcqgrid({Q11A, Q11B, Q11C, Q11D}, incorr_0_corr_2_options),
+         })
+            ->setTitle(singular + " 11")
+    ));
 
-    pages.append(QuPagePtr((new QuPage{
-        text("q11"),
-        mcqgrid({Q11A, Q11B, Q11C, Q11D}, incorr_0_corr_2_options),
-    })->setTitle(singular + " 11")));
-
-    pages.append(QuPagePtr((new QuPage{
-        textRaw(TextConst::examinerComments()),
-        (new QuTextEdit(fieldRef(COMMENTS, false)))
-            ->setHint(TextConst::examinerCommentsPrompt()),
-    })->setTitle(singular + " 12")));
+    pages.append(
+        QuPagePtr((new QuPage{
+                       textRaw(TextConst::examinerComments()),
+                       (new QuTextEdit(fieldRef(COMMENTS, false)))
+                           ->setHint(TextConst::examinerCommentsPrompt()),
+                   })
+                      ->setTitle(singular + " 12"))
+    );
 
     auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations

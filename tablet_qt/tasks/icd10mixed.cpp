@@ -19,12 +19,13 @@
 */
 
 #include "icd10mixed.h"
+
 #include "common/appstrings.h"
 #include "common/textconst.h"
 #include "lib/datetime.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/questionnaire.h"
@@ -57,9 +58,11 @@ void initializeIcd10Mixed(TaskFactory& factory)
 }
 
 
-Icd10Mixed::Icd10Mixed(CamcopsApp& app, DatabaseManager& db,
-                       const int load_pk) :
-    Task(app, db, ICD10MIXED_TABLENAME, false, true, false)  // ... anon, clin, resp
+Icd10Mixed::Icd10Mixed(
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
+    Task(app, db, ICD10MIXED_TABLENAME, false, true, false)
+// ... anon, clin, resp
 {
     addField(DATE_PERTAINS_TO, QMetaType::fromType<QDate>());
     addField(COMMENTS, QMetaType::fromType<QString>());
@@ -74,7 +77,6 @@ Icd10Mixed::Icd10Mixed(CamcopsApp& app, DatabaseManager& db,
     }
 }
 
-
 // ============================================================================
 // Class info
 // ============================================================================
@@ -84,25 +86,23 @@ QString Icd10Mixed::shortname() const
     return "ICD10-mixed";
 }
 
-
 QString Icd10Mixed::longname() const
 {
-    return tr("ICD-10 symptomatic criteria for a mixed affective episode "
-              "(as in e.g. F06.3, F25, F38.00, F31.6)");
+    return tr(
+        "ICD-10 symptomatic criteria for a mixed affective episode "
+        "(as in e.g. F06.3, F25, F38.00, F31.6)"
+    );
 }
-
 
 QString Icd10Mixed::description() const
 {
     return TextConst::icd10();
 }
 
-
 QString Icd10Mixed::infoFilenameStem() const
 {
     return "icd";
 }
-
 
 // ============================================================================
 // Instance info
@@ -113,55 +113,60 @@ bool Icd10Mixed::isComplete() const
     return !meetsCriteria().isNull();
 }
 
-
 QStringList Icd10Mixed::summary() const
 {
     return QStringList{
-        standardResult(appstring(appstrings::DATE_PERTAINS_TO),
-                       shortDate(value(DATE_PERTAINS_TO))),
-        standardResult(TextConst::meetsCriteria(),
-                       trueFalseUnknown(meetsCriteria())),
+        standardResult(
+            appstring(appstrings::DATE_PERTAINS_TO),
+            shortDate(value(DATE_PERTAINS_TO))
+        ),
+        standardResult(
+            TextConst::meetsCriteria(), trueFalseUnknown(meetsCriteria())
+        ),
     };
 }
-
 
 QStringList Icd10Mixed::detail() const
 {
-    QStringList lines = completenessInfo() + summary() + QStringList{
-        fieldSummary(COMMENTS, TextConst::examinerComments()),
-        fieldSummary(MIXTURE_OR_RAPID_ALTERNATION, xstring("a")),
-        fieldSummary(DURATION_AT_LEAST_2_WEEKS, xstring("b")),
-    };
+    QStringList lines = completenessInfo() + summary()
+        + QStringList{
+            fieldSummary(COMMENTS, TextConst::examinerComments()),
+            fieldSummary(MIXTURE_OR_RAPID_ALTERNATION, xstring("a")),
+            fieldSummary(DURATION_AT_LEAST_2_WEEKS, xstring("b")),
+        };
     return lines;
 }
 
-
 OpenableWidget* Icd10Mixed::editor(const bool read_only)
 {
-    const NameValueOptions true_false_options = CommonOptions::falseTrueBoolean();
+    const NameValueOptions true_false_options
+        = CommonOptions::falseTrueBoolean();
     QVector<QuestionWithOneField> qfields{
         {fieldRef(MIXTURE_OR_RAPID_ALTERNATION), xstring("a")},
         {fieldRef(DURATION_AT_LEAST_2_WEEKS), xstring("b")},
     };
 
-    QuPagePtr page((new QuPage{
-        getClinicianQuestionnaireBlockRawPointer(),
-        (new QuText(appstring(appstrings::ICD10_SYMPTOMATIC_DISCLAIMER)))->setBold(),
-        new QuText(appstring(appstrings::DATE_PERTAINS_TO)),
-        (new QuDateTime(fieldRef(DATE_PERTAINS_TO)))
-            ->setMode(QuDateTime::Mode::DefaultDate)
-            ->setOfferNowButton(true),
-        new QuMcqGrid(qfields, true_false_options),
-        new QuHeading(TextConst::comments()),
-        new QuTextEdit(fieldRef(COMMENTS, false)),
-    })->setTitle(longname()));
+    QuPagePtr page(
+        (new QuPage{
+             getClinicianQuestionnaireBlockRawPointer(),
+             (new QuText(appstring(appstrings::ICD10_SYMPTOMATIC_DISCLAIMER)))
+                 ->setBold(),
+             new QuText(appstring(appstrings::DATE_PERTAINS_TO)),
+             (new QuDateTime(fieldRef(DATE_PERTAINS_TO)))
+                 ->setMode(QuDateTime::Mode::DefaultDate)
+                 ->setOfferNowButton(true),
+             new QuMcqGrid(qfields, true_false_options),
+             new QuHeading(TextConst::comments()),
+             new QuTextEdit(fieldRef(COMMENTS, false)),
+         })
+            ->setTitle(longname())
+    );
 
     auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations

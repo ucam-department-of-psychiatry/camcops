@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_resource_registry.py
 
@@ -28,7 +26,6 @@ camcops_server/cc_modules/cc_resource_registry.py
 **Deform resource registry class, for HTML forms.**
 
 """
-
 
 from deform.widget import ResourceRegistry
 

@@ -19,6 +19,7 @@
 */
 
 #include "paradise24.h"
+
 #include "lib/convert.h"
 #include "lib/stringfunc.h"
 #include "maths/mathfunc.h"
@@ -47,20 +48,21 @@ const int MAX_METRIC_SCORE = 100;
 const QString Q_PREFIX("q");
 const QString Paradise24::PARADISE24_TABLENAME("paradise24");
 
-
 void initializeParadise24(TaskFactory& factory)
 {
     static TaskRegistrar<Paradise24> registered(factory);
 }
 
-Paradise24::Paradise24(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, PARADISE24_TABLENAME, false, false, false)  // ... anon, clin, resp
+Paradise24::Paradise24(
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
+    Task(app, db, PARADISE24_TABLENAME, false, false, false)
+// ... anon, clin, resp
 {
     addFields(strseq(Q_PREFIX, FIRST_Q, LAST_Q), QMetaType::fromType<int>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -71,12 +73,10 @@ QString Paradise24::shortname() const
     return "PARADISE 24";
 }
 
-
 QString Paradise24::longname() const
 {
     return tr("Psychosocial fActors Relevant to BrAin DISorders in Europe–24");
 }
-
 
 QString Paradise24::description() const
 {
@@ -86,7 +86,6 @@ QString Paradise24::description() const
         "common across brain disorders."
     );
 }
-
 
 QStringList Paradise24::fieldNames() const
 {
@@ -109,7 +108,6 @@ bool Paradise24::isComplete() const
     return true;
 }
 
-
 QVariant Paradise24::rawTotalScore() const
 {
     if (!isComplete()) {
@@ -118,7 +116,6 @@ QVariant Paradise24::rawTotalScore() const
 
     return sumInt(values(fieldNames()));
 }
-
 
 QVariant Paradise24::metricScore() const
 {
@@ -133,78 +130,50 @@ QVariant Paradise24::metricScore() const
     // - Values are transformed scores.
     const QVector<int> score_lookup = {
         0,  // 0
-        10,
-        19,
-        25,
-        29,
-        33,
-        36,
-        38,
-        41,
-        43,
+        10,  19, 25, 29, 33, 36, 38, 41, 43,
         45,  // 10
-        46,
-        48,
-        50,
-        51,
-        53,
-        54,
-        55,
-        57,
-        58,
+        46,  48, 50, 51, 53, 54, 55, 57, 58,
         59,  // 20
-        60,
-        61,
-        63,
-        64,
-        65,
-        66,
-        67,
-        68,
-        69,
+        60,  61, 63, 64, 65, 66, 67, 68, 69,
         71,  // 30
-        72,
-        73,
-        74,
-        76,
-        77,
-        78,
-        80,
-        81,
-        83,
+        72,  73, 74, 76, 77, 78, 80, 81, 83,
         85,  // 40
-        87,
-        89,
-        91,
-        92,
-        94,
-        96,
-        98,
-        100, // 48
+        87,  89, 91, 92, 94, 96, 98,
+        100,  // 48
     };
 
     return score_lookup[total_score.toInt()];
 }
 
-
 QStringList Paradise24::summary() const
 {
-    auto rangeScore = [](const QString& description, const QVariant score,
-                         const int min, const int max) {
-        return QString("%1: <b>%2</b> [%3–%4].").arg(
-                    description,
-                    convert::prettyValue(score),
-                    QString::number(min),
-                    QString::number(max));
+    auto rangeScore = [](const QString& description,
+                         const QVariant score,
+                         const int min,
+                         const int max) {
+        return QString("%1: <b>%2</b> [%3–%4].")
+            .arg(
+                description,
+                convert::prettyValue(score),
+                QString::number(min),
+                QString::number(max)
+            );
     };
     return QStringList{
-        rangeScore(xstring("raw_score"), rawTotalScore(),
-                   MIN_RAW_TOTAL_SCORE, MAX_RAW_TOTAL_SCORE),
-        rangeScore(xstring("metric_score"), metricScore(),
-                   MIN_METRIC_SCORE, MAX_METRIC_SCORE),
+        rangeScore(
+            xstring("raw_score"),
+            rawTotalScore(),
+            MIN_RAW_TOTAL_SCORE,
+            MAX_RAW_TOTAL_SCORE
+        ),
+        rangeScore(
+            xstring("metric_score"),
+            metricScore(),
+            MIN_METRIC_SCORE,
+            MAX_METRIC_SCORE
+        ),
     };
 }
-
 
 QStringList Paradise24::detail() const
 {
@@ -217,8 +186,9 @@ QStringList Paradise24::detail() const
 
     for (int i = 0; i < fieldnames.length(); ++i) {
         const QString& fieldname = fieldnames.at(i);
-        lines.append(fieldSummary(fieldname, xstring(fieldname),
-                                  spacer, suffix));
+        lines.append(
+            fieldSummary(fieldname, xstring(fieldname), spacer, suffix)
+        );
     }
 
 
@@ -227,7 +197,6 @@ QStringList Paradise24::detail() const
 
     return lines;
 }
-
 
 OpenableWidget* Paradise24::editor(const bool read_only)
 {
@@ -244,8 +213,7 @@ OpenableWidget* Paradise24::editor(const bool read_only)
 
     auto instructions = new QuHeading(xstring("instructions"));
     auto grid = buildGrid(FIRST_Q, LAST_Q, options);
-    grid->setMinimumWidthInPixels(min_width_px,
-                                  min_option_widths_px);
+    grid->setMinimumWidthInPixels(min_width_px, min_option_widths_px);
 
     QVector<QuElement*> elements{
         instructions,
@@ -261,10 +229,9 @@ OpenableWidget* Paradise24::editor(const bool read_only)
     return questionnaire;
 }
 
-
-QuMcqGrid* Paradise24::buildGrid(int first_qnum,
-                                 int last_qnum,
-                                 const NameValueOptions options)
+QuMcqGrid* Paradise24::buildGrid(
+    int first_qnum, int last_qnum, const NameValueOptions options
+)
 {
     QVector<QuestionWithOneField> q_field_pairs;
 
@@ -272,8 +239,9 @@ QuMcqGrid* Paradise24::buildGrid(int first_qnum,
         const QString& fieldname = Q_PREFIX + QString::number(qnum);
         const QString& description = xstring(fieldname);
 
-        q_field_pairs.append(QuestionWithOneField(description,
-                                                  fieldRef(fieldname)));
+        q_field_pairs.append(
+            QuestionWithOneField(description, fieldRef(fieldname))
+        );
     }
 
     auto grid = new QuMcqGrid(q_field_pairs, options);

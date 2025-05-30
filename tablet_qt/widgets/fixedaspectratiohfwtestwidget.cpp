@@ -19,21 +19,23 @@
 */
 
 #include "fixedaspectratiohfwtestwidget.h"
+
 #include <QBrush>
 #include <QPainter>
 #include <QPen>
+
 #include "lib/sizehelpers.h"
 
-
 FixedAspectRatioHfwTestWidget::FixedAspectRatioHfwTestWidget(
-        const qreal aspect_ratio,
-        const int preferred_width,
-        const QSize& min_size,
-        const QColor& background_colour,
-        const int border_thickness,
-        const QColor& border_colour,
-        const QColor& text_colour,
-        QWidget* parent) :
+    const qreal aspect_ratio,
+    const int preferred_width,
+    const QSize& min_size,
+    const QColor& background_colour,
+    const int border_thickness,
+    const QColor& border_colour,
+    const QColor& text_colour,
+    QWidget* parent
+) :
     QWidget(parent),
     m_aspect_ratio(aspect_ratio),
     m_preferred_width(preferred_width),
@@ -46,24 +48,20 @@ FixedAspectRatioHfwTestWidget::FixedAspectRatioHfwTestWidget(
     setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
 }
 
-
 QSize FixedAspectRatioHfwTestWidget::sizeHint() const
 {
     return QSize(m_preferred_width, heightForWidth(m_preferred_width));
 }
-
 
 QSize FixedAspectRatioHfwTestWidget::minimumSizeHint() const
 {
     return m_min_size;
 }
 
-
 bool FixedAspectRatioHfwTestWidget::hasHeightForWidth() const
 {
     return true;
 }
-
 
 int FixedAspectRatioHfwTestWidget::heightForWidth(const int width) const
 {
@@ -71,7 +69,6 @@ int FixedAspectRatioHfwTestWidget::heightForWidth(const int width) const
     // =>   height = width / aspect_ratio
     return qRound(static_cast<qreal>(width) / m_aspect_ratio);
 }
-
 
 void FixedAspectRatioHfwTestWidget::paintEvent(QPaintEvent* event)
 {
@@ -86,14 +83,12 @@ void FixedAspectRatioHfwTestWidget::paintEvent(QPaintEvent* event)
     const int w = s.width();
     const int h = s.height();
     const int hfw = heightForWidth(w);
-    const QString hfw_description = hfw == h
-        ? "matches HFW"
-        : QString("MISMATCH to HFW %1").arg(hfw);
-    const QString description = QString(
-        "Fixed aspect ratio; %1 w x %2 h (%3)")
-            .arg(w)
-            .arg(h)
-            .arg(hfw_description);
+    const QString hfw_description
+        = hfw == h ? "matches HFW" : QString("MISMATCH to HFW %1").arg(hfw);
+    const QString description = QString("Fixed aspect ratio; %1 w x %2 h (%3)")
+                                    .arg(w)
+                                    .arg(h)
+                                    .arg(hfw_description);
 
     QPen border_pen(m_border_colour);
     border_pen.setWidth(m_border_thickness);
@@ -106,8 +101,6 @@ void FixedAspectRatioHfwTestWidget::paintEvent(QPaintEvent* event)
     painter.drawRect(rect);
     painter.setPen(text_pen);
     painter.drawText(
-        rect,
-        Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap,
-        description
+        rect, Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap, description
     );
 }

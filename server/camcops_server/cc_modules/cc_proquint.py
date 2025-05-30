@@ -64,6 +64,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 """
+
 import uuid
 
 CONSONANTS = "bdfghjklmnprstvz"
@@ -266,7 +267,7 @@ def int_from_proquint(proquint: str) -> int:
     words.pop()
 
     for word in words:
-        for (i, c) in enumerate(word):
+        for i, c in enumerate(word):
             if i & 1:
                 lookup_table = LOOKUP_VOWELS
                 shift = SIZE_OF_VOWEL

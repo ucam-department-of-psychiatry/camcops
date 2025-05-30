@@ -18,9 +18,9 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "tasklib/task.h"
 #include "tasksorter.h"
 
+#include "tasklib/task.h"
 
 TaskSorter::TaskSorter()
 {
@@ -28,20 +28,19 @@ TaskSorter::TaskSorter()
     // https://forum.qt.io/topic/4877/sorting-a-qlist-with-a-comparator/4
 }
 
-
 bool TaskSorter::operator()(const TaskPtr& left, const TaskPtr& right) const
 {
     // Implements: LEFT < RIGHT ?
     // Sort by creation date/time (descending: new to old), then taskname
     // (ascending: A to Z).
-    const QDateTime l_when = left->valueDateTime(
-        dbconst::CREATION_TIMESTAMP_FIELDNAME);
-    const QDateTime r_when = right->valueDateTime(
-        dbconst::CREATION_TIMESTAMP_FIELDNAME);
+    const QDateTime l_when
+        = left->valueDateTime(dbconst::CREATION_TIMESTAMP_FIELDNAME);
+    const QDateTime r_when
+        = right->valueDateTime(dbconst::CREATION_TIMESTAMP_FIELDNAME);
     if (l_when != r_when) {
         return l_when > r_when;  // descending
     }
     const QString l_name = left->shortname();
     const QString r_name = right->shortname();
-    return l_name < r_name; // ascending
+    return l_name < r_name;  // ascending
 }

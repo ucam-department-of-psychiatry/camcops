@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 playing/snippet_sqla_comparison_symmetry.py
 
@@ -28,6 +26,7 @@ playing/snippet_sqla_comparison_symmetry.py
 http://stackoverflow.com/questions/35117920/cant-override-custom-comparison-in-sqlalchemy-symmetrically  # noqa
 https://groups.google.com/forum/#!topic/sqlalchemy/w91vSBZxHhs
 """
+
 import datetime
 import dateutil.parser
 import getpass

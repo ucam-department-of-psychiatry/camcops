@@ -24,10 +24,12 @@ using namespace Eigen;
 namespace dqrls {
 
 
-DqrlsResult Cdqrls(const MatrixXd& x,  // n,p
-                   const MatrixXd& y,  // n,ny
-                   const double tol,
-                   const bool check)
+DqrlsResult Cdqrls(
+    const MatrixXd& x,  // n,p
+    const MatrixXd& y,  // n,ny
+    const double tol,
+    const bool check
+)
 {
     DqrlsResult result;
     const Index n = x.rows();  // number of observations
@@ -35,11 +37,13 @@ DqrlsResult Cdqrls(const MatrixXd& x,  // n,p
     // const Index ny = y.cols();  // number of dependent variables
     if (check) {
         if (y.rows() != n) {
-            result.errors.append(QString(
-                "Y vector has %1 rows but this should match the number of "
-                "observations (number of X rows), %2").arg(
-                    QString::number(y.rows()),
-                    QString::number(n)));
+            result.errors.append(
+                QString(
+                    "Y vector has %1 rows but this should match the number of "
+                    "observations (number of X rows), %2"
+                )
+                    .arg(QString::number(y.rows()), QString::number(n))
+            );
             return result;
         }
     }

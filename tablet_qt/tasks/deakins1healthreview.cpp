@@ -21,8 +21,9 @@
 // This task doesn't bother with XML downloads or translation; it's hard-coded.
 
 #include "deakins1healthreview.h"
-#include "core/camcopsapp.h"
+
 #include "common/textconst.h"
+#include "core/camcopsapp.h"
 #include "maths/mathfunc.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnaire.h"
@@ -39,7 +40,8 @@
 using mathfunc::noneNull;
 
 const QString DeakinS1HealthReview::DEAKIN_S1_HEALTHREVIEW_TABLENAME(
-        "deakin_1_healthreview");
+    "deakin_1_healthreview"
+);
 
 const QString ETHNICITY("ethnicity");
 const QString ETHNICITY_TEXT("ethnicity_text");
@@ -63,7 +65,8 @@ const QString VACCINATION_DETAILS("vaccination_details");
 
 const QString INFECTIONS_LAST3MONTHS("infections_last3months");
 const QString INFECTION_RECENT_RESPIRATORY("infection_recent_respiratory");
-const QString INFECTION_RECENT_GASTROENTERITIS("infection_recent_gastroenteritis");
+const QString
+    INFECTION_RECENT_GASTROENTERITIS("infection_recent_gastroenteritis");
 const QString INFECTION_RECENT_URINARY("infection_recent_urinary");
 const QString INFECTION_RECENT_SEXUAL("infection_recent_sexual");
 const QString INFECTION_RECENT_HEPATITIS("infection_recent_hepatitis");
@@ -72,7 +75,8 @@ const QString INFECTION_RECENT_DETAILS("infection_recent_details");
 
 const QString INFECTIONS_CHRONIC("infections_chronic");
 const QString INFECTION_CHRONIC_RESPIRATORY("infection_chronic_respiratory");
-const QString INFECTION_CHRONIC_GASTROENTERITIS("infection_chronic_gastroenteritis");
+const QString
+    INFECTION_CHRONIC_GASTROENTERITIS("infection_chronic_gastroenteritis");
 const QString INFECTION_CHRONIC_URINARY("infection_chronic_urinary");
 const QString INFECTION_CHRONIC_SEXUAL("infection_chronic_sexual");
 const QString INFECTION_CHRONIC_HEPATITIS("infection_chronic_hepatitis");
@@ -105,7 +109,8 @@ const QString HEALTH_ANYTHING_ELSE_DETAILS("health_anything_else_details");
 const QString DRUG_HISTORY("drug_history");
 const QString FIRST_ANTIPSYCHOTIC_MEDICATION("first_antipsychotic_medication");
 
-const QString RECREATIONAL_DRUG_IN_LAST_3_MONTHS("recreational_drug_in_last_3_months");
+const QString
+    RECREATIONAL_DRUG_IN_LAST_3_MONTHS("recreational_drug_in_last_3_months");
 const QString RECDRUG_TOBACCO_FREQUENCY("recdrug_tobacco_frequency");
 const QString RECDRUG_TOBACCO_CIGSPERWEEK("recdrug_tobacco_cigsperweek");
 const QString RECDRUG_TOBACCO_PREVHEAVY("recdrug_tobacco_prevheavy");
@@ -127,16 +132,20 @@ const QString RECDRUG_METHADONE_FREQUENCY("recdrug_methadone_frequency");
 const QString RECDRUG_METHADONE_PREVHEAVY("recdrug_methadone_prevheavy");
 const QString RECDRUG_AMPHETAMINES_FREQUENCY("recdrug_amphetamines_frequency");
 const QString RECDRUG_AMPHETAMINES_PREVHEAVY("recdrug_amphetamines_prevheavy");
-const QString RECDRUG_BENZODIAZEPINES_FREQUENCY("recdrug_benzodiazepines_frequency");
-const QString RECDRUG_BENZODIAZEPINES_PREVHEAVY("recdrug_benzodiazepines_prevheavy");
+const QString
+    RECDRUG_BENZODIAZEPINES_FREQUENCY("recdrug_benzodiazepines_frequency");
+const QString
+    RECDRUG_BENZODIAZEPINES_PREVHEAVY("recdrug_benzodiazepines_prevheavy");
 const QString RECDRUG_KETAMINE_FREQUENCY("recdrug_ketamine_frequency");
 const QString RECDRUG_KETAMINE_PREVHEAVY("recdrug_ketamine_prevheavy");
 const QString RECDRUG_LEGALHIGHS_FREQUENCY("recdrug_legalhighs_frequency");
 const QString RECDRUG_LEGALHIGHS_PREVHEAVY("recdrug_legalhighs_prevheavy");
 const QString RECDRUG_INHALANTS_FREQUENCY("recdrug_inhalants_frequency");
 const QString RECDRUG_INHALANTS_PREVHEAVY("recdrug_inhalants_prevheavy");
-const QString RECDRUG_HALLUCINOGENS_FREQUENCY("recdrug_hallucinogens_frequency");
-const QString RECDRUG_HALLUCINOGENS_PREVHEAVY("recdrug_hallucinogens_prevheavy");
+const QString RECDRUG_HALLUCINOGENS_FREQUENCY("recdrug_hallucinogens_frequency"
+);
+const QString RECDRUG_HALLUCINOGENS_PREVHEAVY("recdrug_hallucinogens_prevheavy"
+);
 const QString RECDRUG_DETAILS("recdrug_details");
 const QString RECDRUG_PREVHEAVY("recdrug_prevheavy");
 const QString RECDRUG_PREVHEAVY_DETAILS("recdrug_prevheavy_details");
@@ -148,15 +157,19 @@ const QString MRI_METAL_FROM_OPERATIONS("mri_metal_from_operations");
 const QString MRI_TATTOOS_NICOTINE_PATCHES("mri_tattoos_nicotine_patches");
 const QString MRI_WORKED_WITH_METAL("mri_worked_with_metal");
 const QString MRI_PREVIOUS_BRAIN_SCAN("mri_previous_brain_scan");
-const QString MRI_PREVIOUS_BRAIN_SCAN_DETAILS("mri_previous_brain_scan_details");
+const QString MRI_PREVIOUS_BRAIN_SCAN_DETAILS("mri_previous_brain_scan_details"
+);
 const QString OTHER_RELEVANT_THINGS("other_relevant_things");
 const QString OTHER_RELEVANT_THINGS_DETAILS("other_relevant_things_details");
-const QString WILLING_TO_PARTICIPATE_IN_FURTHER_STUDIES("willing_to_participate_in_further_studies");
+const QString WILLING_TO_PARTICIPATE_IN_FURTHER_STUDIES(
+    "willing_to_participate_in_further_studies"
+);
 
 const QString STR_DETAILS_IF_YES("If you answered YES, please give details:");
 const QString STR_DETAILS("Details:");
 const QString TICK_ANY_THAT_APPLY("Tick any that apply:");
-const QStringList DRUGLIST{  // order is important
+const QStringList DRUGLIST{
+    // order is important
     "tobacco",
     "cannabis",
     "alcohol",
@@ -172,14 +185,13 @@ const QStringList DRUGLIST{  // order is important
     "inhalants",
     "hallucinogens",
 };
-const QStringList INFECTIONLIST{  // order is important
-    "respiratory infection",
-    "gastroenteritis",
-    "urinary tract infection",
-    "sexually transmitted infection",
-    "hepatitis",
-    "other"
-};
+const QStringList INFECTIONLIST{// order is important
+                                "respiratory infection",
+                                "gastroenteritis",
+                                "urinary tract infection",
+                                "sexually transmitted infection",
+                                "hepatitis",
+                                "other"};
 const QString PT_ETHNICITY("eth");
 const QString PT_ALLERGY("all");
 const QString PT_VACCINES("vac");
@@ -202,7 +214,6 @@ const QString ET_RECDRUGS("recdrug");
 const QString ET_PREVSCAN("prevscan");
 const QString ET_OTHERDETAILS("otherdetails");
 
-
 void initializeDeakinS1HealthReview(TaskFactory& factory)
 {
     static TaskRegistrar<DeakinS1HealthReview> registered(factory);
@@ -210,11 +221,14 @@ void initializeDeakinS1HealthReview(TaskFactory& factory)
 
 
 DeakinS1HealthReview::DeakinS1HealthReview(
-        CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, DEAKIN_S1_HEALTHREVIEW_TABLENAME, false, false, false)  // ... anon, clin, resp
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
+    Task(app, db, DEAKIN_S1_HEALTHREVIEW_TABLENAME, false, false, false)
+// ... anon, clin, resp
 {
     addField(ETHNICITY, QMetaType::fromType<int>());
-    addField(ETHNICITY_TEXT, QMetaType::fromType<QString>());  // SEEMS TO BE UNUSED!
+    addField(ETHNICITY_TEXT, QMetaType::fromType<QString>());
+    // ... SEEMS TO BE UNUSED!
     addField(ETHNICITY_OTHER_DETAILS, QMetaType::fromType<QString>());
 
     addField(HANDEDNESS, QMetaType::fromType<QString>());
@@ -323,11 +337,12 @@ DeakinS1HealthReview::DeakinS1HealthReview(
     addField(MRI_PREVIOUS_BRAIN_SCAN_DETAILS, QMetaType::fromType<QString>());
     addField(OTHER_RELEVANT_THINGS, QMetaType::fromType<bool>());
     addField(OTHER_RELEVANT_THINGS_DETAILS, QMetaType::fromType<QString>());
-    addField(WILLING_TO_PARTICIPATE_IN_FURTHER_STUDIES, QMetaType::fromType<bool>());
+    addField(
+        WILLING_TO_PARTICIPATE_IN_FURTHER_STUDIES, QMetaType::fromType<bool>()
+    );
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -338,24 +353,20 @@ QString DeakinS1HealthReview::shortname() const
     return "Deakin_S1_HealthReview";
 }
 
-
 QString DeakinS1HealthReview::longname() const
 {
     return tr("Deakin JB — Antibody-mediated psychosis study — health review");
 }
-
 
 QString DeakinS1HealthReview::description() const
 {
     return tr("Health review for antibody-mediated psychosis study.");
 }
 
-
 QString DeakinS1HealthReview::infoFilenameStem() const
 {
     return "deakin_s1_healthreview";
 }
-
 
 // ============================================================================
 // Instance info
@@ -364,41 +375,38 @@ QString DeakinS1HealthReview::infoFilenameStem() const
 bool DeakinS1HealthReview::isComplete() const
 {
     return noneNull(values(QStringList{
-       ETHNICITY,
-       HANDEDNESS,
-       EDUCATION,
-       ALLERGIES,
-       VACCINATIONS_LAST3MONTHS,
-       INFECTIONS_LAST3MONTHS,
-       INFECTIONS_CHRONIC,
-       IMMUNE_DISORDERS,
-       HEALTH_ANYTHING_ELSE,
-       RECREATIONAL_DRUG_IN_LAST_3_MONTHS,
-       RECDRUG_PREVHEAVY,
-       MRI_CLAUSTROPHOBIC,
-       MRI_DIFFICULTY_LYING_1_HOUR,
-       MRI_NONREMOVABLE_METAL,
-       MRI_METAL_FROM_OPERATIONS,
-       MRI_TATTOOS_NICOTINE_PATCHES,
-       MRI_WORKED_WITH_METAL,
-       MRI_PREVIOUS_BRAIN_SCAN,
-       OTHER_RELEVANT_THINGS,
-       WILLING_TO_PARTICIPATE_IN_FURTHER_STUDIES,
+        ETHNICITY,
+        HANDEDNESS,
+        EDUCATION,
+        ALLERGIES,
+        VACCINATIONS_LAST3MONTHS,
+        INFECTIONS_LAST3MONTHS,
+        INFECTIONS_CHRONIC,
+        IMMUNE_DISORDERS,
+        HEALTH_ANYTHING_ELSE,
+        RECREATIONAL_DRUG_IN_LAST_3_MONTHS,
+        RECDRUG_PREVHEAVY,
+        MRI_CLAUSTROPHOBIC,
+        MRI_DIFFICULTY_LYING_1_HOUR,
+        MRI_NONREMOVABLE_METAL,
+        MRI_METAL_FROM_OPERATIONS,
+        MRI_TATTOOS_NICOTINE_PATCHES,
+        MRI_WORKED_WITH_METAL,
+        MRI_PREVIOUS_BRAIN_SCAN,
+        OTHER_RELEVANT_THINGS,
+        WILLING_TO_PARTICIPATE_IN_FURTHER_STUDIES,
     }));
 }
-
 
 QStringList DeakinS1HealthReview::summary() const
 {
     return QStringList{TextConst::noSummarySeeFacsimile()};
 }
 
-
 QStringList DeakinS1HealthReview::detail() const
 {
     return completenessInfo() + summary();
 }
-
 
 OpenableWidget* DeakinS1HealthReview::editor(const bool read_only)
 {
@@ -428,64 +436,84 @@ OpenableWidget* DeakinS1HealthReview::editor(const bool read_only)
     auto boldtext = [](const QString& text) -> QuElement* {
         return (new QuText(text))->setBold();
     };
-    auto mcq = [this](const QString& fieldname,
-                      const NameValueOptions& options) -> QuElement* {
+    auto mcq = [this](
+                   const QString& fieldname, const NameValueOptions& options
+               ) -> QuElement* {
         return new QuMcq(fieldRef(fieldname), options);
     };
-    auto mcqhoriz = [this](const QString& fieldname,
-                           const NameValueOptions& options) -> QuElement* {
+    auto mcqhoriz
+        = [this](
+              const QString& fieldname, const NameValueOptions& options
+          ) -> QuElement* {
         return (new QuMcq(fieldRef(fieldname), options))->setHorizontal(true);
     };
-    auto qf = [this](const QString& fieldname,
-                     const QString& question) -> QuestionWithOneField {
+    auto qf = [this](
+                  const QString& fieldname, const QString& question
+              ) -> QuestionWithOneField {
         return QuestionWithOneField(fieldRef(fieldname), question);
     };
-    auto q2f = [this](const QString& fieldname1,
-                      const QString& fieldname2,
-                      const QString& question) -> QuestionWithTwoFields {
-        return QuestionWithTwoFields(question, fieldRef(fieldname1),
-                                     fieldRef(fieldname2));
+    auto q2f = [this](
+                   const QString& fieldname1,
+                   const QString& fieldname2,
+                   const QString& question
+               ) -> QuestionWithTwoFields {
+        return QuestionWithTwoFields(
+            question, fieldRef(fieldname1), fieldRef(fieldname2)
+        );
     };
     auto yn = [this, &yn_options](const QString& fieldname) -> QuElement* {
         return (new QuMcq(fieldRef(fieldname), yn_options))
-                ->setHorizontal(true);
+            ->setHorizontal(true);
     };
     auto lineedit = [this](const QString& fieldname) -> QuElement* {
         return new QuLineEdit(fieldRef(fieldname));
     };
-    auto multiline = [this](const QString& fieldname,
-                            bool mandatory = true) -> QuElement* {
+    auto multiline =
+        [this](const QString& fieldname, bool mandatory = true) -> QuElement* {
         return new QuTextEdit(fieldRef(fieldname, mandatory));
     };
     auto intedit = [this](const QString& fieldname) -> QuElement* {
         return (new QuLineEditInteger(fieldRef(fieldname), 0, 1000))
-                ->setHint("");
+            ->setHint("");
     };
     auto watch = [this](const QString& fieldname) -> void {
-        connect(fieldRef(fieldname).data(), &FieldRef::valueChanged,
-                this, &DeakinS1HealthReview::updateMandatory);
+        connect(
+            fieldRef(fieldname).data(),
+            &FieldRef::valueChanged,
+            this,
+            &DeakinS1HealthReview::updateMandatory
+        );
     };
 
     QVector<QuPagePtr> pages;
 
-    pages.append(QuPagePtr((new QuPage{
-        boldtext("Please enter your ethnicity:"),
-        mcq(ETHNICITY, GmcPq::ethnicityOptions(m_app)),
-        text(m_app.xstring(GmcPq::GMCPQ_TABLENAME, "ethnicity_other_s")),
-        lineedit(ETHNICITY_OTHER_DETAILS),
-    })->setTitle("Ethnicity")));
+    pages.append(QuPagePtr(
+        (new QuPage{
+             boldtext("Please enter your ethnicity:"),
+             mcq(ETHNICITY, GmcPq::ethnicityOptions(m_app)),
+             text(m_app.xstring(GmcPq::GMCPQ_TABLENAME, "ethnicity_other_s")),
+             lineedit(ETHNICITY_OTHER_DETAILS),
+         })
+            ->setTitle("Ethnicity")
+    ));
     watch(ETHNICITY);
 
     pages.append(QuPagePtr((new QuPage{
-        boldtext("I prefer to use my:"),
-        mcqhoriz(HANDEDNESS, handedness_options),
-    })->setTitle("Handedness")));
+                                boldtext("I prefer to use my:"),
+                                mcqhoriz(HANDEDNESS, handedness_options),
+                            })
+                               ->setTitle("Handedness")));
 
-    pages.append(QuPagePtr((new QuPage{
-        boldtext("Please enter your highest level of education, or nearest "
-                 "equivalent:"),
-        mcqhoriz(EDUCATION, education_options),
-    })->setTitle("Education")));
+    pages.append(QuPagePtr(
+        (new QuPage{
+             boldtext(
+                 "Please enter your highest level of education, or nearest "
+                 "equivalent:"
+             ),
+             mcqhoriz(EDUCATION, education_options),
+         })
+            ->setTitle("Education")
+    ));
 
     QuMultipleResponse* mr_allergies = new QuMultipleResponse{
         qf(ALLERGY_ASTHMA, "asthma"),
@@ -496,28 +524,42 @@ OpenableWidget* DeakinS1HealthReview::editor(const bool read_only)
         qf(ALLERGY_OTHER, "other"),
     };
     pages.append(QuPagePtr((new QuPage{
-        boldtext("Do you have any allergies?"),
-        yn(ALLERGIES),
-        boldtext(STR_DETAILS_IF_YES),
-        mr_allergies,
-        text(STR_DETAILS),
-        multiline(ALLERGY_DETAILS),
-    })->setTitle("Allergies")));
+                                boldtext("Do you have any allergies?"),
+                                yn(ALLERGIES),
+                                boldtext(STR_DETAILS_IF_YES),
+                                mr_allergies,
+                                text(STR_DETAILS),
+                                multiline(ALLERGY_DETAILS),
+                            })
+                               ->setTitle("Allergies")));
     watch(ALLERGIES);
     watch(ALLERGY_OTHER);
-    connect(this, &DeakinS1HealthReview::setAllergyMinimum,
-            mr_allergies, &QuMultipleResponse::setMinimumAnswers);
+    connect(
+        this,
+        &DeakinS1HealthReview::setAllergyMinimum,
+        mr_allergies,
+        &QuMultipleResponse::setMinimumAnswers
+    );
 
-    pages.append(QuPagePtr((new QuPage{
-        boldtext("Have you had any vaccinations or inoculations in the last 3 "
-                 "months?"),
-        yn(VACCINATIONS_LAST3MONTHS),
-        boldtext(STR_DETAILS_IF_YES),
-        text(STR_DETAILS),
-        multiline(VACCINATION_DETAILS),
-    })->setTitle("Recent vaccinations")));
-    connect(fieldRef(VACCINATIONS_LAST3MONTHS).data(), &FieldRef::valueChanged,
-            this, &DeakinS1HealthReview::updateMandatory);
+    pages.append(QuPagePtr(
+        (new QuPage{
+             boldtext(
+                 "Have you had any vaccinations or inoculations in the last 3 "
+                 "months?"
+             ),
+             yn(VACCINATIONS_LAST3MONTHS),
+             boldtext(STR_DETAILS_IF_YES),
+             text(STR_DETAILS),
+             multiline(VACCINATION_DETAILS),
+         })
+            ->setTitle("Recent vaccinations")
+    ));
+    connect(
+        fieldRef(VACCINATIONS_LAST3MONTHS).data(),
+        &FieldRef::valueChanged,
+        this,
+        &DeakinS1HealthReview::updateMandatory
+    );
 
     QuMultipleResponse* mr_recent_infection = new QuMultipleResponse{
         qf(INFECTION_RECENT_RESPIRATORY, INFECTIONLIST[0]),
@@ -527,18 +569,27 @@ OpenableWidget* DeakinS1HealthReview::editor(const bool read_only)
         qf(INFECTION_RECENT_HEPATITIS, INFECTIONLIST[4]),
         qf(INFECTION_RECENT_OTHER, INFECTIONLIST[5]),
     };
-    pages.append(QuPagePtr((new QuPage{
-        boldtext("Have you had any infectious diseases in the last 3 months?"),
-        yn(INFECTIONS_LAST3MONTHS),
-        boldtext(STR_DETAILS_IF_YES),
-        mr_recent_infection,
-        text(STR_DETAILS),
-        multiline(INFECTION_RECENT_DETAILS),
-    })->setTitle("Recent infections")));
+    pages.append(QuPagePtr(
+        (new QuPage{
+             boldtext(
+                 "Have you had any infectious diseases in the last 3 months?"
+             ),
+             yn(INFECTIONS_LAST3MONTHS),
+             boldtext(STR_DETAILS_IF_YES),
+             mr_recent_infection,
+             text(STR_DETAILS),
+             multiline(INFECTION_RECENT_DETAILS),
+         })
+            ->setTitle("Recent infections")
+    ));
     watch(INFECTIONS_LAST3MONTHS);
     watch(INFECTION_RECENT_OTHER);
-    connect(this, &DeakinS1HealthReview::setRecentInfectionsMinimum,
-            mr_recent_infection, &QuMultipleResponse::setMinimumAnswers);
+    connect(
+        this,
+        &DeakinS1HealthReview::setRecentInfectionsMinimum,
+        mr_recent_infection,
+        &QuMultipleResponse::setMinimumAnswers
+    );
 
     QuMultipleResponse* mr_chronic_infection = new QuMultipleResponse{
         qf(INFECTION_CHRONIC_RESPIRATORY, INFECTIONLIST[0]),
@@ -548,19 +599,28 @@ OpenableWidget* DeakinS1HealthReview::editor(const bool read_only)
         qf(INFECTION_CHRONIC_HEPATITIS, INFECTIONLIST[4]),
         qf(INFECTION_CHRONIC_OTHER, INFECTIONLIST[5]),
     };
-    pages.append(QuPagePtr((new QuPage{
-        boldtext("Are you currently experiencing or have you ever experienced "
-                 "any chronic infections?"),
-        yn(INFECTIONS_CHRONIC),
-        boldtext(STR_DETAILS_IF_YES),
-        mr_chronic_infection,
-        text(STR_DETAILS),
-        multiline(INFECTION_CHRONIC_DETAILS),
-    })->setTitle("Chronic infections")));
+    pages.append(QuPagePtr(
+        (new QuPage{
+             boldtext(
+                 "Are you currently experiencing or have you ever experienced "
+                 "any chronic infections?"
+             ),
+             yn(INFECTIONS_CHRONIC),
+             boldtext(STR_DETAILS_IF_YES),
+             mr_chronic_infection,
+             text(STR_DETAILS),
+             multiline(INFECTION_CHRONIC_DETAILS),
+         })
+            ->setTitle("Chronic infections")
+    ));
     watch(INFECTIONS_CHRONIC);
     watch(INFECTION_CHRONIC_OTHER);
-    connect(this, &DeakinS1HealthReview::setChronicInfectionsMinimum,
-            mr_chronic_infection, &QuMultipleResponse::setMinimumAnswers);
+    connect(
+        this,
+        &DeakinS1HealthReview::setChronicInfectionsMinimum,
+        mr_chronic_infection,
+        &QuMultipleResponse::setMinimumAnswers
+    );
 
     QuMultipleResponse* mr_immune = new QuMultipleResponse{
         qf(IMMUNITY_MS, "multiple sclerosis"),
@@ -572,17 +632,22 @@ OpenableWidget* DeakinS1HealthReview::editor(const bool read_only)
         qf(IMMUNITY_OTHER, "other"),
     };
     pages.append(QuPagePtr((new QuPage{
-        boldtext("Do you have any immune disorders?"),
-        yn(IMMUNE_DISORDERS),
-        boldtext(STR_DETAILS_IF_YES),
-        mr_immune,
-        text(STR_DETAILS),
-        multiline(IMMUNITY_DETAILS),
-    })->setTitle("Immune disorders")));
+                                boldtext("Do you have any immune disorders?"),
+                                yn(IMMUNE_DISORDERS),
+                                boldtext(STR_DETAILS_IF_YES),
+                                mr_immune,
+                                text(STR_DETAILS),
+                                multiline(IMMUNITY_DETAILS),
+                            })
+                               ->setTitle("Immune disorders")));
     watch(IMMUNE_DISORDERS);
     watch(IMMUNITY_OTHER);
-    connect(this, &DeakinS1HealthReview::setImmuneMinimum,
-            mr_immune, &QuMultipleResponse::setMinimumAnswers);
+    connect(
+        this,
+        &DeakinS1HealthReview::setImmuneMinimum,
+        mr_immune,
+        &QuMultipleResponse::setMinimumAnswers
+    );
 
     QuMultipleResponse* mr_fh_immune = new QuMultipleResponse{
         qf(FAMILYHISTORY_MS, "multiple sclerosis"),
@@ -592,151 +657,242 @@ OpenableWidget* DeakinS1HealthReview::editor(const bool read_only)
         qf(FAMILYHISTORY_PSYCHOSIS_SZ, "psychosis/schizophrenia"),
         qf(FAMILYHISTORY_BIPOLAR, "mania/bipolar affective disorder"),
     };
-    pages.append(QuPagePtr((new QuPage{
-        boldtext("Does anyone in your family have any of the disorders listed "
-                 "below?"),
-        yn(FAMILY_HISTORY),
-        boldtext(STR_DETAILS_IF_YES),
-        mr_fh_immune,
-        text(STR_DETAILS),
-        multiline(FAMILYHISTORY_DETAILS),
-    })->setTitle("Family history")));
+    pages.append(QuPagePtr(
+        (new QuPage{
+             boldtext(
+                 "Does anyone in your family have any of the disorders listed "
+                 "below?"
+             ),
+             yn(FAMILY_HISTORY),
+             boldtext(STR_DETAILS_IF_YES),
+             mr_fh_immune,
+             text(STR_DETAILS),
+             multiline(FAMILYHISTORY_DETAILS),
+         })
+            ->setTitle("Family history")
+    ));
     watch(FAMILY_HISTORY);
-    connect(this, &DeakinS1HealthReview::setFHImmuneMinimum,
-            mr_fh_immune, &QuMultipleResponse::setMinimumAnswers);
+    connect(
+        this,
+        &DeakinS1HealthReview::setFHImmuneMinimum,
+        mr_fh_immune,
+        &QuMultipleResponse::setMinimumAnswers
+    );
 
-    pages.append(QuPagePtr((new QuPage{
-        boldtext("Is there any other information about your general health "
-                 "that we should know?"),
-        yn(HEALTH_ANYTHING_ELSE),
-        boldtext(STR_DETAILS_IF_YES),
-        multiline(HEALTH_ANYTHING_ELSE_DETAILS),
-    })->setTitle("Other aspects of health")));
+    pages.append(QuPagePtr(
+        (new QuPage{
+             boldtext(
+                 "Is there any other information about your general health "
+                 "that we should know?"
+             ),
+             yn(HEALTH_ANYTHING_ELSE),
+             boldtext(STR_DETAILS_IF_YES),
+             multiline(HEALTH_ANYTHING_ELSE_DETAILS),
+         })
+            ->setTitle("Other aspects of health")
+    ));
 
-    pages.append(QuPagePtr((new QuPage{
-        boldtext("If you are taking prescribed medication please list below:"),
-        multiline(DRUG_HISTORY, false),
-        boldtext("If you are taking antipsychotic medication, when did you "
-                 "first take a medication of this kind?"),
-        multiline(FIRST_ANTIPSYCHOTIC_MEDICATION, false),
-    })->setTitle("Medication")));
+    pages.append(QuPagePtr(
+        (new QuPage{
+             boldtext(
+                 "If you are taking prescribed medication please list below:"
+             ),
+             multiline(DRUG_HISTORY, false),
+             boldtext(
+                 "If you are taking antipsychotic medication, when did you "
+                 "first take a medication of this kind?"
+             ),
+             multiline(FIRST_ANTIPSYCHOTIC_MEDICATION, false),
+         })
+            ->setTitle("Medication")
+    ));
 
-    pages.append(QuPagePtr((new QuPage{
-        boldtext("Please answer the following questions about any history you "
+    pages.append(QuPagePtr(
+        (new QuPage{
+             boldtext(
+                 "Please answer the following questions about any history you "
                  "may have with drug taking. It is very important that you "
                  "are honest, because this history may affect your blood "
                  "sample. Previous drug taking will not necessarily exclude "
                  "you, and all information will be kept completely "
-                 "confidential."),
-        boldtext("Have you taken any recreational drugs in the last 3 months? "
+                 "confidential."
+             ),
+             boldtext(
+                 "Have you taken any recreational drugs in the last 3 months? "
                  "(Recreational drugs include drugs used only occasionally "
-                 "without being dependent on them.)"),
-        yn(RECREATIONAL_DRUG_IN_LAST_3_MONTHS),
-        boldtext("Have you ever had a period of very heavy use of any of the "
-                 "drugs listed below?"),
-        text(DRUGLIST.join(", ")),
-        yn(RECDRUG_PREVHEAVY),
-        boldtext("If you answered YES to either question, please give details "
-                 "(A–E below)."),
-        boldtext("(A) Please use the grid below to specify which drugs you "
-                 "used in the past 3 months, and how often."),
-        boldtext("(B) If you have ever had a period of very heavy use of any "
-                 "of these drugs, please tick its “Previous heavy use?” box."),
-        (new QuMcqGridSingleBoolean(
-            QVector<QuestionWithTwoFields>{
-                q2f(RECDRUG_TOBACCO_FREQUENCY, RECDRUG_TOBACCO_PREVHEAVY, DRUGLIST[0]),
-                q2f(RECDRUG_CANNABIS_FREQUENCY, RECDRUG_CANNABIS_PREVHEAVY, DRUGLIST[1]),
-                q2f(RECDRUG_ALCOHOL_FREQUENCY, RECDRUG_ALCOHOL_PREVHEAVY, DRUGLIST[2]),
+                 "without being dependent on them.)"
+             ),
+             yn(RECREATIONAL_DRUG_IN_LAST_3_MONTHS),
+             boldtext(
+                 "Have you ever had a period of very heavy use of any of the "
+                 "drugs listed below?"
+             ),
+             text(DRUGLIST.join(", ")),
+             yn(RECDRUG_PREVHEAVY),
+             boldtext(
+                 "If you answered YES to either question, please give details "
+                 "(A–E below)."
+             ),
+             boldtext(
+                 "(A) Please use the grid below to specify which drugs you "
+                 "used in the past 3 months, and how often."
+             ),
+             boldtext(
+                 "(B) If you have ever had a period of very heavy use of any "
+                 "of these drugs, please tick its “Previous heavy use?” box."
+             ),
+             (new QuMcqGridSingleBoolean(
+                  QVector<QuestionWithTwoFields>{
+                      q2f(RECDRUG_TOBACCO_FREQUENCY,
+                          RECDRUG_TOBACCO_PREVHEAVY,
+                          DRUGLIST[0]),
+                      q2f(RECDRUG_CANNABIS_FREQUENCY,
+                          RECDRUG_CANNABIS_PREVHEAVY,
+                          DRUGLIST[1]),
+                      q2f(RECDRUG_ALCOHOL_FREQUENCY,
+                          RECDRUG_ALCOHOL_PREVHEAVY,
+                          DRUGLIST[2]),
 
-                q2f(RECDRUG_MDMA_FREQUENCY, RECDRUG_MDMA_PREVHEAVY, DRUGLIST[3]),
-                q2f(RECDRUG_COCAINE_FREQUENCY, RECDRUG_COCAINE_PREVHEAVY, DRUGLIST[4]),
-                q2f(RECDRUG_CRACK_FREQUENCY, RECDRUG_CRACK_PREVHEAVY, DRUGLIST[5]),
-                q2f(RECDRUG_AMPHETAMINES_FREQUENCY, RECDRUG_AMPHETAMINES_PREVHEAVY, DRUGLIST[6]),
+                      q2f(RECDRUG_MDMA_FREQUENCY,
+                          RECDRUG_MDMA_PREVHEAVY,
+                          DRUGLIST[3]),
+                      q2f(RECDRUG_COCAINE_FREQUENCY,
+                          RECDRUG_COCAINE_PREVHEAVY,
+                          DRUGLIST[4]),
+                      q2f(RECDRUG_CRACK_FREQUENCY,
+                          RECDRUG_CRACK_PREVHEAVY,
+                          DRUGLIST[5]),
+                      q2f(RECDRUG_AMPHETAMINES_FREQUENCY,
+                          RECDRUG_AMPHETAMINES_PREVHEAVY,
+                          DRUGLIST[6]),
 
-                q2f(RECDRUG_HEROIN_FREQUENCY, RECDRUG_HEROIN_PREVHEAVY, DRUGLIST[7]),
-                q2f(RECDRUG_METHADONE_FREQUENCY, RECDRUG_METHADONE_PREVHEAVY, DRUGLIST[8]),
-                q2f(RECDRUG_BENZODIAZEPINES_FREQUENCY, RECDRUG_BENZODIAZEPINES_PREVHEAVY, DRUGLIST[9]),
+                      q2f(RECDRUG_HEROIN_FREQUENCY,
+                          RECDRUG_HEROIN_PREVHEAVY,
+                          DRUGLIST[7]),
+                      q2f(RECDRUG_METHADONE_FREQUENCY,
+                          RECDRUG_METHADONE_PREVHEAVY,
+                          DRUGLIST[8]),
+                      q2f(RECDRUG_BENZODIAZEPINES_FREQUENCY,
+                          RECDRUG_BENZODIAZEPINES_PREVHEAVY,
+                          DRUGLIST[9]),
 
-                q2f(RECDRUG_KETAMINE_FREQUENCY, RECDRUG_KETAMINE_PREVHEAVY, DRUGLIST[10]),
-                q2f(RECDRUG_LEGALHIGHS_FREQUENCY, RECDRUG_LEGALHIGHS_PREVHEAVY, DRUGLIST[11]),
-                q2f(RECDRUG_INHALANTS_FREQUENCY, RECDRUG_INHALANTS_PREVHEAVY, DRUGLIST[12]),
-                q2f(RECDRUG_HALLUCINOGENS_FREQUENCY, RECDRUG_HALLUCINOGENS_PREVHEAVY, DRUGLIST[13]),
-            },
-            NameValueOptions{
-                {"Did not use", 0},
-                {"Occasionally", 1},
-                {"Monthly", 2},
-                {"Weekly", 3},
-                {"Daily", 4},
-            },
-            "Previous heavy use?"  // boolean label
-        ))->setSubtitles(QVector<McqGridSubtitle>{
-            McqGridSubtitle(3, ""),
-            McqGridSubtitle(7, ""),
-            McqGridSubtitle(10, ""),
-        }),
-        boldtext("(C) Please give any further details of your recreational "
-                 "drug use in the previous 3 months:"),
-        multiline(RECDRUG_DETAILS),
-        boldtext("(D) If you have used tobacco, cannabis, or alcohol in the "
-                 "last 3 months, please give the quantities:"),
-        text("Tobacco – cigarettes per week:"),
-        intedit(RECDRUG_TOBACCO_CIGSPERWEEK),
-        text("Cannabis – joints per week:"),
-        intedit(RECDRUG_CANNABIS_JOINTSPERWEEK),
-        text("Alcohol – units per week:"),
-        intedit(RECDRUG_ALCOHOL_UNITSPERWEEK),
-        boldtext("(E) If you have had a period of very heavy drug use, please "
+                      q2f(RECDRUG_KETAMINE_FREQUENCY,
+                          RECDRUG_KETAMINE_PREVHEAVY,
+                          DRUGLIST[10]),
+                      q2f(RECDRUG_LEGALHIGHS_FREQUENCY,
+                          RECDRUG_LEGALHIGHS_PREVHEAVY,
+                          DRUGLIST[11]),
+                      q2f(RECDRUG_INHALANTS_FREQUENCY,
+                          RECDRUG_INHALANTS_PREVHEAVY,
+                          DRUGLIST[12]),
+                      q2f(RECDRUG_HALLUCINOGENS_FREQUENCY,
+                          RECDRUG_HALLUCINOGENS_PREVHEAVY,
+                          DRUGLIST[13]),
+                  },
+                  NameValueOptions{
+                      {"Did not use", 0},
+                      {"Occasionally", 1},
+                      {"Monthly", 2},
+                      {"Weekly", 3},
+                      {"Daily", 4},
+                  },
+                  "Previous heavy use?"  // boolean label
+              ))
+                 ->setSubtitles(QVector<McqGridSubtitle>{
+                     McqGridSubtitle(3, ""),
+                     McqGridSubtitle(7, ""),
+                     McqGridSubtitle(10, ""),
+                 }),
+             boldtext(
+                 "(C) Please give any further details of your recreational "
+                 "drug use in the previous 3 months:"
+             ),
+             multiline(RECDRUG_DETAILS),
+             boldtext(
+                 "(D) If you have used tobacco, cannabis, or alcohol in the "
+                 "last 3 months, please give the quantities:"
+             ),
+             text("Tobacco – cigarettes per week:"),
+             intedit(RECDRUG_TOBACCO_CIGSPERWEEK),
+             text("Cannabis – joints per week:"),
+             intedit(RECDRUG_CANNABIS_JOINTSPERWEEK),
+             text("Alcohol – units per week:"),
+             intedit(RECDRUG_ALCOHOL_UNITSPERWEEK),
+             boldtext(
+                 "(E) If you have had a period of very heavy drug use, please "
                  "give details about when this was and how long you used the "
-                 "drug heavily:"),
-        multiline(RECDRUG_PREVHEAVY_DETAILS),
-    })->setTitle("Recreational drug use")));
+                 "drug heavily:"
+             ),
+             multiline(RECDRUG_PREVHEAVY_DETAILS),
+         })
+            ->setTitle("Recreational drug use")
+    ));
     watch(RECREATIONAL_DRUG_IN_LAST_3_MONTHS);
     watch(RECDRUG_PREVHEAVY);
 
-    pages.append(QuPagePtr((new QuPage{
-        new QuMcqGrid(QVector<QuestionWithOneField>{
-            qf(MRI_CLAUSTROPHOBIC,
-               "Are you claustrophobic, or have difficulties in small spaces "
-               "(e.g. lifts, confined spaces)?"),
-            qf(MRI_DIFFICULTY_LYING_1_HOUR,
-               "Would you have any difficulties with lying down for 1 hour "
-               "(e.g. problems with your back, neck, bladder, etc.)?"),
-            qf(MRI_NONREMOVABLE_METAL,
-               "Is there any metal in your body which is not removable (e.g. "
-               "piercings, splinters, etc.)?"),
-            qf(MRI_METAL_FROM_OPERATIONS,
-               "Have you ever had any operations where metal has been left in "
-               "your body?"),
-            qf(MRI_TATTOOS_NICOTINE_PATCHES,
-               "Do you have any tattoos or nicotine patches?"),
-            qf(MRI_WORKED_WITH_METAL,
-               "Have you ever worked with metal (e.g. as a machinist, "
-               "metalworker, etc.)?"),
-            qf(MRI_PREVIOUS_BRAIN_SCAN,
-               "Have you ever had any form of brain scan before? If so, "
-               "please give details below."),
-            qf(OTHER_RELEVANT_THINGS,
-               "Are there any points you feel may be relevant to your "
-               "participation in the study? If so, please give details "
-               "below."),
-        }, yn_options),
-        text("Details of previous brain scans, if applicable:"),
-        multiline(MRI_PREVIOUS_BRAIN_SCAN_DETAILS, false),
-        text("Any other points you feel may be relevant to your "
-             "participation, if applicable:"),
-        multiline(OTHER_RELEVANT_THINGS_DETAILS, false),
-        text("Finally:"),
-        new QuMcqGrid(QVector<QuestionWithOneField>{
-            qf(WILLING_TO_PARTICIPATE_IN_FURTHER_STUDIES,
-               "Would you be willing to participate in further studies run by "
-               "our department?"),
-        }, yn_options),
-    })->setTitle("Questions related to MRI scanning")));
+    pages.append(QuPagePtr(
+        (new QuPage{
+             new QuMcqGrid(
+                 QVector<QuestionWithOneField>{
+                     qf(MRI_CLAUSTROPHOBIC,
+                        "Are you claustrophobic, or have difficulties in "
+                        "small spaces "
+                        "(e.g. lifts, confined spaces)?"),
+                     qf(MRI_DIFFICULTY_LYING_1_HOUR,
+                        "Would you have any difficulties with lying down for "
+                        "1 hour "
+                        "(e.g. problems with your back, neck, bladder, etc.)?"
+                     ),
+                     qf(MRI_NONREMOVABLE_METAL,
+                        "Is there any metal in your body which is not "
+                        "removable (e.g. "
+                        "piercings, splinters, etc.)?"),
+                     qf(MRI_METAL_FROM_OPERATIONS,
+                        "Have you ever had any operations where metal has "
+                        "been left in "
+                        "your body?"),
+                     qf(MRI_TATTOOS_NICOTINE_PATCHES,
+                        "Do you have any tattoos or nicotine patches?"),
+                     qf(MRI_WORKED_WITH_METAL,
+                        "Have you ever worked with metal (e.g. as a "
+                        "machinist, "
+                        "metalworker, etc.)?"),
+                     qf(MRI_PREVIOUS_BRAIN_SCAN,
+                        "Have you ever had any form of brain scan before? If "
+                        "so, "
+                        "please give details below."),
+                     qf(OTHER_RELEVANT_THINGS,
+                        "Are there any points you feel may be relevant to "
+                        "your "
+                        "participation in the study? If so, please give "
+                        "details "
+                        "below."),
+                 },
+                 yn_options
+             ),
+             text("Details of previous brain scans, if applicable:"),
+             multiline(MRI_PREVIOUS_BRAIN_SCAN_DETAILS, false),
+             text("Any other points you feel may be relevant to your "
+                  "participation, if applicable:"),
+             multiline(OTHER_RELEVANT_THINGS_DETAILS, false),
+             text("Finally:"),
+             new QuMcqGrid(
+                 QVector<QuestionWithOneField>{
+                     qf(WILLING_TO_PARTICIPATE_IN_FURTHER_STUDIES,
+                        "Would you be willing to participate in further "
+                        "studies run by "
+                        "our department?"),
+                 },
+                 yn_options
+             ),
+         })
+            ->setTitle("Questions related to MRI scanning")
+    ));
 
     pages.append(QuPagePtr((new QuPage{
-        boldtext(TextConst::thankYou()),
-    })->setTitle(TextConst::finished())));
+                                boldtext(TextConst::thankYou()),
+                            })
+                               ->setTitle(TextConst::finished())));
 
     updateMandatory();
 
@@ -746,7 +902,6 @@ OpenableWidget* DeakinS1HealthReview::editor(const bool read_only)
     return questionnaire;
 }
 
-
 // ============================================================================
 // Signal handlers
 // ============================================================================
@@ -755,22 +910,22 @@ void DeakinS1HealthReview::updateMandatory()
 {
     // This could be more efficient with lots of signal handlers, but...
 
-    fieldRef(ETHNICITY_OTHER_DETAILS)->setMandatory(
-                GmcPq::ethnicityOther(valueInt(ETHNICITY)));
+    fieldRef(ETHNICITY_OTHER_DETAILS)
+        ->setMandatory(GmcPq::ethnicityOther(valueInt(ETHNICITY)));
 
     emit setAllergyMinimum(valueInt(ALLERGIES));
     fieldRef(ALLERGY_DETAILS)->setMandatory(valueBool(ALLERGY_OTHER));
 
-    fieldRef(VACCINATION_DETAILS)->setMandatory(
-                valueBool(VACCINATIONS_LAST3MONTHS));
+    fieldRef(VACCINATION_DETAILS)
+        ->setMandatory(valueBool(VACCINATIONS_LAST3MONTHS));
 
     emit setRecentInfectionsMinimum(valueInt(INFECTIONS_LAST3MONTHS));
-    fieldRef(INFECTION_RECENT_DETAILS)->setMandatory(
-                valueBool(INFECTION_RECENT_OTHER));
+    fieldRef(INFECTION_RECENT_DETAILS)
+        ->setMandatory(valueBool(INFECTION_RECENT_OTHER));
 
     emit setChronicInfectionsMinimum(valueInt(INFECTIONS_CHRONIC));
-    fieldRef(INFECTION_CHRONIC_DETAILS)->setMandatory(
-                valueBool(INFECTION_CHRONIC_OTHER));
+    fieldRef(INFECTION_CHRONIC_DETAILS)
+        ->setMandatory(valueBool(INFECTION_CHRONIC_OTHER));
 
     emit setImmuneMinimum(valueInt(IMMUNE_DISORDERS));
     fieldRef(IMMUNITY_DETAILS)->setMandatory(valueBool(IMMUNITY_OTHER));
@@ -778,11 +933,11 @@ void DeakinS1HealthReview::updateMandatory()
     emit setFHImmuneMinimum(valueInt(FAMILY_HISTORY));
     fieldRef(FAMILYHISTORY_DETAILS)->setMandatory(valueBool(FAMILY_HISTORY));
 
-    fieldRef(HEALTH_ANYTHING_ELSE_DETAILS)->setMandatory(
-                valueBool(HEALTH_ANYTHING_ELSE));
+    fieldRef(HEALTH_ANYTHING_ELSE_DETAILS)
+        ->setMandatory(valueBool(HEALTH_ANYTHING_ELSE));
 
-    fieldRef(HEALTH_ANYTHING_ELSE_DETAILS)->setMandatory(
-                valueBool(HEALTH_ANYTHING_ELSE));
+    fieldRef(HEALTH_ANYTHING_ELSE_DETAILS)
+        ->setMandatory(valueBool(HEALTH_ANYTHING_ELSE));
 
     const bool recent_drugs = valueBool(RECREATIONAL_DRUG_IN_LAST_3_MONTHS);
     const bool heavy_drugs = valueBool(RECDRUG_PREVHEAVY);

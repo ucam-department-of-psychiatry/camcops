@@ -24,6 +24,7 @@
 #include <QMap>
 #include <QObject>
 #include <QPen>
+
 #include "common/colourdefs.h"
 #include "graphics/buttonconfig.h"
 #include "graphics/textconfig.h"
@@ -43,9 +44,7 @@ class QString;
 class QSvgRenderer;
 class QWidget;
 
-
-namespace graphicsfunc
-{
+namespace graphicsfunc {
 
 // ============================================================================
 // Constants
@@ -58,7 +57,8 @@ extern const QString TEST_SVG;
 // ============================================================================
 // These associate QWidget-derived objects and their QGraphicsProxyWidget.
 
-struct ButtonAndProxy {
+struct ButtonAndProxy
+{
     // Ownership of QGraphicsProxyWidget/QWidget pairs is shared, i.e. if
     // either is destroyed, the other is automatically destroyed.
     // Since the proxy is owned by the scene when added to the scene (which
@@ -73,27 +73,27 @@ struct ButtonAndProxy {
             const QMetaMethod& method,
             Qt::ConnectionType type = Qt::AutoConnection);
     */
-    // ... get "static assertion failed: Signal and slot arguments are not compatible."
+    // ... get "static assertion failed: Signal and slot arguments are not
+    //     compatible."
 };
 
-
-struct LabelAndProxy {
+struct LabelAndProxy
+{
     QLabel* label = nullptr;
     QGraphicsProxyWidget* proxy = nullptr;
 };
 
-
-struct AdjustablePieAndProxy {
+struct AdjustablePieAndProxy
+{
     AdjustablePie* pie = nullptr;
     QGraphicsProxyWidget* proxy = nullptr;
 };
 
-
-struct SvgWidgetAndProxy {
+struct SvgWidgetAndProxy
+{
     SvgWidgetClickable* widget = nullptr;
     QGraphicsProxyWidget* proxy = nullptr;
 };
-
 
 // ============================================================================
 // SvgTransform
@@ -101,7 +101,8 @@ struct SvgWidgetAndProxy {
 
 // Represents a combination of SVG transformations.
 
-class SvgTransform {
+class SvgTransform
+{
 public:
     SvgTransform();
 
@@ -142,14 +143,16 @@ protected:
     QStringList transformations;
 };
 
-
 // ============================================================================
 // SVG
 // ============================================================================
 
 // Returns an XML element string.
-QString xmlElement(const QString& tag, const QString& contents,
-                   const QMap<QString, QString>& attributes = QMap<QString, QString>());
+QString xmlElement(
+    const QString& tag,
+    const QString& contents,
+    const QMap<QString, QString>& attributes = QMap<QString, QString>()
+);
 
 // Returns an XML attribute string (with name=value pairs).
 QString xmlAttributes(const QMap<QString, QString>& attributes);
@@ -158,18 +161,24 @@ QString xmlAttributes(const QMap<QString, QString>& attributes);
 QString svg(const QStringList& elements);
 
 // Returns an SVG path XML element.
-QString svgPath(const QString& contents,
-                const QColor& stroke, int stroke_width,
-                const QColor& fill,
-                const SvgTransform& transform,
-                const QString& element_id = "");
+QString svgPath(
+    const QString& contents,
+    const QColor& stroke,
+    int stroke_width,
+    const QColor& fill,
+    const SvgTransform& transform,
+    const QString& element_id = ""
+);
 
 // Returns an SVG XML element from path details.
-QString svgFromPathContents(const QString& path_contents,
-                            const QColor& stroke, int stroke_width,
-                            const QColor& fill,
-                            const SvgTransform& transform,
-                            const QString& element_id = "");
+QString svgFromPathContents(
+    const QString& path_contents,
+    const QColor& stroke,
+    int stroke_width,
+    const QColor& fill,
+    const SvgTransform& transform,
+    const QString& element_id = ""
+);
 
 // Returns the SVG opacity [0-1] representation of a QColor's alpha (0-255).
 QString opacity(const QColor& colour);
@@ -193,38 +202,58 @@ QRectF centredRect(const QPointF& centre, qreal w, qreal h);
 
 // Draws a sector, defined by its tip (the centre of the circle of which it's
 // part), radius, and start/end angles.
-void drawSector(QPainter& painter,
-                const QPointF& tip,
-                qreal radius,
-                qreal start_angle_deg,  // zero is 3 o'clock
-                qreal end_angle_deg,  // zero is 3 o'clock
-                bool treat_as_clockwise_angles,
-                const QPen& pen,
-                const QBrush& brush);
+void drawSector(
+    QPainter& painter,
+    const QPointF& tip,
+    qreal radius,
+    qreal start_angle_deg,  // zero is 3 o'clock
+    qreal end_angle_deg,  // zero is 3 o'clock
+    bool treat_as_clockwise_angles,
+    const QPen& pen,
+    const QBrush& brush
+);
 
 // Returns the bounding rectangle of a piece of text in a certain font.
 QRectF textRectF(const QString& text, const QFont& font);
 
 // Draws text aligned with a point ("point").
-void drawText(QPainter& painter, const QPointF& point, const QString& text,
-              const QFont& font, Qt::Alignment align);
+void drawText(
+    QPainter& painter,
+    const QPointF& point,
+    const QString& text,
+    const QFont& font,
+    Qt::Alignment align
+);
 
 // Draws text aligned with a point ("x", "y"), returning the bounding
 // rectangle of the text if bounding_rect is specified.
-void drawText(QPainter& painter, qreal x, qreal y, Qt::Alignment flags,
-              const QString& text, QRectF* bounding_rect = nullptr);
+void drawText(
+    QPainter& painter,
+    qreal x,
+    qreal y,
+    Qt::Alignment flags,
+    const QString& text,
+    QRectF* bounding_rect = nullptr
+);
 
 // Draws text aligned with a point ("point"), returning the bounding
 // rectangle of the text if bounding_rect is specified.
-void drawText(QPainter& painter, const QPointF& point, Qt::Alignment flags,
-              const QString& text, QRectF* bounding_rect = nullptr);
+void drawText(
+    QPainter& painter,
+    const QPointF& point,
+    Qt::Alignment flags,
+    const QString& text,
+    QRectF* bounding_rect = nullptr
+);
 
 // Paints a pixmap so that it fits within a rectangle, maintaining the aspect
 // ratio of the pixmap.
-void paintPixmapKeepingAspectRatio(QPainter& painter,
-                                   const QPixmap& pixmap,
-                                   const QRect& destination,
-                                   QPaintEvent* paint_event = nullptr);
+void paintPixmapKeepingAspectRatio(
+    QPainter& painter,
+    const QPixmap& pixmap,
+    const QRect& destination,
+    QPaintEvent* paint_event = nullptr
+);
 
 #if 0  // currently unused
 // Returns a QRegion whose coordinates have been scaled (multiplied) by a
@@ -239,55 +268,61 @@ QRegion scaleRegion(const QRegion& region, qreal factor);
 
 // Makes a text button: a rounded rectangle with word-wrapping text in it.
 ButtonAndProxy makeTextButton(
-        QGraphicsScene* scene,  // button is added to scene
-        const QRectF& rect,
-        const ButtonConfig& config,
-        const QString& text,
-        QFont font = QFont(),
-        QWidget* parent = nullptr);
+    QGraphicsScene* scene,  // button is added to scene
+    const QRectF& rect,
+    const ButtonConfig& config,
+    const QString& text,
+    QFont font = QFont(),
+    QWidget* parent = nullptr
+);
 
 // Makes a text label (word-wrapping if required).
 LabelAndProxy makeText(
-        QGraphicsScene* scene,  // text is added to scene
-        const QPointF& point,
-        const TextConfig& config,
-        const QString& text,
-        QFont font = QFont(),
-        QWidget* parent = nullptr);
+    QGraphicsScene* scene,  // text is added to scene
+    const QPointF& point,
+    const TextConfig& config,
+    const QString& text,
+    QFont font = QFont(),
+    QWidget* parent = nullptr
+);
 
 // Makes an "adjustable pie" widget.
 AdjustablePieAndProxy makeAdjustablePie(
-        QGraphicsScene* scene,  // pie is added to scene
-        const QPointF& centre,
-        int n_sectors,
-        qreal diameter,
-        QWidget* parent = nullptr);
+    QGraphicsScene* scene,  // pie is added to scene
+    const QPointF& centre,
+    int n_sectors,
+    qreal diameter,
+    QWidget* parent = nullptr
+);
 
 // Makes a clickable SVG image.
 SvgWidgetAndProxy makeSvg(
-        QGraphicsScene* scene,  // SVG is added to scene
-        const QPointF& centre,
-        const QString& svg,
-        const QColor& pressed_background_colour = QCOLOR_TRANSPARENT,
-        const QColor& background_colour = QCOLOR_TRANSPARENT,
-        bool transparent_for_mouse = false,
-        QWidget* parent = nullptr);
+    QGraphicsScene* scene,  // SVG is added to scene
+    const QPointF& centre,
+    const QString& svg,
+    const QColor& pressed_background_colour = QCOLOR_TRANSPARENT,
+    const QColor& background_colour = QCOLOR_TRANSPARENT,
+    bool transparent_for_mouse = false,
+    QWidget* parent = nullptr
+);
 
 // Makes a translucent rectangle.
 QGraphicsRectItem* makeObscuringRect(
-        QGraphicsScene* scene,
-        const QRectF& rect,
-        qreal opacity = 0.5,  // 0-1
-        const QColor& colour_ignoring_opacity = QCOLOR_BLACK);
+    QGraphicsScene* scene,
+    const QRectF& rect,
+    qreal opacity = 0.5,  // 0-1
+    const QColor& colour_ignoring_opacity = QCOLOR_BLACK
+);
 
 // Makes a graphics object from a disk image.
 QGraphicsPixmapItem* makeImage(
-        QGraphicsScene* scene,
-        const QRectF& rect,
-        const QString& filename,
-        qreal opacity = 1.0,
-        Qt::AspectRatioMode aspect_ratio_mode = Qt::KeepAspectRatio,
-        Qt::TransformationMode transformation_mode_1 = Qt::FastTransformation,
-        Qt::TransformationMode transformation_mode_2 = Qt::FastTransformation);
+    QGraphicsScene* scene,
+    const QRectF& rect,
+    const QString& filename,
+    qreal opacity = 1.0,
+    Qt::AspectRatioMode aspect_ratio_mode = Qt::KeepAspectRatio,
+    Qt::TransformationMode transformation_mode_1 = Qt::FastTransformation,
+    Qt::TransformationMode transformation_mode_2 = Qt::FastTransformation
+);
 
 }  // namespace graphicsfunc

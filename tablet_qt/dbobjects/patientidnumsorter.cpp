@@ -19,16 +19,16 @@
 */
 
 #include "patientidnumsorter.h"
-#include "dbobjects/patientidnum.h"
 
+#include "dbobjects/patientidnum.h"
 
 PatientIdNumSorter::PatientIdNumSorter()
 {
 }
 
-
-bool PatientIdNumSorter::operator()(const PatientIdNumPtr& left,
-                                    const PatientIdNumPtr& right) const
+bool PatientIdNumSorter::operator()(
+    const PatientIdNumPtr& left, const PatientIdNumPtr& right
+) const
 {
     // Implements: LEFT < RIGHT ?
     // Sort by which_idnum

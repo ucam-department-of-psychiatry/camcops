@@ -40,14 +40,16 @@
 // #define DEBUG_LOAD_CRYPTO_DLL
 
 #include "cryptofunc.h"
+
 #include <cmath>  // for ceil
 #include <memory>  // for std::unique_ptr
-#include <stdexcept>
 #include <openssl/evp.h>
-#include <openssl/rand.h>
 #include <openssl/opensslv.h>  // version numbers
-#include <QDebug>
+#include <openssl/rand.h>
 #include <QByteArray>
+#include <QDebug>
+#include <stdexcept>
+
 #include "lib/convert.h"
 #include "lib/uifunc.h"
 
@@ -56,144 +58,156 @@
 
     #include <QLibrary>
     #define OPENSSL_QLIBRARY_NAME "crypto"
-    QLibrary lib_crypto(OPENSSL_QLIBRARY_NAME);
+QLibrary lib_crypto(OPENSSL_QLIBRARY_NAME);
 
-    // ------------------------------------------------------------------------
-    // Typedefs for using a DLL approach
-    // ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// Typedefs for using a DLL approach
+// ------------------------------------------------------------------------
 
-    // From the headers, replace
-    //      returntype functionname(parameters);
-    // with a typedef for a pointer to that function:
-    //      typedef returntype (*prototype_functionname)(parameters);
+// From the headers, replace
+//      returntype functionname(parameters);
+// with a typedef for a pointer to that function:
+//      typedef returntype (*prototype_functionname)(parameters);
 
-    typedef const EVP_CIPHER* (*prototype_EVP_aes_256_cbc)(void);
+typedef const EVP_CIPHER* (*prototype_EVP_aes_256_cbc)(void);
 
-    typedef EVP_CIPHER_CTX* (*prototype_EVP_CIPHER_CTX_new)(void);
-    typedef void (*prototype_EVP_CIPHER_CTX_free)(EVP_CIPHER_CTX* c);
+typedef EVP_CIPHER_CTX* (*prototype_EVP_CIPHER_CTX_new)(void);
+typedef void (*prototype_EVP_CIPHER_CTX_free)(EVP_CIPHER_CTX* c);
 
-    typedef int (*prototype_EVP_DecryptInit_ex)(
-            EVP_CIPHER_CTX* ctx, const EVP_CIPHER* cipher, ENGINE* impl,
-            const unsigned char* key, const unsigned char* iv);
-    typedef int (*prototype_EVP_DecryptUpdate)(
-            EVP_CIPHER_CTX* ctx, unsigned char* out,
-            int* outl, const unsigned char* in, int inl);
-    typedef int (*prototype_EVP_DecryptFinal_ex)(
-            EVP_CIPHER_CTX* ctx, unsigned char* outm, int* outl);
-    typedef __owur int (*prototype_EVP_DigestInit_ex)(
-            EVP_MD_CTX* ctx, const EVP_MD* type, ENGINE* impl);
-    typedef __owur int (*prototype_EVP_DigestUpdate)(
-            EVP_MD_CTX* ctx, const void* d, size_t cnt);
-    typedef __owur int (*prototype_EVP_DigestFinal_ex)(
-            EVP_MD_CTX* ctx, unsigned char* md, unsigned int* s);
+typedef int (*prototype_EVP_DecryptInit_ex
+)(EVP_CIPHER_CTX* ctx,
+  const EVP_CIPHER* cipher,
+  ENGINE* impl,
+  const unsigned char* key,
+  const unsigned char* iv);
+typedef int (*prototype_EVP_DecryptUpdate
+)(EVP_CIPHER_CTX* ctx,
+  unsigned char* out,
+  int* outl,
+  const unsigned char* in,
+  int inl);
+typedef int (*prototype_EVP_DecryptFinal_ex
+)(EVP_CIPHER_CTX* ctx, unsigned char* outm, int* outl);
+typedef __owur int (*prototype_EVP_DigestInit_ex
+)(EVP_MD_CTX* ctx, const EVP_MD* type, ENGINE* impl);
+typedef __owur int (*prototype_EVP_DigestUpdate
+)(EVP_MD_CTX* ctx, const void* d, size_t cnt);
+typedef __owur int (*prototype_EVP_DigestFinal_ex
+)(EVP_MD_CTX* ctx, unsigned char* md, unsigned int* s);
 
-    typedef int (*prototype_EVP_EncryptInit_ex)(
-            EVP_CIPHER_CTX* ctx, const EVP_CIPHER* type,
-            ENGINE* impl, const unsigned char* key, const unsigned char* iv);
-    typedef int (*prototype_EVP_EncryptUpdate)(
-            EVP_CIPHER_CTX* ctx, unsigned char* out,
-            int* outl, const unsigned char* in, int inl);
-    typedef int (*prototype_EVP_EncryptFinal_ex)(
-            EVP_CIPHER_CTX* ctx, unsigned char* out, int* outl);
+typedef int (*prototype_EVP_EncryptInit_ex
+)(EVP_CIPHER_CTX* ctx,
+  const EVP_CIPHER* type,
+  ENGINE* impl,
+  const unsigned char* key,
+  const unsigned char* iv);
+typedef int (*prototype_EVP_EncryptUpdate
+)(EVP_CIPHER_CTX* ctx,
+  unsigned char* out,
+  int* outl,
+  const unsigned char* in,
+  int inl);
+typedef int (*prototype_EVP_EncryptFinal_ex
+)(EVP_CIPHER_CTX* ctx, unsigned char* out, int* outl);
 
-    typedef EVP_MD_CTX* (*prototype_EVP_MD_CTX_new)(void);
-    typedef void (*prototype_EVP_MD_CTX_free)(EVP_MD_CTX* ctx);
+typedef EVP_MD_CTX* (*prototype_EVP_MD_CTX_new)(void);
+typedef void (*prototype_EVP_MD_CTX_free)(EVP_MD_CTX* ctx);
 
-    typedef const EVP_MD* (*prototype_EVP_sha512)(void);
+typedef const EVP_MD* (*prototype_EVP_sha512)(void);
 
     // ------------------------------------------------------------------------
     // #defines and helper functions for using a DLL approach
     // ------------------------------------------------------------------------
 
-    // Define DEFINE_CRYPTO_FN such that it loads the function X from the DLL/.so
-    // file, and calls it crypto_X.
-    #define DEFINE_CRYPTO_FN(funcname) \
-        prototype_##funcname crypto_##funcname = (prototype_##funcname) lib_crypto.resolve(#funcname);
+    // Define DEFINE_CRYPTO_FN such that it loads the function X from the
+    // DLL/.so file, and calls it crypto_X.
+    #define DEFINE_CRYPTO_FN(funcname)                                        \
+        prototype_##funcname crypto_##funcname                                \
+            = (prototype_##funcname)lib_crypto.resolve(#funcname);
 
-    #define ENSURE_CRYPTO_FN_LOADED(funcname) \
-        ensureCryptoFunctionLoaded((void*) crypto_##funcname, #funcname);
+    #define ENSURE_CRYPTO_FN_LOADED(funcname)                                 \
+        ensureCryptoFunctionLoaded((void*)crypto_##funcname, #funcname);
 
-    void ensureCryptoFunctionLoaded(void* funcptr, const char* funcname)
-    {
-        if (!funcptr) {
-            const QString msg = QString(
-                        "Could not load %1 from crypto library %2")
-                    .arg(funcname, lib_crypto.fileName());
-            qCritical() << msg;
-            exit(EXIT_FAILURE);
-        }
+void ensureCryptoFunctionLoaded(void* funcptr, const char* funcname)
+{
+    if (!funcptr) {
+        const QString msg = QString("Could not load %1 from crypto library %2")
+                                .arg(funcname, lib_crypto.fileName());
+        qCritical() << msg;
+        exit(EXIT_FAILURE);
+    }
     #ifdef DEBUG_LOAD_CRYPTO_DLL
-        else {
-            const QString msg = QString(
-                        "Loaded %1 from crypto library %2")
-                    .arg(funcname, lib_crypto.fileName());
-            qDebug().noquote() << msg;
-        }
+    else {
+        const QString msg = QString("Loaded %1 from crypto library %2")
+                                .arg(funcname, lib_crypto.fileName());
+        qDebug().noquote() << msg;
+    }
     #endif
-    }
+}
 
-    // ------------------------------------------------------------------------
-    // For every crypto function X, either load it from the DLL and call it
-    // crypto_X, or map crypto_X to the static version.
-    // ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// For every crypto function X, either load it from the DLL and call it
+// crypto_X, or map crypto_X to the static version.
+// ------------------------------------------------------------------------
 
-    DEFINE_CRYPTO_FN(EVP_aes_256_cbc)
+DEFINE_CRYPTO_FN(EVP_aes_256_cbc)
 
-    DEFINE_CRYPTO_FN(EVP_CIPHER_CTX_new)
-    DEFINE_CRYPTO_FN(EVP_CIPHER_CTX_free)
+DEFINE_CRYPTO_FN(EVP_CIPHER_CTX_new)
+DEFINE_CRYPTO_FN(EVP_CIPHER_CTX_free)
 
-    DEFINE_CRYPTO_FN(EVP_DecryptInit_ex)
-    DEFINE_CRYPTO_FN(EVP_DecryptUpdate)
-    DEFINE_CRYPTO_FN(EVP_DecryptFinal_ex)
-    DEFINE_CRYPTO_FN(EVP_DigestInit_ex)
-    DEFINE_CRYPTO_FN(EVP_DigestUpdate)
-    DEFINE_CRYPTO_FN(EVP_DigestFinal_ex)
+DEFINE_CRYPTO_FN(EVP_DecryptInit_ex)
+DEFINE_CRYPTO_FN(EVP_DecryptUpdate)
+DEFINE_CRYPTO_FN(EVP_DecryptFinal_ex)
+DEFINE_CRYPTO_FN(EVP_DigestInit_ex)
+DEFINE_CRYPTO_FN(EVP_DigestUpdate)
+DEFINE_CRYPTO_FN(EVP_DigestFinal_ex)
 
-    DEFINE_CRYPTO_FN(EVP_EncryptInit_ex)
-    DEFINE_CRYPTO_FN(EVP_EncryptUpdate)
-    DEFINE_CRYPTO_FN(EVP_EncryptFinal_ex)
+DEFINE_CRYPTO_FN(EVP_EncryptInit_ex)
+DEFINE_CRYPTO_FN(EVP_EncryptUpdate)
+DEFINE_CRYPTO_FN(EVP_EncryptFinal_ex)
 
-    DEFINE_CRYPTO_FN(EVP_MD_CTX_new)
-    DEFINE_CRYPTO_FN(EVP_MD_CTX_free)
+DEFINE_CRYPTO_FN(EVP_MD_CTX_new)
+DEFINE_CRYPTO_FN(EVP_MD_CTX_free)
 
-    DEFINE_CRYPTO_FN(EVP_sha512)
+DEFINE_CRYPTO_FN(EVP_sha512)
 
+void cryptofunc::ensureAllCryptoFunctionsLoaded()
+{
+    ENSURE_CRYPTO_FN_LOADED(EVP_aes_256_cbc)
 
-    void cryptofunc::ensureAllCryptoFunctionsLoaded()
-    {
-        ENSURE_CRYPTO_FN_LOADED(EVP_aes_256_cbc)
+    ENSURE_CRYPTO_FN_LOADED(EVP_CIPHER_CTX_new)
+    ENSURE_CRYPTO_FN_LOADED(EVP_CIPHER_CTX_free)
 
-        ENSURE_CRYPTO_FN_LOADED(EVP_CIPHER_CTX_new)
-        ENSURE_CRYPTO_FN_LOADED(EVP_CIPHER_CTX_free)
+    ENSURE_CRYPTO_FN_LOADED(EVP_DecryptInit_ex)
+    ENSURE_CRYPTO_FN_LOADED(EVP_DecryptUpdate)
+    ENSURE_CRYPTO_FN_LOADED(EVP_DecryptFinal_ex)
+    ENSURE_CRYPTO_FN_LOADED(EVP_DigestInit_ex)
+    ENSURE_CRYPTO_FN_LOADED(EVP_DigestUpdate)
+    ENSURE_CRYPTO_FN_LOADED(EVP_DigestFinal_ex)
 
-        ENSURE_CRYPTO_FN_LOADED(EVP_DecryptInit_ex)
-        ENSURE_CRYPTO_FN_LOADED(EVP_DecryptUpdate)
-        ENSURE_CRYPTO_FN_LOADED(EVP_DecryptFinal_ex)
-        ENSURE_CRYPTO_FN_LOADED(EVP_DigestInit_ex)
-        ENSURE_CRYPTO_FN_LOADED(EVP_DigestUpdate)
-        ENSURE_CRYPTO_FN_LOADED(EVP_DigestFinal_ex)
+    ENSURE_CRYPTO_FN_LOADED(EVP_EncryptInit_ex)
+    ENSURE_CRYPTO_FN_LOADED(EVP_EncryptUpdate)
+    ENSURE_CRYPTO_FN_LOADED(EVP_EncryptFinal_ex)
 
-        ENSURE_CRYPTO_FN_LOADED(EVP_EncryptInit_ex)
-        ENSURE_CRYPTO_FN_LOADED(EVP_EncryptUpdate)
-        ENSURE_CRYPTO_FN_LOADED(EVP_EncryptFinal_ex)
+    ENSURE_CRYPTO_FN_LOADED(EVP_MD_CTX_new)
+    ENSURE_CRYPTO_FN_LOADED(EVP_MD_CTX_free)
 
-        ENSURE_CRYPTO_FN_LOADED(EVP_MD_CTX_new)
-        ENSURE_CRYPTO_FN_LOADED(EVP_MD_CTX_free)
+    ENSURE_CRYPTO_FN_LOADED(EVP_sha512)
+}
 
-        ENSURE_CRYPTO_FN_LOADED(EVP_sha512)
-    }
-
-    // ------------------------------------------------------------------------
-    // typedefs for our code
-    // ------------------------------------------------------------------------
-    using EVP_CIPHER_CTX_ptr = std::unique_ptr<EVP_CIPHER_CTX, decltype(crypto_EVP_CIPHER_CTX_free)>;
-    using EVP_MD_CTX_ptr = std::unique_ptr<EVP_MD_CTX, decltype(crypto_EVP_MD_CTX_free)>;
+// ------------------------------------------------------------------------
+// typedefs for our code
+// ------------------------------------------------------------------------
+using EVP_CIPHER_CTX_ptr
+    = std::unique_ptr<EVP_CIPHER_CTX, decltype(crypto_EVP_CIPHER_CTX_free)>;
+using EVP_MD_CTX_ptr
+    = std::unique_ptr<EVP_MD_CTX, decltype(crypto_EVP_MD_CTX_free)>;
 
 #else
 
-    // ------------------------------------------------------------------------
-    // Non-DLL code. Map crypto_* to the OpenSSL functions directly.
-    // ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// Non-DLL code. Map crypto_* to the OpenSSL functions directly.
+// ------------------------------------------------------------------------
 
     #define crypto_EVP_aes_256_cbc ::EVP_aes_256_cbc
 
@@ -216,11 +230,13 @@
 
     #define crypto_EVP_sha512 ::EVP_sha512
 
-    // ------------------------------------------------------------------------
-    // typedefs for our code
-    // ------------------------------------------------------------------------
-    using EVP_CIPHER_CTX_ptr = std::unique_ptr<EVP_CIPHER_CTX, decltype(&::EVP_CIPHER_CTX_free)>;
-    using EVP_MD_CTX_ptr = std::unique_ptr<EVP_MD_CTX, decltype(&::EVP_MD_CTX_free)>;
+// ------------------------------------------------------------------------
+// typedefs for our code
+// ------------------------------------------------------------------------
+using EVP_CIPHER_CTX_ptr
+    = std::unique_ptr<EVP_CIPHER_CTX, decltype(&::EVP_CIPHER_CTX_free)>;
+using EVP_MD_CTX_ptr
+    = std::unique_ptr<EVP_MD_CTX, decltype(&::EVP_MD_CTX_free)>;
 
 #endif
 
@@ -238,7 +254,6 @@ const int AES_BLOCK_SIZE_BYTES = 16;  // AES is 128 bits = 16 bytes
 const int SALT_LENGTH_BYTES = 64;
 // ... https://www.owasp.org/index.php/Password_Storage_Cheat_Sheet
 const int SALT_LENGTH_TEXT = cryptofunc::base64Length(SALT_LENGTH_BYTES);
-
 
 // ============================================================================
 // Simple calculations
@@ -260,10 +275,12 @@ int cryptofunc::base64Length(const int nbytes)
 // OpenSSL low-level calls
 // ============================================================================
 
-void cryptofunc::aesEncrypt(const QByteArray& key_bytes,
-                            const QByteArray& iv_bytes,
-                            const QByteArray& plaintext_bytes,
-                            QByteArray& ciphertext_bytes)
+void cryptofunc::aesEncrypt(
+    const QByteArray& key_bytes,
+    const QByteArray& iv_bytes,
+    const QByteArray& plaintext_bytes,
+    QByteArray& ciphertext_bytes
+)
 {
 #ifdef DANGER_DEBUG_CRYPTO
     qDebug() << Q_FUNC_INFO;
@@ -272,20 +289,24 @@ void cryptofunc::aesEncrypt(const QByteArray& key_bytes,
     qDebug() << "plaintext_bytes" << plaintext_bytes;
 #endif
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    auto keydata = reinterpret_cast<const unsigned char*>(key_bytes.constData());
+    auto keydata
+        = reinterpret_cast<const unsigned char*>(key_bytes.constData());
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     auto ivdata = reinterpret_cast<const unsigned char*>(iv_bytes.constData());
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    auto ptextdata = reinterpret_cast<const unsigned char*>(plaintext_bytes.constData());
+    auto ptextdata
+        = reinterpret_cast<const unsigned char*>(plaintext_bytes.constData());
 
-    EVP_CIPHER_CTX_ptr ctx(crypto_EVP_CIPHER_CTX_new(),
-                           crypto_EVP_CIPHER_CTX_free);
+    EVP_CIPHER_CTX_ptr ctx(
+        crypto_EVP_CIPHER_CTX_new(), crypto_EVP_CIPHER_CTX_free
+    );
     int retcode = crypto_EVP_EncryptInit_ex(
-                ctx.get(),  // EVP_CIPHER_CTX* ctx
-                crypto_EVP_aes_256_cbc(), // const EVP_CIPHER* type
-                nullptr,  // ENGINE* impl: implementation
-                keydata, // unsigned char* key
-                ivdata);  // unsigned char* iv
+        ctx.get(),  // EVP_CIPHER_CTX* ctx
+        crypto_EVP_aes_256_cbc(),  // const EVP_CIPHER* type
+        nullptr,  // ENGINE* impl: implementation
+        keydata,  // unsigned char* key
+        ivdata
+    );  // unsigned char* iv
     if (retcode != 1) {
         throw std::runtime_error("EVP_EncryptInit_ex failed");
     }
@@ -298,15 +319,17 @@ void cryptofunc::aesEncrypt(const QByteArray& key_bytes,
     auto ctextdata = reinterpret_cast<unsigned char*>(ciphertext_bytes.data());
     int out_len1 = ciphertext_bytes.size();
 
-    retcode = crypto_EVP_EncryptUpdate(ctx.get(), ctextdata, &out_len1,
-                                       ptextdata, plaintext_bytes.size());
+    retcode = crypto_EVP_EncryptUpdate(
+        ctx.get(), ctextdata, &out_len1, ptextdata, plaintext_bytes.size()
+    );
     if (retcode != 1) {
         throw std::runtime_error("EVP_EncryptUpdate failed");
     }
 
     int out_len2 = ciphertext_bytes.size() - out_len1;
     retcode = crypto_EVP_EncryptFinal_ex(
-                ctx.get(), ctextdata + out_len1, &out_len2);
+        ctx.get(), ctextdata + out_len1, &out_len2
+    );
     if (retcode != 1) {
         throw std::runtime_error("EVP_EncryptFinal_ex failed");
     }
@@ -318,11 +341,12 @@ void cryptofunc::aesEncrypt(const QByteArray& key_bytes,
 #endif
 }
 
-
-void cryptofunc::aesDecrypt(const QByteArray& key_bytes,
-                            const QByteArray& iv_bytes,
-                            const QByteArray& ciphertext_bytes,
-                            QByteArray& recoveredtext_bytes)
+void cryptofunc::aesDecrypt(
+    const QByteArray& key_bytes,
+    const QByteArray& iv_bytes,
+    const QByteArray& ciphertext_bytes,
+    QByteArray& recoveredtext_bytes
+)
 {
 #ifdef DANGER_DEBUG_CRYPTO
     qDebug() << Q_FUNC_INFO;
@@ -331,16 +355,20 @@ void cryptofunc::aesDecrypt(const QByteArray& key_bytes,
     qDebug() << "ciphertext_bytes" << ciphertext_bytes;
 #endif
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    auto keydata = reinterpret_cast<const unsigned char*>(key_bytes.constData());
+    auto keydata
+        = reinterpret_cast<const unsigned char*>(key_bytes.constData());
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     auto ivdata = reinterpret_cast<const unsigned char*>(iv_bytes.constData());
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    auto ctextdata = reinterpret_cast<const unsigned char*>(ciphertext_bytes.constData());
+    auto ctextdata
+        = reinterpret_cast<const unsigned char*>(ciphertext_bytes.constData());
 
-    EVP_CIPHER_CTX_ptr ctx(crypto_EVP_CIPHER_CTX_new(),
-                           crypto_EVP_CIPHER_CTX_free);
-    int retcode = crypto_EVP_DecryptInit_ex(ctx.get(), EVP_aes_256_cbc(), nullptr,
-                                            keydata, ivdata);
+    EVP_CIPHER_CTX_ptr ctx(
+        crypto_EVP_CIPHER_CTX_new(), crypto_EVP_CIPHER_CTX_free
+    );
+    int retcode = crypto_EVP_DecryptInit_ex(
+        ctx.get(), EVP_aes_256_cbc(), nullptr, keydata, ivdata
+    );
     if (retcode != 1) {
         throw std::runtime_error("EVP_DecryptInit_ex failed");
     }
@@ -350,11 +378,13 @@ void cryptofunc::aesDecrypt(const QByteArray& key_bytes,
     // Set the pointer (ptextdata) AFTER the resize; it's likely that the
     // resize invalidates any previous pointers to the data.
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    auto ptextdata = reinterpret_cast<unsigned char*>(recoveredtext_bytes.data());
+    auto ptextdata
+        = reinterpret_cast<unsigned char*>(recoveredtext_bytes.data());
     int out_len1 = recoveredtext_bytes.size();
 
-    retcode = crypto_EVP_DecryptUpdate(ctx.get(), ptextdata, &out_len1,
-                                       ctextdata, ciphertext_bytes.size());
+    retcode = crypto_EVP_DecryptUpdate(
+        ctx.get(), ptextdata, &out_len1, ctextdata, ciphertext_bytes.size()
+    );
     if (retcode != 1) {
         // throw std::runtime_error("EVP_DecryptUpdate failed");
         qWarning() << "DECRYPTION FAILED (EVP_DecryptUpdate failed)";
@@ -364,7 +394,8 @@ void cryptofunc::aesDecrypt(const QByteArray& key_bytes,
 
     int out_len2 = recoveredtext_bytes.size() - out_len1;
     retcode = crypto_EVP_DecryptFinal_ex(
-                ctx.get(), ptextdata + out_len1, &out_len2);
+        ctx.get(), ptextdata + out_len1, &out_len2
+    );
     if (retcode != 1) {
         // throw std::runtime_error("EVP_DecryptFinal_ex failed");
         qWarning() << "DECRYPTION FAILED (EVP_DecryptFinal_ex failed)";
@@ -379,20 +410,21 @@ void cryptofunc::aesDecrypt(const QByteArray& key_bytes,
 #endif
 }
 
-
 SecureQByteArray cryptofunc::hashBytes(const QByteArray& plaintext_bytes)
 {
-    EVP_MD_CTX_ptr context(crypto_EVP_MD_CTX_new(),
-                           crypto_EVP_MD_CTX_free);
-    int retcode = crypto_EVP_DigestInit_ex(context.get(), EVP_sha512(), nullptr);
+    EVP_MD_CTX_ptr context(crypto_EVP_MD_CTX_new(), crypto_EVP_MD_CTX_free);
+    int retcode
+        = crypto_EVP_DigestInit_ex(context.get(), EVP_sha512(), nullptr);
     if (retcode != 1) {
         throw std::runtime_error("EVP_DigestInit_ex failed");
     }
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    auto msgdata = reinterpret_cast<const unsigned char*>(plaintext_bytes.constData());
+    auto msgdata
+        = reinterpret_cast<const unsigned char*>(plaintext_bytes.constData());
     int msglen = plaintext_bytes.size();
-    retcode = crypto_EVP_DigestUpdate(context.get(), msgdata,
-                                      static_cast<size_t>(msglen));
+    retcode = crypto_EVP_DigestUpdate(
+        context.get(), msgdata, static_cast<size_t>(msglen)
+    );
     if (retcode != 1) {
         qWarning() << "HASHING FAILED (EVP_DigestUpdate failed)";
         return QByteArray();
@@ -410,7 +442,6 @@ SecureQByteArray cryptofunc::hashBytes(const QByteArray& plaintext_bytes)
     return result;
 }
 
-
 SecureQByteArray cryptofunc::makeAesIV()
 {
     SecureQByteArray iv(AES_BLOCK_SIZE_BYTES, 0);
@@ -420,13 +451,11 @@ SecureQByteArray cryptofunc::makeAesIV()
     return iv;
 }
 
-
 QString cryptofunc::generateIVBase64()
 {
     SecureQByteArray iv = makeAesIV();
     return QString(iv.toBase64());
 }
-
 
 bool cryptofunc::isValidAesKey(const QByteArray& key_bytes)
 {
@@ -434,58 +463,53 @@ bool cryptofunc::isValidAesKey(const QByteArray& key_bytes)
     int n_bytes = key_bytes.size();
     int n_bits = n_bytes * 8;
 #ifdef DANGER_DEBUG_CRYPTO
-    qDebug() << Q_FUNC_INFO << "key_bytes" << key_bytes
-             << "n_bytes" << n_bytes << "n_bits" << n_bits;
+    qDebug() << Q_FUNC_INFO << "key_bytes" << key_bytes << "n_bytes" << n_bytes
+             << "n_bits" << n_bits;
 #endif
     if (n_bits == 128 || n_bits == 192 || n_bits == 256) {
         return true;
     }
     qWarning() << "... Invalid AES key size (must be 128, 192, or 256 bits); "
-                  "was" << n_bytes << "bytes =" << n_bits << "bits";
+                  "was"
+               << n_bytes << "bytes =" << n_bits << "bits";
     return false;
 }
-
 
 bool cryptofunc::isValidAesKey(const QString& key_b64)
 {
     SecureQByteArray key_bytes = convert::base64ToSecureBytes(key_b64);
 #ifdef DANGER_DEBUG_CRYPTO
-    qDebug() << Q_FUNC_INFO
-             << "key_b64" << key_b64
-             << "key_bytes" << key_bytes;
+    qDebug() << Q_FUNC_INFO << "key_b64" << key_b64 << "key_bytes"
+             << key_bytes;
 #endif
     return isValidAesKey(key_bytes);
 }
-
 
 bool cryptofunc::isValidAesIV(const QByteArray& iv_bytes)
 {
     int n_bytes = iv_bytes.size();
     int n_bits = n_bytes * 8;
 #ifdef DANGER_DEBUG_CRYPTO
-    qDebug() << Q_FUNC_INFO << "iv_bytes" << iv_bytes
-             << "n_bytes" << n_bytes << "n_bits" << n_bits;
+    qDebug() << Q_FUNC_INFO << "iv_bytes" << iv_bytes << "n_bytes" << n_bytes
+             << "n_bits" << n_bits;
 #endif
     if (n_bits == 128) {
         return true;
     }
     qWarning() << "... Invalid AES IV size (must be 128 bits); "
-                  "was" << n_bytes << "bytes =" << n_bits << "bits";
+                  "was"
+               << n_bytes << "bytes =" << n_bits << "bits";
     return false;
 }
-
 
 bool cryptofunc::isValidAesIV(const QString& iv_b64)
 {
     QByteArray iv_bytes = convert::base64ToBytes(iv_b64);
 #ifdef DANGER_DEBUG_CRYPTO
-    qDebug() << Q_FUNC_INFO
-             << "iv_b64" << iv_b64
-             << "iv_bytes" << iv_bytes;
+    qDebug() << Q_FUNC_INFO << "iv_b64" << iv_b64 << "iv_bytes" << iv_bytes;
 #endif
     return isValidAesIV(iv_bytes);
 }
-
 
 // ============================================================================
 // Front end
@@ -503,7 +527,6 @@ SecureQByteArray cryptofunc::randomBytes(const int n)
     return array;
 }
 
-
 SecureQString cryptofunc::generateObscuringKeyBase64()
 {
     // This doesn't need a cryptographically secure RNG, really.
@@ -511,15 +534,12 @@ SecureQString cryptofunc::generateObscuringKeyBase64()
     return randomBytes(AES_256BIT_KEY_SIZE).toBase64();
 }
 
-
-QString cryptofunc::encryptToBase64(const QString& plaintext,
-                                    const QString& key_b64,
-                                    const QString& iv_b64)
+QString cryptofunc::encryptToBase64(
+    const QString& plaintext, const QString& key_b64, const QString& iv_b64
+)
 {
 #ifdef DANGER_DEBUG_CRYPTO
-    qDebug() << Q_FUNC_INFO
-             << "plaintext" << plaintext
-             << "key_b64" << key_b64
+    qDebug() << Q_FUNC_INFO << "plaintext" << plaintext << "key_b64" << key_b64
              << "iv_b64" << iv_b64;
 #endif
     SecureQByteArray key_bytes = convert::base64ToSecureBytes(key_b64);
@@ -528,7 +548,8 @@ QString cryptofunc::encryptToBase64(const QString& plaintext,
         return "";
     }
     SecureQByteArray iv_bytes = convert::base64ToSecureBytes(iv_b64);
-    SecureQByteArray plaintext_bytes = plaintext.toLocal8Bit();  // no other conversion
+    SecureQByteArray plaintext_bytes = plaintext.toLocal8Bit();
+    // ... no other conversion
     SecureQByteArray ciphertext_bytes;
     aesEncrypt(key_bytes, iv_bytes, plaintext_bytes, ciphertext_bytes);
     QString ciphertext_b64(ciphertext_bytes.toBase64());
@@ -538,22 +559,23 @@ QString cryptofunc::encryptToBase64(const QString& plaintext,
     return ciphertext_b64;
 }
 
-
-SecureQString cryptofunc::decryptFromBase64(const QString& ciphertext_b64,
-                                            const QString& key_b64,
-                                            const QString& iv_b64)
+SecureQString cryptofunc::decryptFromBase64(
+    const QString& ciphertext_b64,
+    const QString& key_b64,
+    const QString& iv_b64
+)
 {
 #ifdef DANGER_DEBUG_CRYPTO
-    qDebug() << Q_FUNC_INFO
-             << "ciphertext_b64" << ciphertext_b64
-             << "key_b64" << key_b64;
+    qDebug() << Q_FUNC_INFO << "ciphertext_b64" << ciphertext_b64 << "key_b64"
+             << key_b64;
 #endif
     SecureQByteArray key_bytes = convert::base64ToSecureBytes(key_b64);
     if (!isValidAesKey(key_bytes)) {
         qCritical() << Q_FUNC_INFO << "Bad AES key";
         return "";
     }
-    SecureQByteArray ciphertext_bytes = convert::base64ToSecureBytes(ciphertext_b64);
+    SecureQByteArray ciphertext_bytes
+        = convert::base64ToSecureBytes(ciphertext_b64);
     SecureQByteArray iv_bytes = convert::base64ToSecureBytes(iv_b64);
     SecureQByteArray plaintext_bytes;
     aesDecrypt(key_bytes, iv_bytes, ciphertext_bytes, plaintext_bytes);
@@ -565,12 +587,11 @@ SecureQString cryptofunc::decryptFromBase64(const QString& ciphertext_b64,
     return plaintext;
 }
 
-
 QString cryptofunc::hash(const QString& plaintext, const QString& salt)
 {
     if (salt.length() != SALT_LENGTH_TEXT) {
-        qWarning() << "Salt length is" << salt.length()
-                   << "but should be" << SALT_LENGTH_TEXT;
+        qWarning() << "Salt length is" << salt.length() << "but should be"
+                   << SALT_LENGTH_TEXT;
     }
     SecureQString to_hash_text(salt + plaintext);
     SecureQByteArray to_hash_bytes = to_hash_text.toLocal8Bit();
@@ -578,21 +599,17 @@ QString cryptofunc::hash(const QString& plaintext, const QString& salt)
     QString hashed_text = hashed_bytes.toBase64();
     QString result = salt + hashed_text;
 #ifdef DANGER_DEBUG_CRYPTO
-    qDebug() << Q_FUNC_INFO
-             << "salt" << salt
-             << "+ plaintext" << plaintext
+    qDebug() << Q_FUNC_INFO << "salt" << salt << "+ plaintext" << plaintext
              << "-> " << result;
 #endif
     return result;
 }
-
 
 QString cryptofunc::hash(const QString& plaintext)
 {
     QString salt = makeSalt();
     return hash(plaintext, salt);
 }
-
 
 bool cryptofunc::matchesHash(const QString& plaintext, const QString& hashed)
 {
@@ -602,7 +619,6 @@ bool cryptofunc::matchesHash(const QString& plaintext, const QString& hashed)
     QString salt = hashed.left(SALT_LENGTH_TEXT);  // recover salt
     return hashed == hash(plaintext, salt);
 }
-
 
 QString cryptofunc::makeSalt()
 {

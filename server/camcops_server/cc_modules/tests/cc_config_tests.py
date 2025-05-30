@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/tests/cc_config_tests.py
 
@@ -27,6 +25,7 @@ camcops_server/cc_modules/tests/cc_config_tests.py
 """
 
 import configparser
+from io import StringIO
 from unittest import TestCase
 
 from camcops_server.cc_modules.cc_config import CamcopsConfig, get_demo_config
@@ -40,8 +39,6 @@ from camcops_server.cc_modules.cc_config import CamcopsConfig, get_demo_config
 class EmailConfigTests(TestCase):
     def setUp(self):
         super().setUp()
-
-        from io import StringIO
 
         # Start with a working config and just set the things we want to test
         config_text = get_demo_config()

@@ -19,9 +19,11 @@
 */
 
 #include "questionnaireheader.h"
+
 #include <QAbstractButton>
 #include <QDebug>
 #include <QPushButton>
+
 #include "common/cssconst.h"
 #include "common/uiconst.h"
 #include "layouts/layouts.h"
@@ -31,14 +33,15 @@
 #include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
 
-
-QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
-                                         const QString& title,
-                                         const bool read_only,
-                                         const bool offer_page_jump,
-                                         const bool within_chain,
-                                         const QString& css_name,
-                                         const bool debug_allowed) :
+QuestionnaireHeader::QuestionnaireHeader(
+    QWidget* parent,
+    const QString& title,
+    const bool read_only,
+    const bool offer_page_jump,
+    const bool within_chain,
+    const QString& css_name,
+    const bool debug_allowed
+) :
     BaseWidget(parent),
     m_title(title),
     m_button_debug(nullptr),
@@ -49,7 +52,8 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     m_icon_no_next(nullptr)
 {
     if (!css_name.isEmpty()) {
-        setObjectName(css_name);  // was not working! But works for e.g. cancel button below
+        setObjectName(css_name);
+        // ... was not working! But works for e.g. cancel button below
         // Problem appears to be that WA_StyledBackground is not set.
         setAttribute(Qt::WidgetAttribute::WA_StyledBackground, true);
 
@@ -62,7 +66,8 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
         // ... advises caution with setAutoFillBackground() and stylesheets
     }
 #ifndef QUESTIONNAIRE_HEADER_USE_HFW_BASE
-    setSizePolicy(sizehelpers::expandingFixedHFWPolicy());  // if deriving from QWidget
+    setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
+    // ... if deriving from QWidget
 #endif
 
     auto mainlayout = new VBoxLayout();
@@ -80,13 +85,18 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     // Cancel button
     auto cancel = new ImageButton(uiconst::CBS_CANCEL);
     toprowlayout->addWidget(cancel, 0, button_align);
-    connect(cancel, &QAbstractButton::clicked,
-            this, &QuestionnaireHeader::cancelClicked);
+    connect(
+        cancel,
+        &QAbstractButton::clicked,
+        this,
+        &QuestionnaireHeader::cancelClicked
+    );
 
     // Read-only icon
     if (read_only) {
-        QLabel* read_only_icon = uifunc::iconWidget(
-            uifunc::iconFilename(uiconst::ICON_READ_ONLY));
+        QLabel* read_only_icon
+            = uifunc::iconWidget(uifunc::iconFilename(uiconst::ICON_READ_ONLY)
+            );
         toprowlayout->addWidget(read_only_icon, 0, button_align);
     }
 
@@ -105,8 +115,12 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     // Right-hand icons/buttons
     if (debug_allowed) {
         m_button_debug = new QPushButton("Dump layout");
-        connect(m_button_debug, &QAbstractButton::clicked,
-                this, &QuestionnaireHeader::debugLayout);
+        connect(
+            m_button_debug,
+            &QAbstractButton::clicked,
+            this,
+            &QuestionnaireHeader::debugLayout
+        );
         toprowlayout->addWidget(m_button_debug, 0, text_align);
     }
 
@@ -115,8 +129,12 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
 
     if (offer_page_jump) {
         m_button_jump = new ImageButton(uiconst::CBS_CHOOSE_PAGE);
-        connect(m_button_jump, &QAbstractButton::clicked,
-                this, &QuestionnaireHeader::jumpClicked);
+        connect(
+            m_button_jump,
+            &QAbstractButton::clicked,
+            this,
+            &QuestionnaireHeader::jumpClicked
+        );
         toprowlayout->addWidget(m_button_jump, 0, button_align);
     }
 
@@ -130,17 +148,29 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     }
     toprowlayout->addWidget(m_button_finish, 0, button_align);
 
-    m_icon_no_next = uifunc::iconWidget(
-        uifunc::iconFilename(uiconst::ICON_WARNING));
+    m_icon_no_next
+        = uifunc::iconWidget(uifunc::iconFilename(uiconst::ICON_WARNING));
     toprowlayout->addWidget(m_icon_no_next, 0, button_align);
 
     setButtons(false, false, false);
-    connect(m_button_previous, &QAbstractButton::clicked,
-            this, &QuestionnaireHeader::previousClicked);
-    connect(m_button_next, &QAbstractButton::clicked,
-            this, &QuestionnaireHeader::nextClicked);
-    connect(m_button_finish, &QAbstractButton::clicked,
-            this, &QuestionnaireHeader::finishClicked);
+    connect(
+        m_button_previous,
+        &QAbstractButton::clicked,
+        this,
+        &QuestionnaireHeader::previousClicked
+    );
+    connect(
+        m_button_next,
+        &QAbstractButton::clicked,
+        this,
+        &QuestionnaireHeader::nextClicked
+    );
+    connect(
+        m_button_finish,
+        &QAbstractButton::clicked,
+        this,
+        &QuestionnaireHeader::finishClicked
+    );
 
     // ------------------------------------------------------------------------
     // Horizontal line
@@ -148,20 +178,17 @@ QuestionnaireHeader::QuestionnaireHeader(QWidget* parent,
     auto horizline = new HorizontalLine(uiconst::HEADER_HLINE_WIDTH);
     horizline->setObjectName(cssconst::QUESTIONNAIRE_HORIZONTAL_LINE);
     mainlayout->addWidget(horizline);
-
 }
 
-
-void QuestionnaireHeader::setButtons(const bool previous,
-                                     const bool next,
-                                     const bool finish)
+void QuestionnaireHeader::setButtons(
+    const bool previous, const bool next, const bool finish
+)
 {
     m_button_previous->setVisible(previous);
     m_button_next->setVisible(next);
     m_button_finish->setVisible(finish);
     m_icon_no_next->setVisible(!next && !finish);
 }
-
 
 void QuestionnaireHeader::setFinishButtonIcon(const QString& base_filename)
 {

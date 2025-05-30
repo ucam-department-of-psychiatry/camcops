@@ -21,11 +21,13 @@
 #define USE_NUMERIC_DATES
 
 #include "qudatetime.h"
+
 #include <QCalendarWidget>
 #include <QDateTimeEdit>
 #include <QFont>
 #include <QHBoxLayout>
 #include <QTextCharFormat>
+
 #include "lib/widgetfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/imagebutton.h"
@@ -45,7 +47,8 @@ const Qt::InputMethodHints DATE_IMH = Qt::ImhNone;
 const QString DEFAULT_TIME_FORMAT("HH:mm");
 const Qt::InputMethodHints TIME_IMH = Qt::ImhPreferNumbers;
 // Default pseudo-null date (what's display when nothing is selected):
-// - 14 Sep 1752 is usual minimum (Gregorian calendar), but is a long way from now
+// - 14 Sep 1752 is usual minimum (Gregorian calendar), but is a long way from
+//   now
 // - 01 Jan 2000 is an option, but is too plausible
 // - 01 Jan 1900 is a common choice (e.g. Epic, hence all those 117yo unknown
 //   patients in 2017).
@@ -54,7 +57,6 @@ const Qt::InputMethodHints TIME_IMH = Qt::ImhPreferNumbers;
 const QDate PSEUDONULL_DATE(1900, 1, 1);
 const QTime PSEUDONULL_TIME(0, 0, 0, 0);
 const QDateTime PSEUDONULL_DATETIME(PSEUDONULL_DATE, PSEUDONULL_TIME);
-
 
 QuDateTime::QuDateTime(FieldRefPtr fieldref, QObject* parent) :
     QuElement(parent),
@@ -69,12 +71,19 @@ QuDateTime::QuDateTime(FieldRefPtr fieldref, QObject* parent) :
     m_maximum_date(uiconst::QCALENDARWIDGET_MAX_DATE)
 {
     Q_ASSERT(m_fieldref);
-    connect(m_fieldref.data(), &FieldRef::valueChanged,
-            this, &QuDateTime::fieldValueChanged);
-    connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
-            this, &QuDateTime::fieldValueChanged);
+    connect(
+        m_fieldref.data(),
+        &FieldRef::valueChanged,
+        this,
+        &QuDateTime::fieldValueChanged
+    );
+    connect(
+        m_fieldref.data(),
+        &FieldRef::mandatoryChanged,
+        this,
+        &QuDateTime::fieldValueChanged
+    );
 }
-
 
 QuDateTime* QuDateTime::setMode(const QuDateTime::Mode mode)
 {
@@ -82,16 +91,14 @@ QuDateTime* QuDateTime::setMode(const QuDateTime::Mode mode)
     return this;
 }
 
-
 QuDateTime* QuDateTime::setCustomFormat(
-        const QString& format,
-        const Qt::InputMethodHints input_method_hint)
+    const QString& format, const Qt::InputMethodHints input_method_hint
+)
 {
     m_custom_format = format;
     m_custom_input_method_hint = input_method_hint;
     return this;
 }
-
 
 QuDateTime* QuDateTime::setOfferNowButton(const bool offer_now_button)
 {
@@ -99,19 +106,16 @@ QuDateTime* QuDateTime::setOfferNowButton(const bool offer_now_button)
     return this;
 }
 
-
 QuDateTime* QuDateTime::setOfferNullButton(const bool offer_null_button)
 {
     m_offer_null_button = offer_null_button;
     return this;
 }
 
-
 void QuDateTime::setFromField()
 {
     fieldValueChanged(m_fieldref.data(), nullptr);
 }
-
 
 QuDateTime* QuDateTime::setMinimumDate(const QDate& min_date)
 {
@@ -119,19 +123,16 @@ QuDateTime* QuDateTime::setMinimumDate(const QDate& min_date)
     return this;
 }
 
-
 QuDateTime* QuDateTime::setMaximumDate(const QDate& max_date)
 {
     m_maximum_date = max_date;
     return this;
 }
 
-
 FieldRefPtrList QuDateTime::fieldrefs() const
 {
     return FieldRefPtrList{m_fieldref};
 }
-
 
 QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
 {
@@ -147,29 +148,29 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
     bool use_calendar = true;
     Qt::InputMethodHints input_method_hint = Qt::ImhNone;
     switch (m_mode) {
-    case DefaultDateTime:
-        format = DEFAULT_DATETIME_FORMAT;
-        input_method_hint = DATETIME_IMH;
-        break;
-    case DefaultDate:
-        format = DEFAULT_DATE_FORMAT;
-        input_method_hint = DATE_IMH;
-        break;
-    case DefaultTime:
-        format = DEFAULT_TIME_FORMAT;
-        input_method_hint = TIME_IMH;
-        use_calendar = false;
-        break;
-    case CustomDateTime:
-    case CustomDate:
-        format = m_custom_format;
-        input_method_hint = m_custom_input_method_hint;
-        break;
-    case CustomTime:
-        format = m_custom_format;
-        input_method_hint = m_custom_input_method_hint;
-        use_calendar = false;
-        break;
+        case DefaultDateTime:
+            format = DEFAULT_DATETIME_FORMAT;
+            input_method_hint = DATETIME_IMH;
+            break;
+        case DefaultDate:
+            format = DEFAULT_DATE_FORMAT;
+            input_method_hint = DATE_IMH;
+            break;
+        case DefaultTime:
+            format = DEFAULT_TIME_FORMAT;
+            input_method_hint = TIME_IMH;
+            use_calendar = false;
+            break;
+        case CustomDateTime:
+        case CustomDate:
+            format = m_custom_format;
+            input_method_hint = m_custom_input_method_hint;
+            break;
+        case CustomTime:
+            format = m_custom_format;
+            input_method_hint = m_custom_input_method_hint;
+            use_calendar = false;
+            break;
     }
 
     m_editor = new QDateTimeEdit();
@@ -209,12 +210,23 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
             Q_Q(QDateTimeEdit);
             if (!monthCalendar) {
                 monthCalendar = new QCalendarPopup(q, cw);
-                monthCalendar->setObjectName(QLatin1String("qt_datetimedit_calendar"));
-                QObject::connect(monthCalendar, SIGNAL(newDateSelected(QDate)), q, SLOT(setDate(QDate)));
-                QObject::connect(monthCalendar, SIGNAL(hidingCalendar(QDate)), q, SLOT(setDate(QDate)));
-                QObject::connect(monthCalendar, SIGNAL(activated(QDate)), q, SLOT(setDate(QDate)));
-                QObject::connect(monthCalendar, SIGNAL(activated(QDate)), monthCalendar, SLOT(close()));
-                QObject::connect(monthCalendar, SIGNAL(resetButton()), q, SLOT(_q_resetButton()));
+                monthCalendar->setObjectName(
+                    QLatin1String("qt_datetimedit_calendar"));
+                QObject::connect(
+                    monthCalendar, SIGNAL(newDateSelected(QDate)),
+                    q, SLOT(setDate(QDate)));
+                QObject::connect(
+                    monthCalendar, SIGNAL(hidingCalendar(QDate)),
+                    q, SLOT(setDate(QDate)));
+                QObject::connect(
+                    monthCalendar, SIGNAL(activated(QDate)),
+                    q, SLOT(setDate(QDate)));
+                QObject::connect(
+                    monthCalendar, SIGNAL(activated(QDate)),
+                    monthCalendar, SLOT(close()));
+                QObject::connect(
+                    monthCalendar, SIGNAL(resetButton()),
+                    q, SLOT(_q_resetButton()));
             } else if (cw) {
                 monthCalendar->setCalendarWidget(cw);
             }
@@ -238,11 +250,17 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
         m_calendar_widget->setGridVisible(true);
 
         QTextCharFormat header_text_format;
-        header_text_format.setFontWeight(uiconst::QCALENDARWIDGET_HEADER_FONTWEIGHT);
+        header_text_format.setFontWeight(
+            uiconst::QCALENDARWIDGET_HEADER_FONTWEIGHT
+        );
         m_calendar_widget->setHeaderTextFormat(header_text_format);
 
-        m_calendar_widget->setHorizontalHeaderFormat(QCalendarWidget::ShortDayNames);
-        m_calendar_widget->setVerticalHeaderFormat(QCalendarWidget::ISOWeekNumbers);
+        m_calendar_widget->setHorizontalHeaderFormat(
+            QCalendarWidget::ShortDayNames
+        );
+        m_calendar_widget->setVerticalHeaderFormat(
+            QCalendarWidget::ISOWeekNumbers
+        );
 
         QTextCharFormat day_format;
         day_format.setForeground(uiconst::QCALENDARWIDGET_TEXT_WEEKDAY);
@@ -260,46 +278,67 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
         // font.setPixelSize(60);  // Does NOT work!
         // m_calendar_widget->setFont(font);
 
-        // Hack: change calendar title colors
-        // See https://www.qtcentre.org/threads/30478-How-To-Change-Style-Sheet-for-QCalendarWidget
-        QWidget* calendar_navbar = m_calendar_widget->findChild<QWidget*>("qt_calendar_navigationbar");
+        // Hack: change calendar title colors. See
+        // https://www.qtcentre.org/threads/30478-How-To-Change-Style-Sheet-for-QCalendarWidget
+        QWidget* calendar_navbar = m_calendar_widget->findChild<QWidget*>(
+            "qt_calendar_navigationbar"
+        );
         if (calendar_navbar) {
             // Does get called.
             // qDebug() << Q_FUNC_INFO << "Setting colour of calendar_navbar";
             QPalette pal = calendar_navbar->palette();
-            pal.setColor(calendar_navbar->backgroundRole(), uiconst::QCALENDARWIDGET_NAVBAR_BACKGROUND);
+            pal.setColor(
+                calendar_navbar->backgroundRole(),
+                uiconst::QCALENDARWIDGET_NAVBAR_BACKGROUND
+            );
             // ... DOES NOT WORK +++
-            pal.setColor(calendar_navbar->foregroundRole(), uiconst::QCALENDARWIDGET_NAVBAR_FOREGROUND);
+            pal.setColor(
+                calendar_navbar->foregroundRole(),
+                uiconst::QCALENDARWIDGET_NAVBAR_FOREGROUND
+            );
             // ... DOES NOT WORK +++
             calendar_navbar->setPalette(pal);
         }
 
-        // Cell formatting: see QCalendarModel::formatForCell() in qcalendarwidget.cpp
+        // Cell formatting: see QCalendarModel::formatForCell() in
+        // qcalendarwidget.cpp
 
         m_editor->setCalendarWidget(m_calendar_widget);
 
         /*
         2017-07-17: CRASH on Android; segfault. Stack trace:
-        1   QObject::~QObject()                                                                                                                                                  0xe12e0b46
-        2   QObject::~QObject()                                                                                                                                                  0xe12e0bcc
-        3   QtSharedPointer::CustomDeleter<QCalendarWidget, QtSharedPointer::NormalDeleter>::execute()                                                                           0xdf115fc0
-        4   QtSharedPointer::ExternalRefCountWithCustomDeleter<QCalendarWidget, QtSharedPointer::NormalDeleter>::deleter(QtSharedPointer::ExternalRefCountData *)                0xdf115b98
-        5   QtSharedPointer::ExternalRefCountData::destroy()                                                                                                                     0xdee92ab4
-        6   QSharedPointer<QCalendarWidget>::deref(QtSharedPointer::ExternalRefCountData *)                                                                                      0xdf0fca74
-        7   QSharedPointer<QCalendarWidget>::deref()                                                                                                                             0xdf0fc89c
-        8   QSharedPointer<QCalendarWidget>::~QSharedPointer()                                                                                                                   0xdf0fc75c
-        9   QSharedPointer<QCalendarWidget>::operator=(QSharedPointer<QCalendarWidget>&&)                                                                                        0xdf1154fc
-        10  QuDateTime::makeWidget(Questionnaire *)                                                                                                                              0xdf114584
-        11  QuElement::widget(Questionnaire *)                                                                                                                                   0xdf1188a0
-        12  QuPage::widget(Questionnaire *) const                                                                                                                                0xdf146e24
-        13  Questionnaire::build()                                                                                                                                               0xdf11c67c
-        14  Questionnaire::goToPage(int, bool)                                                                                                                                   0xdf11de00
-        15  Questionnaire::processNextClicked()                                                                                                                                  0xdf11d810
-        16  Questionnaire::nextClicked()                                                                                                                                         0xdf11d700
-        17  QtPrivate::FunctorCall<QtPrivate::IndexesList<>, QtPrivate::List<>, void, void (Questionnaire:: *)()>::call(void (Questionnaire:: *)(), Questionnaire *, void * *)   0xdf122008
-        18  void QtPrivate::FunctionPointer<void (Questionnaire:: *)()>::call<QtPrivate::List<>, void>(void (Questionnaire:: *)(), Questionnaire *, void * *)                    0xdf121edc
-        19  QtPrivate::QSlotObject<void (Questionnaire:: *)(), QtPrivate::List<>, void>::impl(int, QtPrivate::QSlotObjectBase *, QObject *, void * *, bool *)                    0xdf121868
-        20  QMetaObject::activate(QObject *, int, int, void * *)                                                                                                                 0xe12dd404
+        1   QObject::~QObject()
+        2   QObject::~QObject()
+        3   QtSharedPointer::CustomDeleter<QCalendarWidget,
+                QtSharedPointer::NormalDeleter>::execute()
+        4   QtSharedPointer::ExternalRefCountWithCustomDeleter<QCalendarWidget,
+                QtSharedPointer::NormalDeleter>::deleter(
+                    QtSharedPointer::ExternalRefCountData *)
+        5   QtSharedPointer::ExternalRefCountData::destroy()
+        6   QSharedPointer<QCalendarWidget>::deref(
+                QtSharedPointer::ExternalRefCountData *)
+        7   QSharedPointer<QCalendarWidget>::deref()
+        8   QSharedPointer<QCalendarWidget>::~QSharedPointer()
+        9   QSharedPointer<QCalendarWidget>::operator=(
+                QSharedPointer<QCalendarWidget>&&)
+        10  QuDateTime::makeWidget(Questionnaire *)
+        11  QuElement::widget(Questionnaire *)
+        12  QuPage::widget(Questionnaire *) const
+        13  Questionnaire::build()
+        14  Questionnaire::goToPage(int, bool)
+        15  Questionnaire::processNextClicked()
+        16  Questionnaire::nextClicked()
+        17  QtPrivate::FunctorCall<QtPrivate::IndexesList<>, QtPrivate::List<>,
+                void,
+                void (Questionnaire:: *)()>::call(void (Questionnaire:: *)(),
+                Questionnaire *, void * *)
+        18  void QtPrivate::FunctionPointer<void (Questionnaire:: *)()>::call<
+                QtPrivate::List<>, void
+                >(void (Questionnaire:: *)(), Questionnaire *, void * *)
+        19  QtPrivate::QSlotObject<void (Questionnaire:: *)(),
+                QtPrivate::List<>, void>::impl(
+                int, QtPrivate::QSlotObjectBase *, QObject *, void * *, bool *)
+        20  QMetaObject::activate(QObject *, int, int, void * *)
         ... <More>
 
         Now that strongly suggests to me that the QDateTime *had* taken
@@ -307,10 +346,12 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
         reassigned, we attempt to double-delete and it crashes.
 
         Is that the case? Sequence is
-            void QDateTimeEdit::setCalendarWidget(QCalendarWidget *calendarWidget)
+            void QDateTimeEdit::setCalendarWidget(
+                    QCalendarWidget *calendarWidget)
             void QDateTimeEditPrivate::initCalendarPopup(QCalendarWidget *cw)
             ... then either:
-                QCalendarPopup::QCalendarPopup(QWidget * parent, QCalendarWidget *cw)
+                QCalendarPopup::QCalendarPopup(QWidget * parent,
+                        QCalendarWidget *cw)
                 void QCalendarPopup::setCalendarWidget(QCalendarWidget *cw)
             ... or just
                 void QCalendarPopup::setCalendarWidget(QCalendarWidget *cw)
@@ -320,9 +361,13 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
                 widgetLayout->addWidget(cw);
             It also looks like someone tried to fix this:
                 https://git.qt.io/consulting-usa/qtbase-xcb-rendering/commit/7d28f7772cd8f5aad63359ed0b9c57c12923dc85
-            NO, IT DOESN'T DO THAT, THAT'S OLD CODE. THE FIX IS IN QT 5.9.1. IT DOES:
-                delete calendar.data();  // RNC: should be fine if already nullptr
-                calendar = QPointer<QCalendarWidget>(cw);  // RNC: ... and a QPointer is set to 0 when the referenced object is destroyed
+            NO, IT DOESN'T DO THAT, THAT'S OLD CODE. THE FIX IS IN QT 5.9.1.
+            IT DOES:
+                delete calendar.data();
+                    // ... RNC: should be fine if already nullptr
+                calendar = QPointer<QCalendarWidget>(cw);
+                    // RNC: ... and a QPointer is set to 0 when the referenced
+                    // object is destroyed
                 widgetLayout->addWidget(cw);
 
             SO, PROBABLY THE SOLUTION IS TO USE A QPOINTER, AND A MANUAL
@@ -330,7 +375,6 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
             the QPointer will go to nullptr. See:
                 - https://stackoverflow.com/questions/22304118/what-is-the-difference-between-qpointer-qsharedpointer-and-qweakpointer-classes
         */
-
     }
 
     m_editor->setEnabled(!read_only);
@@ -342,8 +386,12 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
     // Also, the QDateTimeEdit *is* a QAbstractSpinBox, so:
     m_editor->setButtonSymbols(uiconst::SPINBOX_SYMBOLS);
     if (!read_only) {
-        connect(m_editor.data(), &QDateTimeEdit::dateTimeChanged,
-                this, &QuDateTime::widgetValueChanged);
+        connect(
+            m_editor.data(),
+            &QDateTimeEdit::dateTimeChanged,
+            this,
+            &QuDateTime::widgetValueChanged
+        );
     }
     layout->addWidget(m_editor);
 
@@ -351,8 +399,12 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
         auto now_button = new ImageButton(uiconst::CBS_TIME_NOW);
         now_button->setEnabled(!read_only);
         if (!read_only) {
-            connect(now_button, &QAbstractButton::clicked,
-                    this, &QuDateTime::setToNow);
+            connect(
+                now_button,
+                &QAbstractButton::clicked,
+                this,
+                &QuDateTime::setToNow
+            );
         }
         layout->addWidget(now_button);
     }
@@ -361,8 +413,12 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
         auto null_button = new ImageButton(uiconst::CBS_DELETE);
         null_button->setEnabled(!read_only);
         if (!read_only) {
-            connect(null_button, &QAbstractButton::clicked,
-                    this, &QuDateTime::setToNull);
+            connect(
+                null_button,
+                &QAbstractButton::clicked,
+                this,
+                &QuDateTime::setToNull
+            );
         }
         layout->addWidget(null_button);
     }
@@ -372,7 +428,6 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
     setFromField();
     return widget;
 }
-
 
 // It will show a NULL as yellow, but as soon as you edit the field,
 // it un-NULLs it irreversibly. (You could use e.g. 14 Sep 1752 00:00 as a
@@ -384,80 +439,76 @@ void QuDateTime::widgetValueChanged(const QDateTime& datetime)
     setField(datetime, false);
 }
 
-
-void QuDateTime::setField(const QDateTime& datetime,
-                          const bool reset_this_widget)
+void QuDateTime::setField(
+    const QDateTime& datetime, const bool reset_this_widget
+)
 {
     QVariant newvalue = datetime;
     QMetaType newtype;
     switch (m_mode) {
-    case DefaultDateTime:
-    case CustomDateTime:
-        newtype = QMetaType::fromType<QDateTime>();
-        break;
-    case DefaultDate:
-    case CustomDate:
-        newtype = QMetaType::fromType<QDate>();
-        break;
-    case DefaultTime:
-    case CustomTime:
-        newtype = QMetaType::fromType<QTime>();
-        break;
+        case DefaultDateTime:
+        case CustomDateTime:
+            newtype = QMetaType::fromType<QDateTime>();
+            break;
+        case DefaultDate:
+        case CustomDate:
+            newtype = QMetaType::fromType<QDate>();
+            break;
+        case DefaultTime:
+        case CustomTime:
+            newtype = QMetaType::fromType<QTime>();
+            break;
     }
 
     const bool success = newvalue.convert(newtype);
     Q_ASSERT(success);
 
-    const bool changed = m_fieldref->setValue(newvalue,
-                                              reset_this_widget ? nullptr : this);
+    const bool changed
+        = m_fieldref->setValue(newvalue, reset_this_widget ? nullptr : this);
     if (changed) {
         emit elementValueChanged();
     }
 }
-
 
 void QuDateTime::setToNow()
 {
     setField(QDateTime::currentDateTime(), true);
 }
 
-
 void QuDateTime::setToNull()
 {
     setField(QDateTime(), true);
 }
 
-
 bool QuDateTime::hasDateComponent() const
 {
     switch (m_mode) {
-    case DefaultDateTime:
-    case CustomDateTime:
-    case DefaultDate:
-    case CustomDate:
-        return true;
-    default:
-        return false;
+        case DefaultDateTime:
+        case CustomDateTime:
+        case DefaultDate:
+        case CustomDate:
+            return true;
+        default:
+            return false;
     }
 }
-
 
 bool QuDateTime::hasTimeComponent() const
 {
     switch (m_mode) {
-    case DefaultDateTime:
-    case CustomDateTime:
-    case DefaultTime:
-    case CustomTime:
-        return true;
-    default:
-        return false;
+        case DefaultDateTime:
+        case CustomDateTime:
+        case DefaultTime:
+        case CustomTime:
+            return true;
+        default:
+            return false;
     }
 }
 
-
-void QuDateTime::fieldValueChanged(const FieldRef* fieldref,
-                                   const QObject* originator)
+void QuDateTime::fieldValueChanged(
+    const FieldRef* fieldref, const QObject* originator
+)
 {
     if (!m_editor) {
         return;
@@ -469,7 +520,8 @@ void QuDateTime::fieldValueChanged(const FieldRef* fieldref,
             QDateTime display_value = fieldref->valueDateTime();
             if (!display_value.isValid()) {
                 display_value = PSEUDONULL_DATETIME;
-                // because QDateTimeEdit::setDateTime() will ignore invalid values
+                // because QDateTimeEdit::setDateTime() will ignore invalid
+                // values
             }
             const QSignalBlocker blocker(m_editor);
             m_editor->setDateTime(display_value);

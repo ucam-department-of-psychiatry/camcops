@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/camcops_windows_service.py
 

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/tasks/icd10schizophrenia.py
 
@@ -496,7 +494,7 @@ class Icd10Schizophrenia(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
             ),
             meets_general_criteria=tr_qa(
                 self.wxstring(req, "meets_general_criteria")
-                + " <sup>[1]</sup>",  # noqa
+                + " <sup>[1]</sup>",
                 get_true_false_none(req, self.meets_general_criteria()),
             ),
             comments=self.wxstring(req, "comments"),

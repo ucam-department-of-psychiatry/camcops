@@ -26,26 +26,28 @@
 // the control of users, not this software).
 
 #include "icd10.h"
+
 #include <QDebug>
 #include <QMap>
 #include <QObject>
 
 const QString Icd10::XSTRING_TASKNAME("icd10");
 
-
 // ============================================================================
 // Main functions
 // ============================================================================
 
-Icd10::Icd10(CamcopsApp& app, QObject* parent,
-             bool dummy_creation_no_xstrings) :
-    DiagnosticCodeSet(app, XSTRING_TASKNAME, "ICD-10",
-                      parent, dummy_creation_no_xstrings)
+Icd10::Icd10(
+    CamcopsApp& app, QObject* parent, bool dummy_creation_no_xstrings
+) :
+    DiagnosticCodeSet(
+        app, XSTRING_TASKNAME, "ICD-10", parent, dummy_creation_no_xstrings
+    )
 {
-    m_creation_stack.push(DepthItemPair(0, nullptr));  // root: depth 0, no parent
+    m_creation_stack.push(DepthItemPair(0, nullptr));
+    // root: depth 0, no parent
     addIcd10Codes(BASE_CODES);
 }
-
 
 void Icd10::addIcd10Codes(const QStringList& codes)
 {
@@ -65,10 +67,9 @@ void Icd10::addIcd10Codes(const QStringList& codes)
         addIndividualIcd10Code(c, desc, show_code_in_full_name);
 
         // Any special sub-codes?
-        if (length == 5 && (c.startsWith("F00") ||
-                            c.startsWith("F01") ||
-                            c.startsWith("F02") ||
-                            c.startsWith("F03"))) {
+        if (length == 5
+            && (c.startsWith("F00") || c.startsWith("F01")
+                || c.startsWith("F02") || c.startsWith("F03"))) {
             // Dementias that specify subcodes
             addDementia(c, desc);
         } else if (length == 3 && c.startsWith("F1")) {
@@ -77,13 +78,7 @@ void Icd10::addIcd10Codes(const QStringList& codes)
         } else if (length == 4 && c.startsWith("F20.")) {
             // Types of schizophrenia
             addSchizophrenia(c, desc);
-        } else if (length == 3 && c.startsWith("X") && (c.startsWith("X6") ||
-                                                        c.startsWith("X7") ||
-                                                        c == "X80" ||
-                                                        c == "X81" ||
-                                                        c == "X82" ||
-                                                        c == "X83" ||
-                                                        c == "X84")) {
+        } else if (length == 3 && c.startsWith("X") && (c.startsWith("X6") || c.startsWith("X7") || c == "X80" || c == "X81" || c == "X82" || c == "X83" || c == "X84")) {
             // Self harm
             // ... somewhat conservative criteria in case we ever add other
             // X codes, because X85-Y09 is "assault";
@@ -93,9 +88,9 @@ void Icd10::addIcd10Codes(const QStringList& codes)
     }
 }
 
-
-void Icd10::addIndividualIcd10Code(const QString& code, const QString& desc,
-                                   const bool show_code_in_full_name)
+void Icd10::addIndividualIcd10Code(
+    const QString& code, const QString& desc, const bool show_code_in_full_name
+)
 {
     if (code.isEmpty()) {
         qCritical() << Q_FUNC_INFO << "zero-length code! Ignoring";
@@ -115,43 +110,46 @@ void Icd10::addIndividualIcd10Code(const QString& code, const QString& desc,
     }
     DiagnosticCode* parent = m_creation_stack.top().second;
     const bool selectable = code.length() > 2;
-    DiagnosticCode* newchild = addCode(parent, code, desc, selectable,
-                                       show_code_in_full_name);
+    DiagnosticCode* newchild
+        = addCode(parent, code, desc, selectable, show_code_in_full_name);
     m_creation_stack.push(DepthItemPair(depth, newchild));
 }
 
-
-void Icd10::addSubcodes(const QString& basecode,
-                        const QString& basedesc,
-                        const QVector<CodeDescriptionPair>& level1)
+void Icd10::addSubcodes(
+    const QString& basecode,
+    const QString& basedesc,
+    const QVector<CodeDescriptionPair>& level1
+)
 {
     for (const auto& extra1 : level1) {
         const QString code = QString("%1%2").arg(basecode, extra1.first);
-        const QString desc = QString("%1: %2").arg(
-                    basedesc, xstring(extra1.second));
+        const QString desc
+            = QString("%1: %2").arg(basedesc, xstring(extra1.second));
         addIndividualIcd10Code(code, desc);
     }
 }
 
-
-void Icd10::addSubcodes(const QString& basecode,
-                        const QString& basedesc,
-                        const QVector<CodeDescriptionPair>& level1,
-                        const QVector<CodeDescriptionPair>& level2)
+void Icd10::addSubcodes(
+    const QString& basecode,
+    const QString& basedesc,
+    const QVector<CodeDescriptionPair>& level1,
+    const QVector<CodeDescriptionPair>& level2
+)
 {
     for (const auto& extra1 : level1) {
         const QString l1code = QString("%1%2").arg(basecode, extra1.first);
-        const QString l1desc = QString("%1: %2").arg(
-                    basedesc, xstring(extra1.second));
+        const QString l1desc
+            = QString("%1: %2").arg(basedesc, xstring(extra1.second));
         addIndividualIcd10Code(l1code, l1desc);
         for (const auto& extra2 : level2) {
             const QString l2code = QString("%1%2").arg(l1code, extra2.first);
-            const QString l2desc = QString("%1: %2").arg(
-                        l1desc, xstring(extra2.second));
+            const QString l2desc
+                = QString("%1: %2").arg(l1desc, xstring(extra2.second));
             addIndividualIcd10Code(l2code, l2desc);
         }
     }
 }
+
 // ============================================================================
 // Dementia
 // ============================================================================
@@ -172,12 +170,10 @@ const QVector<Icd10::CodeDescriptionPair> Icd10::DEMENTIA_L2{
     {"2", "dementia_xx2"},
 };
 
-
 void Icd10::addDementia(const QString& basecode, const QString& basedesc)
 {
     addSubcodes(basecode, basedesc, DEMENTIA_L1, DEMENTIA_L2);
 }
-
 
 // ============================================================================
 // Substance-induced
@@ -208,7 +204,8 @@ const QVector<Icd10::CodeDescriptionPair> Icd10::SUBSTANCE_L1{
     {".241", "substance_241"},
     {".242", "substance_242"},
     {".25", "substance_25"},
-    {".26", "substance_26"},  // FOR ALCOHOL: APPEND substance_26_alcohol_suffix
+    {".26", "substance_26"},
+    // ... FOR ALCOHOL: APPEND substance_26_alcohol_suffix
     {".3", "substance_3"},
     {".30", "substance_30"},
     {".31", "substance_31"},
@@ -235,7 +232,6 @@ const QVector<Icd10::CodeDescriptionPair> Icd10::SUBSTANCE_L1{
     {".9", "substance_9"},
 };
 
-
 void Icd10::addSubstance(const QString& basecode, const QString& basedesc)
 {
     const bool alcohol = basecode == "F10";
@@ -254,7 +250,6 @@ void Icd10::addSubstance(const QString& basecode, const QString& basedesc)
     }
 }
 
-
 // ============================================================================
 // Schizophrenia
 // ============================================================================
@@ -272,12 +267,10 @@ const QVector<Icd10::CodeDescriptionPair> Icd10::SCHIZOPHRENIA_L1{
     {"9", "schizophrenia_x9"},
 };
 
-
 void Icd10::addSchizophrenia(const QString& basecode, const QString& basedesc)
 {
     addSubcodes(basecode, basedesc, SCHIZOPHRENIA_L1);
 }
-
 
 // ============================================================================
 // Self-harm
@@ -310,12 +303,10 @@ const QVector<Icd10::CodeDescriptionPair> Icd10::SELFHARM_L2{
     {"9", "selfharm_x9"},
 };
 
-
 void Icd10::addSelfHarm(const QString& basecode, const QString& basedesc)
 {
     addSubcodes(basecode, basedesc, SELFHARM_L1, SELFHARM_L2);
 }
-
 
 // ============================================================================
 // Main codes

@@ -19,6 +19,7 @@
 */
 
 #include "patientsorter.h"
+
 #include "dbobjects/patient.h"
 
 PatientSorter::PatientSorter()
@@ -27,9 +28,9 @@ PatientSorter::PatientSorter()
     // https://forum.qt.io/topic/4877/sorting-a-qlist-with-a-comparator/4
 }
 
-
-bool PatientSorter::operator()(const PatientPtr& left,
-                               const PatientPtr& right) const
+bool PatientSorter::operator()(
+    const PatientPtr& left, const PatientPtr& right
+) const
 {
     // Implements: LEFT < RIGHT ?
     // Sort by surname, then forename, then DOB.

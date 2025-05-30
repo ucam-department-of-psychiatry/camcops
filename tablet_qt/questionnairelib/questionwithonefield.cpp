@@ -20,9 +20,9 @@
 
 #include "questionwithonefield.h"
 
-
-QuestionWithOneField::QuestionWithOneField(const QString& question,
-                                           FieldRefPtr fieldref) :
+QuestionWithOneField::QuestionWithOneField(
+    const QString& question, FieldRefPtr fieldref
+) :
     m_question(question),
     m_fieldref(fieldref)
 {
@@ -30,34 +30,30 @@ QuestionWithOneField::QuestionWithOneField(const QString& question,
     Q_ASSERT(!m_fieldref.isNull());
 }
 
-
-QuestionWithOneField::QuestionWithOneField(FieldRefPtr fieldref,
-                                           const QString& question) :
+QuestionWithOneField::QuestionWithOneField(
+    FieldRefPtr fieldref, const QString& question
+) :
     m_question(question),
     m_fieldref(fieldref)
 {
     Q_ASSERT(!m_question.isEmpty());
     Q_ASSERT(!m_fieldref.isNull());
 }
-
 
 QuestionWithOneField::QuestionWithOneField() :
     m_fieldref(nullptr)
 {
 }
 
-
 QString QuestionWithOneField::question() const
 {
     return m_question;
 }
 
-
 QString QuestionWithOneField::text() const
 {
     return m_question;
 }
-
 
 FieldRefPtr QuestionWithOneField::fieldref() const
 {

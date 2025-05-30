@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/tasks/diagnosis.py
 
@@ -583,9 +581,9 @@ def get_diagnosis_report_query(
                 # (or failure to match a row will wipe out the Patient from the
                 # OUTER JOIN):
                 aliased_table.c._current == True,  # noqa: E712
-                aliased_table.c.which_idnum == n,  # noqa: E712
+                aliased_table.c.which_idnum == n,
             ),
-        )  # noqa: E712
+        )
     select_fields += [
         diagnosis_class.when_created.label("when_created"),
         literal(system).label("system"),
@@ -604,7 +602,9 @@ def get_diagnosis_report_query(
         wheres.append(diagnosis_class._group_id.in_(group_ids))
         # Helpfully, SQLAlchemy will render this as "... AND 1 != 1" if we
         # pass an empty list to in_().
-    query = select(select_fields).select_from(from_clause).where(and_(*wheres))
+    query = (
+        select(*select_fields).select_from(from_clause).where(and_(*wheres))
+    )
     return query
 
 
@@ -914,7 +914,7 @@ def get_diagnosis_inc_exc_report_query(
     inclusion_criteria = []  # type: List[ColumnElement]
     for idx in inclusion_dx:
         inclusion_criteria.append(item_class.code.like(idx))
-    wheres.append(or_(*inclusion_criteria))
+    wheres.append(or_(True, *inclusion_criteria))
 
     # Exclusion criteria are the trickier: we need to be able to link
     # multiple diagnoses for the same patient, so we need to use a linking
@@ -979,11 +979,13 @@ def get_diagnosis_inc_exc_report_query(
             edx_wheres.append(edx_sets.c._group_id.in_(group_ids))
             # ... bugfix 2018-06-19: "wheres" -> "edx_wheres"
         exclusion_select = (
-            select(["*"]).select_from(edx_joined).where(and_(*edx_wheres))
+            select("*").select_from(edx_joined).where(and_(*edx_wheres))
         )
         wheres.append(not_(exists(exclusion_select)))
 
-    query = select(select_fields).select_from(select_from).where(and_(*wheres))
+    query = (
+        select(*select_fields).select_from(select_from).where(and_(*wheres))
+    )
     return query
 
 

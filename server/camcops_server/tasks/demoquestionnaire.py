@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/tasks/demoquestionnaire.py
 
@@ -125,9 +123,7 @@ class DemoQuestionnaire(Task, metaclass=DemoQuestionnaireMetaclass):
         blob_relationship_attr_name="photo",
     )
     # IGNORED. REMOVE WHEN ALL PRE-2.0.0 TABLETS GONE:
-    photo_rotation = Column(
-        "photo_rotation", Integer
-    )  # DEFUNCT as of v2.0.0  # noqa
+    photo_rotation = Column("photo_rotation", Integer)  # DEFUNCT as of v2.0.0
     canvas_blobid = CamcopsColumn(
         "canvas_blobid",
         Integer,
@@ -146,13 +142,13 @@ class DemoQuestionnaire(Task, metaclass=DemoQuestionnaireMetaclass):
 
     photo = blob_relationship(
         "DemoQuestionnaire", "photo_blobid"
-    )  # type: Optional[Blob]  # noqa
+    )  # type: Optional[Blob]
     canvas = blob_relationship(
         "DemoQuestionnaire", "canvas_blobid"
-    )  # type: Optional[Blob]  # noqa
+    )  # type: Optional[Blob]
     canvas2 = blob_relationship(
         "DemoQuestionnaire", "canvas2_blobid"
-    )  # type: Optional[Blob]  # noqa
+    )  # type: Optional[Blob]
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

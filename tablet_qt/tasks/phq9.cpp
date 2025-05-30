@@ -19,10 +19,11 @@
 */
 
 #include "phq9.h"
+
 #include "common/textconst.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qumcqgrid.h"
@@ -43,22 +44,22 @@ const QString QPREFIX("q");
 
 const QString Phq9::PHQ9_TABLENAME("phq9");
 
-
 void initializePhq9(TaskFactory& factory)
 {
     static TaskRegistrar<Phq9> registered(factory);
 }
 
-
 Phq9::Phq9(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, PHQ9_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, PHQ9_TABLENAME, false, false, false),
+    // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
+    );
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -69,18 +70,15 @@ QString Phq9::shortname() const
     return "PHQ-9";
 }
 
-
 QString Phq9::longname() const
 {
     return tr("Patient Health Questionnaire-9");
 }
 
-
 QString Phq9::description() const
 {
     return tr("Self-scoring of the 9 depressive symptoms in DSM-IV.");
 }
-
 
 // ============================================================================
 // Instance info
@@ -102,12 +100,10 @@ bool Phq9::isComplete() const
     return true;
 }
 
-
 QStringList Phq9::summary() const
 {
     return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
-
 
 QStringList Phq9::detail() const
 {
@@ -135,7 +131,6 @@ QStringList Phq9::detail() const
     return lines;
 }
 
-
 OpenableWidget* Phq9::editor(const bool read_only)
 {
     const NameValueOptions options_q1_9{
@@ -151,31 +146,35 @@ OpenableWidget* Phq9::editor(const bool read_only)
         {xstring("fa3"), 3},
     };
 
-    QuPagePtr page((new QuPage{
-        (new QuText(xstring("stem")))->setBold(true),
-        new QuMcqGrid(
-            {
-                QuestionWithOneField(xstring("q1"), fieldRef("q1")),
-                QuestionWithOneField(xstring("q2"), fieldRef("q2")),
-                QuestionWithOneField(xstring("q3"), fieldRef("q3")),
-                QuestionWithOneField(xstring("q4"), fieldRef("q4")),
-                QuestionWithOneField(xstring("q5"), fieldRef("q5")),
-                QuestionWithOneField(xstring("q6"), fieldRef("q6")),
-                QuestionWithOneField(xstring("q7"), fieldRef("q7")),
-                QuestionWithOneField(xstring("q8"), fieldRef("q8")),
-                QuestionWithOneField(xstring("q9"), fieldRef("q9")),
-            },
-            options_q1_9
-        ),
-        (new QuText(xstring("finalq")))->setBold(true),
-        new QuMcq(fieldRef("q10"), options_q10),
-    })->setTitle(xstring("title_main")));
+    QuPagePtr page(
+        (new QuPage{
+             (new QuText(xstring("stem")))->setBold(true),
+             new QuMcqGrid(
+                 {
+                     QuestionWithOneField(xstring("q1"), fieldRef("q1")),
+                     QuestionWithOneField(xstring("q2"), fieldRef("q2")),
+                     QuestionWithOneField(xstring("q3"), fieldRef("q3")),
+                     QuestionWithOneField(xstring("q4"), fieldRef("q4")),
+                     QuestionWithOneField(xstring("q5"), fieldRef("q5")),
+                     QuestionWithOneField(xstring("q6"), fieldRef("q6")),
+                     QuestionWithOneField(xstring("q7"), fieldRef("q7")),
+                     QuestionWithOneField(xstring("q8"), fieldRef("q8")),
+                     QuestionWithOneField(xstring("q9"), fieldRef("q9")),
+                 },
+                 options_q1_9
+             ),
+             (new QuText(xstring("finalq")))->setBold(true),
+             new QuMcq(fieldRef("q10"), options_q10),
+         })
+            ->setTitle(xstring("title_main"))
+    );
 
-    for (const QString& main_q_fieldname : strseq(QPREFIX,
-                                                  FIRST_Q, LAST_SCORED_Q)) {
+    for (const QString& main_q_fieldname :
+         strseq(QPREFIX, FIRST_Q, LAST_SCORED_Q)) {
         FieldRefPtr fr = fieldRef(main_q_fieldname);
-        connect(fr.data(), &FieldRef::valueChanged,
-                this, &Phq9::mainScoreChanged);
+        connect(
+            fr.data(), &FieldRef::valueChanged, this, &Phq9::mainScoreChanged
+        );
     }
 
     m_questionnaire = new Questionnaire(m_app, {page});
@@ -187,7 +186,6 @@ OpenableWidget* Phq9::editor(const bool read_only)
     return m_questionnaire;
 }
 
-
 // ============================================================================
 // Task-specific calculations
 // ============================================================================
@@ -196,7 +194,6 @@ int Phq9::totalScore() const
 {
     return sumInt(values(strseq(QPREFIX, FIRST_Q, LAST_SCORED_Q)));
 }
-
 
 int Phq9::nCoreSymptoms() const
 {
@@ -208,7 +205,6 @@ int Phq9::nCoreSymptoms() const
     }
     return n;
 }
-
 
 int Phq9::nOtherSymptoms() const
 {
@@ -225,16 +221,22 @@ int Phq9::nOtherSymptoms() const
     return n;
 }
 
-
 QString Phq9::severity(const int score)
 {
-    if (score >= 20) return TextConst::severe();
-    if (score >= 15) return TextConst::moderatelySevere();
-    if (score >= 10) return TextConst::moderate();
-    if (score >=  5) return TextConst::mild();
+    if (score >= 20) {
+        return TextConst::severe();
+    }
+    if (score >= 15) {
+        return TextConst::moderatelySevere();
+    }
+    if (score >= 10) {
+        return TextConst::moderate();
+    }
+    if (score >= 5) {
+        return TextConst::mild();
+    }
     return TextConst::none();
 }
-
 
 void Phq9::mainScoreChanged()
 {

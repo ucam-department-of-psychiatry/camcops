@@ -24,12 +24,12 @@
 #include <QString>
 #include <QVector>
 #include <QWaitCondition>
+
 #include "whisker/whiskerconnectionstate.h"
 #include "whisker/whiskerconstants.h"
 #include "whisker/whiskerinboundmessage.h"
 #include "whisker/whiskeroutboundcommand.h"
 class QTcpSocket;
-
 
 class WhiskerWorker : public QObject
 {
@@ -40,7 +40,6 @@ class WhiskerWorker : public QObject
     Q_OBJECT
 
 public:
-
     // Constructor.
     WhiskerWorker();
 
@@ -67,7 +66,8 @@ signals:
     // "We are now fully connected."
     void onFullyConnected();
 
-    // "Message received on main socket." (Will be connected to WhiskerManager.)
+    // "Message received on main socket."
+    // (Will be connected to WhiskerManager.)
     void receivedFromServerMainSocket(const WhiskerInboundMessage& msg);
 
     // "A socket error has occurred."
@@ -76,14 +76,16 @@ signals:
 public slots:
     // "Please connect to the specified Whisker server."
     void connectToServer(
-            const QString& host,
-            quint16 main_port = whiskerconstants::WHISKER_DEFAULT_PORT);
+        const QString& host,
+        quint16 main_port = whiskerconstants::WHISKER_DEFAULT_PORT
+    );
 
     // "Disconnect from the Whisker server."
     void disconnectFromServer();
 
     // "Send this message to the server." (See WhiskerOutboundCommand.)
-    void sendToServer(const WhiskerOutboundCommand& cmd);  // from WhiskerManager
+    void sendToServer(const WhiskerOutboundCommand& cmd);
+    // ... from WhiskerManager
 
 protected slots:
     // "The main socket is connected."
@@ -113,14 +115,14 @@ protected:
     void setConnectionState(WhiskerConnectionState state);
 
     // Returns all inbound messages currently available for a given socket.
-    QVector<WhiskerInboundMessage> getIncomingMessagesFromSocket(
-            bool via_immediate_socket);
+    QVector<WhiskerInboundMessage>
+        getIncomingMessagesFromSocket(bool via_immediate_socket);
 
     // Returns all inbound messages currently available for a given socket.
     // Lower-level function than the other one with the same name.
     QVector<WhiskerInboundMessage> getIncomingMessagesFromBuffer(
-            QString& buffer, bool via_immediate_socket,
-            const QDateTime& timestamp);
+        QString& buffer, bool via_immediate_socket, const QDateTime& timestamp
+    );
 
     // Handle the low-level connection messages, and pass anything else on
     // via our signals.
@@ -139,15 +141,16 @@ protected:
     QTcpSocket* m_immediate_socket;  // immediate socket
     WhiskerConnectionState m_connection_state;  // overall connection status
     QString m_inbound_buffer_main;  // inbound message buffer for main socket
-    QString m_inbound_buffer_imm;  // inbound message buffer for immediate socket
+    QString m_inbound_buffer_imm;
+    // ... inbound message buffer for immediate socket
     QVector<WhiskerOutboundCommand> m_imm_commands_awaiting_reply;
-        // ... outbound commands waiting to be matched to a reply
+    // ... outbound commands waiting to be matched to a reply
     QVector<WhiskerInboundMessage> m_imm_replies_awaiting_collection;
-        // ... inbound replies, already matched with the outbound command that
-        //     triggered them, now awaiting collection
+    // ... inbound replies, already matched with the outbound command that
+    //     triggered them, now awaiting collection
     QMutex m_mutex_imm;
-        // ... mutex for m_imm_replies_awaiting_collection AND
-        //     m_imm_commands_awaiting_reply
+    // ... mutex for m_imm_replies_awaiting_collection AND
+    //     m_imm_commands_awaiting_reply
     QWaitCondition m_immediate_reply_arrived;
-        // ... "a reply has arrived"
+    // ... "a reply has arrived"
 };

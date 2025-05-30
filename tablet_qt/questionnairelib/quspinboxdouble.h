@@ -24,23 +24,29 @@
 
 class QDoubleSpinBox;
 
-
 class QuSpinBoxDouble : public QuElement
 {
     // Offers a text editing box with spinbox controls, for floating-point
     // entry.
 
     Q_OBJECT
+
 public:
     // Constructor, specifying range and maximum number of decimal places.
-    QuSpinBoxDouble(FieldRefPtr fieldref, double minimum, double maximum,
-                    int decimals = 2, QObject* parent = nullptr);
-protected:
+    QuSpinBoxDouble(
+        FieldRefPtr fieldref,
+        double minimum,
+        double maximum,
+        int decimals = 2,
+        QObject* parent = nullptr
+    );
 
+protected:
     // Sets the widget state from our fieldref.
     void setFromField();
 
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
+    ) override;
     virtual FieldRefPtrList fieldrefs() const override;
 
 protected slots:
@@ -52,8 +58,9 @@ protected slots:
     void widgetValueChangedString(const QString& text);
 
     // "The field's data has changed."
-    void fieldValueChanged(const FieldRef* fieldref,
-                           const QObject* originator = nullptr);
+    void fieldValueChanged(
+        const FieldRef* fieldref, const QObject* originator = nullptr
+    );
 
 protected:
     FieldRefPtr m_fieldref;  // our field

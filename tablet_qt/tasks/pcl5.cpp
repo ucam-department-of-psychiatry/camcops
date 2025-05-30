@@ -19,10 +19,11 @@
 */
 
 #include "pcl5.h"
+
 #include "core/camcopsapp.h"
-#include "lib/version.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "lib/version.h"
 #include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgrid.h"
@@ -45,22 +46,22 @@ const int MAX_QUESTION_SCORE = 80;
 const QString QPREFIX("q");
 const QString Pcl5::PCL5_TABLENAME("pcl5");
 
-
 void initializePcl5(TaskFactory& factory)
 {
     static TaskRegistrar<Pcl5> registered(factory);
 }
 
-
 Pcl5::Pcl5(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-            Task(app, db, PCL5_TABLENAME, false, false, false),  // ... anon, clin, resp
-            m_questionnaire(nullptr)
+    Task(app, db, PCL5_TABLENAME, false, false, false),
+    // ... anon, clin, resp
+    m_questionnaire(nullptr)
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
+    );
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -71,24 +72,20 @@ QString Pcl5::shortname() const
     return "PCL-5";
 }
 
-
 QString Pcl5::longname() const
 {
     return tr("PTSD Checklist for DSM-5");
 }
-
 
 QString Pcl5::description() const
 {
     return tr("20-item self-report scale, based on DSM-5 criteria.");
 }
 
-
 Version Pcl5::minimumServerVersion() const
 {
     return Version(2, 2, 8);
 }
-
 
 // ============================================================================
 // Instance info
@@ -99,16 +96,14 @@ bool Pcl5::isComplete() const
     return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
 
-
 QStringList Pcl5::summary() const
 {
     return QStringList{
         totalScorePhrase(totalScore(), MAX_QUESTION_SCORE),
-        standardResult(xstring("dsm_criteria_met"),
-                       uifunc::yesNoUnknown(hasPtsd()))
-    };
+        standardResult(
+            xstring("dsm_criteria_met"), uifunc::yesNoUnknown(hasPtsd())
+        )};
 }
-
 
 QStringList Pcl5::detail() const
 {
@@ -116,7 +111,6 @@ QStringList Pcl5::detail() const
     lines += summary();
     return lines;
 }
-
 
 OpenableWidget* Pcl5::editor(const bool read_only)
 {
@@ -128,41 +122,42 @@ OpenableWidget* Pcl5::editor(const bool read_only)
         {xstring("a4"), 4},
     };
 
-    QuPagePtr page((new QuPage{
-        new QuText(xstring("instructions")),
-        (new QuMcqGrid(
-            {
-                QuestionWithOneField(xstring("q1"), fieldRef("q1")),
-                QuestionWithOneField(xstring("q2"), fieldRef("q2")),
-                QuestionWithOneField(xstring("q3"), fieldRef("q3")),
-                QuestionWithOneField(xstring("q4"), fieldRef("q4")),
-                QuestionWithOneField(xstring("q5"), fieldRef("q5")),
-                QuestionWithOneField(xstring("q6"), fieldRef("q6")),
-                QuestionWithOneField(xstring("q7"), fieldRef("q7")),
-                QuestionWithOneField(xstring("q8"), fieldRef("q8")),
-                QuestionWithOneField(xstring("q9"), fieldRef("q9")),
-                QuestionWithOneField(xstring("q10"), fieldRef("q10")),
-                QuestionWithOneField(xstring("q11"), fieldRef("q11")),
-                QuestionWithOneField(xstring("q12"), fieldRef("q12")),
-                QuestionWithOneField(xstring("q13"), fieldRef("q13")),
-                QuestionWithOneField(xstring("q14"), fieldRef("q14")),
-                QuestionWithOneField(xstring("q15"), fieldRef("q15")),
-                QuestionWithOneField(xstring("q16"), fieldRef("q16")),
-                QuestionWithOneField(xstring("q17"), fieldRef("q17")),
-                QuestionWithOneField(xstring("q18"), fieldRef("q18")),
-                QuestionWithOneField(xstring("q19"), fieldRef("q19")),
-                QuestionWithOneField(xstring("q20"), fieldRef("q20"))
-            },
-            options
-        ))->setTitle(xstring("stem")),
-    })->setTitle(xstring("title")));
+    QuPagePtr page(
+        (new QuPage{
+             new QuText(xstring("instructions")),
+             (new QuMcqGrid(
+                  {QuestionWithOneField(xstring("q1"), fieldRef("q1")),
+                   QuestionWithOneField(xstring("q2"), fieldRef("q2")),
+                   QuestionWithOneField(xstring("q3"), fieldRef("q3")),
+                   QuestionWithOneField(xstring("q4"), fieldRef("q4")),
+                   QuestionWithOneField(xstring("q5"), fieldRef("q5")),
+                   QuestionWithOneField(xstring("q6"), fieldRef("q6")),
+                   QuestionWithOneField(xstring("q7"), fieldRef("q7")),
+                   QuestionWithOneField(xstring("q8"), fieldRef("q8")),
+                   QuestionWithOneField(xstring("q9"), fieldRef("q9")),
+                   QuestionWithOneField(xstring("q10"), fieldRef("q10")),
+                   QuestionWithOneField(xstring("q11"), fieldRef("q11")),
+                   QuestionWithOneField(xstring("q12"), fieldRef("q12")),
+                   QuestionWithOneField(xstring("q13"), fieldRef("q13")),
+                   QuestionWithOneField(xstring("q14"), fieldRef("q14")),
+                   QuestionWithOneField(xstring("q15"), fieldRef("q15")),
+                   QuestionWithOneField(xstring("q16"), fieldRef("q16")),
+                   QuestionWithOneField(xstring("q17"), fieldRef("q17")),
+                   QuestionWithOneField(xstring("q18"), fieldRef("q18")),
+                   QuestionWithOneField(xstring("q19"), fieldRef("q19")),
+                   QuestionWithOneField(xstring("q20"), fieldRef("q20"))},
+                  options
+              ))
+                 ->setTitle(xstring("stem")),
+         })
+            ->setTitle(xstring("title"))
+    );
 
     auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations
@@ -172,7 +167,6 @@ int Pcl5::totalScore() const
 {
     return sumInt(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
-
 
 QVariant Pcl5::hasPtsd() const
 {
@@ -206,21 +200,18 @@ QVariant Pcl5::hasPtsd() const
     const int null_d = numNull(first_d, last_d);
     const int null_e = numNull(first_e, last_e);
 
-    if (symptomatic_b >= criterion_b &&
-            symptomatic_c >= criterion_c &&
-            symptomatic_d >= criterion_d &&
-            symptomatic_e >= criterion_e) {
+    if (symptomatic_b >= criterion_b && symptomatic_c >= criterion_c
+        && symptomatic_d >= criterion_d && symptomatic_e >= criterion_e) {
         return true;  // has PTSD
     }
-    if (symptomatic_b + null_b >= criterion_b &&
-            symptomatic_c + null_c >= criterion_c &&
-            symptomatic_d + null_d >= criterion_d &&
-            symptomatic_e + null_e >= criterion_e) {
+    if (symptomatic_b + null_b >= criterion_b
+        && symptomatic_c + null_c >= criterion_c
+        && symptomatic_d + null_d >= criterion_d
+        && symptomatic_e + null_e >= criterion_e) {
         return QVariant();  // might have PTSD, depending on more info
     }
     return false;  // not PTSD
 }
-
 
 int Pcl5::numSymptomatic(const int first, const int last) const
 {
@@ -234,7 +225,6 @@ int Pcl5::numSymptomatic(const int first, const int last) const
     }
     return total;
 }
-
 
 int Pcl5::numNull(const int first, const int last) const
 {

@@ -21,6 +21,7 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+
 #include "common/aliases_camcops.h"
 #include "tasklib/task.h"
 
@@ -28,14 +29,17 @@ class CamcopsApp;
 class OpenableWidget;
 class Questionnaire;
 
-
 class DiagnosisTaskBase : public Task
 {
     Q_OBJECT
+
 public:
-    DiagnosisTaskBase(CamcopsApp& app, DatabaseManager& db,
-                      const QString& tablename,
-                      int load_pk = dbconst::NONEXISTENT_PK);
+    DiagnosisTaskBase(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        const QString& tablename,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -57,6 +61,7 @@ public:
     // ------------------------------------------------------------------------
     // DiagnosisTaskBase extras
     // ------------------------------------------------------------------------
+
 protected:
     virtual DiagnosticCodeSetPtr makeCodeset() const = 0;
     virtual DiagnosisItemBasePtr makeItem() const = 0;
@@ -73,8 +78,10 @@ protected:
     void refreshQuestionnaire();
     void rebuildPage(QuPage* page);
     void renumberItems();
+
 public:
     static const QString RELATES_TO_DATE;
+
 protected:
     QVector<DiagnosisItemBasePtr> m_items;
     QPointer<Questionnaire> m_questionnaire;

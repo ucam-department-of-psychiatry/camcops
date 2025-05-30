@@ -18,6 +18,8 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "taskscheduleitem.h"
+
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
@@ -30,7 +32,6 @@
 #include "lib/datetime.h"
 #include "tasklib/task.h"
 #include "tasklib/taskfactory.h"
-#include "taskscheduleitem.h"
 
 const QString TaskScheduleItem::TABLENAME("task_schedule_item");
 
@@ -52,19 +53,16 @@ const QString TaskScheduleItem::KEY_TABLE("table");
 const QString TaskScheduleItem::KEY_SETTINGS("settings");
 const QString TaskScheduleItem::KEY_WHEN_COMPLETED("when_completed");
 
-
 // ============================================================================
 // Creation
 // ============================================================================
 
-TaskScheduleItem::TaskScheduleItem(CamcopsApp& app, DatabaseManager& db,
-                                   const int load_pk) :
-    DatabaseObject(app, db, TABLENAME,
-                   dbconst::PK_FIELDNAME,
-                   true,
-                   false,
-                   false,
-                   false)
+TaskScheduleItem::TaskScheduleItem(
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
+    DatabaseObject(
+        app, db, TABLENAME, dbconst::PK_FIELDNAME, true, false, false, false
+    )
 {
     addField(FK_TASK_SCHEDULE, QMetaType::fromType<int>(), true);
     addField(FN_TASK_TABLE_NAME, QMetaType::fromType<QString>(), true);
@@ -72,21 +70,27 @@ TaskScheduleItem::TaskScheduleItem(CamcopsApp& app, DatabaseManager& db,
     addField(FN_DUE_FROM, QMetaType::fromType<QString>(), true);
     addField(FN_DUE_BY, QMetaType::fromType<QString>(), true);
     addField(FN_COMPLETE, QMetaType::fromType<bool>(), true);
-    addField(FN_ANONYMOUS, QMetaType::fromType<bool>(),
-             true /* mandatory */,
-             false /* unique */,
-             false /* pk */,
-             false /* default_value */);
-    addField(FK_TASK, QMetaType::fromType<int>(), true);  // PK of task in its table
+    addField(
+        FN_ANONYMOUS,
+        QMetaType::fromType<bool>(),
+        true /* mandatory */,
+        false /* unique */,
+        false /* pk */,
+        false /* default_value */
+    );
+    addField(FK_TASK, QMetaType::fromType<int>(), true);
+    // ... PK of task in its table
     addField(FN_WHEN_COMPLETED, QMetaType::fromType<QDateTime>());
 
     load(load_pk);
 }
 
-
-TaskScheduleItem::TaskScheduleItem(const int schedule_fk, CamcopsApp& app,
-                                   DatabaseManager& db,
-                                   const QJsonObject& json_obj) :
+TaskScheduleItem::TaskScheduleItem(
+    const int schedule_fk,
+    CamcopsApp& app,
+    DatabaseManager& db,
+    const QJsonObject& json_obj
+) :
     TaskScheduleItem(app, db)
 {
     setValue(FK_TASK_SCHEDULE, schedule_fk);
@@ -110,7 +114,6 @@ TaskScheduleItem::TaskScheduleItem(const int schedule_fk, CamcopsApp& app,
     save();
 }
 
-
 // ============================================================================
 // Information about schedule items
 // ============================================================================
@@ -120,30 +123,25 @@ int TaskScheduleItem::id() const
     return pkvalueInt();
 }
 
-
 QDateTime TaskScheduleItem::dueFromUtc() const
 {
     return value(FN_DUE_FROM).toDateTime();
 }
-
 
 QDateTime TaskScheduleItem::dueByUtc() const
 {
     return value(FN_DUE_BY).toDateTime();
 }
 
-
 QDateTime TaskScheduleItem::dueFromLocal() const
 {
     return dueFromUtc().toLocalTime();
 }
 
-
 QDateTime TaskScheduleItem::dueByLocal() const
 {
     return dueByUtc().toLocalTime();
 }
-
 
 TaskPtr TaskScheduleItem::getTask() const
 {
@@ -169,9 +167,8 @@ QJsonObject TaskScheduleItem::settings() const
     // validate when the schedules were fetched from the server.
     // Also it's impossible to enter invalid JSON through the form when
     // creating the patient's task schedule.
-    const QJsonDocument doc = QJsonDocument::fromJson(
-        valueString(FN_SETTINGS).toUtf8()
-    );
+    const QJsonDocument doc
+        = QJsonDocument::fromJson(valueString(FN_SETTINGS).toUtf8());
 
     assert(!doc.isNull());
 
@@ -198,16 +195,14 @@ QString TaskScheduleItem::subtitle() const
         if (when_completed.isNull()) {
             return QString(tr("Completed"));
         } else {
-            const QString readable_datetime = when_completed.toString(
-                datetime::LONG_DATETIME_FORMAT
-            );
+            const QString readable_datetime
+                = when_completed.toString(datetime::LONG_DATETIME_FORMAT);
             return QString(tr("Completed at: %1").arg(readable_datetime));
         }
     }
 
-    const QString readable_datetime = dueByLocal().toString(
-        datetime::LONG_DATETIME_FORMAT
-    );
+    const QString readable_datetime
+        = dueByLocal().toString(datetime::LONG_DATETIME_FORMAT);
 
     if (task_state == State::Started) {
         return QString(tr("Started, complete by %1")).arg(readable_datetime);
@@ -216,14 +211,12 @@ QString TaskScheduleItem::subtitle() const
     return QString(tr("Complete by %1")).arg(readable_datetime);
 }
 
-
 bool TaskScheduleItem::isEditable() const
 {
     const auto task_state = state();
 
     return task_state == State::Started || task_state == State::Due;
 }
-
 
 TaskScheduleItem::State TaskScheduleItem::state() const
 {
@@ -253,33 +246,29 @@ TaskScheduleItem::State TaskScheduleItem::state() const
     return State::Future;
 }
 
-
 bool TaskScheduleItem::isComplete() const
 {
     return valueBool(FN_COMPLETE);
 }
-
 
 QDateTime TaskScheduleItem::whenCompleted() const
 {
     return valueDateTime(FN_WHEN_COMPLETED);
 }
 
-
-void TaskScheduleItem::setComplete(const bool complete,
-                                   const QDateTime& when_completed)
+void TaskScheduleItem::setComplete(
+    const bool complete, const QDateTime& when_completed
+)
 {
     setValue(FN_COMPLETE, complete);
     setValue(FN_WHEN_COMPLETED, when_completed);
     save();
 }
 
-
 bool TaskScheduleItem::isAnonymous() const
 {
     return valueBool(FN_ANONYMOUS);
 }
-
 
 void TaskScheduleItem::setAnonymous(const bool anonymous)
 {
@@ -287,13 +276,11 @@ void TaskScheduleItem::setAnonymous(const bool anonymous)
     save();
 }
 
-
 void TaskScheduleItem::setTask(const int task_id)
 {
     setValue(FK_TASK, task_id);
     save();
 }
-
 
 bool TaskScheduleItem::isIncompleteAndCurrent() const
 {

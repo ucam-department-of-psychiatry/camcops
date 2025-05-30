@@ -10,35 +10,113 @@ on:
             - .github/scripts/add_apt_sources.sh
             - .github/scripts/change_apt_mirror.sh
             - .github/scripts/cpp_tests.sh
+            - .github/scripts/python_setup.sh
             - .github/workflows/cpp-tests.yml
             - tablet_qt/qt_version.txt
+            - tablet_qt/tools/build_qt.py
+            - tablet_qt/tools/run_cpp_tests.py
 
-env:
-    # Keep in sync with tablet_qt/qt_version.txt. We check this further down.
-    QT_VERSION: 6.5.3
 jobs:
     cpp-tests:
         runs-on: ubuntu-22.04
         steps:
-            - uses: actions/checkout@v3
-            - name: Qt version check
+            - uses: actions/checkout@v4
+            - name: Download Qt
+              uses: dsaltares/fetch-gh-release-asset@1.1.2
+              with:
+                  # Has to download to GITHUB_WORKSPACE
+                  file: qt.tgz
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  # The release ID is set by the build-qt.yml action
+                  # but the tagging is broken somehow. This is brittle
+                  # because editing the release on GitHub will change
+                  # the tag (which isn't a proper tag)
+                  version: 'tags/untagged-b8b360463f95f88e986f'
+            - name: Install Qt
               run: |
                   set -euxo pipefail
-                  test "${{ env.QT_VERSION }}" == "$(cat ${GITHUB_WORKSPACE}/tablet_qt/qt_version.txt)"
-            - name: Install Qt
-              uses: jurplel/install-qt-action@v3
-              with:
-                  version: ${{ env.QT_VERSION }}
-                  arch: gcc_64
-                  modules: qtmultimedia
+                  mv ${GITHUB_WORKSPACE}/qt.tgz ${HOME}
+                  cd ${HOME}
+                  ls
+                  # Remove home/runner from paths
+                  tar -xvzf qt.tgz --strip-components=2
+                  ls
+                  ls qt_local_build
             - name: Ubuntu prerequisites
               run: |
                   set -eux -o pipefail
                   ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
                   ${GITHUB_WORKSPACE}/.github/scripts/add_apt_sources.sh
-                  sudo apt-get -y install libxcb-icccm4 libxcb-xkb1 libxcb-icccm4 libxcb-image0 libxcb-render-util0 libxcb-randr0 libxcb-keysyms1 libxcb-xinerama0 libxcb-xinput-dev libxcb-cursor0
-                  sudo apt-get -y install xvfb x11-xserver-utils
+                  sudo apt-get -y install \
+                  autoconf \
+                  automake \
+                  bison \
+                  build-essential \
+                  ccache \
+                  cmake \
+                  flex \
+                  git \
+                  gperf \
+                  libass-dev \
+                  libdrm-dev \
+                  libegl1-mesa-dev \
+                  libfontconfig1-dev \
+                  libfreetype6-dev \
+                  libgnutls28-dev \
+                  libmp3lame-dev \
+                  libnss3-dev \
+                  libpulse-dev \
+                  libsdl2-dev \
+                  libtool \
+                  libva-dev \
+                  libvdpau-dev \
+                  libvorbis-dev \
+                  libx11-xcb-dev \
+                  '^libxcb.*-dev' \
+                  libxcomposite-dev \
+                  libxcursor-dev \
+                  libxdamage-dev \
+                  libxi-dev \
+                  libxkbcommon-dev \
+                  libxkbcommon-x11-dev \
+                  libxrandr-dev \
+                  libxrender-dev \
+                  meson \
+                  ninja-build \
+                  nodejs \
+                  pkg-config \
+                  texinfo \
+                  wget \
+                  yasm \
+                  zlib1g-dev \
+                  clang \
+                  libatspi2.0-dev \
+                  libbluetooth-dev \
+                  libclang-13-dev \
+                  libclang-14-dev \
+                  libclang-15-dev \
+                  libcups2-dev \
+                  libfreetype6-dev \
+                  libhunspell-dev \
+                  libopengl-dev \
+                  libts-dev \
+                  libunwind-dev \
+                  libx11-dev \
+                  libxext-dev \
+                  libxfixes-dev \
+                  libxkbfile-dev \
+                  libxshmfence1 \
+                  libxshmfence-dev \
+                  llvm \
+                  python3
+
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: 3.9
+
             - name: C++ tests
               run: |
                   set -eux -o pipefail
+                  export CAMCOPS_QT6_BASE_DIR=${HOME}/qt_local_build
+                  ${GITHUB_WORKSPACE}/.github/scripts/python_setup.sh
                   xvfb-run --auto-servernum ${GITHUB_WORKSPACE}/.github/scripts/cpp_tests.sh

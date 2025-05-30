@@ -19,10 +19,11 @@
 */
 
 #include "mdsupdrs.h"
+
 #include "common/textconst.h"
-#include "maths/mathfunc.h"
 #include "lib/roman.h"
 #include "lib/stringfunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qulineeditdouble.h"
@@ -200,7 +201,6 @@ const QStringList EXTRAFIELDS{
     Q4_6,
 };
 
-
 void initializeMdsUpdrs(TaskFactory& factory)
 {
     static TaskRegistrar<MdsUpdrs> registered(factory);
@@ -208,7 +208,8 @@ void initializeMdsUpdrs(TaskFactory& factory)
 
 
 MdsUpdrs::MdsUpdrs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, MDS_UPDRS_TABLENAME, false, true, false)  // ... anon, clin, resp
+    Task(app, db, MDS_UPDRS_TABLENAME, false, true, false)
+// ... anon, clin, resp
 {
     // Part I
     addField(Q1A, QMetaType::fromType<int>());
@@ -292,7 +293,6 @@ MdsUpdrs::MdsUpdrs(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
 
-
 // ============================================================================
 // Class info
 // ============================================================================
@@ -302,20 +302,21 @@ QString MdsUpdrs::shortname() const
     return "MDS-UPDRS";
 }
 
-
 QString MdsUpdrs::longname() const
 {
-    return tr("Movement Disorder Society-Sponsored Revision of the Unified "
-              "Parkinson’s Disease Rating Scale");
+    return tr(
+        "Movement Disorder Society-Sponsored Revision of the Unified "
+        "Parkinson’s Disease Rating Scale"
+    );
 }
-
 
 QString MdsUpdrs::description() const
 {
-    return tr("Assessment of experiences of daily living and motor "
-              "examination/complications.");
+    return tr(
+        "Assessment of experiences of daily living and motor "
+        "examination/complications."
+    );
 }
-
 
 // ============================================================================
 // Instance info
@@ -326,12 +327,10 @@ bool MdsUpdrs::isComplete() const
     return noneNull(values(EXTRAFIELDS));
 }
 
-
 QStringList MdsUpdrs::summary() const
 {
     return QStringList{TextConst::noSummarySeeFacsimile()};
 }
-
 
 QStringList MdsUpdrs::detail() const
 {
@@ -341,7 +340,6 @@ QStringList MdsUpdrs::detail() const
     }
     return lines;
 }
-
 
 OpenableWidget* MdsUpdrs::editor(const bool read_only)
 {
@@ -373,24 +371,26 @@ OpenableWidget* MdsUpdrs::editor(const bool read_only)
 
     auto pagetitle = [this](int partnum) -> QString {
         return QString("%1 %2: %3")
-                .arg(shortname(),
-                     TextConst::part(),
-                     roman::romanize(partnum));
+            .arg(shortname(), TextConst::part(), roman::romanize(partnum));
     };
     auto text = [](const QString& text) -> QuElement* {
         return (new QuText(text))->setBold();
     };
-    auto mcq = [this](const QString& fieldname,
-                      const NameValueOptions& options,
-                      bool mandatory = true) -> QuElement* {
+    auto mcq = [this](
+                   const QString& fieldname,
+                   const NameValueOptions& options,
+                   bool mandatory = true
+               ) -> QuElement* {
         return new QuMcq(fieldRef(fieldname, mandatory), options);
     };
-    auto grid = [this](const QString& fieldname_prefix,
-                       const QString& question_prefix,
-                       int first,
-                       int last,
-                       const NameValueOptions& options,
-                       bool mandatory = true) -> QuElement* {
+    auto grid = [this](
+                    const QString& fieldname_prefix,
+                    const QString& question_prefix,
+                    int first,
+                    int last,
+                    const NameValueOptions& options,
+                    bool mandatory = true
+                ) -> QuElement* {
         QVector<QuestionWithOneField> qfields;
         for (int i = first; i <= last; ++i) {
             qfields.append(QuestionWithOneField(
@@ -404,13 +404,10 @@ OpenableWidget* MdsUpdrs::editor(const bool read_only)
         const QString fieldname_prefix("q3_");
         const QString question_prefix("Part III, Q3.");
         const QStringList part3bits{
-            "1", "2", "3a", "3b", "3c", "3d", "3e",
-            "4a", "4b", "5a", "5b", "6a", "6b", "7a", "7b", "8a", "8b",
-            "9", "10", "11", "12", "13", "14",
-            "15a", "15b", "16a", "16b",
-            "17a", "17b", "17c", "17d", "17e",
-            "18"
-        };
+            "1",   "2",   "3a",  "3b",  "3c",  "3d",  "3e",  "4a",  "4b",
+            "5a",  "5b",  "6a",  "6b",  "7a",  "7b",  "8a",  "8b",  "9",
+            "10",  "11",  "12",  "13",  "14",  "15a", "15b", "16a", "16b",
+            "17a", "17b", "17c", "17d", "17e", "18"};
         const bool mandatory = true;
         QVector<QuestionWithOneField> qfields;
         for (const QString& suffix : part3bits) {
@@ -421,60 +418,77 @@ OpenableWidget* MdsUpdrs::editor(const bool read_only)
         }
         return new QuMcqGrid(qfields, main_options);
     };
-    auto doublevar = [this](const QString& fieldname,
-                            bool mandatory = true) -> QuElement* {
-        return new QuLineEditDouble(fieldRef(fieldname, mandatory),
-                                    0,
-                                    10000000,  // about 19 years, in minutes
-                                    1);
+    auto doublevar =
+        [this](const QString& fieldname, bool mandatory = true) -> QuElement* {
+        return new QuLineEditDouble(
+            fieldRef(fieldname, mandatory),
+            0,
+            10000000,  // about 19 years, in minutes
+            1
+        );
     };
 
-    pages.append(QuPagePtr((new QuPage{
-        text("Part I, Q1a (information source for 1.1–1.6"),
-        mcq(Q1A, source_options),
-        grid("q1_", "Part I, Q1.", 1, 6, main_options),
-        text("Part I, Q1.6a (information source for 1.7–1.13"),
-        mcq(Q1_6A, source_options),
-        grid("q1_", "Part I, Q1.", 7, 13, main_options),
-    })->setTitle(pagetitle(1))));
+    pages.append(
+        QuPagePtr((new QuPage{
+                       text("Part I, Q1a (information source for 1.1–1.6"),
+                       mcq(Q1A, source_options),
+                       grid("q1_", "Part I, Q1.", 1, 6, main_options),
+                       text("Part I, Q1.6a (information source for 1.7–1.13"),
+                       mcq(Q1_6A, source_options),
+                       grid("q1_", "Part I, Q1.", 7, 13, main_options),
+                   })
+                      ->setTitle(pagetitle(1)))
+    );
 
-    pages.append(QuPagePtr((new QuPage{
-        grid("q2_", "Part II, Q2.", 1, 13, main_options),
-    })->setTitle(pagetitle(2))));
+    pages.append(
+        QuPagePtr((new QuPage{
+                       grid("q2_", "Part II, Q2.", 1, 13, main_options),
+                   })
+                      ->setTitle(pagetitle(2)))
+    );
 
-    pages.append(QuPagePtr((new QuPage{
-        text("Part III, Q3a (medication)"),
-        mcq(Q3A, CommonOptions::noYesBoolean()),
-        text("Part III, Q3b (clinical state)"),
-        mcq(Q3B, on_off_options),
-        text("Part III, Q3c (levodopa)"),
-        mcq(Q3C, CommonOptions::noYesBoolean()),
-        text("Q3c.1, minutes since last dose"),
-        doublevar(Q3C1),
-        part3grid(),
-        text("q3_dyskinesia_present"),
-        mcq(Q3_DYSKINESIA_PRESENT, CommonOptions::noYesBoolean()),
-        text("q3_dyskinesia_interfered"),
-        mcq(Q3_DYSKINESIA_INTERFERED, CommonOptions::noYesBoolean()),
-        text("Hoehn & Yahr stage"),
-        mcq(Q3_HY_STAGE, hy_options),
-    })->setTitle(pagetitle(3))));
+    pages.append(QuPagePtr(
+        (new QuPage{
+             text("Part III, Q3a (medication)"),
+             mcq(Q3A, CommonOptions::noYesBoolean()),
+             text("Part III, Q3b (clinical state)"),
+             mcq(Q3B, on_off_options),
+             text("Part III, Q3c (levodopa)"),
+             mcq(Q3C, CommonOptions::noYesBoolean()),
+             text("Q3c.1, minutes since last dose"),
+             doublevar(Q3C1),
+             part3grid(),
+             text("q3_dyskinesia_present"),
+             mcq(Q3_DYSKINESIA_PRESENT, CommonOptions::noYesBoolean()),
+             text("q3_dyskinesia_interfered"),
+             mcq(Q3_DYSKINESIA_INTERFERED, CommonOptions::noYesBoolean()),
+             text("Hoehn & Yahr stage"),
+             mcq(Q3_HY_STAGE, hy_options),
+         })
+            ->setTitle(pagetitle(3))
+    ));
 
-    pages.append(QuPagePtr((new QuPage{
-        grid("q4_", "Part IV, Q4.", 1, 6, main_options),
-    })->setTitle(pagetitle(1))));
+    pages.append(
+        QuPagePtr((new QuPage{
+                       grid("q4_", "Part IV, Q4.", 1, 6, main_options),
+                   })
+                      ->setTitle(pagetitle(1)))
+    );
 
     // We want Q3C.1 (time since last dose) to be mandatory when Q3C
     // (levodopa?) is true. So we can connect them directly:
-    connect(fieldRef(Q3C).data(), &FieldRef::valueChanged,
-            this, &MdsUpdrs::levodopaChanged);
+    connect(
+        fieldRef(Q3C).data(),
+        &FieldRef::valueChanged,
+        this,
+        &MdsUpdrs::levodopaChanged
+    );
 
     auto questionnaire = new Questionnaire(m_app, pages);
     questionnaire->setType(QuPage::PageType::Clinician);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Signal handlers

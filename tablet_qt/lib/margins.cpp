@@ -27,6 +27,7 @@
 */
 
 #include "margins.h"
+
 #include <QDebug>
 #include <QLayout>
 #include <QWidget>
@@ -40,28 +41,26 @@ Margins::Margins()
     clear();
 }
 
-
-Margins::Margins(const int left, const int top,
-                 const int right, const int bottom)
+Margins::Margins(
+    const int left, const int top, const int right, const int bottom
+)
 {
     set(left, top, right, bottom);
 }
-
 
 Margins::Margins(const int each_side)
 {
     set(each_side, each_side, each_side, each_side);
 }
 
-
 Margins::Margins(int left_right, int top_bottom)
 {
     set(left_right, top_bottom, left_right, top_bottom);
 }
 
-
-void Margins::set(const int left, const int top,
-                  const int right, const int bottom)
+void Margins::set(
+    const int left, const int top, const int right, const int bottom
+)
 {
     m_left = left;
     m_top = top;
@@ -70,7 +69,6 @@ void Margins::set(const int left, const int top,
     rationalize();
 }
 
-
 void Margins::clear()
 {
     m_left = 0;
@@ -78,7 +76,6 @@ void Margins::clear()
     m_right = 0;
     m_bottom = 0;
 }
-
 
 void Margins::rationalize()
 {
@@ -89,12 +86,10 @@ void Margins::rationalize()
     m_bottom = qMax(0, m_bottom);
 }
 
-
 bool Margins::isZero() const
 {
     return m_left == 0 && m_right == 0 && m_top == 0 && m_bottom == 0;
 }
-
 
 // ============================================================================
 // Modification
@@ -106,13 +101,11 @@ void Margins::setLeft(const int width)
     rationalize();
 }
 
-
 void Margins::setRight(const int width)
 {
     m_right = width;
     rationalize();
 }
-
 
 void Margins::setTop(const int height)
 {
@@ -120,13 +113,11 @@ void Margins::setTop(const int height)
     rationalize();
 }
 
-
 void Margins::setBottom(const int height)
 {
     m_bottom = height;
     rationalize();
 }
-
 
 void Margins::addLeft(const int width)
 {
@@ -134,13 +125,11 @@ void Margins::addLeft(const int width)
     rationalize();
 }
 
-
 void Margins::addRight(const int width)
 {
     m_right += width;
     rationalize();
 }
-
 
 void Margins::addTop(const int height)
 {
@@ -148,37 +137,31 @@ void Margins::addTop(const int height)
     rationalize();
 }
 
-
 void Margins::addBottom(const int height)
 {
     m_bottom += height;
     rationalize();
 }
 
-
 int& Margins::rleft()
 {
     return m_left;
 }
-
 
 int& Margins::rright()
 {
     return m_right;
 }
 
-
 int& Margins::rtop()
 {
     return m_top;
 }
 
-
 int& Margins::rbottom()
 {
     return m_bottom;
 }
-
 
 // ============================================================================
 // Calculated information
@@ -189,56 +172,46 @@ QSize Margins::totalSize() const
     return QSize(m_left + m_right, m_top + m_bottom);
 }
 
-
 int Margins::totalHeight() const
 {
     return m_top + m_bottom;
 }
-
 
 int Margins::totalWidth() const
 {
     return m_left + m_right;
 }
 
-
 int Margins::removeLeftRightMarginsFrom(const int width) const
 {
     return width - totalWidth();
 }
-
 
 int Margins::addLeftRightMarginsTo(const int width) const
 {
     return width + totalWidth();
 }
 
-
 int Margins::removeTopBottomMarginsFrom(const int height) const
 {
     return height - totalHeight();
 }
-
 
 int Margins::addTopBottomMarginsTo(const int height) const
 {
     return height + totalHeight();
 }
 
-
 QSize Margins::addMarginsTo(const QSize& size) const
 {
-    return QSize(size.width() + totalWidth(),
-                 size.height() + totalHeight());
+    return QSize(size.width() + totalWidth(), size.height() + totalHeight());
 }
-
 
 void Margins::addMarginsToInPlace(QSize& size) const
 {
     size.rwidth() += totalWidth();
     size.rheight() += totalHeight();
 }
-
 
 void Margins::addMarginsToInPlace(Margins& other) const
 {
@@ -248,43 +221,35 @@ void Margins::addMarginsToInPlace(Margins& other) const
     other.m_bottom += m_bottom;
 }
 
-
 QRect Margins::moveRectByTopLeftMargins(const QRect& rect) const
 {
     return rect.adjusted(m_left, m_top, m_left, m_top);
 }
-
 
 void Margins::moveRectByTopLeftMarginsInPlace(QRect& rect) const
 {
     rect.adjust(m_left, m_top, m_left, m_top);
 }
 
-
 QSize Margins::removeMarginsFrom(const QSize& size) const
 {
-    return QSize(size.width() - totalWidth(),
-                 size.height() - totalHeight());
+    return QSize(size.width() - totalWidth(), size.height() - totalHeight());
 }
-
 
 QRect Margins::addMarginsTo(const QRect& rect) const
 {
     return rect.adjusted(-m_left, -m_top, +m_right, +m_bottom);
 }
 
-
 QRect Margins::removeMarginsFrom(const QRect& rect) const
 {
     return rect.adjusted(+m_left, +m_top, -m_right, -m_bottom);
 }
 
-
 void Margins::addMarginsToInPlace(QRect& rect) const
 {
     rect.adjust(-m_left, -m_top, +m_right, +m_bottom);
 }
-
 
 void Margins::removeMarginsFromInPlace(QRect& rect) const
 {
@@ -300,11 +265,12 @@ Margins Margins::getContentsMargins(const QWidget* widget)
     Margins ret;
     if (widget) {
         auto margins = widget->contentsMargins();
-        ret.set(margins.left(), margins.top(), margins.right(), margins.bottom());
+        ret.set(
+            margins.left(), margins.top(), margins.right(), margins.bottom()
+        );
     }
     return ret;
 }
-
 
 Margins Margins::getContentsMargins(const QLayout* layout)
 {
@@ -317,35 +283,34 @@ Margins Margins::getContentsMargins(const QLayout* layout)
     return m;
 }
 
-
 Margins Margins::rectDiff(const QRect& outer, const QRect& inner)
 {
     if (!outer.contains(inner)) {
         qWarning() << Q_FUNC_INFO << "-- outer" << outer
                    << "does not contain inner" << inner;
     }
-    return Margins(inner.left() - outer.left(),  // left margin
-                   inner.top() - outer.top(),  // top margin
-                   outer.right() - inner.right(),  // right margin
-                   outer.bottom() - outer.bottom());  // bottom margin
+    return Margins(
+        inner.left() - outer.left(),  // left margin
+        inner.top() - outer.top(),  // top margin
+        outer.right() - inner.right(),  // right margin
+        outer.bottom() - outer.bottom()
+    );  // bottom margin
 }
-
 
 Margins Margins::subRectMargins(const QSize& outer, const QRect& inner)
 {
-    return Margins(inner.left(),  // left
-                   inner.top(),  // top
-                   outer.width() - inner.width() - inner.left(),  // right
-                   outer.height() - inner.height() - inner.top());  // bottom
+    return Margins(
+        inner.left(),  // left
+        inner.top(),  // top
+        outer.width() - inner.width() - inner.left(),  // right
+        outer.height() - inner.height() - inner.top()
+    );  // bottom
 }
-
 
 Margins Margins::subRectMargins(const QRect& outer, const QRect& inner)
 {
     return subRectMargins(outer.size(), inner);
 }
-
-
 
 // ========================================================================
 // For friends
@@ -353,10 +318,8 @@ Margins Margins::subRectMargins(const QRect& outer, const QRect& inner)
 
 QDebug operator<<(QDebug debug, const Margins& m)
 {
-    debug.nospace()
-            << "Margins(left=" << m.m_left
-            << ",top=" << m.m_top
-            << ",right=" << m.m_right
-            << ",bottom=" << m.m_bottom << ")";
+    debug.nospace() << "Margins(left=" << m.m_left << ",top=" << m.m_top
+                    << ",right=" << m.m_right << ",bottom=" << m.m_bottom
+                    << ")";
     return debug;
 }

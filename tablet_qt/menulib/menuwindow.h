@@ -21,15 +21,18 @@
 #pragma once
 
 #define MENUWINDOW_USE_HFW_LISTWIDGET  // good
-// #define MENUWINDOW_USE_HFW_LAYOUT  // bad; window contains scroll area, which gets too short
+// #define MENUWINDOW_USE_HFW_LAYOUT
+// ... bad; window contains scroll area, which gets too short
 
-#if defined(MENUWINDOW_USE_HFW_LISTWIDGET) == defined(MENUWINDOW_USE_HFW_LAYOUT)
-#error Define MENUWINDOW_USE_HFW_LISTWIDGET xor MENUWINDOW_USE_HFW_LAYOUT
+#if defined(MENUWINDOW_USE_HFW_LISTWIDGET)                                    \
+    == defined(MENUWINDOW_USE_HFW_LAYOUT)
+    #error Define MENUWINDOW_USE_HFW_LISTWIDGET xor MENUWINDOW_USE_HFW_LAYOUT
 #endif
 
 #include <QPointer>
 #include <QSharedPointer>
 #include <QVector>
+
 #include "common/aliases_camcops.h"
 #include "core/camcopsapp.h"  // for LockState
 #include "layouts/layouts.h"
@@ -50,9 +53,12 @@ class MenuWindow : public OpenableWidget
     Q_OBJECT
 
 public:
-    MenuWindow(CamcopsApp& app,
-               const QString& icon = "", bool top = false,
-               bool offer_search = false);
+    MenuWindow(
+        CamcopsApp& app,
+        const QString& icon = "",
+        bool top = false,
+        bool offer_search = false
+    );
     // Derived constructors should be LIGHTWEIGHT, as
     // MenuItem::MenuItem(MenuProxyPtr, CamcopsApp&) will create an INSTANCE
     // to get the title/subtitle.
@@ -109,17 +115,23 @@ protected:
     void makeLayout();
 
     // Additional function that subclasses can override to specialize layout.
-    virtual void extraLayoutCreation() {}
+    virtual void extraLayoutCreation()
+    {
+    }
 
     // Called by the default implementation of build(), for simplicity
-    virtual void makeItems() {}
+    virtual void makeItems()
+    {
+    }
 
     // Create widgets. Called by the OpenableWidget framework prior to opening.
     void build() override;
 
     // Called by build() as it finishes. Allows subclasses to do extra
     // processing, e.g. emitting signals.
-    virtual void afterBuild() {}
+    virtual void afterBuild()
+    {
+    }
 
     // Load or reload the stylesheet on our widget.
     void reloadStyleSheet();

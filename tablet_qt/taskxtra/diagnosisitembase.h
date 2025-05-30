@@ -20,32 +20,41 @@
 
 #pragma once
 #include <QString>
-#include "db/databaseobject.h"
 
+#include "db/databaseobject.h"
 
 class DiagnosisItemBase : public DatabaseObject
 {
     Q_OBJECT
+
 public:
-    DiagnosisItemBase(CamcopsApp& app, DatabaseManager& db,
-                      const QString& tablename,
-                      const QString& fkname,
-                      int load_pk = dbconst::NONEXISTENT_PK);
-    DiagnosisItemBase(int owner_fk,
-                      CamcopsApp& app, DatabaseManager& db,
-                      const QString& tablename,
-                      const QString& fkname);
+    DiagnosisItemBase(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        const QString& tablename,
+        const QString& fkname,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
+    DiagnosisItemBase(
+        int owner_fk,
+        CamcopsApp& app,
+        DatabaseManager& db,
+        const QString& tablename,
+        const QString& fkname
+    );
     void setSeqnum(int seqnum);
     int seqnum() const;
     QString code() const;
     QString description() const;
     QString comment() const;
     bool isEmpty() const;
+
 public:
     static const QString SEQNUM;
     static const QString CODE;
     static const QString DESCRIPTION;
     static const QString COMMENT;
+
 protected:
     const QString m_fkname;
 };

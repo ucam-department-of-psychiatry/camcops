@@ -23,6 +23,7 @@
 #include <QSlider>
 #include <QStyle>
 #include <QStyleOptionSlider>
+
 #include "common/uiconst.h"
 #include "lib/margins.h"
 
@@ -30,11 +31,10 @@ class QHoverEvent;
 class QKeyEvent;
 class QMouseEvent;
 
-
 // Slider with tick marks/labels.
 //
 // Tick marks vanish on a styled QSlider. So:
-// http://stackoverflow.com/questions/27531542/tick-marks-disappear-on-styled-qslider
+// http://stackoverflow.com/questions/27531542/
 // ... and then modification including labels, and making it work with
 // vertical sliders.
 
@@ -109,17 +109,23 @@ class TickSlider : public QWidget
     // ========================================================================
     // Public interface
     // ========================================================================
+
 public:
     // Create a TickSlider with the default (vertical) orientation.
     // - groove_margin_px is the width of the margin of the slider's groove, in
     //   pixels. (We can't read this, so we need to be told.)
     // - Note that default arguments are evaluated at call time. Good C++.
-    TickSlider(QWidget* parent = nullptr,
-               int groove_margin_px = uiconst::SLIDER_GROOVE_MARGIN_PX);
+    TickSlider(
+        QWidget* parent = nullptr,
+        int groove_margin_px = uiconst::SLIDER_GROOVE_MARGIN_PX
+    );
 
     // Create a TickSlider, specifying the orientation.
-    TickSlider(Qt::Orientation orientation, QWidget* parent = nullptr,
-               int groove_margin_px = uiconst::SLIDER_GROOVE_MARGIN_PX);
+    TickSlider(
+        Qt::Orientation orientation,
+        QWidget* parent = nullptr,
+        int groove_margin_px = uiconst::SLIDER_GROOVE_MARGIN_PX
+    );
 
     // Set the tick colour.
     virtual void setTickColor(const QColor& colour);
@@ -169,8 +175,9 @@ public:
     // - Convenience function that calls setAbsoluteLengthPx().
     // - Use this to say "make the slider exactly 10cm".
     // - Beware on small screens! Suggest setting can_shrink to true.
-    virtual void setAbsoluteLengthCm(qreal abs_length_cm, qreal dpi,
-                                     bool can_shrink = true);
+    virtual void setAbsoluteLengthCm(
+        qreal abs_length_cm, qreal dpi, bool can_shrink = true
+    );
 
     // Standard QWidget size hint.
     virtual QSize sizeHint() const override;
@@ -205,53 +212,134 @@ public:
     // ========================================================================
     // Passing on calls to/from our slider
     // ========================================================================
-public:
 
+public:
     // ------------------------------------------------------------------------
     // From QAbstractSlider (q.v.):
     // ------------------------------------------------------------------------
 
-    Qt::Orientation orientation() const { return m_slider.orientation(); }
+    Qt::Orientation orientation() const
+    {
+        return m_slider.orientation();
+    }
 
-    void setMinimum(int minimum) { m_slider.setMinimum(minimum); }
-    int minimum() const { return m_slider.minimum(); }
+    void setMinimum(int minimum)
+    {
+        m_slider.setMinimum(minimum);
+    }
 
-    void setMaximum(int maximum) { m_slider.setMaximum(maximum); }
-    int maximum() const { return m_slider.maximum(); }
+    int minimum() const
+    {
+        return m_slider.minimum();
+    }
 
-    void setSingleStep(int step) { m_slider.setSingleStep(step); }
-    int singleStep() const { return m_slider.singleStep(); }
+    void setMaximum(int maximum)
+    {
+        m_slider.setMaximum(maximum);
+    }
 
-    void setPageStep(int step) { m_slider.setPageStep(step); }
-    int pageStep() const { return m_slider.pageStep(); }
+    int maximum() const
+    {
+        return m_slider.maximum();
+    }
 
-    void setTracking(bool enable) { m_slider.setTracking(enable); }
-    bool hasTracking() const { return m_slider.hasTracking(); }
+    void setSingleStep(int step)
+    {
+        m_slider.setSingleStep(step);
+    }
 
-    void setSliderDown(bool down) { m_slider.setSliderDown(down); }
-    bool isSliderDown() const { return m_slider.isSliderDown(); }
+    int singleStep() const
+    {
+        return m_slider.singleStep();
+    }
 
-    void setSliderPosition(int pos) { m_slider.setSliderPosition(pos); }
-    int sliderPosition() const { return m_slider.sliderPosition(); }
+    void setPageStep(int step)
+    {
+        m_slider.setPageStep(step);
+    }
+
+    int pageStep() const
+    {
+        return m_slider.pageStep();
+    }
+
+    void setTracking(bool enable)
+    {
+        m_slider.setTracking(enable);
+    }
+
+    bool hasTracking() const
+    {
+        return m_slider.hasTracking();
+    }
+
+    void setSliderDown(bool down)
+    {
+        m_slider.setSliderDown(down);
+    }
+
+    bool isSliderDown() const
+    {
+        return m_slider.isSliderDown();
+    }
+
+    void setSliderPosition(int pos)
+    {
+        m_slider.setSliderPosition(pos);
+    }
+
+    int sliderPosition() const
+    {
+        return m_slider.sliderPosition();
+    }
 
     // Reverse the direction of the slider.
     // Default is left (low) -> right (high), and bottom (low) -> top (high).
-    void setInvertedAppearance(bool inverted) { m_slider.setInvertedAppearance(inverted); }
-    bool invertedAppearance() const { return m_slider.invertedAppearance(); }
+    void setInvertedAppearance(bool inverted)
+    {
+        m_slider.setInvertedAppearance(inverted);
+    }
+
+    bool invertedAppearance() const
+    {
+        return m_slider.invertedAppearance();
+    }
 
     // Reverse the behaviour of key/mouse wheel events.
     // See https://doc.qt.io/qt-6.5/qabstractslider.html
-    void setInvertedControls(bool inverted) { m_slider.setInvertedControls(inverted); }
-    bool invertedControls() const { return m_slider.invertedControls(); }
+    void setInvertedControls(bool inverted)
+    {
+        m_slider.setInvertedControls(inverted);
+    }
 
-    int value() const { return m_slider.value(); }
+    bool invertedControls() const
+    {
+        return m_slider.invertedControls();
+    }
 
-    void triggerAction(QSlider::SliderAction action) { m_slider.triggerAction(action); }
+    int value() const
+    {
+        return m_slider.value();
+    }
+
+    void triggerAction(QSlider::SliderAction action)
+    {
+        m_slider.triggerAction(action);
+    }
 
 public slots:
-    void setValue(int value) { m_slider.setValue(value); }
+
+    void setValue(int value)
+    {
+        m_slider.setValue(value);
+    }
+
     void setOrientation(Qt::Orientation orientation);
-    void setRange(int min, int max) { m_slider.setRange(min, max); }
+
+    void setRange(int min, int max)
+    {
+        m_slider.setRange(min, max);
+    }
 
 signals:
     void valueChanged(int value);
@@ -267,20 +355,33 @@ signals:
     // ------------------------------------------------------------------------
     // From QSlider (q.v.):
     // ------------------------------------------------------------------------
+
 public:
+    void setTickPosition(QSlider::TickPosition pos)
+    {
+        m_slider.setTickPosition(pos);
+    }
 
-    void setTickPosition(QSlider::TickPosition pos) { m_slider.setTickPosition(pos); }
-    QSlider::TickPosition tickPosition() const { return m_slider.tickPosition();}
+    QSlider::TickPosition tickPosition() const
+    {
+        return m_slider.tickPosition();
+    }
 
-    void setTickInterval(int ti) { m_slider.setTickInterval(ti); }
-    int tickInterval() const { return m_slider.tickInterval(); }
+    void setTickInterval(int ti)
+    {
+        m_slider.setTickInterval(ti);
+    }
+
+    int tickInterval() const
+    {
+        return m_slider.tickInterval();
+    }
 
     // ========================================================================
     // Our internals
     // ========================================================================
 
 protected:
-
     // Get the size of the biggest label (more accurately, a size that will
     // hold all our labels).
     QSize maxLabelSize() const;
@@ -297,8 +398,11 @@ protected:
     double getDrawingProportion(int value) const;
 
     // Tick position (vertical or horizontal) along the slider.
-    int getTickPos(double drawing_proportion, int active_groove_start,
-                   int active_groove_extent) const;
+    int getTickPos(
+        double drawing_proportion,
+        int active_groove_start,
+        int active_groove_extent
+    ) const;
 
     // The extent to which labels "overspill" the boundaries of the slider
     // (in the direction along its length.)
@@ -339,7 +443,8 @@ protected:
     // this via sizeHint() or minimumSizeHint()!
     QSize sliderSizeWithHandle(bool minimum_size) const;
 
-    // Expand a starting "slider" size to the size required by the whole widget.
+    // Expand a starting "slider" size to the size required by the whole
+    // widget.
     QSize wholeWidgetSize(const QSize& slider_size) const;
 
     // Event handlers
@@ -357,17 +462,22 @@ protected:
     QColor m_tick_colour;  // tick colour
     int m_tick_thickness;  // tick thickness (parallel to slider)
     int m_tick_length;  // tick length (perpendicular to slider)
-    int m_tick_label_gap;  // gap between ticks and labels (perpendicular to slider)
-    int m_min_interlabel_gap;  // minimum gap between labels (parallel to slider)
+    int m_tick_label_gap;
+    // ... gap between ticks and labels (perpendicular to slider)
+    int m_min_interlabel_gap;
+    // ... minimum gap between labels (parallel to slider)
     int m_gap_to_slider;  // gap adjacent to slider (to ticks or labels)
     QSlider::TickPosition m_label_position;  // labels left/right/both (etc.)
-    QMap<int, QString> m_tick_labels;  // maps from slider position to label text
+    QMap<int, QString> m_tick_labels;
+    // ... maps from slider position to label text
     bool m_edge_in_extreme_labels;  // see setEdgeInExtremeLabels()
     bool m_symmetric_overspill;  // see setSymmetricOverspill()
-    int m_slider_target_length_px;  // absolute target length; <=0 means don't use this
+    int m_slider_target_length_px;
+    // ... absolute target length; <=0 means don't use this
     bool m_absolute_size_can_shrink;
-        // ... if an absolute length is set, can we shrink smaller if we have
-        // to? May be preferable on physically small screens.
+    // ... if an absolute length is set, can we shrink smaller if we have
+    // to? May be preferable on physically small screens.
     mutable bool m_is_overspill_cached;  // is m_cached_overspill valid?
-    mutable Margins m_cached_overspill;  // cached margins for overspill; see setSymmetricOverspill()
+    mutable Margins m_cached_overspill;
+    // ... cached margins for overspill; see setSymmetricOverspill()
 };

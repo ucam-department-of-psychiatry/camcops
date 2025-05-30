@@ -110,7 +110,7 @@ def spawn(cmdargs: List[str]) -> None:
 
     See
     https://stackoverflow.com/questions/1196074/how-to-start-a-background-process-in-python
-    """  # noqa
+    """
     subprocess.Popen(cmdargs, close_fds=True)
 
 
@@ -171,7 +171,7 @@ def gen_files_with_ext(directory: str, ext: str) -> Iterable[str]:
 
     See e.g.
     https://stackoverflow.com/questions/3964681/find-all-files-in-a-directory-with-extension-txt-in-python
-    """  # noqa
+    """
     for root, dirs, files in os.walk(directory):
         for filename in files:
             if filename.endswith(ext):
@@ -228,7 +228,7 @@ def report_missing_translations() -> int:
 def main() -> None:
     """
     Create translation files for the CamCOPS client.
-    """  # noqa
+    """
     # noinspection PyTypeChecker
     parser = argparse.ArgumentParser(
         description=f"""

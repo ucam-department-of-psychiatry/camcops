@@ -21,13 +21,13 @@
 #pragma once
 
 #include <QList>
+
 #include "db/fieldref.h"
 #include "questionnairelib/quelement.h"
 #include "questionnairelib/quthermometeritem.h"
 #include "widgets/thermometer.h"
 
 class ImageButton;
-
 
 class QuThermometer : public QuElement
 {
@@ -41,29 +41,35 @@ class QuThermometer : public QuElement
     // It's recommended to disable scrolling for pages using one of these.
 
     Q_OBJECT
-public:
 
+public:
     // Constructors
-    QuThermometer(FieldRefPtr fieldref,
-                  const QVector<QuThermometerItem>& items,
-                  QObject* parent = nullptr);
-    QuThermometer(FieldRefPtr fieldref,
-                  std::initializer_list<QuThermometerItem> items,
-                  QObject* parent = nullptr);
+    QuThermometer(
+        FieldRefPtr fieldref,
+        const QVector<QuThermometerItem>& items,
+        QObject* parent = nullptr
+    );
+    QuThermometer(
+        FieldRefPtr fieldref,
+        std::initializer_list<QuThermometerItem> items,
+        QObject* parent = nullptr
+    );
 
     // Rescale the thermometer? (That is, alter its maximum display size?)
     //
     // - rescale: rescale images or not?
     // - rescale_factor: scale factor relative to original images
     // - adjust_for_dpi: additionally adjust for DPI?
-    QuThermometer* setRescale(bool rescale, double rescale_factor = 1.0,
-                              bool adjust_for_dpi = true);
+    QuThermometer* setRescale(
+        bool rescale, double rescale_factor = 1.0, bool adjust_for_dpi = true
+    );
 
 protected:
     // Sets the widget state from our fieldref.
     void setFromField();
 
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
+    ) override;
     virtual FieldRefPtrList fieldrefs() const override;
 
     // Convert value (see QuThermometerItem) to zero-based index.
@@ -74,7 +80,8 @@ protected:
 
 protected slots:
     // "User has selected a new part of the thermometer."
-    void thermometerSelectionChanged(int thermometer_index);  // top-to-bottom index
+    void thermometerSelectionChanged(int thermometer_index);
+    // ... top-to-bottom index
 
     // "The field's data has changed."
     void fieldValueChanged(const FieldRef* fieldref);

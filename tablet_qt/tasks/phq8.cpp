@@ -19,10 +19,11 @@
 */
 
 #include "phq8.h"
+
 #include "common/textconst.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
@@ -41,23 +42,24 @@ const QString QPREFIX(QStringLiteral("q"));
 
 const QString Phq8::PHQ8_TABLENAME(QStringLiteral("phq8"));
 
-
 void initializePhq8(TaskFactory& factory)
 {
     static TaskRegistrar<Phq8> registered(factory);
 }
 
-
-Phq8::Phq8(CamcopsApp& app, DatabaseManager& db, const int load_pk,
-           QObject* parent) :
-    Task(app, db, PHQ8_TABLENAME, false, false, false, parent),  // ... anon, clin, resp
+Phq8::Phq8(
+    CamcopsApp& app, DatabaseManager& db, const int load_pk, QObject* parent
+) :
+    Task(app, db, PHQ8_TABLENAME, false, false, false, parent),
+    // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
+    );
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -68,18 +70,15 @@ QString Phq8::shortname() const
     return QStringLiteral("PHQ-8");
 }
 
-
 QString Phq8::longname() const
 {
     return tr("Patient Health Questionnaire 8-item depression scale");
 }
 
-
 QString Phq8::description() const
 {
     return tr("Self-scoring of 8 depressive symptoms from DSM-IV.");
 }
-
 
 // ============================================================================
 // Instance info
@@ -93,12 +92,10 @@ bool Phq8::isComplete() const
     return true;
 }
 
-
 QStringList Phq8::summary() const
 {
     return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
-
 
 QStringList Phq8::detail() const
 {
@@ -133,17 +130,20 @@ QStringList Phq8::detail() const
         QStringLiteral("q"),
         QStringLiteral("_s"),
         spacer,
-        QPREFIX, FIRST_Q, N_QUESTIONS
+        QPREFIX,
+        FIRST_Q,
+        N_QUESTIONS
     );
     lines.append(QString());
     lines += summary();
     lines.append(QString());
     lines.append(xstring(QStringLiteral("mds")) + spacer + bold(yesNo(mds)));
     lines.append(xstring(QStringLiteral("ods")) + spacer + bold(yesNo(ods)));
-    lines.append(xstring(QStringLiteral("depression_severity")) + spacer + bold(sev));
+    lines.append(
+        xstring(QStringLiteral("depression_severity")) + spacer + bold(sev)
+    );
     return lines;
 }
-
 
 OpenableWidget* Phq8::editor(const bool read_only)
 {
@@ -154,22 +154,49 @@ OpenableWidget* Phq8::editor(const bool read_only)
         {xstring(QStringLiteral("a3")), 3},
     };
 
-    QuPagePtr page((new QuPage{
-        (new QuText(xstring(QStringLiteral("stem"))))->setBold(true),
-        new QuMcqGrid(
-            {
-                QuestionWithOneField(xstring(QStringLiteral("q1")), fieldRef(QStringLiteral("q1"))),
-                QuestionWithOneField(xstring(QStringLiteral("q2")), fieldRef(QStringLiteral("q2"))),
-                QuestionWithOneField(xstring(QStringLiteral("q3")), fieldRef(QStringLiteral("q3"))),
-                QuestionWithOneField(xstring(QStringLiteral("q4")), fieldRef(QStringLiteral("q4"))),
-                QuestionWithOneField(xstring(QStringLiteral("q5")), fieldRef(QStringLiteral("q5"))),
-                QuestionWithOneField(xstring(QStringLiteral("q6")), fieldRef(QStringLiteral("q6"))),
-                QuestionWithOneField(xstring(QStringLiteral("q7")), fieldRef(QStringLiteral("q7"))),
-                QuestionWithOneField(xstring(QStringLiteral("q8")), fieldRef(QStringLiteral("q8"))),
-            },
-            options_q1_9
-        ),
-    })->setTitle(xstring(QStringLiteral("title_main"))));
+    QuPagePtr page(
+        (new QuPage{
+             (new QuText(xstring(QStringLiteral("stem"))))->setBold(true),
+             new QuMcqGrid(
+                 {
+                     QuestionWithOneField(
+                         xstring(QStringLiteral("q1")),
+                         fieldRef(QStringLiteral("q1"))
+                     ),
+                     QuestionWithOneField(
+                         xstring(QStringLiteral("q2")),
+                         fieldRef(QStringLiteral("q2"))
+                     ),
+                     QuestionWithOneField(
+                         xstring(QStringLiteral("q3")),
+                         fieldRef(QStringLiteral("q3"))
+                     ),
+                     QuestionWithOneField(
+                         xstring(QStringLiteral("q4")),
+                         fieldRef(QStringLiteral("q4"))
+                     ),
+                     QuestionWithOneField(
+                         xstring(QStringLiteral("q5")),
+                         fieldRef(QStringLiteral("q5"))
+                     ),
+                     QuestionWithOneField(
+                         xstring(QStringLiteral("q6")),
+                         fieldRef(QStringLiteral("q6"))
+                     ),
+                     QuestionWithOneField(
+                         xstring(QStringLiteral("q7")),
+                         fieldRef(QStringLiteral("q7"))
+                     ),
+                     QuestionWithOneField(
+                         xstring(QStringLiteral("q8")),
+                         fieldRef(QStringLiteral("q8"))
+                     ),
+                 },
+                 options_q1_9
+             ),
+         })
+            ->setTitle(xstring(QStringLiteral("title_main")))
+    );
 
     m_questionnaire = new Questionnaire(m_app, {page});
     m_questionnaire->setType(QuPage::PageType::Patient);
@@ -177,7 +204,6 @@ OpenableWidget* Phq8::editor(const bool read_only)
 
     return m_questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations
@@ -187,7 +213,6 @@ int Phq8::totalScore() const
 {
     return sumInt(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
-
 
 int Phq8::nCoreSymptoms() const
 {
@@ -201,7 +226,6 @@ int Phq8::nCoreSymptoms() const
     return n;
 }
 
-
 int Phq8::nOtherSymptoms() const
 {
     int n = 0;
@@ -214,7 +238,6 @@ int Phq8::nOtherSymptoms() const
     return n;
 }
 
-
 QString Phq8::severity(const int score)
 {
     // Kroenke et al. (2009) PMID 18752852, p166:
@@ -222,9 +245,17 @@ QString Phq8::severity(const int score)
     // standard PHQ-8 severity intervals (0–4, 5–9, 10–14, 15–19, and
     // 20–24)..."
 
-    if (score >= 20) return TextConst::severe();
-    if (score >= 15) return TextConst::moderatelySevere();
-    if (score >= 10) return TextConst::moderate();
-    if (score >=  5) return TextConst::mild();
+    if (score >= 20) {
+        return TextConst::severe();
+    }
+    if (score >= 15) {
+        return TextConst::moderatelySevere();
+    }
+    if (score >= 10) {
+        return TextConst::moderate();
+    }
+    if (score >= 5) {
+        return TextConst::mild();
+    }
     return TextConst::none();
 }

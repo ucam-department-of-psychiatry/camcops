@@ -19,23 +19,21 @@
 */
 
 #include "pclc.h"
+
 #include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
 
 const QString PclC::PCLC_TABLENAME("pclc");
-
 
 void initializePclC(TaskFactory& factory)
 {
     static TaskRegistrar<PclC> registered(factory);
 }
 
-
 PclC::PclC(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     PclCommon(app, db, PCLC_TABLENAME, "c", false, load_pk)
 {
 }
-
 
 // ============================================================================
 // Class info
@@ -45,7 +43,6 @@ QString PclC::shortname() const
 {
     return "PCL-C";
 }
-
 
 QString PclC::longname() const
 {

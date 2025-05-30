@@ -19,8 +19,9 @@
 */
 
 #include "smast.h"
-#include "maths/mathfunc.h"
+
 #include "lib/stringfunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcqgrid.h"
@@ -42,7 +43,6 @@ const QVector<int> REVERSE_SCORED_Q{1, 4, 5};
 
 const QString Smast::SMAST_TABLENAME("smast");
 
-
 void initializeSmast(TaskFactory& factory)
 {
     static TaskRegistrar<Smast> registered(factory);
@@ -50,13 +50,15 @@ void initializeSmast(TaskFactory& factory)
 
 
 Smast::Smast(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, SMAST_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, SMAST_TABLENAME, false, false, false)
+// ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<QString>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<QString>()
+    );
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -67,24 +69,20 @@ QString Smast::shortname() const
     return "SMAST";
 }
 
-
 QString Smast::longname() const
 {
     return tr("Short Michigan Alcohol Screening Test");
 }
-
 
 QString Smast::description() const
 {
     return tr("13-item Y/N self-report scale.");
 }
 
-
 QString Smast::infoFilenameStem() const
 {
     return "mast";
 }
-
 
 // ============================================================================
 // Instance info
@@ -95,28 +93,28 @@ bool Smast::isComplete() const
     return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
 
-
 QStringList Smast::summary() const
 {
     return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
 
-
 QStringList Smast::detail() const
 {
     const int total = totalScore();
-    const QString likelihood =
-            total >= 3 ? xstring("problem_probable")
-                       : (total >= 2 ? xstring("problem_possible")
-                                     : xstring("problem_unlikely"));
+    const QString likelihood = total >= 3
+        ? xstring("problem_probable")
+        : (total >= 2 ? xstring("problem_possible")
+                      : xstring("problem_unlikely"));
     const QString scores = ", " + xstring("scores") + " ";
 
     QStringList lines = completenessInfo();
     for (int q = FIRST_Q; q <= N_QUESTIONS; ++q) {
-        lines.append(fieldSummary(strnum(QPREFIX, q),
-                                  xstring(strnum("q", q, "_s")),
-                                  " ") +
-                     scores + bold(QString::number(score(q))));
+        lines.append(
+            fieldSummary(
+                strnum(QPREFIX, q), xstring(strnum("q", q, "_s")), " "
+            )
+            + scores + bold(QString::number(score(q)))
+        );
     }
     lines.append("");
     lines += summary();
@@ -125,13 +123,13 @@ QStringList Smast::detail() const
     return lines;
 }
 
-
 OpenableWidget* Smast::editor(const bool read_only)
 {
     QVector<QuestionWithOneField> qfields;
     for (int i = FIRST_Q; i <= N_QUESTIONS; ++i) {
-        qfields.append(QuestionWithOneField(xstring(strnum("q", i)),
-                                            fieldRef(strnum(QPREFIX, i))));
+        qfields.append(QuestionWithOneField(
+            xstring(strnum("q", i)), fieldRef(strnum(QPREFIX, i))
+        ));
     }
     const QVector<McqGridSubtitle> sub{
         {5, ""},
@@ -140,16 +138,17 @@ OpenableWidget* Smast::editor(const bool read_only)
     };
 
     QuPagePtr page((new QuPage{
-        new QuText(xstring("stem")),
-        (new QuMcqGrid(qfields, CommonOptions::yesNoChar()))->setSubtitles(sub),
-    })->setTitle(xstring("title")));
+                        new QuText(xstring("stem")),
+                        (new QuMcqGrid(qfields, CommonOptions::yesNoChar()))
+                            ->setSubtitles(sub),
+                    })
+                       ->setTitle(xstring("title")));
 
     auto questionnaire = new Questionnaire(m_app, {page});
     questionnaire->setType(QuPage::PageType::Patient);
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations
@@ -167,7 +166,6 @@ int Smast::score(const int question) const
     }
     return yes ? 1 : 0;
 }
-
 
 int Smast::totalScore() const
 {

@@ -19,8 +19,9 @@
 */
 
 #include "hamd.h"
-#include "maths/mathfunc.h"
+
 #include "lib/stringfunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
@@ -40,44 +41,29 @@ const QString QPREFIX("q");
 const QString WHICH_Q16("whichq16");
 const QString Q16A("q16a");
 const QString Q16B("q16b");
-struct HamdQInfo {
+
+struct HamdQInfo
+{
     QString name;
     int n_options;
     bool mandatory;
 };
-const QVector<HamdQInfo> QLIST{
-    {"q1", 5, true},
-    {"q2", 5, true},
-    {"q3", 5, true},
-    {"q4", 3, true},
-    {"q5", 3, true},
-    {"q6", 3, true},
-    {"q7", 5, true},
-    {"q8", 5, true},
-    {"q9", 5, true},
-    {"q10", 5, true},
-    {"q11", 5, true},
-    {"q12", 3, true},
-    {"q13", 3, true},
-    {"q14", 3, true},
-    {"q15", 5, true},
-    {WHICH_Q16, 2, true},
-    {Q16A, 4, true},
-    {Q16B, 4, true},
-    {"q17", 3, true},
-    {"q18a", 3, false},
-    {"q18b", 3, false},
-    {"q19", 5, false},
-    {"q20", 4, false},
-    {"q21", 3, false},
-};
 
+const QVector<HamdQInfo> QLIST{
+    {"q1", 5, true},      {"q2", 5, true},    {"q3", 5, true},
+    {"q4", 3, true},      {"q5", 3, true},    {"q6", 3, true},
+    {"q7", 5, true},      {"q8", 5, true},    {"q9", 5, true},
+    {"q10", 5, true},     {"q11", 5, true},   {"q12", 3, true},
+    {"q13", 3, true},     {"q14", 3, true},   {"q15", 5, true},
+    {WHICH_Q16, 2, true}, {Q16A, 4, true},    {Q16B, 4, true},
+    {"q17", 3, true},     {"q18a", 3, false}, {"q18b", 3, false},
+    {"q19", 5, false},    {"q20", 4, false},  {"q21", 3, false},
+};
 
 void initializeHamD(TaskFactory& factory)
 {
     static TaskRegistrar<HamD> registered(factory);
 }
-
 
 HamD::HamD(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, HAMD_TABLENAME, false, true, false),  // ... anon, clin, resp
@@ -90,7 +76,6 @@ HamD::HamD(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
 
-
 // ============================================================================
 // Class info
 // ============================================================================
@@ -100,19 +85,18 @@ QString HamD::shortname() const
     return "HAM-D";
 }
 
-
 QString HamD::longname() const
 {
     return tr("Hamilton Depression Rating Scale [HDRS/HAM-D/HRSD]");
 }
 
-
 QString HamD::description() const
 {
-    return tr("21-item professional-administered depression scale commonly "
-              "used for monitoring and research.");
+    return tr(
+        "21-item professional-administered depression scale commonly "
+        "used for monitoring and research."
+    );
 }
-
 
 // ============================================================================
 // Instance info
@@ -137,27 +121,21 @@ bool HamD::isComplete() const
     return true;
 }
 
-
 QStringList HamD::summary() const
 {
     return QStringList{
-        scorePhrase(xstring("total_score"), totalScore(), MAX_QUESTION_SCORE)
-    };
+        scorePhrase(xstring("total_score"), totalScore(), MAX_QUESTION_SCORE)};
 }
-
 
 QStringList HamD::detail() const
 {
     const int score = totalScore();
-    const QString severity =
-            score > 23
-            ? xstring("severity_verysevere")
-            : (score >= 19
-               ? xstring("severity_severe")
-               : (score >= 14
-                  ? xstring("severity_moderate")
-                  : score >= 8 ? xstring("severity_mild")
-                               : xstring("severity_none")));
+    const QString severity = score > 23
+        ? xstring("severity_verysevere")
+        : (score >= 19 ? xstring("severity_severe")
+                       : (score >= 14      ? xstring("severity_moderate")
+                              : score >= 8 ? xstring("severity_mild")
+                                           : xstring("severity_none")));
     QStringList lines = completenessInfo();
     for (auto info : QLIST) {
         lines.append(fieldSummary(info.name, xstring(info.name + "_s"), " "));
@@ -168,7 +146,6 @@ QStringList HamD::detail() const
     return lines;
 }
 
-
 OpenableWidget* HamD::editor(const bool read_only)
 {
     QVector<QuPagePtr> pages;
@@ -176,16 +153,22 @@ OpenableWidget* HamD::editor(const bool read_only)
     auto addpage = [this, &pages](const HamdQInfo& info) -> void {
         NameValueOptions options;
         for (int i = 0; i < info.n_options; ++i) {
-            const QString name = xstring(QString("%1_option%2").arg(info.name).arg(i));
+            const QString name
+                = xstring(QString("%1_option%2").arg(info.name).arg(i));
             options.append(NameValuePair(name, i));
         }
         const QString pagetitle = xstring(QString("%1_title").arg(info.name));
-        const QString question = xstring(QString("%1_question").arg(info.name));
+        const QString question
+            = xstring(QString("%1_question").arg(info.name));
         const QString fieldname = info.name;
-        QuPagePtr page((new QuPage{
-            new QuText(question),
-            new QuMcq(fieldRef(fieldname, info.mandatory), options),
-        })->setTitle(pagetitle)->addTag(info.name));
+        QuPagePtr page(
+            (new QuPage{
+                 new QuText(question),
+                 new QuMcq(fieldRef(fieldname, info.mandatory), options),
+             })
+                ->setTitle(pagetitle)
+                ->addTag(info.name)
+        );
         pages.append(page);
     };
 
@@ -194,15 +177,18 @@ OpenableWidget* HamD::editor(const bool read_only)
         addpage(info);
     }
 
-    connect(fieldRef(WHICH_Q16).data(), &FieldRef::valueChanged,
-            this, &HamD::chooseWeightPage);
+    connect(
+        fieldRef(WHICH_Q16).data(),
+        &FieldRef::valueChanged,
+        this,
+        &HamD::chooseWeightPage
+    );
 
     m_questionnaire = new Questionnaire(m_app, pages);
     m_questionnaire->setType(QuPage::PageType::Clinician);
     m_questionnaire->setReadOnly(read_only);
     return m_questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations
@@ -216,7 +202,6 @@ QString HamD::whichWeightVar(const bool other) const
     }
     return valueInt(WHICH_Q16) == 0 ? Q16A : Q16B;
 }
-
 
 int HamD::totalScore() const
 {
@@ -236,7 +221,6 @@ int HamD::totalScore() const
     }
     return total;
 }
-
 
 // ============================================================================
 // Signal handlers

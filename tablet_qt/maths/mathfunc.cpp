@@ -21,9 +21,11 @@
 // #define DEBUG_GEOMETRIC_MEAN
 
 #include "mathfunc.h"
-#include <QtMath>  // for e.g. qSqrt()
+
 #include <QObject>
 #include <QString>
+#include <QtMath>  // for e.g. qSqrt()
+
 #include "common/textconst.h"
 #include "lib/convert.h"
 #include "maths/floatingpoint.h"
@@ -52,7 +54,6 @@ bool rangesOverlap(qreal a0, qreal a1, qreal b0, qreal b1)
     return true;
 }
 
-
 bool nearlyEqual(const qreal x, const qreal y)
 {
     // LESS GOOD: return qFuzzyIsNull(x - y);
@@ -61,7 +62,6 @@ bool nearlyEqual(const qreal x, const qreal y)
     FloatingPoint<qreal> fy(y);
     return fx.AlmostEquals(fy);
 }
-
 
 QVariant meanOrNull(const QVector<QVariant>& values, const bool ignore_null)
 {
@@ -85,7 +85,6 @@ QVariant meanOrNull(const QVector<QVariant>& values, const bool ignore_null)
     return total / n;
 }
 
-
 QVariant sumOrNull(const QVector<QVariant>& values, const bool ignore_null)
 {
     double total = 0;
@@ -103,12 +102,10 @@ QVariant sumOrNull(const QVector<QVariant>& values, const bool ignore_null)
     return total;
 }
 
-
 qreal mean(const qreal a, const qreal b)
 {
     return (a + b) / 2;
 }
-
 
 int centile(const qreal x, const qreal minimum, const qreal maximum)
 {
@@ -117,9 +114,9 @@ int centile(const qreal x, const qreal minimum, const qreal maximum)
     if (!qIsFinite(centile)) {
         return -1;
     }
-    return static_cast<int>(centile);  // truncates to int, which is what we want
+    return static_cast<int>(centile);
+    // ... truncates to int, which is what we want
 }
-
 
 double kahanSum(const QVector<double>& vec)
 {
@@ -180,58 +177,58 @@ double geometricMean(const QVector<double>& data)
     // running total (m * 2 ^ ex) by each part -- or at least, adds to the
     // running exponent total and returns the mantissa part (which the caller
     // then uses to alter m).
-    auto doBucket = [&data, &ex](const int first, const int last) -> double
-    {
+    auto doBucket = [&data, &ex](const int first, const int last) -> double {
         double ans = 1.0;
         int exponent;
         for (int i = first; i != last; ++i) {
-#ifdef DEBUG_GEOMETRIC_MEAN
+    #ifdef DEBUG_GEOMETRIC_MEAN
             const double old_ex = ex;
             const double old_ans = ans;
-#endif
+    #endif
             ans *= std::frexp(data[i], &exponent);
             // See https://en.cppreference.com/w/cpp/numeric/math/frexp.
             // It decomposes its first argument into a normalized fraction
             // (return value) and an integral power of two. For example,
             // maps 123.45 to 0.964453 * 2^7.
             ex += exponent;
-#ifdef DEBUG_GEOMETRIC_MEAN
+    #ifdef DEBUG_GEOMETRIC_MEAN
             qDebug() << "doBucket: ex:" << old_ex << "->" << ex;
             qDebug() << "doBucket: ans:" << old_ans << "->" << ans;
-#endif
+    #endif
         }
-#ifdef DEBUG_GEOMETRIC_MEAN
+    #ifdef DEBUG_GEOMETRIC_MEAN
         qDebug() << "doBucket: returning ans =" << ans;
-#endif
+    #endif
         return ans;
     };
 
     // bucket_size = -log2(smallest double), i.e. a high positive number
     // See https://en.cppreference.com/w/cpp/types/numeric_limits
     const std::size_t bucket_size_t = static_cast<std::size_t>(
-                -std::log2(std::numeric_limits<double>::min()));
+        -std::log2(std::numeric_limits<double>::min())
+    );
     const int bucket_size = static_cast<int>(bucket_size_t);
     // Number of complete buckets
     const int n_buckets = n / bucket_size;  // integer division
 
     // Do all complete buckets
     for (int i = 0; i < n_buckets; ++i) {
-#ifdef DEBUG_GEOMETRIC_MEAN
+    #ifdef DEBUG_GEOMETRIC_MEAN
         const double old_m = m;
-#endif
+    #endif
         m *= std::pow(doBucket(i * bucket_size, (i + 1) * bucket_size), inv_n);
-#ifdef DEBUG_GEOMETRIC_MEAN
+    #ifdef DEBUG_GEOMETRIC_MEAN
         qDebug() << "m:" << old_m << "->" << m;
-#endif
+    #endif
     }
     // Finish off any residual elements
-#ifdef DEBUG_GEOMETRIC_MEAN
+    #ifdef DEBUG_GEOMETRIC_MEAN
     const double old_m = m;
-#endif
+    #endif
     m *= std::pow(doBucket(n_buckets * bucket_size, n), inv_n);
-#ifdef DEBUG_GEOMETRIC_MEAN
+    #ifdef DEBUG_GEOMETRIC_MEAN
     qDebug() << "m:" << old_m << "->" << m;
-#endif
+    #endif
 
     const int radix = std::numeric_limits<double>::radix;
     // QUESTION: will this function still work if radix is not 2, given that
@@ -241,19 +238,15 @@ double geometricMean(const QVector<double>& data)
     // m * 2 ^ ex. We want to raise that to the power 1/n, so we use
     // m * 2 ^ (ex * [1/n]).
     const double result = std::pow(radix, ex * inv_n) * m;
-#ifdef DEBUG_GEOMETRIC_MEAN
-    qDebug().nospace()
-            << "data = " << data
-            << ", n = " << n
-            << ", inv_n = " << inv_n
-            << ", bucket_size_t = " << bucket_size_t
-            << ", bucket_size = " << bucket_size
-            << ", n_buckets = " << n_buckets
-            << ", radix = " << radix
-            << ", m = " << m
-            << ", ex = " << ex
-            << ", result = " << result;
-#endif
+    #ifdef DEBUG_GEOMETRIC_MEAN
+    qDebug().nospace() << "data = " << data << ", n = " << n
+                       << ", inv_n = " << inv_n
+                       << ", bucket_size_t = " << bucket_size_t
+                       << ", bucket_size = " << bucket_size
+                       << ", n_buckets = " << n_buckets
+                       << ", radix = " << radix << ", m = " << m
+                       << ", ex = " << ex << ", result = " << result;
+    #endif
     return result;
 }
 
@@ -275,7 +268,6 @@ int sumInt(const QVector<QVariant>& values)
     return total;
 }
 
-
 double sumDouble(const QVector<QVariant>& values)
 {
     double total = 0;
@@ -287,7 +279,6 @@ double sumDouble(const QVector<QVariant>& values)
     return total;
 }
 
-
 bool falseNotNull(const QVariant& value)
 {
     if (value.isNull() || value.toBool()) {  // null or true
@@ -295,7 +286,6 @@ bool falseNotNull(const QVariant& value)
     }
     return true;
 }
-
 
 bool allTrue(const QVector<QVariant>& values)
 {
@@ -309,7 +299,6 @@ bool allTrue(const QVector<QVariant>& values)
     return true;
 }
 
-
 bool anyTrue(const QVector<QVariant>& values)
 {
     const int length = values.length();
@@ -322,12 +311,10 @@ bool anyTrue(const QVector<QVariant>& values)
     return false;
 }
 
-
 bool allFalseOrNull(const QVector<QVariant>& values)
 {
     return !anyTrue(values);
 }
-
 
 bool allFalse(const QVector<QVariant>& values)
 {
@@ -341,8 +328,7 @@ bool allFalse(const QVector<QVariant>& values)
     return true;
 }
 
-
-bool anyFalse(const QVector<QVariant> &values)
+bool anyFalse(const QVector<QVariant>& values)
 {
     const int length = values.length();
     for (int i = 0; i < length; ++i) {
@@ -353,7 +339,6 @@ bool anyFalse(const QVector<QVariant> &values)
     }
     return false;
 }
-
 
 bool anyNull(const QVector<QVariant>& values)
 {
@@ -367,7 +352,6 @@ bool anyNull(const QVector<QVariant>& values)
     return false;
 }
 
-
 bool allNull(const QVector<QVariant>& values)
 {
     const int length = values.length();
@@ -380,12 +364,10 @@ bool allNull(const QVector<QVariant>& values)
     return true;
 }
 
-
 bool noneNull(const QVector<QVariant>& values)
 {
     return !anyNull(values);
 }
-
 
 bool anyNullOrEmpty(const QVector<QVariant>& values)
 {
@@ -399,12 +381,10 @@ bool anyNullOrEmpty(const QVector<QVariant>& values)
     return false;
 }
 
-
 bool noneNullOrEmpty(const QVector<QVariant>& values)
 {
     return !anyNullOrEmpty(values);
 }
-
 
 int countTrue(const QVector<QVariant>& values)
 {
@@ -419,7 +399,6 @@ int countTrue(const QVector<QVariant>& values)
     return n;
 }
 
-
 int countFalse(const QVector<QVariant>& values)
 {
     int n = 0;
@@ -432,7 +411,6 @@ int countFalse(const QVector<QVariant>& values)
     }
     return n;
 }
-
 
 int countNull(const QVector<QVariant>& values)
 {
@@ -447,7 +425,6 @@ int countNull(const QVector<QVariant>& values)
     return n;
 }
 
-
 int countNotNull(const QVector<QVariant>& values)
 {
     int n = 0;
@@ -461,31 +438,26 @@ int countNotNull(const QVector<QVariant>& values)
     return n;
 }
 
-
 bool eq(const QVariant& x, const int test)
 {
     // SQL principle: NULL is not equal to anything
     return !x.isNull() && x.toInt() == test;
 }
 
-
 bool eq(const QVariant& x, const bool test)
 {
     return !x.isNull() && x.toBool() == test;
 }
-
 
 bool eqOrNull(const QVariant& x, const int test)
 {
     return x.isNull() || x.toInt() != test;
 }
 
-
 bool eqOrNull(const QVariant& x, const bool test)
 {
     return x.isNull() || x.toBool() != test;
 }
-
 
 bool containsRespectingNull(const QVector<QVariant>& v, const QVariant& x)
 {
@@ -502,9 +474,9 @@ bool containsRespectingNull(const QVector<QVariant>& v, const QVariant& x)
     return false;  // none the same
 }
 
-
-int countWhere(const QVector<QVariant>& test_values,
-               const QVector<QVariant>& where_values)
+int countWhere(
+    const QVector<QVariant>& test_values, const QVector<QVariant>& where_values
+)
 {
     int n = 0;
     const int length = test_values.length();
@@ -517,9 +489,10 @@ int countWhere(const QVector<QVariant>& test_values,
     return n;
 }
 
-
-int countWhereNot(const QVector<QVariant>& test_values,
-                  const QVector<QVariant>& where_not_values)
+int countWhereNot(
+    const QVector<QVariant>& test_values,
+    const QVector<QVariant>& where_not_values
+)
 {
     int n = 0;
     const int length = test_values.length();
@@ -532,24 +505,22 @@ int countWhereNot(const QVector<QVariant>& test_values,
     return n;
 }
 
-
 // ============================================================================
 // Functions for scoring
 // ============================================================================
 
-QString percent(const double numerator,
-                const double denominator,
-                const int dp)
+QString percent(const double numerator, const double denominator, const int dp)
 {
     const double pct = 100 * numerator / denominator;
     return convert::toDp(pct, dp) + "%";
 }
 
-
-QString scoreString(const int numerator,
-                    const int denominator,
-                    const bool show_percent,
-                    const int dp)
+QString scoreString(
+    const int numerator,
+    const int denominator,
+    const bool show_percent,
+    const int dp
+)
 {
     QString result = QString("<b>%1</b>/%2").arg(numerator).arg(denominator);
     if (show_percent) {
@@ -558,97 +529,122 @@ QString scoreString(const int numerator,
     return result;
 }
 
-
-QString scoreString(const double numerator,
-                    const int denominator,
-                    const bool show_percent,
-                    const int dp)
+QString scoreString(
+    const double numerator,
+    const int denominator,
+    const bool show_percent,
+    const int dp
+)
 {
     QString result = QString("<b>%1</b>/%2")
-            .arg(convert::toDp(numerator, dp))
-            .arg(denominator);
+                         .arg(convert::toDp(numerator, dp))
+                         .arg(denominator);
     if (show_percent) {
         result += " (" + percent(numerator, denominator, dp) + ")";
     }
     return result;
 }
 
-
-QString scoreStringVariant(const QVariant& numerator, const int denominator,
-                           const bool show_percent, const int dp)
+QString scoreStringVariant(
+    const QVariant& numerator,
+    const int denominator,
+    const bool show_percent,
+    const int dp
+)
 {
     QString result = QString("<b>%1</b>/%2")
-            .arg(convert::prettyValue(numerator, dp))
-            .arg(denominator);
+                         .arg(convert::prettyValue(numerator, dp))
+                         .arg(denominator);
     if (show_percent) {
         result += " (" + percent(numerator.toDouble(), denominator, dp) + ")";
     }
     return result;
 }
 
-
-QString scoreStringWithPercent(const int numerator,
-                               const int denominator,
-                               const int dp)
+QString scoreStringWithPercent(
+    const int numerator, const int denominator, const int dp
+)
 {
     return scoreString(numerator, denominator, true, dp);
 }
 
-
-QString scorePhrase(const QString& description,
-                    const int numerator, const int denominator,
-                    const QString& separator, const QString& suffix)
+QString scorePhrase(
+    const QString& description,
+    const int numerator,
+    const int denominator,
+    const QString& separator,
+    const QString& suffix
+)
 {
     return QString("%1%2%3%4")
-            .arg(description,
-                 separator,
-                 scoreString(numerator, denominator, false),
-                 suffix);
+        .arg(
+            description,
+            separator,
+            scoreString(numerator, denominator, false),
+            suffix
+        );
 }
 
-
-QString scorePhrase(const QString& description,
-                    const double numerator, const int denominator,
-                    const QString& separator, const QString& suffix,
-                    const int dp)
+QString scorePhrase(
+    const QString& description,
+    const double numerator,
+    const int denominator,
+    const QString& separator,
+    const QString& suffix,
+    const int dp
+)
 {
     return QString("%1%2%3%4")
-            .arg(description,
-                 separator,
-                 scoreString(numerator, denominator, false, dp),
-                 suffix);
+        .arg(
+            description,
+            separator,
+            scoreString(numerator, denominator, false, dp),
+            suffix
+        );
 }
 
-
-QString scorePhraseVariant(const QString& description,
-                           const QVariant& numerator, const int denominator,
-                           const QString& separator, const QString& suffix,
-                           const int dp)
+QString scorePhraseVariant(
+    const QString& description,
+    const QVariant& numerator,
+    const int denominator,
+    const QString& separator,
+    const QString& suffix,
+    const int dp
+)
 {
     return QString("%1%2%3%4")
-            .arg(description,
-                 separator,
-                 scoreStringVariant(numerator, denominator, false, dp),
-                 suffix);
+        .arg(
+            description,
+            separator,
+            scoreStringVariant(numerator, denominator, false, dp),
+            suffix
+        );
 }
 
-
-QString totalScorePhrase(const int numerator, const int denominator,
-                         const QString& separator, const QString& suffix)
+QString totalScorePhrase(
+    const int numerator,
+    const int denominator,
+    const QString& separator,
+    const QString& suffix
+)
 {
-    return scorePhrase(TextConst::totalScore(), numerator, denominator,
-                       separator, suffix);
+    return scorePhrase(
+        TextConst::totalScore(), numerator, denominator, separator, suffix
+    );
 }
 
-
-QString totalScorePhrase(const double numerator, const int denominator,
-                         const QString& separator, const QString& suffix,
-                         const int dp)
+QString totalScorePhrase(
+    const double numerator,
+    const int denominator,
+    const QString& separator,
+    const QString& suffix,
+    const int dp
+)
 {
-    return scorePhrase(TextConst::totalScore(), numerator, denominator,
-                       separator, suffix, dp);
+    return scorePhrase(
+        TextConst::totalScore(), numerator, denominator, separator, suffix, dp
+    );
 }
-
 
 // ============================================================================
 // Sequence and range generation
@@ -659,22 +655,22 @@ QVector<int> range(const int start, const int end)
     return seq(start, end - 1, 1);
 }
 
-
 QVector<int> range(const int n)
 {
     // returns 0 to n-1 inclusive
     return range(0, n);
 }
 
-
 // ============================================================================
 // Range description (cosmetic)
 // ============================================================================
 
-QString describeAsRanges(QVector<int> numbers,
-                         const QString& element_prefix,
-                         const QString& element_separator,
-                         const QString& range_separator)
+QString describeAsRanges(
+    QVector<int> numbers,
+    const QString& element_prefix,
+    const QString& element_separator,
+    const QString& range_separator
+)
 {
     // Converts e.g. 1, 2, 3, 5, 6, 7, 10 to "1-3, 5-7, 10"
     std::sort(numbers.begin(), numbers.end());
@@ -692,8 +688,7 @@ QString describeAsRanges(QVector<int> numbers,
                 result += element_separator;
             }
             result += element_prefix + QString::number(current);
-        }
-        else if (i != 0 && current == previous + 1) {
+        } else if (i != 0 && current == previous + 1) {
             // Current number is the continuation of a range. Don't print it.
             in_range = true;
         } else {
@@ -701,8 +696,9 @@ QString describeAsRanges(QVector<int> numbers,
             // number. Print it somehow.
             if (in_range) {
                 // Finishing a previous range.
-                result += range_separator + element_prefix + QString::number(previous)
-                        + element_separator + element_prefix + QString::number(current);
+                result += range_separator + element_prefix
+                    + QString::number(previous) + element_separator
+                    + element_prefix + QString::number(current);
                 in_range = false;
             } else {
                 // Starting a new standalone number (or the start of a range).
@@ -741,14 +737,12 @@ QVector<qreal> distribute(const int n, qreal minimum, qreal maximum)
     return posts;
 }
 
-
 QPair<int, int> gridDimensions(const int n, const qreal aspect)
 {
     const int y = qCeil(qSqrt(n / aspect));
     const int x = qCeil(n / y);
     return QPair<int, int>(x, y);
 }
-
 
 // ============================================================================
 // Numerical conversions
@@ -761,13 +755,11 @@ int proportionToByte(const qreal proportion)
     return qBound(0, a, 255);
 }
 
-
 qreal byteToProportion(const int byte)
 {
     // convert 0-255 to 0.0-1.0
     return qBound(0, byte, 255) / 255.0;
 }
-
 
 int proportionToIntPercent(const qreal proportion)
 {
@@ -776,13 +768,11 @@ int proportionToIntPercent(const qreal proportion)
     return qBound(0, a, 100);
 }
 
-
 qreal intPercentToProportion(const int percent)
 {
     // convert 0-100 to 0.0-1.0
     return qBound(0, percent, 100) / 100.0;
 }
-
 
 QStringList testMaths()
 {
@@ -800,10 +790,12 @@ QStringList testMaths()
         const double correct_a = pair.second;
         const double a = geometricMean(q);
         const bool ok = qFuzzyCompare(a, correct_a);
-        lines.append(QString("geometricMean(%1) -> %2 [%3]").arg(
-                         convert::numericVectorToCsvString(q),
-                         QString::number(a),
-                         ok ? QObject::tr("true") : QObject::tr("WRONG")));
+        lines.append(QString("geometricMean(%1) -> %2 [%3]")
+                         .arg(
+                             convert::numericVectorToCsvString(q),
+                             QString::number(a),
+                             ok ? QObject::tr("true") : QObject::tr("WRONG")
+                         ));
     }
 
     return lines;

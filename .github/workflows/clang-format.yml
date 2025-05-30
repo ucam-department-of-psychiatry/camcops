@@ -1,0 +1,35 @@
+---
+# yamllint disable rule:line-length
+name: Run clang-format
+# yamllint disable-line rule:truthy
+on:
+    push:
+        paths:
+            - '**.cpp'
+            - '**.h'
+            - .github/scripts/python_setup.sh
+            - .github/workflows/clang-format.yml
+            - tablet_qt/tools/clang_format_camcops.py
+
+jobs:
+    run-clang-format:
+        runs-on: ubuntu-22.04
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: 3.9
+
+            - name: Install virtualenv
+              run: |
+                  set -eux -o pipefail
+                  ${GITHUB_WORKSPACE}/.github/scripts/python_setup.sh
+
+            - name: Run clang-format
+              run: |
+                  set -eux -o pipefail
+                  PYTHON=${HOME}/venv/bin/python
+                  which clang-format-15
+                  which clang-format
+                  ${PYTHON} ${GITHUB_WORKSPACE}/tablet_qt/tools/clang_format_camcops.py findlongcomments --ignore_urls
+                  ${PYTHON} ${GITHUB_WORKSPACE}/tablet_qt/tools/clang_format_camcops.py check

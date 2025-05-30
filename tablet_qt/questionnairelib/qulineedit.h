@@ -20,12 +20,12 @@
 
 #pragma once
 #include <QLineEdit>  // for EchoMode
+
 #include "db/fieldref.h"
 #include "questionnairelib/quelement.h"
 
 class FocusWatcher;
 class QLineEdit;
-
 
 class QuLineEdit : public QuElement
 {
@@ -33,6 +33,7 @@ class QuLineEdit : public QuElement
     // (For a bigger version, see QuTextEdit.)
 
     Q_OBJECT
+
 public:
     // Constructor
     QuLineEdit(FieldRefPtr fieldref, QObject* parent = nullptr);
@@ -48,7 +49,8 @@ protected:
     // "Update our contents from the data in our field."
     virtual void setFromField();
 
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
+    ) override;
     virtual FieldRefPtrList fieldrefs() const override;
 
     // Called from makeWidget(). Does nothing here; override to specialize.
@@ -69,8 +71,9 @@ protected slots:
     virtual void widgetTextChangedAndValid();
 
     // "The field's data has changed."
-    virtual void fieldValueChanged(const FieldRef* fieldref,
-                                   const QObject* originator = nullptr);
+    virtual void fieldValueChanged(
+        const FieldRef* fieldref, const QObject* originator = nullptr
+    );
 
     // "The widget has gained or lost focus."
     virtual void widgetFocusChanged(bool in);

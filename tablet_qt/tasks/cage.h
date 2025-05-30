@@ -20,6 +20,7 @@
 
 #pragma once
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -28,13 +29,16 @@ class TaskFactory;
 
 void initializeCage(TaskFactory& factory);
 
-
 class Cage : public Task
 {
     Q_OBJECT
+
 public:
-    Cage(CamcopsApp& app, DatabaseManager& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
+    Cage(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -53,6 +57,7 @@ public:
     // ------------------------------------------------------------------------
     int totalScore() const;
     int score(const QVariant& value) const;
+
 public:
     static const QString CAGE_TABLENAME;
 };

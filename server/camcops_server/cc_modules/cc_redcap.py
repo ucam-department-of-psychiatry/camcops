@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """camcops_server/cc_modules/cc_redcap.py
 
 ===============================================================================
@@ -437,7 +435,7 @@ class RedcapTaskExporter(object):
             recipient:
                 an
                 :class:`camcops_server.cc_modules.cc_exportmodels.ExportRecipient`
-        """  # noqa
+        """
         fieldmap = RedcapFieldmap(self.get_fieldmap_filename(recipient))
 
         return fieldmap
@@ -452,7 +450,7 @@ class RedcapTaskExporter(object):
             recipient:
                 an
                 :class:`camcops_server.cc_modules.cc_exportmodels.ExportRecipient`
-        """  # noqa
+        """
         filename = recipient.redcap_fieldmap_filename
         if filename is None:
             raise RedcapExportException(

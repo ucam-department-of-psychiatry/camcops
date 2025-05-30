@@ -21,14 +21,19 @@
 // #define DEBUG_SIGNALS
 
 #include "quspinboxdouble.h"
+
 #include <QDoubleSpinBox>
+
 #include "lib/widgetfunc.h"
 #include "questionnaire.h"
 
-
-QuSpinBoxDouble::QuSpinBoxDouble(FieldRefPtr fieldref, const double minimum,
-                                 const double maximum, const int decimals,
-                                 QObject* parent) :
+QuSpinBoxDouble::QuSpinBoxDouble(
+    FieldRefPtr fieldref,
+    const double minimum,
+    const double maximum,
+    const int decimals,
+    QObject* parent
+) :
     QuElement(parent),
     m_fieldref(fieldref),
     m_minimum(minimum),
@@ -36,12 +41,19 @@ QuSpinBoxDouble::QuSpinBoxDouble(FieldRefPtr fieldref, const double minimum,
     m_decimals(decimals)
 {
     Q_ASSERT(m_fieldref);
-    connect(m_fieldref.data(), &FieldRef::valueChanged,
-            this, &QuSpinBoxDouble::fieldValueChanged);
-    connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
-            this, &QuSpinBoxDouble::fieldValueChanged);
+    connect(
+        m_fieldref.data(),
+        &FieldRef::valueChanged,
+        this,
+        &QuSpinBoxDouble::fieldValueChanged
+    );
+    connect(
+        m_fieldref.data(),
+        &FieldRef::mandatoryChanged,
+        this,
+        &QuSpinBoxDouble::fieldValueChanged
+    );
 }
-
 
 void QuSpinBoxDouble::setFromField()
 {
@@ -49,7 +61,6 @@ void QuSpinBoxDouble::setFromField()
     // special; pretend "it didn't come from us" to disable the efficiency
     // check in fieldValueChanged
 }
-
 
 QPointer<QWidget> QuSpinBoxDouble::makeWidget(Questionnaire* questionnaire)
 {
@@ -59,7 +70,8 @@ QPointer<QWidget> QuSpinBoxDouble::makeWidget(Questionnaire* questionnaire)
     m_spinbox->setDecimals(m_decimals);
     m_spinbox->setRange(m_minimum, m_maximum);
     m_spinbox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    m_spinbox->setMinimumHeight(uiconst::g_min_spinbox_height);  // room for spin arrows
+    m_spinbox->setMinimumHeight(uiconst::g_min_spinbox_height);
+    // ... room for spin arrows
     m_spinbox->setButtonSymbols(uiconst::SPINBOX_SYMBOLS);
     m_spinbox->setInputMethodHints(Qt::ImhFormattedNumbersOnly);
 
@@ -69,46 +81,54 @@ QPointer<QWidget> QuSpinBoxDouble::makeWidget(Questionnaire* questionnaire)
     // type..."
     // Disambiguate like this:
     if (!read_only) {
-        void (QDoubleSpinBox::*vc_sig_dbl)(double) = &QDoubleSpinBox::valueChanged;
-        connect(m_spinbox.data(), vc_sig_dbl,
-                this, &QuSpinBoxDouble::widgetValueChanged);
+        void (QDoubleSpinBox::*vc_sig_dbl)(double)
+            = &QDoubleSpinBox::valueChanged;
+        connect(
+            m_spinbox.data(),
+            vc_sig_dbl,
+            this,
+            &QuSpinBoxDouble::widgetValueChanged
+        );
 #ifdef DEBUG_SIGNALS
-        void (QDoubleSpinBox::*vc_sig_str)(const QString&) = &QDoubleSpinBox::valueChanged;
-        connect(m_spinbox.data(), vc_sig_str,
-                this, &QuSpinBoxDouble::widgetValueChangedString);
+        void (QDoubleSpinBox::*vc_sig_str)(const QString&)
+            = &QDoubleSpinBox::valueChanged;
+        connect(
+            m_spinbox.data(),
+            vc_sig_str,
+            this,
+            &QuSpinBoxDouble::widgetValueChangedString
+        );
 #endif
     }
     setFromField();
     return QPointer<QWidget>(m_spinbox);
 }
 
-
 FieldRefPtrList QuSpinBoxDouble::fieldrefs() const
 {
     return FieldRefPtrList{m_fieldref};
 }
-
 
 void QuSpinBoxDouble::widgetValueChanged(const double value)
 {
 #ifdef DEBUG_SIGNALS
     qDebug() << Q_FUNC_INFO << value;
 #endif
-    const bool changed = m_fieldref->setValue(value, this);  // Will trigger valueChanged
+    const bool changed = m_fieldref->setValue(value, this);
+    // ... Will trigger valueChanged
     if (changed) {
         emit elementValueChanged();
     }
 }
-
 
 void QuSpinBoxDouble::widgetValueChangedString(const QString& text)
 {
     qDebug() << Q_FUNC_INFO << text;
 }
 
-
-void QuSpinBoxDouble::fieldValueChanged(const FieldRef* fieldref,
-                                        const QObject* originator)
+void QuSpinBoxDouble::fieldValueChanged(
+    const FieldRef* fieldref, const QObject* originator
+)
 {
     if (!m_spinbox) {
         return;

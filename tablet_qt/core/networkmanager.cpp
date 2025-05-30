@@ -26,6 +26,7 @@
 #define USE_BACKGROUND_DATABASE
 
 #include "networkmanager.h"
+
 #include <functional>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -35,22 +36,23 @@
 #include <QSqlQuery>
 #include <QtGlobal>
 #include <QtNetwork/QNetworkAccessManager>
-#include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkReply>
+#include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QSslConfiguration>
 #include <QUrl>
 #include <QUrlQuery>
+
 #include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "common/varconst.h"
 #include "core/camcopsapp.h"
 #include "db/databasemanager.h"
 #include "db/dbfunc.h"
 #include "db/dbnestabletransaction.h"
+#include "dbobjects/blob.h"
 #include "dbobjects/idnumdescription.h"
 #include "dbobjects/patientidnum.h"
-#include "dialogs/passwordentrydialog.h"
 #include "dialogs/logbox.h"
-#include "dbobjects/blob.h"
+#include "dialogs/passwordentrydialog.h"
 #include "lib/containers.h"
 #include "lib/convert.h"
 #include "lib/datetime.h"
@@ -73,22 +75,25 @@ const QString KEY_DBDATA("dbdata");  // C->S, new in v2.3.0
 const QString KEY_DEVICE("device");  // C->S
 const QString KEY_DEVICE_FRIENDLY_NAME("devicefriendlyname");  // C->S
 const QString KEY_ERROR("error");  // S->C
-const QString KEY_FIELDS("fields");    // B; fieldnames
+const QString KEY_FIELDS("fields");  // B; fieldnames
 const QString KEY_FINALIZING("finalizing");  // C->S, in JSON, v2.3.0
 const QString KEY_ID_POLICY_UPLOAD("idPolicyUpload");  // S->C
 const QString KEY_ID_POLICY_FINALIZE("idPolicyFinalize");  // S->C
 const QString KEY_IP_USE_INFO("ip_use_info");  // S->C, new in v2.4.0
-const QString KEY_IP_USE_COMMERCIAL("ip_use_commercial");  // S->C, new in v2.4.0
+const QString KEY_IP_USE_COMMERCIAL("ip_use_commercial");
+// ... S->C, new in v2.4.0
 const QString KEY_IP_USE_CLINICAL("ip_use_clinical");  // S->C, new in v2.4.0
-const QString KEY_IP_USE_EDUCATIONAL("ip_use_educational");  // S->C, new in v2.4.0
+const QString KEY_IP_USE_EDUCATIONAL("ip_use_educational");
+// ... S->C, new in v2.4.0
 const QString KEY_IP_USE_RESEARCH("ip_use_research");  // S->C, new in v2.4.0
-const QString KEY_MOVE_OFF_TABLET_VALUES("move_off_tablet_values");  // C->S, v2.3.0
+const QString KEY_MOVE_OFF_TABLET_VALUES("move_off_tablet_values");
+// ... C->S, v2.3.0
 const QString KEY_NFIELDS("nfields");  // B
 const QString KEY_NRECORDS("nrecords");  // B
 const QString KEY_OPERATION("operation");  // C->S
 const QString KEY_PASSWORD("password");  // C->S
 const QString KEY_PATIENT_INFO("patient_info");  // C->S, new in v2.3.0
-const QString KEY_PATIENT_PROQUINT("patient_proquint"); // C->S, new in v2.4.0
+const QString KEY_PATIENT_PROQUINT("patient_proquint");  // C->S, new in v2.4.0
 const QString KEY_PKNAME("pkname");  // C->S
 const QString KEY_PKNAMEINFO("pknameinfo");  // C->S
 const QString KEY_PKVALUES("pkvalues");  // C->S
@@ -106,9 +111,14 @@ const QString KEY_VALUES("values");  // C->S
 const QString KEYPREFIX_ID_DESCRIPTION("idDescription");  // S->C
 const QString KEYSPEC_ID_DESCRIPTION(KEYPREFIX_ID_DESCRIPTION + "%1");  // S->C
 const QString KEYPREFIX_ID_SHORT_DESCRIPTION("idShortDescription");  // S->C
-const QString KEYSPEC_ID_SHORT_DESCRIPTION(KEYPREFIX_ID_SHORT_DESCRIPTION + "%1");  // S->C
-const QString KEYPREFIX_ID_VALIDATION_METHOD("idValidationMethod");  // S->C, new in v2.2.8
-const QString KEYSPEC_ID_VALIDATION_METHOD(KEYPREFIX_ID_VALIDATION_METHOD + "%1");  // S->C, new in v2.2.8
+const QString
+    KEYSPEC_ID_SHORT_DESCRIPTION(KEYPREFIX_ID_SHORT_DESCRIPTION + "%1");
+// ... S->C
+const QString KEYPREFIX_ID_VALIDATION_METHOD("idValidationMethod");
+// ... S->C, new in v2.2.8
+const QString
+    KEYSPEC_ID_VALIDATION_METHOD(KEYPREFIX_ID_VALIDATION_METHOD + "%1");
+// ... S->C, new in v2.2.8
 const QString KEYSPEC_RECORD("record%1");  // B
 
 // Operations for server:
@@ -137,7 +147,6 @@ const Version MIN_SERVER_VERSION_FOR_ONE_STEP_UPLOAD("2.3.0");
 const QString ENCODE_TRUE("1");
 const QString ENCODE_FALSE("0");
 
-
 // ============================================================================
 // NetworkManager
 // ============================================================================
@@ -160,10 +169,12 @@ const QString ENCODE_FALSE("0");
 //   this class, and then we don't have to worry about lifetime problems.
 
 
-NetworkManager::NetworkManager(CamcopsApp& app,
-                               DatabaseManager& db,
-                               TaskFactoryPtr p_task_factory,
-                               QWidget* parent) :
+NetworkManager::NetworkManager(
+    CamcopsApp& app,
+    DatabaseManager& db,
+    TaskFactoryPtr p_task_factory,
+    QWidget* parent
+) :
     m_app(app),
     m_db(db),
     m_p_task_factory(p_task_factory),
@@ -182,12 +193,10 @@ NetworkManager::NetworkManager(CamcopsApp& app,
 {
 }
 
-
 NetworkManager::~NetworkManager()
 {
     deleteLogBox();
 }
-
 
 // ============================================================================
 // User interface
@@ -201,17 +210,25 @@ void NetworkManager::ensureLogBox() const
 #endif
         m_logbox = new LogBox(m_parent, m_title, m_offer_cancel);
         m_logbox->setStyleSheet(
-                    m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_MAIN));
-        connect(m_logbox.data(), &LogBox::accepted,
-                this, &NetworkManager::logboxFinished,
-                Qt::UniqueConnection);
-        connect(m_logbox.data(), &LogBox::rejected,
-                this, &NetworkManager::logboxCancelled,
-                Qt::UniqueConnection);
+            m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_MAIN)
+        );
+        connect(
+            m_logbox.data(),
+            &LogBox::accepted,
+            this,
+            &NetworkManager::logboxFinished,
+            Qt::UniqueConnection
+        );
+        connect(
+            m_logbox.data(),
+            &LogBox::rejected,
+            this,
+            &NetworkManager::logboxCancelled,
+            Qt::UniqueConnection
+        );
         m_logbox->open();
     }
 }
-
 
 void NetworkManager::deleteLogBox()
 {
@@ -222,24 +239,20 @@ void NetworkManager::deleteLogBox()
     m_logbox = nullptr;
 }
 
-
 void NetworkManager::enableLogging()
 {
     m_silent = false;
 }
-
 
 void NetworkManager::disableLogging()
 {
     m_silent = true;
 }
 
-
 bool NetworkManager::isLogging() const
 {
     return !m_silent;
 }
-
 
 void NetworkManager::setTitle(const QString& title)
 {
@@ -248,7 +261,6 @@ void NetworkManager::setTitle(const QString& title)
         m_logbox->setWindowTitle(title);
     }
 }
-
 
 void NetworkManager::statusMessage(const QString& msg) const
 {
@@ -261,9 +273,9 @@ void NetworkManager::statusMessage(const QString& msg) const
     }
     ensureLogBox();
     m_logbox->statusMessage(
-                QString("%1: %2").arg(datetime::nowTimestamp(), msg));
+        QString("%1: %2").arg(datetime::nowTimestamp(), msg)
+    );
 }
-
 
 void NetworkManager::htmlStatusMessage(const QString& html) const
 {
@@ -277,7 +289,6 @@ void NetworkManager::htmlStatusMessage(const QString& html) const
     m_logbox->statusMessage(html, true);
 }
 
-
 void NetworkManager::logboxCancelled()
 {
     // User has hit cancel
@@ -288,7 +299,6 @@ void NetworkManager::logboxCancelled()
     deleteLogBox();
     emit cancelled(ErrorCode::NoError, QString());
 }
-
 
 void NetworkManager::logboxFinished()
 {
@@ -301,7 +311,6 @@ void NetworkManager::logboxFinished()
     emit finished();
 }
 
-
 // ============================================================================
 // Basic connection management
 // ============================================================================
@@ -311,12 +320,13 @@ void NetworkManager::disconnectManager()
     m_mgr->disconnect();
 }
 
-
-QNetworkRequest NetworkManager::createRequest(const QUrl& url,
-                                              const bool offer_cancel,
-                                              const bool ssl,
-                                              const bool ignore_ssl_errors,
-                                              QSsl::SslProtocol ssl_protocol)
+QNetworkRequest NetworkManager::createRequest(
+    const QUrl& url,
+    const bool offer_cancel,
+    const bool ssl,
+    const bool ignore_ssl_errors,
+    QSsl::SslProtocol ssl_protocol
+)
 {
     // Clear any previous callbacks
     disconnectManager();
@@ -327,11 +337,9 @@ QNetworkRequest NetworkManager::createRequest(const QUrl& url,
 
 #ifdef DEBUG_NETWORK_REQUESTS
     qDebug().nospace().noquote()
-            << Q_FUNC_INFO
-            << ": offer_cancel=" << offer_cancel
-            << ", ssl=" << ssl
-            << ", ignore_ssl_errors=" << ignore_ssl_errors
-            << ", ssl_protocol=" << convert::describeSslProtocol(ssl_protocol);
+        << Q_FUNC_INFO << ": offer_cancel=" << offer_cancel << ", ssl=" << ssl
+        << ", ignore_ssl_errors=" << ignore_ssl_errors
+        << ", ssl_protocol=" << convert::describeSslProtocol(ssl_protocol);
 #endif
 
     if (ssl) {
@@ -343,11 +351,15 @@ QNetworkRequest NetworkManager::createRequest(const QUrl& url,
         request.setSslConfiguration(config);
         if (ignore_ssl_errors) {
             QObject::connect(
-                        m_mgr, &QNetworkAccessManager::sslErrors,
-                        std::bind(&NetworkManager::sslIgnoringErrorHandler,
-                                  this, std::placeholders::_1,
-                                  std::placeholders::_2));
-
+                m_mgr,
+                &QNetworkAccessManager::sslErrors,
+                std::bind(
+                    &NetworkManager::sslIgnoringErrorHandler,
+                    this,
+                    std::placeholders::_1,
+                    std::placeholders::_2
+                )
+            );
         }
     }
 
@@ -357,13 +369,13 @@ QNetworkRequest NetworkManager::createRequest(const QUrl& url,
     return request;
 }
 
-
 QUrl NetworkManager::serverUrl(bool& success) const
 {
     QUrl url;
 #ifdef DEBUG_OFFER_HTTP_TO_SERVER
-    url.setScheme(m_app.varBool(varconst::DEBUG_USE_HTTPS_TO_SERVER) ? "https"
-                                                                     : "http");
+    url.setScheme(
+        m_app.varBool(varconst::DEBUG_USE_HTTPS_TO_SERVER) ? "https" : "http"
+    );
 #else
     url.setScheme("https");
 #endif
@@ -378,7 +390,6 @@ QUrl NetworkManager::serverUrl(bool& success) const
     return url;
 }
 
-
 QString NetworkManager::serverUrlDisplayString() const
 {
     bool success = false;  // we don't care about the result
@@ -387,22 +398,23 @@ QString NetworkManager::serverUrlDisplayString() const
     return str;
 }
 
-
 QNetworkRequest NetworkManager::createServerRequest(bool& success)
 {
     QSsl::SslProtocol ssl_protocol = convert::sslProtocolFromDescription(
-                m_app.varString(varconst::SSL_PROTOCOL));
+        m_app.varString(varconst::SSL_PROTOCOL)
+    );
     return createRequest(
-                serverUrl(success),
-                true,  // always offer cancel
-                true,  // always use SSL
-                !m_app.validateSslCertificates(),  // ignore SSL errors?
-                ssl_protocol);
+        serverUrl(success),
+        true,  // always offer cancel
+        true,  // always use SSL
+        !m_app.validateSslCertificates(),  // ignore SSL errors?
+        ssl_protocol
+    );
 }
 
-
-void NetworkManager::serverPost(Dict dict, ReplyFuncPtr reply_func,
-                                const bool include_user)
+void NetworkManager::serverPost(
+    Dict dict, ReplyFuncPtr reply_func, const bool include_user
+)
 {
     // Request (URL, SSL, etc.).
     bool success = true;
@@ -414,14 +426,20 @@ void NetworkManager::serverPost(Dict dict, ReplyFuncPtr reply_func,
     }
 
     // Complete the dictionary
-    // dict[KEY_CAMCOPS_VERSION] = camcopsversion::CAMCOPS_VERSION.toFloatString();  // outdated
-    dict[KEY_CAMCOPS_VERSION] = camcopsversion::CAMCOPS_CLIENT_VERSION.toString();  // server copes as of v2.0.0
+    //      dict[KEY_CAMCOPS_VERSION] =
+    //          camcopsversion::CAMCOPS_VERSION.toFloatString();
+    // ... outdated
+    dict[KEY_CAMCOPS_VERSION]
+        = camcopsversion::CAMCOPS_CLIENT_VERSION.toString();
+    // ... server copes as of v2.0.0
     dict[KEY_DEVICE] = m_app.deviceId();
     if (include_user) {
         QString user = m_app.varString(varconst::SERVER_USERNAME);
         if (user.isEmpty()) {
-            statusMessage(tr("User information required but you have not yet "
-                             "specified it; see Settings"));
+            statusMessage(
+                tr("User information required but you have not yet "
+                   "specified it; see Settings")
+            );
             fail();
             return;
         }
@@ -444,14 +462,17 @@ void NetworkManager::serverPost(Dict dict, ReplyFuncPtr reply_func,
     m_reply_dict.clear();
 
     // Connect up the reply signals
-    QObject::connect(m_mgr, &QNetworkAccessManager::finished,
-                     this, reply_func);
+    QObject::connect(
+        m_mgr, &QNetworkAccessManager::finished, this, reply_func
+    );
 
     // Send the request
     const QUrlQuery postdata = convert::getPostDataAsUrlQuery(dict);
-    request.setHeader(QNetworkRequest::ContentTypeHeader,
-                      "application/x-www-form-urlencoded");
-    const QByteArray final_data = postdata.toString(QUrl::FullyEncoded).toUtf8();
+    request.setHeader(
+        QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded"
+    );
+    const QByteArray final_data
+        = postdata.toString(QUrl::FullyEncoded).toUtf8();
     // See discussion of encoding in Convert::getPostDataAsUrlQuery
 #ifdef DEBUG_NETWORK_REQUESTS
     qDebug() << "Request to server: " << final_data;
@@ -459,7 +480,6 @@ void NetworkManager::serverPost(Dict dict, ReplyFuncPtr reply_func,
     statusMessage(tr("... sending ") + sizeBytes(final_data.length()));
     m_mgr->post(request, final_data);
 }
-
 
 bool NetworkManager::processServerReply(QNetworkReply* reply)
 {
@@ -484,13 +504,16 @@ bool NetworkManager::processServerReply(QNetworkReply* reply)
     qInfo() << "Network reply (dictionary): " << m_reply_dict;
 #endif
     if (!replyFormatCorrect()) {
-        statusMessage(tr(
-            "Reply is not from CamCOPS API. Are your server settings "
-            "misconfigured? Reply is below."));
+        statusMessage(
+            tr("Reply is not from CamCOPS API. Are your server settings "
+               "misconfigured? Reply is below.")
+        );
         htmlStatusMessage(convert::getReplyString(m_reply_data));
-        fail(ErrorCode::IncorrectReplyFormat,
-             tr("Reply is not from CamCOPS API. Are your server settings "
-                "misconfigured?"));
+        fail(
+            ErrorCode::IncorrectReplyFormat,
+            tr("Reply is not from CamCOPS API. Are your server settings "
+               "misconfigured?")
+        );
         return false;
     }
     m_tmp_session_id = m_reply_dict[KEY_SESSION_ID];
@@ -500,15 +523,14 @@ bool NetworkManager::processServerReply(QNetworkReply* reply)
     }
     // If the server's reporting success=0, it should provide an
     // error too:
-    statusMessage(tr("Server reported an error: ") +
-                  m_reply_dict[KEY_ERROR]);
+    statusMessage(tr("Server reported an error: ") + m_reply_dict[KEY_ERROR]);
     fail(ErrorCode::ServerError, QString(m_reply_dict[KEY_ERROR]));
     return false;
 }
 
-
 NetworkManager::ErrorCode NetworkManager::convertQtNetworkCode(
-    const QNetworkReply::NetworkError error_code)
+    const QNetworkReply::NetworkError error_code
+)
 {
     Q_UNUSED(error_code)
 
@@ -518,36 +540,32 @@ NetworkManager::ErrorCode NetworkManager::convertQtNetworkCode(
     return NetworkManager::GenericNetworkError;
 }
 
-
 QString NetworkManager::sizeBytes(const qint64 size) const
 {
     return convert::prettySize(size, true, false, true, "bytes");
 }
 
-
 bool NetworkManager::replyFormatCorrect() const
 {
     // Characteristics of a reply that has come from the CamCOPS API, not
     // (for example) a "page not found" error from Apache:
-    return m_reply_dict.contains(KEY_SUCCESS) &&
-           m_reply_dict.contains(KEY_SESSION_ID) &&
-           m_reply_dict.contains(KEY_SESSION_TOKEN);
+    return m_reply_dict.contains(KEY_SUCCESS)
+        && m_reply_dict.contains(KEY_SESSION_ID)
+        && m_reply_dict.contains(KEY_SESSION_TOKEN);
 }
-
 
 bool NetworkManager::replyReportsSuccess() const
 {
     return m_reply_dict[KEY_SUCCESS].toInt();
 }
 
-
 RecordList NetworkManager::getRecordList() const
 {
     RecordList recordlist;
 
-    if (!m_reply_dict.contains(KEY_NRECORDS) ||
-            !m_reply_dict.contains(KEY_NFIELDS) ||
-            !m_reply_dict.contains(KEY_FIELDS)) {
+    if (!m_reply_dict.contains(KEY_NRECORDS)
+        || !m_reply_dict.contains(KEY_NFIELDS)
+        || !m_reply_dict.contains(KEY_FIELDS)) {
         statusMessage(tr("ERROR: missing field or record information"));
         return RecordList();
     }
@@ -565,9 +583,10 @@ RecordList NetworkManager::getRecordList() const
         statusMessage(
             tr("WARNING: nfields (%1) doesn't match number of actual "
                "fields (%2); field list is: %3")
-                    .arg(nfields)
-                    .arg(fieldnames.length())
-                    .arg(fields));
+                .arg(nfields)
+                .arg(fieldnames.length())
+                .arg(fields)
+        );
         nfields = fieldnames.length();
     }
     if (nfields <= 0) {
@@ -582,7 +601,8 @@ RecordList NetworkManager::getRecordList() const
             return RecordList();
         }
         const QString valuelist = m_reply_dict[recordname];
-        const QVector<QVariant> values = convert::csvSqlLiteralsToValues(valuelist);
+        const QVector<QVariant> values
+            = convert::csvSqlLiteralsToValues(valuelist);
         if (values.length() != nfields) {
             statusMessage(tr("ERROR: #values not equal to #fields"));
             return RecordList();
@@ -594,7 +614,6 @@ RecordList NetworkManager::getRecordList() const
     }
     return recordlist;
 }
-
 
 bool NetworkManager::ensurePasswordKnown()
 {
@@ -611,8 +630,10 @@ bool NetworkManager::ensurePasswordKnown()
     // If we get here, either we're not storing the password or it hasn't been
     // entered.
     const QString text = tr("Enter password for user <b>%1</b> on server %2")
-            .arg(m_app.varString(varconst::SERVER_USERNAME),
-                 serverUrlDisplayString());
+                             .arg(
+                                 m_app.varString(varconst::SERVER_USERNAME),
+                                 serverUrlDisplayString()
+                             );
     const QString title = tr("Enter server password");
     QWidget* parent = m_logbox ? m_logbox : m_parent;
     PasswordEntryDialog dlg(text, title, parent);
@@ -624,7 +645,6 @@ bool NetworkManager::ensurePasswordKnown()
     m_tmp_password = dlg.password();
     return true;
 }
-
 
 void NetworkManager::cleanup()
 {
@@ -650,9 +670,9 @@ void NetworkManager::cleanup()
     m_upload_patient_info_json = "";
 }
 
-
-void NetworkManager::sslIgnoringErrorHandler(QNetworkReply* reply,
-                                             const QList<QSslError> & errlist)
+void NetworkManager::sslIgnoringErrorHandler(
+    QNetworkReply* reply, const QList<QSslError>& errlist
+)
 {
     // Error handle that ignores SSL certificate errors and continues
     statusMessage(tr("+++ Ignoring %1 SSL error(s):").arg(errlist.length()));
@@ -662,7 +682,6 @@ void NetworkManager::sslIgnoringErrorHandler(QNetworkReply* reply,
     reply->ignoreSslErrors();
 }
 
-
 void NetworkManager::cancel()
 {
 #ifdef DEBUG_ACTIVITY
@@ -670,27 +689,28 @@ void NetworkManager::cancel()
 #endif
     cleanup();
     if (m_logbox) {
-        return m_logbox->reject();  // its rejected() signal calls our logboxCancelled()
+        return m_logbox->reject();
+        // its rejected() signal calls our logboxCancelled()
     }
 
     emit cancelled(ErrorCode::NoError, QString());
 }
 
-
-void NetworkManager::fail(const ErrorCode error_code,
-                          const QString& error_string)
+void NetworkManager::fail(
+    const ErrorCode error_code, const QString& error_string
+)
 {
 #ifdef DEBUG_ACTIVITY
     qDebug() << Q_FUNC_INFO;
 #endif
     cleanup();
     if (m_logbox) {
-        return m_logbox->finish(false);  // its signals call our logboxCancelled() or logboxFinished()
+        return m_logbox->finish(false);
+        // its signals call our logboxCancelled() or logboxFinished()
     }
 
     emit cancelled(error_code, error_string);
 }
-
 
 void NetworkManager::succeed()
 {
@@ -699,12 +719,12 @@ void NetworkManager::succeed()
 #endif
     cleanup();
     if (m_logbox) {
-        return m_logbox->finish(true);  // its signals call our logboxCancelled() or logboxFinished()
+        return m_logbox->finish(true);
+        // its signals call our logboxCancelled() or logboxFinished()
     }
 
     emit finished();
 }
-
 
 // ============================================================================
 // Testing
@@ -712,36 +732,43 @@ void NetworkManager::succeed()
 
 void NetworkManager::testHttpGet(const QString& url, const bool offer_cancel)
 {
-    QNetworkRequest request = createRequest(QUrl(url), offer_cancel,
-                                            false, false);
+    QNetworkRequest request
+        = createRequest(QUrl(url), offer_cancel, false, false);
     statusMessage(tr("Testing HTTP GET connection to:") + " " + url);
     // Safe object lifespan signal: can use std::bind
-    QObject::connect(m_mgr, &QNetworkAccessManager::finished,
-                     std::bind(&NetworkManager::testReplyFinished,
-                               this, std::placeholders::_1));
+    QObject::connect(
+        m_mgr,
+        &QNetworkAccessManager::finished,
+        std::bind(
+            &NetworkManager::testReplyFinished, this, std::placeholders::_1
+        )
+    );
     // GET
     m_mgr->get(request);
     statusMessage(tr("... sent request to:") + " " + url);
 }
 
-
-void NetworkManager::testHttpsGet(const QString& url, const bool offer_cancel,
-                                  const bool ignore_ssl_errors)
+void NetworkManager::testHttpsGet(
+    const QString& url, const bool offer_cancel, const bool ignore_ssl_errors
+)
 {
-    QNetworkRequest request = createRequest(QUrl(url), offer_cancel,
-                                            true, ignore_ssl_errors,
-                                            QSsl::AnyProtocol);
+    QNetworkRequest request = createRequest(
+        QUrl(url), offer_cancel, true, ignore_ssl_errors, QSsl::AnyProtocol
+    );
     statusMessage(tr("Testing HTTPS GET connection to:") + " " + url);
     // Safe object lifespan signal: can use std::bind
-    QObject::connect(m_mgr, &QNetworkAccessManager::finished,
-                     std::bind(&NetworkManager::testReplyFinished, this,
-                               std::placeholders::_1));
+    QObject::connect(
+        m_mgr,
+        &QNetworkAccessManager::finished,
+        std::bind(
+            &NetworkManager::testReplyFinished, this, std::placeholders::_1
+        )
+    );
     // Note: the reply callback arrives on the main (GUI) thread.
     // GET
     m_mgr->get(request);
     statusMessage(tr("... sent request to:") + " " + url);
 }
-
 
 void NetworkManager::testReplyFinished(QNetworkReply* reply)
 {
@@ -751,10 +778,10 @@ void NetworkManager::testReplyFinished(QNetworkReply* reply)
     } else {
         statusMessage(tr("Network error:") + " " + reply->errorString());
     }
-    reply->deleteLater();  // https://doc.qt.io/qt-6.5/qnetworkaccessmanager.html#details
+    reply->deleteLater();
+    // ... https://doc.qt.io/qt-6.5/qnetworkaccessmanager.html#details
     succeed();
 }
-
 
 // ============================================================================
 // Server registration
@@ -779,93 +806,93 @@ void NetworkManager::registerNext(QNetworkReply* reply)
 
     switch (m_register_next_stage) {
 
-    case NextRegisterStage::Invalid:
-        m_register_next_stage = NextRegisterStage::Register;
-        registerNext();
-        break;
+        case NextRegisterStage::Invalid:
+            m_register_next_stage = NextRegisterStage::Register;
+            registerNext();
+            break;
 
-    case NextRegisterStage::Register:
-        statusMessage(
-            //: Server URL
-            tr("Registering with %1 and receiving identification information")
-            .arg(serverUrlDisplayString())
-        );
-        dict[KEY_OPERATION] = OP_REGISTER;
-        dict[KEY_DEVICE_FRIENDLY_NAME] = m_app.varString(
-            varconst::DEVICE_FRIENDLY_NAME
-        );
-        m_register_next_stage = NextRegisterStage::StoreServerIdentification;
+        case NextRegisterStage::Register:
+            statusMessage(
+                //: Server URL
+                tr("Registering with %1 and receiving identification "
+                   "information")
+                    .arg(serverUrlDisplayString())
+            );
+            dict[KEY_OPERATION] = OP_REGISTER;
+            dict[KEY_DEVICE_FRIENDLY_NAME]
+                = m_app.varString(varconst::DEVICE_FRIENDLY_NAME);
+            m_register_next_stage
+                = NextRegisterStage::StoreServerIdentification;
 
-        serverPost(dict, &NetworkManager::registerNext);
-        break;
+            serverPost(dict, &NetworkManager::registerNext);
+            break;
 
-    case NextRegisterStage::StoreServerIdentification:
-        storeServerIdentificationInfo();
-        m_register_next_stage = NextRegisterStage::GetAllowedTables;
+        case NextRegisterStage::StoreServerIdentification:
+            storeServerIdentificationInfo();
+            m_register_next_stage = NextRegisterStage::GetAllowedTables;
 
-        registerNext();
-        break;
+            registerNext();
+            break;
 
-    case NextRegisterStage::GetAllowedTables:
-        statusMessage(tr("Requesting allowed tables"));
-        dict[KEY_OPERATION] = OP_GET_ALLOWED_TABLES;
-        m_register_next_stage = NextRegisterStage::StoreAllowedTables;
+        case NextRegisterStage::GetAllowedTables:
+            statusMessage(tr("Requesting allowed tables"));
+            dict[KEY_OPERATION] = OP_GET_ALLOWED_TABLES;
+            m_register_next_stage = NextRegisterStage::StoreAllowedTables;
 
-        serverPost(dict, &NetworkManager::registerNext);
-        break;
+            serverPost(dict, &NetworkManager::registerNext);
+            break;
 
-    case NextRegisterStage::StoreAllowedTables:
-        storeAllowedTables();
-        m_register_next_stage = NextRegisterStage::GetExtraStrings;
+        case NextRegisterStage::StoreAllowedTables:
+            storeAllowedTables();
+            m_register_next_stage = NextRegisterStage::GetExtraStrings;
 
-        registerNext();
-        break;
+            registerNext();
+            break;
 
-    case NextRegisterStage::GetExtraStrings:
-        statusMessage(tr("Requesting extra strings"));
-        dict[KEY_OPERATION] = OP_GET_EXTRA_STRINGS;
+        case NextRegisterStage::GetExtraStrings:
+            statusMessage(tr("Requesting extra strings"));
+            dict[KEY_OPERATION] = OP_GET_EXTRA_STRINGS;
 
-        m_register_next_stage = NextRegisterStage::StoreExtraStrings;
+            m_register_next_stage = NextRegisterStage::StoreExtraStrings;
 
-        serverPost(dict, &NetworkManager::registerNext);
-        break;
+            serverPost(dict, &NetworkManager::registerNext);
+            break;
 
-    case NextRegisterStage::StoreExtraStrings:
-        storeExtraStrings();
-        m_register_next_stage = NextRegisterStage::Finished;
+        case NextRegisterStage::StoreExtraStrings:
+            storeExtraStrings();
+            m_register_next_stage = NextRegisterStage::Finished;
 
-        if (m_app.isSingleUserMode()) {
-            m_register_next_stage = NextRegisterStage::GetTaskSchedules;
-        }
-        registerNext();
-        break;
+            if (m_app.isSingleUserMode()) {
+                m_register_next_stage = NextRegisterStage::GetTaskSchedules;
+            }
+            registerNext();
+            break;
 
-    case NextRegisterStage::GetTaskSchedules:
-        dict[KEY_OPERATION] = OP_GET_TASK_SCHEDULES;
-        dict[KEY_PATIENT_PROQUINT] = m_app.varString(
-            varconst::SINGLE_PATIENT_PROQUINT
-        );
+        case NextRegisterStage::GetTaskSchedules:
+            dict[KEY_OPERATION] = OP_GET_TASK_SCHEDULES;
+            dict[KEY_PATIENT_PROQUINT]
+                = m_app.varString(varconst::SINGLE_PATIENT_PROQUINT);
 
-        m_register_next_stage = NextRegisterStage::StoreTaskSchedules;
+            m_register_next_stage = NextRegisterStage::StoreTaskSchedules;
 
-        serverPost(dict, &NetworkManager::registerNext);
-        break;
+            serverPost(dict, &NetworkManager::registerNext);
+            break;
 
-    case NextRegisterStage::StoreTaskSchedules:
-        storeTaskSchedulesAndPatientDetails();
+        case NextRegisterStage::StoreTaskSchedules:
+            storeTaskSchedulesAndPatientDetails();
 
-        m_register_next_stage = NextRegisterStage::Finished;
-        registerNext();
-        break;
+            m_register_next_stage = NextRegisterStage::Finished;
+            registerNext();
+            break;
 
-    case NextRegisterStage::Finished:
-        statusMessage(tr("Completed successfully."));
+        case NextRegisterStage::Finished:
+            statusMessage(tr("Completed successfully."));
 
-        succeed();
-        break;
+            succeed();
+            break;
 
-    default:
-        uifunc::stopApp("Bug: unknown m_register_next_stage");
+        default:
+            uifunc::stopApp("Bug: unknown m_register_next_stage");
     }
 }
 
@@ -874,17 +901,19 @@ void NetworkManager::updateTaskSchedulesAndPatientDetails()
     Dict dict;
 
     dict[KEY_OPERATION] = OP_GET_TASK_SCHEDULES;
-    dict[KEY_PATIENT_PROQUINT] = m_app.varString(
-        varconst::SINGLE_PATIENT_PROQUINT
-    );
+    dict[KEY_PATIENT_PROQUINT]
+        = m_app.varString(varconst::SINGLE_PATIENT_PROQUINT);
 
-    statusMessage(tr("Getting task schedules from") + " " +
-                  serverUrlDisplayString());
+    statusMessage(
+        tr("Getting task schedules from") + " " + serverUrlDisplayString()
+    );
 
     serverPost(dict, &NetworkManager::receivedTaskSchedulesAndPatientDetails);
 }
 
-void NetworkManager::receivedTaskSchedulesAndPatientDetails(QNetworkReply* reply)
+void NetworkManager::receivedTaskSchedulesAndPatientDetails(
+    QNetworkReply* reply
+)
 {
     if (!processServerReply(reply)) {
         return;
@@ -893,7 +922,6 @@ void NetworkManager::receivedTaskSchedulesAndPatientDetails(QNetworkReply* reply
     storeTaskSchedulesAndPatientDetails();
     succeed();
 }
-
 
 void NetworkManager::storeTaskSchedulesAndPatientDetails()
 {
@@ -911,9 +939,8 @@ void NetworkManager::storeTaskSchedulesAndPatientDetails()
         m_reply_dict[KEY_PATIENT_INFO].toUtf8(), &error
     );
     if (patient_doc.isNull()) {
-        const QString message = tr("Failed to parse patient info: %1").arg(
-            error.errorString()
-        );
+        const QString message
+            = tr("Failed to parse patient info: %1").arg(error.errorString());
         statusMessage(message);
         fail(ErrorCode::JsonParseError, message);
         return;
@@ -926,8 +953,8 @@ void NetworkManager::storeTaskSchedulesAndPatientDetails()
         patient->setIdNums(patient_json);
         patient->save();
     } else {
-        const QString message = tr(
-                "No patient selected! Unexpected in single-patient mode.");
+        const QString message
+            = tr("No patient selected! Unexpected in single-patient mode.");
         statusMessage(message);
         // ... but continue.
     }
@@ -940,9 +967,8 @@ void NetworkManager::storeTaskSchedulesAndPatientDetails()
         m_reply_dict[KEY_TASK_SCHEDULES].toUtf8(), &error
     );
     if (schedule_doc.isNull()) {
-        const QString message = tr("Failed to parse task schedules: %1").arg(
-            error.errorString()
-        );
+        const QString message = tr("Failed to parse task schedules: %1")
+                                    .arg(error.errorString());
         statusMessage(message);
         fail(ErrorCode::JsonParseError, message);
 
@@ -953,8 +979,8 @@ void NetworkManager::storeTaskSchedulesAndPatientDetails()
     const QJsonArray schedules_array = schedule_doc.array();
     TaskSchedulePtrList new_schedules;
     for (QJsonArray::const_iterator it = schedules_array.constBegin();
-            it != schedules_array.constEnd();
-            it++) {
+         it != schedules_array.constEnd();
+         it++) {
         QJsonObject schedule_json = it->toObject();
 
         TaskSchedulePtr schedule = TaskSchedulePtr(
@@ -979,10 +1005,9 @@ void NetworkManager::storeTaskSchedulesAndPatientDetails()
     }
 }
 
-
 void NetworkManager::updateCompleteStatusForAnonymousTasks(
-        TaskSchedulePtrList old_schedules,
-        TaskSchedulePtrList new_schedules)
+    TaskSchedulePtrList old_schedules, TaskSchedulePtrList new_schedules
+)
 {
     // When updating the schedule, the server does not know which anonymous
     // tasks have been completed so we use any existing data on the tablet.
@@ -999,16 +1024,16 @@ void NetworkManager::updateCompleteStatusForAnonymousTasks(
         if (old_schedule_map.contains(schedule_name)) {
             TaskSchedulePtr old_schedule = old_schedule_map[schedule_name];
 
-            for (const TaskScheduleItemPtr& old_item: old_schedule->items()) {
+            for (const TaskScheduleItemPtr& old_item : old_schedule->items()) {
 
                 if (old_item->isAnonymous()) {
-                    TaskScheduleItemPtr new_item = new_schedule->findItem(
-                        old_item
-                    );
+                    TaskScheduleItemPtr new_item
+                        = new_schedule->findItem(old_item);
 
                     if (new_item != nullptr) {
-                        new_item->setComplete(old_item->isComplete(),
-                                              old_item->whenCompleted());
+                        new_item->setComplete(
+                            old_item->isComplete(), old_item->whenCompleted()
+                        );
                         new_item->save();
                     }
                 }
@@ -1016,7 +1041,6 @@ void NetworkManager::updateCompleteStatusForAnonymousTasks(
         }
     }
 }
-
 
 void NetworkManager::fetchIdDescriptions()
 {
@@ -1026,27 +1050,26 @@ void NetworkManager::fetchIdDescriptions()
     serverPost(dict, &NetworkManager::fetchIdDescriptionsSub1);
 }
 
-
 void NetworkManager::fetchIdDescriptionsSub1(QNetworkReply* reply)
 {
     if (!processServerReply(reply)) {
         return;
     }
-    statusMessage(tr("... registered and received identification information"));
+    statusMessage(tr("... registered and received identification information")
+    );
     storeServerIdentificationInfo();
     succeed();
 }
 
-
 void NetworkManager::fetchExtraStrings()
 {
-    statusMessage(tr("Getting extra strings from") + " " +
-                  serverUrlDisplayString());
+    statusMessage(
+        tr("Getting extra strings from") + " " + serverUrlDisplayString()
+    );
     Dict dict;
     dict[KEY_OPERATION] = OP_GET_EXTRA_STRINGS;
     serverPost(dict, &NetworkManager::fetchExtraStringsSub1);
 }
-
 
 void NetworkManager::fetchExtraStringsSub1(QNetworkReply* reply)
 {
@@ -1058,7 +1081,6 @@ void NetworkManager::fetchExtraStringsSub1(QNetworkReply* reply)
     succeed();
 }
 
-
 void NetworkManager::fetchAllServerInfo()
 {
     statusMessage(tr("Fetching server info from ") + serverUrlDisplayString());
@@ -1067,7 +1089,6 @@ void NetworkManager::fetchAllServerInfo()
     dict[KEY_OPERATION] = OP_GET_ID_INFO;
     serverPost(dict, &NetworkManager::fetchAllServerInfoSub1);
 }
-
 
 void NetworkManager::fetchAllServerInfoSub1(QNetworkReply* reply)
 {
@@ -1082,28 +1103,41 @@ void NetworkManager::fetchAllServerInfoSub1(QNetworkReply* reply)
     registerNext();
 }
 
-
 void NetworkManager::storeServerIdentificationInfo()
 {
-    m_app.setVar(varconst::SERVER_DATABASE_TITLE, m_reply_dict[KEY_DATABASE_TITLE]);
-    m_app.setVar(varconst::SERVER_CAMCOPS_VERSION, m_reply_dict[KEY_SERVER_CAMCOPS_VERSION]);
-    m_app.setVar(varconst::ID_POLICY_UPLOAD, m_reply_dict[KEY_ID_POLICY_UPLOAD]);
-    m_app.setVar(varconst::ID_POLICY_FINALIZE, m_reply_dict[KEY_ID_POLICY_FINALIZE]);
+    m_app.setVar(
+        varconst::SERVER_DATABASE_TITLE, m_reply_dict[KEY_DATABASE_TITLE]
+    );
+    m_app.setVar(
+        varconst::SERVER_CAMCOPS_VERSION,
+        m_reply_dict[KEY_SERVER_CAMCOPS_VERSION]
+    );
+    m_app.setVar(
+        varconst::ID_POLICY_UPLOAD, m_reply_dict[KEY_ID_POLICY_UPLOAD]
+    );
+    m_app.setVar(
+        varconst::ID_POLICY_FINALIZE, m_reply_dict[KEY_ID_POLICY_FINALIZE]
+    );
 
     m_app.deleteAllIdDescriptions();
     for (const QString& keydesc : m_reply_dict.keys()) {
         if (keydesc.startsWith(KEYPREFIX_ID_DESCRIPTION)) {
-            const QString number = keydesc.right(keydesc.length() -
-                                                 KEYPREFIX_ID_DESCRIPTION.length());
+            const QString number = keydesc.right(
+                keydesc.length() - KEYPREFIX_ID_DESCRIPTION.length()
+            );
             bool ok = false;
             const int which_idnum = number.toInt(&ok);
             if (ok) {
                 const QString desc = m_reply_dict[keydesc];
-                const QString key_shortdesc = KEYSPEC_ID_SHORT_DESCRIPTION.arg(which_idnum);
+                const QString key_shortdesc
+                    = KEYSPEC_ID_SHORT_DESCRIPTION.arg(which_idnum);
                 const QString shortdesc = m_reply_dict[key_shortdesc];
-                const QString key_validation = KEYSPEC_ID_VALIDATION_METHOD.arg(which_idnum);
+                const QString key_validation
+                    = KEYSPEC_ID_VALIDATION_METHOD.arg(which_idnum);
                 const QString validation_method = m_reply_dict[key_validation];
-                m_app.setIdDescription(which_idnum, desc, shortdesc, validation_method);
+                m_app.setIdDescription(
+                    which_idnum, desc, shortdesc, validation_method
+                );
             } else {
                 qWarning() << "Bad ID description key:" << keydesc;
             }
@@ -1121,14 +1155,12 @@ void NetworkManager::storeServerIdentificationInfo()
     m_app.setDefaultPatient(true);
 }
 
-
 void NetworkManager::storeAllowedTables()
 {
     RecordList recordlist = getRecordList();
     m_app.setAllowedServerTables(recordlist);
     statusMessage(tr("Saved %1 allowed tables").arg(recordlist.length()));
 }
-
 
 void NetworkManager::storeExtraStrings()
 {
@@ -1138,7 +1170,6 @@ void NetworkManager::storeExtraStrings()
         statusMessage(tr("Saved %1 extra strings").arg(recordlist.length()));
     }
 }
-
 
 // ============================================================================
 // Upload
@@ -1150,8 +1181,9 @@ void NetworkManager::storeExtraStrings()
 
 void NetworkManager::upload(const UploadMethod method)
 {
-    statusMessage(tr("Preparing to upload to:") + " " +
-                  serverUrlDisplayString());
+    statusMessage(
+        tr("Preparing to upload to:") + " " + serverUrlDisplayString()
+    );
     // ... in part so uploadNext() status message looks OK
 
     // The GUI doesn't get a chance to respond until after this function
@@ -1200,7 +1232,6 @@ void NetworkManager::upload(const UploadMethod method)
     // ... will end up at uploadNext().
 }
 
-
 void NetworkManager::uploadNext(QNetworkReply* reply)
 {
     // This function imposes an order on the upload sequence, which makes
@@ -1223,192 +1254,200 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
 
     switch (m_upload_next_stage) {
 
-    case NextUploadStage::CheckUser:
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // FROM: check device registration. (Checked implicitly.)
-        // TO: check user OK.
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        checkUploadUser();
-        m_upload_next_stage = NextUploadStage::FetchServerIdInfo;
-        break;
+        case NextUploadStage::CheckUser:
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            // FROM: check device registration. (Checked implicitly.)
+            // TO: check user OK.
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            checkUploadUser();
+            m_upload_next_stage = NextUploadStage::FetchServerIdInfo;
+            break;
 
-    case NextUploadStage::FetchServerIdInfo:
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // FROM: check user OK. (Checked implicitly.)
-        // TO: fetch server ID info (server version, database title,
-        //      which ID numbers, ID policies)
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        uploadFetchServerIdInfo();
-        m_upload_next_stage = NextUploadStage::ValidatePatients;
-        break;
+        case NextUploadStage::FetchServerIdInfo:
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            // FROM: check user OK. (Checked implicitly.)
+            // TO: fetch server ID info (server version, database title,
+            //      which ID numbers, ID policies)
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            uploadFetchServerIdInfo();
+            m_upload_next_stage = NextUploadStage::ValidatePatients;
+            break;
 
-    case NextUploadStage::StoreExtraStrings:
-        // The server version changed so we fetch any new extra strings
-        storeExtraStrings();
-        // now we go back to trying to fetch the server info
-        m_upload_next_stage = NextUploadStage::FetchServerIdInfo;
-        uploadNext(nullptr);
-        break;
+        case NextUploadStage::StoreExtraStrings:
+            // The server version changed so we fetch any new extra strings
+            storeExtraStrings();
+            // now we go back to trying to fetch the server info
+            m_upload_next_stage = NextUploadStage::FetchServerIdInfo;
+            uploadNext(nullptr);
+            break;
 
-    case NextUploadStage::ValidatePatients:
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // FROM: fetch server ID info
-        // TO: ask server to validate patients
-        //     ... or if the server doesn't support that, move on another step
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        if (m_app.isSingleUserMode()) {
-            // In single user mode, if the server has been updated, we overwrite
-            // the stored server version and refetch all server info without
-            // warning or prompting the user to refetch.
-            if (!serverVersionMatchesStored()) {
-                storeServerIdentificationInfo();
+        case NextUploadStage::ValidatePatients:
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            // FROM: fetch server ID info
+            // TO: ask server to validate patients
+            //     ... or if the server doesn't support that, move on another
+            //     step
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            if (m_app.isSingleUserMode()) {
+                // In single user mode, if the server has been updated, we
+                // overwrite the stored server version and refetch all server
+                // info without warning or prompting the user to refetch.
+                if (!serverVersionMatchesStored()) {
+                    storeServerIdentificationInfo();
 
-                statusMessage(tr("Requesting extra strings"));
-                Dict dict;
-                dict[KEY_OPERATION] = OP_GET_EXTRA_STRINGS;
+                    statusMessage(tr("Requesting extra strings"));
+                    Dict dict;
+                    dict[KEY_OPERATION] = OP_GET_EXTRA_STRINGS;
 
-                m_upload_next_stage = NextUploadStage::StoreExtraStrings;
-                serverPost(dict, &NetworkManager::uploadNext);
+                    m_upload_next_stage = NextUploadStage::StoreExtraStrings;
+                    serverPost(dict, &NetworkManager::uploadNext);
+                    return;
+                }
+            }
+
+            if (!isServerVersionOK() || !arePoliciesOK()
+                || !areDescriptionsOK()) {
+                fail();
                 return;
             }
-        }
+            if (serverSupportsValidatePatients()) {
+                uploadValidatePatients();  // v2.3.0
+                m_upload_next_stage = NextUploadStage::FetchAllowedTables;
+                break;
+            } else {
+                // Otherwise:
 
-        if (!isServerVersionOK() || !arePoliciesOK() || !areDescriptionsOK()) {
-            fail();
-            return;
-        }
-        if (serverSupportsValidatePatients()) {
-            uploadValidatePatients();  // v2.3.0
-            m_upload_next_stage = NextUploadStage::FetchAllowedTables;
+                // [[fallthrough]];
+                // ... C++17 syntax!
+                // - https://en.cppreference.com/w/cpp/language/attributes
+                // - https://en.cppreference.com/w/cpp/language/attributes/fallthrough
+
+                // [[clang::fallthrough]];
+                // ... compiler-specific
+
+                Q_FALLTHROUGH();
+                // ... well done, Qt
+                // - https://doc.qt.io/qt-6.5/qtglobal.html#Q_FALLTHROUGH
+            }
+
+        case NextUploadStage::FetchAllowedTables:
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            // FROM: ask server to validate patients
+            // TO: fetch allowed tables/minimum client versions
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            uploadFetchAllowedTables();
+            m_upload_next_stage
+                = NextUploadStage::CheckPoliciesThenStartUpload;
             break;
-        } else {
-            // Otherwise:
 
-            // [[fallthrough]];
-            // ... C++17 syntax!
-            // - https://en.cppreference.com/w/cpp/language/attributes
-            // - https://en.cppreference.com/w/cpp/language/attributes/fallthrough
-
-            // [[clang::fallthrough]];
-            // ... compiler-specific
-
-            Q_FALLTHROUGH();
-            // ... well done, Qt
-            // - https://doc.qt.io/qt-6.5/qtglobal.html#Q_FALLTHROUGH
-        }
-
-    case NextUploadStage::FetchAllowedTables:
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // FROM: ask server to validate patients
-        // TO: fetch allowed tables/minimum client versions
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        uploadFetchAllowedTables();
-        m_upload_next_stage = NextUploadStage::CheckPoliciesThenStartUpload;
-        break;
-
-    case NextUploadStage::CheckPoliciesThenStartUpload:
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // FROM: fetch allowed tables/minimum client versions
-        // TO: start upload or preservation
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        statusMessage("... received allowed tables");
-        storeAllowedTables();
-        if (!catalogueTablesForUpload()) {  // checks per-table version requirements
-            fail();
-            return;
-        }
-        if (shouldUseOneStepUpload()) {
-            uploadOneStep();
-            m_upload_next_stage = NextUploadStage::Finished;
-        } else {
-            startUpload();
-            if (m_upload_method == UploadMethod::Copy) {
-                // If we copy, we proceed to uploading
-                m_upload_next_stage = NextUploadStage::Uploading;
-            } else {
-                // If we're moving, we preserve records.
-                m_upload_next_stage = NextUploadStage::StartPreservation;
+        case NextUploadStage::CheckPoliciesThenStartUpload:
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            // FROM: fetch allowed tables/minimum client versions
+            // TO: start upload or preservation
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            statusMessage("... received allowed tables");
+            storeAllowedTables();
+            if (!catalogueTablesForUpload()) {
+                // ... catalogueTablesForUpload() checks per-table version
+                // requirements, amongst other things.
+                fail();
+                return;
             }
-        }
-        break;
-
-    case NextUploadStage::StartPreservation:
-        startPreservation();
-        m_upload_next_stage = NextUploadStage::Uploading;
-        break;
-
-    case NextUploadStage::Uploading:
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // FROM: start upload or preservation
-        // TO: upload, tablewise then recordwise (CYCLES ROUND here until done)
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        if (!m_upload_empty_tables.isEmpty()) {
-
-            sendEmptyTables(m_upload_empty_tables);
-            m_upload_empty_tables.clear();
-
-        } else if (!m_upload_tables_to_send_whole.isEmpty()) {
-
-            QString table = m_upload_tables_to_send_whole.front();
-            m_upload_tables_to_send_whole.pop_front();
-            sendTableWhole(table);
-
-        } else if (!m_upload_recordwise_pks_to_send.isEmpty()) {
-
-            if (!m_recordwise_prune_req_sent) {
-                requestRecordwisePkPrune();
+            if (shouldUseOneStepUpload()) {
+                uploadOneStep();
+                m_upload_next_stage = NextUploadStage::Finished;
             } else {
-                if (!m_recordwise_pks_pruned) {
-                    if (!pruneRecordwisePks()) {
-                        fail();
-                        return;
-                    }
-                    if (m_upload_recordwise_pks_to_send.isEmpty()) {
-                        // Quasi-recursive way of saying "do whatever you would
-                        // have done otherwise", since the server had said "I'm
-                        // not interested in any records from that table".
-                        statusMessage(tr("... server doesn't want anything "
-                                         "from this table"));
-                        uploadNext(nullptr);
-                        return;
-                    }
+                startUpload();
+                if (m_upload_method == UploadMethod::Copy) {
+                    // If we copy, we proceed to uploading
+                    m_upload_next_stage = NextUploadStage::Uploading;
+                } else {
+                    // If we're moving, we preserve records.
+                    m_upload_next_stage = NextUploadStage::StartPreservation;
                 }
-                sendNextRecord();
             }
+            break;
 
-        } else if (!m_upload_tables_to_send_recordwise.isEmpty()) {
+        case NextUploadStage::StartPreservation:
+            startPreservation();
+            m_upload_next_stage = NextUploadStage::Uploading;
+            break;
 
-            QString table = m_upload_tables_to_send_recordwise.front();
-            m_upload_tables_to_send_recordwise.pop_front();
-            sendTableRecordwise(table);
+        case NextUploadStage::Uploading:
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            // FROM: start upload or preservation
+            // TO: upload, tablewise then recordwise (CYCLES ROUND here until
+            //     done)
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            if (!m_upload_empty_tables.isEmpty()) {
 
-        } else {
+                sendEmptyTables(m_upload_empty_tables);
+                m_upload_empty_tables.clear();
 
-            endUpload();
-            m_upload_next_stage = NextUploadStage::Finished;
+            } else if (!m_upload_tables_to_send_whole.isEmpty()) {
 
-        }
-        break;
+                QString table = m_upload_tables_to_send_whole.front();
+                m_upload_tables_to_send_whole.pop_front();
+                sendTableWhole(table);
 
-    case NextUploadStage::Finished:
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // FROM: upload, or uploadOneStep()
-        // All done successfully!
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        wipeTables();
-        statusMessage(tr("Finished"));
-        m_app.setVar(varconst::LAST_SUCCESSFUL_UPLOAD, datetime::now());
-        m_app.setNeedsUpload(false);
-        m_app.setDefaultPatient(true);  // even for "copy" method; see changelog
-        m_app.forceRefreshPatientList();
-        succeed();
-        break;
+            } else if (!m_upload_recordwise_pks_to_send.isEmpty()) {
 
-    default:
-        uifunc::stopApp("Bug: unknown m_upload_next_stage");
+                if (!m_recordwise_prune_req_sent) {
+                    requestRecordwisePkPrune();
+                } else {
+                    if (!m_recordwise_pks_pruned) {
+                        if (!pruneRecordwisePks()) {
+                            fail();
+                            return;
+                        }
+                        if (m_upload_recordwise_pks_to_send.isEmpty()) {
+                            // Quasi-recursive way of saying "do whatever you
+                            // would have done otherwise", since the server had
+                            // said "I'm not interested in any records from
+                            // that table".
+                            statusMessage(
+                                tr("... server doesn't want anything "
+                                   "from this table")
+                            );
+                            uploadNext(nullptr);
+                            return;
+                        }
+                    }
+                    sendNextRecord();
+                }
+
+            } else if (!m_upload_tables_to_send_recordwise.isEmpty()) {
+
+                QString table = m_upload_tables_to_send_recordwise.front();
+                m_upload_tables_to_send_recordwise.pop_front();
+                sendTableRecordwise(table);
+
+            } else {
+
+                endUpload();
+                m_upload_next_stage = NextUploadStage::Finished;
+            }
+            break;
+
+        case NextUploadStage::Finished:
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            // FROM: upload, or uploadOneStep()
+            // All done successfully!
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            wipeTables();
+            statusMessage(tr("Finished"));
+            m_app.setVar(varconst::LAST_SUCCESSFUL_UPLOAD, datetime::now());
+            m_app.setNeedsUpload(false);
+            m_app.setDefaultPatient(true);
+            // ... even for "copy" method; see changelog
+            m_app.forceRefreshPatientList();
+            succeed();
+            break;
+
+        default:
+            uifunc::stopApp("Bug: unknown m_upload_next_stage");
     }
 }
-
 
 // ----------------------------------------------------------------------------
 // Upload: COMMS
@@ -1422,7 +1461,6 @@ void NetworkManager::checkDeviceRegistered()
     serverPost(dict, &NetworkManager::uploadNext);
 }
 
-
 void NetworkManager::checkUploadUser()
 {
     statusMessage(tr("Checking user/device permitted to upload"));
@@ -1430,7 +1468,6 @@ void NetworkManager::checkUploadUser()
     dict[KEY_OPERATION] = OP_CHECK_UPLOAD_USER_DEVICE;
     serverPost(dict, &NetworkManager::uploadNext);
 }
-
 
 void NetworkManager::uploadFetchServerIdInfo()
 {
@@ -1440,12 +1477,10 @@ void NetworkManager::uploadFetchServerIdInfo()
     serverPost(dict, &NetworkManager::uploadNext);
 }
 
-
 bool NetworkManager::serverSupportsValidatePatients() const
 {
     return m_app.serverVersion() >= MIN_SERVER_VERSION_FOR_VALIDATE_PATIENTS;
 }
-
 
 void NetworkManager::uploadValidatePatients()
 {
@@ -1457,7 +1492,6 @@ void NetworkManager::uploadValidatePatients()
     serverPost(dict, &NetworkManager::uploadNext);
 }
 
-
 void NetworkManager::uploadFetchAllowedTables()
 {
     statusMessage(tr("Fetching server's allowed tables/client versions"));
@@ -1465,7 +1499,6 @@ void NetworkManager::uploadFetchAllowedTables()
     dict[KEY_OPERATION] = OP_GET_ALLOWED_TABLES;
     serverPost(dict, &NetworkManager::uploadNext);
 }
-
 
 void NetworkManager::startUpload()
 {
@@ -1475,7 +1508,6 @@ void NetworkManager::startUpload()
     serverPost(dict, &NetworkManager::uploadNext);
 }
 
-
 void NetworkManager::startPreservation()
 {
     statusMessage(tr("Starting preservation"));
@@ -1483,7 +1515,6 @@ void NetworkManager::startPreservation()
     dict[KEY_OPERATION] = OP_START_PRESERVATION;
     serverPost(dict, &NetworkManager::uploadNext);
 }
-
 
 void NetworkManager::sendEmptyTables(const QStringList& tablenames)
 {
@@ -1493,7 +1524,6 @@ void NetworkManager::sendEmptyTables(const QStringList& tablenames)
     dict[KEY_TABLES] = tablenames.join(",");
     serverPost(dict, &NetworkManager::uploadNext);
 }
-
 
 void NetworkManager::sendTableWhole(const QString& tablename)
 {
@@ -1529,7 +1559,6 @@ void NetworkManager::sendTableWhole(const QString& tablename)
     serverPost(dict, &NetworkManager::uploadNext);
 }
 
-
 void NetworkManager::sendTableRecordwise(const QString& tablename)
 {
     statusMessage(tr("Preparing to send table (recordwise): ") + tablename);
@@ -1538,13 +1567,14 @@ void NetworkManager::sendTableRecordwise(const QString& tablename)
     m_upload_recordwise_fieldnames = m_db.getFieldNames(tablename);
     m_recordwise_prune_req_sent = false;
     m_recordwise_pks_pruned = false;
-    m_upload_recordwise_pks_to_send = m_db.getPKs(tablename,
-                                                  dbconst::PK_FIELDNAME);
+    m_upload_recordwise_pks_to_send
+        = m_db.getPKs(tablename, dbconst::PK_FIELDNAME);
     m_upload_n_records = m_upload_recordwise_pks_to_send.size();
     m_upload_current_record_index = 0;
 
     // First, DELETE WHERE pk NOT...
-    const QString pkvalues = convert::numericVectorToCsvString(m_upload_recordwise_pks_to_send);
+    const QString pkvalues
+        = convert::numericVectorToCsvString(m_upload_recordwise_pks_to_send);
     Dict dict;
     dict[KEY_OPERATION] = OP_DELETE_WHERE_KEY_NOT;
     dict[KEY_TABLE] = tablename;
@@ -1554,14 +1584,16 @@ void NetworkManager::sendTableRecordwise(const QString& tablename)
     serverPost(dict, &NetworkManager::uploadNext);
 }
 
-
 void NetworkManager::requestRecordwisePkPrune()
 {
-    const QString sql = QString("SELECT %1, %2, %3 FROM %4")
-            .arg(delimit(dbconst::PK_FIELDNAME),  // result column 0
-                 delimit(dbconst::MODIFICATION_TIMESTAMP_FIELDNAME),  // result column 1
-                 delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME),  // result column 2
-                 delimit(m_upload_recordwise_table_in_progress));
+    const QString sql
+        = QString("SELECT %1, %2, %3 FROM %4")
+              .arg(
+                  delimit(dbconst::PK_FIELDNAME),
+                  delimit(dbconst::MODIFICATION_TIMESTAMP_FIELDNAME),
+                  delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME),
+                  delimit(m_upload_recordwise_table_in_progress)
+              );
     const QueryResult result = m_db.query(sql);
     const QStringList pkvalues = result.columnAsStringList(0);
     const QStringList datevalues = result.columnAsStringList(1);
@@ -1572,32 +1604,33 @@ void NetworkManager::requestRecordwisePkPrune()
     dict[KEY_PKNAME] = dbconst::PK_FIELDNAME;
     dict[KEY_PKVALUES] = pkvalues.join(",");
     dict[KEY_DATEVALUES] = datevalues.join(",");
-    dict[KEY_MOVE_OFF_TABLET_VALUES] = move_off_tablet_values.join(",");  // v2.3.0
+    dict[KEY_MOVE_OFF_TABLET_VALUES] = move_off_tablet_values.join(",");
+    // ... v2.3.0
     m_recordwise_prune_req_sent = true;
     statusMessage(tr("Sending message: ") + OP_WHICH_KEYS_TO_SEND);
     serverPost(dict, &NetworkManager::uploadNext);
 }
 
-
 void NetworkManager::sendNextRecord()
 {
     ++m_upload_current_record_index;
     statusMessage(tr("Uploading table %1, record %2/%3")
-                  .arg(m_upload_recordwise_table_in_progress)
-                  .arg(m_upload_current_record_index)
-                  .arg(m_upload_n_records));
+                      .arg(m_upload_recordwise_table_in_progress)
+                      .arg(m_upload_current_record_index)
+                      .arg(m_upload_n_records));
     // Don't use m_upload_recordwise_pks_to_send.size() as the count, as that
     // changes during upload.
     const int pk = m_upload_recordwise_pks_to_send.front();
     m_upload_recordwise_pks_to_send.pop_front();
 
     SqlArgs sqlargs(dbfunc::selectColumns(
-                        m_upload_recordwise_fieldnames,
-                        m_upload_recordwise_table_in_progress));
+        m_upload_recordwise_fieldnames, m_upload_recordwise_table_in_progress
+    ));
     WhereConditions where;
     where.add(dbconst::PK_FIELDNAME, pk);
     where.appendWhereClauseTo(sqlargs);
-    const QueryResult result = m_db.query(sqlargs, QueryResult::FetchMode::FetchFirst);
+    const QueryResult result
+        = m_db.query(sqlargs, QueryResult::FetchMode::FetchFirst);
     if (!result.succeeded() || result.nRows() < 1) {
         queryFail(sqlargs.sql);
         return;
@@ -1613,7 +1646,6 @@ void NetworkManager::sendNextRecord()
     serverPost(dict, &NetworkManager::uploadNext);
 }
 
-
 void NetworkManager::endUpload()
 {
     statusMessage(tr("Finishing upload"));
@@ -1621,7 +1653,6 @@ void NetworkManager::endUpload()
     dict[KEY_OPERATION] = OP_END_UPLOAD;
     serverPost(dict, &NetworkManager::uploadNext);
 }
-
 
 // ----------------------------------------------------------------------------
 // Upload: INTERNAL FUNCTIONS
@@ -1679,16 +1710,15 @@ bool NetworkManager::isPatientInfoComplete()
 
     if (nfailures_clash > 0) {
         statusMessage(tr("Failure: %1 patient(s) having clashing ID numbers")
-                      .arg(nfailures_clash));
+                          .arg(nfailures_clash));
         return false;
     }
     if (nfailures_move_off > 0) {
-        statusMessage(tr(
-                "You are trying to move off %1 patient(s) using the "
-                "explicit per-patient move-off flag, but they do not "
-                "comply with the server's finalize ID policy [%2]")
-                      .arg(nfailures_move_off)
-                      .arg(m_app.finalizePolicy().pretty()));
+        statusMessage(tr("You are trying to move off %1 patient(s) using the "
+                         "explicit per-patient move-off flag, but they do not "
+                         "comply with the server's finalize ID policy [%2]")
+                          .arg(nfailures_move_off)
+                          .arg(m_app.finalizePolicy().pretty()));
         return false;
     }
     if (m_upload_method == UploadMethod::Copy && nfailures_upload > 0) {
@@ -1696,19 +1726,21 @@ bool NetworkManager::isPatientInfoComplete()
         // but we must meet the uploading requirements
         statusMessage(tr("Failure: %1 patient(s) do not meet the "
                          "server's upload ID policy of: %2")
-                      .arg(nfailures_upload)
-                      .arg(m_app.uploadPolicy().pretty()));
+                          .arg(nfailures_upload)
+                          .arg(m_app.uploadPolicy().pretty()));
         return false;
     }
     if (finalizing && nfailures_upload + nfailures_finalize > 0) {
         // Finalizing; must meet all requirements
-        statusMessage(tr(
-            "Failure: %1 patient(s) do not meet the server's upload ID policy "
-            "[%2]; %3 patient(s) do not meet its finalize ID policy [%4]")
-                      .arg(nfailures_upload)
-                      .arg(m_app.uploadPolicy().pretty())
-                      .arg(nfailures_finalize)
-                      .arg(m_app.finalizePolicy().pretty()));
+        statusMessage(
+            tr("Failure: %1 patient(s) do not meet the server's upload ID "
+               "policy "
+               "[%2]; %3 patient(s) do not meet its finalize ID policy [%4]")
+                .arg(nfailures_upload)
+                .arg(m_app.uploadPolicy().pretty())
+                .arg(nfailures_finalize)
+                .arg(m_app.finalizePolicy().pretty())
+        );
         return false;
     }
 
@@ -1722,7 +1754,7 @@ bool NetworkManager::isPatientInfoComplete()
     // - https://stackoverflow.com/questions/3833299/can-an-array-be-top-level-json-text
     // - http://www.ietf.org/rfc/rfc4627.txt?number=4627
     const QJsonDocument jsondoc(patients_json_array);
-    m_upload_patient_info_json  = jsondoc.toJson(QJsonDocument::Compact);
+    m_upload_patient_info_json = jsondoc.toJson(QJsonDocument::Compact);
     //                                    ^^^^^^ ... a QByteArray in UTF-8
     // - https://stackoverflow.com/questions/28181627/how-to-convert-a-qjsonobject-to-qstring
 #ifdef DEBUG_JSON
@@ -1731,7 +1763,6 @@ bool NetworkManager::isPatientInfoComplete()
 
     return true;
 }
-
 
 bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
 {
@@ -1782,31 +1813,35 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
     }
 
     // ========================================================================
-    // Step 2: Apply flags from patients to their idnums/tasks/ancillary tables.
+    // Step 2: Apply flags from patients to their idnums/tasks/ancillary
+    // tables.
     // ========================================================================
     // m_upload_patient_ids_to_move_off has been precalculated for efficiency
 
     const int n_patients = m_upload_patient_ids_to_move_off.length();
     if (n_patients > 0) {
         QString pt_paramholders = dbfunc::sqlParamHolders(n_patients);
-        ArgList pt_args = dbfunc::argListFromIntList(m_upload_patient_ids_to_move_off);
+        ArgList pt_args
+            = dbfunc::argListFromIntList(m_upload_patient_ids_to_move_off);
         // Maximum length of an SQL statement: lots
         // https://www.sqlite.org/limits.html
         QString sql;
 
         // Patient ID number table
         sql = QString("UPDATE %1 SET %2 = 1 WHERE %3 IN (%4)")
-                      .arg(delimit(PatientIdNum::PATIENT_IDNUM_TABLENAME),
-                           delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME),
-                           delimit(PatientIdNum::FK_PATIENT),
-                           pt_paramholders);
+                  .arg(
+                      delimit(PatientIdNum::PATIENT_IDNUM_TABLENAME),
+                      delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME),
+                      delimit(PatientIdNum::FK_PATIENT),
+                      pt_paramholders
+                  );
 #ifdef USE_BACKGROUND_DATABASE
-            m_db.execNoAnswer(sql, pt_args);
+        m_db.execNoAnswer(sql, pt_args);
 #else
-            if (!m_db.exec(sql, pt_args)) {
-                queryFail(sql);
-                return false;
-            }
+        if (!m_db.exec(sql, pt_args)) {
+            queryFail(sql);
+            return false;
+        }
 #endif
 
         // Task tables
@@ -1817,10 +1852,12 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
             const QString main_tablename = specimen->tablename();
             // (a) main table, with FK to patient
             sql = QString("UPDATE %1 SET %2 = 1 WHERE %3 IN (%4)")
-                    .arg(delimit(main_tablename),
-                         delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME),
-                         delimit(Task::PATIENT_FK_FIELDNAME),
-                         pt_paramholders);
+                      .arg(
+                          delimit(main_tablename),
+                          delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME),
+                          delimit(Task::PATIENT_FK_FIELDNAME),
+                          pt_paramholders
+                      );
 #ifdef USE_BACKGROUND_DATABASE
             m_db.execNoAnswer(sql, pt_args);
 #else
@@ -1838,26 +1875,32 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
             WhereConditions where;
             where.add(dbconst::MOVE_OFF_TABLET_FIELDNAME, 1);
             const QVector<int> task_pks = m_db.getSingleFieldAsIntList(
-                        main_tablename, dbconst::PK_FIELDNAME, where);
+                main_tablename, dbconst::PK_FIELDNAME, where
+            );
             if (task_pks.isEmpty()) {
                 // no tasks to be moved off
                 continue;
             }
-            const QString fk_task_fieldname = specimen->ancillaryTableFKToTaskFieldname();
+            const QString fk_task_fieldname
+                = specimen->ancillaryTableFKToTaskFieldname();
             if (fk_task_fieldname.isEmpty()) {
-                uifunc::stopApp(QString(
-                    "Task %1 has ancillary tables but "
-                    "ancillaryTableFKToTaskFieldname() returns empty")
-                                .arg(main_tablename));
+                uifunc::stopApp(
+                    QString("Task %1 has ancillary tables but "
+                            "ancillaryTableFKToTaskFieldname() returns empty")
+                        .arg(main_tablename)
+                );
             }
-            const QString task_paramholders = dbfunc::sqlParamHolders(task_pks.length());
+            const QString task_paramholders
+                = dbfunc::sqlParamHolders(task_pks.length());
             const ArgList task_args = dbfunc::argListFromIntList(task_pks);
             for (const QString& ancillary_table : ancillary_tables) {
                 sql = QString("UPDATE %1 SET %2 = 1 WHERE %3 IN (%4)")
-                        .arg(delimit(ancillary_table),
-                             delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME),
-                             delimit(fk_task_fieldname),
-                             task_paramholders);
+                          .arg(
+                              delimit(ancillary_table),
+                              delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME),
+                              delimit(fk_task_fieldname),
+                              task_paramholders
+                          );
 #ifdef USE_BACKGROUND_DATABASE
                 m_db.execNoAnswer(sql, task_args);
 #else
@@ -1887,26 +1930,32 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
         WhereConditions where;
         where.add(dbconst::MOVE_OFF_TABLET_FIELDNAME, 1);
         const QVector<int> task_pks = m_db.getSingleFieldAsIntList(
-                    main_tablename, dbconst::PK_FIELDNAME, where);
+            main_tablename, dbconst::PK_FIELDNAME, where
+        );
         if (task_pks.isEmpty()) {
             // no tasks to be moved off
             continue;
         }
-        const QString fk_task_fieldname = specimen->ancillaryTableFKToTaskFieldname();
+        const QString fk_task_fieldname
+            = specimen->ancillaryTableFKToTaskFieldname();
         if (fk_task_fieldname.isEmpty()) {
-            uifunc::stopApp(QString(
-                "Task %1 has ancillary tables but "
-                "ancillaryTableFKToTaskFieldname() returns empty")
-                            .arg(main_tablename));
+            uifunc::stopApp(
+                QString("Task %1 has ancillary tables but "
+                        "ancillaryTableFKToTaskFieldname() returns empty")
+                    .arg(main_tablename)
+            );
         }
-        const QString task_paramholders = dbfunc::sqlParamHolders(task_pks.length());
+        const QString task_paramholders
+            = dbfunc::sqlParamHolders(task_pks.length());
         const ArgList task_args = dbfunc::argListFromIntList(task_pks);
         for (const QString& ancillary_table : ancillary_tables) {
             QString sql = QString("UPDATE %1 SET %2 = 1 WHERE %3 IN (%4)")
-                    .arg(delimit(ancillary_table),
-                         delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME),
-                         delimit(fk_task_fieldname),
-                         task_paramholders);
+                              .arg(
+                                  delimit(ancillary_table),
+                                  delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME),
+                                  delimit(fk_task_fieldname),
+                                  task_paramholders
+                              );
 #ifdef USE_BACKGROUND_DATABASE
             m_db.execNoAnswer(sql, task_args);
 #else
@@ -1931,10 +1980,12 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
 
     // (a) For every BLOB...
     const QString sql = dbfunc::selectColumns(
-                QStringList{dbconst::PK_FIELDNAME,
-                            Blob::SRC_TABLE_FIELDNAME,
-                            Blob::SRC_PK_FIELDNAME},
-                Blob::TABLENAME);
+        QStringList{
+            dbconst::PK_FIELDNAME,
+            Blob::SRC_TABLE_FIELDNAME,
+            Blob::SRC_PK_FIELDNAME},
+        Blob::TABLENAME
+    );
     const QueryResult result = m_db.query(sql);
     if (!result.succeeded()) {
         queryFail(sql);
@@ -1948,24 +1999,18 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
         const int src_pk = result.at(row, 2).toInt();
 
         // (c) find the move-off flag for that linked task
-        SqlArgs sub1_sqlargs(
-                    dbfunc::selectColumns(
-                        QStringList{dbconst::MOVE_OFF_TABLET_FIELDNAME},
-                        src_table));
+        SqlArgs sub1_sqlargs(dbfunc::selectColumns(
+            QStringList{dbconst::MOVE_OFF_TABLET_FIELDNAME}, src_table
+        ));
         WhereConditions sub1_where;
         sub1_where.add(dbconst::PK_FIELDNAME, src_pk);
         sub1_where.appendWhereClauseTo(sub1_sqlargs);
         const int move_off_int = m_db.fetchInt(sub1_sqlargs, -1);
         if (move_off_int == -1) {
             // No records matching
-            qWarning().nospace()
-                    << "BLOB refers to "
-                    << src_table
-                    << "."
-                    << dbconst::PK_FIELDNAME
-                    << " = "
-                    << src_pk
-                    << " but record doesn't exist!";
+            qWarning().nospace() << "BLOB refers to " << src_table << "."
+                                 << dbconst::PK_FIELDNAME << " = " << src_pk
+                                 << " but record doesn't exist!";
             continue;
         }
         if (move_off_int == 0) {
@@ -1974,8 +2019,10 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
         }
 
         // (d) set the BLOB's move-off flag
-        const UpdateValues update_values{{dbconst::MOVE_OFF_TABLET_FIELDNAME, true}};
-        SqlArgs sub2_sqlargs = dbfunc::updateColumns(update_values, Blob::TABLENAME);
+        const UpdateValues update_values{
+            {dbconst::MOVE_OFF_TABLET_FIELDNAME, true}};
+        SqlArgs sub2_sqlargs
+            = dbfunc::updateColumns(update_values, Blob::TABLENAME);
         WhereConditions sub2_where;
         sub2_where.add(dbconst::PK_FIELDNAME, blob_pk);
         sub2_where.appendWhereClauseTo(sub2_sqlargs);
@@ -1991,13 +2038,12 @@ bool NetworkManager::applyPatientMoveOffTabletFlagsToTasks()
     return true;
 }
 
-
 bool NetworkManager::catalogueTablesForUpload()
 {
     statusMessage(tr("Cataloguing tables for upload"));
     const QStringList recordwise_tables{Blob::TABLENAME};
-    const QStringList patient_tables{Patient::TABLENAME,
-                                     PatientIdNum::PATIENT_IDNUM_TABLENAME};
+    const QStringList patient_tables{
+        Patient::TABLENAME, PatientIdNum::PATIENT_IDNUM_TABLENAME};
     const QStringList all_tables = m_db.getAllTables();
     const Version server_version = m_app.serverVersion();
     bool may_upload;
@@ -2007,8 +2053,12 @@ bool NetworkManager::catalogueTablesForUpload()
     for (const QString& table : all_tables) {
         const int n_records = m_db.count(table);
         may_upload = m_app.mayUploadTable(
-                    table, server_version,
-                    server_has_table, min_client_version, min_server_version);
+            table,
+            server_version,
+            server_has_table,
+            min_client_version,
+            min_server_version
+        );
         if (!may_upload) {
             if (server_has_table) {
                 // This table requires a newer client than we are, OR we
@@ -2016,55 +2066,80 @@ bool NetworkManager::catalogueTablesForUpload()
                 // If the table is empty, proceed. Otherwise, fail.
                 if (server_version < min_server_version) {
                     if (n_records != 0) {
-                        statusMessage(tr(
-                            "ERROR: Table '%1' contains data; it is present "
-                            "on the server but the client requires server "
-                            "version >=%2; the server is version %3"
-                        ).arg(table, min_server_version.toString(),
-                              server_version.toString()));
+                        statusMessage(
+                            tr("ERROR: Table '%1' contains data; it is "
+                               "present "
+                               "on the server but the client requires server "
+                               "version >=%2; the server is version %3")
+                                .arg(
+                                    table,
+                                    min_server_version.toString(),
+                                    server_version.toString()
+                                )
+                        );
                         return false;
                     }
-                    statusMessage(tr(
-                        "WARNING: Table '%1' is present on the server but "
-                        "the client requires server version >=%2; the "
-                        "server is version %3; proceeding ONLY BECAUSE "
-                        "THIS TABLE IS EMPTY."
-                    ).arg(table, min_server_version.toString(),
-                          server_version.toString()));
+                    statusMessage(
+                        tr("WARNING: Table '%1' is present on the server but "
+                           "the client requires server version >=%2; the "
+                           "server is version %3; proceeding ONLY BECAUSE "
+                           "THIS TABLE IS EMPTY.")
+                            .arg(
+                                table,
+                                min_server_version.toString(),
+                                server_version.toString()
+                            )
+                    );
                 } else {
                     if (n_records != 0) {
-                        statusMessage(tr(
-                            "ERROR: Table '%1' contains data; it is present "
-                            "on the server but the server requires client "
-                            "version >=%2; you are using version %3"
-                        ).arg(table, min_client_version.toString(),
-                              camcopsversion::CAMCOPS_CLIENT_VERSION.toString()));
+                        statusMessage(
+                            tr("ERROR: Table '%1' contains data; it is "
+                               "present "
+                               "on the server but the server requires client "
+                               "version >=%2; you are using version %3")
+                                .arg(
+                                    table,
+                                    min_client_version.toString(),
+                                    camcopsversion::CAMCOPS_CLIENT_VERSION
+                                        .toString()
+                                )
+                        );
                         return false;
                     }
-                    statusMessage(tr(
-                        "WARNING: Table '%1' is present on the server but "
-                        "the server requires client version >=%2; you are "
-                        "using version %3; proceeding ONLY BECAUSE THIS "
-                        "TABLE IS EMPTY."
-                    ).arg(table, min_client_version.toString(),
-                          camcopsversion::CAMCOPS_CLIENT_VERSION.toString()));
+                    statusMessage(
+                        tr("WARNING: Table '%1' is present on the server but "
+                           "the server requires client version >=%2; you are "
+                           "using version %3; proceeding ONLY BECAUSE THIS "
+                           "TABLE IS EMPTY.")
+                            .arg(
+                                table,
+                                min_client_version.toString(),
+                                camcopsversion::CAMCOPS_CLIENT_VERSION
+                                    .toString()
+                            )
+                    );
                 }
             } else {
                 // The table isn't on the server.
                 if (n_records != 0) {
-                    statusMessage(tr(
-                        "ERROR: Table '%1' contains data but is absent on the "
-                        "server. You probably need a newer server version. "
-                        "(Once you have upgraded the server, re-register with "
-                        "it.)").arg(table));
+                    statusMessage(
+                        tr("ERROR: Table '%1' contains data but is absent on "
+                           "the "
+                           "server. You probably need a newer server version. "
+                           "(Once you have upgraded the server, re-register "
+                           "with "
+                           "it.)")
+                            .arg(table)
+                    );
                     return false;
                 }
-                statusMessage(tr(
-                    "WARNING: Table '%1' is absent on the server. You "
-                    "probably need a newer server version. (Once you have "
-                    "upgraded the server, re-register with it.) "
-                    "Proceeding ONLY BECAUSE THIS TABLE IS EMPTY."
-                ).arg(table));
+                statusMessage(
+                    tr("WARNING: Table '%1' is absent on the server. You "
+                       "probably need a newer server version. (Once you have "
+                       "upgraded the server, re-register with it.) "
+                       "Proceeding ONLY BECAUSE THIS TABLE IS EMPTY.")
+                        .arg(table)
+                );
             }
         }
         // How to upload?
@@ -2083,25 +2158,24 @@ bool NetworkManager::catalogueTablesForUpload()
         // case that the table is empty, in which case it doesn't matter
         // whether we clear it or not.)
         switch (m_upload_method) {
-        case UploadMethod::Copy:
-        case UploadMethod::Invalid:
+            case UploadMethod::Copy:
+            case UploadMethod::Invalid:
 #ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
-        default:
+            default:
 #endif
-            break;
-        case UploadMethod::MoveKeepingPatients:
-            if (!patient_tables.contains(table)) {
+                break;
+            case UploadMethod::MoveKeepingPatients:
+                if (!patient_tables.contains(table)) {
+                    m_upload_tables_to_wipe.append(table);
+                }
+                break;
+            case UploadMethod::Move:
                 m_upload_tables_to_wipe.append(table);
-            }
-            break;
-        case UploadMethod::Move:
-            m_upload_tables_to_wipe.append(table);
-            break;
+                break;
         }
     }
     return true;
 }
-
 
 bool NetworkManager::isServerVersionOK() const
 {
@@ -2117,21 +2191,23 @@ bool NetworkManager::isServerVersionOK() const
     return true;
 }
 
-
 bool NetworkManager::serverVersionNewEnough() const
 {
     const Version server_version = serverVersionFromReply();
     bool new_enough = server_version >= camcopsversion::MINIMUM_SERVER_VERSION;
 
     if (!new_enough) {
-        statusMessage(tr("Server CamCOPS version (%1) is too old; must be >= %2")
-                      .arg(server_version.toString(),
-                           camcopsversion::MINIMUM_SERVER_VERSION.toString()));
+        statusMessage(
+            tr("Server CamCOPS version (%1) is too old; must be >= %2")
+                .arg(
+                    server_version.toString(),
+                    camcopsversion::MINIMUM_SERVER_VERSION.toString()
+                )
+        );
     }
 
     return new_enough;
 }
-
 
 bool NetworkManager::serverVersionMatchesStored() const
 {
@@ -2141,40 +2217,47 @@ bool NetworkManager::serverVersionMatchesStored() const
     bool matches = server_version == stored_server_version;
 
     if (!matches) {
-        statusMessage(tr("Server version (%1) doesn't match stored version (%2).")
-                      .arg(server_version.toString(),
-                           stored_server_version.toString()) +
-                      txtPleaseRefetchServerInfo());
+        statusMessage(
+            tr("Server version (%1) doesn't match stored version (%2).")
+                .arg(
+                    server_version.toString(), stored_server_version.toString()
+                )
+            + txtPleaseRefetchServerInfo()
+        );
     }
 
     return matches;
 }
-
 
 Version NetworkManager::serverVersionFromReply() const
 {
     return Version(m_reply_dict[KEY_SERVER_CAMCOPS_VERSION]);
 }
 
-
 bool NetworkManager::arePoliciesOK() const
 {
     statusMessage(tr("Checking ID policies match server"));
     const QString local_upload = m_app.uploadPolicy().pretty();
     const QString local_finalize = m_app.finalizePolicy().pretty();
-    const QString server_upload = IdPolicy(m_reply_dict[KEY_ID_POLICY_UPLOAD]).pretty();
-    const QString server_finalize = IdPolicy(m_reply_dict[KEY_ID_POLICY_FINALIZE]).pretty();
+    const QString server_upload
+        = IdPolicy(m_reply_dict[KEY_ID_POLICY_UPLOAD]).pretty();
+    const QString server_finalize
+        = IdPolicy(m_reply_dict[KEY_ID_POLICY_FINALIZE]).pretty();
     bool ok = true;
     if (local_upload != server_upload) {
-        statusMessage(tr("Local upload policy [%1] doesn't match server's [%2].")
-                      .arg(local_upload, server_upload) +
-                      txtPleaseRefetchServerInfo());
+        statusMessage(
+            tr("Local upload policy [%1] doesn't match server's [%2].")
+                .arg(local_upload, server_upload)
+            + txtPleaseRefetchServerInfo()
+        );
         ok = false;
     }
     if (local_finalize != server_finalize) {
-        statusMessage(tr("Local finalize policy [%1] doesn't match server's [%2].")
-                      .arg(local_finalize, server_finalize) +
-                      txtPleaseRefetchServerInfo());
+        statusMessage(
+            tr("Local finalize policy [%1] doesn't match server's [%2].")
+                .arg(local_finalize, server_finalize)
+            + txtPleaseRefetchServerInfo()
+        );
         ok = false;
     }
     if (ok) {
@@ -2182,7 +2265,6 @@ bool NetworkManager::arePoliciesOK() const
     }
     return ok;
 }
-
 
 bool NetworkManager::areDescriptionsOK() const
 {
@@ -2196,23 +2278,23 @@ bool NetworkManager::areDescriptionsOK() const
         const QString key_desc = KEYSPEC_ID_DESCRIPTION.arg(n);
         const QString key_shortdesc = KEYSPEC_ID_SHORT_DESCRIPTION.arg(n);
         const QString key_validation = KEYSPEC_ID_VALIDATION_METHOD.arg(n);
-        if (m_reply_dict.contains(key_desc) &&
-                m_reply_dict.contains(key_shortdesc)) {
+        if (m_reply_dict.contains(key_desc)
+            && m_reply_dict.contains(key_shortdesc)) {
             const QString local_desc = iddesc->description();
             const QString local_shortdesc = iddesc->shortDescription();
             const QString server_desc = m_reply_dict[key_desc];
             const QString server_shortdesc = m_reply_dict[key_shortdesc];
-            descriptions_match = descriptions_match &&
-                    local_desc == server_desc &&
-                    local_shortdesc == server_shortdesc;
+            descriptions_match = descriptions_match
+                && local_desc == server_desc
+                && local_shortdesc == server_shortdesc;
             which_idnums_on_server.append(n);
             // Old servers may not provide the ID number validator info.
             // But new ones will (v2.2.8+), in which case we'll check.
             if (m_reply_dict.contains(key_validation)) {
                 const QString local_validation = iddesc->validationMethod();
                 const QString server_validation = m_reply_dict[key_validation];
-                descriptions_match = descriptions_match &&
-                        local_validation == server_validation;
+                descriptions_match = descriptions_match
+                    && local_validation == server_validation;
             }
         } else {
             idnums_all_on_server = false;
@@ -2220,39 +2302,47 @@ bool NetworkManager::areDescriptionsOK() const
     }
     QVector<int> which_idnums_on_tablet = whichIdnumsUsedOnTablet();
     QVector<int> extra_idnums_on_tablet = containers::setSubtract(
-                which_idnums_on_tablet, which_idnums_on_server);
+        which_idnums_on_tablet, which_idnums_on_server
+    );
     const bool extra_idnums = !extra_idnums_on_tablet.isEmpty();
 
-    const bool ok = descriptions_match && idnums_all_on_server && !extra_idnums;
+    const bool ok
+        = descriptions_match && idnums_all_on_server && !extra_idnums;
     if (ok) {
         statusMessage(tr("... OK"));
     } else if (!idnums_all_on_server) {
-        statusMessage(tr("Some ID numbers defined on the tablet are absent on "
-                         "the server!") + txtPleaseRefetchServerInfo());
+        statusMessage(
+            tr("Some ID numbers defined on the tablet are absent on "
+               "the server!")
+            + txtPleaseRefetchServerInfo()
+        );
     } else if (!descriptions_match) {
-        statusMessage(tr("Descriptions do not match!") + txtPleaseRefetchServerInfo());
+        statusMessage(
+            tr("Descriptions do not match!") + txtPleaseRefetchServerInfo()
+        );
     } else if (extra_idnums) {
-        statusMessage(tr(
-                "ID numbers %1 are used on the tablet but not defined "
-                "on the server! Please edit patient records to remove "
-                "them.").arg(convert::numericVectorToCsvString(
-                                 extra_idnums_on_tablet)));
+        statusMessage(
+            tr("ID numbers %1 are used on the tablet but not defined "
+               "on the server! Please edit patient records to remove "
+               "them.")
+                .arg(convert::numericVectorToCsvString(extra_idnums_on_tablet))
+        );
     } else {
         statusMessage("Logic bug: something not OK but don't know why");
     }
     return ok;
 }
 
-
 QVector<int> NetworkManager::whichIdnumsUsedOnTablet() const
 {
     const QString sql = QString("SELECT DISTINCT %1 FROM %2 ORDER BY %1")
-            .arg(delimit(PatientIdNum::FN_WHICH_IDNUM),
-                 delimit(PatientIdNum::PATIENT_IDNUM_TABLENAME));
+                            .arg(
+                                delimit(PatientIdNum::FN_WHICH_IDNUM),
+                                delimit(PatientIdNum::PATIENT_IDNUM_TABLENAME)
+                            );
     const QueryResult result = m_db.query(sql);
     return result.firstColumnAsIntList();
 }
-
 
 bool NetworkManager::pruneRecordwisePks()
 {
@@ -2267,7 +2357,6 @@ bool NetworkManager::pruneRecordwisePks()
     m_recordwise_pks_pruned = true;
     return true;
 }
-
 
 void NetworkManager::wipeTables()
 {
@@ -2296,7 +2385,9 @@ void NetworkManager::wipeTables()
     //   completely, for speed).
     if (m_upload_method != UploadMethod::Move) {
         // ... if we were doing a Move, *everything* has gone
-        statusMessage(tr("Wiping any specifically requested patients and/or anonymous tasks"));
+        statusMessage(tr(
+            "Wiping any specifically requested patients and/or anonymous tasks"
+        ));
         WhereConditions where_move_off;
         where_move_off.add(dbconst::MOVE_OFF_TABLET_FIELDNAME, 1);
 
@@ -2310,27 +2401,28 @@ void NetworkManager::wipeTables()
     }
 }
 
-
 void NetworkManager::queryFail(const QString& sql)
 {
     statusMessage(tr("Query failed: ") + sql);
     fail();
 }
 
-
 void NetworkManager::queryFailClearingMoveOffFlag(const QString& tablename)
 {
-    queryFail(tr("... trying to clear move-off-tablet flag for table:") +
-              " " + tablename);
+    queryFail(
+        tr("... trying to clear move-off-tablet flag for table:") + " "
+        + tablename
+    );
 }
-
 
 bool NetworkManager::clearMoveOffTabletFlag(const QString& tablename)
 {
     // 1. Clear all
     const QString sql = QString("UPDATE %1 SET %2 = 0")
-            .arg(delimit(tablename),
-                 delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME));
+                            .arg(
+                                delimit(tablename),
+                                delimit(dbconst::MOVE_OFF_TABLET_FIELDNAME)
+                            );
 #ifdef USE_BACKGROUND_DATABASE
     m_db.execNoAnswer(sql);
     return true;
@@ -2338,7 +2430,6 @@ bool NetworkManager::clearMoveOffTabletFlag(const QString& tablename)
     return m_db.exec(sql);
 #endif
 }
-
 
 bool NetworkManager::pruneDeadBlobs()
 {
@@ -2349,10 +2440,12 @@ bool NetworkManager::pruneDeadBlobs()
 
     // For all BLOBs...
     QString sql = dbfunc::selectColumns(
-                QStringList{dbconst::PK_FIELDNAME,
-                            Blob::SRC_TABLE_FIELDNAME,
-                            Blob::SRC_PK_FIELDNAME},
-                Blob::TABLENAME);
+        QStringList{
+            dbconst::PK_FIELDNAME,
+            Blob::SRC_TABLE_FIELDNAME,
+            Blob::SRC_PK_FIELDNAME},
+        Blob::TABLENAME
+    );
     const QueryResult result = m_db.query(sql);
     if (!result.succeeded()) {
         queryFail(sql);
@@ -2367,8 +2460,8 @@ bool NetworkManager::pruneDeadBlobs()
             continue;
         }
         // Does our BLOB refer to something non-existent?
-        if (!all_tables.contains(src_table) ||
-                !m_db.existsByPk(src_table, dbconst::PK_FIELDNAME, src_pk)) {
+        if (!all_tables.contains(src_table)
+            || !m_db.existsByPk(src_table, dbconst::PK_FIELDNAME, src_pk)) {
             bad_blob_pks.append(blob_pk);
         }
     }
@@ -2382,9 +2475,11 @@ bool NetworkManager::pruneDeadBlobs()
     qWarning() << "Deleting defunct BLOBs with PKs:" << bad_blob_pks;
     const QString paramholders = dbfunc::sqlParamHolders(n_bad_blobs);
     sql = QString("DELETE FROM %1 WHERE %2 IN (%3)")
-            .arg(delimit(Blob::TABLENAME),
-                 delimit(dbconst::PK_FIELDNAME),
-                 paramholders);
+              .arg(
+                  delimit(Blob::TABLENAME),
+                  delimit(dbconst::PK_FIELDNAME),
+                  paramholders
+              );
     ArgList args = dbfunc::argListFromIntList(bad_blob_pks);
 #ifdef USE_BACKGROUND_DATABASE
     m_db.execNoAnswer(sql, args);
@@ -2397,7 +2492,6 @@ bool NetworkManager::pruneDeadBlobs()
     return true;
 }
 
-
 // ============================================================================
 // One-step upload
 // ============================================================================
@@ -2406,7 +2500,6 @@ bool NetworkManager::serverSupportsOneStepUpload() const
 {
     return m_app.serverVersion() >= MIN_SERVER_VERSION_FOR_ONE_STEP_UPLOAD;
 }
-
 
 bool NetworkManager::shouldUseOneStepUpload() const
 {
@@ -2423,14 +2516,13 @@ bool NetworkManager::shouldUseOneStepUpload() const
     if (method == varconst::UPLOAD_METHOD_ONESTEP) {
         return true;
     } else if (method == varconst::UPLOAD_METHOD_BYSIZE) {
-        return m_db.approximateDatabaseSize() <= m_app.varLongLong(
-                    varconst::MAX_DBSIZE_FOR_ONESTEP_UPLOAD);
+        return m_db.approximateDatabaseSize()
+            <= m_app.varLongLong(varconst::MAX_DBSIZE_FOR_ONESTEP_UPLOAD);
     } else {
         // e.g. varconst::UPLOAD_METHOD_MULTISTEP or bad value
         return false;
     }
 }
-
 
 void NetworkManager::uploadOneStep()
 {
@@ -2447,7 +2539,6 @@ void NetworkManager::uploadOneStep()
     serverPost(dict, &NetworkManager::uploadNext);
 }
 
-
 QString NetworkManager::getPkInfoAsJson()
 {
     QJsonObject root;
@@ -2457,7 +2548,6 @@ QString NetworkManager::getPkInfoAsJson()
     const QJsonDocument jsondoc(root);
     return jsondoc.toJson(QJsonDocument::Compact);
 }
-
 
 // ============================================================================
 // Translatable text
@@ -2477,9 +2567,8 @@ void NetworkManager::registerPatient()
 {
     Dict dict;
     dict[KEY_OPERATION] = OP_REGISTER_PATIENT;
-    dict[KEY_PATIENT_PROQUINT] = m_app.varString(
-        varconst::SINGLE_PATIENT_PROQUINT
-    );
+    dict[KEY_PATIENT_PROQUINT]
+        = m_app.varString(varconst::SINGLE_PATIENT_PROQUINT);
 
     const bool include_user = false;
     serverPost(dict, &NetworkManager::registerPatientSub1, include_user);
@@ -2503,7 +2592,6 @@ void NetworkManager::registerPatientSub1(QNetworkReply* reply)
     registerWithServer();
 }
 
-
 void NetworkManager::setUserDetails()
 {
     if (m_reply_dict.contains(KEY_USER)) {
@@ -2511,7 +2599,6 @@ void NetworkManager::setUserDetails()
         m_app.setVar(varconst::SERVER_USERNAME, m_reply_dict[KEY_USER]);
     }
 }
-
 
 bool NetworkManager::createSinglePatient()
 {
@@ -2521,9 +2608,8 @@ bool NetworkManager::createSinglePatient()
         m_reply_dict[KEY_PATIENT_INFO].toUtf8(), &error
     );
     if (doc.isNull()) {
-        const QString message = tr("Failed to parse patient info: %1").arg(
-            error.errorString()
-        );
+        const QString message
+            = tr("Failed to parse patient info: %1").arg(error.errorString());
         statusMessage(message);
         fail(ErrorCode::JsonParseError, message);
         return false;
@@ -2534,9 +2620,8 @@ bool NetworkManager::createSinglePatient()
     const QJsonArray patients_json_array = doc.array();
     const QJsonObject patient_json = patients_json_array.first().toObject();
 
-    PatientPtr patient = PatientPtr(
-        new Patient(m_app, m_app.db(), patient_json)
-    );
+    PatientPtr patient
+        = PatientPtr(new Patient(m_app, m_app.db(), patient_json));
     patient->save();
     m_app.setSinglePatientId(patient->id());
 
@@ -2544,7 +2629,6 @@ bool NetworkManager::createSinglePatient()
 
     return true;
 }
-
 
 bool NetworkManager::setIpUseInfo()
 {
@@ -2555,9 +2639,9 @@ bool NetworkManager::setIpUseInfo()
     );
 
     if (doc.isNull()) {
-        const QString message = tr(
-            "Failed to parse intellectual property use info: %1"
-        ).arg(error.errorString());
+        const QString message
+            = tr("Failed to parse intellectual property use info: %1")
+                  .arg(error.errorString());
         statusMessage(message);
         fail(ErrorCode::JsonParseError, message);
 
@@ -2566,14 +2650,18 @@ bool NetworkManager::setIpUseInfo()
 
     const QJsonObject ip_use_info = doc.object();
 
-    m_app.setVar(varconst::IP_USE_CLINICAL,
-                 ip_use_info.value(KEY_IP_USE_CLINICAL));
-    m_app.setVar(varconst::IP_USE_COMMERCIAL,
-                 ip_use_info.value(KEY_IP_USE_COMMERCIAL));
-    m_app.setVar(varconst::IP_USE_EDUCATIONAL,
-                 ip_use_info.value(KEY_IP_USE_EDUCATIONAL));
-    m_app.setVar(varconst::IP_USE_RESEARCH,
-                 ip_use_info.value(KEY_IP_USE_RESEARCH));
+    m_app.setVar(
+        varconst::IP_USE_CLINICAL, ip_use_info.value(KEY_IP_USE_CLINICAL)
+    );
+    m_app.setVar(
+        varconst::IP_USE_COMMERCIAL, ip_use_info.value(KEY_IP_USE_COMMERCIAL)
+    );
+    m_app.setVar(
+        varconst::IP_USE_EDUCATIONAL, ip_use_info.value(KEY_IP_USE_EDUCATIONAL)
+    );
+    m_app.setVar(
+        varconst::IP_USE_RESEARCH, ip_use_info.value(KEY_IP_USE_RESEARCH)
+    );
 
     return true;
 }

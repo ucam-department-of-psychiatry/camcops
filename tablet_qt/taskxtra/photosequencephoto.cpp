@@ -20,23 +20,31 @@
 
 #include "photosequencephoto.h"
 
-const QString PhotoSequencePhoto::PHOTOSEQUENCEPHOTO_TABLENAME("photosequence_photos");
+const QString
+    PhotoSequencePhoto::PHOTOSEQUENCEPHOTO_TABLENAME("photosequence_photos");
 
-const QString PhotoSequencePhoto::FK_NAME("photosequence_id");  // FK to photosequence.id
+const QString PhotoSequencePhoto::FK_NAME("photosequence_id");
+// ... FK to photosequence.id
 const QString PhotoSequencePhoto::SEQNUM("seqnum");
 const QString PhotoSequencePhoto::DESCRIPTION("description");
 const QString PhotoSequencePhoto::PHOTO_BLOBID("photo_blobid");
+
 // const QString PhotoSequenceItem::ROTATION("rotation");  // DEFUNCT in v2
 
 
-PhotoSequencePhoto::PhotoSequencePhoto(CamcopsApp& app, DatabaseManager& db,
-                                       const int load_pk) :
-    DatabaseObject(app, db, PHOTOSEQUENCEPHOTO_TABLENAME,
-                   dbconst::PK_FIELDNAME,  // pk_fieldname
-                   true,  // has_modification_timestamp
-                   false,  // has_creation_timestamp
-                   true,  // has_move_off_tablet_field
-                   true)  // triggers_need_upload
+PhotoSequencePhoto::PhotoSequencePhoto(
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
+    DatabaseObject(
+        app,
+        db,
+        PHOTOSEQUENCEPHOTO_TABLENAME,
+        dbconst::PK_FIELDNAME,  // pk_fieldname
+        true,  // has_modification_timestamp
+        false,  // has_creation_timestamp
+        true,  // has_move_off_tablet_field
+        true
+    )  // triggers_need_upload
 {
     addField(FK_NAME, QMetaType::fromType<int>());
     addField(SEQNUM, QMetaType::fromType<int>());
@@ -46,26 +54,23 @@ PhotoSequencePhoto::PhotoSequencePhoto(CamcopsApp& app, DatabaseManager& db,
     load(load_pk);
 }
 
-
-PhotoSequencePhoto::PhotoSequencePhoto(const int owner_fk, CamcopsApp& app,
-                                       DatabaseManager& db) :
+PhotoSequencePhoto::PhotoSequencePhoto(
+    const int owner_fk, CamcopsApp& app, DatabaseManager& db
+) :
     PhotoSequencePhoto(app, db)  // delegating constructor
 {
     setValue(FK_NAME, owner_fk);
 }
-
 
 void PhotoSequencePhoto::setSeqnum(const int seqnum)
 {
     setValue(SEQNUM, seqnum);
 }
 
-
 int PhotoSequencePhoto::seqnum() const
 {
     return valueInt(SEQNUM);
 }
-
 
 QString PhotoSequencePhoto::description() const
 {

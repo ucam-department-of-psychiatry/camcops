@@ -21,13 +21,13 @@
 // #define DEBUG_STEP_DETAIL
 
 #include "cardinalexpdetcommon.h"
+
 #include <QObject>
+
 #include "common/colourdefs.h"
 #include "lib/uifunc.h"
 
-
-namespace cardinalexpdetcommon
-{
+namespace cardinalexpdetcommon {
 
 const int N_CUES_PER_MODALITY = 8;
 const qreal MIN_INTENSITY = 0.0;
@@ -74,24 +74,46 @@ const QRectF SCENE_RECT(0, 0, SCENE_WIDTH, SCENE_HEIGHT);
 const QPointF SCENE_CENTRE(SCENE_WIDTH * 0.5, SCENE_HEIGHT * 0.5);
 const qreal STIM_SIDE = 400;
 // Keep stimuli above all buttons, to avoid screen smudging
-const QRectF VISUAL_STIM_RECT(0.5 * SCENE_WIDTH - STIM_SIDE / 2.0,  // left
-                              0.05 * SCENE_HEIGHT,  // top
-                              STIM_SIDE,  // width
-                              STIM_SIDE);  // height
-const QRectF START_BUTTON_RECT(0.2 * SCENE_WIDTH, 0.6 * SCENE_HEIGHT,
-                               0.6 * SCENE_WIDTH, 0.1 * SCENE_HEIGHT);
+const QRectF VISUAL_STIM_RECT(
+    0.5 * SCENE_WIDTH - STIM_SIDE / 2.0,  // left
+    0.05 * SCENE_HEIGHT,  // top
+    STIM_SIDE,  // width
+    STIM_SIDE
+);  // height
+const QRectF START_BUTTON_RECT(
+    0.2 * SCENE_WIDTH,
+    0.6 * SCENE_HEIGHT,
+    0.6 * SCENE_WIDTH,
+    0.1 * SCENE_HEIGHT
+);
 const QPointF PROMPT_CENTRE(0.5 * SCENE_WIDTH, 0.65 * SCENE_HEIGHT);
 const qreal RESPONSE_BUTTON_TOP = 0.75 * SCENE_HEIGHT;
 const qreal RESPONSE_BUTTON_HEIGHT = 0.2 * SCENE_HEIGHT;
 const qreal RESPONSE_BUTTON_WIDTH = 0.2 * SCENE_WIDTH;
-const QRectF NO_BUTTON_RECT(0.2 * SCENE_WIDTH, RESPONSE_BUTTON_TOP,
-                            RESPONSE_BUTTON_WIDTH, RESPONSE_BUTTON_HEIGHT);
-const QRectF YES_BUTTON_RECT(0.6 * SCENE_WIDTH, RESPONSE_BUTTON_TOP,
-                             RESPONSE_BUTTON_WIDTH, RESPONSE_BUTTON_HEIGHT);
-const QRectF ABORT_BUTTON_RECT(0.01 * SCENE_WIDTH, 0.94 * SCENE_HEIGHT,
-                               0.07 * SCENE_WIDTH, 0.05 * SCENE_HEIGHT);
-const QRectF THANKS_BUTTON_RECT(0.3 * SCENE_WIDTH, 0.6 * SCENE_HEIGHT,
-                                0.4 * SCENE_WIDTH, 0.1 * SCENE_HEIGHT);
+const QRectF NO_BUTTON_RECT(
+    0.2 * SCENE_WIDTH,
+    RESPONSE_BUTTON_TOP,
+    RESPONSE_BUTTON_WIDTH,
+    RESPONSE_BUTTON_HEIGHT
+);
+const QRectF YES_BUTTON_RECT(
+    0.6 * SCENE_WIDTH,
+    RESPONSE_BUTTON_TOP,
+    RESPONSE_BUTTON_WIDTH,
+    RESPONSE_BUTTON_HEIGHT
+);
+const QRectF ABORT_BUTTON_RECT(
+    0.01 * SCENE_WIDTH,
+    0.94 * SCENE_HEIGHT,
+    0.07 * SCENE_WIDTH,
+    0.05 * SCENE_HEIGHT
+);
+const QRectF THANKS_BUTTON_RECT(
+    0.3 * SCENE_WIDTH,
+    0.6 * SCENE_HEIGHT,
+    0.4 * SCENE_WIDTH,
+    0.1 * SCENE_HEIGHT
+);
 
 // Graphics: other
 const QColor SCENE_BACKGROUND(QCOLOR_BLACK);  // try QCOLOR_LIGHTSALMON
@@ -108,33 +130,38 @@ const Qt::Alignment TEXT_ALIGN = Qt::AlignCenter;
 const QColor EDGE_COLOUR(QCOLOR_WHITE);
 const QPen BORDER_PEN(QBrush(EDGE_COLOUR), BORDER_WIDTH_PX);
 const ButtonConfig BASE_BUTTON_CONFIG(
-        PADDING, TEXT_SIZE_PX, TEXT_COLOUR, BUTTON_TEXT_ALIGN,
-        BUTTON_BACKGROUND, BUTTON_PRESSED_BACKGROUND,
-        BORDER_PEN, BUTTON_RADIUS);
+    PADDING,
+    TEXT_SIZE_PX,
+    TEXT_COLOUR,
+    BUTTON_TEXT_ALIGN,
+    BUTTON_BACKGROUND,
+    BUTTON_PRESSED_BACKGROUND,
+    BORDER_PEN,
+    BUTTON_RADIUS
+);
 
 // WATCH OUT: anything using the clone() method must be in THIS FILE, not
 // another .cpp file; see qt_notes.txt,
 // "Problems with .cpp files containing const QObjects"
-const ButtonConfig ABORT_BUTTON_CONFIG = BASE_BUTTON_CONFIG.clone()
-        .setBackgroundColour(ABORT_BUTTON_BACKGROUND);
-const TextConfig BASE_TEXT_CONFIG(TEXT_SIZE_PX, TEXT_COLOUR,
-                                  static_cast<int>(SCENE_WIDTH), TEXT_ALIGN);
+const ButtonConfig ABORT_BUTTON_CONFIG
+    = BASE_BUTTON_CONFIG.clone().setBackgroundColour(ABORT_BUTTON_BACKGROUND);
+const TextConfig BASE_TEXT_CONFIG(
+    TEXT_SIZE_PX, TEXT_COLOUR, static_cast<int>(SCENE_WIDTH), TEXT_ALIGN
+);
 const QColor CONTINUE_BUTTON_BACKGROUND(QCOLOR_DARKGREEN);
-const ButtonConfig CONTINUE_BUTTON_CONFIG = BASE_BUTTON_CONFIG.clone()
-        .setBackgroundColour(CONTINUE_BUTTON_BACKGROUND);
-
+const ButtonConfig CONTINUE_BUTTON_CONFIG
+    = BASE_BUTTON_CONFIG.clone().setBackgroundColour(CONTINUE_BUTTON_BACKGROUND
+    );
 
 QUrl urlFromStem(const QString& stem)
 {
     return uifunc::resourceUrl(QString("/expdet/%1").arg(stem));
 }
 
-
 QString filenameFromStem(const QString& stem)
 {
     return uifunc::resourceFilename(QString("/expdet/%1").arg(stem));
 }
-
 
 // ============================================================================
 // Translatable text (ugly coding for Qt lupdate tool)
@@ -145,7 +172,6 @@ QString ExpDetTextConst::soundtestTitle()
     return tr("Sound test for Cardinal RN / Expectation–Detection task");
 }
 
-
 QString ExpDetTextConst::soundtestSubtitle()
 {
     return tr(
@@ -154,54 +180,45 @@ QString ExpDetTextConst::soundtestSubtitle()
     );
 }
 
-
 QString ExpDetTextConst::configVisualTargetDurationS()
 {
     return tr("Visual target duration (s) (e.g. 1.0):");
 }
-
 
 QString ExpDetTextConst::auditoryTarget0()
 {
     return tr("tone (auditory target 0)");
 }
 
-
 QString ExpDetTextConst::auditoryTarget0Short()
 {
     return tr("tone");
 }
-
 
 QString ExpDetTextConst::auditoryTarget1()
 {
     return tr("voice (auditory target 1)");
 }
 
-
 QString ExpDetTextConst::auditoryTarget1Short()
 {
     return tr("voice");
 }
-
 
 QString ExpDetTextConst::visualTarget0()
 {
     return tr("circle (visual target 0)");
 }
 
-
 QString ExpDetTextConst::visualTarget0Short()
 {
     return tr("circle");
 }
 
-
 QString ExpDetTextConst::visualTarget1()
 {
     return tr("word (visual target 1)");
 }
-
 
 QString ExpDetTextConst::visualTarget1Short()
 {

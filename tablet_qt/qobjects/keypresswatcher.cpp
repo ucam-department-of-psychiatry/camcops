@@ -19,10 +19,10 @@
 */
 
 #include "keypresswatcher.h"
+
 #include <QDialog>
 #include <QKeyEvent>
 #include <QObject>
-
 
 KeyPressWatcher::KeyPressWatcher(QDialog* parent) :
     QObject(parent)
@@ -31,7 +31,6 @@ KeyPressWatcher::KeyPressWatcher(QDialog* parent) :
         parent->installEventFilter(this);
     }
 }
-
 
 bool KeyPressWatcher::eventFilter(QObject* obj, QEvent* event)
 {
@@ -48,9 +47,9 @@ bool KeyPressWatcher::eventFilter(QObject* obj, QEvent* event)
     return false;  // continue processing the event
 }
 
-
-void KeyPressWatcher::addKeyEvent(const int key,
-                                  const CallbackFunction& callback)
+void KeyPressWatcher::addKeyEvent(
+    const int key, const CallbackFunction& callback
+)
 {
     m_map[key] = callback;
 }

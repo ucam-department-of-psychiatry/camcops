@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/tasks/honos.py
 
@@ -77,6 +75,7 @@ FOOTNOTE_SCORING = """
 # =============================================================================
 # HoNOS abstract base class
 # =============================================================================
+
 
 # noinspection PyAbstractClass
 class HonosBase(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
@@ -332,40 +331,40 @@ class Honos(HonosBase, metaclass=HonosMetaclass):
                         ): self.total_score(),
                         req.snomed(
                             SnomedLookup.HONOSWA_1_OVERACTIVE_SCORE
-                        ): self.q1,  # noqa
+                        ): self.q1,
                         req.snomed(
                             SnomedLookup.HONOSWA_2_SELFINJURY_SCORE
-                        ): self.q2,  # noqa
+                        ): self.q2,
                         req.snomed(
                             SnomedLookup.HONOSWA_3_SUBSTANCE_SCORE
-                        ): self.q3,  # noqa
+                        ): self.q3,
                         req.snomed(
                             SnomedLookup.HONOSWA_4_COGNITIVE_SCORE
-                        ): self.q4,  # noqa
+                        ): self.q4,
                         req.snomed(
                             SnomedLookup.HONOSWA_5_PHYSICAL_SCORE
                         ): self.q5,
                         req.snomed(
                             SnomedLookup.HONOSWA_6_PSYCHOSIS_SCORE
-                        ): self.q6,  # noqa
+                        ): self.q6,
                         req.snomed(
                             SnomedLookup.HONOSWA_7_DEPRESSION_SCORE
-                        ): self.q7,  # noqa
+                        ): self.q7,
                         req.snomed(
                             SnomedLookup.HONOSWA_8_OTHERMENTAL_SCORE
-                        ): self.q8,  # noqa
+                        ): self.q8,
                         req.snomed(
                             SnomedLookup.HONOSWA_9_RELATIONSHIPS_SCORE
-                        ): self.q9,  # noqa
+                        ): self.q9,
                         req.snomed(
                             SnomedLookup.HONOSWA_10_ADL_SCORE
                         ): self.q10,
                         req.snomed(
                             SnomedLookup.HONOSWA_11_LIVINGCONDITIONS_SCORE
-                        ): self.q11,  # noqa
+                        ): self.q11,
                         req.snomed(
                             SnomedLookup.HONOSWA_12_OCCUPATION_SCORE
-                        ): self.q12,  # noqa
+                        ): self.q12,
                     },
                 )
             )
@@ -721,7 +720,7 @@ class Honosca(HonosBase, metaclass=HonoscaMetaclass):
                         req.snomed(SnomedLookup.HONOSCA_SECTION_B_SCORE): b,
                         req.snomed(
                             SnomedLookup.HONOSCA_SECTION_A_PLUS_B_SCORE
-                        ): total,  # noqa
+                        ): total,
                     },
                 )
             )

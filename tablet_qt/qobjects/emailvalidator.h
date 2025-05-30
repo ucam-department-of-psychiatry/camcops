@@ -21,10 +21,10 @@
 #pragma once
 #include <QRegularExpressionValidator>
 
-
 class EmailValidator : public QRegularExpressionValidator
 {
     Q_OBJECT
+
 public:
     EmailValidator(QObject* parent = nullptr, bool allow_blank = true);
 };

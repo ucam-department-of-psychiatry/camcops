@@ -19,11 +19,12 @@
 */
 
 #include "ided3dtrial.h"
+
+#include "ided3dstage.h"
 #include "lib/containers.h"
 #include "lib/datetime.h"
 #include "maths/ccrandom.h"
 #include "maths/mathfunc.h"
-#include "ided3dstage.h"
 using ccrandom::drawreplace;
 using ccrandom::dwor;
 using containers::subtract;
@@ -52,26 +53,30 @@ const QString FN_RESPONSE_LATENCY_MS("response_latency_ms");
 const QString FN_CORRECT("correct");
 const QString FN_INCORRECT("incorrect");
 
-
-IDED3DTrial::IDED3DTrial(CamcopsApp& app, DatabaseManager& db,
-                         const int load_pk) :
+IDED3DTrial::IDED3DTrial(
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
     DatabaseObject(app, db, TRIAL_TABLENAME),
     m_stage_num_zero_based(-1),
     m_trial_num_zero_based(-1)
 {
     addField(FN_FK_TO_TASK, QMetaType::fromType<int>());
     // More keys
-    addField(FN_TRIAL, QMetaType::fromType<int>(), true);  // 1-based trial number within this session
-    addField(FN_STAGE, QMetaType::fromType<int>(), true);  // 1-based stage number within this session
+    addField(FN_TRIAL, QMetaType::fromType<int>(), true);
+    // ... 1-based trial number within this session
+    addField(FN_STAGE, QMetaType::fromType<int>(), true);
+    // ... 1-based stage number within this session
     // Locations
     addField(FN_CORRECT_LOCATION, QMetaType::fromType<int>());
     addField(FN_INCORRECT_LOCATION, QMetaType::fromType<int>());
     // Stimuli
     addField(FN_CORRECT_SHAPE, QMetaType::fromType<int>());
-    addField(FN_CORRECT_COLOUR, QMetaType::fromType<int>());  // was string prior to 2.0.0
+    addField(FN_CORRECT_COLOUR, QMetaType::fromType<int>());
+    // ... was string prior to 2.0.0
     addField(FN_CORRECT_NUMBER, QMetaType::fromType<int>());
     addField(FN_INCORRECT_SHAPE, QMetaType::fromType<int>());
-    addField(FN_INCORRECT_COLOUR, QMetaType::fromType<int>());  // was string prior to 2.0.0
+    addField(FN_INCORRECT_COLOUR, QMetaType::fromType<int>());
+    // ... was string prior to 2.0.0
     addField(FN_INCORRECT_NUMBER, QMetaType::fromType<int>());
     // Trial
     addField(FN_TRIAL_START_TIME, QMetaType::fromType<QDateTime>());
@@ -86,10 +91,14 @@ IDED3DTrial::IDED3DTrial(CamcopsApp& app, DatabaseManager& db,
 }
 
 
-IDED3DTrial::IDED3DTrial(const IDED3DStage& stage,
-                         const int trial_num_zero_based,
-                         CamcopsApp& app, DatabaseManager& db) :
-    IDED3DTrial::IDED3DTrial(app, db, dbconst::NONEXISTENT_PK)  // delegating constructor
+IDED3DTrial::IDED3DTrial(
+    const IDED3DStage& stage,
+    const int trial_num_zero_based,
+    CamcopsApp& app,
+    DatabaseManager& db
+) :
+    IDED3DTrial::IDED3DTrial(app, db, dbconst::NONEXISTENT_PK)
+// ... delegating constructor
 {
     m_stage_num_zero_based = stage.stageNumZeroBased();
     // Keys
@@ -111,22 +120,37 @@ IDED3DTrial::IDED3DTrial(const IDED3DStage& stage,
     setValue(FN_CORRECT_NUMBER, correct_number);
 
     if (stage.incorrectStimulusCanOverlap()) {
-        setValue(FN_INCORRECT_SHAPE, drawreplace(stage.incorrectStimulusShapes()));
-        setValue(FN_INCORRECT_COLOUR, drawreplace(stage.incorrectStimulusColours()));
-        setValue(FN_INCORRECT_NUMBER, drawreplace(stage.incorrectStimulusNumbers()));
+        setValue(
+            FN_INCORRECT_SHAPE, drawreplace(stage.incorrectStimulusShapes())
+        );
+        setValue(
+            FN_INCORRECT_COLOUR, drawreplace(stage.incorrectStimulusColours())
+        );
+        setValue(
+            FN_INCORRECT_NUMBER, drawreplace(stage.incorrectStimulusNumbers())
+        );
     } else {
         // Constraint for compound discriminations: the incorrect stimulus
         // should never match the correct one in any aspect. Remove the correct
         // exemplar from consideration before drawing, as follows.
-        setValue(FN_INCORRECT_SHAPE, drawreplace(subtract(
-                        stage.incorrectStimulusShapes(),
-                        {correct_shape})));
-        setValue(FN_INCORRECT_COLOUR, drawreplace(subtract(
-                        stage.incorrectStimulusColours(),
-                        {correct_colour})));
-        setValue(FN_INCORRECT_NUMBER, drawreplace(subtract(
-                        stage.incorrectStimulusNumbers(),
-                        {correct_number})));
+        setValue(
+            FN_INCORRECT_SHAPE,
+            drawreplace(
+                subtract(stage.incorrectStimulusShapes(), {correct_shape})
+            )
+        );
+        setValue(
+            FN_INCORRECT_COLOUR,
+            drawreplace(
+                subtract(stage.incorrectStimulusColours(), {correct_colour})
+            )
+        );
+        setValue(
+            FN_INCORRECT_NUMBER,
+            drawreplace(
+                subtract(stage.incorrectStimulusNumbers(), {correct_number})
+            )
+        );
     }
 
     // Trial
@@ -144,7 +168,6 @@ IDED3DTrial::IDED3DTrial(const IDED3DStage& stage,
     save();
 }
 
-
 void IDED3DTrial::recordTrialStart()
 {
     const QDateTime now = datetime::now();
@@ -152,91 +175,82 @@ void IDED3DTrial::recordTrialStart()
     save();
 }
 
-
 void IDED3DTrial::recordResponse(const bool correct)
 {
     const QDateTime now = datetime::now();
     setValue(FN_RESPONDED, true);
     setValue(FN_RESPONSE_TIME, now);
-    setValue(FN_RESPONSE_LATENCY_MS,
-             valueDateTime(FN_TRIAL_START_TIME).msecsTo(now));
+    setValue(
+        FN_RESPONSE_LATENCY_MS, valueDateTime(FN_TRIAL_START_TIME).msecsTo(now)
+    );
     setValue(FN_CORRECT, correct);
     setValue(FN_INCORRECT, !correct);
     save();
 }
-
 
 int IDED3DTrial::stageZeroBased() const
 {
     return m_stage_num_zero_based;
 }
 
-
 bool IDED3DTrial::wasCorrect() const
 {
     return valueBool(FN_CORRECT);
 }
-
 
 int IDED3DTrial::correctLocation() const
 {
     return valueInt(FN_CORRECT_LOCATION);
 }
 
-
 int IDED3DTrial::correctShape() const
 {
     return valueInt(FN_CORRECT_SHAPE);
 }
-
 
 int IDED3DTrial::correctColour() const
 {
     return valueInt(FN_CORRECT_COLOUR);
 }
 
-
 int IDED3DTrial::correctNumber() const
 {
     return valueInt(FN_CORRECT_NUMBER);
 }
-
 
 int IDED3DTrial::incorrectLocation() const
 {
     return valueInt(FN_INCORRECT_LOCATION);
 }
 
-
 int IDED3DTrial::incorrectShape() const
 {
     return valueInt(FN_INCORRECT_SHAPE);
 }
-
 
 int IDED3DTrial::incorrectColour() const
 {
     return valueInt(FN_INCORRECT_COLOUR);
 }
 
-
 int IDED3DTrial::incorrectNumber() const
 {
     return valueInt(FN_INCORRECT_NUMBER);
 }
 
-
 QString IDED3DTrial::summary() const
 {
-    return QString("Trial: "
-                   "correct {shape %1, colour %2, number %3, location %4}, "
-                   "incorrect {shape %5, colour %6, number %7, location %8}")
-            .arg(correctShape())
-            .arg(correctColour())
-            .arg(correctNumber())
-            .arg(correctLocation())
-            .arg(incorrectShape())
-            .arg(incorrectColour())
-            .arg(incorrectNumber())
-            .arg(incorrectLocation());
+    return QString(
+               "Trial: "
+               "correct {shape %1, colour %2, number %3, location %4}, "
+               "incorrect {shape %5, colour %6, number %7, location %8}"
+    )
+        .arg(correctShape())
+        .arg(correctColour())
+        .arg(correctNumber())
+        .arg(correctLocation())
+        .arg(incorrectShape())
+        .arg(incorrectColour())
+        .arg(incorrectNumber())
+        .arg(incorrectLocation());
 }

@@ -20,6 +20,7 @@
 
 #pragma once
 #include <QDebug>
+
 #include "db/queryresult.h"
 #include "db/sqlargs.h"
 
@@ -30,12 +31,15 @@
 struct ThreadedQueryRequest
 {
 public:
-    ThreadedQueryRequest(const SqlArgs& sqlargs,
-                         QueryResult::FetchMode fetch_mode,
-                         bool store_column_names,
-                         bool suppress_errors = false,
-                         bool thread_abort_request_not_query = false);
+    ThreadedQueryRequest(
+        const SqlArgs& sqlargs,
+        QueryResult::FetchMode fetch_mode,
+        bool store_column_names,
+        bool suppress_errors = false,
+        bool thread_abort_request_not_query = false
+    );
     ThreadedQueryRequest();  // required to be in a QVector
+
 public:
     // SQL and arguments
     SqlArgs sqlargs;

@@ -19,11 +19,13 @@
 */
 
 #include "quslider.h"
+
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QTimer>
 #include <QVBoxLayout>
+
 #include "common/cssconst.h"
 #include "common/uiconst.h"
 #include "lib/timerfunc.h"
@@ -34,10 +36,13 @@
 
 const int WRITE_DELAY_MS = 50;  // 10 is a bit low (sliders look slow)
 
-
-QuSlider::QuSlider(FieldRefPtr fieldref,
-                   const int minimum, const int maximum, const int step,
-                   QObject* parent) :
+QuSlider::QuSlider(
+    FieldRefPtr fieldref,
+    const int minimum,
+    const int maximum,
+    const int step,
+    QObject* parent
+) :
     QuElement(parent),
     // Core
     m_fieldref(fieldref),
@@ -75,14 +80,25 @@ QuSlider::QuSlider(FieldRefPtr fieldref,
     Q_ASSERT(m_fieldref);
     m_big_step = 2 * step;
     timerfunc::makeSingleShotTimer(m_timer);
-    connect(m_timer.data(), &QTimer::timeout,
-            this, &QuSlider::completePendingFieldWrite);
-    connect(m_fieldref.data(), &FieldRef::valueChanged,
-            this, &QuSlider::fieldValueChanged);
-    connect(m_fieldref.data(), &FieldRef::mandatoryChanged,
-            this, &QuSlider::fieldValueChanged);
+    connect(
+        m_timer.data(),
+        &QTimer::timeout,
+        this,
+        &QuSlider::completePendingFieldWrite
+    );
+    connect(
+        m_fieldref.data(),
+        &FieldRef::valueChanged,
+        this,
+        &QuSlider::fieldValueChanged
+    );
+    connect(
+        m_fieldref.data(),
+        &FieldRef::mandatoryChanged,
+        this,
+        &QuSlider::fieldValueChanged
+    );
 }
-
 
 QuSlider* QuSlider::setBigStep(const int big_step)
 {
@@ -90,13 +106,11 @@ QuSlider* QuSlider::setBigStep(const int big_step)
     return this;
 }
 
-
 QuSlider* QuSlider::setTickInterval(const int tick_interval)
 {
     m_tick_interval = tick_interval;
     return this;
 }
-
 
 QuSlider* QuSlider::setTickPosition(const QSlider::TickPosition position)
 {
@@ -104,13 +118,11 @@ QuSlider* QuSlider::setTickPosition(const QSlider::TickPosition position)
     return this;
 }
 
-
 QuSlider* QuSlider::setNullApparentValue(const int null_apparent_value)
 {
     m_null_apparent_value = qBound(m_minimum, null_apparent_value, m_maximum);
     return this;
 }
-
 
 QuSlider* QuSlider::setNullApparentValueMin()
 {
@@ -118,13 +130,11 @@ QuSlider* QuSlider::setNullApparentValueMin()
     return this;
 }
 
-
 QuSlider* QuSlider::setNullApparentValueMax()
 {
     m_null_apparent_value = m_maximum;
     return this;
 }
-
 
 QuSlider* QuSlider::setNullApparentValueCentre()
 {
@@ -132,11 +142,12 @@ QuSlider* QuSlider::setNullApparentValueCentre()
     return this;
 }
 
-
-QuSlider* QuSlider::setConvertForRealField(const bool convert_for_real_field,
-                                           const double field_minimum,
-                                           const double field_maximum,
-                                           const int display_dp)
+QuSlider* QuSlider::setConvertForRealField(
+    const bool convert_for_real_field,
+    const double field_minimum,
+    const double field_maximum,
+    const int display_dp
+)
 {
     m_convert_for_real_field = convert_for_real_field;
     m_field_minimum = field_minimum;
@@ -145,20 +156,17 @@ QuSlider* QuSlider::setConvertForRealField(const bool convert_for_real_field,
     return this;
 }
 
-
 QuSlider* QuSlider::setHorizontal(const bool horizontal)
 {
     m_horizontal = horizontal;
     return this;
 }
 
-
 QuSlider* QuSlider::setShowValue(const bool show_value)
 {
     m_show_value = show_value;
     return this;
 }
-
 
 QuSlider* QuSlider::setTickLabels(const QMap<int, QString>& labels)
 {
@@ -167,13 +175,11 @@ QuSlider* QuSlider::setTickLabels(const QMap<int, QString>& labels)
     return this;
 }
 
-
 QuSlider* QuSlider::setTickLabelPosition(const QSlider::TickPosition position)
 {
     m_tick_label_position = position;
     return this;
 }
-
 
 QuSlider* QuSlider::setUseDefaultTickLabels(const bool use_default)
 {
@@ -181,13 +187,11 @@ QuSlider* QuSlider::setUseDefaultTickLabels(const bool use_default)
     return this;
 }
 
-
 QuSlider* QuSlider::setEdgeInExtremeLabels(const bool edge_in_extreme_labels)
 {
     m_edge_in_extreme_labels = edge_in_extreme_labels;
     return this;
 }
-
 
 QuSlider* QuSlider::setSymmetric(const bool symmetric)
 {
@@ -195,22 +199,19 @@ QuSlider* QuSlider::setSymmetric(const bool symmetric)
     return this;
 }
 
-
 QuSlider* QuSlider::setInverted(bool inverted)
 {
     m_inverted = inverted;
     return this;
 }
 
-
-QuSlider* QuSlider::setAbsoluteLengthCm(const qreal abs_length_cm,
-                                        bool can_shrink)
+QuSlider*
+    QuSlider::setAbsoluteLengthCm(const qreal abs_length_cm, bool can_shrink)
 {
     m_abs_length_cm = abs_length_cm;
     m_abs_length_can_shrink = can_shrink;
     return this;
 }
-
 
 void QuSlider::setFromField()
 {
@@ -218,7 +219,6 @@ void QuSlider::setFromField()
     // special; pretend "it didn't come from us" to disable the efficiency
     // check in fieldValueChanged
 }
-
 
 int QuSlider::sliderValueFromField(const QVariant& field_value) const
 {
@@ -231,11 +231,11 @@ int QuSlider::sliderValueFromField(const QVariant& field_value) const
     const double field_from_left = field_value.toDouble() - m_field_minimum;
     const double slider_range = m_maximum - m_minimum;
     const double field_range = m_field_maximum - m_field_minimum;
-    const int slider_pos = static_cast<int>(
-                field_from_left * slider_range / field_range) + m_minimum;
+    const int slider_pos
+        = static_cast<int>(field_from_left * slider_range / field_range)
+        + m_minimum;
     return slider_pos;
 }
-
 
 QVariant QuSlider::fieldValueFromSlider(const int slider_value) const
 {
@@ -245,11 +245,10 @@ QVariant QuSlider::fieldValueFromSlider(const int slider_value) const
     const double slider_from_left = slider_value - m_minimum;
     const double slider_range = m_maximum - m_minimum;
     const double field_range = m_field_maximum - m_field_minimum;
-    const double field_pos = (slider_from_left * field_range / slider_range) +
-            m_field_minimum;
+    const double field_pos
+        = (slider_from_left * field_range / slider_range) + m_field_minimum;
     return field_pos;
 }
-
 
 QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
 {
@@ -286,21 +285,25 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
     if (m_abs_length_cm > 0) {
         const qreal dpi = m_horizontal ? uiconst::g_physical_dpi.x
                                        : uiconst::g_physical_dpi.y;
-        m_slider->setAbsoluteLengthCm(m_abs_length_cm, dpi,
-                                      m_abs_length_can_shrink);
+        m_slider->setAbsoluteLengthCm(
+            m_abs_length_cm, dpi, m_abs_length_can_shrink
+        );
     };
 
     if (!read_only) {
-        connect(m_slider.data(), &TickSlider::valueChanged,
-                this, &QuSlider::sliderValueChanged);
+        connect(
+            m_slider.data(),
+            &TickSlider::valueChanged,
+            this,
+            &QuSlider::sliderValueChanged
+        );
     }
     m_slider->setEnabled(!read_only);
 
     // Layout
     const QSizePolicy::Policy parallel_policy = m_abs_length_cm > 0
-            ? (m_abs_length_can_shrink ? QSizePolicy::Maximum
-                                       : QSizePolicy::Fixed)
-            : (m_horizontal ? QSizePolicy::Expanding : QSizePolicy::Preferred);
+        ? (m_abs_length_can_shrink ? QSizePolicy::Maximum : QSizePolicy::Fixed)
+        : (m_horizontal ? QSizePolicy::Expanding : QSizePolicy::Preferred);
     const QSizePolicy::Policy perpendicular_policy = QSizePolicy::Fixed;
     if (m_horizontal) {
         // --------------------------------------------------------------------
@@ -309,13 +312,15 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
         auto layout = new QVBoxLayout();
         layout->setContentsMargins(uiconst::NO_MARGINS);
         if (m_value_label) {
-            layout->addWidget(m_value_label, 0,
-                              Qt::AlignHCenter | Qt::AlignVCenter);
+            layout->addWidget(
+                m_value_label, 0, Qt::AlignHCenter | Qt::AlignVCenter
+            );
         }
         layout->addWidget(m_slider);
         m_container_widget->setLayout(layout);
-        m_container_widget->setSizePolicy(parallel_policy,
-                                          perpendicular_policy);
+        m_container_widget->setSizePolicy(
+            parallel_policy, perpendicular_policy
+        );
     } else {
         // --------------------------------------------------------------------
         // Vertical
@@ -328,21 +333,22 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
         auto innerlayout = new QVBoxLayout();
         innerlayout->setContentsMargins(uiconst::NO_MARGINS);
         if (m_value_label) {
-            innerlayout->addWidget(m_value_label, 0,
-                                   Qt::AlignHCenter | Qt::AlignVCenter);
+            innerlayout->addWidget(
+                m_value_label, 0, Qt::AlignHCenter | Qt::AlignVCenter
+            );
         }
         innerlayout->addWidget(m_slider);
         outerlayout->addLayout(innerlayout);
         outerlayout->addStretch();
         m_container_widget->setLayout(outerlayout);
-        m_container_widget->setSizePolicy(perpendicular_policy,
-                                          parallel_policy);
+        m_container_widget->setSizePolicy(
+            perpendicular_policy, parallel_policy
+        );
     }
 
     setFromField();
     return m_container_widget;
 }
-
 
 void QuSlider::sliderValueChanged(const int slider_value)
 {
@@ -355,33 +361,33 @@ void QuSlider::sliderValueChanged(const int slider_value)
     // ... goes to completePendingFieldWrite()
 }
 
-
 void QuSlider::completePendingFieldWrite()
 {
     if (!m_field_write_pending) {
         return;
     }
     const QVariant newvalue = fieldValueFromSlider(m_field_write_slider_value);
-    const bool changed = m_fieldref->setValue(newvalue, this);  // Will trigger valueChanged
+    const bool changed = m_fieldref->setValue(newvalue, this);
+    // ... Will trigger valueChanged
     m_field_write_pending = false;
     if (changed) {
         emit elementValueChanged();
     }
 }
 
-
 void QuSlider::closing()
 {
     completePendingFieldWrite();
 }
 
-
-void QuSlider::fieldValueChanged(const FieldRef* fieldref,
-                                 const QObject* originator)
+void QuSlider::fieldValueChanged(
+    const FieldRef* fieldref, const QObject* originator
+)
 {
     if (m_container_widget) {
-        widgetfunc::setPropertyMissing(m_container_widget,
-                                   fieldref->missingInput());
+        widgetfunc::setPropertyMissing(
+            m_container_widget, fieldref->missingInput()
+        );
     }
 
     // Slider
@@ -414,7 +420,6 @@ void QuSlider::fieldValueChanged(const FieldRef* fieldref,
         m_value_label->setText(text);
     }
 }
-
 
 FieldRefPtrList QuSlider::fieldrefs() const
 {

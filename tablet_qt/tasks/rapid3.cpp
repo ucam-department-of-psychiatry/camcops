@@ -19,6 +19,7 @@
 */
 
 #include "rapid3.h"
+
 #include "lib/convert.h"
 #include "lib/stringfunc.h"
 #include "maths/mathfunc.h"
@@ -52,7 +53,8 @@ void initializeRapid3(TaskFactory& factory)
 }
 
 Rapid3::Rapid3(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, RAPID3_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, RAPID3_TABLENAME, false, false, false),
+    // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     addFields(q1Fieldnames(), QMetaType::fromType<int>());
@@ -61,7 +63,6 @@ Rapid3::Rapid3(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 QStringList Rapid3::q1Fieldnames() const
 {
@@ -74,7 +75,6 @@ QStringList Rapid3::q1Fieldnames() const
     return fieldnames;
 }
 
-
 QStringList Rapid3::q1ScoringFieldnames() const
 {
     QStringList fieldnames;
@@ -85,7 +85,6 @@ QStringList Rapid3::q1ScoringFieldnames() const
 
     return fieldnames;
 }
-
 
 QStringList Rapid3::allFieldnames() const
 {
@@ -106,18 +105,18 @@ QString Rapid3::shortname() const
     return "RAPID3";
 }
 
-
 QString Rapid3::longname() const
 {
     return tr("Routine Assessment of Patient Index Data");
 }
 
-
 QString Rapid3::description() const
 {
-    return tr("A pooled index of patient-reported function, pain, and global estimate of status.");
+    return tr(
+        "A pooled index of patient-reported function, pain, and global "
+        "estimate of status."
+    );
 }
-
 
 // ============================================================================
 // Instance info
@@ -141,7 +140,6 @@ QVariant Rapid3::rapid3() const
     return functionalStatus() + painTolerance() + globalEstimate();
 }
 
-
 double Rapid3::functionalStatus() const
 {
     const int q1_sum = sumInt(values(q1ScoringFieldnames()));
@@ -151,18 +149,15 @@ double Rapid3::functionalStatus() const
     return rounded_score_1dp;
 }
 
-
 double Rapid3::painTolerance() const
 {
     return value(Q2).toDouble();
 }
 
-
 double Rapid3::globalEstimate() const
 {
     return value(Q3).toDouble();
 }
-
 
 QString Rapid3::diseaseSeverity() const
 {
@@ -189,20 +184,17 @@ QString Rapid3::diseaseSeverity() const
     return xstring("high_severity");
 }
 
-
 QStringList Rapid3::summary() const
 {
     using stringfunc::bold;
 
-    return QStringList{
-        QString("%1 [0–30]: %2 (%3)").arg(
-            xstring("rapid3"),
-            convert::prettyValue(rapid3(), DP),
-            bold(diseaseSeverity())
-        )
-    };
+    return QStringList{QString("%1 [0–30]: %2 (%3)")
+                           .arg(
+                               xstring("rapid3"),
+                               convert::prettyValue(rapid3(), DP),
+                               bold(diseaseSeverity())
+                           )};
 }
-
 
 QStringList Rapid3::detail() const
 {
@@ -213,7 +205,9 @@ QStringList Rapid3::detail() const
     const QStringList fieldnames = allFieldnames();
     for (int i = 0; i < fieldnames.length(); i++) {
         const QString fieldname = fieldnames.at(i);
-        lines.append(fieldSummary(fieldname, xstring(fieldname), spacer, suffix));
+        lines.append(
+            fieldSummary(fieldname, xstring(fieldname), spacer, suffix)
+        );
     }
     lines.append("");
     lines += summary();
@@ -221,13 +215,12 @@ QStringList Rapid3::detail() const
     return lines;
 }
 
-
 OpenableWidget* Rapid3::editor(const bool read_only)
 {
     QuPagePtr page((new QuPage{
-        new QuText(xstring("q1")),
-        (new QuText(xstring("q1sub")))->setBold()
-    })->setTitle(xstring("title_main")));
+                        new QuText(xstring("q1")),
+                        (new QuText(xstring("q1sub")))->setBold()})
+                       ->setTitle(xstring("title_main")));
 
     const NameValueOptions difficulty_options{
         {xstring("q1_option0"), 0},
@@ -241,8 +234,9 @@ OpenableWidget* Rapid3::editor(const bool read_only)
     const auto q1fieldnames = q1Fieldnames();
     for (const QString& fieldname : q1fieldnames) {
         const QString& description = xstring(fieldname);
-        q_field_pairs.append(QuestionWithOneField(description,
-                                                  fieldRef(fieldname)));
+        q_field_pairs.append(
+            QuestionWithOneField(description, fieldRef(fieldname))
+        );
     }
     auto q1_grid = new QuMcqGrid(q_field_pairs, difficulty_options);
     page->addElement(q1_grid);
@@ -295,8 +289,9 @@ OpenableWidget* Rapid3::editor(const bool read_only)
         slider->setSymmetric(true);
 
         const auto question_text = (new QuText(xstring(fieldname)))->setBold();
-        slider_grid->addCell(QuGridCell(question_text, row, 0,
-                                        QUESTION_ROW_SPAN, QUESTION_COLUMN_SPAN));
+        slider_grid->addCell(QuGridCell(
+            question_text, row, 0, QUESTION_ROW_SPAN, QUESTION_COLUMN_SPAN
+        ));
         row++;
 
         const auto min_label = new QuText(xstring(fieldname + "_min"));
@@ -308,11 +303,11 @@ OpenableWidget* Rapid3::editor(const bool read_only)
 
         row++;
 
-        slider_grid->addCell(QuGridCell(new QuSpacer(QSize(uiconst::BIGSPACE,
-                                                           uiconst::BIGSPACE)), row, 0));
+        slider_grid->addCell(QuGridCell(
+            new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)), row, 0
+        ));
 
         row++;
-
     }
 
     m_questionnaire = new Questionnaire(m_app, {page});

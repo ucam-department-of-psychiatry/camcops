@@ -18,58 +18,51 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "singleuseradvancedmenu.h"
+
 #include "lib/uifunc.h"
 #include "menulib/serversettingswindow.h"
-#include "singleuseradvancedmenu.h"
 
 SingleUserAdvancedMenu::SingleUserAdvancedMenu(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETTINGS))
 {
 }
 
-
 QString SingleUserAdvancedMenu::title() const
 {
     return tr("Advanced options");
 }
 
-
 void SingleUserAdvancedMenu::makeItems()
 {
-    m_items = {
-        MenuItem(tr("Advanced settings")).setLabelOnly(),
-        MenuItem(
-            tr("Configure server settings"),
-            MenuItem::OpenableWidgetMaker(
-                std::bind(&SingleUserAdvancedMenu::configureServer, this,
-                          std::placeholders::_1)
-            )
-        ).setNotIfLocked()
-    };
+    m_items
+        = {MenuItem(tr("Advanced settings")).setLabelOnly(),
+           MenuItem(
+               tr("Configure server settings"),
+               MenuItem::OpenableWidgetMaker(std::bind(
+                   &SingleUserAdvancedMenu::configureServer,
+                   this,
+                   std::placeholders::_1
+               ))
+           )
+               .setNotIfLocked()};
 
     if (m_app.isLoggingNetwork()) {
-        m_items.append({
-            MenuItem(
-                tr("Disable network activity log"),
-                std::bind(&SingleUserAdvancedMenu::disableNetworkLogging, this)
-            )
-        });
+        m_items.append({MenuItem(
+            tr("Disable network activity log"),
+            std::bind(&SingleUserAdvancedMenu::disableNetworkLogging, this)
+        )});
     } else {
-        m_items.append({
-            MenuItem(
-                tr("Enable network activity log"),
-                std::bind(&SingleUserAdvancedMenu::enableNetworkLogging, this)
-            )
-        });
+        m_items.append({MenuItem(
+            tr("Enable network activity log"),
+            std::bind(&SingleUserAdvancedMenu::enableNetworkLogging, this)
+        )});
     }
 
-    m_items.append(
-        MenuItem(
-            tr("Change operating mode"),
-            std::bind(&SingleUserAdvancedMenu::changeMode, this)
-        )
-    );
-
+    m_items.append(MenuItem(
+        tr("Change operating mode"),
+        std::bind(&SingleUserAdvancedMenu::changeMode, this)
+    ));
 }
 
 OpenableWidget* SingleUserAdvancedMenu::configureServer(CamcopsApp& app)
@@ -79,20 +72,17 @@ OpenableWidget* SingleUserAdvancedMenu::configureServer(CamcopsApp& app)
     return window->editor();
 }
 
-
 void SingleUserAdvancedMenu::enableNetworkLogging()
 {
     m_app.enableNetworkLogging();
     rebuild();
 }
 
-
 void SingleUserAdvancedMenu::disableNetworkLogging()
 {
     m_app.disableNetworkLogging();
     rebuild();
 }
-
 
 void SingleUserAdvancedMenu::changeMode()
 {

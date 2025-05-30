@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/tasks/aims.py
 
@@ -229,7 +227,7 @@ class Aims(
                     {
                         req.snomed(
                             SnomedLookup.AIMS_TOTAL_SCORE
-                        ): self.total_score()  # noqa
+                        ): self.total_score()
                     },
                 )
             )

@@ -19,15 +19,15 @@
 */
 
 #include "eigenfunc.h"
+
 #include <cmath>
 #include <QDebug>
 #include <QtMath>
+
 #include "maths/logisticregression.h"
 using namespace Eigen;
 
-
-namespace eigenfunc
-{
+namespace eigenfunc {
 
 // ============================================================================
 // Making Eigen containers from std::vector
@@ -38,24 +38,20 @@ IndexArray makeIndexArray(const std::vector<Index>& v)
     return eigenIndexVectorFromStdVector(v).array();
 }
 
-
 IndexArray makeIndexArray(std::initializer_list<Index> vlist)
 {
     return makeIndexArray(std::vector<Index>(vlist));
 }
-
 
 ArrayXb makeBoolArray(const std::vector<bool>& v)
 {
     return eigenColumnVectorFromStdVector<bool>(v).array();
 }
 
-
 ArrayXb makeBoolArray(std::initializer_list<bool> vlist)
 {
     return makeBoolArray(std::vector<bool>(vlist));
 }
-
 
 // ============================================================================
 // Miscellaneous helpers
@@ -78,7 +74,6 @@ IndexArray indexSeq(const Index first, const Index last, const Index step)
     return indices;
 }
 
-
 ArrayXb selectBoolFromIndices(const IndexArray& indices, const Index size)
 {
     ArrayXb select_bool(size);
@@ -91,10 +86,9 @@ ArrayXb selectBoolFromIndices(const IndexArray& indices, const Index size)
     return select_bool;
 }
 
-
-ArrayXXb selectBoolFromIndices(const IndexArray& indices,
-                               const Index n_rows,
-                               const Index n_cols)
+ArrayXXb selectBoolFromIndices(
+    const IndexArray& indices, const Index n_rows, const Index n_cols
+)
 {
     ArrayXXb select_bool(n_rows, n_cols);
     select_bool.setConstant(false);
@@ -108,14 +102,12 @@ ArrayXXb selectBoolFromIndices(const IndexArray& indices,
     return select_bool;
 }
 
-
 MatrixXd addOnesAsFirstColumn(const MatrixXd& m)
 {
     MatrixXd X_design(m.rows(), m.cols() + 1);
     X_design << MatrixXd::Ones(m.rows(), 1.0), m;  // first column is 1.0
     return X_design;
 }
-
 
 // ============================================================================
 // Subsetting Eigen arrays and matrices
@@ -131,12 +123,13 @@ Eigen::Index normalizeIndex(Eigen::Index idx, Eigen::Index size)
     return idx % size;
 }
 
-
-void calcRowColFromIndex(Eigen::Index idx,
-                         Eigen::Index& row,
-                         Eigen::Index& col,
-                         Eigen::Index n_rows,
-                         Eigen::Index size)
+void calcRowColFromIndex(
+    Eigen::Index idx,
+    Eigen::Index& row,
+    Eigen::Index& col,
+    Eigen::Index n_rows,
+    Eigen::Index size
+)
 {
     // Take an index idx; treat it using R's matrix approach, where the index
     // increases down columns, then across rows, i.e. COLUMN-MAJOR ORDER:
@@ -159,16 +152,17 @@ void calcRowColFromIndex(Eigen::Index idx,
     row = division.rem;
 }
 
-
 // ============================================================================
 // Other R functions
 // ============================================================================
 
-MatrixXd scale(const MatrixXd& x,
-               const bool centre_on_column_mean,
-               const bool scale_divide_by_column_rms,
-               const ArrayXd& centre_values,
-               const ArrayXd& scale_values)
+MatrixXd scale(
+    const MatrixXd& x,
+    const bool centre_on_column_mean,
+    const bool scale_divide_by_column_rms,
+    const ArrayXd& centre_values,
+    const ArrayXd& scale_values
+)
 {
     // To see R code:
     //      scale
@@ -221,7 +215,6 @@ MatrixXd scale(const MatrixXd& x,
     return xa.matrix();
 }
 
-
 Eigen::MatrixXd chol(const Eigen::MatrixXd& x, const bool pivot)
 {
     if (x.rows() != x.cols()) {
@@ -231,7 +224,8 @@ Eigen::MatrixXd chol(const Eigen::MatrixXd& x, const bool pivot)
     // - https://stats.stackexchange.com/questions/117661/why-use-upper-triangular-cholesky
     // - https://eigen.tuxfamily.org/dox/group__Cholesky__Module.html
     if (pivot) {
-        // Eigen's LDLT: "Robust Cholesky decomposition of a matrix with pivoting"
+        // Eigen's LDLT: "Robust Cholesky decomposition of a matrix with
+        // pivoting"
         LDLT<MatrixXd> c(x);
         return c.matrixU();  // upper triangular
     }
@@ -240,32 +234,35 @@ Eigen::MatrixXd chol(const Eigen::MatrixXd& x, const bool pivot)
     return c.matrixU();
 }
 
-
-Eigen::MatrixXd backsolve(const Eigen::MatrixXd& r,
-                          const Eigen::MatrixXd& x,
-                          const Eigen::Index k,
-                          const bool transpose,
-                          const bool upper_tri)
+Eigen::MatrixXd backsolve(
+    const Eigen::MatrixXd& r,
+    const Eigen::MatrixXd& x,
+    const Eigen::Index k,
+    const bool transpose,
+    const bool upper_tri
+)
 {
     return forwardOrBackSolve(r, x, k, transpose, upper_tri);
 }
 
-
-Eigen::MatrixXd forwardsolve(const Eigen::MatrixXd& l,
-                             const Eigen::MatrixXd& x,
-                             const Eigen::Index k,
-                             const bool transpose,
-                             const bool upper_tri)
+Eigen::MatrixXd forwardsolve(
+    const Eigen::MatrixXd& l,
+    const Eigen::MatrixXd& x,
+    const Eigen::Index k,
+    const bool transpose,
+    const bool upper_tri
+)
 {
     return forwardOrBackSolve(l, x, k, transpose, upper_tri);
 }
 
-
-Eigen::MatrixXd forwardOrBackSolve(Eigen::MatrixXd lr,
-                                   Eigen::MatrixXd x,
-                                   Eigen::Index k,
-                                   const bool transpose,
-                                   bool upper_tri)
+Eigen::MatrixXd forwardOrBackSolve(
+    Eigen::MatrixXd lr,
+    Eigen::MatrixXd x,
+    Eigen::Index k,
+    const bool transpose,
+    bool upper_tri
+)
 {
     // - http://lists.r-forge.r-project.org/pipermail/rcpp-devel/2014-June/007781.html
     // - http://lists.r-forge.r-project.org/pipermail/rcpp-devel/attachments/20140627/2034608b/attachment.cpp
@@ -314,16 +311,19 @@ Eigen::MatrixXd forwardOrBackSolve(Eigen::MatrixXd lr,
     return lr.triangularView<Lower>().solve(x);
 }
 
-
 // ============================================================================
 // Testing
 // ============================================================================
 
-const QString LINE("===============================================================================");
+const QString LINE(
+    "========================================================================="
+    "======"
+);
 #define ASSERT_ARRAYS_SAME(a, b) Q_ASSERT((a).matrix() == (b).matrix());
 #define OUTPUT_LINE() lines.append(LINE);
 #define STATE(x) lines.append(x);
-#define REPORT(x) lines.append(QString("%1: %2").arg(#x, qStringFromEigenMatrixOrArray(x)));
+#define REPORT(x)                                                             \
+    lines.append(QString("%1: %2").arg(#x, qStringFromEigenMatrixOrArray(x)));
 
 QStringList testEigenFunctions()
 {
@@ -408,11 +408,11 @@ QStringList testEigenFunctions()
     OUTPUT_LINE();
     ArrayXXb m1_subset_elements_bool(4, 3);
     m1_subset_elements_bool <<  // fill rows then cols
-        false, false, false,
-        true, false, false,
-        true, false, true,
-        false, false, true;  // total of 4 true values
-    ColumnArray<int> m7_a = subsetByElementBoolean(m1, m1_subset_elements_bool);
+        false,
+        false, false, true, false, false, true, false, true, false, false,
+        true;  // total of 4 true values
+    ColumnArray<int> m7_a
+        = subsetByElementBoolean(m1, m1_subset_elements_bool);
     REPORT(m7_a);
     ASSERT_ARRAYS_SAME(m7_a, m4_b);  // re-use
 
@@ -437,10 +437,7 @@ QStringList testEigenFunctions()
     OUTPUT_LINE();
     MatrixXi m12 = sorted(m11);
     MatrixXi m13(4, 3);
-    m13 <<  1, 6, 100,
-            2, 8, 101,
-            3, 10, 102,
-            5, 11, 103;
+    m13 << 1, 6, 100, 2, 8, 101, 3, 10, 102, 5, 11, 103;
     REPORT(m12);
     Q_ASSERT(m12 == m13);
 
@@ -450,7 +447,7 @@ QStringList testEigenFunctions()
     STATE("[NOT TESTED BY AN ASSERT] Testing scale():");
     REPORT(m15);
 
-/*
+    /*
 
 R code:
 
@@ -462,15 +459,12 @@ chol(m16, pivot=TRUE)
     OUTPUT_LINE();
     Matrix3d m16;
     // https://en.wikipedia.org/wiki/Cholesky_decomposition#Example
-    m16 << 4, 12, -16,
-           12, 37, -43,
-           -16, -43, 98;
+    m16 << 4, 12, -16, 12, 37, -43, -16, -43, 98;
     STATE("Matrix to undergo Cholesky decomposition:");
     REPORT(m16);
     Matrix3d m16_llt_u;
     m16_llt_u << 2, 6, -8,  // the U = Upper triangular version
-                 0, 1, 5,
-                 0, 0, 3;
+        0, 1, 5, 0, 0, 3;
     // Matrix3d m16_ldlt_u;
     // m16_ldlt_u << 1, 3, -4,  // the U = Upper triangular version
     //               0, 1, 5,
@@ -490,9 +484,7 @@ chol(m16, pivot=TRUE)
     STATE("Testing backsolve:");
     // ?backsolve
     Matrix3d r;
-    r << 1, 2, 3,
-         0, 1, 1,
-         0, 0, 2;
+    r << 1, 2, 3, 0, 1, 1, 0, 0, 2;
     Vector3d x;
     x << 8, 4, 2;
     Vector3d backsolve_solution_a;
@@ -527,19 +519,14 @@ chol(m16, pivot=TRUE)
     OUTPUT_LINE();
     STATE("Testing multiply:");
     ArrayXXi m19(4, 4);
-    m19 << 1, 5,  9, 13,
-           2, 6, 10, 14,
-           3, 7, 11, 15,
-           4, 8, 12, 16;
+    m19 << 1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15, 4, 8, 12, 16;
     ArrayXi m20(3);
     m20 << 1, 10, 100;
     ArrayXXi m21_a = multiply(m19, m20);
     ArrayXXi m21_b = multiply(m20, m19);
     ArrayXXi m21_c(4, 4);
-    m21_c <<   1,  50,  900,   13,
-              20, 600,   10,  140,
-             300,   7,  110, 1500,
-               4,  80, 1200,   16;
+    m21_c << 1, 50, 900, 13, 20, 600, 10, 140, 300, 7, 110, 1500, 4, 80, 1200,
+        16;
     REPORT(m19);
     REPORT(m20);
     REPORT(m21_a);

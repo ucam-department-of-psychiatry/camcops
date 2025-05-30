@@ -20,16 +20,18 @@
 
 #pragma once
 #include <QString>
+
 #include "common/aliases_camcops.h"
 #include "menulib/menuwindow.h"
-
 
 class ChoosePatientMenu : public MenuWindow
 {
     Q_OBJECT
+
 public:
     ChoosePatientMenu(CamcopsApp& app);
     virtual QString title() const override;
+
 protected:
     virtual void extraLayoutCreation() override;
     virtual void makeItems() override;
@@ -41,6 +43,7 @@ protected:
 public slots:
     void addPatient();
     void refreshPatientList();
+
 protected:
     void mergePatients();
     static QString txtMergeTitle();

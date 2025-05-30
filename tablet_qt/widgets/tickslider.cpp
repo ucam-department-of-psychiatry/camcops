@@ -21,6 +21,7 @@
 // #define DEBUG_SIZE
 
 #include "tickslider.h"
+
 #include <cmath>  // for round()
 #include <QApplication>
 #include <QDebug>
@@ -28,6 +29,7 @@
 #include <QMouseEvent>
 #include <QStyleOptionSlider>
 #include <QStylePainter>
+
 #include "graphics/graphicsfunc.h"
 #include "lib/convert.h"
 
@@ -41,7 +43,6 @@ const int DEFAULT_GAP_TO_SLIDER = 6;
 
 const int FM_TEXTFLAGS = 0;  // https://doc.qt.io/qt-6.5/qfontmetrics.html#size
 
-
 // ============================================================================
 // TickSlider main
 // ============================================================================
@@ -51,29 +52,35 @@ TickSlider::TickSlider(QWidget* parent, const int groove_margin_px) :
 {
 }
 
-
-TickSlider::TickSlider(Qt::Orientation orientation,
-                       QWidget* parent,
-                       const int groove_margin_px) :
+TickSlider::TickSlider(
+    Qt::Orientation orientation, QWidget* parent, const int groove_margin_px
+) :
     QWidget(parent),
     m_slider(orientation, this),
     m_groove_margin_px(groove_margin_px)
 {
-    connect(&m_slider, &QSlider::valueChanged,
-            this, &TickSlider::valueChanged);
+    connect(
+        &m_slider, &QSlider::valueChanged, this, &TickSlider::valueChanged
+    );
 
-    connect(&m_slider, &QSlider::sliderPressed,
-            this, &TickSlider::sliderPressed);
-    connect(&m_slider, &QSlider::sliderMoved,
-            this, &TickSlider::sliderMoved);
-    connect(&m_slider, &QSlider::sliderReleased,
-            this, &TickSlider::sliderReleased);
+    connect(
+        &m_slider, &QSlider::sliderPressed, this, &TickSlider::sliderPressed
+    );
+    connect(&m_slider, &QSlider::sliderMoved, this, &TickSlider::sliderMoved);
+    connect(
+        &m_slider, &QSlider::sliderReleased, this, &TickSlider::sliderReleased
+    );
 
-    connect(&m_slider, &QSlider::rangeChanged,
-            this, &TickSlider::rangeChanged);
+    connect(
+        &m_slider, &QSlider::rangeChanged, this, &TickSlider::rangeChanged
+    );
 
-    connect(&m_slider, &QSlider::actionTriggered,
-            this, &TickSlider::actionTriggered);
+    connect(
+        &m_slider,
+        &QSlider::actionTriggered,
+        this,
+        &TickSlider::actionTriggered
+    );
 
     m_tick_colour = DEFAULT_TICK_COLOR;
     m_tick_thickness = DEFAULT_TICK_WIDTH;
@@ -91,66 +98,55 @@ TickSlider::TickSlider(Qt::Orientation orientation,
     resetSizePolicy();
 }
 
-
 void TickSlider::setTickColor(const QColor& colour)
 {
     m_tick_colour = colour;
 }
-
 
 void TickSlider::setTickThickness(const int thickness)
 {
     m_tick_thickness = thickness;
 }
 
-
 void TickSlider::setTickLength(const int length)
 {
     m_tick_length = length;
 }
-
 
 void TickSlider::setTickLabelGap(const int gap)
 {
     m_tick_label_gap = gap;
 }
 
-
 void TickSlider::setInterlabelGap(const int gap)
 {
     m_min_interlabel_gap = gap;
 }
-
 
 void TickSlider::setGapToSlider(const int gap)
 {
     m_gap_to_slider = gap;
 }
 
-
 void TickSlider::setTickLabelPosition(const QSlider::TickPosition position)
 {
     m_label_position = position;
 }
-
 
 QSlider::TickPosition TickSlider::tickLabelPosition() const
 {
     return m_label_position;
 }
 
-
 void TickSlider::addTickLabel(const int position, const QString& text)
 {
     m_tick_labels[position] = text;
 }
 
-
 void TickSlider::setTickLabels(const QMap<int, QString>& labels)
 {
     m_tick_labels = labels;
 }
-
 
 void TickSlider::addDefaultTickLabels()
 {
@@ -163,18 +159,15 @@ void TickSlider::addDefaultTickLabels()
     }
 }
 
-
 void TickSlider::setEdgeInExtremeLabels(const bool edge_in_extreme_labels)
 {
     m_edge_in_extreme_labels = edge_in_extreme_labels;
 }
 
-
 void TickSlider::setSymmetricOverspill(const bool symmetric_overspill)
 {
     m_symmetric_overspill = symmetric_overspill;
 }
-
 
 void TickSlider::setAbsoluteLengthPx(const int px, const bool can_shrink)
 {
@@ -183,31 +176,26 @@ void TickSlider::setAbsoluteLengthPx(const int px, const bool can_shrink)
     resetSizePolicy();
 }
 
-
-void TickSlider::setAbsoluteLengthCm(const qreal abs_length_cm,
-                                     const qreal dpi,
-                                     const bool can_shrink)
+void TickSlider::setAbsoluteLengthCm(
+    const qreal abs_length_cm, const qreal dpi, const bool can_shrink
+)
 {
     const int px = convert::convertCmToPx(abs_length_cm, dpi);
-    qDebug().nospace()
-            << "TickSlider: setting absolute length to "
-            << abs_length_cm << " cm at " << dpi << " dpi, giving "
-            << px << " pixels";
+    qDebug().nospace() << "TickSlider: setting absolute length to "
+                       << abs_length_cm << " cm at " << dpi << " dpi, giving "
+                       << px << " pixels";
     setAbsoluteLengthPx(px, can_shrink);
 }
-
 
 bool TickSlider::usingTicks() const
 {
     return tickPosition() != QSlider::NoTicks;
 }
 
-
 bool TickSlider::usingLabels() const
 {
     return tickLabelPosition() != QSlider::NoTicks;
 }
-
 
 QSize TickSlider::maxLabelSize() const
 {
@@ -223,12 +211,10 @@ QSize TickSlider::maxLabelSize() const
     return maxsize;
 }
 
-
 bool TickSlider::isHorizontal() const
 {
     return m_slider.orientation() == Qt::Horizontal;
 }
-
 
 /*
 
@@ -289,7 +275,6 @@ double TickSlider::getDrawingProportion(int value) const
     return proportion;
 }
 
-
 void TickSlider::paintEvent(QPaintEvent* ev)
 {
     // Coordinate systems: see https://doc.qt.io/qt-6.5/coordsys.html
@@ -322,15 +307,15 @@ void TickSlider::paintEvent(QPaintEvent* ev)
     qDebug() << "Whole widget:" << whole_rect;
     qDebug() << "Active part of slider groove:" << active_groove;
     if (horizontal) {
-        qDebug() << "getTickPos(0, ...):" << getTickPos(
-                        0, active_groove.left(), active_groove.width());
-        qDebug() << "getTickPos(1, ...):" << getTickPos(
-                        1, active_groove.left(), active_groove.width());
+        qDebug() << "getTickPos(0, ...):"
+                 << getTickPos(0, active_groove.left(), active_groove.width());
+        qDebug() << "getTickPos(1, ...):"
+                 << getTickPos(1, active_groove.left(), active_groove.width());
     } else {
-        qDebug() << "getTickPos(0, ...):" << getTickPos(
-                        0, active_groove.top(), active_groove.height());
-        qDebug() << "getTickPos(1, ...):" << getTickPos(
-                        1, active_groove.top(), active_groove.height());
+        qDebug() << "getTickPos(0, ...):"
+                 << getTickPos(0, active_groove.top(), active_groove.height());
+        qDebug() << "getTickPos(1, ...):"
+                 << getTickPos(1, active_groove.top(), active_groove.height());
     }
 #endif
 
@@ -352,25 +337,25 @@ void TickSlider::paintEvent(QPaintEvent* ev)
         // --------------------------------------------------------------------
         const int label_max_height = max_label_size.height();
         const bool has_top_tick = tickpos & QSlider::TicksAbove;
-        const bool using_top_labels = ticklabelpos & QSlider::TicksAbove
-                && label_max_height > 0;
+        const bool using_top_labels
+            = ticklabelpos & QSlider::TicksAbove && label_max_height > 0;
         const bool has_bottom_tick = tickpos & QSlider::TicksBelow;
-        const bool using_bottom_labels = ticklabelpos & QSlider::TicksBelow
-                && label_max_height > 0;
+        const bool using_bottom_labels
+            = ticklabelpos & QSlider::TicksBelow && label_max_height > 0;
         // Top
         const int whole_top = whole_rect.top();
         const int top_label_top = whole_top;
-        const int top_tick_top = whole_top +
-                (using_top_labels ? label_max_height + m_tick_label_gap : 0);
-        const int top_tick_bottom = top_tick_top +
-                (has_top_tick ? m_tick_length : 0);
+        const int top_tick_top = whole_top
+            + (using_top_labels ? label_max_height + m_tick_label_gap : 0);
+        const int top_tick_bottom
+            = top_tick_top + (has_top_tick ? m_tick_length : 0);
         // Bottom, working up
         const int whole_bottom = whole_rect.bottom();
         const int bottom_label_bottom = whole_bottom;
-        const int bottom_tick_bottom = whole_bottom -
-                (using_bottom_labels ? label_max_height + m_tick_label_gap : 0);
-        const int bottom_tick_top = bottom_tick_bottom -
-                (has_bottom_tick ? m_tick_length : 0);
+        const int bottom_tick_bottom = whole_bottom
+            - (using_bottom_labels ? label_max_height + m_tick_label_gap : 0);
+        const int bottom_tick_top
+            = bottom_tick_bottom - (has_bottom_tick ? m_tick_length : 0);
         // Draw it.
         // i: integer value
         // q: zero-based integer position left->right
@@ -386,9 +371,11 @@ void TickSlider::paintEvent(QPaintEvent* ev)
                 }
             }
             const double prop = getDrawingProportion(i);
-            // x position (tick position and horizontal alignment point of text)
-            const int x = getTickPos(prop, active_groove.left(),
-                                     active_groove.width());
+            // x position (tick position and horizontal alignment point of
+            // text)
+            const int x = getTickPos(
+                prop, active_groove.left(), active_groove.width()
+            );
             const bool has_label = m_tick_labels.contains(i);
             QString label_text;
             if (has_label) {
@@ -400,8 +387,9 @@ void TickSlider::paintEvent(QPaintEvent* ev)
             }
             // Top label
             if (has_label && using_top_labels) {
-                graphicsfunc::drawText(p, x, top_label_top,
-                                       halign | Qt::AlignTop, label_text);
+                graphicsfunc::drawText(
+                    p, x, top_label_top, halign | Qt::AlignTop, label_text
+                );
             }
             // Bottom tick
             if (has_bottom_tick) {
@@ -409,8 +397,13 @@ void TickSlider::paintEvent(QPaintEvent* ev)
             }
             // Bottom label
             if (has_label && using_bottom_labels) {
-                graphicsfunc::drawText(p, x, bottom_label_bottom,
-                                       halign | Qt::AlignBottom, label_text);
+                graphicsfunc::drawText(
+                    p,
+                    x,
+                    bottom_label_bottom,
+                    halign | Qt::AlignBottom,
+                    label_text
+                );
             }
         }
     } else {
@@ -419,27 +412,27 @@ void TickSlider::paintEvent(QPaintEvent* ev)
         // --------------------------------------------------------------------
         const int label_max_width = max_label_size.width();
         const bool has_left_tick = tickpos & QSlider::TicksLeft;
-        const bool using_left_labels = ticklabelpos & QSlider::TicksLeft
-                && label_max_width > 0;
+        const bool using_left_labels
+            = ticklabelpos & QSlider::TicksLeft && label_max_width > 0;
         const bool has_right_tick = tickpos & QSlider::TicksRight;
-        const bool using_right_labels = ticklabelpos & QSlider::TicksRight
-                && label_max_width > 0;
+        const bool using_right_labels
+            = ticklabelpos & QSlider::TicksRight && label_max_width > 0;
         // Left
         const int whole_left = whole_rect.left();
-        const int left_label_right = whole_left +
-                (using_left_labels ? label_max_width : 0);
-        const int left_tick_left = left_label_right +
-                (using_left_labels ? m_tick_label_gap : 0);
-        const int left_tick_right = left_tick_left +
-                (has_left_tick ? m_tick_length : 0);
+        const int left_label_right
+            = whole_left + (using_left_labels ? label_max_width : 0);
+        const int left_tick_left
+            = left_label_right + (using_left_labels ? m_tick_label_gap : 0);
+        const int left_tick_right
+            = left_tick_left + (has_left_tick ? m_tick_length : 0);
         // Right, working leftwards
         const int whole_right = whole_rect.right();
-        const int right_label_left = whole_right -
-                (using_right_labels ? label_max_width : 0);
-        const int right_tick_right = right_label_left -
-                (using_right_labels ? m_tick_label_gap : 0);
-        const int right_tick_left = right_tick_right -
-                (has_right_tick ? m_tick_length : 0);
+        const int right_label_left
+            = whole_right - (using_right_labels ? label_max_width : 0);
+        const int right_tick_right
+            = right_label_left - (using_right_labels ? m_tick_label_gap : 0);
+        const int right_tick_left
+            = right_tick_right - (has_right_tick ? m_tick_length : 0);
         // OK:
         for (int i = min_value; i <= max_value; i += interval) {
             Qt::Alignment valign = Qt::AlignVCenter;
@@ -454,8 +447,9 @@ void TickSlider::paintEvent(QPaintEvent* ev)
             }
             const double prop = getDrawingProportion(i);
             // y position (tick position and vertical alignment point of text)
-            const int y = getTickPos(prop, active_groove.top(),
-                                     active_groove.height());
+            const int y = getTickPos(
+                prop, active_groove.top(), active_groove.height()
+            );
             const bool has_label = m_tick_labels.contains(i);
             QString label_text;
             if (has_label) {
@@ -467,8 +461,9 @@ void TickSlider::paintEvent(QPaintEvent* ev)
             }
             // Left label
             if (has_label && using_left_labels) {
-                graphicsfunc::drawText(p, left_label_right, y,
-                                       Qt::AlignRight | valign, label_text);
+                graphicsfunc::drawText(
+                    p, left_label_right, y, Qt::AlignRight | valign, label_text
+                );
             }
             // Right tick
             if (has_right_tick) {
@@ -476,17 +471,19 @@ void TickSlider::paintEvent(QPaintEvent* ev)
             }
             // Right label
             if (has_label && using_right_labels) {
-                graphicsfunc::drawText(p, right_label_left, y,
-                                       Qt::AlignLeft | valign, label_text);
+                graphicsfunc::drawText(
+                    p, right_label_left, y, Qt::AlignLeft | valign, label_text
+                );
             }
         }
     }
 }
 
-
-int TickSlider::getTickPos(const double drawing_proportion,
-                           const int active_groove_start,
-                           const int active_groove_extent) const
+int TickSlider::getTickPos(
+    const double drawing_proportion,
+    const int active_groove_start,
+    const int active_groove_extent
+) const
 {
     // - We have a slider that is drawn as slider_extent pixels long.
     // - That value includes overhang for the handle: half the handle can
@@ -499,53 +496,50 @@ int TickSlider::getTickPos(const double drawing_proportion,
     return static_cast<int>(round(tickpos));
 }
 
-
 QSize TickSlider::sizeHint() const
 {
     const QSize slider_size = sliderSizeWithHandle(false);
     const QSize whole_size = wholeWidgetSize(slider_size);
 #ifdef DEBUG_SIZE
-    qDebug() << Q_FUNC_INFO
-             << "// horizontal" << isHorizontal()
-             << "slider_size" << slider_size
-             << "whole_size" << whole_size;
+    qDebug() << Q_FUNC_INFO << "// horizontal" << isHorizontal()
+             << "slider_size" << slider_size << "whole_size" << whole_size;
 #endif
     return whole_size;
 }
-
 
 QSize TickSlider::minimumSizeHint() const
 {
     const QSize slider_size = sliderSizeWithHandle(true);
     const QSize whole_size = wholeWidgetSize(slider_size);
 #ifdef DEBUG_SIZE
-    qDebug() << Q_FUNC_INFO
-             << "// horizontal" << isHorizontal()
-             << "slider_size" << slider_size
-             << "whole_size" << whole_size;
+    qDebug() << Q_FUNC_INFO << "// horizontal" << isHorizontal()
+             << "slider_size" << slider_size << "whole_size" << whole_size;
 #endif
     return whole_size;
 }
-
 
 QSize TickSlider::sliderSizeWithHandle(bool minimum_size) const
 {
     // Get base size
     ensurePolished();
     m_slider.ensurePolished();  // redundant?
-    QSize slider_size = minimum_size ? m_slider.minimumSizeHint()
-                                     : m_slider.sizeHint();
+    QSize slider_size
+        = minimum_size ? m_slider.minimumSizeHint() : m_slider.sizeHint();
     const bool horizontal = isHorizontal();
     const bool vertical = !horizontal;
-    int& perpendicular_size = horizontal ? slider_size.rheight() : slider_size.rwidth();
-    int& parallel_size = horizontal ? slider_size.rwidth() : slider_size.rheight();
+    int& perpendicular_size
+        = horizontal ? slider_size.rheight() : slider_size.rwidth();
+    int& parallel_size
+        = horizontal ? slider_size.rwidth() : slider_size.rheight();
 
     // Expand for handle (in the perpendicular direction)
     QStyleOptionSlider opt;
     initStyleOption(&opt);
     const QRect handle = m_slider.style()->subControlRect(
-                QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, &m_slider);
-    const int handle_perpendicular = horizontal ? handle.height() : handle.width();
+        QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, &m_slider
+    );
+    const int handle_perpendicular
+        = horizontal ? handle.height() : handle.width();
     perpendicular_size = qMax(perpendicular_size, handle_perpendicular);
 
     // - If we have specified an absolute size [m_slider_target_length_px > 0],
@@ -555,16 +549,15 @@ QSize TickSlider::sliderSizeWithHandle(bool minimum_size) const
     //       [minimum_size], and
     //   (b) we allow ourselves to shrink if required
     //       [m_absolute_size_can_shrink].
-    const bool use_fixed_size =
-            m_slider_target_length_px > 0 &&
-            !(m_absolute_size_can_shrink && minimum_size);
+    const bool use_fixed_size = m_slider_target_length_px > 0
+        && !(m_absolute_size_can_shrink && minimum_size);
 
     if (use_fixed_size) {
         // Fixed size in the parallel-to-groove direction.
-        const int handle_parallel = horizontal ? handle.width() : handle.height();
-        parallel_size = m_slider_target_length_px +
-                        2 * m_groove_margin_px +
-                        handle_parallel;
+        const int handle_parallel
+            = horizontal ? handle.width() : handle.height();
+        parallel_size = m_slider_target_length_px + 2 * m_groove_margin_px
+            + handle_parallel;
         // +-------------------------
         // |        groove margin
         // | +-----------------------
@@ -586,22 +579,24 @@ QSize TickSlider::sliderSizeWithHandle(bool minimum_size) const
     } else {
         // Expand for labels (in the parallel direction)
         const bool using_labels = usingLabels();
-        const bool expand_for_labels = using_labels && (!minimum_size || vertical);
+        const bool expand_for_labels
+            = using_labels && (!minimum_size || vertical);
 
         if (expand_for_labels) {
             const QSize label = maxLabelSize();
-            const int n_potential_labels = (maximum() - minimum()) / tickInterval();
-            const int& parallel_label_size = horizontal ? label.width() : label.height();
-            const int min_parallel_size_for_labels =
-                    n_potential_labels * parallel_label_size +
-                    (n_potential_labels - 1) * m_min_interlabel_gap;
+            const int n_potential_labels
+                = (maximum() - minimum()) / tickInterval();
+            const int& parallel_label_size
+                = horizontal ? label.width() : label.height();
+            const int min_parallel_size_for_labels
+                = n_potential_labels * parallel_label_size
+                + (n_potential_labels - 1) * m_min_interlabel_gap;
             parallel_size = qMax(parallel_size, min_parallel_size_for_labels);
         }
     }
 
     return slider_size;
 }
-
 
 Margins TickSlider::getSurround() const
 {
@@ -614,8 +609,10 @@ Margins TickSlider::getSurround() const
     const QSize label = maxLabelSize();
     const bool horizontal = isHorizontal();
     int& perpendicular_la = horizontal ? surround.rtop() : surround.rleft();
-    int& perpendicular_rb = horizontal ? surround.rbottom() : surround.rright();
-    const int& perpendicular_label_size = horizontal ? label.height() : label.width();
+    int& perpendicular_rb
+        = horizontal ? surround.rbottom() : surround.rright();
+    const int& perpendicular_label_size
+        = horizontal ? label.height() : label.width();
 
     const QSlider::TickPosition tickpos = tickPosition();
     const QSlider::TickPosition labelpos = tickLabelPosition();
@@ -663,14 +660,12 @@ Margins TickSlider::getSurround() const
     overspill.addMarginsToInPlace(surround);
 
 #ifdef DEBUG_SIZE
-    qDebug() << Q_FUNC_INFO
-             << "// horizontal" << horizontal
+    qDebug() << Q_FUNC_INFO << "// horizontal" << horizontal
              << "// surround size" << surround;
 #endif
 
     return surround;
 }
-
 
 QSize TickSlider::wholeWidgetSize(const QSize& slider_size) const
 {
@@ -682,7 +677,6 @@ QSize TickSlider::wholeWidgetSize(const QSize& slider_size) const
 
     return size;
 }
-
 
 Margins TickSlider::getLabelOverspill() const
 {
@@ -724,22 +718,18 @@ Margins TickSlider::getLabelOverspill() const
         }
     }
     if (m_symmetric_overspill) {
-        overspill.rleft() =
-                overspill.rright() =
-                qMax(overspill.left(), overspill.right());
-        overspill.rtop() =
-                overspill.rbottom() =
-                qMax(overspill.top(), overspill.bottom());
+        overspill.rleft() = overspill.rright()
+            = qMax(overspill.left(), overspill.right());
+        overspill.rtop() = overspill.rbottom()
+            = qMax(overspill.top(), overspill.bottom());
     }
     return overspill;
 }
-
 
 void TickSlider::clearCache()
 {
     m_is_overspill_cached = false;
 }
-
 
 QRect TickSlider::getSliderRect() const
 {
@@ -748,7 +738,6 @@ QRect TickSlider::getSliderRect() const
     QRect slider_rect = surround.removeMarginsFrom(entire_rect);
     return slider_rect;
 }
-
 
 QRect TickSlider::getSliderActiveGroove() const
 {
@@ -759,12 +748,14 @@ QRect TickSlider::getSliderActiveGroove() const
     // Read the handle. Its absolute position will be wrong (it'll be relative
     // to the slider) but we only care about its width/height.
     const QRect handle = m_slider.style()->subControlRect(
-                QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, &m_slider);
+        QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, &m_slider
+    );
     // Fine the entire extent of the groove. This includes borders around the
     // "active" part of the groove.
     // What we get first is wrong, in that it's relative to the QSlider:
     QRect groove = m_slider.style()->subControlRect(
-                QStyle::CC_Slider, &opt, QStyle::SC_SliderGroove, &m_slider);
+        QStyle::CC_Slider, &opt, QStyle::SC_SliderGroove, &m_slider
+    );
     const Margins surround = getSurround();
     surround.moveRectByTopLeftMarginsInPlace(groove);
 #ifdef DEBUG_SIZE
@@ -788,12 +779,10 @@ QRect TickSlider::getSliderActiveGroove() const
     return active_groove;
 }
 
-
 void TickSlider::repositionSlider()
 {
     m_slider.setGeometry(getSliderRect());
 }
-
 
 void TickSlider::moveEvent(QMoveEvent* event)
 {
@@ -801,36 +790,35 @@ void TickSlider::moveEvent(QMoveEvent* event)
     repositionSlider();
 }
 
-
 void TickSlider::resizeEvent(QResizeEvent* event)
 {
     Q_UNUSED(event)
     repositionSlider();
 }
 
-
 bool TickSlider::event(QEvent* event)
 {
     switch (event->type()) {
 
-    // Need cache clearing:
-    case QEvent::Type::ContentsRectChange:
-    case QEvent::Type::DynamicPropertyChange:
-    case QEvent::Type::FontChange:
-    case QEvent::Type::Polish:
-    case QEvent::Type::PolishRequest:
-    case QEvent::Type::Resize:
-    case QEvent::Type::StyleChange:
-    case QEvent::Type::ScreenChangeInternal:  // undocumented? But see https://git.merproject.org/mer-core/qtbase/commit/49194275e02a9d6373767d6485bd8ebeeb0abba5
-        clearCache();
-        break;
+        // Need cache clearing:
+        case QEvent::Type::ContentsRectChange:
+        case QEvent::Type::DynamicPropertyChange:
+        case QEvent::Type::FontChange:
+        case QEvent::Type::Polish:
+        case QEvent::Type::PolishRequest:
+        case QEvent::Type::Resize:
+        case QEvent::Type::StyleChange:
+        case QEvent::Type::ScreenChangeInternal:
+            // ... ScreenChangeInternal undocumented? But see
+            // https://git.merproject.org/mer-core/qtbase/commit/49194275e02a9d6373767d6485bd8ebeeb0abba5
+            clearCache();
+            break;
 
-    default:
-        break;
+        default:
+            break;
     }
     return QWidget::event(event);
 }
-
 
 void TickSlider::initStyleOption(QStyleOptionSlider* option) const
 {
@@ -855,13 +843,16 @@ void TickSlider::initStyleOption(QStyleOptionSlider* option) const
     option->tickPosition = m_slider.tickPosition();
     option->tickInterval = m_slider.tickInterval();
     option->upsideDown = horizontal
-            ? (m_slider.invertedAppearance() != (option->direction == Qt::RightToLeft))
-            : (!m_slider.invertedAppearance());
-    option->direction = Qt::LeftToRight; // we use the upsideDown option instead
+        ? (m_slider.invertedAppearance()
+           != (option->direction == Qt::RightToLeft))
+        : (!m_slider.invertedAppearance());
+    option->direction = Qt::LeftToRight;
+    // ... we use the upsideDown option instead
 
     // d->position is QAbstractSliderPrivate::position, which is an int
     // ... is it a zero-based int? Let's try this:
-    option->sliderPosition = (m_slider.value() - m_slider.minimum()) / m_slider.singleStep();
+    option->sliderPosition
+        = (m_slider.value() - m_slider.minimum()) / m_slider.singleStep();
 
     option->sliderValue = m_slider.value();
     option->singleStep = m_slider.singleStep();
@@ -871,28 +862,25 @@ void TickSlider::initStyleOption(QStyleOptionSlider* option) const
     }
 }
 
-
 void TickSlider::setCssName(const QString& name)
 {
     setObjectName(name);
     m_slider.setObjectName(name);
 }
 
-
 void TickSlider::resetSizePolicy()
 {
     const bool horizontal = isHorizontal();
     const bool fixed_length = m_slider_target_length_px > 0;
-    const QSizePolicy::Policy parallel =
-            fixed_length ? (m_absolute_size_can_shrink ? QSizePolicy::Maximum
-                                                       : QSizePolicy::Fixed)
-                         : QSizePolicy::Preferred;
+    const QSizePolicy::Policy parallel = fixed_length
+        ? (m_absolute_size_can_shrink ? QSizePolicy::Maximum
+                                      : QSizePolicy::Fixed)
+        : QSizePolicy::Preferred;
     const QSizePolicy::Policy perpendicular = QSizePolicy::Fixed;
     QSizePolicy::Policy h = horizontal ? parallel : perpendicular;
     QSizePolicy::Policy v = horizontal ? perpendicular : parallel;
     setSizePolicy(h, v);
 }
-
 
 void TickSlider::setOrientation(const Qt::Orientation orientation)
 {

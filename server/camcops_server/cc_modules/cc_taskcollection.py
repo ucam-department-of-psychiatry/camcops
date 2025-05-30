@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_taskcollection.py
 
@@ -292,11 +290,11 @@ class TaskCollection(object):
 
         self._tasks_by_class = (
             OrderedDict()
-        )  # type: Dict[Type[Task], List[Task]]  # noqa
+        )  # type: Dict[Type[Task], List[Task]]
         self._all_tasks = None  # type: Optional[List[Task]]
         self._all_indexes = (
             None
-        )  # type: Optional[Union[List[TaskIndexEntry], Query]]  # noqa
+        )  # type: Optional[Union[List[TaskIndexEntry], Query]]
 
     def __repr__(self) -> str:
         return auto_repr(self)
@@ -594,7 +592,7 @@ class TaskCollection(object):
                 # q = q.join(Patient) # fails
                 q = q.join(
                     cls.patient
-                )  # use explicitly configured relationship  # noqa
+                )  # use explicitly configured relationship
                 q = tf.filter_query_by_patient(q, via_index=False)
 
         # Patient-independent filtering
@@ -813,7 +811,7 @@ class TaskCollection(object):
             # Replace the query with actual indexes
             self._all_indexes = (
                 self._all_indexes.all()
-            )  # type: List[TaskIndexEntry]  # noqa
+            )  # type: List[TaskIndexEntry]
         indexes = self._all_indexes
 
         # Fetch tasks

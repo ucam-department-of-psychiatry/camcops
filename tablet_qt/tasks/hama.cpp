@@ -19,9 +19,10 @@
 */
 
 #include "hama.h"
+
 #include "common/textconst.h"
-#include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
@@ -42,21 +43,20 @@ const QString QPREFIX("q");
 
 const QString HamA::HAMA_TABLENAME("hama");
 
-
 void initializeHamA(TaskFactory& factory)
 {
     static TaskRegistrar<HamA> registered(factory);
 }
 
-
 HamA::HamA(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, HAMA_TABLENAME, false, true, false)  // ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
+    );
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -67,18 +67,15 @@ QString HamA::shortname() const
     return "HAM-A";
 }
 
-
 QString HamA::longname() const
 {
     return tr("Hamilton Rating Scale for Anxiety");
 }
 
-
 QString HamA::description() const
 {
     return tr("14-item clinician-administered scale.");
 }
-
 
 // ============================================================================
 // Instance info
@@ -89,31 +86,27 @@ bool HamA::isComplete() const
     return noneNull(values(strseq(QPREFIX, FIRST_Q, N_QUESTIONS)));
 }
 
-
 QStringList HamA::summary() const
 {
     return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
 
-
 QStringList HamA::detail() const
 {
     const int score = totalScore();
     const QString severity = score >= 31
-            ? TextConst::verySevere()
-            : (score >= 25 ? TextConst::moderateToSevere()
-                           : score >= 18 ? TextConst::mildToModerate()
-                                         : TextConst::mild());
+        ? TextConst::verySevere()
+        : (score >= 25       ? TextConst::moderateToSevere()
+               : score >= 18 ? TextConst::mildToModerate()
+                             : TextConst::mild());
     QStringList lines = completenessInfo();
     lines += fieldSummaries("q", "_s", " ", QPREFIX, FIRST_Q, N_QUESTIONS);
     lines.append("");
     lines += summary();
     lines.append("");
-    lines.append(standardResult(xstring("symptom_severity"),
-                                severity));
+    lines.append(standardResult(xstring("symptom_severity"), severity));
     return lines;
 }
-
 
 OpenableWidget* HamA::editor(const bool read_only)
 {
@@ -122,16 +115,18 @@ OpenableWidget* HamA::editor(const bool read_only)
     auto addpage = [this, &pages](int n) -> void {
         NameValueOptions options;
         for (int i = 0; i <= 4; ++i) {
-            const QString name = xstring(QString("q%1_option%2").arg(n).arg(i));
+            const QString name
+                = xstring(QString("q%1_option%2").arg(n).arg(i));
             options.append(NameValuePair(name, i));
         }
         const QString pagetitle = xstring(QString("q%1_title").arg(n));
         const QString question = xstring(QString("q%1_question").arg(n));
         const QString fieldname = strnum(QPREFIX, n);
         QuPagePtr page((new QuPage{
-            new QuText(question),
-            new QuMcq(fieldRef(fieldname), options),
-        })->setTitle(pagetitle));
+                            new QuText(question),
+                            new QuMcq(fieldRef(fieldname), options),
+                        })
+                           ->setTitle(pagetitle));
         pages.append(page);
     };
 
@@ -145,7 +140,6 @@ OpenableWidget* HamA::editor(const bool read_only)
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations

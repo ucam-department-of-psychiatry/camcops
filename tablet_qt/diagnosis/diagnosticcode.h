@@ -55,9 +55,14 @@ public:
     //  selectable: may the user choose this node (or is it e.g. too generic)?
     //  show_code_in_full_name: incorporate the code as well as the description
     //      into the full name?
-    DiagnosticCode(const QString& code, const QString& description,
-                   DiagnosticCode* parent, int depth, bool selectable,
-                   bool show_code_in_full_name = true);
+    DiagnosticCode(
+        const QString& code,
+        const QString& description,
+        DiagnosticCode* parent,
+        int depth,
+        bool selectable,
+        bool show_code_in_full_name = true
+    );
     ~DiagnosticCode();
 
     // ------------------------------------------------------------------------
@@ -130,5 +135,6 @@ public:
     friend QDebug operator<<(QDebug debug, const DiagnosticCode& dc);
 
     // Debugging description
-    friend QTextStream& operator<<(QTextStream& stream, const DiagnosticCode& dc);
+    friend QTextStream&
+        operator<<(QTextStream& stream, const DiagnosticCode& dc);
 };

@@ -22,14 +22,15 @@
 #include <QThread>
 class DatabaseManager;
 
-
 // Very simple QThread class to call DatabaseManager::work().
 class DatabaseWorkerThread : public QThread
 {
     Q_OBJECT
+
 public:
     DatabaseWorkerThread(DatabaseManager* manager);
     virtual void run() override;
+
 protected:
     DatabaseManager* m_manager;
 };

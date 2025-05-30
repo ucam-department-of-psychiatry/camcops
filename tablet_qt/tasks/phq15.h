@@ -20,6 +20,7 @@
 
 #pragma once
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -28,13 +29,16 @@ class TaskFactory;
 
 void initializePhq15(TaskFactory& factory);
 
-
 class Phq15 : public Task
 {
     Q_OBJECT
+
 public:
-    Phq15(CamcopsApp& app, DatabaseManager& db,
-          int load_pk = dbconst::NONEXISTENT_PK);
+    Phq15(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -57,6 +61,7 @@ public:
     int nQuestions() const;
     int maxScore() const;
     int nSevereSymptoms() const;
+
 public:
     static const QString PHQ15_TABLENAME;
 };

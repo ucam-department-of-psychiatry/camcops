@@ -21,7 +21,6 @@
 #pragma once
 #include <QString>
 
-
 class PagePickerItem
 {
     // An option presented by a PagePickerDialog.
@@ -29,21 +28,22 @@ class PagePickerItem
     // Questionnaire.
 
 public:
-
     // How should the page be shown/displayed?
     // Determines the icon shown and whether the user can select it.
     enum class PagePickerItemType {
         CompleteSelectable,  // data complete, can jump to it
         IncompleteSelectable,  // data incomplete, can jump to it
-        BlockedByPrevious,  // can't select it; data incomplete in previous pages
+        BlockedByPrevious,
+        // ... can't select it; data incomplete in previous pages
     };
 
     // Default constructor, so it can live in a QVector
     PagePickerItem();
 
     // Usual constructor
-    PagePickerItem(const QString& text, int page_number,
-                   PagePickerItemType type);
+    PagePickerItem(
+        const QString& text, int page_number, PagePickerItemType type
+    );
 
     // Returns the text (e.g. page title)
     QString text() const;

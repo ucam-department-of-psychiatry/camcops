@@ -21,6 +21,7 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+
 #include "questionnairelib/namevalueoptions.h"
 #include "tasklib/task.h"
 
@@ -34,9 +35,13 @@ void initializeAPEQCPFTPerinatal(TaskFactory& factory);
 class APEQCPFTPerinatal : public Task
 {
     Q_OBJECT
+
 public:
-    APEQCPFTPerinatal(CamcopsApp& app, DatabaseManager& db,
-                      int load_pk = dbconst::NONEXISTENT_PK);
+    APEQCPFTPerinatal(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -55,6 +60,7 @@ public:
     // ------------------------------------------------------------------------
     NameValueOptions optionsMain() const;
     NameValueOptions optionsFFRating() const;
+
 public:
     static const QString APEQCPFTPERINATAL_TABLENAME;
 };

@@ -42,11 +42,13 @@
 // #define DEBUG_LAYOUT_WITH_CSS
 
 #define LWWW_USE_UNWRAPPED_CACHE  // seems OK on wombat
-// #define LWWW_USE_QLABEL_CACHE  // not OK (wombat), even if cache cleared on every event
+// #define LWWW_USE_QLABEL_CACHE
+// ... not OK (wombat), even if cache cleared on every event
 #define LWWW_USE_STYLE_CACHE  // seems OK on wombat
 
-#if defined(LWWW_USE_UNWRAPPED_CACHE) || defined(LWWW_USE_QLABEL_CACHE) || defined(LWWW_USE_STYLE_CACHE)
-#define LWWW_USE_ANY_CACHE
+#if defined(LWWW_USE_UNWRAPPED_CACHE) || defined(LWWW_USE_QLABEL_CACHE)       \
+    || defined(LWWW_USE_STYLE_CACHE)
+    #define LWWW_USE_ANY_CACHE
 #endif
 
 // #define ADD_EXTRA_FOR_LAYOUT_OR_CSS
@@ -69,16 +71,18 @@
 // OK without #define ADD_EXTRA_FOR_LAYOUT_OR_CSS.
 
 #include "labelwordwrapwide.h"
+
 #include <QDebug>
 #include <QEvent>
 #include <QFontMetrics>
 #include <QResizeEvent>
 #include <QStyle>
 #include <QStyleOptionFrame>
+
 #include "lib/sizehelpers.h"
 
 #ifdef DEBUG_LAYOUT_WITH_CSS
-#include "common/cssconst.h"
+    #include "common/cssconst.h"
 #endif
 
 // A QLabel, with setWordWrap(true), has a tendency to expand vertically and
@@ -105,7 +109,6 @@ LabelWordWrapWide::LabelWordWrapWide(const QString& text, QWidget* parent) :
 {
     setText(text);  // this is what the QLabel(text, parent) constructor does
 }
-
 
 LabelWordWrapWide::LabelWordWrapWide(QWidget* parent) :
     QLabel(parent)
@@ -140,12 +143,10 @@ LabelWordWrapWide::LabelWordWrapWide(QWidget* parent) :
 #endif
 }
 
-
 bool LabelWordWrapWide::hasHeightForWidth() const
 {
     return true;
 }
-
 
 int LabelWordWrapWide::heightForWidth(const int width) const
 {
@@ -154,35 +155,31 @@ int LabelWordWrapWide::heightForWidth(const int width) const
     const int text_width = width - extra.width();
     const int text_height = qlabelHeightForWidth(text_width);
     const int height = text_height + extra.height();
-#ifdef DEBUG_CALCULATIONS
-    qDebug().nospace()
-            << Q_FUNC_INFO
-            << " - width " << width << " -> height " << height
-            << " (as text_width " << text_width
-            << " -> QLabel HFW " << text_height
-            << " plus extra height of " << extra.height() << ")";
-#endif
+    #ifdef DEBUG_CALCULATIONS
+    qDebug().nospace() << Q_FUNC_INFO << " - width " << width << " -> height "
+                       << height << " (as text_width " << text_width
+                       << " -> QLabel HFW " << text_height
+                       << " plus extra height of " << extra.height() << ")";
+    #endif
     return height;
 #else
     const int height = qlabelHeightForWidth(width);
-#ifdef DEBUG_CALCULATIONS
-    qDebug().nospace()
-            << Q_FUNC_INFO
-            << " - width " << width
-            << " -> (direct from QLabel::heightForWidth) height " << height;
-#endif
+    #ifdef DEBUG_CALCULATIONS
+    qDebug().nospace() << Q_FUNC_INFO << " - width " << width
+                       << " -> (direct from QLabel::heightForWidth) height "
+                       << height;
+    #endif
     return height;
 #endif
 }
-
 
 int LabelWordWrapWide::qlabelHeightForWidth(const int width) const
 {
 #ifdef LWWW_USE_QLABEL_CACHE
     if (m_cached_qlabel_height_for_width.contains(width)) {
-#ifdef DEBUG_CACHE_USE
+    #ifdef DEBUG_CACHE_USE
         qDebug() << Q_FUNC_INFO << "using cache";
-#endif
+    #endif
         return m_cached_qlabel_height_for_width[width];
     }
 #endif
@@ -198,7 +195,8 @@ int LabelWordWrapWide::qlabelHeightForWidth(const int width) const
     //  QLabel::heightForWidth(w)
     //  -> QLabelPrivate::sizeForWidth(w)
     //  ... which does:
-    //      - remove contentsMargin.width() AND hextra (= 2 * margin +/- indent)
+    //      - remove contentsMargin.width() AND
+    //        hextra (= 2 * margin +/- indent)
     //      - add back contents margins AND hextra AND vextra (= hextra)
     // ... and in which:
     //      "control": QWidgetTextControl*
@@ -209,15 +207,14 @@ int LabelWordWrapWide::qlabelHeightForWidth(const int width) const
     return height;
 }
 
-
 void LabelWordWrapWide::resizeEvent(QResizeEvent* event)
 {
     QLabel::resizeEvent(event);
 #ifdef GUI_USE_RESIZE_FOR_HEIGHT
-#ifdef DEBUG_RESIZE
-    qDebug() << Q_FUNC_INFO << "resizing from" << event->oldSize()
-             << "to" << event->size();
-#endif
+    #ifdef DEBUG_RESIZE
+    qDebug() << Q_FUNC_INFO << "resizing from" << event->oldSize() << "to"
+             << event->size();
+    #endif
     forceHeight();
 #endif
 }
@@ -248,27 +245,25 @@ void LabelWordWrapWide::forceHeight()
     //
     // The complex bit is then in QLabelPrivate::sizeForWidth
 
-#ifdef ADD_EXTRA_FOR_LAYOUT_OR_CSS
+    #ifdef ADD_EXTRA_FOR_LAYOUT_OR_CSS
 
     const QSize size_with_css = QSize(w, h) + extraSizeForCssOrLayout();
     // const int final_height = h;
     const int final_height = size_with_css.height();
-#ifdef DEBUG_CALCULATIONS
-    qDebug() << Q_FUNC_INFO << "w" << w << "h" << h
-             << "size_with_css" << size_with_css
-             << "final_height" << final_height
+        #ifdef DEBUG_CALCULATIONS
+    qDebug() << Q_FUNC_INFO << "w" << w << "h" << h << "size_with_css"
+             << size_with_css << "final_height" << final_height
              << "... text:" << text();
-#endif
+        #endif
 
-#else
+    #else
 
     const int final_height = h;
-#ifdef DEBUG_CALCULATIONS
-    qDebug() << Q_FUNC_INFO << "w" << w << "h" << h
-             << "... text:" << text();
-#endif
+        #ifdef DEBUG_CALCULATIONS
+    qDebug() << Q_FUNC_INFO << "w" << w << "h" << h << "... text:" << text();
+        #endif
 
-#endif
+    #endif
 
     const bool change = !sizehelpers::fixedHeightEquals(this, final_height);
     if (change) {
@@ -297,9 +292,9 @@ QSize LabelWordWrapWide::sizeOfTextWithoutWrap() const
 {
 #ifdef LWWW_USE_UNWRAPPED_CACHE
     if (m_cached_unwrapped_text_size.isValid()) {
-#ifdef DEBUG_CACHE_USE
+    #ifdef DEBUG_CACHE_USE
         qDebug() << Q_FUNC_INFO << "- using cache";
-#endif
+    #endif
         return m_cached_unwrapped_text_size;
     }
 #endif
@@ -316,7 +311,8 @@ QSize LabelWordWrapWide::sizeOfTextWithoutWrap() const
     //   #define Q_D(Class) Class##Private* const d = d_func()
     //      ... Q_D gives the class a pointer to its private-class member
     //   #define Q_Q(Class) Class* const q = q_func()
-    //      ... Q_Q gives the private class a pointer to its public-class member
+    //      ... Q_Q gives the private class a pointer to its public-class
+    //          member
     // Ah, not that much harder.
     // - http://stackoverflow.com/questions/1337523/measuring-text-width-in-qt
     // Compare:
@@ -328,9 +324,10 @@ QSize LabelWordWrapWide::sizeOfTextWithoutWrap() const
     const QString t = text();
 
     const QRect br = fm.boundingRect(
-                QRect(0, 0, QWIDGETSIZE_MAX, QWIDGETSIZE_MAX),
-                0,  // definitely not Qt::TextWordWrap
-                t);
+        QRect(0, 0, QWIDGETSIZE_MAX, QWIDGETSIZE_MAX),
+        0,  // definitely not Qt::TextWordWrap
+        t
+    );
     // Right. Potentially some bugs relating to the output of boundingRect
     // being inconsistent. For example, in the same font, with text =
     // "Option C1", the size can come back as (60, 84) on one call and (60, 14)
@@ -348,10 +345,9 @@ QSize LabelWordWrapWide::sizeOfTextWithoutWrap() const
     // QSize text_size(width, height);
     const QSize unwrapped_text_size = br.size();
 
-    #ifdef DEBUG_CALCULATIONS
-        qDebug() << Q_FUNC_INFO << "->" << unwrapped_text_size
-                 << "... text:" << t;
-    #endif
+#ifdef DEBUG_CALCULATIONS
+    qDebug() << Q_FUNC_INFO << "->" << unwrapped_text_size << "... text:" << t;
+#endif
 
 #ifdef LWWW_USE_UNWRAPPED_CACHE
     m_cached_unwrapped_text_size = unwrapped_text_size;
@@ -359,22 +355,21 @@ QSize LabelWordWrapWide::sizeOfTextWithoutWrap() const
     return unwrapped_text_size;
 }
 
-
 QSize LabelWordWrapWide::extraSizeForCssOrLayout() const
 {
 #ifdef LWWW_USE_STYLE_CACHE
     if (m_cached_extra_for_css_or_layout.isValid()) {
-#ifdef DEBUG_CACHE_USE
+    #ifdef DEBUG_CACHE_USE
         qDebug() << Q_FUNC_INFO << "- using cache";
-#endif
+    #endif
         return m_cached_extra_for_css_or_layout;
     }
 #endif
     const QSize dummy(0, 0);
     QStyleOptionFrame opt;
     initStyleOption(&opt);  // protected
-    QSize extra_for_css_or_layout = sizehelpers::labelExtraSizeRequired(
-                this, &opt, dummy);
+    QSize extra_for_css_or_layout
+        = sizehelpers::labelExtraSizeRequired(this, &opt, dummy);
 #ifdef DEBUG_CALCULATIONS
     qDebug() << Q_FUNC_INFO << "->" << extra_for_css_or_layout
              << "... text:" << text();
@@ -386,7 +381,6 @@ QSize LabelWordWrapWide::extraSizeForCssOrLayout() const
     return extra_for_css_or_layout;
 }
 
-
 bool LabelWordWrapWide::event(QEvent* e)
 {
 #ifdef LWWW_USE_ANY_CACHE
@@ -394,35 +388,36 @@ bool LabelWordWrapWide::event(QEvent* e)
     QEvent::Type type = e->type();
     switch (type) {
 
-    // Need cache clearing:
-    case QEvent::Type::ContentsRectChange:
-    case QEvent::Type::DynamicPropertyChange:
-    case QEvent::Type::FontChange:
-    case QEvent::Type::Polish:
-    case QEvent::Type::PolishRequest:
-    case QEvent::Type::Resize:
-    case QEvent::Type::StyleChange:
-    case QEvent::Type::ScreenChangeInternal:  // undocumented? But see https://git.merproject.org/mer-core/qtbase/commit/49194275e02a9d6373767d6485bd8ebeeb0abba5
-#ifdef DEBUG_EVENTS
-        qDebug() << Q_FUNC_INFO
-                 << "- event requiring cache clear... text:" << text();
-#endif
-        clearCache();
-        break;
+        // Need cache clearing:
+        case QEvent::Type::ContentsRectChange:
+        case QEvent::Type::DynamicPropertyChange:
+        case QEvent::Type::FontChange:
+        case QEvent::Type::Polish:
+        case QEvent::Type::PolishRequest:
+        case QEvent::Type::Resize:
+        case QEvent::Type::StyleChange:
+        case QEvent::Type::ScreenChangeInternal:
+            // ScreenChangeInternal undocumented? But see
+            // https://git.merproject.org/mer-core/qtbase/commit/49194275e02a9d6373767d6485bd8ebeeb0abba5
+    #ifdef DEBUG_EVENTS
+            qDebug() << Q_FUNC_INFO
+                     << "- event requiring cache clear... text:" << text();
+    #endif
+            clearCache();
+            break;
 
-    default:
-#ifdef DEBUG_EVENTS
-        qDebug() << Q_FUNC_INFO << "other event:" << type;
-#endif
-        // clearCache();
-        break;
+        default:
+    #ifdef DEBUG_EVENTS
+            qDebug() << Q_FUNC_INFO << "other event:" << type;
+    #endif
+            // clearCache();
+            break;
     }
     return result;
 #else
     return QLabel::event(e);
 #endif
 }
-
 
 QSize LabelWordWrapWide::sizeHint() const
 {
@@ -444,34 +439,30 @@ QSize LabelWordWrapWide::sizeHint() const
 #endif
     size_hint = size_hint.expandedTo(minimumSizeHint());
 #ifdef DEBUG_CALCULATIONS
-    qDebug() << Q_FUNC_INFO
-             << "- text_size" << text_size
-             << "->" << size_hint << "... text:" << text();
+    qDebug() << Q_FUNC_INFO << "- text_size" << text_size << "->" << size_hint
+             << "... text:" << text();
 #endif
     return size_hint;
 }
-
 
 QSize LabelWordWrapWide::minimumSizeHint() const
 {
     const QSize w_smallest_word_h_unclear = QLabel::minimumSizeHint();
     const QSize unwrapped_size = sizeOfTextWithoutWrap();
-    QSize smallest_word = QSize(w_smallest_word_h_unclear.width(),
-                                unwrapped_size.height());
+    QSize smallest_word
+        = QSize(w_smallest_word_h_unclear.width(), unwrapped_size.height());
 #ifdef ADD_EXTRA_FOR_LAYOUT_OR_CSS
     const QSize minimum_size_hint = smallest_word + extraSizeForCssOrLayout();
 #else
     const QSize& minimum_size_hint = smallest_word;
 #endif
 #ifdef DEBUG_CALCULATIONS
-    qDebug() << Q_FUNC_INFO
-             << "- smallest_word" << smallest_word
+    qDebug() << Q_FUNC_INFO << "- smallest_word" << smallest_word
              << "-> minimum_size_hint" << minimum_size_hint
              << "... text:" << text();
 #endif
     return minimum_size_hint;
 }
-
 
 void LabelWordWrapWide::setText(const QString& text)
 {
@@ -484,7 +475,6 @@ void LabelWordWrapWide::setText(const QString& text)
 #endif
     // forceHeight();
 }
-
 
 void LabelWordWrapWide::clearCache()
 {

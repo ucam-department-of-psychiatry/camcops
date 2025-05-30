@@ -20,37 +20,36 @@
 
 #include "gbocommon.h"
 
-namespace gbocommon
-{
+namespace gbocommon {
 
 const int AGENT_PATIENT = 1;  // In original: child/young person
 const int AGENT_PARENT_CARER = 2;
 const int AGENT_CLINICIAN = 3;
 const int AGENT_OTHER = 4;
 
-const QString AGENTSTR_PATIENT = "Patient/service user";  // In original: "Child/young person"
+const QString AGENTSTR_PATIENT = "Patient/service user";
+// ... In original: "Child/young person"
 const QString AGENTSTR_PARENT_CARER = "Parent/carer";
 const QString AGENTSTR_CLINICIAN = "Practitioner/clinician";
 const QString AGENTSTR_OTHER = "Other: ";
 const QString AGENTSTR_UNKNOWN = "Unknown";
 
-
 QString agentDescription(const int agent, const QString& other_detail)
 {
     switch (agent) {
-    case AGENT_PATIENT:
-        return AGENTSTR_PATIENT;
-    case AGENT_PARENT_CARER:
-        return AGENTSTR_PARENT_CARER;
-    case AGENT_CLINICIAN:
-        return AGENTSTR_CLINICIAN;
-    case AGENT_OTHER:
-        return AGENTSTR_OTHER + (other_detail.isEmpty() ? "?" : other_detail);
-    default:
-        return AGENTSTR_UNKNOWN;
+        case AGENT_PATIENT:
+            return AGENTSTR_PATIENT;
+        case AGENT_PARENT_CARER:
+            return AGENTSTR_PARENT_CARER;
+        case AGENT_CLINICIAN:
+            return AGENTSTR_CLINICIAN;
+        case AGENT_OTHER:
+            return AGENTSTR_OTHER
+                + (other_detail.isEmpty() ? "?" : other_detail);
+        default:
+            return AGENTSTR_UNKNOWN;
     }
 }
-
 
 const int PROGRESS_MIN = 0;
 const int PROGRESS_MAX = 10;

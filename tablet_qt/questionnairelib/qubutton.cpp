@@ -19,16 +19,16 @@
 */
 
 #include "qubutton.h"
+
 #include "common/cssconst.h"
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/imagebutton.h"
 
-
-QuButton::QuButton(const QString& label,
-                   const CallbackFunction& callback,
-                   QObject* parent) :
+QuButton::QuButton(
+    const QString& label, const CallbackFunction& callback, QObject* parent
+) :
     QuElement(parent),
     m_label(label),
     m_callback(callback),
@@ -36,12 +36,13 @@ QuButton::QuButton(const QString& label,
 {
 }
 
-
-QuButton::QuButton(const QString& icon_filename,
-                   const bool filename_is_camcops_stem,
-                   const bool alter_unpressed_image,
-                   const CallbackFunction& callback,
-                   QObject* parent) :
+QuButton::QuButton(
+    const QString& icon_filename,
+    const bool filename_is_camcops_stem,
+    const bool alter_unpressed_image,
+    const CallbackFunction& callback,
+    QObject* parent
+) :
     QuElement(parent),
     m_icon_filename(icon_filename),
     m_filename_is_camcops_stem(filename_is_camcops_stem),
@@ -51,13 +52,11 @@ QuButton::QuButton(const QString& icon_filename,
 {
 }
 
-
 QuButton* QuButton::setActive(const bool active)
 {
     m_active = active;
     return this;
 }
-
 
 QPointer<QWidget> QuButton::makeWidget(Questionnaire* questionnaire)
 {
@@ -68,20 +67,23 @@ QPointer<QWidget> QuButton::makeWidget(Questionnaire* questionnaire)
         button = new ClickableLabelWordWrapWide(m_label);
         button->setObjectName(cssconst::BUTTON);
         if (read_only) {
-            button->setEnabled(false);  // NB setDisabled and setEnabled are not exact opposites
+            button->setEnabled(false);
+            // NB setDisabled and setEnabled are not exact opposites
         }
     } else {
         // Image
-        button = new ImageButton(m_icon_filename, m_filename_is_camcops_stem,
-                                 m_alter_unpressed_image, read_only);
+        button = new ImageButton(
+            m_icon_filename,
+            m_filename_is_camcops_stem,
+            m_alter_unpressed_image,
+            read_only
+        );
     }
     if (!read_only) {
-        connect(button, &QAbstractButton::clicked,
-                this, &QuButton::clicked);
+        connect(button, &QAbstractButton::clicked, this, &QuButton::clicked);
     }
     return QPointer<QWidget>(button);
 }
-
 
 void QuButton::clicked()
 {

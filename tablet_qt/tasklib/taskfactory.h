@@ -24,6 +24,7 @@
 #include <QSharedPointer>
 #include <QString>
 #include <QStringList>
+
 #include "common/dbconst.h"
 #include "task.h"
 #include "taskproxy.h"
@@ -74,7 +75,6 @@ public:
     };
 
 public:
-
     // ------------------------------------------------------------------------
     // Factory creation and task registration
     // ------------------------------------------------------------------------
@@ -94,8 +94,9 @@ public:
     // ------------------------------------------------------------------------
 
     // Return all task base table names.
-    QStringList tablenames(TaskClassSortMethod sort_method =
-            TaskClassSortMethod::Tablename) const;
+    QStringList tablenames(
+        TaskClassSortMethod sort_method = TaskClassSortMethod::Tablename
+    ) const;
 
     // Returns all task table names (base + ancillary).
     QStringList allTablenames() const;
@@ -104,16 +105,18 @@ public:
     void makeAllTables() const;
 
     // Upgrade the database from one version of the CamCOPS client to another.
-    void upgradeDatabase(const Version& old_version,
-                         const Version& new_version);
+    void upgradeDatabase(
+        const Version& old_version, const Version& new_version
+    );
 
     // ------------------------------------------------------------------------
     // Operations relating to specific tasks
     // ------------------------------------------------------------------------
 
     // Create or load a task, given its base table name (key) and PK.
-    TaskPtr create(const QString& key,
-                   int load_pk = dbconst::NONEXISTENT_PK) const;
+    TaskPtr create(
+        const QString& key, int load_pk = dbconst::NONEXISTENT_PK
+    ) const;
 
     // Return the shortname of a task, given its base table name (key).
     QString shortname(const QString& key) const;
@@ -128,7 +131,9 @@ public:
     // (if tablename == ""). A KEY SECURITY FUNCTION; determines which tasks
     // users can see according to whether the app has a patient selected and
     // whether it is locked, etc.
-    TaskPtrList fetchTasks(const QString& tablename = QString(), bool sort = true) const;
+    TaskPtrList fetchTasks(
+        const QString& tablename = QString(), bool sort = true
+    ) const;
 
     // Fetch all tasks for a specified patient.
     TaskPtrList fetchAllTasksForPatient(int patient_id) const;
@@ -142,7 +147,8 @@ public:
 
     // Given a base or ancillary table name for a task, find the task, and
     // return its Task::minimumServerVersion().
-    Version minimumServerVersion(const QString& tablename) const;  // main or sub-table
+    Version minimumServerVersion(const QString& tablename) const;
+    // ... parameter: main or sub-table
 
     // Are *any* tasks present?
     bool anyTasksPresent() const;
@@ -151,7 +157,8 @@ protected:
     CamcopsApp& m_app;  // our app
     QStringList m_tablenames;  // all task base table names
     QStringList m_all_tablenames;  // all task table names (base + ancillary)
-    QVector<ProxyType> m_initial_proxy_list;  // holds proxies during initial registration
+    QVector<ProxyType> m_initial_proxy_list;
+    // ... holds proxies during initial registration
     MapType m_map;  // maps base table name to TaskCache
 
 public:

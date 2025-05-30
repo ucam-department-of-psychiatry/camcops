@@ -2,14 +2,15 @@
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.2.0
+    rev: v4.6.0
     hooks:
     -   id: check-added-large-files
     -   id: check-json
+    -   id: check-shebang-scripts-are-executable
     -   id: check-yaml
     -   id: check-xml
 -   repo: https://github.com/psf/black
-    rev: 22.8.0
+    rev: 24.4.2
     hooks:
     -   id: black
         args:
@@ -18,3 +19,7 @@ repos:
     rev: 5.0.4
     hooks:
     -   id: flake8
+-   repo: https://github.com/asottile/yesqa
+    rev: v1.5.0
+    hooks:
+    -   id: yesqa

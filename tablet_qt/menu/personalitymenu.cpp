@@ -19,10 +19,10 @@
 */
 
 #include "personalitymenu.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
-
 #include "tasks/cecaq3.h"
 #include "tasks/ctqsf.h"
 #include "tasks/icd10schizotypal.h"
@@ -30,18 +30,15 @@
 #include "tasks/maas.h"
 #include "tasks/pbq.h"
 
-
 PersonalityMenu::PersonalityMenu(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_PERSONALITY))
 {
 }
 
-
 QString PersonalityMenu::title() const
 {
     return tr("Personality and experience");
 }
-
 
 void PersonalityMenu::makeItems()
 {

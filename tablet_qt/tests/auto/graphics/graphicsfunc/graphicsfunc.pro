@@ -22,6 +22,7 @@ SOURCES += \
     $$CAMCOPS_SRC/graphics/paintertranslaterotatecontext.cpp \
     $$CAMCOPS_SRC/lib/convert.cpp \
     $$CAMCOPS_SRC/lib/css.cpp \
+    $$CAMCOPS_SRC/lib/customtypes.cpp \
     $$CAMCOPS_SRC/lib/datetime.cpp \
     $$CAMCOPS_SRC/lib/errorfunc.cpp \
     $$CAMCOPS_SRC/lib/filefunc.cpp \
@@ -30,11 +31,6 @@ SOURCES += \
     $$CAMCOPS_SRC/lib/version.cpp \
     $$CAMCOPS_SRC/lib/widgetfunc.cpp \
     $$CAMCOPS_SRC/maths/mathfunc.cpp \
-    $$CAMCOPS_SRC/whisker/whiskerapi.cpp \
-    $$CAMCOPS_SRC/whisker/whiskerconnectionstate.cpp \
-    $$CAMCOPS_SRC/whisker/whiskerconstants.cpp \
-    $$CAMCOPS_SRC/whisker/whiskerinboundmessage.cpp \
-    $$CAMCOPS_SRC/whisker/whiskeroutboundcommand.cpp \
     $$CAMCOPS_SRC/widgets/adjustablepie.cpp \
     $$CAMCOPS_SRC/widgets/svgwidgetclickable.cpp
 
@@ -51,6 +47,7 @@ HEADERS += \
     $$CAMCOPS_SRC/graphics/paintertranslaterotatecontext.h \
     $$CAMCOPS_SRC/lib/convert.h \
     $$CAMCOPS_SRC/lib/css.h \
+    $$CAMCOPS_SRC/lib/customtypes.h \
     $$CAMCOPS_SRC/lib/datetime.h \
     $$CAMCOPS_SRC/lib/errorfunc.h \
     $$CAMCOPS_SRC/lib/filefunc.h \
@@ -59,11 +56,6 @@ HEADERS += \
     $$CAMCOPS_SRC/lib/version.h \
     $$CAMCOPS_SRC/lib/widgetfunc.h \
     $$CAMCOPS_SRC/maths/mathfunc.h \
-    $$CAMCOPS_SRC/whisker/whiskerapi.h \
-    $$CAMCOPS_SRC/whisker/whiskerconnectionstate.h \
-    $$CAMCOPS_SRC/whisker/whiskerconstants.h \
-    $$CAMCOPS_SRC/whisker/whiskerinboundmessage.h \
-    $$CAMCOPS_SRC/whisker/whiskeroutboundcommand.h \
     $$CAMCOPS_SRC/widgets/adjustablepie.h \
     $$CAMCOPS_SRC/widgets/svgwidgetclickable.h
 

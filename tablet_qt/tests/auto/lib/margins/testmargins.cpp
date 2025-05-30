@@ -22,8 +22,7 @@
 
 #include "lib/margins.h"
 
-
-class TestMargins: public QObject
+class TestMargins : public QObject
 {
     Q_OBJECT
 
@@ -31,18 +30,17 @@ private slots:
     void testGetContentsMarginsReturnsWidgetMargins();
 };
 
-
 void TestMargins::testGetContentsMarginsReturnsWidgetMargins()
 {
-    auto widget = new QWidget();
+    QWidget widget;
 
     const int left = 0;
     const int top = 10;
     const int right = 20;
     const int bottom = 50;
 
-    widget->setContentsMargins(left, top, right, bottom);
-    auto margins = Margins::getContentsMargins(widget);
+    widget.setContentsMargins(left, top, right, bottom);
+    auto margins = Margins::getContentsMargins(&widget);
 
     QCOMPARE(margins.left(), left);
     QCOMPARE(margins.top(), top);

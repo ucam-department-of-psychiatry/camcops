@@ -18,45 +18,67 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "patientregistrationdialog.h"
+
 #include <QDialogButtonBox>
+#include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QFormLayout>
+#include <QScreen>
 #include <QUrl>
-#include "common/platform.h"
-#include "lib/uifunc.h"
+
 #include "qobjects/urlvalidator.h"
+#include "qobjects/widgetpositioner.h"
 #include "widgets/proquintlineedit.h"
 #include "widgets/validatinglineedit.h"
 
-#include "patientregistrationdialog.h"
-
+const int MIN_WIDTH = 500;
+const int MIN_HEIGHT = 500;
 
 PatientRegistrationDialog::PatientRegistrationDialog(
-    QWidget* parent,
-    const QUrl& server_url,
-    const QString& patient_proquint)
-    : QDialog(parent)
+    QWidget* parent, const QUrl& server_url, const QString& patient_proquint
+) :
+    QDialog(parent)
 {
     setWindowTitle(tr("Registration"));
 
-    m_editor_server_url = new ValidatingLineEdit(new UrlValidator(), server_url.url());
+    const int min_width
+        = qMin(screen()->availableGeometry().width(), MIN_WIDTH);
+    const int min_height
+        = qMin(screen()->availableGeometry().height(), MIN_HEIGHT);
+    const int min_size = qMin(min_width, min_height);
+
+    setMinimumWidth(min_size);
+
+    m_editor_server_url
+        = new ValidatingLineEdit(new UrlValidator(), server_url.url());
     m_editor_server_url->getLineEdit()->setInputMethodHints(
-        Qt::ImhNoAutoUppercase |
-        Qt::ImhNoPredictiveText
+        Qt::ImhNoAutoUppercase | Qt::ImhNoPredictiveText
     );
-    connect(m_editor_server_url, &ValidatingLineEdit::validated,
-            this, &PatientRegistrationDialog::updateOkButtonEnabledState);
+    connect(
+        m_editor_server_url,
+        &ValidatingLineEdit::validated,
+        this,
+        &PatientRegistrationDialog::updateOkButtonEnabledState
+    );
 
     m_editor_patient_proquint = new ProquintLineEdit(patient_proquint);
-    connect(m_editor_patient_proquint, &ValidatingLineEdit::validated,
-            this, &PatientRegistrationDialog::updateOkButtonEnabledState);
+    connect(
+        m_editor_patient_proquint,
+        &ValidatingLineEdit::validated,
+        this,
+        &PatientRegistrationDialog::updateOkButtonEnabledState
+    );
 
     m_buttonbox = new QDialogButtonBox(QDialogButtonBox::Ok);
 
-    connect(m_buttonbox, &QDialogButtonBox::accepted, this,
-            &PatientRegistrationDialog::accept);
+    connect(
+        m_buttonbox,
+        &QDialogButtonBox::accepted,
+        this,
+        &PatientRegistrationDialog::accept
+    );
 
     updateOkButtonEnabledState();
 
@@ -67,18 +89,14 @@ PatientRegistrationDialog::PatientRegistrationDialog(
 
     // So we do this instead
     auto mainlayout = new QVBoxLayout();
-    if (platform::PLATFORM_FULL_SCREEN_DIALOGS) {
-        setWindowState(Qt::WindowFullScreen);
-        mainlayout->addStretch(1);
-    }
+    auto server_url_label
+        = new QLabel(tr("<b>CamCOPS server location</b> (e.g. "
+                        "https://server.example.com/camcops/api):"));
 
-    auto server_url_label = new QLabel(
-        tr("<b>CamCOPS server location</b> (e.g. https://server.example.com/camcops/api):")
-    );
-
-    auto patient_proquint_label = new QLabel(
-        tr("<b>Access key</b> (e.g. abcde-fghij-klmno-pqrst-uvwxy-zabcd-efghi-jklmn-o):")
-    );
+    auto patient_proquint_label
+        = new QLabel(tr("<b>Access key</b> (e.g. "
+                        "abcde-fghij-klmno-pqrst-uvwxy-zabcd-efghi-jklmn-o):")
+        );
 
     // Reinstate when QFormLayout working:
     // mainlayout->addRow(server_url_label, m_editor_server_url);
@@ -90,40 +108,36 @@ PatientRegistrationDialog::PatientRegistrationDialog(
     mainlayout->addWidget(patient_proquint_label);
     mainlayout->addLayout(m_editor_patient_proquint);
 
+    mainlayout->addStretch(1);
     mainlayout->addWidget(m_buttonbox);
 
-    if (platform::PLATFORM_FULL_SCREEN_DIALOGS) {
-        server_url_label->setWordWrap(true);
-        patient_proquint_label->setWordWrap(true);
-        mainlayout->addStretch(1);
-    }
+    server_url_label->setWordWrap(true);
+    patient_proquint_label->setWordWrap(true);
+
+    new WidgetPositioner(this);
 
     setLayout(mainlayout);
 }
-
 
 QString PatientRegistrationDialog::patientProquint() const
 {
     return m_editor_patient_proquint->getLineEdit()->text().trimmed();
 }
 
-
 QString PatientRegistrationDialog::serverUrlAsString() const
 {
     return m_editor_server_url->getLineEdit()->text().trimmed();
 }
-
 
 QUrl PatientRegistrationDialog::serverUrl() const
 {
     return QUrl(serverUrlAsString());
 }
 
-
 void PatientRegistrationDialog::updateOkButtonEnabledState()
 {
-    const bool enable = m_editor_server_url->isValid() &&
-        m_editor_patient_proquint->isValid();
+    const bool enable = m_editor_server_url->isValid()
+        && m_editor_patient_proquint->isValid();
 
     m_buttonbox->button(QDialogButtonBox::Ok)->setEnabled(enable);
 }

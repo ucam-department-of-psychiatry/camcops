@@ -19,16 +19,18 @@
 */
 
 #include "diagnosticcodeset.h"
+
 #include "core/camcopsapp.h"
 
 const QString BAD_STRING("[bad_string]");
 
-
-DiagnosticCodeSet::DiagnosticCodeSet(CamcopsApp& app,
-                                     const QString& setname,
-                                     const QString& title,
-                                     QObject* parent,
-                                     bool dummy_creation_no_xstrings) :
+DiagnosticCodeSet::DiagnosticCodeSet(
+    CamcopsApp& app,
+    const QString& setname,
+    const QString& title,
+    QObject* parent,
+    bool dummy_creation_no_xstrings
+) :
     QAbstractItemModel(parent),
     m_app(app),
     m_setname(setname),
@@ -39,15 +41,14 @@ DiagnosticCodeSet::DiagnosticCodeSet(CamcopsApp& app,
     m_root_item = new DiagnosticCode("", "", nullptr, 0, false, false);
 }
 
-
 DiagnosticCodeSet::~DiagnosticCodeSet()
 {
     delete m_root_item;
 }
 
-
-QModelIndex DiagnosticCodeSet::index(const int row, const int column,
-                                     const QModelIndex& parent_index) const
+QModelIndex DiagnosticCodeSet::index(
+    const int row, const int column, const QModelIndex& parent_index
+) const
 {
     if (!hasIndex(row, column, parent_index)) {
         return {};
@@ -57,8 +58,8 @@ QModelIndex DiagnosticCodeSet::index(const int row, const int column,
     if (!parent_index.isValid()) {
         parent_item = m_root_item;
     } else {
-        parent_item = static_cast<DiagnosticCode*>(
-                    parent_index.internalPointer());
+        parent_item
+            = static_cast<DiagnosticCode*>(parent_index.internalPointer());
     }
 
     DiagnosticCode* child_item = parent_item->child(row);
@@ -67,7 +68,6 @@ QModelIndex DiagnosticCodeSet::index(const int row, const int column,
     }
     return {};
 }
-
 
 QModelIndex DiagnosticCodeSet::parent(const QModelIndex& index) const
 {
@@ -85,7 +85,6 @@ QModelIndex DiagnosticCodeSet::parent(const QModelIndex& index) const
     return createIndex(parent_item->row(), 0, parent_item);
 }
 
-
 int DiagnosticCodeSet::rowCount(const QModelIndex& parent_index) const
 {
     DiagnosticCode* parent_item;
@@ -96,26 +95,24 @@ int DiagnosticCodeSet::rowCount(const QModelIndex& parent_index) const
     if (!parent_index.isValid()) {
         parent_item = m_root_item;
     } else {
-        parent_item = static_cast<DiagnosticCode*>(
-                    parent_index.internalPointer());
+        parent_item
+            = static_cast<DiagnosticCode*>(parent_index.internalPointer());
     }
 
     return parent_item->childCount();
 }
 
-
 int DiagnosticCodeSet::columnCount(const QModelIndex& parent_index) const
 {
     if (parent_index.isValid()) {
-        return static_cast<DiagnosticCode*>(
-                    parent_index.internalPointer())->columnCount();
+        return static_cast<DiagnosticCode*>(parent_index.internalPointer())
+            ->columnCount();
     }
     return m_root_item->columnCount();
 }
 
-
-QVariant DiagnosticCodeSet::data(const QModelIndex& index,
-                                 const int role) const
+QVariant
+    DiagnosticCodeSet::data(const QModelIndex& index, const int role) const
 {
     if (!index.isValid()) {
         return QVariant();
@@ -129,7 +126,6 @@ QVariant DiagnosticCodeSet::data(const QModelIndex& index,
 
     return item->data(index.column());
 }
-
 
 Qt::ItemFlags DiagnosticCodeSet::flags(const QModelIndex& index) const
 {
@@ -145,10 +141,9 @@ Qt::ItemFlags DiagnosticCodeSet::flags(const QModelIndex& index) const
     return flags;
 }
 
-
-QVariant DiagnosticCodeSet::headerData(const int section,
-                                       const Qt::Orientation orientation,
-                                       const int role) const
+QVariant DiagnosticCodeSet::headerData(
+    const int section, const Qt::Orientation orientation, const int role
+) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         return m_root_item->data(section);
@@ -157,12 +152,10 @@ QVariant DiagnosticCodeSet::headerData(const int section,
     return QVariant();
 }
 
-
 QString DiagnosticCodeSet::title() const
 {
     return m_title;
 }
-
 
 QModelIndex DiagnosticCodeSet::firstMatchCode(const QString& code) const
 {
@@ -186,11 +179,10 @@ QModelIndex DiagnosticCodeSet::firstMatchCode(const QString& code) const
     return QModelIndex();
 }
 
-
 QDebug operator<<(QDebug debug, const DiagnosticCodeSet& d)
 {
-    debug << "DiagnosticCodeSet: m_setname" << d.m_setname
-          << "m_title" << d.m_title << "\n";
+    debug << "DiagnosticCodeSet: m_setname" << d.m_setname << "m_title"
+          << d.m_title << "\n";
     if (d.m_root_item) {
         debug << *d.m_root_item;  // will recurse
     } else {
@@ -199,7 +191,6 @@ QDebug operator<<(QDebug debug, const DiagnosticCodeSet& d)
     debug << "... end\n";
     return debug;
 }
-
 
 QTextStream& operator<<(QTextStream& stream, const DiagnosticCodeSet& d)
 {
@@ -210,12 +201,10 @@ QTextStream& operator<<(QTextStream& stream, const DiagnosticCodeSet& d)
     return stream;
 }
 
-
 QString DiagnosticCodeSet::xstringTaskname() const
 {
     return m_setname;
 }
-
 
 QString DiagnosticCodeSet::xstring(const QString& stringname)
 {
@@ -225,25 +214,30 @@ QString DiagnosticCodeSet::xstring(const QString& stringname)
     return m_app.xstring(m_setname, stringname);
 }
 
-
 int DiagnosticCodeSet::size() const
 {
     return m_root_item->descendantCount();
 }
 
-
 DiagnosticCode* DiagnosticCodeSet::addCode(
-        DiagnosticCode* parent, const QString& code,
-        const QString& description, const bool selectable,
-        const bool show_code_in_full_name)
+    DiagnosticCode* parent,
+    const QString& code,
+    const QString& description,
+    const bool selectable,
+    const bool show_code_in_full_name
+)
 {
     if (parent == nullptr) {
         parent = m_root_item;
     }
     auto c = new DiagnosticCode(
-                code, description,
-                parent, parent->depth() + 1, selectable,
-                show_code_in_full_name);
+        code,
+        description,
+        parent,
+        parent->depth() + 1,
+        selectable,
+        show_code_in_full_name
+    );
     parent->appendChild(c);
     return c;
 }

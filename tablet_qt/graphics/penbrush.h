@@ -19,28 +19,34 @@
 */
 
 #pragma once
-#include <QPen>
 #include <QBrush>
-
+#include <QPen>
 
 // Represents a pen and a brush together. (It's a common combination!)
 
 struct PenBrush
 {
     PenBrush()
-    {}
+    {
+    }
+
     PenBrush(const QPen& pen, const QBrush& brush) :
         pen(pen),
         brush(brush)
-    {}
+    {
+    }
+
     PenBrush(const QColor& pen_colour, const QColor& brush_colour) :
         pen(pen_colour),
         brush(brush_colour)
-    {}
+    {
+    }
+
     PenBrush(const QColor& colour) :
         pen(colour),
         brush(colour)
-    {}
+    {
+    }
 
     QPen pen;
     QBrush brush;

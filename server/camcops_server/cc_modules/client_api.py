@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/client_api.py
 
@@ -364,6 +362,7 @@ from cardinal_pythonlib.sqlalchemy.core_query import (
     fetch_all_first_values,
 )
 from cardinal_pythonlib.text import escape_newlines
+from pendulum.exceptions import ParserError
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.view import view_config
 from pyramid.response import Response
@@ -636,6 +635,7 @@ def ensure_valid_patient_json(
     ptinfo = BarePatientInfo()
     idnum_types_seen = set()  # type: Set[int]
     for k, v in pt_dict.items():
+        # May not be necessary as JSON has already been validated
         ensure_string(k, allow_none=False)
 
         if k == TabletParam.FORENAME:
@@ -654,8 +654,11 @@ def ensure_valid_patient_json(
         elif k == TabletParam.DOB:
             ensure_string(v)
             if v:
-                dob = coerce_to_pendulum_date(v)
-                if dob is None:
+                try:
+                    # This will only return None if v is empty/None and we have
+                    # already checked that
+                    dob = coerce_to_pendulum_date(v)
+                except ParserError:
                     fail_user_error(f"Invalid DOB: {v!r}")
             else:
                 dob = None
@@ -683,7 +686,7 @@ def ensure_valid_patient_json(
             ptinfo.otherdetails = v
 
         elif k.startswith(TabletParam.IDNUM_PREFIX):
-            nstr = k[len(TabletParam.IDNUM_PREFIX) :]  # noqa: E203
+            nstr = k[len(TabletParam.IDNUM_PREFIX) :]
             try:
                 which_idnum = int(nstr)
             except (TypeError, ValueError):
@@ -919,7 +922,7 @@ def get_fields_from_post_var(
         return []
     allowed_nonexistent_fields = (
         allowed_nonexistent_fields or []
-    )  # type: List[str]  # noqa
+    )  # type: List[str]
     # can't have any commas in fields, so it's OK to use a simple
     # split() command
     fields = [x.strip() for x in csfields.split(",")]
@@ -1132,13 +1135,9 @@ def record_exists(
     """
     query = (
         select(
-            [
-                table.c[FN_PK],  # server PK
-                table.c[
-                    CLIENT_DATE_FIELD
-                ],  # when last modified (on the server)
-                table.c[MOVE_OFF_TABLET_FIELD],  # move_off_tablet
-            ]
+            table.c[FN_PK],  # server PK
+            table.c[CLIENT_DATE_FIELD],  # when last modified (on the server)
+            table.c[MOVE_OFF_TABLET_FIELD],  # move_off_tablet
         )
         .where(table.c[FN_DEVICE_ID] == req.tabletsession.device_id)
         .where(table.c[FN_CURRENT])
@@ -1178,14 +1177,10 @@ def client_pks_that_exist(
     """
     query = (
         select(
-            [
-                table.c[FN_PK],  # server PK
-                table.c[clientpk_name],  # client PK
-                table.c[
-                    CLIENT_DATE_FIELD
-                ],  # when last modified (on the server)
-                table.c[MOVE_OFF_TABLET_FIELD],  # move_off_tablet
-            ]
+            table.c[FN_PK],  # server PK
+            table.c[clientpk_name],  # client PK
+            table.c[CLIENT_DATE_FIELD],  # when last modified (on the server)
+            table.c[MOVE_OFF_TABLET_FIELD],  # move_off_tablet
         )
         .where(table.c[FN_DEVICE_ID] == req.tabletsession.device_id)
         .where(table.c[FN_CURRENT])
@@ -1228,7 +1223,7 @@ def get_all_predecessor_pks(
     finished = False
     while not finished:
         next_pk = dbsession.execute(
-            select([table.c[FN_PREDECESSOR_PK]]).where(
+            select(table.c[FN_PREDECESSOR_PK]).where(
                 table.c[FN_PK] == current_pk
             )
         ).scalar()  # type: Optional[int]
@@ -1522,7 +1517,7 @@ def process_upload_record_special(
                         CLIENT_DATE_FIELD: client_date_value,
                         MOVE_OFF_TABLET_FIELD: valuedict[
                             MOVE_OFF_TABLET_FIELD
-                        ],  # noqa
+                        ],
                     },
                 )
             # Now, how to deal with deletion, i.e. records missing from the
@@ -1754,11 +1749,9 @@ def get_batch_details(req: "CamcopsRequest") -> BatchDetails:
     # noinspection PyUnresolvedReferences
     query = (
         select(
-            [
-                Device.ongoing_upload_batch_utc,
-                Device.uploading_user_id,
-                Device.currently_preserving,
-            ]
+            Device.ongoing_upload_batch_utc,
+            Device.uploading_user_id,
+            Device.currently_preserving,
         )
         .select_from(Device.__table__)
         .where(Device.id == device_id)
@@ -1767,7 +1760,7 @@ def get_batch_details(req: "CamcopsRequest") -> BatchDetails:
     if not row:
         fail_server_error(
             f"Device {device_id} missing from Device table"
-        )  # will raise  # noqa
+        )  # will raise
     upload_batch_utc, uploading_user_id, currently_preserving = row
     if not upload_batch_utc or uploading_user_id != req.user_id:
         # SIDE EFFECT: if the username changes, we restart (and thus roll back
@@ -1966,7 +1959,7 @@ def get_dirty_tables(req: "CamcopsRequest") -> List[Table]:
     Returns tables marked as dirty for this device. (See
     :func:`mark_table_dirty`.)
     """
-    query = select([DirtyTable.tablename]).where(
+    query = select(DirtyTable.tablename).where(
         DirtyTable.device_id == req.tabletsession.device_id
     )
     tablenames = fetch_all_first_values(req.dbsession, query)
@@ -2254,7 +2247,7 @@ def process_table_for_onestep_upload(
 
     Returns:
         an :class:`UploadTableChanges` object
-    """  # noqa
+    """
     serverrecs = get_server_live_records(
         req,
         req.tabletsession.device_id,
@@ -2764,6 +2757,7 @@ def op_get_task_schedules(req: "CamcopsRequest") -> Dict[str, str]:
 # Action processors that require UPLOAD privilege
 # =============================================================================
 
+
 # noinspection PyUnusedLocal
 def op_check_upload_user_and_device(req: "CamcopsRequest") -> None:
     """
@@ -2834,6 +2828,7 @@ def op_upload_table(req: "CamcopsRequest") -> str:
 
     nfields = len(fields)
     if nfields < 1:
+        # May never be reached as the POST var can't be empty
         fail_user_error(
             f"{TabletParam.FIELDS}={nfields}: can't be less than 1"
         )
@@ -3107,6 +3102,8 @@ def op_which_keys_to_send(req: "CamcopsRequest") -> str:
         try:
             move_off_tablet_values = [bool(x) for x in move_off_tablet_values]
         except (TypeError, ValueError):
+            # Probably never reached given pretty much anything standard can be
+            # converted to bool
             fail_user_error(
                 f"Bad move-off-tablet values: {move_off_tablet_values!r}"
             )

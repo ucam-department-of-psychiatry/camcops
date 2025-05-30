@@ -19,17 +19,18 @@
 */
 
 #include "qulineeditnhsnumber.h"
+
 #include <QLineEdit>
+
 #include "qobjects/nhsnumbervalidator.h"
 
-
-QuLineEditNHSNumber::QuLineEditNHSNumber(FieldRefPtr fieldref,
-                                         bool allow_empty) :
+QuLineEditNHSNumber::QuLineEditNHSNumber(
+    FieldRefPtr fieldref, bool allow_empty
+) :
     QuLineEditInt64(fieldref, allow_empty)
 {
     setHint("NHS number (10-digit integer with checksum)");
 }
-
 
 void QuLineEditNHSNumber::extraLineEditCreation(QLineEdit* editor)
 {

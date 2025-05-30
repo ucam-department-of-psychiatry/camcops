@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_xml.py
 
@@ -48,10 +46,10 @@ from camcops_server.cc_modules.cc_simpleobjects import XmlSimpleValue
 from camcops_server.cc_modules.cc_sqla_coltypes import gen_camcops_blob_columns
 
 if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_request import (  # noqa: F401
+    from camcops_server.cc_modules.cc_request import (
         CamcopsRequest,
     )
-    from camcops_server.cc_modules.cc_summaryelement import (  # noqa: F401
+    from camcops_server.cc_modules.cc_summaryelement import (
         SummaryElement,
     )
 

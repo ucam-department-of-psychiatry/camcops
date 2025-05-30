@@ -19,10 +19,10 @@
 */
 
 #include "eatingdisordersmenu.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
-
 #include "tasks/bmi.h"
 #include "tasks/cet.h"
 #include "tasks/cia.h"
@@ -37,12 +37,10 @@ EatingDisordersMenu::EatingDisordersMenu(CamcopsApp& app) :
     // - https://avedcaregiver.ca/wp-content/uploads/2018/12/Maudsley-Animal-Analogies.pdf
 }
 
-
 QString EatingDisordersMenu::title() const
 {
     return tr("Eating disorders");
 }
-
 
 void EatingDisordersMenu::makeItems()
 {

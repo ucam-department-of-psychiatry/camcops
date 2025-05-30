@@ -27,11 +27,11 @@
 #include <QStringList>
 #include <QVector>
 #include <vector>
+
 #include "maths/include_eigen_core.h"  // IWYU pragma: keep
 #include "maths/include_eigen_dense.h"  // IWYU pragma: keep
 
-namespace eigenfunc
-{
+namespace eigenfunc {
 
 /*
 
@@ -171,16 +171,19 @@ using GenericMatrix = Eigen::Matrix<ContentsT, Eigen::Dynamic, Eigen::Dynamic>;
 template<typename ContentsT>
 using GenericArray = Eigen::Matrix<ContentsT, Eigen::Dynamic, Eigen::Dynamic>;
 
-using IndexArray = Eigen::Array<Eigen::Index, Eigen::Dynamic, 1>;  // 1-dimensional (column) array of indices
+using IndexArray = Eigen::Array<Eigen::Index, Eigen::Dynamic, 1>;
+// ... 1-dimensional (column) array of indices
 // Default storage is column-major, i.e. column vectors should be faster
 // (though you can change this on a per-object basis);
 // https://eigen.tuxfamily.org/dox/group__TopicStorageOrders.html
-using IndexVector = Eigen::Matrix<Eigen::Index, Eigen::Dynamic, 1>;  // 1-dimensional (column) vector of indices
+using IndexVector = Eigen::Matrix<Eigen::Index, Eigen::Dynamic, 1>;
+// ... 1-dimensional (column) vector of indices
 
 using ArrayXb = Eigen::Array<bool, Eigen::Dynamic, 1>;
 // Eigen doesn't define ArrayXb, but it's helpful as a column vector of bool
 
 using ArrayXXb = Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic>;
+
 // Eigen doesn't define ArrayXXb, but it's helpful as a n x n vector of bool
 
 
@@ -205,26 +208,23 @@ DestContainerT eigenVectorFromQVector(const QVector<SourceContentsT>& qv)
     return ev;
 }
 
-
 template<typename DestContentsT, typename SourceContentsT>
-ColumnVector<DestContentsT> eigenColumnVectorFromQVector(
-        const QVector<SourceContentsT>& qv)
+ColumnVector<DestContentsT>
+    eigenColumnVectorFromQVector(const QVector<SourceContentsT>& qv)
 {
     // Takes a Qt QVector and returns an Eigen Vector (i.e. an Eigen Matrix
     // of dimensions nx1).
     return eigenVectorFromQVector<ColumnVector<DestContentsT>>(qv);
 }
 
-
 template<typename DestContentsT, typename SourceContentsT>
-RowVector<DestContentsT> eigenRowVectorFromQVector(
-        const QVector<SourceContentsT>& v)
+RowVector<DestContentsT>
+    eigenRowVectorFromQVector(const QVector<SourceContentsT>& v)
 {
     // Takes a Qt QVector and returns an Eigen RowVector (i.e. an Eigen Matrix
     // of dimensions 1xn).
     return eigenVectorFromQVector<RowVector<DestContentsT>>(v);
 }
-
 
 template<typename DestContentsT, typename SourceContainerT>
 QVector<DestContentsT> qVectorFromEigenVector(const SourceContainerT& ev)
@@ -239,10 +239,10 @@ QVector<DestContentsT> qVectorFromEigenVector(const SourceContainerT& ev)
     return qv;
 }
 
-
 template<typename Derived>
-QString qStringFromEigenMatrixOrArray(const Eigen::DenseBase<Derived>& m,
-                                      const QString type_name = "DenseBase")
+QString qStringFromEigenMatrixOrArray(
+    const Eigen::DenseBase<Derived>& m, const QString type_name = "DenseBase"
+)
 {
     // Formats an Eigen Matrix or Array for display using a Qt QString.
     // - https://eigen.tuxfamily.org/dox/structEigen_1_1IOFormat.html
@@ -250,21 +250,23 @@ QString qStringFromEigenMatrixOrArray(const Eigen::DenseBase<Derived>& m,
     //   specializations, I don't think! Hence the type_name system, via which
     //   the detection is done at compile-time.
     Eigen::IOFormat heavy_fmt(
-                Eigen::FullPrecision,  // precision
-                0,  // flags
-                ", ",  // coeffSeparator
-                ";\n",  // rowSeparator
-                "[",  // rowPrefix
-                "]",  // rowSuffix
-                "[",  // matPrefix
-                "]");  // matSuffix
+        Eigen::FullPrecision,  // precision
+        0,  // flags
+        ", ",  // coeffSeparator
+        ";\n",  // rowSeparator
+        "[",  // rowPrefix
+        "]",  // rowSuffix
+        "[",  // matPrefix
+        "]"
+    );  // matSuffix
     std::stringstream ss;
     ss << m.format(heavy_fmt);
     QString description = QString("%1 (%2 rows x %3 cols)")
-            .arg(type_name).arg(m.rows()).arg(m.cols());
+                              .arg(type_name)
+                              .arg(m.rows())
+                              .arg(m.cols());
     return description + "\n" + QString::fromStdString(ss.str());
 }
-
 
 // Specialization of qStringFromEigenMatrixOrArray for a Matrix.
 template<typename Derived>
@@ -273,14 +275,12 @@ QString qStringFromEigenMatrixOrArray(const Eigen::MatrixBase<Derived>& m)
     return qStringFromEigenMatrixOrArray(m, "Matrix");
 }
 
-
 // Specialization of qStringFromEigenMatrixOrArray for an Array.
 template<typename Derived>
 QString qStringFromEigenMatrixOrArray(const Eigen::ArrayBase<Derived>& m)
 {
     return qStringFromEigenMatrixOrArray(m, "Array");
 }
-
 
 // ============================================================================
 // Making Eigen containers from std::vector
@@ -309,11 +309,10 @@ DestContainerT eigenVectorFromStdVector(const std::vector<SourceContentsT>& sv)
     const int n = static_cast<int>(n_as_size_t);
     // ... cannot be negative; if it is, there's overflow
     if (n < 0 || static_cast<size_t>(n) != n_as_size_t) {
-        qWarning()
-                << "Unable to represent std::vector of size_t" << n_as_size_t
-                << "in Eigen container of int size" << n
-                << "(likely large container overflowing int dimension). "
-                   "RESULTS WILL BE WRONG.";
+        qWarning() << "Unable to represent std::vector of size_t"
+                   << n_as_size_t << "in Eigen container of int size" << n
+                   << "(likely large container overflowing int dimension). "
+                      "RESULTS WILL BE WRONG.";
     }
     DestContainerT ev(n);
     for (int i = 0; i < n; ++i) {
@@ -322,65 +321,58 @@ DestContainerT eigenVectorFromStdVector(const std::vector<SourceContentsT>& sv)
     return ev;
 }
 
-
 template<typename DestContentsT, typename SourceContentsT>
-ColumnVector<DestContentsT> eigenColumnVectorFromStdVector(
-        const std::vector<SourceContentsT>& sv)
+ColumnVector<DestContentsT>
+    eigenColumnVectorFromStdVector(const std::vector<SourceContentsT>& sv)
 {
     // Takes a C++ std::vector and returns an Eigen Vector (i.e. an Eigen
     // Matrix of dimensions nx1).
     return eigenVectorFromStdVector<ColumnVector<DestContentsT>>(sv);
 }
 
-
 template<typename Scalar>
-ColumnVector<Scalar> eigenColumnVectorFromInitList(
-        std::initializer_list<Scalar> vlist)
+ColumnVector<Scalar>
+    eigenColumnVectorFromInitList(std::initializer_list<Scalar> vlist)
 {
     // Equivalent, but taking an initializer list
     return eigenColumnVectorFromStdVector<Scalar>(std::vector<Scalar>(vlist));
 }
 
-
 template<typename DestContentsT, typename SourceContentsT>
-RowVector<DestContentsT> eigenRowVectorFromStdVector(
-        const std::vector<SourceContentsT>& sv)
+RowVector<DestContentsT>
+    eigenRowVectorFromStdVector(const std::vector<SourceContentsT>& sv)
 {
     // Takes a C++ std::vector and returns an Eigen RowVector (i.e. an Eigen
     // Matrix of dimensions 1xn).
     return eigenVectorFromStdVector<RowVector<DestContentsT>>(sv);
 }
 
-
 template<typename Scalar>
-ColumnVector<Scalar> eigenRowVectorFromInitList(
-        std::initializer_list<Scalar> vlist)
+ColumnVector<Scalar>
+    eigenRowVectorFromInitList(std::initializer_list<Scalar> vlist)
 {
     // Equivalent, but taking an initializer list
     return eigenRowVectorFromStdVector<Scalar>(std::vector<Scalar>(vlist));
 }
 
-
 // A quick shorthand:
 template<typename SourceContentsT>
-ColumnVector<Eigen::Index> eigenIndexVectorFromStdVector(
-        const std::vector<SourceContentsT>& sv)
+ColumnVector<Eigen::Index>
+    eigenIndexVectorFromStdVector(const std::vector<SourceContentsT>& sv)
 {
     // Takes a C++ std::vector and returns an Eigen column Vector (Matrix)
     // containing Eigen::Index (= long int, typically).
     return eigenVectorFromStdVector<ColumnVector<Eigen::Index>>(sv);
 }
 
-
 template<typename DestContentsT, typename SourceContentsT>
-ColumnArray<DestContentsT> eigenColumnArrayFromStdVector(
-        const std::vector<SourceContentsT>& sv)
+ColumnArray<DestContentsT>
+    eigenColumnArrayFromStdVector(const std::vector<SourceContentsT>& sv)
 {
     // Takes a C++ std::vector and returns an Eigen column Array containing
     // the same contents.
     return eigenVectorFromStdVector<ColumnArray<DestContentsT>>(sv);
 }
-
 
 // Quick functions to make Eigen arrays of Eigen::Index or bool, from
 // std::vector objects or initializer lists:
@@ -395,15 +387,16 @@ ArrayXb makeBoolArray(std::initializer_list<bool> vlist);
 // ============================================================================
 
 // Make a sequence of Eigen::Index, and return it in a column array:
-IndexArray indexSeq(Eigen::Index first, Eigen::Index last,
-                    Eigen::Index step = 1);
+IndexArray
+    indexSeq(Eigen::Index first, Eigen::Index last, Eigen::Index step = 1);
 
 // Take a sequence of Eigen::Index, and return a sequence of bool for use as
 // the condition in an Eigen "condition.select(then, _else)" statement. There's
 // a version for vectors and another for 2d arrays:
 ArrayXb selectBoolFromIndices(const IndexArray& indices, Eigen::Index size);
-ArrayXXb selectBoolFromIndices(const IndexArray& indices, Eigen::Index n_rows,
-                               Eigen::Index n_cols);
+ArrayXXb selectBoolFromIndices(
+    const IndexArray& indices, Eigen::Index n_rows, Eigen::Index n_cols
+);
 
 // Add a column of ones as the first column, for creating design matrices in
 // which an intercept term is required.
@@ -429,18 +422,21 @@ Eigen::Index normalizeIndex(Eigen::Index idx, Eigen::Index size);
 // (which is like R except zero-based). Calculate the row and column
 // indices (also zero-based), using "size" and "n_rows". Return them in
 // "row" and "col".
-void calcRowColFromIndex(Eigen::Index idx,
-                         Eigen::Index& row,
-                         Eigen::Index& col,
-                         Eigen::Index n_rows,
-                         Eigen::Index size);
-
+void calcRowColFromIndex(
+    Eigen::Index idx,
+    Eigen::Index& row,
+    Eigen::Index& col,
+    Eigen::Index n_rows,
+    Eigen::Index size
+);
 
 template<typename Derived>
-void getRowColFromIndex(const Eigen::DenseBase<Derived>& m,
-                        Eigen::Index idx,
-                        Eigen::Index& row,
-                        Eigen::Index& col)
+void getRowColFromIndex(
+    const Eigen::DenseBase<Derived>& m,
+    Eigen::Index idx,
+    Eigen::Index& row,
+    Eigen::Index& col
+)
 {
     // Calculates row/col as per calcRowColFromIndex(), but taking an Eigen
     // Matrix/Array to work out the size from.
@@ -450,9 +446,7 @@ void getRowColFromIndex(const Eigen::DenseBase<Derived>& m,
     calcRowColFromIndex(idx, row, col, nr, size);
 }
 
-
-template<typename Derived>
-IndexArray which(const Eigen::DenseBase<Derived>& m)
+template<typename Derived> IndexArray which(const Eigen::DenseBase<Derived>& m)
 {
     // As per R: produce a single vector of "indices"; go down columns before
     // going across rows (see calcRowColFromIndex, the converse). Tests the
@@ -475,10 +469,10 @@ IndexArray which(const Eigen::DenseBase<Derived>& m)
     return v.array();
 }
 
-
 template<typename EigenContainerT>
-EigenContainerT subsetByColumnIndex(const EigenContainerT& m,
-                                    const IndexArray& column_indices)
+EigenContainerT subsetByColumnIndex(
+    const EigenContainerT& m, const IndexArray& column_indices
+)
 {
     // Takes an Eigen Matrix/Array, and creates a corresponding object with
     // columns specified by "column_indices".
@@ -495,10 +489,9 @@ EigenContainerT subsetByColumnIndex(const EigenContainerT& m,
     return subset;
 }
 
-
 template<typename EigenContainerT>
-EigenContainerT subsetByRowIndex(const EigenContainerT& m,
-                                 const IndexArray& row_indices)
+EigenContainerT
+    subsetByRowIndex(const EigenContainerT& m, const IndexArray& row_indices)
 {
     // Takes an Eigen Matrix/Array, and creates a corresponding object with
     // rows specified by "row_indices".
@@ -515,11 +508,10 @@ EigenContainerT subsetByRowIndex(const EigenContainerT& m,
     return subset;
 }
 
-
 template<typename Derived>
 ColumnArray<typename Derived::Scalar> subsetByElementIndex(
-        const Eigen::DenseBase<Derived>& m,
-        const IndexArray& indices)
+    const Eigen::DenseBase<Derived>& m, const IndexArray& indices
+)
 {
     // Fetches elements of m by their index.
     // Treats "indices" as going down columns before going across rows.
@@ -538,11 +530,10 @@ ColumnArray<typename Derived::Scalar> subsetByElementIndex(
     return result;
 }
 
-
 template<typename Derived>
 GenericArray<typename Derived::Scalar> subsetByColumnBoolean(
-        const Eigen::DenseBase<Derived>& m,
-        const ArrayXb& use_column)
+    const Eigen::DenseBase<Derived>& m, const ArrayXb& use_column
+)
 {
     // Takes an Eigen Matrix/Array, and creates an array whose columns are
     // specified by "use_column". Each element of "use_column" is true/false,
@@ -575,11 +566,10 @@ GenericArray<typename Derived::Scalar> subsetByColumnBoolean(
     return subset;
 }
 
-
 template<typename Derived>
 GenericArray<typename Derived::Scalar> subsetByRowBoolean(
-        const Eigen::DenseBase<Derived>& m,
-        const ArrayXb& use_row)
+    const Eigen::DenseBase<Derived>& m, const ArrayXb& use_row
+)
 {
     // Takes an Eigen Matrix/Array, and creates an array whose rows are
     // specified by "use_row". Each element of "use_row" is true/false,
@@ -612,11 +602,10 @@ GenericArray<typename Derived::Scalar> subsetByRowBoolean(
     return subset;
 }
 
-
 template<typename Derived>
 ColumnArray<typename Derived::Scalar> subsetByElementBoolean(
-        const Eigen::DenseBase<Derived>& m,
-        const ArrayXXb& which)
+    const Eigen::DenseBase<Derived>& m, const ArrayXXb& which
+)
 {
     // As per R (approximately): reads values of m for which "which" is true,
     // and spits them out into a vector, reading down columns first, then
@@ -642,17 +631,18 @@ ColumnArray<typename Derived::Scalar> subsetByElementBoolean(
     return eigenColumnArrayFromStdVector<Scalar>(v);
 }
 
-
 // ============================================================================
 // Assigning to parts of Eigen object from source objects matching the "change"
 // size, not the "recipient" size (for which select() works fine).
 // Note that select() also works fine for assignment of scalars.
 // ============================================================================
 
-template <typename DerivedTo, typename DerivedFrom>
-void assignByBooleanSequentially(Eigen::DenseBase<DerivedTo>& to,
-                                 const ArrayXXb& which,
-                                 const Eigen::DenseBase<DerivedFrom>& from)
+template<typename DerivedTo, typename DerivedFrom>
+void assignByBooleanSequentially(
+    Eigen::DenseBase<DerivedTo>& to,
+    const ArrayXXb& which,
+    const Eigen::DenseBase<DerivedFrom>& from
+)
 {
     // Assigns values to "to", from "from", according to "which".
     // As a simple example:
@@ -677,8 +667,9 @@ void assignByBooleanSequentially(Eigen::DenseBase<DerivedTo>& to,
         return;
     }
     if (from_size > num_to_replace || from_size % num_to_replace != 0) {
-        qCritical() << Q_FUNC_INFO << "Number of items to replace is not a "
-                                      "multiple of replacement length";
+        qCritical() << Q_FUNC_INFO
+                    << "Number of items to replace is not a "
+                       "multiple of replacement length";
         return;
     }
     const Eigen::Index to_nr = to.rows();
@@ -700,11 +691,12 @@ void assignByBooleanSequentially(Eigen::DenseBase<DerivedTo>& to,
     }
 }
 
-
-template <typename DerivedTo, typename DerivedFrom>
-void assignByIndexSequentially(Eigen::DenseBase<DerivedTo>& to,
-                               const IndexArray& indices,
-                               const Eigen::DenseBase<DerivedFrom>& from)
+template<typename DerivedTo, typename DerivedFrom>
+void assignByIndexSequentially(
+    Eigen::DenseBase<DerivedTo>& to,
+    const IndexArray& indices,
+    const Eigen::DenseBase<DerivedFrom>& from
+)
 {
     // Assigns values to "to", according to element indices in "indices".
     // (Those indices are treated as down-columns-before-across-rows, i.e.
@@ -726,8 +718,9 @@ void assignByIndexSequentially(Eigen::DenseBase<DerivedTo>& to,
 
     // To mimic R behaviour:
     if (from_size > n_indices || from_size % n_indices != 0) {
-        qCritical() << Q_FUNC_INFO << "Number of items to replace is not a "
-                                      "multiple of replacement length";
+        qCritical() << Q_FUNC_INFO
+                    << "Number of items to replace is not a "
+                       "multiple of replacement length";
         return;
     }
 
@@ -746,16 +739,16 @@ void assignByIndexSequentially(Eigen::DenseBase<DerivedTo>& to,
     }
 }
 
-
 // ============================================================================
 // Array-by-vector elementwise operations, following R
 // ============================================================================
 
-template <typename Derived1, typename Derived2>
-Eigen::Array<typename Derived1::Scalar,
-             Eigen::Dynamic, Eigen::Dynamic> multiply(
+template<typename Derived1, typename Derived2>
+Eigen::Array<typename Derived1::Scalar, Eigen::Dynamic, Eigen::Dynamic>
+    multiply(
         const Eigen::ArrayBase<Derived1>& a,
-        const Eigen::ArrayBase<Derived2>& b)
+        const Eigen::ArrayBase<Derived2>& b
+    )
 {
     // Multiplies either (a) an array by an array of the same shape, or
     // (b) an array by a vector (not necessarily of the "right" length).
@@ -772,12 +765,13 @@ Eigen::Array<typename Derived1::Scalar,
     // # [3,]  300    7  110 1500
     // # [4,]    4   80 1200   16
     // # Warning message:
-    // # In a * b : longer object length is not a multiple of shorter object length
+    // # In a * b : longer object length is not a multiple of shorter object
+    //      length
     //
     // b * a  # same as a * b
 
-    using ArrayType = Eigen::Array<typename Derived1::Scalar,
-                                   Eigen::Dynamic, Eigen::Dynamic>;
+    using ArrayType = Eigen::
+        Array<typename Derived1::Scalar, Eigen::Dynamic, Eigen::Dynamic>;
 
     const Eigen::Index a_nr = a.rows();
     const Eigen::Index a_nc = a.cols();
@@ -840,8 +834,9 @@ template <typename DerivedCondition, typename DerivedThenElse>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1> cyclicSelect(
         const Eigen::DenseBase<DerivedCondition>& condition,
         const Eigen::DenseBase<DerivedThenElse>& then,
-        const Eigen::DenseBase<DerivedThenElse>& _else)  // else is a C++ keyword
+        const Eigen::DenseBase<DerivedThenElse>& _else)
 {
+    // (Parameter is _else because else is a C++ keyword.)
     // Produces a column array whose length is the maximum of the lengths of
     // (condition, then, else), cycling as necessary.
 
@@ -877,7 +872,6 @@ void sort(Eigen::PlainObjectBase<Derived>& m, bool decreasing = false)
     }
 }
 
-
 template<typename EigenContainerT>
 EigenContainerT sorted(const EigenContainerT& vec)
 {
@@ -888,37 +882,45 @@ EigenContainerT sorted(const EigenContainerT& vec)
     return newvec;
 }
 
-
 // ============================================================================
 // Other R functions
 // ============================================================================
 // See the identically named functions in R.
 
-Eigen::MatrixXd scale(const Eigen::MatrixXd& x,
-                      bool centre_on_column_mean = true,
-                      bool scale_divide_by_column_rms = true,
-                      const Eigen::ArrayXd& centre_values = Eigen::ArrayXd(),
-                      const Eigen::ArrayXd& scale_values = Eigen::ArrayXd());
+Eigen::MatrixXd scale(
+    const Eigen::MatrixXd& x,
+    bool centre_on_column_mean = true,
+    bool scale_divide_by_column_rms = true,
+    const Eigen::ArrayXd& centre_values = Eigen::ArrayXd(),
+    const Eigen::ArrayXd& scale_values = Eigen::ArrayXd()
+);
 
 Eigen::MatrixXd chol(const Eigen::MatrixXd& x, bool pivot = false);
 
-Eigen::MatrixXd backsolve(const Eigen::MatrixXd& r,
-                          const Eigen::MatrixXd& x,
-                          Eigen::Index k = -1,  // default to ncol(r)
-                          bool transpose = false,
-                          bool upper_tri = true);  // upper_tri = true MAKES IT A BACKSOLVE
-Eigen::MatrixXd forwardsolve(const Eigen::MatrixXd& l,
-                             const Eigen::MatrixXd& x,
-                             Eigen::Index k = -1,  // default to ncol(l)
-                             bool transpose = false,
-                             bool upper_tri = false);  // upper_tri = false MAKES IT A FORWARDSOLVE
+Eigen::MatrixXd backsolve(
+    const Eigen::MatrixXd& r,
+    const Eigen::MatrixXd& x,
+    Eigen::Index k = -1,  // default to ncol(r)
+    bool transpose = false,
+    bool upper_tri = true
+);
+// ... upper_tri = true MAKES IT A BACKSOLVE
+Eigen::MatrixXd forwardsolve(
+    const Eigen::MatrixXd& l,
+    const Eigen::MatrixXd& x,
+    Eigen::Index k = -1,  // default to ncol(l)
+    bool transpose = false,
+    bool upper_tri = false
+);
+// ... upper_tri = false MAKES IT A FORWARDSOLVE
+
 // I think that forwardsolve and backsolve are basically the same thing, except
 // for the default relating to upper_tri. That's what R's documentation
 // suggests:
-//           Solves a system of linear equations where the coefficient matrix
-//           is upper (or ‘right’, ‘R’) or lower (‘left’, ‘L’) triangular.
-//           ‘x <- backsolve(R, b)’ solves R x = b [RNC: for x], and
-//           ‘x <- forwardsolve(L, b)’ solves L x = b [RNC: for x], respectively.
+//      Solves a system of linear equations where the coefficient matrix
+//      is upper (or ‘right’, ‘R’) or lower (‘left’, ‘L’) triangular.
+//      ‘x <- backsolve(R, b)’ solves R x = b [RNC: for x], and
+//      ‘x <- forwardsolve(L, b)’ solves L x = b [RNC: for x], respectively.
 // And this:
 //      http://www.stat.berkeley.edu/~paciorek/research/techVignettes/techVignette6.pdf
 //  "A quick note on backsolves and forwardsolves. If you have a
@@ -937,11 +939,13 @@ Eigen::MatrixXd forwardsolve(const Eigen::MatrixXd& l,
 //   use of variable names...
 
 // My internal function to implement both forwardsolve() and backsolve():
-Eigen::MatrixXd forwardOrBackSolve(Eigen::MatrixXd lr,
-                                   Eigen::MatrixXd x,
-                                   Eigen::Index k,
-                                   bool transpose,
-                                   bool upper_tri);
+Eigen::MatrixXd forwardOrBackSolve(
+    Eigen::MatrixXd lr,
+    Eigen::MatrixXd x,
+    Eigen::Index k,
+    bool transpose,
+    bool upper_tri
+);
 
 
 // ============================================================================

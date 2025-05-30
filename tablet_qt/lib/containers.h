@@ -21,9 +21,7 @@
 #pragma once
 #include <QVector>
 
-
-namespace containers
-{
+namespace containers {
 
 // ============================================================================
 // Force a QVector to be a certain size, by removing items at the end or by
@@ -31,9 +29,9 @@ namespace containers
 // ============================================================================
 
 template<typename T>
-void forceVectorSize(QVector<T>& vec,
-                     int new_size,
-                     const T& default_value = T())
+void forceVectorSize(
+    QVector<T>& vec, int new_size, const T& default_value = T()
+)
 {
     int old_size = vec.size();
     // Remove surplus
@@ -45,7 +43,6 @@ void forceVectorSize(QVector<T>& vec,
         vec.append(default_value);
     }
 }
-
 
 // ============================================================================
 // subtract(a, b) -> items in a, in order, that are not in b
@@ -64,7 +61,6 @@ ContainerType subtract(const ContainerType& first, const ContainerType& second)
     return difference;
 }
 
-
 // ============================================================================
 // setSubtract(a, b) -> items in a, in order, that are not in b, eliminating
 //                      duplicates in a
@@ -72,8 +68,8 @@ ContainerType subtract(const ContainerType& first, const ContainerType& second)
 // - works for QVector, QList
 
 template<typename ContainerType>
-ContainerType setSubtract(const ContainerType& first,
-                          const ContainerType& second)
+ContainerType
+    setSubtract(const ContainerType& first, const ContainerType& second)
 {
     ContainerType difference;
     for (auto first_item : first) {
@@ -83,8 +79,6 @@ ContainerType setSubtract(const ContainerType& first,
     }
     return difference;
 }
-
-
 
 // ============================================================================
 // at(a, indices) -> container of items in "a" at locations "indices"
@@ -108,7 +102,6 @@ ContainerType at(const ContainerType& vec, const QVector<int>& indices)
     return subset;
 }
 
-
 // ============================================================================
 // containsAll(a, b) -> does a contain all elements of b?
 // ============================================================================
@@ -124,7 +117,6 @@ bool containsAll(const ContainerType& a, const ContainerType& b)
     }
     return true;
 }
-
 
 // ============================================================================
 // rotateSequence(a, n) -> container of elements of a, rotated
@@ -147,7 +139,6 @@ ContainerType rotateSequence(const ContainerType& v, int n_rotate)
     }
     return newvec;
 }
-
 
 // ============================================================================
 // rotateSequenceInPlace(a, n) -> in-place version of rotateSequence()

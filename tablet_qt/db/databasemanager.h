@@ -25,6 +25,7 @@
 #include <QSqlDatabase>
 #include <QVector>
 #include <QWaitCondition>
+
 #include "db/dbfunc.h"
 #include "db/queryresult.h"
 #include "db/sqlargs.h"
@@ -35,7 +36,6 @@
 class DatabaseWorkerThread;
 class Field;
 class QJsonArray;
-
 
 // A database manager for SQLite/SQLCipher databases. It provides:
 // - raw SQL access
@@ -87,7 +87,8 @@ class DatabaseManager
     but we can't do this:
 
         while (!exit_flag) {
-            wait_for_stuff_to_arrive_eg_mutex_signal();  // WON'T NOTICE EXIT SIGNAL HERE
+            wait_for_stuff_to_arrive_eg_mutex_signal();
+                // ... WON'T NOTICE EXIT SIGNAL HERE
             process_stuff();
         }
 
@@ -149,11 +150,13 @@ public:
     // ========================================================================
     // Constructor and destructor:
     // ========================================================================
-    DatabaseManager(const QString& filename,
-                    const QString& connection_name,
-                    const QString& database_type = whichdb::DBTYPE,
-                    bool threaded = true,
-                    bool system_db = false);
+    DatabaseManager(
+        const QString& filename,
+        const QString& connection_name,
+        const QString& database_type = whichdb::DBTYPE,
+        bool threaded = true,
+        bool system_db = false
+    );
     ~DatabaseManager();
 
     // ========================================================================
@@ -177,10 +180,12 @@ public:
     void execNoAnswer(const SqlArgs& sqlargs, bool suppress_errors = false);
 
     // Executes an SQL query and return the result.
-    QueryResult query(const SqlArgs& sqlargs,
-                      QueryResult::FetchMode fetch_mode = QueryResult::FetchMode::FetchAll,
-                      bool store_column_names = false,
-                      bool suppress_errors = false);
+    QueryResult query(
+        const SqlArgs& sqlargs,
+        QueryResult::FetchMode fetch_mode = QueryResult::FetchMode::FetchAll,
+        bool store_column_names = false,
+        bool suppress_errors = false
+    );
 
     // Executes an SQL command/query and returns whether it succeeded.
     bool exec(const SqlArgs& sqlargs, bool suppress_errors = false);
@@ -196,17 +201,21 @@ public:
     bool exec(const QString& sql, const ArgList& args = ArgList());
 
     // Version of query() with separate sql/args parameters.
-    QueryResult query(const QString& sql,
-                      const ArgList& args = ArgList(),
-                      QueryResult::FetchMode fetch_mode = QueryResult::FetchMode::FetchAll,
-                      bool store_column_names = false,
-                      bool suppress_errors = false);
+    QueryResult query(
+        const QString& sql,
+        const ArgList& args = ArgList(),
+        QueryResult::FetchMode fetch_mode = QueryResult::FetchMode::FetchAll,
+        bool store_column_names = false,
+        bool suppress_errors = false
+    );
 
     // Version of query() with sql parameter only.
-    QueryResult query(const QString& sql,
-                      QueryResult::FetchMode fetch_mode,
-                      bool store_column_names = false,
-                      bool suppress_errors = false);
+    QueryResult query(
+        const QString& sql,
+        QueryResult::FetchMode fetch_mode,
+        bool store_column_names = false,
+        bool suppress_errors = false
+    );
 
     // ========================================================================
     // SQL
@@ -227,23 +236,30 @@ public:
     int fetchInt(const SqlArgs& sqlargs, int failure_default = -1);
 
     // Executes an SQL COUNT() query and returns the count.
-    int count(const QString& tablename,
-              const WhereConditions& where = WhereConditions());
+    int count(
+        const QString& tablename,
+        const WhereConditions& where = WhereConditions()
+    );
 
     // Executes "SELECT <fieldname> FROM <tablename> WHERE <where>" and returns
     // the values as integers.
-    QVector<int> getSingleFieldAsIntList(const QString& tablename,
-                                         const QString& fieldname,
-                                         const WhereConditions& where);
+    QVector<int> getSingleFieldAsIntList(
+        const QString& tablename,
+        const QString& fieldname,
+        const WhereConditions& where
+    );
 
     // Returns all integer PKs from the specified table/PK column.
-    QVector<int> getPKs(const QString& tablename,
-                        const QString& pkname,
-                        const WhereConditions& where = WhereConditions());
+    QVector<int> getPKs(
+        const QString& tablename,
+        const QString& pkname,
+        const WhereConditions& where = WhereConditions()
+    );
 
     // Does a record with the specified primary key (PK) exist?
-    bool existsByPk(const QString& tablename,
-                    const QString& pkname, int pkvalue);
+    bool existsByPk(
+        const QString& tablename, const QString& pkname, int pkvalue
+    );
 
     // ------------------------------------------------------------------------
     // Transactions
@@ -263,8 +279,10 @@ public:
     // ------------------------------------------------------------------------
 
     // Deletes from a table according to the WHERE conditions.
-    bool deleteFrom(const QString& tablename,
-                    const WhereConditions& where = WhereConditions());
+    bool deleteFrom(
+        const QString& tablename,
+        const WhereConditions& where = WhereConditions()
+    );
 
     // ------------------------------------------------------------------------
     // Reading schema/structure
@@ -293,29 +311,37 @@ public:
     // ------------------------------------------------------------------------
 
     // Creates an index on the specified fields.
-    bool createIndex(const QString& indexname,
-                     const QString& tablename,
-                     QStringList fieldnames);
+    bool createIndex(
+        const QString& indexname,
+        const QString& tablename,
+        QStringList fieldnames
+    );
 
     // Renames columns.
     // (This is a complex operation involving a temporary table.)
-    void renameColumns(const QString& tablename,
-                       const QVector<QPair<QString, QString>>& from_to,
-                       const QString& tempsuffix = dbfunc::TABLE_TEMP_SUFFIX);
+    void renameColumns(
+        const QString& tablename,
+        const QVector<QPair<QString, QString>>& from_to,
+        const QString& tempsuffix = dbfunc::TABLE_TEMP_SUFFIX
+    );
 
     // Renames a table.
     void renameTable(const QString& from, const QString& to);
 
     // Changes the column types of specified columns.
     // (This is a complex operation involving a temporary table.)
-    void changeColumnTypes(const QString& tablename,
-                           const QVector<QPair<QString, QString>>& field_newtype,
-                           const QString& tempsuffix = dbfunc::TABLE_TEMP_SUFFIX);
+    void changeColumnTypes(
+        const QString& tablename,
+        const QVector<QPair<QString, QString>>& field_newtype,
+        const QString& tempsuffix = dbfunc::TABLE_TEMP_SUFFIX
+    );
 
     // Creates a table.
-    void createTable(const QString& tablename,
-                     const QVector<Field>& fieldlist,
-                     const QString& tempsuffix = dbfunc::TABLE_TEMP_SUFFIX);
+    void createTable(
+        const QString& tablename,
+        const QVector<Field>& fieldlist,
+        const QString& tempsuffix = dbfunc::TABLE_TEMP_SUFFIX
+    );
 
     // Drops (deletes) a table.
     void dropTable(const QString& tablename);
@@ -351,12 +377,7 @@ public:
 
     // Performs all steps necessary to read an encrypted database.
     // - passphrase: the passphrase for "PRAGMA key"
-    // - migrate: if true, run "PRAGMA cipher_migrate"
-    // - compatibility_sqlcipher_major_version: if >0 and migrate is false,
-    //   run PRAGMA cipher_compatibility
-    bool decrypt(const QString& passphrase,
-                 bool migrate = false,
-                 int compatibility_sqlcipher_major_version = -1);
+    bool decrypt(const QString& passphrase);
 
     // Executes "PRAGMA key" to access an encrypted database.
     bool pragmaKey(const QString& passphase);
@@ -366,7 +387,7 @@ public:
     bool pragmaCipherCompatibility(int sqlcipher_major_version);
 
     // Executes "PRAGMA cipher_migrate" to migrate from an older SQLCipher
-    // version
+    // version. Returns true if migration succeeded.
     bool pragmaCipherMigrate();
 
     // Executes "PRAGMA rekey" to change a database's password.
@@ -391,8 +412,8 @@ public:
     // ========================================================================
     // Internals
     // ========================================================================
-protected:
 
+protected:
     // ------------------------------------------------------------------------
     // Opening/closing internals
     // ------------------------------------------------------------------------
@@ -411,6 +432,9 @@ protected:
 
     // Low-level function to close a database directly.
     void closeDatabaseActual();
+
+    // Closes and opens database
+    void reconnectDatabase();
 
     // ------------------------------------------------------------------------
     // GUI thread internals
@@ -445,17 +469,21 @@ protected:
     // ------------------------------------------------------------------------
 
     // Returns the low-level driver object.
-    QSqlDriver* driver() const;  // UNCERTAIN IF THIS IS OK to return the driver on the GUI thread, even if it lives in another
+    QSqlDriver* driver() const;
+    // ... UNCERTAIN IF THIS IS OK to return the driver on the GUI thread,
+    // even if it lives in another
 
 protected:
     // Database filename
     QString m_filename;  // written only in constructor; thread-safe access
 
     // Internal name of the database connection
-    QString m_connection_name;  // written only in constructor; thread-safe access
+    QString m_connection_name;
+    // ... written only in constructor; thread-safe access
 
     // Database type, e.g. "QSQLITE" or "SQLCIPHER".
-    QString m_database_type;  // written only in constructor; thread-safe access
+    QString m_database_type;
+    // ... written only in constructor; thread-safe access
 
     // Are we using a multithreaded approach? (Faster.)
     bool m_threaded;  // written only in constructor; thread-safe access
@@ -477,7 +505,8 @@ protected:
     QString m_opening_failure_msg;
 
     // Underlying Qt database object.
-    QSqlDatabase m_db;  // connection owned by worker thread if m_threaded, else GUI thread
+    QSqlDatabase m_db;
+    // ... connection owned by worker thread if m_threaded, else GUI thread
 
     // Mutex to lock the request queue.
     QMutex m_mutex_requests;
@@ -497,7 +526,8 @@ protected:
     QWaitCondition m_queries_are_complete;
 
     // Names of tables that we have created via createTable().
-    QStringList m_created_tables;  // trivial internal helper; accessed only by GUI thread
+    QStringList m_created_tables;
+    // ... trivial internal helper; accessed only by GUI thread
 
     friend class HelpMenu;  // for driver() access
 };

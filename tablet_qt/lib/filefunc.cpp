@@ -22,14 +22,15 @@
 // #define DEBUG_READ_FILE_CONTENTS
 
 #include "filefunc.h"
+
 #include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QString>
 #include <QTextStream>
-#include "lib/errorfunc.h"
 
+#include "lib/errorfunc.h"
 
 namespace filefunc {
 
@@ -40,7 +41,6 @@ bool fileExists(const QString& filename)
     const QFileInfo check_file(filename);
     return check_file.exists() && check_file.isFile();
 }
-
 
 QString textfileContents(const QString& filename)
 {
@@ -61,7 +61,6 @@ QString textfileContents(const QString& filename)
     return text;
 }
 
-
 /*
 QString taskHtmlFilename(const QString& stem)
 {
@@ -76,13 +75,11 @@ bool deleteFile(const QString& filename)
     return file.remove();
 }
 
-
 bool renameFile(const QString& from, const QString& to)
 {
     QFile file(from);
     return file.rename(to);
 }
-
 
 bool ensureDirectoryExists(const QString& dir)
 {
@@ -97,15 +94,12 @@ bool ensureDirectoryExists(const QString& dir)
     return true;
 }
 
-
 void ensureDirectoryExistsOrDie(const QString& dir)
 {
     if (!ensureDirectoryExists(dir)) {
-        errorfunc::fatalError(QObject::tr("Failed to make directory: ") +
-                              dir);
+        errorfunc::fatalError(QObject::tr("Failed to make directory: ") + dir);
     }
 }
-
 
 bool fileContainsLine(const QString& filename, const QString& line)
 {
@@ -117,7 +111,7 @@ bool fileContainsLine(const QString& filename, const QString& line)
         return false;
     }
     QTextStream in(&file);
-    while (!in.atEnd()){
+    while (!in.atEnd()) {
         const QString file_line = in.readLine();  // strips newlines
         if (line == file_line) {
             return true;

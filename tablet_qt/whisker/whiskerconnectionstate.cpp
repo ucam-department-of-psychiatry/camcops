@@ -20,24 +20,23 @@
 
 #include "whiskerconnectionstate.h"
 
-
 QString whiskerConnectionStateDescription(WhiskerConnectionState state)
 {
     switch (state) {
-    case WhiskerConnectionState::A_Disconnected:
-        return "Disconnected";
-    case WhiskerConnectionState::B_RequestingMain:
-        return "RequestingMain";
-    case WhiskerConnectionState::C_MainConnectedAwaitingImmPort:
-        return "MainConnectedAwaitingImmPort";
-    case WhiskerConnectionState::D_MainConnectedAwaitingCode:
-        return "MainConnectedAwaitingCode";
-    case WhiskerConnectionState::E_MainConnectedRequestingImmediate:
-        return "MainConnectedRequestingImmediate";
-    case WhiskerConnectionState::F_BothConnectedAwaitingLink:
-        return "BothConnectedAwaitingLink";
-    case WhiskerConnectionState::G_FullyConnected:
-        return "FullyConnected";
+        case WhiskerConnectionState::A_Disconnected:
+            return "Disconnected";
+        case WhiskerConnectionState::B_RequestingMain:
+            return "RequestingMain";
+        case WhiskerConnectionState::C_MainConnectedAwaitingImmPort:
+            return "MainConnectedAwaitingImmPort";
+        case WhiskerConnectionState::D_MainConnectedAwaitingCode:
+            return "MainConnectedAwaitingCode";
+        case WhiskerConnectionState::E_MainConnectedRequestingImmediate:
+            return "MainConnectedRequestingImmediate";
+        case WhiskerConnectionState::F_BothConnectedAwaitingLink:
+            return "BothConnectedAwaitingLink";
+        case WhiskerConnectionState::G_FullyConnected:
+            return "FullyConnected";
     }
     return "?";
 }

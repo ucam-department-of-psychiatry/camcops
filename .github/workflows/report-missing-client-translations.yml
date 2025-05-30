@@ -20,7 +20,7 @@ jobs:
     report-missing-client-translations:
         runs-on: ubuntu-22.04
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
             - name: Qt version check
               run: |
                   set -euxo pipefail
@@ -34,7 +34,7 @@ jobs:
                   target: desktop
                   arch: gcc_64
                   archives: "qtbase qtdeclarative qttools qttranslations icu"
-            - uses: actions/setup-python@v4
+            - uses: actions/setup-python@v5
               with:
                   python-version: "3.10"
             - name: Report missing client translations

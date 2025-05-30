@@ -23,7 +23,7 @@
 // #define NHS_DEBUG_VALIDATOR
 
 #ifdef NHS_DEBUG_VALIDATOR
-#include <QDebug>
+    #include <QDebug>
 #endif
 #include <QLocale>
 #include <QString>
@@ -44,10 +44,10 @@ int nhsCheckDigit(const QVector<int>& ninedigits, int failure_code = -1);
 
 // Declare a validator for NHS numbers.
 template<typename T>
-QValidator::State validateNhsNumber(const QString& s, bool allow_empty = false);
+QValidator::State
+    validateNhsNumber(const QString& s, bool allow_empty = false);
 
 }  // namespace nhs
-
 
 // ============================================================================
 // Templatized Qt validator function for NHS numbers
@@ -58,12 +58,12 @@ QValidator::State nhs::validateNhsNumber(const QString& s, bool allow_empty)
 {
     if (s.isEmpty()) {
         if (allow_empty) {
-#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+#ifdef NHS_DEBUG_VALIDATOR
             qDebug() << Q_FUNC_INFO << "empty -> Acceptable (as allow_empty)";
 #endif
             return QValidator::Acceptable;
         }
-#ifdef NUMERICFUNC_DEBUG_VALIDATOR
+#ifdef NHS_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << "empty -> Intermediate";
 #endif
         return QValidator::Intermediate;
@@ -78,14 +78,15 @@ QValidator::State nhs::validateNhsNumber(const QString& s, bool allow_empty)
         const QChar& c = s.at(i);
         if (!c.isDigit()) {
 #ifdef NHS_DEBUG_VALIDATOR
-        qDebug() << Q_FUNC_INFO << s << "-> Invalid (contains non-digit characters)";
+            qDebug() << Q_FUNC_INFO << s
+                     << "-> Invalid (contains non-digit characters)";
 #endif
             return QValidator::State::Invalid;
         }
         const int digit = QString(c).toInt();
         if (i == 0 && digit == 0) {
 #ifdef NHS_DEBUG_VALIDATOR
-        qDebug() << Q_FUNC_INFO << s << "-> Invalid (first digit is zero)";
+            qDebug() << Q_FUNC_INFO << s << "-> Invalid (first digit is zero)";
 #endif
             return QValidator::State::Invalid;
         }
@@ -100,13 +101,13 @@ QValidator::State nhs::validateNhsNumber(const QString& s, bool allow_empty)
 #ifdef NHS_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << s << "-> Invalid (>10 digits)";
 #endif
-            return QValidator::State::Invalid;
+        return QValidator::State::Invalid;
     }
     if (len < nhs_num_len) {
 #ifdef NHS_DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO << s << "-> Intermediate (<10 digits)";
 #endif
-            return QValidator::State::Intermediate;
+        return QValidator::State::Intermediate;
     }
 
     // Now we're here, the number is a valid integer in our specified 10-digit
@@ -115,29 +116,29 @@ QValidator::State nhs::validateNhsNumber(const QString& s, bool allow_empty)
     const int expected_check_digit = nhsCheckDigit(main_digits, failure_code);
     if (expected_check_digit == failure_code) {
 #ifdef NHS_DEBUG_VALIDATOR
-        qDebug() << Q_FUNC_INFO << s << "-> Invalid (bug? Check digit calculation failed)";
+        qDebug() << Q_FUNC_INFO << s
+                 << "-> Invalid (bug? Check digit calculation failed)";
 #endif
         return QValidator::State::Invalid;
     }
     if (expected_check_digit == 10) {
 #ifdef NHS_DEBUG_VALIDATOR
-        qDebug().nospace()
-                << Q_FUNC_INFO << " " << s
-                << " -> Invalid (calculated check digit is 10, meaning a bad number)";
+        qDebug().nospace() << Q_FUNC_INFO << " " << s
+                           << " -> Invalid (calculated check digit is 10, "
+                              "meaning a bad number)";
 #endif
         return QValidator::State::Invalid;
     }
     if (check_digit != expected_check_digit) {
 #ifdef NHS_DEBUG_VALIDATOR
-        qDebug().nospace()
-                << Q_FUNC_INFO << " " << s
-                << " -> Invalid (bad check digit; expected "
-                << expected_check_digit << ")";
+        qDebug().nospace() << Q_FUNC_INFO << " " << s
+                           << " -> Invalid (bad check digit; expected "
+                           << expected_check_digit << ")";
 #endif
         return QValidator::State::Invalid;
     }
 #ifdef NHS_DEBUG_VALIDATOR
-        qDebug() << Q_FUNC_INFO << s << "-> Acceptable";
+    qDebug() << Q_FUNC_INFO << s << "-> Acceptable";
 #endif
     return QValidator::State::Acceptable;
 }

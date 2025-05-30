@@ -38,21 +38,22 @@ Perhaps we should use a proxy style. See TreeViewProxyStyle.
 */
 
 #include "treeviewcontroldelegate.h"
+
 #include <QDebug>
 #include <QModelIndex>
 #include <QPainter>
 #include <QStyleOptionViewItem>
-
 
 TreeViewControlDelegate::TreeViewControlDelegate(QObject* parent) :
     QStyledItemDelegate(parent)
 {
 }
 
-
-void TreeViewControlDelegate::paint(QPainter* painter,
-                                    const QStyleOptionViewItem& option,
-                                    const QModelIndex& index) const
+void TreeViewControlDelegate::paint(
+    QPainter* painter,
+    const QStyleOptionViewItem& option,
+    const QModelIndex& index
+) const
 {
     qDebug() << Q_FUNC_INFO << "option" << option << "index" << index;
     QStyledItemDelegate::paint(painter, option, index);

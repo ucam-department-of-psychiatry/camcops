@@ -35,12 +35,16 @@ class QuTextEdit : public QuElement
     // (For a smaller version, see QuLineEdit.)
 
     Q_OBJECT
-public:
 
+public:
     // Constructor.
-    // - accept_rich_text: see https://doc.qt.io/qt-6.5/qtextedit.html#acceptRichText-prop
-    QuTextEdit(FieldRefPtr fieldref, bool accept_rich_text = false,
-               QObject* parent = nullptr);
+    // - accept_rich_text: see
+    //   https://doc.qt.io/qt-6.5/qtextedit.html#acceptRichText-prop
+    QuTextEdit(
+        FieldRefPtr fieldref,
+        bool accept_rich_text = false,
+        QObject* parent = nullptr
+    );
 
     // Allow tabs in content? Generally a bad idea as users may expect the Tab
     // key to navigate between fields.
@@ -50,11 +54,11 @@ public:
     QuTextEdit* setHint(const QString& hint);
 
 protected:
-
     // Sets the widget state from our fieldref.
     void setFromField();
 
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
+    ) override;
     virtual FieldRefPtrList fieldrefs() const override;
 
 protected slots:
@@ -66,8 +70,9 @@ protected slots:
     void textChanged();
 
     // "The field's data has changed."
-    void fieldValueChanged(const FieldRef* fieldref,
-                           const QObject* originator = nullptr);
+    void fieldValueChanged(
+        const FieldRef* fieldref, const QObject* originator = nullptr
+    );
 
     // "The widget has gained or lost focus."
     void widgetFocusChanged(bool in);
@@ -82,6 +87,8 @@ protected:
 #endif
     QPointer<GrowingTextEdit> m_rich_editor;  // editor widget
     bool m_ignore_widget_signal;  // temporarily ignore signals from widget?
-    QPointer<FocusWatcher> m_focus_watcher;  // allows us to detect focus change
-    QSharedPointer<QTimer> m_timer;  // timer so we write only after a flurry of keypresses has stopped
+    QPointer<FocusWatcher> m_focus_watcher;
+    // ... allows us to detect focus change
+    QSharedPointer<QTimer> m_timer;
+    // ... timer so we write only after a flurry of keypresses has stopped
 };

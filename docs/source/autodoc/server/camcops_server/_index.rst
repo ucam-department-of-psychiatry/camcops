@@ -116,6 +116,7 @@ server/camcops_server
     alembic/versions/0082_replace_isaaq_isaaq10.py.rst
     alembic/versions/0083_delete_isaaq.py.rst
     alembic/versions/0084_compulsive_exercise_test_cet.py.rst
+    alembic/versions/0085_aq.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -197,6 +198,7 @@ server/camcops_server
     cc_modules/cc_taskschedule.py.rst
     cc_modules/cc_taskschedulereports.py.rst
     cc_modules/cc_testfactories.py.rst
+    cc_modules/cc_testproviders.py.rst
     cc_modules/cc_text.py.rst
     cc_modules/cc_tracker.py.rst
     cc_modules/cc_trackerhelpers.py.rst
@@ -214,6 +216,7 @@ server/camcops_server
     cc_modules/tests/cc_blob_tests.py.rst
     cc_modules/tests/cc_config_tests.py.rst
     cc_modules/tests/cc_device_tests.py.rst
+    cc_modules/tests/cc_dump_tests.py.rst
     cc_modules/tests/cc_export_tests.py.rst
     cc_modules/tests/cc_fhir_tests.py.rst
     cc_modules/tests/cc_formatter_tests.py.rst
@@ -232,6 +235,7 @@ server/camcops_server
     cc_modules/tests/cc_sqla_coltypes_tests.py.rst
     cc_modules/tests/cc_task_collection_tests.py.rst
     cc_modules/tests/cc_task_tests.py.rst
+    cc_modules/tests/cc_taskreports_tests.py.rst
     cc_modules/tests/cc_taskschedule_tests.py.rst
     cc_modules/tests/cc_taskschedulereports_tests.py.rst
     cc_modules/tests/cc_text_tests.py.rst
@@ -240,6 +244,7 @@ server/camcops_server
     cc_modules/tests/cc_validator_tests.py.rst
     cc_modules/tests/cc_view_classes_tests.py.rst
     cc_modules/tests/client_api_tests.py.rst
+    cc_modules/tests/merge_db_tests.py.rst
     cc_modules/tests/webview_tests.py.rst
     cc_modules/webview.py.rst
     conftest.py.rst
@@ -278,6 +283,7 @@ server/camcops_server
     extra_strings/aims.xml.rst
     extra_strings/apeq_cpft_perinatal.xml.rst
     extra_strings/apeqpt.xml.rst
+    extra_strings/aq.xml.rst
     extra_strings/audit.xml.rst
     extra_strings/bmi.xml.rst
     extra_strings/bprs.xml.rst
@@ -360,6 +366,7 @@ server/camcops_server
     tasks/aims.py.rst
     tasks/apeq_cpft_perinatal.py.rst
     tasks/apeqpt.py.rst
+    tasks/aq.py.rst
     tasks/asdas.py.rst
     tasks/audit.py.rst
     tasks/badls.py.rst
@@ -472,12 +479,16 @@ server/camcops_server
     tasks/srs.py.rst
     tasks/suppsp.py.rst
     tasks/tests/apeq_cpft_perinatal_tests.py.rst
+    tasks/tests/aq_tests.py.rst
     tasks/tests/basdai_tests.py.rst
+    tasks/tests/bmi_tests.py.rst
     tasks/tests/cia_tests.py.rst
     tasks/tests/core10_tests.py.rst
     tasks/tests/cpft_covid_medical_tests.py.rst
     tasks/tests/cpft_research_preferences_tests.py.rst
+    tasks/tests/diagnosis_tests.py.rst
     tasks/tests/edeq_tests.py.rst
+    tasks/tests/factories.py.rst
     tasks/tests/maas_tests.py.rst
     tasks/tests/paradise24_tests.py.rst
     tasks/tests/perinatalpoem_tests.py.rst
@@ -642,5 +653,6 @@ server/camcops_server
     templates/test/test_template_filters.mako.rst
     templates/test/testpage.mako.rst
     tools/fetch_snomed_codes.py.rst
+    tools/generate_task_factories.py.rst
     tools/print_latest_github_version.py.rst
     tools/run_server_self_tests.py.rst

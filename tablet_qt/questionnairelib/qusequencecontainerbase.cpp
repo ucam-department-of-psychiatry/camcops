@@ -19,11 +19,13 @@
 */
 
 #include "qusequencecontainerbase.h"
+
 #include <QWidget>
 
 
-const Qt::Alignment QuSequenceContainerBase::DefaultWidgetAlignment =
-        Qt::AlignLeft | Qt::AlignVCenter;
+const Qt::Alignment QuSequenceContainerBase::DefaultWidgetAlignment
+    = Qt::AlignLeft | Qt::AlignVCenter;
+
 // Note that a widget alignment of Qt::Alignment(), the default, makes the
 // layout EQUISPACE the widgets, which can look daft for horizontal layouts.
 // A better default is Qt::AlignLeft | Qt::AlignVCenter.
@@ -34,7 +36,8 @@ const Qt::Alignment QuSequenceContainerBase::DefaultWidgetAlignment =
 
 
 QuSequenceContainerBase::QuSequenceContainerBase(
-        const QVector<QuElementPtr>& elements, QObject* parent) :
+    const QVector<QuElementPtr>& elements, QObject* parent
+) :
     QuElement(parent),
     m_elements(elements),
     m_override_widget_alignment(true)
@@ -43,20 +46,23 @@ QuSequenceContainerBase::QuSequenceContainerBase(
 
 
 QuSequenceContainerBase::QuSequenceContainerBase(QObject* parent) :
-    QuSequenceContainerBase(QVector<QuElementPtr>(), parent)  // delegating constructor
+    QuSequenceContainerBase(QVector<QuElementPtr>(), parent)
+// ... delegating constructor
 {
 }
 
 
 QuSequenceContainerBase::QuSequenceContainerBase(
-        std::initializer_list<QuElementPtr> elements, QObject* parent) :
-    QuSequenceContainerBase(QVector<QuElementPtr>(elements), parent)  // delegating constructor
+    std::initializer_list<QuElementPtr> elements, QObject* parent
+) :
+    QuSequenceContainerBase(QVector<QuElementPtr>(elements), parent)
+// ... delegating constructor
 {
 }
 
-
 QuSequenceContainerBase::QuSequenceContainerBase(
-        std::initializer_list<QuElement*> elements, QObject* parent) :
+    std::initializer_list<QuElement*> elements, QObject* parent
+) :
     QuSequenceContainerBase(parent)  // delegating constructor
 {
     for (auto e : elements) {
@@ -64,15 +70,17 @@ QuSequenceContainerBase::QuSequenceContainerBase(
     }
 }
 
-
-QuSequenceContainerBase* QuSequenceContainerBase::addElement(const QuElementPtr& element)
+QuSequenceContainerBase*
+    QuSequenceContainerBase::addElement(const QuElementPtr& element)
 {
     m_elements.append(element);
     return this;
 }
 
 
-QuSequenceContainerBase* QuSequenceContainerBase::addElement(QuElement* element)  // takes ownership
+QuSequenceContainerBase* QuSequenceContainerBase::addElement(QuElement* element
+)
+// takes ownership
 {
     if (element) {
         m_elements.append(QuElementPtr(element));
@@ -80,17 +88,16 @@ QuSequenceContainerBase* QuSequenceContainerBase::addElement(QuElement* element)
     return this;
 }
 
-
-QuSequenceContainerBase* QuSequenceContainerBase::setOverrideWidgetAlignment(bool override)
+QuSequenceContainerBase*
+    QuSequenceContainerBase::setOverrideWidgetAlignment(bool override)
 {
     m_override_widget_alignment = override;
     return this;
 }
 
-
-
 QuSequenceContainerBase* QuSequenceContainerBase::setContainedWidgetAlignments(
-        const Qt::Alignment alignment)
+    const Qt::Alignment alignment
+)
 {
     for (auto e : qAsConst(m_elements)) {
         e->setWidgetAlignment(alignment);
@@ -98,7 +105,6 @@ QuSequenceContainerBase* QuSequenceContainerBase::setContainedWidgetAlignments(
     m_override_widget_alignment = false;
     return this;
 }
-
 
 QVector<QuElementPtr> QuSequenceContainerBase::subelements() const
 {

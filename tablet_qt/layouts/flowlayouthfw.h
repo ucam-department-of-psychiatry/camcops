@@ -81,7 +81,6 @@
 #include <QRect>
 #include <QStyle>
 
-
 class FlowLayoutHfw : public QLayout
 {
     // Flow layout, as per FlowLayout Qt demo, but modified to support
@@ -93,16 +92,22 @@ class FlowLayoutHfw : public QLayout
     // displayed within one of those.
 
     Q_OBJECT  // RNC
-public:
-    explicit FlowLayoutHfw(QWidget* parent, int margin = -1,
-                           int h_spacing = -1, int v_spacing = -1);
-    explicit FlowLayoutHfw(int margin = -1,
-                           int h_spacing = -1, int v_spacing = -1);
+        public :
+        explicit FlowLayoutHfw(
+            QWidget* parent,
+            int margin = -1,
+            int h_spacing = -1,
+            int v_spacing = -1
+        );
+    explicit FlowLayoutHfw(
+        int margin = -1, int h_spacing = -1, int v_spacing = -1
+    );
     ~FlowLayoutHfw() override;
 
     // QLayout supplies: void addWidget(QWidget* w);  // no alignment option
     // QVBoxLayout/QHBoxLayout supply:
-    //    void addWidget(QWidget* widget, int stretch, Qt::Alignment alignment);
+    //    void addWidget(QWidget* widget, int stretch,
+    //                   Qt::Alignment alignment);
     // Alignment does make sense, specifically top alignment.
     void addWidget(QWidget* w);  // RNC
     void addWidget(QWidget* w, Qt::Alignment alignment);  // RNC
@@ -123,7 +128,6 @@ public:
     virtual void invalidate() override;  // RNC
 
 protected:  // RNC (was private)
-
     // The main thinking function.
     virtual QSize doLayout(const QRect& rect, bool test_only) const;
 
@@ -132,8 +136,12 @@ protected:  // RNC (was private)
 
     // Vertical coordinate of a given item, taking into account vertical
     // alignment.
-    int itemTop(int row_top, int item_height, int row_height,
-                Qt::Alignment valignment) const;  // RNC
+    int itemTop(
+        int row_top,
+        int item_height,
+        int row_height,
+        Qt::Alignment valignment
+    ) const;  // RNC
 
     // Number of pixels to shift an entire row right, to satisfy the horizontal
     // alignment.
@@ -146,7 +154,8 @@ protected:  // RNC (was private)
     mutable QMap<int, int> m_width_to_height;  // cached width-to-height map
     Qt::Alignment m_halign;  // horizontal alignment
 
-    struct ItemCalc {
+    struct ItemCalc
+    {
         QLayoutItem* item;  // the layout item
         QWidget* widget;  // the widget
         int layout_row;  // the row number this item will sit in

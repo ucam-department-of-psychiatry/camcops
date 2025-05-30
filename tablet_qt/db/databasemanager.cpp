@@ -20,8 +20,8 @@
 
 #define USE_MULTITHREADED_DATABASES  // gives much better performance
 #define ONE_SELECT_AT_A_TIME
-    // ... enforces the principle that callers using SELECT should consume
-    // their results before doing another SELECT (so: OK to leave this on).
+// ... enforces the principle that callers using SELECT should consume
+// their results before doing another SELECT (so: OK to leave this on).
 
 // #define DEBUG_BACKGROUND_QUERY
 // #define DEBUG_VERBOSE_PROCESS
@@ -29,6 +29,7 @@
 // #define DEBUG_REPORT_TABLE_STRUCTURE_OK
 
 #include "databasemanager.h"
+
 #include <QDateTime>
 #include <QDebug>
 #include <QJsonArray>
@@ -37,14 +38,16 @@
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
+
 #include "db/databaseworkerthread.h"
 #include "db/dbfunc.h"
 #include "db/field.h"
 #include "db/fieldcreationplan.h"
+#include "db/queryresult.h"
 #include "db/whereconditions.h"
 #include "lib/containers.h"
 #include "lib/convert.h"
-#include "lib/uifunc.h"
+#include "lib/errorfunc.h"
 using dbfunc::delimit;
 
 // QSqlDatabase doesn't need to be passed by pointer; it copies itself
@@ -56,11 +59,13 @@ using dbfunc::delimit;
 // Constructor and destructor
 // ============================================================================
 
-DatabaseManager::DatabaseManager(const QString& filename,
-                                 const QString& connection_name,
-                                 const QString& database_type,
-                                 const bool threaded,
-                                 const bool system_db) :
+DatabaseManager::DatabaseManager(
+    const QString& filename,
+    const QString& connection_name,
+    const QString& database_type,
+    const bool threaded,
+    const bool system_db
+) :
     m_filename(filename),
     m_connection_name(connection_name),
     m_database_type(database_type),
@@ -77,7 +82,6 @@ DatabaseManager::DatabaseManager(const QString& filename,
     openDatabaseOrDie();
 }
 
-
 DatabaseManager::~DatabaseManager()
 {
 #ifdef DEBUG_VERBOSE_PROCESS
@@ -85,7 +89,6 @@ DatabaseManager::~DatabaseManager()
 #endif
     closeDatabase();
 }
-
 
 // ============================================================================
 // Settings
@@ -99,12 +102,10 @@ void DatabaseManager::setVacuumOnClose(const bool vacuum_on_close)
     m_vacuum_on_close = vacuum_on_close;
 }
 
-
 bool DatabaseManager::isSystemDb() const
 {
     return m_system_db;
 }
-
 
 // ============================================================================
 // Opening/closing internals
@@ -119,10 +120,9 @@ void DatabaseManager::openDatabaseOrDie()
     if (openDatabase()) {
         qInfo() << "Opened database:" << m_filename;
     } else {
-        uifunc::stopApp(m_opening_failure_msg);
+        errorfunc::fatalError(m_opening_failure_msg);
     }
 }
-
 
 bool DatabaseManager::openDatabase()
 {
@@ -133,18 +133,19 @@ bool DatabaseManager::openDatabase()
     if (m_threaded) {
         if (!m_thread) {
             m_thread = QSharedPointer<DatabaseWorkerThread>(
-                        new DatabaseWorkerThread(this));
+                new DatabaseWorkerThread(this)
+            );
             // We need a (semi-)random mutex to lock:
             m_mutex_requests.lock();
             m_thread->start();  // will call openDatabaseActual()
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO << m_connection_name
-             << "... waiting for m_open_db_complete";
+            qDebug() << Q_FUNC_INFO << m_connection_name
+                     << "... waiting for m_open_db_complete";
 #endif
             m_open_db_complete.wait(&m_mutex_requests);  // woken by: work()
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO << m_connection_name
-             << "... woken by m_open_db_complete";
+            qDebug() << Q_FUNC_INFO << m_connection_name
+                     << "... woken by m_open_db_complete";
 #endif
             m_mutex_requests.unlock();
         }
@@ -152,7 +153,6 @@ bool DatabaseManager::openDatabase()
     }
     return openDatabaseActual();
 }
-
 
 bool DatabaseManager::openDatabaseActual()
 {
@@ -171,14 +171,15 @@ bool DatabaseManager::openDatabaseActual()
         m_opening_failure_msg = "";
     } else {
         QSqlError error = m_db.lastError();
-        m_opening_failure_msg = QString(
-            "Connection to database failed. "
-            "Database = %1; native error code = %2; error text = %3"
-        ).arg(m_filename, error.nativeErrorCode(), error.text());
+        m_opening_failure_msg
+            = QString(
+                  "Connection to database failed. "
+                  "Database = %1; native error code = %2; error text = %3"
+            )
+                  .arg(m_filename, error.nativeErrorCode(), error.text());
     }
     return m_opened_database;
 }
-
 
 void DatabaseManager::closeDatabase()
 {
@@ -191,19 +192,22 @@ void DatabaseManager::closeDatabase()
     }
     if (m_threaded) {
         if (m_thread) {
-            ThreadedQueryRequest request(SqlArgs(),
-                                         QueryResult::FetchMode::NoAnswer,
-                                         false, false,
-                                         true);  // special "die" request
+            ThreadedQueryRequest request(
+                SqlArgs(),
+                QueryResult::FetchMode::NoAnswer,
+                false,
+                false,
+                true
+            );  // special "die" request
             pushRequest(request);
-            m_thread->wait();  // wait for it to finish (and close the database)
+            m_thread->wait();
+            // ... wait for it to finish (and close the database)
             m_thread = nullptr;  // deletes the thread
         }
     } else {
         closeDatabaseActual();
     }
 }
-
 
 void DatabaseManager::closeDatabaseActual()
 {
@@ -213,9 +217,9 @@ void DatabaseManager::closeDatabaseActual()
 #endif
     if (m_db.isOpen()) {
         m_db.close();
-        qInfo()<< "Qt will give a warning next (... \"all queries will cease "
-                  "to work\") as we're about to call removeDatabase(); "
-                  "this is OK";
+        qInfo() << "Qt will give a warning next (... \"all queries will cease "
+                   "to work\") as we're about to call removeDatabase(); "
+                   "this is OK";
         QSqlDatabase::removeDatabase(m_connection_name);
     }
     m_db = QSqlDatabase();
@@ -224,21 +228,28 @@ void DatabaseManager::closeDatabaseActual()
     // http://www.qtcentre.org/archive/index.php/t-40358.html
 }
 
+void DatabaseManager::reconnectDatabase()
+{
+    m_db.close();
+    m_db.open();
+}
 
 // ============================================================================
 // Public API
 // ============================================================================
 
-void DatabaseManager::execNoAnswer(const SqlArgs& sqlargs,
-                                   const bool suppress_errors)
+void DatabaseManager::execNoAnswer(
+    const SqlArgs& sqlargs, const bool suppress_errors
+)
 {
     // GUI thread
 #ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
     if (m_threaded) {
-        ThreadedQueryRequest request(sqlargs, QueryResult::FetchMode::NoAnswer,
-                                     false, suppress_errors);
+        ThreadedQueryRequest request(
+            sqlargs, QueryResult::FetchMode::NoAnswer, false, suppress_errors
+        );
         pushRequest(request);
     } else {
         QSqlQuery query(m_db);
@@ -246,23 +257,26 @@ void DatabaseManager::execNoAnswer(const SqlArgs& sqlargs,
     }
 }
 
-
-QueryResult DatabaseManager::query(const SqlArgs& sqlargs,
-                                   QueryResult::FetchMode fetch_mode,
-                                   const bool store_column_names,
-                                   const bool suppress_errors)
+QueryResult DatabaseManager::query(
+    const SqlArgs& sqlargs,
+    QueryResult::FetchMode fetch_mode,
+    const bool store_column_names,
+    const bool suppress_errors
+)
 {
     // GUI thread
 #ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
     Q_ASSERT(fetch_mode != QueryResult::FetchMode::NoAnswer);
-    // ... don't use the query() interface if you want no answer; use execNoAnswer()
+    // ... don't use the query() interface if you want no answer; use
+    // execNoAnswer()
 
     if (m_threaded) {
         // 1. Queue the query
-        ThreadedQueryRequest request(sqlargs, fetch_mode, store_column_names,
-                                     suppress_errors);
+        ThreadedQueryRequest request(
+            sqlargs, fetch_mode, store_column_names, suppress_errors
+        );
         pushRequest(request);
 
         // 2. Wait for all queries to finish
@@ -278,17 +292,16 @@ QueryResult DatabaseManager::query(const SqlArgs& sqlargs,
     return result;
 }
 
-
 bool DatabaseManager::exec(const SqlArgs& sqlargs, const bool suppress_errors)
 {
 #ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
-    const QueryResult result = query(sqlargs, QueryResult::FetchMode::NoFetch,
-                                     false, suppress_errors);
+    const QueryResult result = query(
+        sqlargs, QueryResult::FetchMode::NoFetch, false, suppress_errors
+    );
     return result.succeeded();
 }
-
 
 // ============================================================================
 // GUI thread internals
@@ -309,7 +322,6 @@ void DatabaseManager::pushRequest(const ThreadedQueryRequest& request)
     m_requests_waiting.wakeAll();  // wakes: work()
 }
 
-
 QueryResult DatabaseManager::popResult()
 {
 #ifdef DEBUG_VERBOSE_PROCESS
@@ -328,7 +340,6 @@ QueryResult DatabaseManager::popResult()
 
     return result;
 }
-
 
 void DatabaseManager::waitForQueriesToComplete()
 {
@@ -360,7 +371,6 @@ void DatabaseManager::waitForQueriesToComplete()
     m_mutex_requests.unlock();
 }
 
-
 // ============================================================================
 // Worker thread internals
 // ============================================================================
@@ -376,11 +386,13 @@ void DatabaseManager::work()
     m_opened_database = openDatabaseActual();
     m_open_db_complete.wakeAll();  // wakes: openDatabase()
 
-    forever {
+    forever
+    {
         // Fetch a request
         m_mutex_requests.lock();
         if (m_requests.isEmpty()) {
-            m_requests_waiting.wait(&m_mutex_requests);  // woken by: pushRequest()
+            m_requests_waiting.wait(&m_mutex_requests);
+            // ... woken by: pushRequest()
         }
         ThreadedQueryRequest request = m_requests.front();
         // DO NOT CALL pop_front() YET - might be interpreted by
@@ -411,11 +423,11 @@ void DatabaseManager::work()
         // If that (even transiently) cleared the request queue, let anyone
         // who was waiting for the results know
         if (now_empty) {
-            m_queries_are_complete.wakeAll();  // wakes: waitForQueriesToComplete()
+            m_queries_are_complete.wakeAll();
+            // ... wakes: waitForQueriesToComplete()
         }
     }
 }
-
 
 void DatabaseManager::execute(const ThreadedQueryRequest& request)
 {
@@ -429,25 +441,21 @@ void DatabaseManager::execute(const ThreadedQueryRequest& request)
 
     // 2. Execute query
 #ifdef DEBUG_BACKGROUND_QUERY
-    qDebug() << m_connection_name
-             << "Executing background query:" << request;
+    qDebug() << m_connection_name << "Executing background query:" << request;
 #endif
-    const bool success = dbfunc::execQuery(query,
-                                           request.sqlargs,
-                                           request.suppress_errors);
+    const bool success
+        = dbfunc::execQuery(query, request.sqlargs, request.suppress_errors);
 
     // 3. Deal with results.
     //    NOTE that even if the query fails, we must push a (blank) result,
     //    to meet the guarantee of SELECT -> result every time.
     if (request.fetch_mode != QueryResult::FetchMode::NoAnswer) {
-        QueryResult result(query,
-                           success,
-                           request.fetch_mode,
-                           request.store_column_names);
+        QueryResult result(
+            query, success, request.fetch_mode, request.store_column_names
+        );
         pushResult(result);
     }
 }
-
 
 void DatabaseManager::pushResult(const QueryResult& result)
 {
@@ -463,7 +471,6 @@ void DatabaseManager::pushResult(const QueryResult& result)
     m_mutex_results.unlock();
 }
 
-
 // ============================================================================
 // Convenience methods (all GUI thread)
 // ============================================================================
@@ -477,7 +484,6 @@ void DatabaseManager::execNoAnswer(const QString& sql, const ArgList& args)
     execNoAnswer(sqlargs);
 }
 
-
 bool DatabaseManager::exec(const QString& sql, const ArgList& args)
 {
 #ifdef DEBUG_VERBOSE_PROCESS
@@ -487,12 +493,13 @@ bool DatabaseManager::exec(const QString& sql, const ArgList& args)
     return exec(sqlargs);
 }
 
-
-QueryResult DatabaseManager::query(const QString& sql,
-                                   const ArgList& args,
-                                   const QueryResult::FetchMode fetch_mode,
-                                   const bool store_column_names,
-                                   const bool suppress_errors)
+QueryResult DatabaseManager::query(
+    const QString& sql,
+    const ArgList& args,
+    const QueryResult::FetchMode fetch_mode,
+    const bool store_column_names,
+    const bool suppress_errors
+)
 {
 #ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO << m_connection_name;
@@ -501,11 +508,12 @@ QueryResult DatabaseManager::query(const QString& sql,
     return query(sqlargs, fetch_mode, store_column_names, suppress_errors);
 }
 
-
-QueryResult DatabaseManager::query(const QString& sql,
-                                   const QueryResult::FetchMode fetch_mode,
-                                   const bool store_column_names,
-                                   const bool suppress_errors)
+QueryResult DatabaseManager::query(
+    const QString& sql,
+    const QueryResult::FetchMode fetch_mode,
+    const bool store_column_names,
+    const bool suppress_errors
+)
 {
 #ifdef DEBUG_VERBOSE_PROCESS
     qDebug() << Q_FUNC_INFO << m_connection_name;
@@ -513,7 +521,6 @@ QueryResult DatabaseManager::query(const QString& sql,
     const SqlArgs sqlargs(sql);
     return query(sqlargs, fetch_mode, store_column_names, suppress_errors);
 }
-
 
 // ============================================================================
 // DANGEROUS INTERNALS
@@ -526,7 +533,6 @@ QSqlDriver* DatabaseManager::driver() const
 #endif
     return m_db.driver();
 }
-
 
 // ============================================================================
 // SQL (all GUI thread)
@@ -541,15 +547,14 @@ QVariant DatabaseManager::fetchFirstValue(const SqlArgs& sqlargs)
     return query(sqlargs, QueryResult::FetchMode::FetchFirst).firstValue();
 }
 
-
 QVariant DatabaseManager::fetchFirstValue(const QString& sql)
 {
     return fetchFirstValue(SqlArgs(sql));
 }
 
-
-int DatabaseManager::fetchInt(const SqlArgs& sqlargs,
-                              const int failure_default)
+int DatabaseManager::fetchInt(
+    const SqlArgs& sqlargs, const int failure_default
+)
 {
     QueryResult result = query(sqlargs, QueryResult::FetchMode::FetchFirst);
     if (!result.succeeded()) {
@@ -558,52 +563,50 @@ int DatabaseManager::fetchInt(const SqlArgs& sqlargs,
     return result.firstValue().toInt();
 }
 
-
-int DatabaseManager::count(const QString& tablename,
-                           const WhereConditions& where)
+int DatabaseManager::count(
+    const QString& tablename, const WhereConditions& where
+)
 {
     SqlArgs sqlargs("SELECT COUNT(*) FROM " + delimit(tablename));
     where.appendWhereClauseTo(sqlargs);
     return fetchInt(sqlargs, 0);
 }
 
-
 QVector<int> DatabaseManager::getSingleFieldAsIntList(
-        const QString& tablename,
-        const QString& fieldname,
-        const WhereConditions& where)
+    const QString& tablename,
+    const QString& fieldname,
+    const WhereConditions& where
+)
 {
-    SqlArgs sqlargs(QString("SELECT %1 FROM %2").arg(delimit(fieldname),
-                                                     delimit(tablename)));
+    SqlArgs sqlargs(QString("SELECT %1 FROM %2")
+                        .arg(delimit(fieldname), delimit(tablename)));
     where.appendWhereClauseTo(sqlargs);
     const QueryResult result = query(sqlargs);
     return result.firstColumnAsIntList();
 }
 
-
-QVector<int> DatabaseManager::getPKs(const QString& tablename,
-                                     const QString& pkname,
-                                     const WhereConditions& where)
+QVector<int> DatabaseManager::getPKs(
+    const QString& tablename,
+    const QString& pkname,
+    const WhereConditions& where
+)
 {
     return getSingleFieldAsIntList(tablename, pkname, where);
 }
 
-
-bool DatabaseManager::existsByPk(const QString& tablename,
-                                 const QString& pkname,
-                                 const int pkvalue)
+bool DatabaseManager::existsByPk(
+    const QString& tablename, const QString& pkname, const int pkvalue
+)
 {
     const SqlArgs sqlargs(
         QString("SELECT EXISTS(SELECT * FROM %1 WHERE %2 = ?)")
-                .arg(delimit(tablename),
-                     delimit(pkname)),
+            .arg(delimit(tablename), delimit(pkname)),
         ArgList{pkvalue}
     );
     // EXISTS always returns 0 or 1
     // https://www.sqlite.org/lang_expr.html
     return fetchInt(sqlargs) == 1;
 }
-
 
 // ----------------------------------------------------------------------------
 // Transactions
@@ -614,7 +617,6 @@ void DatabaseManager::beginTransaction()
     execNoAnswer("BEGIN TRANSACTION");
 }
 
-
 void DatabaseManager::commit()
 {
     // If we ever need to do proper transactions, use an RAII object that
@@ -623,25 +625,23 @@ void DatabaseManager::commit()
     execNoAnswer("COMMIT");
 }
 
-
 void DatabaseManager::rollback()
 {
     execNoAnswer("ROLLBACK");
 }
 
-
 // ----------------------------------------------------------------------------
 // Modifications
 // ----------------------------------------------------------------------------
 
-bool DatabaseManager::deleteFrom(const QString& tablename,
-                                 const WhereConditions& where)
+bool DatabaseManager::deleteFrom(
+    const QString& tablename, const WhereConditions& where
+)
 {
     SqlArgs sqlargs(QString("DELETE FROM %1").arg(delimit(tablename)));
     where.appendWhereClauseTo(sqlargs);
     return exec(sqlargs);
 }
-
 
 // ----------------------------------------------------------------------------
 // Reading schema/structure
@@ -653,16 +653,16 @@ QStringList DatabaseManager::getAllTables()
     // - https://www.sqlite.org/fileformat.html
     // An underscore is a wildcard for LIKE
     // - https://www.sqlite.org/lang_expr.html
-    const QString sql = "SELECT name "
-                        "FROM sqlite_master "
-                        "WHERE sql NOT NULL "
-                        "AND type='table' "
-                        "AND name NOT LIKE 'sqlite\\_%' ESCAPE '\\' "
-                        "ORDER BY name";
+    const QString sql
+        = "SELECT name "
+          "FROM sqlite_master "
+          "WHERE sql NOT NULL "
+          "AND type='table' "
+          "AND name NOT LIKE 'sqlite\\_%' ESCAPE '\\' "
+          "ORDER BY name";
     const QueryResult result = query(sql);
     return result.firstColumnAsStringList();
 }
-
 
 bool DatabaseManager::tableExists(const QString& tablename)
 {
@@ -673,15 +673,18 @@ bool DatabaseManager::tableExists(const QString& tablename)
     return fetchInt(sqlargs) > 0;
 }
 
-
-QVector<SqlitePragmaInfoField> DatabaseManager::getPragmaInfo(
-        const QString& tablename)
+QVector<SqlitePragmaInfoField>
+    DatabaseManager::getPragmaInfo(const QString& tablename)
 {
-    const QString sql = QString("PRAGMA table_info(%1)").arg(delimit(tablename));
+    const QString sql
+        = QString("PRAGMA table_info(%1)").arg(delimit(tablename));
     const QueryResult result = query(sql);
     if (!result.succeeded()) {
-        uifunc::stopApp("getPragmaInfo: PRAGMA table_info failed for "
-                        "table " + tablename);
+        errorfunc::fatalError(
+            "getPragmaInfo: PRAGMA table_info failed for "
+            "table "
+            + tablename
+        );
     }
     QVector<SqlitePragmaInfoField> infolist;
     const int nrows = result.nRows();
@@ -698,13 +701,11 @@ QVector<SqlitePragmaInfoField> DatabaseManager::getPragmaInfo(
     return infolist;
 }
 
-
 QStringList DatabaseManager::getFieldNames(const QString& tablename)
 {
     const QVector<SqlitePragmaInfoField> infolist = getPragmaInfo(tablename);
     return dbfunc::fieldNamesFromPragmaInfo(infolist);
 }
-
 
 QString DatabaseManager::dbTableDefinitionSql(const QString& tablename)
 {
@@ -713,23 +714,22 @@ QString DatabaseManager::dbTableDefinitionSql(const QString& tablename)
     return fetchFirstValue(SqlArgs(sql, args)).toString();
 }
 
-
 qint64 DatabaseManager::approximateDatabaseSize()
 {
     // NB includes dead pages; VACUUM first for a better answer
-    const QString sql = "SELECT page_count * page_size AS size "
-                        "FROM pragma_page_count(), pragma_page_size()";
+    const QString sql
+        = "SELECT page_count * page_size AS size "
+          "FROM pragma_page_count(), pragma_page_size()";
     return fetchFirstValue(sql).toLongLong();
 }
-
 
 // ----------------------------------------------------------------------------
 // Altering schema/structure
 // ----------------------------------------------------------------------------
 
-bool DatabaseManager::createIndex(const QString& indexname,
-                                  const QString& tablename,
-                                  QStringList fieldnames)
+bool DatabaseManager::createIndex(
+    const QString& indexname, const QString& tablename, QStringList fieldnames
+)
 {
     if (!tableExists(tablename)) {
         qWarning() << "WARNING: ignoring createIndex for non-existent table:"
@@ -739,16 +739,19 @@ bool DatabaseManager::createIndex(const QString& indexname,
     for (int i = 0; i < fieldnames.size(); ++i) {
         fieldnames[i] = delimit(fieldnames.at(i));
     }
-    const QString sql = QString("CREATE INDEX IF NOT EXISTS %1 ON %2 (%3)").arg(
-        delimit(indexname), delimit(tablename), fieldnames.join(", "));
+    const QString sql
+        = QString("CREATE INDEX IF NOT EXISTS %1 ON %2 (%3)")
+              .arg(
+                  delimit(indexname), delimit(tablename), fieldnames.join(", ")
+              );
     return exec(sql);
 }
 
-
 void DatabaseManager::renameColumns(
-        const QString& tablename,
-        const QVector<QPair<QString, QString>>& from_to,
-        const QString& tempsuffix)
+    const QString& tablename,
+    const QVector<QPair<QString, QString>>& from_to,
+    const QString& tempsuffix
+)
 {
     if (!tableExists(tablename)) {
         qWarning() << "WARNING: ignoring renameColumns for non-existent table:"
@@ -760,11 +763,13 @@ void DatabaseManager::renameColumns(
     QStringList new_fieldnames = old_fieldnames;
     const QString dummytable = tablename + tempsuffix;
     if (tableExists(dummytable)) {
-        uifunc::stopApp("renameColumns: temporary table exists: " +
-                        dummytable);
+        errorfunc::fatalError(
+            "renameColumns: temporary table exists: " + dummytable
+        );
     }
     int n_changes = 0;
-    for (const QPair<QString, QString>& pair : from_to) {  // For each rename...
+    for (const QPair<QString, QString>& pair : from_to) {
+        // For each rename...
         const QString& from = pair.first;
         const QString& to = pair.second;
         if (from == to) {
@@ -772,15 +777,19 @@ void DatabaseManager::renameColumns(
         }
         // Check the source is valid
         if (!old_fieldnames.contains(from)) {
-            uifunc::stopApp("renameColumns: 'from' field doesn't "
-                            "exist: " + tablename + "." + from);
+            errorfunc::fatalError(
+                "renameColumns: 'from' field doesn't "
+                "exist: "
+                + tablename + "." + from
+            );
         }
         // Check the destination doesn't exist already
         if (new_fieldnames.contains(to)) {
-            uifunc::stopApp(
+            errorfunc::fatalError(
                 "renameColumns: destination field already exists (or "
-                "attempt to rename two columns to the same name): " +
-                tablename + "." + to);
+                "attempt to rename two columns to the same name): "
+                + tablename + "." + to
+            );
         }
         // Rename the fieldname in the new_fieldnames list, and in the SQL
         new_fieldnames[new_fieldnames.indexOf(from)] = to;
@@ -805,21 +814,22 @@ void DatabaseManager::renameColumns(
         new_fieldnames[i] = delimit(new_fieldnames.at(i));
     }
     beginTransaction();
-    execNoAnswer(QString("ALTER TABLE %1 RENAME TO %2").arg(
-                     delimited_tablename, delimited_dummytable));
+    execNoAnswer(QString("ALTER TABLE %1 RENAME TO %2")
+                     .arg(delimited_tablename, delimited_dummytable));
     // Make a new, clean table:
     execNoAnswer(creation_sql);
     // Copy the data across:
-    execNoAnswer(QString("INSERT INTO %1 (%2) SELECT %3 FROM %4").arg(
-             delimited_tablename,
-             new_fieldnames.join(","),
-             old_fieldnames.join(","),
-             delimited_dummytable));
+    execNoAnswer(QString("INSERT INTO %1 (%2) SELECT %3 FROM %4")
+                     .arg(
+                         delimited_tablename,
+                         new_fieldnames.join(","),
+                         old_fieldnames.join(","),
+                         delimited_dummytable
+                     ));
     // Drop the temporary table:
     dropTable(dummytable);
     commit();
 }
-
 
 void DatabaseManager::renameTable(const QString& from, const QString& to)
 {
@@ -830,30 +840,33 @@ void DatabaseManager::renameTable(const QString& from, const QString& to)
         return;
     }
     if (tableExists(to)) {
-        uifunc::stopApp("renameTable: destination table already exists: " +
-                        to);
+        errorfunc::fatalError(
+            "renameTable: destination table already exists: " + to
+        );
     }
     // http://stackoverflow.com/questions/426495
     execNoAnswer(QString("ALTER TABLE %1 RENAME TO %2").arg(from, to));
     // don't COMMIT (error: "cannot commit - no transaction is active")
 }
 
-
 void DatabaseManager::changeColumnTypes(
-        const QString& tablename,
-        const QVector<QPair<QString, QString>>& changes,
-        const QString& tempsuffix)
+    const QString& tablename,
+    const QVector<QPair<QString, QString>>& changes,
+    const QString& tempsuffix
+)
 {
     // changes: pairs <fieldname, newtype>
     if (!tableExists(tablename)) {
         qWarning() << "WARNING: ignoring changeColumnTypes for non-existent "
-                      "table:" << tablename;
+                      "table:"
+                   << tablename;
         return;
     }
     const QString dummytable = tablename + tempsuffix;
     if (tableExists(dummytable)) {
-        uifunc::stopApp("changeColumnTypes: temporary table exists: " +
-                        dummytable);
+        errorfunc::fatalError(
+            "changeColumnTypes: temporary table exists: " + dummytable
+        );
     }
     QVector<SqlitePragmaInfoField> infolist = getPragmaInfo(tablename);
     qDebug() << m_connection_name << "changeColumnTypes";
@@ -875,29 +888,32 @@ void DatabaseManager::changeColumnTypes(
         qDebug() << "... nothing to do";
         return;
     }
-    const QString creation_sql = dbfunc::makeCreationSqlFromPragmaInfo(
-                tablename, infolist);
-    const QString fieldnames = dbfunc::fieldNamesFromPragmaInfo(
-                infolist, true).join(",");
+    const QString creation_sql
+        = dbfunc::makeCreationSqlFromPragmaInfo(tablename, infolist);
+    const QString fieldnames
+        = dbfunc::fieldNamesFromPragmaInfo(infolist, true).join(",");
     const QString delimited_tablename = delimit(tablename);
     const QString delimited_dummytable = delimit(dummytable);
     beginTransaction();
-    execNoAnswer(QString("ALTER TABLE %1 RENAME TO %2").arg(
-                     delimited_tablename, delimited_dummytable));
+    execNoAnswer(QString("ALTER TABLE %1 RENAME TO %2")
+                     .arg(delimited_tablename, delimited_dummytable));
     execNoAnswer(creation_sql);  // make a new clean table
-    execNoAnswer(QString("INSERT INTO %1 (%2) SELECT %3 FROM %4").arg(
-         delimited_tablename,
-         fieldnames,
-         fieldnames,
-         delimited_dummytable));
+    execNoAnswer(QString("INSERT INTO %1 (%2) SELECT %3 FROM %4")
+                     .arg(
+                         delimited_tablename,
+                         fieldnames,
+                         fieldnames,
+                         delimited_dummytable
+                     ));
     dropTable(dummytable);
     commit();
 }
 
-
-void DatabaseManager::createTable(const QString& tablename,
-                                  const QVector<Field>& fieldlist,
-                                  const QString& tempsuffix)
+void DatabaseManager::createTable(
+    const QString& tablename,
+    const QVector<Field>& fieldlist,
+    const QString& tempsuffix
+)
 {
     // Record the created table name. If we ever use
     // dropTablesNotExplicitlyCreatedByUs(), it is vital that ALL table
@@ -945,11 +961,10 @@ void DatabaseManager::createTable(const QString& tablename,
             if (!plan.exists_in_db && intended_field->name() == info.name) {
                 plan.exists_in_db = true;
                 plan.add = false;
-                plan.change = (
-                    info.type != intended_field->sqlColumnType() ||
-                    info.notnull != intended_field->notNull() ||
-                    info.pk != intended_field->isPk()
-                );
+                plan.change
+                    = (info.type != intended_field->sqlColumnType()
+                       || info.notnull != intended_field->notNull()
+                       || info.pk != intended_field->isPk());
                 plan.existing_type = info.type;
                 plan.existing_not_null = info.notnull;
                 existing_is_superfluous = false;
@@ -972,21 +987,28 @@ void DatabaseManager::createTable(const QString& tablename,
     for (const FieldCreationPlan& plan : planlist) {
         if (plan.add && plan.intended_field) {
             if (plan.intended_field->isPk()) {
-                uifunc::stopApp(QString(
-                    "createTable: Cannot add a PRIMARY KEY column "
-                    "(%1.%2)").arg(tablename, plan.name));
+                errorfunc::fatalError(
+                    QString("createTable: Cannot add a PRIMARY KEY column "
+                            "(%1.%2)")
+                        .arg(tablename, plan.name)
+                );
             }
-            if (plan.intended_field->notNull() &&
-                    !plan.intended_field->hasDbDefaultValue()) {
-                uifunc::stopApp(QString(
-                    "createTable: Cannot add a NOT NULL column to an existing "
-                    "table without a database default "
-                    "(%1.%2)").arg(tablename, plan.name));
+            if (plan.intended_field->notNull()
+                && !plan.intended_field->hasDbDefaultValue()) {
+                errorfunc::fatalError(
+                    QString("createTable: Cannot add a NOT NULL column to an "
+                            "existing "
+                            "table without a database default "
+                            "(%1.%2)")
+                        .arg(tablename, plan.name)
+                );
             }
-            execNoAnswer(QString("ALTER TABLE %1 ADD COLUMN %2 %3").arg(
-                tablename,
-                delimit(plan.name),
-                plan.intended_field->sqlColumnDef()));
+            execNoAnswer(QString("ALTER TABLE %1 ADD COLUMN %2 %3")
+                             .arg(
+                                 tablename,
+                                 delimit(plan.name),
+                                 plan.intended_field->sqlColumnDef()
+                             ));
         }
         if (plan.drop || plan.change) {
             drop_or_change_mods_required = true;
@@ -994,10 +1016,8 @@ void DatabaseManager::createTable(const QString& tablename,
     }
 
 #ifdef DEBUG_VERBOSE_TABLE_CHANGE_PLANS
-    qDebug() << Q_FUNC_INFO << m_connection_name
-             << "tablename:" << tablename
-             << "goodfieldlist:" << goodfieldlist
-             << "infolist:" << infolist
+    qDebug() << Q_FUNC_INFO << m_connection_name << "tablename:" << tablename
+             << "goodfieldlist:" << goodfieldlist << "infolist:" << infolist
              << "modifications_required:" << drop_or_change_mods_required
              << "plan:" << planlist;
 #endif
@@ -1011,8 +1031,8 @@ void DatabaseManager::createTable(const QString& tablename,
     }
 
     // 4. Implement drop/change modifications (via a temporary table).
-    qDebug().nospace() << "Amendment plan for " << tablename
-                       << ": " << planlist;
+    qDebug().nospace() << "Amendment plan for " << tablename << ": "
+                       << planlist;
     // Deleting columns: http://www.sqlite.org/faq.html#q11
     // ... also http://stackoverflow.com/questions/8442147/
     // Basically, requires (a) copy data to temporary table; (b) drop original;
@@ -1025,32 +1045,34 @@ void DatabaseManager::createTable(const QString& tablename,
     // http://sqlite.org/datatype3.html
     const QString dummytable = tablename + tempsuffix;
     if (tableExists(dummytable)) {
-        uifunc::stopApp("createTable: temporary table exists: " + dummytable);
+        errorfunc::fatalError(
+            "createTable: temporary table exists: " + dummytable
+        );
     }
     const QString delimited_tablename = delimit(tablename);
     const QString delimited_dummytable = delimit(dummytable);
     const QString goodfieldstring = goodfieldlist.join(",");
     qInfo() << "Modifying structure of table:" << tablename;
     beginTransaction();
-    execNoAnswer(QString("ALTER TABLE %1 RENAME TO %2").arg(
-                     delimited_tablename, delimited_dummytable));
+    execNoAnswer(QString("ALTER TABLE %1 RENAME TO %2")
+                     .arg(delimited_tablename, delimited_dummytable));
     execNoAnswer(creation_sql);  // make a new clean table
-    execNoAnswer(QString("INSERT INTO %1 (%2) SELECT %3 FROM %4").arg(
-         delimited_tablename,
-         goodfieldstring,
-         goodfieldstring,
-         delimited_dummytable));
+    execNoAnswer(QString("INSERT INTO %1 (%2) SELECT %3 FROM %4")
+                     .arg(
+                         delimited_tablename,
+                         goodfieldstring,
+                         goodfieldstring,
+                         delimited_dummytable
+                     ));
     dropTable(dummytable);
     commit();
 }
-
 
 void DatabaseManager::dropTable(const QString& tablename)
 {
     qInfo() << "Dropping table:" << tablename;
     execNoAnswer(QString("DROP TABLE %1").arg(delimit(tablename)));
 }
-
 
 void DatabaseManager::dropTables(const QStringList& tables)
 {
@@ -1059,14 +1081,13 @@ void DatabaseManager::dropTables(const QStringList& tables)
     }
 }
 
-
 void DatabaseManager::dropTablesNotIn(const QStringList& good_tables)
 {
     const QStringList existing = getAllTables();
-    const QStringList superfluous = containers::setSubtract(existing, good_tables);
+    const QStringList superfluous
+        = containers::setSubtract(existing, good_tables);
     dropTables(superfluous);
 }
-
 
 QStringList DatabaseManager::tablesNotExplicitlyCreatedByUs()
 {
@@ -1075,12 +1096,10 @@ QStringList DatabaseManager::tablesNotExplicitlyCreatedByUs()
     return containers::setSubtract(existing, m_created_tables);
 }
 
-
 void DatabaseManager::dropTablesNotExplicitlyCreatedByUs()
 {
     dropTables(tablesNotExplicitlyCreatedByUs());
 }
-
 
 // ----------------------------------------------------------------------------
 // Performance tweaks
@@ -1092,135 +1111,128 @@ void DatabaseManager::vacuum()
     execNoAnswer("VACUUM");
 }
 
-
 // ----------------------------------------------------------------------------
 // Encryption queries, via SQLCipher
 // ----------------------------------------------------------------------------
 
 bool DatabaseManager::canReadDatabase()
 {
-    const QueryResult result = query("SELECT COUNT(*) FROM sqlite_master",
-                                     QueryResult::FetchMode::NoFetch,
-                                     false,
-                                     true);  // suppress errors
+    const QueryResult result = query(
+        "SELECT COUNT(*) FROM sqlite_master",
+        QueryResult::FetchMode::NoFetch,
+        false,
+        true
+    );  // suppress errors
     return result.succeeded();
     // We suppress errors if this fails. It will fail if the database
     // is encrypted and we've not supplied the right key.
 }
 
-
-bool DatabaseManager::decrypt(const QString& passphrase,
-                              const bool migrate,
-                              const int compatibility_sqlcipher_major_version)
+bool DatabaseManager::decrypt(const QString& passphrase)
 {
-    bool success = pragmaKey(passphrase);
-    if (migrate) {
-        // You might think that there's no point doing cipher_migrate if we can
-        // read the database, and calls to canReadDatabase() are quick, so we
-        // should check that first. However, this sequence fails:
-        //
-        //      SELECT COUNT(*) FROM sqlite_master;  -- OK; "Error: file is not a database"
-        //      PRAGMA key = 'passphrase';  -- OK
-        //      SELECT COUNT(*) FROM sqlite_master;  -- causes a problem; "Error: file is not a database"
-        //      PRAGMA cipher_migrate;  -- "1"
-        //      .tables  -- "Error: file is not a database"
-        //
-        // whereas this works:
-        //
-        //      SELECT COUNT(*) FROM sqlite_master;  -- "Error: file is not a database"
-        //      PRAGMA key = 'passphrase';
-        //      PRAGMA cipher_migrate;  -- "0"
-        //      .tables  -- works fine
-        //
-        // and this also works:
-        //
-        //      SELECT COUNT(*) FROM sqlite_master;
-        //      PRAGMA key = 'passphrase';
-        //      SELECT COUNT(*) FROM sqlite_master;  -- causes a problem; "Error: file is not a database"
-        //      PRAGMA key = 'passphrase';  -- resets the problem
-        //      PRAGMA cipher_migrate;  -- "0"
-        //      .tables  -- works fine
-        //
-        // So we must proceed to "PRAGMA cipher_migrate" directly every time,
-        // like this:
-        //
-        //   success = success && pragmaCipherMigrate();
-        //
-        // or re-call "PRAGMA key". Since cipher_migrate takes about 0.25s to
-        // do nothing, which is significant (esp. for two databases), let's do
-        // that:
+    // Recommended process from:
+    // https://www.zetetic.net/sqlcipher/sqlcipher-api/#cipher_migrate
 
-        if (!canReadDatabase()) {
-            success = success && pragmaKey(passphrase) && pragmaCipherMigrate();
-        }
+    // 1. Attempt to open and access the database as normal by keying the
+    //    database...
+    // This will return true even if the wrong password was given.
+    pragmaKey(passphrase);
 
-        // This way is obviously quicker (empirically) once cipher_migrate has
-        // become unnecessary.
-
-    } else if (compatibility_sqlcipher_major_version > 0) {
-        success = pragmaCipherCompatibility(compatibility_sqlcipher_major_version);
+    // ...and attempting a query
+    if (canReadDatabase()) {
+        return true;
     }
-    return success;
-}
 
+    // 2. If SQLCipher throws an error on first access, close the database
+    // handle. Then open it...
+    reconnectDatabase();
+    pragmaKey(passphrase);
+
+    // ...and run PRAGMA cipher_migrate
+    // 3. Check the result of the update by retrieving the row value result.
+    if (pragmaCipherMigrate()) {
+        // 4. If the migration succeeds, a row with a single column value of 0
+        //    is returned, the upgrade was successful and your application can
+        //    continue to use the connection for the remainder of the
+        //    application lifecycle.
+        return true;
+    }
+
+    // 5. If the key is incorrect then the PRAGMA will return a single non-zero
+    //    column value, meaning that the key material is incorrect or the
+    //    settings of the database were not consistent with defaults for
+    //    previous SQLCipher versions (i.e. custom settings were used that
+    //    require manual migration).
+    reconnectDatabase();
+
+    return false;
+}
 
 bool DatabaseManager::pragmaKey(const QString& passphase)
 {
     // "PRAGMA key" is specific to SQLCipher
-    const QString sql = QString("PRAGMA key=%1")
-            .arg(convert::toSqlLiteral(passphase));
+    const QString sql
+        = QString("PRAGMA key=%1").arg(convert::toSqlLiteral(passphase));
     return exec(sql);
 }
 
-
 bool DatabaseManager::pragmaCipherCompatibility(
-        const int sqlcipher_major_version)
+    const int sqlcipher_major_version
+)
 {
     // "PRAGMA cipher_compatibility = <level>" is specific to SQLCipher
     if (sqlcipher_major_version < 1) {
         return false;
     }
     const QString sql = QString("PRAGMA cipher_compatibility = %1")
-            .arg(sqlcipher_major_version);
+                            .arg(sqlcipher_major_version);
     return exec(sql);
 }
-
 
 bool DatabaseManager::pragmaCipherMigrate()
 {
     // "PRAGMA cipher_migrate" is specific to SQLCipher
-    const QString sql("PRAGMA cipher_migrate");
-    return exec(sql);
-}
+    // If the migration succeeded, a row with a single column value of 0
+    // is returned. If the migration failed the PRAGMA will return a single
+    // non-zero column value. This may be because the key was incorrect or
+    // manual migration is required.
+    const QueryResult result = query("PRAGMA cipher_migrate");
 
+    const QVariant value = result.firstValue();
+    if (!value.isNull()) {
+        return value.toInt() == 0;
+    }
+
+    return false;
+}
 
 bool DatabaseManager::pragmaRekey(const QString& passphase)
 {
     // "PRAGMA rekey" is specific to SQLCipher
-    const QString sql = QString("PRAGMA rekey=%1")
-            .arg(convert::toSqlLiteral(passphase));
+    const QString sql
+        = QString("PRAGMA rekey=%1").arg(convert::toSqlLiteral(passphase));
     return exec(sql);
 }
-
 
 bool DatabaseManager::databaseIsEmpty()
 {
     return count("sqlite_master") == 0;
 }
 
-
-bool DatabaseManager::encryptToAnother(const QString& filename,
-                                       const QString& passphrase)
+bool DatabaseManager::encryptToAnother(
+    const QString& filename, const QString& passphrase
+)
 {
     // ATTACH DATABASE can create and encrypt from scratch, so the file
     // specified by "filename" doesn't have to exist.
     return exec(QString("ATTACH DATABASE %1 AS encrypted KEY %2")
-                .arg(convert::toSqlLiteral(filename),
-                     convert::toSqlLiteral(passphrase))) &&
-            exec("SELECT sqlcipher_export('encrypted')") &&
-            exec("DETACH DATABASE encrypted");
+                    .arg(
+                        convert::toSqlLiteral(filename),
+                        convert::toSqlLiteral(passphrase)
+                    ))
+        && exec("SELECT sqlcipher_export('encrypted')")
+        && exec("DETACH DATABASE encrypted");
 }
-
 
 // ----------------------------------------------------------------------------
 // JSON output
@@ -1236,11 +1248,10 @@ QString DatabaseManager::getDatabaseAsJson()
     return jsondoc.toJson(QJsonDocument::Compact);
 }
 
-
 QJsonArray DatabaseManager::getTableAsJson(const QString& tablename)
 {
     SqlArgs sqlargs(QString("SELECT * FROM %1").arg(delimit(tablename)));
-    const QueryResult result = query(sqlargs, QueryResult::FetchMode::FetchAll,
-                                     true);
+    const QueryResult result
+        = query(sqlargs, QueryResult::FetchMode::FetchAll, true);
     return result.jsonRows();
 }

@@ -21,25 +21,27 @@
 // #define DEBUG_CALCULATIONS
 
 #include "clickablelabelwordwrapwide.h"
+
 #include <QDebug>
 #include <QMargins>
 #include <QStyleOptionButton>
+
 #include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
 #include "widgets/labelwordwrapwide.h"
 
-
-ClickableLabelWordWrapWide::ClickableLabelWordWrapWide(const QString& text,
-                                                       const bool stretch,
-                                                       QWidget* parent) :
+ClickableLabelWordWrapWide::ClickableLabelWordWrapWide(
+    const QString& text, const bool stretch, QWidget* parent
+) :
     ClickableLabelWordWrapWide(stretch, parent)  // delegating constructor
 {
-    m_label->setText(text);  // this is what the QLabel(text, parent) constructor does
+    m_label->setText(text);
+    // This is what the QLabel(text, parent) constructor does.
 }
 
-
-ClickableLabelWordWrapWide::ClickableLabelWordWrapWide(const bool stretch,
-                                                       QWidget* parent) :
+ClickableLabelWordWrapWide::ClickableLabelWordWrapWide(
+    const bool stretch, QWidget* parent
+) :
     QPushButton(parent),
     m_label(new LabelWordWrapWide(this)),
     m_layout(new VBoxLayout())
@@ -59,13 +61,14 @@ ClickableLabelWordWrapWide::ClickableLabelWordWrapWide(const bool stretch,
     }
 
     setLayout(m_layout);
-    setSizePolicy(stretch ? sizehelpers::expandingFixedHFWPolicy()
-                          : sizehelpers::maximumFixedHFWPolicy());
+    setSizePolicy(
+        stretch ? sizehelpers::expandingFixedHFWPolicy()
+                : sizehelpers::maximumFixedHFWPolicy()
+    );
     // https://doc.qt.io/qt-6.5/layout.html
 
     adjustSize();
 }
-
 
 void ClickableLabelWordWrapWide::setTextFormat(const Qt::TextFormat format)
 {
@@ -74,14 +77,12 @@ void ClickableLabelWordWrapWide::setTextFormat(const Qt::TextFormat format)
     adjustSize();
 }
 
-
 void ClickableLabelWordWrapWide::setWordWrap(const bool on)
 {
     Q_ASSERT(m_label);
     m_label->setWordWrap(on);
     adjustSize();
 }
-
 
 void ClickableLabelWordWrapWide::setAlignment(const Qt::Alignment alignment)
 {
@@ -90,13 +91,11 @@ void ClickableLabelWordWrapWide::setAlignment(const Qt::Alignment alignment)
     m_layout->setAlignment(m_label, alignment);
 }
 
-
 void ClickableLabelWordWrapWide::setOpenExternalLinks(const bool open)
 {
     Q_ASSERT(m_label);
     m_label->setOpenExternalLinks(open);
 }
-
 
 // http://permalink.gmane.org/gmane.comp.lib.qt.general/40030
 
@@ -106,7 +105,6 @@ QSize ClickableLabelWordWrapWide::translateSize(const QSize& size) const
     initStyleOption(&opt);  // protected
     return size + sizehelpers::pushButtonExtraSizeRequired(this, &opt, size);
 }
-
 
 QSize ClickableLabelWordWrapWide::sizeHint() const
 {
@@ -118,7 +116,6 @@ QSize ClickableLabelWordWrapWide::sizeHint() const
 #endif
     return result;
 }
-
 
 QSize ClickableLabelWordWrapWide::minimumSizeHint() const
 {
@@ -134,9 +131,9 @@ QSize ClickableLabelWordWrapWide::minimumSizeHint() const
 #ifdef GUI_USE_RESIZE_FOR_HEIGHT
 void ClickableLabelWordWrapWide::resizeEvent(QResizeEvent* event)
 {
-#ifdef DEBUG_CALCULATIONS
+    #ifdef DEBUG_CALCULATIONS
     qDebug() << Q_FUNC_INFO;
-#endif
+    #endif
     QPushButton::resizeEvent(event);
     sizehelpers::resizeEventForHFWParentWidget(this);
 }

@@ -19,6 +19,7 @@
 */
 
 #include "errorfunc.h"
+
 #include <QString>
 
 namespace errorfunc {
@@ -34,4 +35,4 @@ void fatalError(const QString& error)
     qFatal("%s", qPrintable(msg));  // will not return
 }
 
-} // namespace errorfunc
+}  // namespace errorfunc

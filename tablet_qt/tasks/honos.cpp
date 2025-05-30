@@ -19,13 +19,14 @@
 */
 
 #include "honos.h"
-#include "maths/mathfunc.h"
+
 #include "lib/stringfunc.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
+#include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
-#include "questionnairelib/qulineedit.h"
 #include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
 using mathfunc::anyNull;
@@ -56,16 +57,18 @@ void initializeHonos(TaskFactory& factory)
 
 
 Honos::Honos(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, HONOS_TABLENAME, false, true, false)  // ... anon, clin, resp
+    Task(app, db, HONOS_TABLENAME, false, true, false)
+// ... anon, clin, resp
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>());
+    addFields(
+        strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QMetaType::fromType<int>()
+    );
     addField(PERIOD_RATED, QMetaType::fromType<QString>());
     addField(Q8_PROBLEM_TYPE, QMetaType::fromType<QString>());
     addField(Q8_OTHER_PROBLEM, QMetaType::fromType<QString>());
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 // ============================================================================
 // Class info
@@ -76,18 +79,15 @@ QString Honos::shortname() const
     return "HoNOS";
 }
 
-
 QString Honos::longname() const
 {
     return tr("Health of the Nation Outcome Scales, working age adults");
 }
 
-
 QString Honos::description() const
 {
     return tr("12-item clinician-rated scale.");
 }
-
 
 // ============================================================================
 // Instance info
@@ -102,19 +102,17 @@ bool Honos::isComplete() const
     if (q8 != 0 && q8 != 9 && valueIsNullOrEmpty(Q8_PROBLEM_TYPE)) {
         return false;
     }
-    if (q8 != 0 && q8 != 9 && valueString(Q8_PROBLEM_TYPE) == VALUE_OTHER &&
-            valueIsNullOrEmpty(Q8_OTHER_PROBLEM)) {
+    if (q8 != 0 && q8 != 9 && valueString(Q8_PROBLEM_TYPE) == VALUE_OTHER
+        && valueIsNullOrEmpty(Q8_OTHER_PROBLEM)) {
         return false;
     }
     return !valueIsNullOrEmpty(PERIOD_RATED);
 }
 
-
 QStringList Honos::summary() const
 {
     return QStringList{totalScorePhrase(totalScore(), MAX_QUESTION_SCORE)};
 }
-
 
 QStringList Honos::detail() const
 {
@@ -127,7 +125,6 @@ QStringList Honos::detail() const
     lines += summary();
     return lines;
 }
-
 
 OpenableWidget* Honos::editor(const bool read_only)
 {
@@ -148,15 +145,16 @@ OpenableWidget* Honos::editor(const bool read_only)
     auto getoptions = [this](int n) -> NameValueOptions {
         NameValueOptions options;
         for (int i = 0; i <= 4; ++i) {
-            const QString name = xstring(QString("q%1_option%2").arg(n).arg(i));
+            const QString name
+                = xstring(QString("q%1_option%2").arg(n).arg(i));
             options.append(NameValuePair(name, i));
         }
         options.append(NameValuePair(xstring("option9"), 9));
         return options;
     };
 
-    auto addpage = [this, &pages, &getoptions,
-                    &q8_problemtype_options](int n) -> void {
+    auto addpage
+        = [this, &pages, &getoptions, &q8_problemtype_options](int n) -> void {
         const NameValueOptions options = getoptions(n);
         const QString pagetitle = xstring("title_prefix") + QString::number(n);
         const QString question = xstring(strnum("q", n));
@@ -178,19 +176,28 @@ OpenableWidget* Honos::editor(const bool read_only)
 
     pages.append(getClinicianDetailsPage());
     pages.append(QuPagePtr((new QuPage{
-        new QuText(xstring("period_rated")),
-        new QuLineEdit(fieldRef(PERIOD_RATED)),
-        new QuText(xstring("instructions")),
-    })->setTitle(xstring("firstpage_title"))));
+                                new QuText(xstring("period_rated")),
+                                new QuLineEdit(fieldRef(PERIOD_RATED)),
+                                new QuText(xstring("instructions")),
+                            })
+                               ->setTitle(xstring("firstpage_title"))));
 
     for (int n = FIRST_Q; n <= N_QUESTIONS; ++n) {
         addpage(n);
     }
 
-    connect(fieldRef(Q8).data(), &FieldRef::valueChanged,
-            this, &Honos::updateMandatory);
-    connect(fieldRef(Q8_PROBLEM_TYPE).data(), &FieldRef::valueChanged,
-            this, &Honos::updateMandatory);
+    connect(
+        fieldRef(Q8).data(),
+        &FieldRef::valueChanged,
+        this,
+        &Honos::updateMandatory
+    );
+    connect(
+        fieldRef(Q8_PROBLEM_TYPE).data(),
+        &FieldRef::valueChanged,
+        this,
+        &Honos::updateMandatory
+    );
 
     updateMandatory(nullptr, nullptr);
 
@@ -199,7 +206,6 @@ OpenableWidget* Honos::editor(const bool read_only)
     questionnaire->setReadOnly(read_only);
     return questionnaire;
 }
-
 
 // ============================================================================
 // Task-specific calculations
@@ -217,13 +223,13 @@ int Honos::totalScore() const
     return total;
 }
 
-
 // ============================================================================
 // Signal handlers
 // ============================================================================
 
-void Honos::updateMandatory(const FieldRef* fieldref,
-                            const QObject* originator)
+void Honos::updateMandatory(
+    const FieldRef* fieldref, const QObject* originator
+)
 {
     // DANGER HERE: if we use setValue(), the signals can circle back to us, as
     // several fieldrefs have their valueChanged signal linked in here.
@@ -243,8 +249,8 @@ void Honos::updateMandatory(const FieldRef* fieldref,
     const int q8int = q8var.toInt();
 
 #ifdef PREVENT_Q8_PROBLEM_UNLESS_RATED
-    const bool must_not_have_q8_problem_type = !q8var.isNull() && (q8int == 0 ||
-                                                                   q8int == 9);
+    const bool must_not_have_q8_problem_type
+        = !q8var.isNull() && (q8int == 0 || q8int == 9);
     if (must_not_have_q8_problem_type) {
         // Force the problem type to be blank.
         // WATCH OUT: potential for infinite loop if we let it signal back
@@ -253,8 +259,9 @@ void Honos::updateMandatory(const FieldRef* fieldref,
     }
 #endif
 
-    const bool need_q8_problem_type = !q8var.isNull() && q8int != 0 && q8int != 9;
+    const bool need_q8_problem_type
+        = !q8var.isNull() && q8int != 0 && q8int != 9;
     fieldRef(Q8_PROBLEM_TYPE)->setMandatory(need_q8_problem_type, this);
-    fieldRef(Q8_OTHER_PROBLEM)->setMandatory(
-                valueString(Q8_PROBLEM_TYPE) == VALUE_OTHER, this);
+    fieldRef(Q8_OTHER_PROBLEM)
+        ->setMandatory(valueString(Q8_PROBLEM_TYPE) == VALUE_OTHER, this);
 }

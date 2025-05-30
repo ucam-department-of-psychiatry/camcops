@@ -21,7 +21,6 @@
 #pragma once
 #include "questionnairelib/quelement.h"
 
-
 class QuZoomContainer : public QuElement
 {
     // Contains another element and allows it to be scaled or zoomed.
@@ -35,7 +34,8 @@ public:
     QuZoomContainer(QuElement* element);
 
 protected:
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
+    ) override;
     virtual QVector<QuElementPtr> subelements() const override;
 
 protected:

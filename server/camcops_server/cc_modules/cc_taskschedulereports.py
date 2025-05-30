@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_taskschedulereports.py
 
@@ -32,8 +30,8 @@ camcops_server/cc_modules/cc_taskschedulereports.py
 from typing import List, Type, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.classes import classproperty
-from cardinal_pythonlib.sqlalchemy.orm_query import (
-    get_rows_fieldnames_from_query,
+from cardinal_pythonlib.sqlalchemy.core_query import (
+    get_rows_fieldnames_from_select,
 )
 from cardinal_pythonlib.sqlalchemy.sqlfunc import extract_month, extract_year
 from sqlalchemy import cast, Integer
@@ -198,13 +196,13 @@ class TaskAssignmentReport(Report):
             func.sum(all_data.c.emails_sent).label(self.label_emails_sent),
         ]
         query = (
-            select(selectors)
+            select(*selectors)
             .select_from(all_data)
             .group_by(*groupers)
             .order_by(*sorters)
         )
 
-        rows, colnames = get_rows_fieldnames_from_query(req.dbsession, query)
+        rows, colnames = get_rows_fieldnames_from_select(req.dbsession, query)
 
         return PlainReportType(rows=rows, column_names=colnames)
 
@@ -367,7 +365,7 @@ class TaskAssignmentReport(Report):
         selectors.append(ts.c.name.label(self.label_schedule_name))
         selectors += count_selectors
         # noinspection PyUnresolvedReferences
-        query = select(selectors).select_from(tables).group_by(*groupers)
+        query = select(*selectors).select_from(tables).group_by(*groupers)
         if not superuser:
             # Restrict to accessible groups
             # noinspection PyProtectedMember

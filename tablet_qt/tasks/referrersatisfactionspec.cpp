@@ -19,25 +19,25 @@
 */
 
 #include "referrersatisfactionspec.h"
+
 #include "common/appstrings.h"
 #include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
 
-const QString ReferrerSatisfactionSpec::REF_SATIS_SPEC_TABLENAME("ref_satis_spec");
-
+const QString
+    ReferrerSatisfactionSpec::REF_SATIS_SPEC_TABLENAME("ref_satis_spec");
 
 void initializeReferrerSatisfactionSpec(TaskFactory& factory)
 {
     static TaskRegistrar<ReferrerSatisfactionSpec> registered(factory);
 }
 
-
 ReferrerSatisfactionSpec::ReferrerSatisfactionSpec(
-        CamcopsApp& app, DatabaseManager& db, const int load_pk) :
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
     SatisfactionCommon(app, db, REF_SATIS_SPEC_TABLENAME, false, load_pk)
 {
 }
-
 
 // ============================================================================
 // Class info
@@ -48,24 +48,21 @@ QString ReferrerSatisfactionSpec::shortname() const
     return "ReferrerSatisfactionSpecific";
 }
 
-
 QString ReferrerSatisfactionSpec::longname() const
 {
     return tr("Referrer Satisfaction Scale (patient-specific)");
 }
 
-
 QString ReferrerSatisfactionSpec::description() const
 {
-    return tr("Short rating of a clinical service received (patient-specific).");
+    return tr("Short rating of a clinical service received (patient-specific)."
+    );
 }
-
 
 QString ReferrerSatisfactionSpec::infoFilenameStem() const
 {
     return "rss";
 }
-
 
 // ============================================================================
 // Instance info
@@ -73,6 +70,7 @@ QString ReferrerSatisfactionSpec::infoFilenameStem() const
 
 OpenableWidget* ReferrerSatisfactionSpec::editor(const bool read_only)
 {
-    return satisfactionEditor(appstring(appstrings::SATIS_REF_SPEC_RATING_Q),
-                              read_only);
+    return satisfactionEditor(
+        appstring(appstrings::SATIS_REF_SPEC_RATING_Q), read_only
+    );
 }

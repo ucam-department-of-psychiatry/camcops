@@ -21,6 +21,7 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -35,15 +36,29 @@ class AceFamily : public Task
     Q_OBJECT
 
 public:
-    AceFamily(CamcopsApp& app, DatabaseManager& db,
-              const QString& tablename, QObject* parent = nullptr);
+    AceFamily(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        const QString& tablename,
+        QObject* parent = nullptr
+    );
+
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
-    virtual bool hasClinician() const override { return true; }
-    virtual bool prohibitsCommercial() const override { return true; }
+    virtual bool hasClinician() const override
+    {
+        return true;
+    }
+
+    virtual bool prohibitsCommercial() const override
+    {
+        return true;
+    }
+
     virtual Version minimumServerVersion() const override;
-    virtual bool isTaskProperlyCreatable(QString& why_not_creatable) const override;
+    virtual bool isTaskProperlyCreatable(QString& why_not_creatable
+    ) const override;
     virtual QString xstringTaskname() const override;
 
 protected:
@@ -103,10 +118,17 @@ protected:
     QuElement* instruction(const QString& stringname) const;
     QuElement* stdInstruct(const QString& stringname) const;
     QuElement* remInstruct(const QString& stringname) const;
-    QuElement* boolean(const QString& stringname, const QString& fieldname,
-                       bool mandatory = true, bool bold = false);
-    QuElement* boolimg(const QString& filenamestem, const QString& fieldname,
-                       bool mandatory = true);
+    QuElement* boolean(
+        const QString& stringname,
+        const QString& fieldname,
+        bool mandatory = true,
+        bool bold = false
+    );
+    QuElement* boolimg(
+        const QString& filenamestem,
+        const QString& fieldname,
+        bool mandatory = true
+    );
     QuElement* warning(const QString& string) const;
 
 protected:

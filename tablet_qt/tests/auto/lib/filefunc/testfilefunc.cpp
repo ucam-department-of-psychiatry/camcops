@@ -22,8 +22,7 @@
 
 #include "lib/filefunc.h"
 
-
-class TestFileFunc: public QObject
+class TestFileFunc : public QObject
 {
     Q_OBJECT
 
@@ -31,17 +30,17 @@ private slots:
     void testTextFileContentsReturnsContentsOfFile();
 };
 
-
 using namespace filefunc;
 
 void TestFileFunc::testTextFileContentsReturnsContentsOfFile()
 {
     // https://www.cl.cam.ac.uk/~mgk25/ucs/examples/quickbrown.txt
-    const char *text = ""
-        "Quizdeltagerne spiste jordbær med fløde, mens cirkusklovnen "
-        "Wolther spillede på xylofon."
-        "Γαζέες καὶ μυρτιὲς δὲν θὰ βρῶ πιὰ στὸ χρυσαφὶ ξέφωτο."
-        "В чащах юга жил бы цитрус? Да, но фальшивый экземпляр!";
+    const char* text
+        = ""
+          "Quizdeltagerne spiste jordbær med fløde, mens cirkusklovnen "
+          "Wolther spillede på xylofon."
+          "Γαζέες καὶ μυρτιὲς δὲν θὰ βρῶ πιὰ στὸ χρυσαφὶ ξέφωτο."
+          "В чащах юга жил бы цитрус? Да, но фальшивый экземпляр!";
 
     auto file = QTemporaryFile();
     file.open();

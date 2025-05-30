@@ -48,6 +48,7 @@ class ShootABug : public QObject
     // Object that can report debugging information, given a debug build of Qt.
 
     Q_OBJECT
+
 public:
     bool eventFilter(QObject* recv, QEvent* event);
 };

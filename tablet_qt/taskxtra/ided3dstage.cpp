@@ -19,6 +19,7 @@
 */
 
 #include "ided3dstage.h"
+
 #include "ided3dexemplars.h"
 
 // Table names
@@ -44,27 +45,38 @@ const QString FN_N_INCORRECT("n_incorrect");
 const QString FN_STAGE_PASSED("stage_passed");
 const QString FN_STAGE_FAILED("stage_failed");
 
-
-IDED3DStage::IDED3DStage(CamcopsApp& app, DatabaseManager& db,
-                         const int load_pk) :
+IDED3DStage::IDED3DStage(
+    CamcopsApp& app, DatabaseManager& db, const int load_pk
+) :
     DatabaseObject(app, db, STAGE_TABLENAME),
     m_incorrect_stimulus_can_overlap(false),
     m_n_possible_locations(0)
 {
     addField(FN_FK_TO_TASK, QMetaType::fromType<int>());
     // More keys
-    addField(FN_STAGE, QMetaType::fromType<int>(), true);  // 1-based stage number within this session
+    addField(FN_STAGE, QMetaType::fromType<int>(), true);
+    // ... 1-based stage number within this session
     // Config
     addField(FN_STAGE_NAME, QMetaType::fromType<QString>());
     addField(FN_RELEVANT_DIMENSION, QMetaType::fromType<QString>());
-    addField(FN_CORRECT_EXEMPLAR, QMetaType::fromType<int>());  // was string prior to 2.0.0
-    addField(FN_INCORRECT_EXEMPLAR, QMetaType::fromType<int>());  // was string prior to 2.0.0
+    addField(FN_CORRECT_EXEMPLAR, QMetaType::fromType<int>());
+    // ... was string prior to 2.0.0
+    addField(FN_INCORRECT_EXEMPLAR, QMetaType::fromType<int>());
+    // ... was string prior to 2.0.0
     addField(FN_CORRECT_STIMULUS_SHAPES, QMetaType::fromType<QVector<int>>());
-    addField(FN_CORRECT_STIMULUS_COLOURS, QMetaType::fromType<QVector<int>>());  // was string prior to 2.0.0
+    addField(FN_CORRECT_STIMULUS_COLOURS, QMetaType::fromType<QVector<int>>());
+    // ... was string prior to 2.0.0
     addField(FN_CORRECT_STIMULUS_NUMBERS, QMetaType::fromType<QVector<int>>());
-    addField(FN_INCORRECT_STIMULUS_SHAPES, QMetaType::fromType<QVector<int>>());
-    addField(FN_INCORRECT_STIMULUS_COLOURS, QMetaType::fromType<QVector<int>>());  // was string prior to 2.0.0
-    addField(FN_INCORRECT_STIMULUS_NUMBERS, QMetaType::fromType<QVector<int>>());
+    addField(
+        FN_INCORRECT_STIMULUS_SHAPES, QMetaType::fromType<QVector<int>>()
+    );
+    addField(
+        FN_INCORRECT_STIMULUS_COLOURS, QMetaType::fromType<QVector<int>>()
+    );
+    // ... was string prior to 2.0.0
+    addField(
+        FN_INCORRECT_STIMULUS_NUMBERS, QMetaType::fromType<QVector<int>>()
+    );
     // Results
     addField(FN_FIRST_TRIAL_NUM, QMetaType::fromType<int>());  // 1-based
     addField(FN_N_COMPLETED_TRIALS, QMetaType::fromType<int>());
@@ -77,29 +89,33 @@ IDED3DStage::IDED3DStage(CamcopsApp& app, DatabaseManager& db,
 }
 
 
-IDED3DStage::IDED3DStage(const int task_id,
-                         CamcopsApp& app, DatabaseManager& db,
-                         const int stage_num_zero_based,
-                         const QString& stage_name,
-                         const QString& relevant_dimension,
-                         const IDED3DExemplars& correct_exemplars,
-                         const IDED3DExemplars& incorrect_exemplars,
-                         const int n_possible_locations,
-                         const bool incorrect_stimulus_can_overlap) :
-    IDED3DStage::IDED3DStage(app, db, dbconst::NONEXISTENT_PK)  // delegating constructor
+IDED3DStage::IDED3DStage(
+    const int task_id,
+    CamcopsApp& app,
+    DatabaseManager& db,
+    const int stage_num_zero_based,
+    const QString& stage_name,
+    const QString& relevant_dimension,
+    const IDED3DExemplars& correct_exemplars,
+    const IDED3DExemplars& incorrect_exemplars,
+    const int n_possible_locations,
+    const bool incorrect_stimulus_can_overlap
+) :
+    IDED3DStage::IDED3DStage(app, db, dbconst::NONEXISTENT_PK)
+// ... delegating constructor
 {
     QVector<int> correct_stimulus_shapes = correct_exemplars.getShapes();
     QVector<int> correct_stimulus_colours = correct_exemplars.getColours();
     QVector<int> correct_stimulus_numbers = correct_exemplars.getNumbers();
-    QVector<int> correct_exemplar_vec = correct_exemplars.getExemplars(
-                relevant_dimension);
+    QVector<int> correct_exemplar_vec
+        = correct_exemplars.getExemplars(relevant_dimension);
     Q_ASSERT(correct_exemplar_vec.length() == 1);
     int correct_exemplar = correct_exemplar_vec.at(0);
     QVector<int> incorrect_stimulus_shapes = incorrect_exemplars.getShapes();
     QVector<int> incorrect_stimulus_colours = incorrect_exemplars.getColours();
     QVector<int> incorrect_stimulus_numbers = incorrect_exemplars.getNumbers();
-    QVector<int> incorrect_exemplar_vec = incorrect_exemplars.getExemplars(
-                relevant_dimension);
+    QVector<int> incorrect_exemplar_vec
+        = incorrect_exemplars.getExemplars(relevant_dimension);
     Q_ASSERT(incorrect_exemplar_vec.length() == 1);
     int incorrect_exemplar = incorrect_exemplar_vec.at(0);
 
@@ -131,66 +147,55 @@ IDED3DStage::IDED3DStage(const int task_id,
     m_n_possible_locations = n_possible_locations;
 }
 
-
 int IDED3DStage::taskId() const
 {
     return valueInt(FN_FK_TO_TASK);
 }
-
 
 int IDED3DStage::stageNumZeroBased() const
 {
     return valueInt(FN_STAGE) - 1;
 }
 
-
 int IDED3DStage::nPossibleLocations() const
 {
     return m_n_possible_locations;
 }
-
 
 QVector<int> IDED3DStage::correctStimulusShapes() const
 {
     return valueVectorInt(FN_CORRECT_STIMULUS_SHAPES);
 }
 
-
 QVector<int> IDED3DStage::correctStimulusColours() const
 {
     return valueVectorInt(FN_CORRECT_STIMULUS_COLOURS);
 }
-
 
 QVector<int> IDED3DStage::correctStimulusNumbers() const
 {
     return valueVectorInt(FN_CORRECT_STIMULUS_NUMBERS);
 }
 
-
 QVector<int> IDED3DStage::incorrectStimulusShapes() const
 {
     return valueVectorInt(FN_INCORRECT_STIMULUS_SHAPES);
 }
-
 
 QVector<int> IDED3DStage::incorrectStimulusColours() const
 {
     return valueVectorInt(FN_INCORRECT_STIMULUS_COLOURS);
 }
 
-
 QVector<int> IDED3DStage::incorrectStimulusNumbers() const
 {
     return valueVectorInt(FN_INCORRECT_STIMULUS_NUMBERS);
 }
 
-
 bool IDED3DStage::incorrectStimulusCanOverlap() const
 {
     return m_incorrect_stimulus_can_overlap;
 }
-
 
 void IDED3DStage::recordResponse(const bool correct)
 {
@@ -202,13 +207,11 @@ void IDED3DStage::recordResponse(const bool correct)
     save();
 }
 
-
 void IDED3DStage::recordTrialCompleted()
 {
     addToValueInt(FN_N_COMPLETED_TRIALS, 1);
     save();
 }
-
 
 void IDED3DStage::recordStageEnded(const bool passed)
 {
@@ -216,7 +219,6 @@ void IDED3DStage::recordStageEnded(const bool passed)
     setValue(FN_STAGE_FAILED, !passed);
     save();
 }
-
 
 void IDED3DStage::setFirstTrialIfBlank(const int trial_num_zero_based)
 {
@@ -226,10 +228,8 @@ void IDED3DStage::setFirstTrialIfBlank(const int trial_num_zero_based)
     }
 }
 
-
 QString IDED3DStage::summary() const
 {
     return QString("Stage: %1; relevant dimension: %2")
-            .arg(valueString(FN_STAGE_NAME),
-                 valueString(FN_RELEVANT_DIMENSION));
+        .arg(valueString(FN_STAGE_NAME), valueString(FN_RELEVANT_DIMENSION));
 }

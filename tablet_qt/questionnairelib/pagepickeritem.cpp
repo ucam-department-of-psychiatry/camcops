@@ -19,18 +19,18 @@
 */
 
 #include "pagepickeritem.h"
+
 #include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "common/uiconst.h"
 
-
-PagePickerItem::PagePickerItem(const QString& text, const int page_number,
-                               const PagePickerItemType type):
+PagePickerItem::PagePickerItem(
+    const QString& text, const int page_number, const PagePickerItemType type
+) :
     m_text(text),
     m_page_number(page_number),
     m_type(type)
 {
 }
-
 
 PagePickerItem::PagePickerItem() :
     m_page_number(-1),
@@ -38,43 +38,38 @@ PagePickerItem::PagePickerItem() :
 {
 }
 
-
 QString PagePickerItem::text() const
 {
     return m_text;
 }
-
 
 int PagePickerItem::pageNumber() const
 {
     return m_page_number;
 }
 
-
 PagePickerItem::PagePickerItemType PagePickerItem::type() const
 {
     return m_type;
 }
 
-
 bool PagePickerItem::selectable() const
 {
-    return m_type == PagePickerItemType::CompleteSelectable ||
-           m_type == PagePickerItemType::IncompleteSelectable;
+    return m_type == PagePickerItemType::CompleteSelectable
+        || m_type == PagePickerItemType::IncompleteSelectable;
 }
-
 
 QString PagePickerItem::iconFilename() const
 {
     switch (m_type) {
-    case PagePickerItemType::CompleteSelectable:
-        return uiconst::CBS_NEXT;
-    case PagePickerItemType::IncompleteSelectable:
-        return uiconst::ICON_WARNING;
-    case PagePickerItemType::BlockedByPrevious:
+        case PagePickerItemType::CompleteSelectable:
+            return uiconst::CBS_NEXT;
+        case PagePickerItemType::IncompleteSelectable:
+            return uiconst::ICON_WARNING;
+        case PagePickerItemType::BlockedByPrevious:
 #ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
-    default:
+        default:
 #endif
-        return uiconst::ICON_STOP;
+            return uiconst::ICON_STOP;
     }
 }

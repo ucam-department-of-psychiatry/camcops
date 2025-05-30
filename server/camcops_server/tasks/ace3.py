@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/tasks/ace3.py
 
@@ -1260,7 +1258,7 @@ class Ace3(
                         req.snomed(SnomedLookup.ACE_R_SCORE): t,
                         req.snomed(
                             SnomedLookup.ACE_R_SUBSCORE_ATTENTION_ORIENTATION
-                        ): a,  # noqa
+                        ): a,
                         req.snomed(SnomedLookup.ACE_R_SUBSCORE_MEMORY): m,
                         req.snomed(SnomedLookup.ACE_R_SUBSCORE_FLUENCY): f,
                         req.snomed(SnomedLookup.ACE_R_SUBSCORE_LANGUAGE): lang,

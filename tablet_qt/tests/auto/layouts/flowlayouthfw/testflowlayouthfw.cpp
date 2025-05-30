@@ -18,13 +18,12 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include <QtTest/QtTest>
 #include <QPushButton>
+#include <QtTest/QtTest>
 
 #include "layouts/flowlayouthfw.h"
 
-
-class TestFlowLayoutHfw: public QObject
+class TestFlowLayoutHfw : public QObject
 {
     Q_OBJECT
 
@@ -32,23 +31,21 @@ private slots:
     void testMinimumSizeAddsMargins();
 };
 
-
-
 void TestFlowLayoutHfw::testMinimumSizeAddsMargins()
 {
-    auto layout = new FlowLayoutHfw();
+    FlowLayoutHfw layout;
     auto button = new QPushButton();
 
-    layout->addWidget(button);
+    layout.addWidget(button);
 
     const int left = 1;
     const int top = 2;
     const int right = 4;
     const int bottom = 8;
 
-    layout->setContentsMargins(left, top, right, bottom);
+    layout.setContentsMargins(left, top, right, bottom);
 
-    QCOMPARE(layout->minimumSize(), QSize(left + right, top + bottom));
+    QCOMPARE(layout.minimumSize(), QSize(left + right, top + bottom));
 }
 
 QTEST_MAIN(TestFlowLayoutHfw)

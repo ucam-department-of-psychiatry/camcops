@@ -19,11 +19,11 @@
 */
 
 #pragma once
-#include <QtGlobal>
 #include <QString>
+#include <QtGlobal>
 
-
-struct Dpi {
+struct Dpi
+{
     // Constructor
     Dpi(qreal x, qreal y);
 

@@ -22,12 +22,12 @@
 #include <QSharedPointer>
 class QMediaPlayer;
 
-
 namespace soundfunc {
 
 extern const QString UNABLE_TO_CREATE_MEDIA_PLAYER;
 
-// Creates a media player that will be deleted later via QObject::deleteLater().
+// Creates a media player that will be deleted later via
+// QObject::deleteLater().
 void makeMediaPlayer(QSharedPointer<QMediaPlayer>& player);
 
 // Ensure the media player is stopped. See code for rationale.
@@ -37,7 +37,9 @@ void finishMediaPlayer(const QSharedPointer<QMediaPlayer>& player);
 void setVolume(const QSharedPointer<QMediaPlayer>& player, int volume_percent);
 
 // Sets the volume of a media player, using a scale of 0-1.
-void setVolume(const QSharedPointer<QMediaPlayer>& player, double volume_proportion);
+void setVolume(
+    const QSharedPointer<QMediaPlayer>& player, double volume_proportion
+);
 
 
 }  // namespace soundfunc

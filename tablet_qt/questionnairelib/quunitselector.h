@@ -23,10 +23,11 @@
 #include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/quelement.h"
 
-class QuUnitSelector: public QuElement
+class QuUnitSelector : public QuElement
 {
     // Used with QuMeasurement to switch between metric and imperial units
     Q_OBJECT
+
 public:
     QuUnitSelector(NameValueOptions options);
     void setUpFields();
@@ -40,7 +41,8 @@ signals:
     void unitsChanged(int units);
 
 protected:
-    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+    virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire
+    ) override;
 
     int m_units;
     FieldRefPtr m_fr_units;

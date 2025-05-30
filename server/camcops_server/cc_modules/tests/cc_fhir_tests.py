@@ -1,6 +1,5 @@
-#!/usr/bin/env python
-
-"""camcops_server/cc_modules/tests/cc_fhir_tests.py
+"""
+camcops_server/cc_modules/tests/cc_fhir_tests.py
 
 ===============================================================================
 
@@ -29,18 +28,18 @@
 import datetime
 import json
 import logging
-from typing import Dict
+from typing import Dict, List
 from unittest import mock
 
 from cardinal_pythonlib.httpconst import HttpMethod
-from cardinal_pythonlib.nhs import generate_random_nhs_number
 import pendulum
 from requests.exceptions import HTTPError
 
-from camcops_server.cc_modules.cc_constants import FHIRConst as Fc, JSON_INDENT
+from camcops_server.cc_modules.cc_constants import FHIRConst as Fc
 from camcops_server.cc_modules.cc_exportmodels import (
     ExportedTask,
     ExportedTaskFhir,
+    ExportedTaskFhirEntry,
 )
 from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_exportrecipientinfo import (
@@ -53,33 +52,29 @@ from camcops_server.cc_modules.cc_fhir import (
     FhirTaskExporter,
 )
 from camcops_server.cc_modules.cc_pyramid import Routes
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_testfactories import (
+    NHSPatientIdNumFactory,
+    PatientFactory,
+    RioPatientIdNumFactory,
+)
+
+from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
 from camcops_server.cc_modules.cc_version_string import (
     CAMCOPS_SERVER_VERSION_STRING,
 )
-from camcops_server.tasks.apeqpt import Apeqpt
-from camcops_server.tasks.bmi import Bmi
-from camcops_server.tasks.gad7 import Gad7
-from camcops_server.tasks.diagnosis import (
-    DiagnosisIcd10,
-    DiagnosisIcd10Item,
-    DiagnosisIcd9CM,
-    DiagnosisIcd9CMItem,
+from camcops_server.tasks.tests.factories import (
+    ApeqptFactory,
+    BmiFactory,
+    DiagnosisIcd10Factory,
+    DiagnosisIcd10ItemFactory,
+    DiagnosisIcd9CMFactory,
+    DiagnosisIcd9CMItemFactory,
+    Gad7Factory,
+    Phq9Factory,
 )
-from camcops_server.tasks.phq9 import Phq9
+
 
 log = logging.getLogger()
-
-
-# =============================================================================
-# Constants
-# =============================================================================
-
-TEST_NHS_NUMBER = generate_random_nhs_number()
-TEST_RIO_NUMBER = 12345
-TEST_FORENAME = "Gwendolyn"
-TEST_SURNAME = "Ryann"
-TEST_SEX = "F"
 
 
 # =============================================================================
@@ -99,13 +94,12 @@ class MockFhirResponse(mock.Mock):
         )
 
 
-class FhirExportTestCase(DemoDatabaseTestCase):
+class FhirExportTestCase(DemoRequestTestCase):
     def setUp(self) -> None:
         super().setUp()
         recipientinfo = ExportRecipientInfo()
 
         self.recipient = ExportRecipient(recipientinfo)
-        self.recipient.primary_idnum = self.rio_iddef.which_idnum
         self.recipient.fhir_api_url = "https://www.example.com/fhir"
 
         # auto increment doesn't work for BigInteger with SQLite
@@ -115,20 +109,16 @@ class FhirExportTestCase(DemoDatabaseTestCase):
         self.camcops_root_url = self.req.route_url(Routes.HOME).rstrip("/")
         # ... no trailing slash
 
-    def create_fhir_patient(self) -> None:
-        self.patient = self.create_patient(
-            forename=TEST_FORENAME, surname=TEST_SURNAME, sex=TEST_SEX
-        )
-        self.patient_nhs = self.create_patient_idnum(
-            patient_id=self.patient.id,
-            which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=TEST_NHS_NUMBER,
-        )
-        self.patient_rio = self.create_patient_idnum(
-            patient_id=self.patient.id,
-            which_idnum=self.rio_iddef.which_idnum,
-            idnum_value=TEST_RIO_NUMBER,
-        )
+
+class FhirExportPatientTestCase(FhirExportTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.patient = PatientFactory()
+        self.patient_nhs_idnum = NHSPatientIdNumFactory(patient=self.patient)
+        self.patient_rio_idnum = RioPatientIdNumFactory(patient=self.patient)
+
+        self.recipient.primary_idnum = self.patient_rio_idnum.which_idnum
 
 
 # =============================================================================
@@ -136,27 +126,23 @@ class FhirExportTestCase(DemoDatabaseTestCase):
 # =============================================================================
 
 
-class FhirTaskExporterPhq9Tests(FhirExportTestCase):
-    def create_tasks(self) -> None:
-        self.create_fhir_patient()
+class FhirTaskExporterPhq9Tests(FhirExportPatientTestCase):
+    def setUp(self) -> None:
+        super().setUp()
 
-        self.task = Phq9()
-        self.apply_standard_task_fields(self.task)
-        self.task.q1 = 0
-        self.task.q2 = 1
-        self.task.q3 = 2
-        self.task.q4 = 3
-        self.task.q5 = 0
-        self.task.q6 = 1
-        self.task.q7 = 2
-        self.task.q8 = 3
-        self.task.q9 = 0
-        self.task.q10 = 3
-        self.task.patient_id = self.patient.id
-        self.task.save_with_next_available_id(
-            self.req, self.patient._device_id
+        self.task = Phq9Factory(
+            patient=self.patient,
+            q1=0,
+            q2=1,
+            q3=2,
+            q4=3,
+            q5=0,
+            q6=1,
+            q7=2,
+            q8=3,
+            q9=0,
+            q10=3,
         )
-        self.dbsession.commit()
 
     def test_patient_exported(self) -> None:
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
@@ -184,7 +170,7 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         self.assertEqual(patient[Fc.RESOURCE_TYPE], Fc.RESOURCE_TYPE_PATIENT)
 
         identifier = patient[Fc.IDENTIFIER]
-        idnum_value = self.patient_rio.idnum_value
+        idnum_value = self.patient_rio_idnum.idnum_value
 
         patient_id = self.patient.get_fhir_identifier(self.req, self.recipient)
 
@@ -345,7 +331,7 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         subject = response[Fc.SUBJECT]
         identifier = subject[Fc.IDENTIFIER]
         self.assertEqual(subject[Fc.TYPE], Fc.RESOURCE_TYPE_PATIENT)
-        idnum_value = self.patient_rio.idnum_value
+        idnum_value = self.patient_rio_idnum.idnum_value
 
         patient_id = self.patient.get_fhir_identifier(self.req, self.recipient)
         if isinstance(identifier, list):
@@ -445,7 +431,7 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
 
         entries = (
             exported_task_fhir.entries
-        )  # type: List[ExportedTaskFhirEntry]  # noqa
+        )  # type: List[ExportedTaskFhirEntry]
 
         entries.sort(key=lambda e: e.location)
 
@@ -533,18 +519,17 @@ APEQ_SATIS_A0 = "Not at all satisfied"
 
 
 class FhirTaskExporterAnonymousTests(FhirExportTestCase):
-    def create_tasks(self) -> None:
-        self.task = Apeqpt()
-        self.apply_standard_task_fields(self.task)
-        self.task.q_datetime = pendulum.now()
-        self.task.q1_choice = 0
-        self.task.q2_choice = 1
-        self.task.q3_choice = 2
-        self.task.q1_satisfaction = 3
-        self.task.q2_satisfaction = "Service experience"
+    def setUp(self) -> None:
+        super().setUp()
 
-        self.task.save_with_next_available_id(self.req, self.server_device.id)
-        self.dbsession.commit()
+        self.task = ApeqptFactory(
+            q_datetime=pendulum.now(),
+            q1_choice=0,
+            q2_choice=1,
+            q3_choice=2,
+            q1_satisfaction=3,
+            q2_satisfaction="Service experience",
+        )
 
     def test_questionnaire_exported(self) -> None:
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
@@ -763,45 +748,73 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
 # =============================================================================
 
 
-class FhirTaskExporterBMITests(FhirExportTestCase):
-    def create_tasks(self) -> None:
-        self.create_fhir_patient()
+class FhirTaskExporterBMITests(FhirExportPatientTestCase):
+    def setUp(self) -> None:
+        super().setUp()
 
-        self.task = Bmi()
-        self.apply_standard_task_fields(self.task)
-        self.task.mass_kg = 70
-        self.task.height_m = 1.8
-        self.task.waist_cm = 82
-        self.task.patient_id = self.patient.id
-        self.task.save_with_next_available_id(
-            self.req, self.patient._device_id
-        )
-        self.dbsession.commit()
+        self.task = BmiFactory(patient=self.patient)
 
     def test_observations(self) -> None:
         bundle = self.task.get_fhir_bundle(
             self.req, self.recipient, skip_docs_if_other_content=True
         )
-        bundle_str = json.dumps(bundle.as_json(), indent=JSON_INDENT)
-        log.debug(f"Bundle:\n{bundle_str}")
-        # The test is that it doesn't crash.
 
+        bundle_json = bundle.as_json()
 
-class FhirTaskExporterDiagnosisIcd10Tests(FhirExportTestCase):
-    def create_tasks(self) -> None:
-        self.create_fhir_patient()
+        height_entry = bundle_json[Fc.ENTRY][3]
+        mass_entry = bundle_json[Fc.ENTRY][4]
+        bmi_entry = bundle_json[Fc.ENTRY][5]
+        waist_entry = bundle_json[Fc.ENTRY][6]
 
-        self.task = DiagnosisIcd10()
-        self.apply_standard_task_fields(self.task)
-        self.task.patient_id = self.patient.id
-        self.task.save_with_next_available_id(
-            self.req, self.patient._device_id
+        height_resource = height_entry[Fc.RESOURCE]
+        mass_resource = mass_entry[Fc.RESOURCE]
+        bmi_resource = bmi_entry[Fc.RESOURCE]
+        waist_resource = waist_entry[Fc.RESOURCE]
+
+        self.assertEqual(
+            height_resource[Fc.RESOURCE_TYPE], Fc.RESOURCE_TYPE_OBSERVATION
         )
-        self.dbsession.commit()
+        self.assertEqual(
+            height_resource[Fc.VALUE_QUANTITY][Fc.VALUE], self.task.height_m
+        )
+
+        self.assertEqual(
+            mass_resource[Fc.RESOURCE_TYPE], Fc.RESOURCE_TYPE_OBSERVATION
+        )
+        self.assertAlmostEqual(
+            mass_resource[Fc.VALUE_QUANTITY][Fc.VALUE],
+            self.task.mass_kg,
+            places=2,
+        )
+
+        self.assertEqual(
+            bmi_resource[Fc.RESOURCE_TYPE], Fc.RESOURCE_TYPE_OBSERVATION
+        )
+        self.assertAlmostEqual(
+            bmi_resource[Fc.VALUE_QUANTITY][Fc.VALUE],
+            self.task.bmi(),
+            places=2,
+        )
+
+        self.assertEqual(
+            waist_resource[Fc.RESOURCE_TYPE], Fc.RESOURCE_TYPE_OBSERVATION
+        )
+        self.assertAlmostEqual(
+            waist_resource[Fc.VALUE_QUANTITY][Fc.VALUE],
+            self.task.waist_cm,
+            places=2,
+        )
+
+
+class FhirTaskExporterDiagnosisIcd10Tests(FhirExportPatientTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.task = DiagnosisIcd10Factory(patient=self.patient)
 
         # noinspection PyArgumentList
-        item1 = DiagnosisIcd10Item(
-            diagnosis_icd10_id=self.task.id,
+        self.item1 = DiagnosisIcd10ItemFactory(
+            diagnosis_icd10=self.task,
             seqnum=1,
             code="F33.30",
             description="Recurrent depressive disorder, current episode "
@@ -809,89 +822,143 @@ class FhirTaskExporterDiagnosisIcd10Tests(FhirExportTestCase):
             "with mood-congruent psychotic symptoms",
             comment="Cotard's syndrome",
         )
-        self.apply_standard_db_fields(item1)
-        item1.save_with_next_available_id(self.req, self.task._device_id)
         # noinspection PyArgumentList
-        item2 = DiagnosisIcd10Item(
-            diagnosis_icd10_id=self.task.id,
+        self.item2 = DiagnosisIcd10ItemFactory(
+            diagnosis_icd10=self.task,
             seqnum=2,
             code="F43.1",
             description="Post-traumatic stress disorder",
         )
-        self.apply_standard_db_fields(item2)
-        item2.save_with_next_available_id(self.req, self.task._device_id)
 
     def test_observations(self) -> None:
         bundle = self.task.get_fhir_bundle(
             self.req, self.recipient, skip_docs_if_other_content=True
         )
-        bundle_str = json.dumps(bundle.as_json(), indent=JSON_INDENT)
-        log.debug(f"Bundle:\n{bundle_str}")
-        # The test is that it doesn't crash.
 
+        bundle_json = bundle.as_json()
 
-class FhirTaskExporterDiagnosisIcd9CMTests(FhirExportTestCase):
-    def create_tasks(self) -> None:
-        self.create_fhir_patient()
+        cotard_resource = bundle_json[Fc.ENTRY][4][Fc.RESOURCE]
+        ptsd_resource = bundle_json[Fc.ENTRY][5][Fc.RESOURCE]
 
-        self.task = DiagnosisIcd9CM()
-        self.apply_standard_task_fields(self.task)
-        self.task.patient_id = self.patient.id
-        self.task.save_with_next_available_id(
-            self.req, self.patient._device_id
+        self.assertEqual(
+            cotard_resource[Fc.RESOURCE_TYPE], Fc.RESOURCE_TYPE_CONDITION
         )
-        self.dbsession.commit()
+        self.assertEqual(
+            cotard_resource[Fc.CODE][Fc.CODING][0][Fc.CODE], "F33.30"
+        )
+        self.assertIn(
+            "Cotard's syndrome",
+            cotard_resource[Fc.CODE][Fc.CODING][0][Fc.DISPLAY],
+        )
+        self.assertIn(
+            "Recurrent depressive",
+            cotard_resource[Fc.CODE][Fc.CODING][0][Fc.DISPLAY],
+        )
+
+        self.assertEqual(
+            ptsd_resource[Fc.CODE][Fc.CODING][0][Fc.CODE], "F43.1"
+        )
+
+
+class FhirTaskExporterDiagnosisIcd9CMTests(FhirExportPatientTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.task = DiagnosisIcd9CMFactory(patient=self.patient)
 
         # noinspection PyArgumentList
-        item1 = DiagnosisIcd9CMItem(
-            diagnosis_icd9cm_id=self.task.id,
+        self.item1 = DiagnosisIcd9CMItemFactory(
+            diagnosis_icd9cm=self.task,
             seqnum=1,
             code="290.4",
             description="Vascular dementia",
             comment="or perhaps mixed dementia",
         )
-        self.apply_standard_db_fields(item1)
-        item1.save_with_next_available_id(self.req, self.task._device_id)
         # noinspection PyArgumentList
-        item2 = DiagnosisIcd9CMItem(
-            diagnosis_icd9cm_id=self.task.id,
+        self.item2 = DiagnosisIcd9CMItemFactory(
+            diagnosis_icd9cm=self.task,
             seqnum=2,
             code="303.0",
             description="Acute alcoholic intoxication",
         )
-        self.apply_standard_db_fields(item2)
-        item2.save_with_next_available_id(self.req, self.task._device_id)
 
     def test_observations(self) -> None:
         bundle = self.task.get_fhir_bundle(
             self.req, self.recipient, skip_docs_if_other_content=True
         )
-        bundle_str = json.dumps(bundle.as_json(), indent=JSON_INDENT)
-        log.debug(f"Bundle:\n{bundle_str}")
-        # The test is that it doesn't crash.
+        bundle_json = bundle.as_json()
+        dementia_resource = bundle_json[Fc.ENTRY][4][Fc.RESOURCE]
+        intoxication_resource = bundle_json[Fc.ENTRY][5][Fc.RESOURCE]
+
+        self.assertEqual(
+            dementia_resource[Fc.RESOURCE_TYPE], Fc.RESOURCE_TYPE_CONDITION
+        )
+        self.assertEqual(
+            dementia_resource[Fc.CODE][Fc.CODING][0][Fc.CODE], "290.4"
+        )
+        self.assertIn(
+            "Vascular dementia",
+            dementia_resource[Fc.CODE][Fc.CODING][0][Fc.DISPLAY],
+        )
+        self.assertIn(
+            "or perhaps mixed dementia",
+            dementia_resource[Fc.CODE][Fc.CODING][0][Fc.DISPLAY],
+        )
+
+        self.assertEqual(
+            intoxication_resource[Fc.CODE][Fc.CODING][0][Fc.CODE], "303.0"
+        )
 
 
-class FhirTaskExporterGad7Tests(FhirExportTestCase):
+class FhirTaskExporterGad7Tests(FhirExportPatientTestCase):
     """
     The GAD7 is a standard questionnaire that we don't provide any special
-    FHIR support for; we rely on autodiscovery.
+    FHIR support for; we rely on autodiscovery. This is essentially a high
+    level test for _fhir_autodiscover() in cc_task.py, albeit not a
+    particularly thorough one.
     """
 
-    def create_tasks(self) -> None:
-        self.create_fhir_patient()
+    def setUp(self) -> None:
+        super().setUp()
 
-        self.task = Gad7()
-        self.apply_standard_task_fields(self.task)
-        self.task.patient_id = self.patient.id
-        self.task.save_with_next_available_id(
-            self.req, self.patient._device_id
+        self.task = Gad7Factory(
+            patient=self.patient,
+            q1=0,
+            q2=1,
+            q3=2,
+            q4=3,
+            q5=0,
+            q6=1,
+            q7=2,
         )
-        self.dbsession.commit()
 
     def test_observations(self) -> None:
         bundle = self.task.get_fhir_bundle(
             self.req, self.recipient, skip_docs_if_other_content=True
         )
-        bundle_str = json.dumps(bundle.as_json(), indent=JSON_INDENT)
-        log.critical(f"Bundle:\n{bundle_str}")
-        # The test is that it doesn't crash.
+        bundle_json = bundle.as_json()
+        questions = bundle_json[Fc.ENTRY][1][Fc.RESOURCE][Fc.ITEM]
+        answers = bundle_json[Fc.ENTRY][2][Fc.RESOURCE][Fc.ITEM]
+
+        # Question text
+        self.assertIn(
+            "1. Feeling nervous, anxious or on edge", questions[0][Fc.TEXT]
+        )
+        # Comment string
+        self.assertIn(
+            "Q1, nervous/anxious/on edge (0 not at all - 3 nearly every day)",
+            questions[0][Fc.TEXT],
+        )
+
+        self.assertIn(
+            "1. Feeling nervous, anxious or on edge", answers[0][Fc.TEXT]
+        )
+        self.assertIn(
+            "Q1, nervous/anxious/on edge (0 not at all - 3 nearly every day)",
+            answers[0][Fc.TEXT],
+        )
+
+        self.assertEqual(answers[0][Fc.ANSWER][0][Fc.VALUE_INTEGER], 0)
+        self.assertEqual(answers[1][Fc.ANSWER][0][Fc.VALUE_INTEGER], 1)
+        self.assertEqual(answers[2][Fc.ANSWER][0][Fc.VALUE_INTEGER], 2)
+        self.assertEqual(answers[3][Fc.ANSWER][0][Fc.VALUE_INTEGER], 3)

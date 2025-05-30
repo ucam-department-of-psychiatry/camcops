@@ -20,11 +20,10 @@
 
 #pragma once
 #include <algorithm>
-#include <random>
-#include <QtGlobal>
 #include <QStringList>
+#include <QtGlobal>
 #include <QVector>
-
+#include <random>
 
 namespace ccrandom {  // not "random"; conflicts
 
@@ -63,8 +62,7 @@ double nextDoubleAbove(double x);
 double randomRealIncUpper(double minimum, double maximum);
 
 // Returns a random index for the supplied vector.
-template<typename T>
-int randomIndex(const QVector<T>& vec)
+template<typename T> int randomIndex(const QVector<T>& vec)
 {
     if (vec.isEmpty()) {
         return -1;
@@ -72,11 +70,9 @@ int randomIndex(const QVector<T>& vec)
     return randomInt(0, vec.size() - 1);
 }
 
-
 // Draw without replacement: removes and returns a random element from the
 // vector.
-template<typename T>
-T dwor(QVector<T>& bucket)
+template<typename T> T dwor(QVector<T>& bucket)
 {
     if (bucket.isEmpty()) {
         return T();
@@ -85,11 +81,9 @@ T dwor(QVector<T>& bucket)
     return bucket.takeAt(index);
 }
 
-
 // Draw with replacement: returns a random element from the vector, and leaves
 // it in there.
-template<typename T>
-T drawreplace(const QVector<T>& bucket)
+template<typename T> T drawreplace(const QVector<T>& bucket)
 {
     if (bucket.isEmpty()) {
         return T();
@@ -98,14 +92,11 @@ T drawreplace(const QVector<T>& bucket)
     return bucket.at(index);
 }
 
-
 // Randomly shuffles a vector.
-template<typename T>
-void shuffle(QVector<T>& vec)
+template<typename T> void shuffle(QVector<T>& vec)
 {
     std::shuffle(vec.begin(), vec.end(), rng);
 }
-
 
 // Test randomness functions.
 QStringList testRandom();

@@ -19,10 +19,10 @@
 */
 
 #include "setmenucpftadrd.h"
+
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
-
 #include "tasks/diagnosisicd9cm.h"
 #include "tasks/gad7.h"
 #include "tasks/hamd.h"
@@ -35,31 +35,32 @@
 #include "tasks/ybocs.h"
 #include "tasks/ybocssc.h"
 
-
 SetMenuCpftADRD::SetMenuCpftADRD(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
 {
 }
-
 
 QString SetMenuCpftADRD::title() const
 {
     return tr("CPFT Affective Disorders Research Database");
 }
 
-
 QString SetMenuCpftADRD::subtitle() const
 {
-    return tr("Cambridgeshire and Peterborough NHS Foundation Trust, UK — "
-              "affective disorders");
+    return tr(
+        "Cambridgeshire and Peterborough NHS Foundation Trust, UK — "
+        "affective disorders"
+    );
 }
-
 
 void SetMenuCpftADRD::makeItems()
 {
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
-        MAKE_TASK_MENU_ITEM(DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME, m_app),  // = DSM-IV
+        MAKE_TASK_MENU_ITEM(
+            DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME, m_app
+        ),
+        // ... ICD-9-CM = DSM-IV
         MAKE_TASK_MENU_ITEM(Gad7::GAD7_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(HamD::HAMD_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Iesr::IESR_TABLENAME, m_app),

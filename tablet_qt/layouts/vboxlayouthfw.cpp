@@ -28,18 +28,15 @@
 
 #include "vboxlayouthfw.h"
 
-
 VBoxLayoutHfw::VBoxLayoutHfw(QWidget* parent) :
     BoxLayoutHfw(TopToBottom, parent)
 {
 }
 
-
 VBoxLayoutHfw::VBoxLayoutHfw() :
     BoxLayoutHfw(TopToBottom)
 {
 }
-
 
 VBoxLayoutHfw::~VBoxLayoutHfw()
 {

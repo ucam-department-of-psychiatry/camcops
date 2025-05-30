@@ -19,9 +19,8 @@
 */
 
 #pragma once
-#include <QMap>
 #include <QAbstractProxyModel>
-
+#include <QMap>
 
 /*
 
@@ -57,23 +56,31 @@ public:
     using QAbstractProxyModel::QAbstractProxyModel;
 
     virtual void setSourceModel(QAbstractItemModel* src_model) override;
-    virtual QModelIndex mapFromSource(const QModelIndex& src_index) const override;
-    virtual QModelIndex mapToSource(const QModelIndex& proxy_index) const override;
+    virtual QModelIndex mapFromSource(const QModelIndex& src_index
+    ) const override;
+    virtual QModelIndex mapToSource(const QModelIndex& proxy_index
+    ) const override;
     virtual int columnCount(const QModelIndex& proxy_parent) const override;
     virtual int rowCount(const QModelIndex& proxy_parent) const override;
-    virtual QModelIndex index(int proxy_row, int proxy_column,
-                              const QModelIndex& proxy_parent) const override;
+    virtual QModelIndex index(
+        int proxy_row, int proxy_column, const QModelIndex& proxy_parent
+    ) const override;
     virtual QModelIndex parent(const QModelIndex& proxy_child) const override;
     virtual bool hasChildren(const QModelIndex& proxy_parent) const override;
 
 protected:
-    int buildMap(QAbstractItemModel* src_model,
-                 const QModelIndex& src_parent = QModelIndex(),
-                 int proxy_row = 0);
+    int buildMap(
+        QAbstractItemModel* src_model,
+        const QModelIndex& src_parent = QModelIndex(),
+        int proxy_row = 0
+    );
 protected slots:
-    void sourceDataChanged(const QModelIndex& src_top_left,
-                           const QModelIndex& src_bottom_right,
-                           const QVector<int>& roles = QVector<int>());
+    void sourceDataChanged(
+        const QModelIndex& src_top_left,
+        const QModelIndex& src_bottom_right,
+        const QVector<int>& roles = QVector<int>()
+    );
+
 protected:
     QMap<QModelIndex, int> m_row_from_src_index;
     QMap<int, QModelIndex> m_src_index_from_row;

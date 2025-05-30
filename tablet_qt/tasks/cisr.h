@@ -40,6 +40,7 @@ Should we ask about ethnicity, marital/employment/housing status?
 
 #include <QPointer>
 #include <QString>
+
 #include "common/aliases_camcops.h"
 #include "tasklib/task.h"
 
@@ -49,7 +50,6 @@ class OpenableWidget;
 class TaskFactory;
 
 void initializeCisr(TaskFactory& factory);
-
 
 namespace cisrconst {
 
@@ -116,13 +116,16 @@ const int V_MISSING = 0;  // Integer value of a missing answer
 const int V_UNKNOWN = -1;  // Dummy value, never used for answers
 }
 
-
 class Cisr : public Task
 {
     Q_OBJECT
+
 public:
-    Cisr(CamcopsApp& app, DatabaseManager& db,
-         int load_pk = dbconst::NONEXISTENT_PK);
+    Cisr(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -144,8 +147,10 @@ public:
     // ------------------------------------------------------------------------
     QuPagePtr makePage(int current_qnum);
     bool morePagesToGo(int current_qnum) const;
+
 public:
     static const QString CISR_TABLENAME;
+
 public:  // needs to be public to make non-class vectors of it
     enum class CisrQuestion {  // The sequence of all possible questions.
         START_MARKER = 1,  // start with 1
@@ -323,10 +328,13 @@ public:  // needs to be public to make non-class vectors of it
         THANKS_FINISHED,
         END_MARKER,  // not a real page
     };
+
 protected:
-    struct CisrResult {
+    struct CisrResult
+    {
         // Internal
-        bool incomplete = false;  // Missing information? DO NOT use results if so.
+        bool incomplete = false;
+        // ... Missing information? DO NOT use results if so.
         bool record_decisions = true;  // should we keep a record of decisions?
         QStringList decisions;  // Human-readable record of decisions made
 
@@ -336,6 +344,7 @@ protected:
         void finalize();
         void decide(const QString& decision);
         QString diagnosisName(int diagnosis_code) const;
+        QString caveat() const;
 
         // Symptom scoring
         int depression = 0;  // DEPR in original
@@ -347,7 +356,8 @@ protected:
             // when..." question (DEPR5) being the one for "lack of emotional
             // reactions to events or activities that normally produce an
             // emotional response".
-        int weight_change = cisrconst::WTCHANGE_NONE_OR_APPETITE_INCREASE;  // WTCHANGE IN original
+        int weight_change = cisrconst::WTCHANGE_NONE_OR_APPETITE_INCREASE;
+        // ... WTCHANGE IN original
         int somatic_symptoms = 0;  // SOMATIC in original
         int fatigue = 0;  // FATIGUE in original
         int neurasthenia = 0;  // NEURAS in original
@@ -356,9 +366,11 @@ protected:
         int sleep_change = 0;  // SLEEPCH in original
         int depressive_thoughts = 0;  // DEPTHTS in original
         int irritability = 0;  // IRRIT in original
-        int diurnal_mood_variation = cisrconst::DIURNAL_MOOD_VAR_NONE;  // DVM in original
+        int diurnal_mood_variation = cisrconst::DIURNAL_MOOD_VAR_NONE;
+        // ... DVM in original
         bool libido_decreased = false;  // LIBID in original
-        int psychomotor_changes = cisrconst::PSYCHOMOTOR_NONE;  // PSYCHMOT in original
+        int psychomotor_changes = cisrconst::PSYCHOMOTOR_NONE;
+        // ... PSYCHMOT in original
         int suicidality = 0;  // SUICID in original
         bool depression_at_least_2_weeks = false;  // DEPR_DUR >= 2 in original
 
@@ -377,10 +389,12 @@ protected:
 
         int compulsions = 0;  // COMP in original
         bool compulsions_tried_to_stop = false;  // COMP2 == 2 in original
-        bool compulsions_at_least_2_weeks = false;  // COMP_DUR >= 2 in original
+        bool compulsions_at_least_2_weeks = false;
+        // ... COMP_DUR >= 2 in original
         int obsessions = 0;  // OBSESS in original
         bool obsessions_tried_to_stop = false;  // OBSESS2 == 2 in original
-        bool obsessions_at_least_2_weeks = false;  // OBSESS_DUR >= 2 in original
+        bool obsessions_at_least_2_weeks = false;
+        // ... OBSESS_DUR >= 2 in original
 
         int functional_impairment = 0;  // IMPAIR in original
 
@@ -400,6 +414,7 @@ protected:
         int diagnosis_1 = cisrconst::DIAG_0_NO_DIAGNOSIS;  // DIAG1 in original
         int diagnosis_2 = cisrconst::DIAG_0_NO_DIAGNOSIS;  // DIAG2 in original
     };
+
 protected:
     QStringList summaryForResult(const CisrResult& result) const;
     CisrQuestion intToEnum(int qi) const;
@@ -416,10 +431,9 @@ protected:
     QVector<QString> panicSymptomFieldnames() const;
     CisrQuestion nextQ(CisrQuestion q, CisrResult& getResult) const;
     CisrResult getResult() const;
-    QString diagnosisNameLong(int diagnosis_code) const;
-    QString diagnosisReason(int diagnosis_code) const;
-    QString suicideIntent(const Cisr::CisrResult& result,
-                          bool with_warning = true) const;
+    QString suicideIntent(
+        const Cisr::CisrResult& result, bool with_warning = true
+    ) const;
     QString functionalImpairment(const Cisr::CisrResult& result) const;
 
 protected:

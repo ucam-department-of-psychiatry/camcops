@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_string.py
 
@@ -196,7 +194,9 @@ def all_extra_strings_as_dicts(
     r"""
     Returns strings from the all the extra XML string files.
 
-    The result is cached (via a proper cache).
+    The result is cached (via a proper cache). We reload the config file, which
+    is suboptimal, but that's because a filename is a sensibly cacheable
+    argument, unlike a config object.
 
     Args:
         config_filename: a CamCOPS config filename
@@ -347,7 +347,7 @@ def all_extra_strings_as_dicts(
             locale = taskroot.attrib.get("locale", MISSING_LOCALE)
             taskstrings = allstrings.setdefault(
                 taskname, {}
-            )  # type: Dict[str, Dict[str, str]]  # noqa
+            )  # type: Dict[str, Dict[str, str]]
             for e in taskroot.findall("./string[@name]"):
                 # ... all elements with the tag "string" that have an attribute
                 # named "name"
@@ -355,7 +355,7 @@ def all_extra_strings_as_dicts(
                 final_string = unescape_newlines(text_contents(e))
                 langversions = taskstrings.setdefault(
                     stringname, {}
-                )  # type: Dict[str, str]  # noqa
+                )  # type: Dict[str, str]
                 langversions[locale] = final_string
 
     if APPSTRING_TASKNAME not in allstrings:

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 camcops_server/cc_modules/cc_filename.py
 
@@ -46,10 +44,10 @@ from camcops_server.cc_modules.cc_exception import STR_FORMAT_EXCEPTIONS
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_patientidnum import (
-        PatientIdNum,  # noqa: F401
+        PatientIdNum,
     )
     from camcops_server.cc_modules.cc_request import (
-        CamcopsRequest,  # noqa: F401
+        CamcopsRequest,
     )
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
