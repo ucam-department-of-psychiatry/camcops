@@ -3958,3 +3958,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Fix cursor placement when entering the access key on iOS. The workaround for
   https://bugreports.qt.io/browse/QTBUG-115756 is now only applied for Android.
+
+- Qt version now 6.5.5.

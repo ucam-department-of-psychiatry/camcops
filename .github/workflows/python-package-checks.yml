@@ -14,7 +14,7 @@ jobs:
             matrix:
                 python-version: [3.9, "3.10", 3.11, 3.12]
                 # LTS versions
-                os: [ubuntu-20.04, ubuntu-22.04]
+                os: [ubuntu-22.04]
         runs-on: ${{ matrix.os }}
         steps:
             - uses: actions/checkout@v4
@@ -29,7 +29,9 @@ jobs:
                   echo checking packages for conflicts
                   python -m pip check
                   echo installing vulnerability checker
-                  python -m pip install safety
+                  # safety check is unsupported beyond June 2024 and is replaced with a paid service
+                  # Marshmallow 4.0.0 gives error "post_dump() got an unexpected keyword argument 'pass_many'"
+                  python -m pip install safety "marshmallow<4.0.0"
                   echo checking packages for vulnerabilities
                   # All of these vulnerabilities look either harmless or very low risk
                   # 51668 sqlalchemy. Fix in 2.0 beta. We don't log Engine.URL()

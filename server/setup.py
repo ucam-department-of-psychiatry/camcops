@@ -68,7 +68,7 @@ INSTALL_REQUIRES = [
     # The GitHub syntax (for development only) is:
     # "libraryname @ git+https://github.com/owner/reponame@commitsignature#egg==libraryname-version"  # noqa: E501
     "alembic==1.4.2",  # database migrations
-    "asteval==0.9.25",  # safe-ish alternative to eval
+    "asteval==1.0.6",  # safe-ish alternative to eval
     "cardinal_pythonlib==2.0.3",  # RNC libraries
     "celery==5.3.6",  # background tasks
     "colander==1.7.0",  # serialization/deserialization from web forms
@@ -149,7 +149,7 @@ INSTALL_REQUIRES = [
     "openpyxl==3.0.7",  # also for pyexcel-xlsx
     "pandas==1.4.4",
     "prettytable==0.7.2",
-    "psutil==5.7.0",
+    "psutil==6.1.1",  # process management, cardinal_pythonlib dependency, not currently used  # noqa: E501
     "pyparsing==2.4.7",
     "pypdf==3.17.0",  # Used by cardinal_pythonlib.pdf
     "python-dateutil==2.9.0.post0",  # date/time extensions.
@@ -162,7 +162,7 @@ INSTALL_REQUIRES = [
     "alabaster==0.7.12",  # for sphinx
     "amqp==5.3.1",  # for celery
     "Chameleon==3.8.1",  # for Deform
-    "tornado==6.4.2",  # for celery
+    "tornado==6.5",  # for celery
     "webob==1.8.8",  # for pyramid
 ]
 
