@@ -184,9 +184,9 @@ class PatientTaskScheduleTests(DemoRequestTestCase):
 
         url = pts.email_body(self.req)
         (scheme, netloc, path, query, fragment) = urlsplit(url)
-        self.assertEqual(scheme, "camcops")
-        self.assertEqual(netloc, "camcops.org")
-        self.assertEqual(path, "/register/")
+        self.assertEqual(scheme, "https")
+        self.assertEqual(netloc, "ucam-department-of-psychiatry.github.io")
+        self.assertEqual(path, "/camcops/register")
         query_dict = parse_qs(query)
         self.assertEqual(query_dict["default_single_user_mode"], ["true"])
         self.assertEqual(
@@ -204,8 +204,8 @@ class PatientTaskScheduleTests(DemoRequestTestCase):
         url = pts.email_body(self.req)
         (scheme, netloc, path, query, fragment) = urlsplit(url)
         self.assertEqual(scheme, "camcops")
-        self.assertEqual(netloc, "camcops.org")
-        self.assertEqual(path, "/register/")
+        self.assertEqual(netloc, "ucam-department-of-psychiatry.github.io")
+        self.assertEqual(path, "/camcops/register")
         query_dict = parse_qs(query)
         self.assertEqual(query_dict["default_single_user_mode"], ["true"])
         self.assertEqual(
