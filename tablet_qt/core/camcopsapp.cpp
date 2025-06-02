@@ -220,7 +220,8 @@ void CamcopsApp::setModeFromUser()
     int new_mode;
 
     // Single user mode specified on the command line or if the app was
-    // launched via a deep link on Android (starting http://camcops/)
+    // launched via a deep link on Android (starting
+    // https://ucam-department-of-psychiatry.github.io/camcops/register/)
     if (old_mode == varconst::MODE_NOT_SET && m_default_single_user_mode) {
         new_mode = varconst::MODE_SINGLE_USER;
     } else {
