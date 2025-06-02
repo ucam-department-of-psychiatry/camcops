@@ -3960,3 +3960,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   https://bugreports.qt.io/browse/QTBUG-115756 is now only applied for Android.
 
 - Qt version now 6.5.5.
+
+- Fix automatic patient registration by URL for Android 12+ using applink verification at
+  https://ucam-department-of-psychiatry.github.io/camcops/register
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/335
