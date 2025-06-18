@@ -111,7 +111,7 @@ INSTALL_REQUIRES = [
     "pytest==8.3.4",  # automatic testing
     "pytest-env==1.1.5",  # automatic testing
     "qrcode[pil]==7.2",  # for registering with Authenticators
-    "requests==2.32.2",  # in fetch_snomed_codes.py and cc_sms.py, but also required by something else?  # noqa: E501
+    "requests==2.32.4",  # in fetch_snomed_codes.py and cc_sms.py, but also required by something else?  # noqa: E501
     "rich-argparse==0.5.0",  # colourful help
     "sadisplay==0.4.9",  # SQL Alchemy schema display script
     "scipy==1.13.1",  # used by some tasks. slow installation.
