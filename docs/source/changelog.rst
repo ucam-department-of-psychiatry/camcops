@@ -3956,5 +3956,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - **Minimum Python version now Python 3.9.** Python 3.11 and 3.12 supported.
 
+- Fix cursor placement when entering the access key on iOS. The workaround for
+  https://bugreports.qt.io/browse/QTBUG-115756 is now only applied for Android.
+
 - Update to use SQLAlchemy 2.0 (Database revision 0086 for minor changes to
   comments for HAMD and HAMD7).
