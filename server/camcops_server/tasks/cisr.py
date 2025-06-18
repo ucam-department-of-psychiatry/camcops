@@ -4281,14 +4281,14 @@ class Cisr(TaskHasPatientMixin, Task):  # type: ignore[misc]
         return [
             CtvInfo(
                 content=(
-                    f"Possible primary diagnosis: "
+                    f"{res.caveat_prefix}Possible primary diagnosis: "
                     f"{bold(res.diagnosis_1_name())} "
                     f"({res.diagnosis_1_icd10_code()})"
                 )
             ),
             CtvInfo(
                 content=(
-                    f"Possible secondary diagnosis: "
+                    f"{res.caveat_prefix}Possible secondary diagnosis: "
                     f"{bold(res.diagnosis_2_name())} "
                     f"({res.diagnosis_2_icd10_code()})"
                 )
