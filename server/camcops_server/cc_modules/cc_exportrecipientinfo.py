@@ -163,7 +163,10 @@ class ExportRecipientInfo(object):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """
-        Initializes, optionally copying attributes from ``other``.
+        Initializes, optionally copying attributes from named (keyword)
+        argument ``other``, which, if present, should be of type
+        ExportRecipientInfo (or something that inherits from it, like
+        ExportRecipient).
         """
 
         other = kwargs.pop("other", None)

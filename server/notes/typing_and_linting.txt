@@ -127,11 +127,11 @@ Type annotation of variables
 Need for imports
 -------------------------------------------------------------------------------
 
-(a) Always:
+(a) Import always:
 
     from somewhere import Something
 
-(b) Conditionally:
+(b) Import conditionally:
 
     from typing import TYPE_CHECKING
     if TYPE_CHECKING:
@@ -204,6 +204,10 @@ Suppressions (at the end of the line):
 
 - Check that attribute exists
   # type: ignore[attr-defined]
+
+- Check indexing operations (e.g. that an object supports indexing and the
+  index is of the right type)
+  # type: ignore[index]
 
 - Miscellaneous checks
   # type: ignore[misc]
