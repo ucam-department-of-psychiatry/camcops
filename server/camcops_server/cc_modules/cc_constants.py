@@ -32,6 +32,7 @@ camcops_server/cc_modules/cc_constants.py
 import logging
 import multiprocessing
 import os
+from typing import cast
 
 from cardinal_pythonlib.randomness import create_base64encoded_randomness
 from cardinal_pythonlib.sqlalchemy.session import make_mysql_url
@@ -859,7 +860,10 @@ class ConfigDefaults(object):
         return make_mysql_url(
             driver=driver,
             host=self.DB_SERVER,
-            port=int(self.DB_PORT),
+            # A bit suboptimal here. cardinal_pythonlib quite understandably
+            # thinks a port should be an int but we want to put in the string
+            # @@db_port@@ to be replaced later in the config file
+            port=cast(int, self.DB_PORT),
             username=self.DB_USER,
             password=self.DB_PASSWORD,
             dbname=self.DB_DATABASE,
