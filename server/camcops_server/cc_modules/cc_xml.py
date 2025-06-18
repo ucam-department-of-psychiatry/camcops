@@ -43,7 +43,10 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.type_api import TypeEngine
 
 from camcops_server.cc_modules.cc_simpleobjects import XmlSimpleValue
-from camcops_server.cc_modules.cc_sqla_coltypes import gen_camcops_blob_columns
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    COLATTR_BLOB_RELATIONSHIP_ATTR_NAME,
+    gen_camcops_blob_columns,
+)
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import (
@@ -253,7 +256,9 @@ def make_xml_branches_from_blobs(  # type: ignore[no-untyped-def]
         colname = column.name
         if colname in skip_fields:
             continue
-        relationship_attr = column.info.get("blob_relationship_attr_name", "")
+        relationship_attr = column.info.get(
+            COLATTR_BLOB_RELATIONSHIP_ATTR_NAME, ""
+        )
         blob = getattr(obj, relationship_attr)
         branches.append(
             XmlElement(

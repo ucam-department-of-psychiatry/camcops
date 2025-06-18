@@ -28,7 +28,8 @@ camcops_server/tasks/hamd.py
 from typing import Any, cast, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.orm import Mapped, MappedColumn
+from sqlalchemy.orm import Mapped
+from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -38,7 +39,9 @@ from camcops_server.cc_modules.cc_html import answer, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
+    COLATTR_PERMITTED_VALUE_CHECKER,
     mapped_camcops_column,
+    PermittedValueChecker,
     SummaryCategoryColType,
     ZERO_TO_ONE_CHECKER,
     ZERO_TO_TWO_CHECKER,
@@ -384,10 +387,13 @@ class Hamd(  # type: ignore[misc]
                 if q == "q16a" or q == "q16b":
                     rangestr = " <sup>range 0–2; ‘3’ not scored</sup>"
                 else:
-                    col = getattr(self.__class__, q)  # type: MappedColumn
+                    col = getattr(self.__class__, q)  # type: Column
+                    pvc = col.info[
+                        COLATTR_PERMITTED_VALUE_CHECKER
+                    ]  # type: PermittedValueChecker
                     rangestr = " <sup>range {}–{}</sup>".format(
-                        col.info["permitted_value_checker"].minimum,  # type: ignore[attr-defined]  # noqa: E501
-                        col.info["permitted_value_checker"].maximum,  # type: ignore[attr-defined]  # noqa: E501
+                        pvc.minimum,
+                        pvc.maximum,
                     )
                 qstr = self.wxstring(req, "" + q + "_s") + rangestr
             q_a += tr_qa(

@@ -1439,7 +1439,13 @@ ONE_TO_TEN_CHECKER = PermittedValueChecker(minimum=1, maximum=10)
 # camcops_column: provides extra functions over Column.
 # =============================================================================
 
-# Column attributes:
+# Column attributes
+COLATTR_BLOB_RELATIONSHIP_ATTR_NAME = "blob_relationship_attr_name"
+COLATTR_EXEMPT_FROM_ANONYMISATION = "exempt_from_anonymisation"
+COLATTR_IDENTIFIES_PATIENT = "identifies_patient"
+COLATTR_INCLUDE_IN_ANON_STAGING_DB = "include_in_anon_staging_db"
+COLATTR_IS_BLOB_ID_FIELD = "is_blob_id_field"
+COLATTR_IS_CAMCOPS_COLUMN = "is_camcops_column"
 COLATTR_PERMITTED_VALUE_CHECKER = "permitted_value_checker"
 
 
@@ -1487,15 +1493,15 @@ def camcops_column(
             "If specifying a BLOB ID field, must give the attribute name "
             "of the relationship too"
         )
-    info = dict(
-        is_camcops_column=True,
-        include_in_anon_staging_db=include_in_anon_staging_db,
-        exempt_from_anonymisation=exempt_from_anonymisation,
-        identifies_patient=identifies_patient,
-        is_blob_id_field=is_blob_id_field,
-        blob_relationship_attr_name=blob_relationship_attr_name,
-        permitted_value_checker=permitted_value_checker,
-    )
+    info = {
+        COLATTR_IS_CAMCOPS_COLUMN: True,
+        COLATTR_INCLUDE_IN_ANON_STAGING_DB: include_in_anon_staging_db,
+        COLATTR_EXEMPT_FROM_ANONYMISATION: exempt_from_anonymisation,
+        COLATTR_IDENTIFIES_PATIENT: identifies_patient,
+        COLATTR_IS_BLOB_ID_FIELD: is_blob_id_field,
+        COLATTR_BLOB_RELATIONSHIP_ATTR_NAME: blob_relationship_attr_name,
+        COLATTR_PERMITTED_VALUE_CHECKER: permitted_value_checker,
+    }
     return Column(*args, info=info, **kwargs)
 
 
@@ -1546,15 +1552,15 @@ def mapped_camcops_column(  # type: ignore[no-untyped-def]
             "If specifying a BLOB ID field, must give the attribute name "
             "of the relationship too"
         )
-    info = dict(
-        is_camcops_column=True,
-        include_in_anon_staging_db=include_in_anon_staging_db,
-        exempt_from_anonymisation=exempt_from_anonymisation,
-        identifies_patient=identifies_patient,
-        is_blob_id_field=is_blob_id_field,
-        blob_relationship_attr_name=blob_relationship_attr_name,
-        permitted_value_checker=permitted_value_checker,
-    )
+    info = {
+        COLATTR_IS_CAMCOPS_COLUMN: True,
+        COLATTR_INCLUDE_IN_ANON_STAGING_DB: include_in_anon_staging_db,
+        COLATTR_EXEMPT_FROM_ANONYMISATION: exempt_from_anonymisation,
+        COLATTR_IDENTIFIES_PATIENT: identifies_patient,
+        COLATTR_IS_BLOB_ID_FIELD: is_blob_id_field,
+        COLATTR_BLOB_RELATIONSHIP_ATTR_NAME: blob_relationship_attr_name,
+        COLATTR_PERMITTED_VALUE_CHECKER: permitted_value_checker,
+    }
     return mapped_column(*args, info=info, **kwargs)
 
 
@@ -1597,7 +1603,7 @@ def gen_camcops_columns(  # type: ignore[no-untyped-def]
         ``attrname, column`` tuples
     """
     for attrname, column in gen_columns(obj):
-        if column.info.get("is_camcops_column", False):
+        if column.info.get(COLATTR_IS_CAMCOPS_COLUMN, False):
             yield attrname, column
 
 
@@ -1616,7 +1622,7 @@ def gen_camcops_blob_columns(  # type: ignore[no-untyped-def]
         ``attrname, column`` tuples
     """
     for attrname, column in gen_camcops_columns(obj):
-        if column.info.get("is_blob_id_field", False):
+        if column.info.get(COLATTR_IS_BLOB_ID_FIELD, False):
             if attrname != column.name:
                 log.warning(
                     "BLOB field where attribute name {!r} != SQL "
@@ -1664,9 +1670,9 @@ def permitted_value_failure_msgs(obj) -> List[str]:  # type: ignore[no-untyped-d
     :func:`permitted_values_ok`.
     """
     failure_msgs = []
-    for attrname, camcops_column in gen_camcops_columns(obj):
-        pv_checker = camcops_column.info.get(
-            "permitted_value_checker"
+    for attrname, camcops_column_ in gen_camcops_columns(obj):
+        pv_checker = camcops_column_.info.get(
+            COLATTR_PERMITTED_VALUE_CHECKER
         )  # type: Optional[PermittedValueChecker]
         if pv_checker is None:
             continue
@@ -1685,9 +1691,9 @@ def permitted_values_ok(obj) -> bool:  # type: ignore[no-untyped-def]
     If you want to know why it failed, see
     :func:`permitted_value_failure_msgs`.
     """
-    for attrname, camcops_column in gen_camcops_columns(obj):
-        pv_checker = camcops_column.info.get(
-            "permitted_value_checker"
+    for attrname, camcops_column_ in gen_camcops_columns(obj):
+        pv_checker = camcops_column_.info.get(
+            COLATTR_PERMITTED_VALUE_CHECKER
         )  # type: Optional[PermittedValueChecker]
         if pv_checker is None:
             continue

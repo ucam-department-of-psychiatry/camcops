@@ -28,6 +28,8 @@ hence the tasks that will be permitted).
 
 """
 
+from typing import Any
+
 from cardinal_pythonlib.reprfunc import auto_repr, auto_str
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -89,11 +91,13 @@ class IpUse(Base):
         commercial: bool = _DEFAULT_APPLICABILITY,
         educational: bool = _DEFAULT_APPLICABILITY,
         research: bool = _DEFAULT_APPLICABILITY,
+        **kwargs: Any
     ) -> None:
         """
         We provide __init__() so we can create a default object without
         touching the database.
         """
+        super().__init__(**kwargs)
         self.clinical = clinical
         self.commercial = commercial
         self.educational = educational

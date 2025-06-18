@@ -25,7 +25,7 @@ camcops_server/tasks/moca.py
 
 """
 
-from typing import Any, cast, List, Optional, Type, Union
+from typing import Any, cast, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.orm import Mapped, mapped_column
@@ -298,7 +298,7 @@ class Moca(  # type: ignore[misc]
             and self.field_contents_valid()
         )
 
-    def total_score(self) -> Union[int, float]:
+    def total_score(self) -> int:
         score = self.sum_fields(self.QFIELDS)
         # Interpretation of the educational extra point: see moca.cpp; we have
         # a choice of allowing 31/30 or capping at 30. I think the instructions
@@ -306,7 +306,7 @@ class Moca(  # type: ignore[misc]
         if score < self.MAX_SCORE:
             score += self.sum_fields(["education12y_or_less"])
             # extra point for this
-        return score
+        return cast(int, score)
 
     def score_vsp(self) -> int:
         return cast(int, self.sum_fields(self.VSP_FIELDS))

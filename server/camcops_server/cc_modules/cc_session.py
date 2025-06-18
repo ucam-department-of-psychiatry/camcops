@@ -401,13 +401,17 @@ class CamcopsSession(Base):
         return q.count_star()
 
     def __init__(
-        self, ip_addr: str = None, last_activity_utc: Pendulum = None
+        self,
+        ip_addr: str = None,
+        last_activity_utc: Pendulum = None,
+        **kwargs: Any
     ):
         """
         Args:
             ip_addr: client IP address
             last_activity_utc: date/time of last activity that occurred
         """
+        super().__init__(**kwargs)
         self.token = generate_token()
         self.ip_address = ip_addr
         self.last_activity_utc = last_activity_utc

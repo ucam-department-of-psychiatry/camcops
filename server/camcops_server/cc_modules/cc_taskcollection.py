@@ -932,11 +932,10 @@ class TaskCollection(object):
                 liberal_group_ids = (
                     user.group_ids_nonsuperuser_may_see_when_unfiltered()
                 )
+                # Anonymous is OK:
                 # noinspection PyPep8
                 liberal_or_anon_criteria = [
-                    TaskIndexEntry.patient_pk
-                    == None  # noqa: E711
-                    # anonymous OK
+                    TaskIndexEntry.patient_pk == None  # noqa: E711
                 ]  # type: List[ClauseElement]
                 for gid in liberal_group_ids:
                     liberal_or_anon_criteria.append(
