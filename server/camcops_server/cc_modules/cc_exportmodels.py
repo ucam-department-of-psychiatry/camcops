@@ -1218,7 +1218,9 @@ class ExportedTaskRedcap(Base):
         ),
     )
 
-    def __init__(self, exported_task: ExportedTask = None, **kwargs) -> None:
+    def __init__(
+        self, exported_task: ExportedTask = None, **kwargs: Any
+    ) -> None:
         """
         Args:
             exported_task: :class:`ExportedTask` object
@@ -1273,7 +1275,9 @@ class ExportedTaskFhir(Base):
         "ExportedTaskFhirEntry", back_populates="exported_task_fhir"
     )
 
-    def __init__(self, exported_task: ExportedTask = None, **kwargs) -> None:
+    def __init__(
+        self, exported_task: ExportedTask = None, **kwargs: Any
+    ) -> None:
         """
         Args:
             exported_task: :class:`ExportedTask` object
