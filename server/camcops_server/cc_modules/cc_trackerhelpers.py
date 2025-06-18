@@ -99,7 +99,7 @@ class TrackerInfo(object):
         axis_min: float = None,
         axis_max: float = None,
         axis_ticks: Optional[List[TrackerAxisTick]] = None,
-        horizontal_lines: Optional[Union[list[float], list[int]]] = None,
+        horizontal_lines: Optional[list[Union[float, int]]] = None,
         horizontal_labels: Optional[List[TrackerLabel]] = None,
         aspect_ratio: Optional[float] = DEFAULT_TRACKER_ASPECT_RATIO,
     ):
