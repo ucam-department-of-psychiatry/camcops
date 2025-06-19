@@ -28,11 +28,10 @@ camcops_server/tasks/edeq.py
 """
 
 import statistics
-from typing import Any, Dict, List, Optional, Type, Tuple
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strnumlist, strseq
 from sqlalchemy import Column
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Float, Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -44,13 +43,20 @@ from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
-class EdeqMetaclass(DeclarativeMeta):
-    def __init__(
-        cls: Type["Edeq"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Edeq(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    __tablename__ = "edeq"
+    shortname = "EDE-Q"
+    provides_trackers = True
+
+    N_QUESTIONS = 28
+
+    MEASUREMENT_FIELD_NAMES = ["mass_kg", "height_m"]
+
+    @classmethod
+    def extend_columns(cls: Type["Edeq"], **kwargs: Any) -> None:
 
         add_multiple_columns(
             cls,
@@ -160,17 +166,6 @@ class EdeqMetaclass(DeclarativeMeta):
             ),
         )
 
-        super().__init__(name, bases, classdict)
-
-
-class Edeq(TaskHasPatientMixin, Task, metaclass=EdeqMetaclass):
-    __tablename__ = "edeq"
-    shortname = "EDE-Q"
-    provides_trackers = True
-
-    N_QUESTIONS = 28
-
-    MEASUREMENT_FIELD_NAMES = ["mass_kg", "height_m"]
     COMMON_FIELD_NAMES = strseq("q", 1, N_QUESTIONS) + MEASUREMENT_FIELD_NAMES
 
     FEMALE_FIELD_NAMES = ["num_periods_missed", "pill"]

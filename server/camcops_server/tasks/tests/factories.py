@@ -29,7 +29,7 @@ camcops_server/tasks/tests/factories.py
 
 import factory
 import pendulum
-from typing import cast, TYPE_CHECKING
+from typing import Any, cast, TYPE_CHECKING
 
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_testfactories import (
@@ -59,6 +59,8 @@ from camcops_server.tasks.cardinal_expdetthreshold import (
 )
 from camcops_server.tasks.cardinal_expectationdetection import (
     CardinalExpectationDetection,
+    ExpDetTrial,
+    ExpDetTrialGroupSpec,
 )
 from camcops_server.tasks.cbir import CbiR
 from camcops_server.tasks.ceca import CecaQ3
@@ -210,7 +212,7 @@ class TaskHasPatientFactory(TaskFactory):
     patient_id = None
 
     @classmethod
-    def create(cls, *args, **kwargs) -> Task:
+    def create(cls, *args: Any, **kwargs: Any) -> Task:
         patient = kwargs.pop("patient", None)
         if patient is not None:
             if "patient_id" in kwargs:
@@ -299,7 +301,7 @@ class DiagnosisIcd10ItemFactory(DiagnosisItemFactory):
     seqnum = factory.Sequence(lambda n: n + 1)
 
     @classmethod
-    def create(cls, *args, **kwargs) -> DiagnosisIcd10Item:
+    def create(cls, *args: Any, **kwargs: Any) -> DiagnosisIcd10Item:
         diagnosis_icd10 = kwargs.pop("diagnosis_icd10", None)
         if diagnosis_icd10 is not None:
             if "diagnosis_icd10_id" in kwargs:
@@ -337,7 +339,7 @@ class DiagnosisIcd9CMItemFactory(DiagnosisItemFactory):
     seqnum = factory.Sequence(lambda n: n + 1)
 
     @classmethod
-    def create(cls, *args, **kwargs) -> DiagnosisIcd9CMItem:
+    def create(cls, *args: Any, **kwargs: Any) -> DiagnosisIcd9CMItem:
         diagnosis_icd9cm = kwargs.pop("diagnosis_icd9cm", None)
         if diagnosis_icd9cm is not None:
             if "diagnosis_icd9cm_id" in kwargs:
@@ -498,6 +500,51 @@ class CardinalExpectationDetectionFactory(TaskHasPatientFactory):
         model = CardinalExpectationDetection
 
     id = factory.Sequence(lambda n: n + 1)
+    num_blocks = factory.LazyFunction(Fake.en_gb.pyint)
+
+    @factory.post_generation
+    def trials(
+        obj: "Resolver", create: bool, num_trials: int, **kwargs: Any
+    ) -> None:
+        if not create:
+            return
+
+        if num_trials:
+            ExpDetTrialFactory.create_batch(
+                size=num_trials,
+                cardinal_expdet_id=obj.id,
+                _device=obj._device,
+            )
+
+    @factory.post_generation
+    def groupspecs(
+        obj: "Resolver", create: bool, num_groupspecs: int, **kwargs: Any
+    ) -> None:
+        if not create:
+            return
+
+        if num_groupspecs:
+            ExpDetTrialGroupSpecFactory.create_batch(
+                size=num_groupspecs,
+                cardinal_expdet_id=obj.id,
+                _device=obj._device,
+            )
+
+
+class ExpDetTrialFactory(GenericTabletRecordFactory):
+    class Meta:
+        model = ExpDetTrial
+
+    id = factory.Sequence(lambda n: n + 1)
+    trial = factory.Sequence(lambda n: n + 1)
+
+
+class ExpDetTrialGroupSpecFactory(GenericTabletRecordFactory):
+    class Meta:
+        model = ExpDetTrialGroupSpec
+
+    id = factory.Sequence(lambda n: n + 1)
+    group_num = factory.Sequence(lambda n: n + 1)
 
 
 class CardinalExpDetThresholdFactory(TaskHasPatientFactory):
@@ -1103,7 +1150,7 @@ class PhotoFactory(TaskHasPatientFactory):
 
     @factory.post_generation
     def create_blob(
-        obj: "Resolver", create: bool, extracted: None, **kwargs
+        obj: "Resolver", create: bool, extracted: None, **kwargs: Any
     ) -> None:
         if not create:
             return
@@ -1128,7 +1175,7 @@ class PhotoSequenceFactory(TaskHasPatientFactory):
 
     @factory.post_generation
     def photos(
-        obj: "Resolver", create: bool, num_photos: int, **kwargs
+        obj: "Resolver", create: bool, num_photos: int, **kwargs: Any
     ) -> None:
         if not create:
             return
@@ -1151,7 +1198,7 @@ class PhotoSequenceSinglePhotoFactory(GenericTabletRecordFactory):
 
     @factory.post_generation
     def photo(
-        obj: "Resolver", create: bool, num_photos: int, **kwargs
+        obj: "Resolver", create: bool, num_photos: int, **kwargs: Any
     ) -> None:
         if not create:
             return

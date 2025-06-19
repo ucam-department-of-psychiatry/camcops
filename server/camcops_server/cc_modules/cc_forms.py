@@ -416,7 +416,7 @@ class BugfixSelectWidget(SelectWidget):
     See :func:`camcops_server.cc_modules.webview.debug_form_rendering`.
     """  # noqa
 
-    def __init__(self, multiple=False, **kwargs) -> None:
+    def __init__(self, multiple: bool = False, **kwargs: Any) -> None:
         multiple = True if multiple else None  # None, not False
         super().__init__(multiple=multiple, **kwargs)
 
@@ -440,7 +440,7 @@ class InformativeNonceForm(InformativeForm):
 
     if DEFORM_SUPPORTS_CSP_NONCE:
 
-        def __init__(self, schema: Schema, **kwargs) -> None:
+        def __init__(self, schema: Schema, **kwargs: Any) -> None:
             request = schema.request  # type: CamcopsRequest
             kwargs["nonce"] = request.nonce
             super().__init__(schema, **kwargs)
@@ -455,7 +455,7 @@ class DynamicDescriptionsNonceForm(DynamicDescriptionsForm):
 
     if DEFORM_SUPPORTS_CSP_NONCE:
 
-        def __init__(self, schema: Schema, **kwargs) -> None:
+        def __init__(self, schema: Schema, **kwargs: Any) -> None:
             request = schema.request  # type: CamcopsRequest
             kwargs["nonce"] = request.nonce
             super().__init__(schema, **kwargs)
@@ -474,14 +474,14 @@ class RequestAwareMixin(object):
     together with some translations and other convenience functions.
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         # Stop multiple inheritance complaints
         super().__init__(*args, **kwargs)
 
     # noinspection PyUnresolvedReferences
     @property
     def request(self) -> "CamcopsRequest":
-        return self.bindings[Binding.REQUEST]
+        return self.bindings[Binding.REQUEST]  # type: ignore[attr-defined]
 
     # noinspection PyUnresolvedReferences,PyPropertyDefinition
     @property
@@ -531,7 +531,7 @@ class TranslatableSequenceWidget(SequenceWidget):
     request-specific way.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         super().__init__(**kwargs)
         _ = request.gettext
         self.add_subitem_text_template = _("Add") + " ${subitem_title}"
@@ -552,7 +552,7 @@ class TranslatableOptionalPendulumNode(
     .. todo:: TranslatableOptionalPendulumNode not fully implemented
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.widget = None  # type: Optional[Widget]
 
@@ -576,7 +576,7 @@ class TranslatableDateTimeSelectorNode(
     .. todo:: TranslatableDateTimeSelectorNode not fully implemented
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.widget = None  # type: Optional[Widget]
 
@@ -754,7 +754,7 @@ class HorizontalFormMixin(object):
     using custom templates via :class:`HorizontalFormWidget`. Not fantastic.
     """
 
-    def __init__(self, schema: Schema, *args, **kwargs) -> None:
+    def __init__(self, schema: Schema, *args: Any, **kwargs: Any) -> None:
         kwargs = kwargs or {}
 
         # METHOD 1: add "form-inline" to the CSS classes.
@@ -768,7 +768,7 @@ class HorizontalFormMixin(object):
         schema.widget = HorizontalFormWidget()
 
         # OK, proceed.
-        super().__init__(schema, *args, **kwargs)
+        super().__init__(schema, *args, **kwargs)  # type: ignore[call-arg]
 
 
 def add_css_class(
@@ -798,7 +798,7 @@ class FormInlineCssMixin(object):
     inheritance order.
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         kwargs = kwargs or {}
         add_css_class(kwargs, BootstrapCssClasses.FORM_INLINE)
         super().__init__(*args, **kwargs)
@@ -836,7 +836,7 @@ class SimpleSubmitForm(InformativeNonceForm):
         schema_class: Type[Schema],
         submit_title: str,
         request: "CamcopsRequest",
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         """
         Args:
@@ -861,7 +861,7 @@ class OkForm(SimpleSubmitForm):
     Form with a button that says "OK".
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         _ = request.gettext
         super().__init__(
             schema_class=CSRFSchema,
@@ -877,7 +877,10 @@ class ApplyCancelForm(InformativeNonceForm):
     """
 
     def __init__(
-        self, schema_class: Type[Schema], request: "CamcopsRequest", **kwargs
+        self,
+        schema_class: Type[Schema],
+        request: "CamcopsRequest",
+        **kwargs: Any,
     ) -> None:
         schema = schema_class().bind(request=request)
         _ = request.gettext
@@ -897,7 +900,10 @@ class AddCancelForm(InformativeNonceForm):
     """
 
     def __init__(
-        self, schema_class: Type[Schema], request: "CamcopsRequest", **kwargs
+        self,
+        schema_class: Type[Schema],
+        request: "CamcopsRequest",
+        **kwargs: Any,
     ) -> None:
         schema = schema_class().bind(request=request)
         _ = request.gettext
@@ -924,7 +930,7 @@ class DangerousForm(DynamicDescriptionsNonceForm):
         submit_action: str,
         submit_title: str,
         request: "CamcopsRequest",
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         schema = schema_class().bind(request=request)
         _ = request.gettext
@@ -949,7 +955,10 @@ class DeleteCancelForm(DangerousForm):
     """
 
     def __init__(
-        self, schema_class: Type[Schema], request: "CamcopsRequest", **kwargs
+        self,
+        schema_class: Type[Schema],
+        request: "CamcopsRequest",
+        **kwargs: Any,
     ) -> None:
         _ = request.gettext
         super().__init__(
@@ -976,7 +985,7 @@ class OptionalSingleTaskSelector(OptionalStringNode, RequestAwareMixin):
     """
 
     def __init__(
-        self, *args, tracker_tasks_only: bool = False, **kwargs
+        self, *args: Any, tracker_tasks_only: bool = False, **kwargs: Any
     ) -> None:
         """
         Args:
@@ -1052,10 +1061,10 @@ class MultiTaskSelector(SchemaNode, RequestAwareMixin):
 
     def __init__(
         self,
-        *args,
+        *args: Any,
         tracker_tasks_only: bool = False,
         minimum_number: int = 0,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         self.tracker_tasks_only = tracker_tasks_only
         self.minimum_number = minimum_number
@@ -1103,7 +1112,7 @@ class ViaIndexSelector(BooleanNode, RequestAwareMixin):
     Default is true.
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, default=True, **kwargs)
 
     # noinspection PyUnusedLocal
@@ -1126,7 +1135,7 @@ class MandatoryWhichIdNumSelector(SchemaNode, RequestAwareMixin):
 
     widget = SelectWidget()
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         if not hasattr(self, "allow_none"):
             # ... allows parameter-free (!) inheritance by
             # OptionalWhichIdNumSelector
@@ -1180,7 +1189,7 @@ class MandatoryIdNumValue(SchemaNode, RequestAwareMixin):
     schema_type = Integer
     validator = Range(min=0)
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         super().__init__(*args, **kwargs)
 
@@ -1203,7 +1212,7 @@ class MandatoryIdNumNode(MappingSchema, RequestAwareMixin):
     )  # must match ViewParam.WHICH_IDNUM
     idnum_value = MandatoryIdNumValue()  # must match ViewParam.IDNUM_VALUE
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         super().__init__(*args, **kwargs)
 
@@ -1236,7 +1245,7 @@ class IdNumSequenceAnyCombination(SequenceSchema, RequestAwareMixin):
 
     idnum_sequence = MandatoryIdNumNode()
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.widget = None  # type: Optional[Widget]
         super().__init__(*args, **kwargs)
@@ -1268,7 +1277,7 @@ class IdNumSequenceUniquePerWhichIdnum(SequenceSchema, RequestAwareMixin):
 
     idnum_sequence = MandatoryIdNumNode()
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.widget = None  # type: Optional[Widget]
         super().__init__(*args, **kwargs)
@@ -1300,7 +1309,7 @@ class OptionalSexSelector(OptionalStringNode, RequestAwareMixin):
     Optional node to choose sex.
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.validator = None  # type: Optional[ValidatorType]
         self.widget = None  # type: Optional[Widget]
@@ -1321,7 +1330,7 @@ class MandatorySexSelector(MandatoryStringNode, RequestAwareMixin):
     Mandatory node to choose sex.
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.validator = None  # type: Optional[ValidatorType]
         self.widget = None  # type: Optional[Widget]
@@ -1350,7 +1359,7 @@ class MandatoryUserIdSelectorUsersAllowedToSee(SchemaNode, RequestAwareMixin):
 
     schema_type = Integer
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.validator = None  # type: Optional[ValidatorType]
         self.widget = None  # type: Optional[Widget]
@@ -1391,7 +1400,7 @@ class OptionalUserNameSelector(OptionalStringNode, RequestAwareMixin):
 
     title = "User"
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.validator = None  # type: Optional[ValidatorType]
         self.widget = None  # type: Optional[Widget]
@@ -1425,7 +1434,10 @@ class UsernameNode(SchemaNode, RequestAwareMixin):
     )
 
     def __init__(
-        self, *args, autocomplete: str = AutocompleteAttrValues.OFF, **kwargs
+        self,
+        *args: Any,
+        autocomplete: str = AutocompleteAttrValues.OFF,
+        **kwargs: Any,
     ) -> None:
         self.title = ""  # for type checker
         self.autocomplete = autocomplete
@@ -1466,7 +1478,7 @@ class UserFilterSchema(Schema, RequestAwareMixin):
         _ = self.gettext
         include_auto_generated = get_child_node(self, "include_auto_generated")
         include_auto_generated.title = _("Include auto-generated users")
-        include_auto_generated.label = None
+        include_auto_generated.label = None  # type: ignore[attr-defined]
 
 
 class UserFilterForm(InformativeNonceForm):
@@ -1498,7 +1510,7 @@ class MandatoryDeviceIdSelector(SchemaNode, RequestAwareMixin):
 
     schema_type = Integer
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.validator = None  # type: Optional[ValidatorType]
         self.widget = None  # type: Optional[Widget]
@@ -1533,7 +1545,7 @@ class ServerPkSelector(OptionalIntNode, RequestAwareMixin):
     Optional node to request an integer, marked as a server PK.
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         super().__init__(*args, **kwargs)
 
@@ -1555,7 +1567,7 @@ class StartPendulumSelector(
     Optional node to select a start date/time.
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         super().__init__(*args, **kwargs)
 
@@ -1570,7 +1582,7 @@ class EndPendulumSelector(TranslatableOptionalPendulumNode, RequestAwareMixin):
     Optional node to select an end date/time.
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         super().__init__(*args, **kwargs)
 
@@ -1587,7 +1599,7 @@ class StartDateTimeSelector(
     Optional node to select a start date/time (in UTC).
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         super().__init__(*args, **kwargs)
 
@@ -1602,7 +1614,7 @@ class EndDateTimeSelector(TranslatableDateTimeSelectorNode, RequestAwareMixin):
     Optional node to select an end date/time (in UTC).
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         super().__init__(*args, **kwargs)
 
@@ -1618,7 +1630,7 @@ class StartDateSelector(TranslatableDateSelectorNode,
     """
     Optional node to select a start date (in UTC).
     """
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         super().__init__(*args, **kwargs)
 
@@ -1633,7 +1645,7 @@ class EndDateSelector(TranslatableDateSelectorNode,
     """
     Optional node to select an end date (in UTC).
     """
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs) -> None:
         self.title = ""  # for type checker
         super().__init__(*args, **kwargs)
 
@@ -1661,7 +1673,7 @@ class RowsPerPageSelector(SchemaNode, RequestAwareMixin):
     widget = RadioChoiceWidget(values=_choices)
     validator = OneOf(list(x[0] for x in _choices))
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         super().__init__(*args, **kwargs)
 
@@ -1682,7 +1694,7 @@ class MandatoryGroupIdSelectorAllGroups(SchemaNode, RequestAwareMixin):
     Used by superusers: "add user to any group".
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.validator = None  # type: Optional[ValidatorType]
         self.widget = None  # type: Optional[Widget]
@@ -1713,7 +1725,7 @@ class MandatoryGroupIdSelectorAdministeredGroups(
     Used by groupadmins: "add user to one of my groups".
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.validator = None  # type: Optional[ValidatorType]
         self.widget = None  # type: Optional[Widget]
@@ -1745,7 +1757,7 @@ class MandatoryGroupIdSelectorPatientGroups(SchemaNode, RequestAwareMixin):
     Used when managing patients: "add patient to one of my groups".
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.validator = None  # type: Optional[ValidatorType]
         self.widget = None  # type: Optional[Widget]
@@ -1776,7 +1788,7 @@ class MandatoryGroupIdSelectorOtherGroups(SchemaNode, RequestAwareMixin):
     Used by superusers: "which other groups can this group see?"
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.validator = None  # type: Optional[ValidatorType]
         self.widget = None  # type: Optional[Widget]
@@ -1806,7 +1818,7 @@ class MandatoryGroupIdSelectorUserGroups(SchemaNode, RequestAwareMixin):
     Used for: "which of your groups do you want to upload into?"
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         if not hasattr(self, "allow_none"):
             # ... allows parameter-free (!) inheritance by
             # OptionalGroupIdSelectorUserGroups
@@ -1843,7 +1855,7 @@ class OptionalGroupIdSelectorUserGroups(MandatoryGroupIdSelectorUserGroups):
     default = None
     missing = None
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.allow_none = True
         super().__init__(*args, **kwargs)
 
@@ -1858,7 +1870,7 @@ class MandatoryGroupIdSelectorAllowedGroups(SchemaNode, RequestAwareMixin):
     Used for task filters.
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.validator = None  # type: Optional[ValidatorType]
         self.widget = None  # type: Optional[Widget]
@@ -1890,7 +1902,9 @@ class GroupsSequenceBase(SequenceSchema, RequestAwareMixin):
     Sequence schema to capture zero or more non-duplicate groups.
     """
 
-    def __init__(self, *args, minimum_number: int = 0, **kwargs) -> None:
+    def __init__(
+        self, *args: Any, minimum_number: int = 0, **kwargs: Any
+    ) -> None:
         self.title = ""  # for type checker
         self.minimum_number = minimum_number
         self.widget = None  # type: Optional[Widget]
@@ -1937,7 +1951,7 @@ class AdministeredGroupsSequence(GroupsSequenceBase):
 
     group_id_sequence = MandatoryGroupIdSelectorAdministeredGroups()
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, minimum_number=1, **kwargs)
 
 
@@ -1959,7 +1973,7 @@ class AllowedGroupsSequence(GroupsSequenceBase):
 
     group_id_sequence = MandatoryGroupIdSelectorAllowedGroups()
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.description = ""  # for type checker
         super().__init__(*args, **kwargs)
 
@@ -1985,7 +1999,7 @@ class LanguageSelector(SchemaNode, RequestAwareMixin):
     widget = SelectWidget(values=_choices)  # intrinsically translated!
     validator = OneOf(POSSIBLE_LOCALES)
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         super().__init__(*args, **kwargs)
 
@@ -2064,7 +2078,9 @@ class HiddenRedirectionUrlNode(HiddenStringNode, RequestAwareMixin):
 
 
 class PhoneNumberType(String):
-    def __init__(self, request: "CamcopsRequest", *args, **kwargs) -> None:
+    def __init__(
+        self, request: "CamcopsRequest", *args: Any, **kwargs: Any
+    ) -> None:
         super().__init__(*args, **kwargs)
 
         self.request = request
@@ -2153,7 +2169,7 @@ class LoginSchema(CSRFSchema):
     )  # name must match ViewParam.REDIRECT_URL
 
     def __init__(
-        self, *args, autocomplete_password: bool = True, **kwargs
+        self, *args: Any, autocomplete_password: bool = True, **kwargs: Any
     ) -> None:
         self.autocomplete_password = autocomplete_password
         super().__init__(*args, **kwargs)
@@ -2179,7 +2195,7 @@ class LoginForm(InformativeNonceForm):
         self,
         request: "CamcopsRequest",
         autocomplete_password: bool = True,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         """
         Args:
@@ -2226,7 +2242,7 @@ class OtpTokenForm(InformativeNonceForm):
     Form to capture a one-time password for Multi-factor authentication.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         _ = request.gettext
         schema = OtpSchema().bind(request=request)
         super().__init__(
@@ -2250,7 +2266,7 @@ class MustChangePasswordNode(SchemaNode, RequestAwareMixin):
     default = True
     missing = True
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.label = ""  # for type checker
         self.title = ""  # for type checker
         super().__init__(*args, **kwargs)
@@ -2272,7 +2288,7 @@ class OldUserPasswordCheck(SchemaNode, RequestAwareMixin):
         attributes={AUTOCOMPLETE_ATTR: AutocompleteAttrValues.CURRENT_PASSWORD}
     )
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         super().__init__(*args, **kwargs)
 
@@ -2337,7 +2353,7 @@ class NewPasswordNode(SchemaNode, RequestAwareMixin):
 
     schema_type = String
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.description = ""  # for type checker
         super().__init__(*args, **kwargs)
@@ -2369,7 +2385,9 @@ class ChangeOwnPasswordSchema(CSRFSchema):
     old_password = OldUserPasswordCheck()
     new_password = NewPasswordNode()  # name must match ViewParam.NEW_PASSWORD
 
-    def __init__(self, *args, must_differ: bool = True, **kwargs) -> None:
+    def __init__(
+        self, *args: Any, must_differ: bool = True, **kwargs: Any
+    ) -> None:
         """
         Args:
             must_differ:
@@ -2390,7 +2408,10 @@ class ChangeOwnPasswordForm(InformativeNonceForm):
     """
 
     def __init__(
-        self, request: "CamcopsRequest", must_differ: bool = True, **kwargs
+        self,
+        request: "CamcopsRequest",
+        must_differ: bool = True,
+        **kwargs: Any,
     ) -> None:
         """
         Args:
@@ -2429,7 +2450,7 @@ class ChangeOtherPasswordForm(SimpleSubmitForm):
     Form to change another user's password.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         _ = request.gettext
         super().__init__(
             schema_class=ChangeOtherPasswordSchema,
@@ -2448,7 +2469,7 @@ class DisableMfaNode(SchemaNode, RequestAwareMixin):
     default = False
     missing = False
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.label = ""  # for type checker
         self.title = ""  # for type checker
         super().__init__(*args, **kwargs)
@@ -2474,7 +2495,7 @@ class EditOtherUserMfaForm(SimpleSubmitForm):
     Form to reset multi-factor authentication for another user.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         _ = request.gettext
         super().__init__(
             schema_class=EditOtherUserMfaSchema,
@@ -2559,7 +2580,7 @@ class MfaMethodSelector(SchemaNode, RequestAwareMixin):
     default = MfaMethod.TOTP
     missing = MfaMethod.TOTP
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.widget = None  # type: Optional[Widget]
         self.validator = None  # type: Optional[ValidatorType]
@@ -2656,7 +2677,7 @@ class MfaMethodForm(InformativeNonceForm):
     Form to change one's own Multi-factor Authentication settings.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         schema = MfaMethodSchema().bind(request=request)
         super().__init__(
             schema, buttons=[Button(name=FormAction.SUBMIT)], **kwargs
@@ -2668,7 +2689,7 @@ class MfaTotpForm(InformativeNonceForm):
     Form to set up Multi-factor Authentication with authentication app.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         schema = MfaTotpSchema().bind(request=request)
         super().__init__(
             schema, buttons=[Button(name=FormAction.SUBMIT)], **kwargs
@@ -2680,7 +2701,7 @@ class MfaHotpEmailForm(InformativeNonceForm):
     Form to change a user's email address for multi-factor authentication.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         schema = MfaHotpEmailSchema().bind(request=request)
         super().__init__(
             schema, buttons=[Button(name=FormAction.SUBMIT)], **kwargs
@@ -2692,7 +2713,7 @@ class MfaHotpSmsForm(InformativeNonceForm):
     Form to change a user's phone number for multi-factor authentication.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         schema = MfaHotpSmsSchema().bind(request=request)
         super().__init__(
             schema, buttons=[Button(name=FormAction.SUBMIT)], **kwargs
@@ -2718,7 +2739,7 @@ class OfferTermsForm(SimpleSubmitForm):
     """
 
     def __init__(
-        self, request: "CamcopsRequest", agree_button_text: str, **kwargs
+        self, request: "CamcopsRequest", agree_button_text: str, **kwargs: Any
     ) -> None:
         """
         Args:
@@ -2803,7 +2824,7 @@ class AuditTrailForm(SimpleSubmitForm):
     Form to filter and then view audit trail entries.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         _ = request.gettext
         super().__init__(
             schema_class=AuditTrailSchema,
@@ -2828,7 +2849,7 @@ class OptionalExportRecipientNameSelector(
 
     title = "Export recipient"
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.validator = None  # type: Optional[ValidatorType]
         self.widget = None  # type: Optional[Widget]
         super().__init__(*args, **kwargs)
@@ -2885,7 +2906,7 @@ class ExportedTaskListForm(SimpleSubmitForm):
     Form to filter and then view exported task logs.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         _ = request.gettext
         super().__init__(
             schema_class=ExportedTaskListSchema,
@@ -2910,7 +2931,7 @@ class TextContentsSequence(SequenceSchema, RequestAwareMixin):
         String(), validator=Length(0, StringLengths.FILTER_TEXT_MAX_LEN)
     )  # BEWARE: fairly unrestricted contents.
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.description = ""  # for type checker
         self.widget = None  # type: Optional[Widget]
@@ -2944,7 +2965,7 @@ class UploadingUserSequence(SequenceSchema, RequestAwareMixin):
 
     user_id_sequence = MandatoryUserIdSelectorUsersAllowedToSee()
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.description = ""  # for type checker
         self.widget = None  # type: Optional[Widget]
@@ -2973,7 +2994,7 @@ class DevicesSequence(SequenceSchema, RequestAwareMixin):
 
     device_id_sequence = MandatoryDeviceIdSelector()
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.description = ""  # for type checker
         self.widget = None  # type: Optional[Widget]
@@ -3064,7 +3085,7 @@ class EditTaskFilterWhatSchema(Schema, RequestAwareMixin):
         complete_only = get_child_node(self, "complete_only")
         only_completed_text = _("Only completed tasks?")
         complete_only.title = only_completed_text
-        complete_only.label = only_completed_text
+        complete_only.label = only_completed_text  # type: ignore[attr-defined]
 
 
 class EditTaskFilterAdminSchema(Schema):
@@ -3147,7 +3168,7 @@ class EditTaskFilterForm(InformativeNonceForm):
         open_what: bool = False,
         open_when: bool = False,
         open_admin: bool = False,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         _ = request.gettext
         schema = EditTaskFilterSchema().bind(
@@ -3180,7 +3201,7 @@ class TasksPerPageForm(InformativeNonceForm):
     Form to edit the number of tasks per page, for the task view.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         _ = request.gettext
         schema = TasksPerPageSchema().bind(request=request)
         super().__init__(
@@ -3209,7 +3230,7 @@ class RefreshTasksForm(InformativeNonceForm):
     Form for a "refresh tasks" button.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         _ = request.gettext
         schema = RefreshTasksSchema().bind(request=request)
         super().__init__(
@@ -3244,7 +3265,7 @@ class TaskTrackerOutputTypeSelector(SchemaNode, RequestAwareMixin):
     widget = RadioChoiceWidget(values=_choices)
     validator = OneOf(list(x[0] for x in _choices))
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         super().__init__(*args, **kwargs)
 
@@ -3279,7 +3300,7 @@ class ChooseTrackerSchema(CSRFSchema):
         all_tasks = get_child_node(self, "all_tasks")
         text = _("Use all eligible task types?")
         all_tasks.title = text
-        all_tasks.label = text
+        all_tasks.label = text  # type: ignore[attr-defined]
 
 
 class ChooseTrackerForm(InformativeNonceForm):
@@ -3288,7 +3309,7 @@ class ChooseTrackerForm(InformativeNonceForm):
     """
 
     def __init__(
-        self, request: "CamcopsRequest", as_ctv: bool, **kwargs
+        self, request: "CamcopsRequest", as_ctv: bool, **kwargs: Any
     ) -> None:
         """
         Args:
@@ -3324,7 +3345,7 @@ class ReportOutputTypeSelector(SchemaNode, RequestAwareMixin):
     default = ViewArg.HTML
     missing = ViewArg.HTML
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.widget = None  # type: Optional[Widget]
         self.validator = None  # type: Optional[ValidatorType]
@@ -3342,7 +3363,7 @@ class ReportOutputTypeSelector(SchemaNode, RequestAwareMixin):
     def get_choices(self) -> Tuple[Tuple[str, str]]:
         _ = self.gettext
         # noinspection PyTypeChecker
-        return (
+        return (  # type: ignore[return-value]
             (ViewArg.HTML, _("HTML")),
             (ViewArg.ODS, _("OpenOffice spreadsheet (ODS) file")),
             (ViewArg.TSV, _("TSV (tab-separated values)")),
@@ -3375,7 +3396,7 @@ class ReportParamForm(SimpleSubmitForm):
         self,
         request: "CamcopsRequest",
         schema_class: Type[ReportParamSchema],
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         _ = request.gettext
         super().__init__(
@@ -3419,7 +3440,7 @@ class DatabaseDialectSelector(SchemaNode, RequestAwareMixin):
     default = SqlaDialectName.MYSQL
     missing = SqlaDialectName.MYSQL
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.widget = None  # type: Optional[Widget]
         self.validator = None  # type: Optional[ValidatorType]
@@ -3448,7 +3469,7 @@ class ViewDdlForm(SimpleSubmitForm):
     Form to choose how to view DDL (and then view it).
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         _ = request.gettext
         super().__init__(
             schema_class=ViewDdlSchema,
@@ -3505,23 +3526,23 @@ class UserGroupPermissionsGroupAdminSchema(CSRFSchema):
         may_upload = get_child_node(self, "may_upload")
         mu_text = _("Permitted to upload from a tablet/device")
         may_upload.title = mu_text
-        may_upload.label = mu_text
+        may_upload.label = mu_text  # type: ignore[attr-defined]
         may_register_devices = get_child_node(self, "may_register_devices")
         mrd_text = _("Permitted to register tablet/client devices")
         may_register_devices.title = mrd_text
-        may_register_devices.label = mrd_text
+        may_register_devices.label = mrd_text  # type: ignore[attr-defined]
         may_use_webviewer = get_child_node(self, "may_use_webviewer")
         ml_text = _("May log in to web front end")
         may_use_webviewer.title = ml_text
-        may_use_webviewer.label = ml_text
+        may_use_webviewer.label = ml_text  # type: ignore[attr-defined]
         may_manage_patients = get_child_node(self, "may_manage_patients")
         mmp_text = _("May add, edit or delete patients created on the server")
         may_manage_patients.title = mmp_text
-        may_manage_patients.label = mmp_text
+        may_manage_patients.label = mmp_text  # type: ignore[attr-defined]
         may_email_patients = get_child_node(self, "may_email_patients")
         mep_text = _("May send emails to patients created on the server")
         may_email_patients.title = mep_text
-        may_email_patients.label = mep_text
+        may_email_patients.label = mep_text  # type: ignore[attr-defined]
         view_all_patients_when_unfiltered = get_child_node(
             self, "view_all_patients_when_unfiltered"
         )
@@ -3530,19 +3551,19 @@ class UserGroupPermissionsGroupAdminSchema(CSRFSchema):
             "filter set"
         )
         view_all_patients_when_unfiltered.title = vap_text
-        view_all_patients_when_unfiltered.label = vap_text
+        view_all_patients_when_unfiltered.label = vap_text  # type: ignore[attr-defined]  # noqa: E501
         may_dump_data = get_child_node(self, "may_dump_data")
         md_text = _("May perform bulk data dumps")
         may_dump_data.title = md_text
-        may_dump_data.label = md_text
+        may_dump_data.label = md_text  # type: ignore[attr-defined]
         may_run_reports = get_child_node(self, "may_run_reports")
         mrr_text = _("May run reports")
         may_run_reports.title = mrr_text
-        may_run_reports.label = mrr_text
+        may_run_reports.label = mrr_text  # type: ignore[attr-defined]
         may_add_notes = get_child_node(self, "may_add_notes")
         man_text = _("May add special notes to tasks")
         may_add_notes.title = man_text
-        may_add_notes.label = man_text
+        may_add_notes.label = man_text  # type: ignore[attr-defined]
 
 
 class UserGroupPermissionsFullSchema(UserGroupPermissionsGroupAdminSchema):
@@ -3561,7 +3582,7 @@ class UserGroupPermissionsFullSchema(UserGroupPermissionsGroupAdminSchema):
         groupadmin = get_child_node(self, "groupadmin")
         text = _("User is a privileged group administrator for this group")
         groupadmin.title = text
-        groupadmin.label = text
+        groupadmin.label = text  # type: ignore[attr-defined]
 
 
 class EditUserGroupAdminSchema(CSRFSchema):
@@ -3608,7 +3629,7 @@ class EditUserFullSchema(EditUserGroupAdminSchema):
         superuser = get_child_node(self, "superuser")
         text = _("Superuser (CAUTION!)")
         superuser.title = text
-        superuser.label = text
+        superuser.label = text  # type: ignore[attr-defined]
 
 
 class EditUserFullForm(ApplyCancelForm):
@@ -3616,7 +3637,7 @@ class EditUserFullForm(ApplyCancelForm):
     Form to edit a user. Full version for superusers.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         super().__init__(
             schema_class=EditUserFullSchema, request=request, **kwargs
         )
@@ -3627,7 +3648,7 @@ class EditUserGroupAdminForm(ApplyCancelForm):
     Form to edit a user. Version for group administrators.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         super().__init__(
             schema_class=EditUserGroupAdminSchema, request=request, **kwargs
         )
@@ -3638,7 +3659,7 @@ class EditUserGroupPermissionsFullForm(ApplyCancelForm):
     Form to edit a user's permissions within a group. Version for superusers.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         super().__init__(
             schema_class=UserGroupPermissionsFullSchema,
             request=request,
@@ -3652,7 +3673,7 @@ class EditUserGroupMembershipGroupAdminForm(ApplyCancelForm):
     administrators.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         super().__init__(
             schema_class=UserGroupPermissionsGroupAdminSchema,
             request=request,
@@ -3688,7 +3709,7 @@ class AddUserSuperuserForm(AddCancelForm):
     Form to add a user. Version for superusers.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         super().__init__(
             schema_class=AddUserSuperuserSchema, request=request, **kwargs
         )
@@ -3699,7 +3720,7 @@ class AddUserGroupadminForm(AddCancelForm):
     Form to add a user. Version for group administrators.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         super().__init__(
             schema_class=AddUserGroupadminSchema, request=request, **kwargs
         )
@@ -3730,7 +3751,7 @@ class SetUserUploadGroupForm(InformativeNonceForm):
     """
 
     def __init__(
-        self, request: "CamcopsRequest", user: "User", **kwargs
+        self, request: "CamcopsRequest", user: "User", **kwargs: Any
     ) -> None:
         _ = request.gettext
         schema = SetUserUploadGroupSchema().bind(
@@ -3760,7 +3781,7 @@ class DeleteUserForm(DeleteCancelForm):
     Form to delete a user.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         super().__init__(
             schema_class=DeleteUserSchema, request=request, **kwargs
         )
@@ -3969,7 +3990,7 @@ class EditGroupSchema(CSRFSchema):
     def validator(self, node: SchemaNode, value: Any) -> None:
         request = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
         q = (
-            CountStarSpecializedQuery(Group, session=request.dbsession)
+            CountStarSpecializedQuery(Group, session=request.dbsession)  # type: ignore[arg-type]  # noqa: E501
             .filter(Group.id != value[ViewParam.GROUP_ID])
             .filter(Group.name == value[ViewParam.NAME])
         )
@@ -3984,7 +4005,7 @@ class EditGroupForm(InformativeNonceForm):
     """
 
     def __init__(
-        self, request: "CamcopsRequest", group: Group, **kwargs
+        self, request: "CamcopsRequest", group: Group, **kwargs: Any
     ) -> None:
         _ = request.gettext
         schema = EditGroupSchema().bind(
@@ -4015,7 +4036,7 @@ class AddGroupSchema(CSRFSchema):
 
     def validator(self, node: SchemaNode, value: Any) -> None:
         request = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
-        q = CountStarSpecializedQuery(Group, session=request.dbsession).filter(
+        q = CountStarSpecializedQuery(Group, session=request.dbsession).filter(  # type: ignore[arg-type]  # noqa: E501
             Group.name == value[ViewParam.NAME]
         )
         if q.count_star() > 0:
@@ -4028,7 +4049,7 @@ class AddGroupForm(AddCancelForm):
     Form to add a group.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         super().__init__(
             schema_class=AddGroupSchema, request=request, **kwargs
         )
@@ -4048,7 +4069,7 @@ class DeleteGroupForm(DeleteCancelForm):
     Form to delete a group.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         super().__init__(
             schema_class=DeleteGroupSchema, request=request, **kwargs
         )
@@ -4068,7 +4089,7 @@ class DumpTypeSelector(SchemaNode, RequestAwareMixin):
     default = ViewArg.EVERYTHING
     missing = ViewArg.EVERYTHING
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.widget = None  # type: Optional[Widget]
         self.validator = None  # type: Optional[ValidatorType]
@@ -4099,7 +4120,7 @@ class SpreadsheetFormatSelector(SchemaNode, RequestAwareMixin):
     default = ViewArg.XLSX
     missing = ViewArg.XLSX
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.widget = None  # type: Optional[Widget]
         self.validator = None  # type: Optional[ValidatorType]
@@ -4132,7 +4153,7 @@ class DeliveryModeNode(SchemaNode, RequestAwareMixin):
     default = ViewArg.EMAIL
     missing = ViewArg.EMAIL
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.widget = None  # type: Optional[Widget]
         super().__init__(*args, **kwargs)
@@ -4186,7 +4207,7 @@ class SqliteSelector(SchemaNode, RequestAwareMixin):
     default = ViewArg.SQLITE
     missing = ViewArg.SQLITE
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.widget = None  # type: Optional[Widget]
         self.validator = None  # type: Optional[ValidatorType]
@@ -4215,7 +4236,7 @@ class SimplifiedSpreadsheetsNode(SchemaNode, RequestAwareMixin):
     default = True
     missing = True
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.label = ""  # for type checker
         super().__init__(*args, **kwargs)
@@ -4236,7 +4257,7 @@ class SortTsvByHeadingsNode(SchemaNode, RequestAwareMixin):
     default = False
     missing = False
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.label = ""  # for type checker
         super().__init__(*args, **kwargs)
@@ -4260,7 +4281,7 @@ class IncludeSchemaNode(SchemaNode, RequestAwareMixin):
     default = False
     missing = False
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.label = ""  # for type checker
         super().__init__(*args, **kwargs)
@@ -4283,7 +4304,7 @@ class IncludeBlobsNode(SchemaNode, RequestAwareMixin):
     default = False
     missing = False
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.label = ""  # for type checker
         super().__init__(*args, **kwargs)
@@ -4309,7 +4330,7 @@ class PatientIdPerRowNode(SchemaNode, RequestAwareMixin):
     default = True
     missing = True
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.label = ""  # for type checker
         super().__init__(*args, **kwargs)
@@ -4334,7 +4355,7 @@ class OfferDumpManualSchema(Schema, RequestAwareMixin):
 
     widget = MappingWidget(template="mapping_accordion", open=False)
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         super().__init__(*args, **kwargs)
 
@@ -4365,7 +4386,7 @@ class OfferBasicDumpForm(SimpleSubmitForm):
     Form to offer a basic (TSV/ZIP) data dump.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         _ = request.gettext
         super().__init__(
             schema_class=OfferBasicDumpSchema,
@@ -4396,7 +4417,7 @@ class OfferSqlDumpForm(SimpleSubmitForm):
     Form to choose the settings for an SQL data dump.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         _ = request.gettext
         super().__init__(
             schema_class=OfferSqlDumpSchema,
@@ -4436,7 +4457,7 @@ class EditServerSettingsForm(ApplyCancelForm):
     Form to edit the global settings for the server.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         super().__init__(
             schema_class=EditServerSettingsSchema, request=request, **kwargs
         )
@@ -4455,7 +4476,7 @@ class IdDefinitionDescriptionNode(SchemaNode, RequestAwareMixin):
     schema_type = String
     validator = Length(1, StringLengths.ID_DESCRIPTOR_MAX_LEN)
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         super().__init__(*args, **kwargs)
 
@@ -4473,7 +4494,7 @@ class IdDefinitionShortDescriptionNode(SchemaNode, RequestAwareMixin):
     schema_type = String
     validator = Length(1, StringLengths.ID_DESCRIPTOR_MAX_LEN)
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.description = ""  # for type checker
         super().__init__(*args, **kwargs)
@@ -4493,7 +4514,7 @@ class IdValidationMethodNode(OptionalStringNode, RequestAwareMixin):
     widget = SelectWidget(values=ID_NUM_VALIDATION_METHOD_CHOICES)
     validator = OneOf(list(x[0] for x in ID_NUM_VALIDATION_METHOD_CHOICES))
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.description = ""  # for type checker
         super().__init__(*args, **kwargs)
@@ -4510,7 +4531,7 @@ class Hl7AssigningAuthorityNode(OptionalStringNode, RequestAwareMixin):
     Optional node to capture the name of an HL7 Assigning Authority.
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.description = ""  # for type checker
         super().__init__(*args, **kwargs)
@@ -4538,7 +4559,7 @@ class Hl7IdTypeNode(OptionalStringNode, RequestAwareMixin):
     Optional node to capture the name of an HL7 Identifier Type code.
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.description = ""  # for type checker
         super().__init__(*args, **kwargs)
@@ -4572,7 +4593,7 @@ class FHIRIdSystemUrlNode(OptionalStringNode, RequestAwareMixin):
 
     validator = url
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.description = ""  # for type checker
         super().__init__(*args, **kwargs)
@@ -4612,7 +4633,7 @@ class EditIdDefinitionSchema(CSRFSchema):
         _ = request.gettext
         qd = (
             CountStarSpecializedQuery(
-                IdNumDefinition, session=request.dbsession
+                IdNumDefinition, session=request.dbsession  # type: ignore[arg-type]  # noqa: E501
             )
             .filter(
                 IdNumDefinition.which_idnum != value[ViewParam.WHICH_IDNUM]
@@ -4625,7 +4646,7 @@ class EditIdDefinitionSchema(CSRFSchema):
             raise Invalid(node, _("Description is used by another ID number!"))
         qs = (
             CountStarSpecializedQuery(
-                IdNumDefinition, session=request.dbsession
+                IdNumDefinition, session=request.dbsession  # type: ignore[arg-type]  # noqa: E501
             )
             .filter(
                 IdNumDefinition.which_idnum != value[ViewParam.WHICH_IDNUM]
@@ -4646,7 +4667,7 @@ class EditIdDefinitionForm(ApplyCancelForm):
     Form to edit an ID number definition.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         super().__init__(
             schema_class=EditIdDefinitionSchema, request=request, **kwargs
         )
@@ -4684,17 +4705,17 @@ class AddIdDefinitionSchema(CSRFSchema):
         request = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
         _ = request.gettext
         qw = CountStarSpecializedQuery(
-            IdNumDefinition, session=request.dbsession
+            IdNumDefinition, session=request.dbsession  # type: ignore[arg-type]  # noqa: E501
         ).filter(IdNumDefinition.which_idnum == value[ViewParam.WHICH_IDNUM])
         if qw.count_star() > 0:
             raise Invalid(node, _("ID# clashes with another ID number!"))
         qd = CountStarSpecializedQuery(
-            IdNumDefinition, session=request.dbsession
+            IdNumDefinition, session=request.dbsession  # type: ignore[arg-type]  # noqa: E501
         ).filter(IdNumDefinition.description == value[ViewParam.DESCRIPTION])
         if qd.count_star() > 0:
             raise Invalid(node, _("Description is used by another ID number!"))
         qs = CountStarSpecializedQuery(
-            IdNumDefinition, session=request.dbsession
+            IdNumDefinition, session=request.dbsession  # type: ignore[arg-type]  # noqa: E501
         ).filter(
             IdNumDefinition.short_description
             == value[ViewParam.SHORT_DESCRIPTION]
@@ -4710,7 +4731,7 @@ class AddIdDefinitionForm(AddCancelForm):
     Form to add an ID number definition.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         super().__init__(
             schema_class=AddIdDefinitionSchema, request=request, **kwargs
         )
@@ -4730,7 +4751,7 @@ class DeleteIdDefinitionForm(DangerousForm):
     Form to add an ID number definition.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         _ = request.gettext
         super().__init__(
             schema_class=DeleteIdDefinitionSchema,
@@ -4764,7 +4785,7 @@ class AddSpecialNoteForm(DangerousForm):
     Form to add a special note to a task.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         _ = request.gettext
         super().__init__(
             schema_class=AddSpecialNoteSchema,
@@ -4789,7 +4810,7 @@ class DeleteSpecialNoteForm(DangerousForm):
     Form to delete (hide) a special note.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         _ = request.gettext
         super().__init__(
             schema_class=DeleteSpecialNoteSchema,
@@ -4820,7 +4841,7 @@ class EraseTaskForm(DangerousForm):
     Form to erase a task.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         _ = request.gettext
         super().__init__(
             schema_class=EraseTaskSchema,
@@ -4851,7 +4872,7 @@ class DeletePatientChooseForm(DangerousForm):
     Form to delete a patient.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         _ = request.gettext
         super().__init__(
             schema_class=DeletePatientChooseSchema,
@@ -4878,7 +4899,7 @@ class DeletePatientConfirmForm(DangerousForm):
     Form to confirm deletion of a patient.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         _ = request.gettext
         super().__init__(
             schema_class=DeletePatientConfirmSchema,
@@ -5251,7 +5272,7 @@ class EditServerCreatedPatientForm(DynamicDescriptionsNonceForm):
 
 
 class EmailTemplateNode(OptionalStringNode, RequestAwareMixin):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.description = ""  # for type checker
         self.formatter = TaskScheduleEmailTemplateFormatter()
@@ -5557,7 +5578,7 @@ class TaskScheduleItemSchema(CSRFSchema):
         )
         clinician_confirmation = get_child_node(self, "clinician_confirmation")
         clinician_confirmation.title = _("Allow clinician tasks")
-        clinician_confirmation.label = None
+        clinician_confirmation.label = None  # type: ignore[attr-defined]
         clinician_confirmation.description = _(
             "Tick this box to schedule a task that would normally be "
             "completed by (or with) a clinician"
@@ -5752,7 +5773,7 @@ class ForciblyFinalizeChooseDeviceForm(SimpleSubmitForm):
     Form to force-finalize records from a device.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         _ = request.gettext
         super().__init__(
             schema_class=ForciblyFinalizeChooseDeviceSchema,
@@ -5776,7 +5797,7 @@ class ForciblyFinalizeConfirmForm(DangerousForm):
     Form to confirm force-finalizing of a device.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         _ = request.gettext
         super().__init__(
             schema_class=ForciblyFinalizeConfirmSchema,
@@ -5821,7 +5842,7 @@ class UserDownloadDeleteForm(SimpleSubmitForm):
     Form that provides a single button to delete a user download.
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         _ = request.gettext
         super().__init__(
             schema_class=UserDownloadDeleteSchema,
@@ -5832,7 +5853,7 @@ class UserDownloadDeleteForm(SimpleSubmitForm):
 
 
 class EmailBodyNode(MandatoryStringNode, RequestAwareMixin):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         super().__init__(*args, **kwargs)
 
@@ -5860,7 +5881,7 @@ class SendEmailForm(InformativeNonceForm):
     Form for sending email
     """
 
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         schema = SendEmailSchema().bind(request=request)
         _ = request.gettext
         super().__init__(

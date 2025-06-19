@@ -31,7 +31,9 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple, Type
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from matplotlib.axes import Axes
 import numpy
+from pendulum import DateTime as Pendulum
 import scipy.stats  # http://docs.scipy.org/doc/scipy/reference/stats.html
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Float, Integer
 
@@ -108,115 +110,98 @@ def a(x: Any) -> str:
 class ExpDetTrial(GenericTabletRecordMixin, TaskDescendant, Base):
     __tablename__ = "cardinal_expdet_trials"
 
-    cardinal_expdet_id = Column(
-        "cardinal_expdet_id",
-        Integer,
-        nullable=False,
+    cardinal_expdet_id: Mapped[int] = mapped_column(
         comment="FK to cardinal_expdet",
     )
-    trial = Column(
-        "trial", Integer, nullable=False, comment="Trial number (0-based)"
-    )
+    trial: Mapped[int] = mapped_column(comment="Trial number (0-based)")
 
     # Config determines these (via an autogeneration process):
-    block = Column("block", Integer, comment="Block number (0-based)")
-    group_num = Column("group_num", Integer, comment="Group number (0-based)")
-    cue = Column("cue", Integer, comment="Cue number (0-based)")
-    raw_cue_number = Column(
-        "raw_cue_number",
-        Integer,
+    block: Mapped[Optional[int]] = mapped_column(
+        comment="Block number (0-based)"
+    )
+    group_num: Mapped[Optional[int]] = mapped_column(
+        comment="Group number (0-based)"
+    )
+    cue: Mapped[Optional[int]] = mapped_column(comment="Cue number (0-based)")
+    raw_cue_number: Mapped[Optional[int]] = mapped_column(
         comment="Raw cue number (following counterbalancing) (0-based)",
     )
-    target_modality = Column(
-        "target_modality",
-        Integer,
+    target_modality: Mapped[Optional[int]] = mapped_column(
         comment="Target modality (0 auditory, 1 visual)",
     )
-    target_number = Column(
-        "target_number", Integer, comment="Target number (0-based)"
+    target_number: Mapped[Optional[int]] = mapped_column(
+        comment="Target number (0-based)"
     )
-    target_present = Column(
-        "target_present", Integer, comment="Target present? (0 no, 1 yes)"
+    target_present: Mapped[Optional[int]] = mapped_column(
+        comment="Target present? (0 no, 1 yes)"
     )
-    iti_length_s = Column(
-        "iti_length_s", Float, comment="Intertrial interval (s)"
+    iti_length_s: Mapped[Optional[float]] = mapped_column(
+        comment="Intertrial interval (s)"
     )
 
     # Task determines these (on the fly):
-    pause_given_before_trial = Column(
-        "pause_given_before_trial",
-        Integer,
+    pause_given_before_trial: Mapped[Optional[int]] = mapped_column(
         comment="Pause given before trial? (0 no, 1 yes)",
     )
-    pause_start_time = Column(
-        "pause_start_time",
+    pause_start_time: Mapped[Optional[Pendulum]] = mapped_column(
         PendulumDateTimeAsIsoTextColType,
         comment="Pause start time (ISO-8601)",
     )
-    pause_end_time = Column(
-        "pause_end_time",
+    pause_end_time: Mapped[Optional[Pendulum]] = mapped_column(
         PendulumDateTimeAsIsoTextColType,
         comment="Pause end time (ISO-8601)",
     )
-    trial_start_time = Column(
-        "trial_start_time",
+    trial_start_time: Mapped[Optional[Pendulum]] = mapped_column(
         PendulumDateTimeAsIsoTextColType,
         comment="Trial start time (ISO-8601)",
     )
-    cue_start_time = Column(
-        "cue_start_time",
+    cue_start_time: Mapped[Optional[Pendulum]] = mapped_column(
         PendulumDateTimeAsIsoTextColType,
         comment="Cue start time (ISO-8601)",
     )
-    target_start_time = Column(
-        "target_start_time",
+    target_start_time: Mapped[Optional[Pendulum]] = mapped_column(
         PendulumDateTimeAsIsoTextColType,
         comment="Target start time (ISO-8601)",
     )
-    detection_start_time = Column(
-        "detection_start_time",
+    detection_start_time: Mapped[Optional[Pendulum]] = mapped_column(
         PendulumDateTimeAsIsoTextColType,
         comment="Detection response start time (ISO-8601)",
     )
-    iti_start_time = Column(
-        "iti_start_time",
+    iti_start_time: Mapped[Optional[Pendulum]] = mapped_column(
         PendulumDateTimeAsIsoTextColType,
         comment="Intertrial interval start time (ISO-8601)",
     )
-    iti_end_time = Column(
-        "iti_end_time",
+    iti_end_time: Mapped[Optional[Pendulum]] = mapped_column(
         PendulumDateTimeAsIsoTextColType,
         comment="Intertrial interval end time (ISO-8601)",
     )
-    trial_end_time = Column(
-        "trial_end_time",
+    trial_end_time: Mapped[Optional[Pendulum]] = mapped_column(
         PendulumDateTimeAsIsoTextColType,
         comment="Trial end time (ISO-8601)",
     )
 
     # Subject decides these:
-    responded = Column(
-        "responded", Integer, comment="Responded? (0 no, 1 yes)"
+    responded: Mapped[Optional[int]] = mapped_column(
+        comment="Responded? (0 no, 1 yes)"
     )
-    response_time = Column(
-        "response_time",
+    response_time: Mapped[Optional[Pendulum]] = mapped_column(
         PendulumDateTimeAsIsoTextColType,
         comment="Response time (ISO-8601)",
     )
-    response_latency_ms = Column(
-        "response_latency_ms", Integer, comment="Response latency (ms)"
+    response_latency_ms: Mapped[Optional[int]] = mapped_column(
+        comment="Response latency (ms)"
     )
-    rating = Column(
-        "rating", Integer, comment="Rating (0 definitely not - 4 definitely)"
+    rating: Mapped[Optional[int]] = mapped_column(
+        comment="Rating (0 definitely not - 4 definitely)"
     )
-    correct = Column(
-        "correct",
-        Integer,
+    correct: Mapped[Optional[int]] = mapped_column(
         comment="Correct side of the middle rating? (0 no, 1 yes)",
     )
-    points = Column("points", Integer, comment="Points earned this trial")
-    cumulative_points = Column(
-        "cumulative_points", Integer, comment="Cumulative points earned"
+    points: Mapped[Optional[int]] = mapped_column(
+        comment="Points earned this trial"
+    )
+    cumulative_points: Mapped[Optional[int]] = mapped_column(
+        comment="Cumulative points earned"
     )
 
     @classmethod
@@ -330,7 +315,7 @@ class ExpDetTrial(GenericTabletRecordMixin, TaskDescendant, Base):
         return CardinalExpectationDetection
 
     def task_ancestor(self) -> Optional["CardinalExpectationDetection"]:
-        return CardinalExpectationDetection.get_linked(
+        return CardinalExpectationDetection.get_linked(  # type: ignore[return-value]  # noqa: E501
             self.cardinal_expdet_id, self
         )
 
@@ -338,31 +323,24 @@ class ExpDetTrial(GenericTabletRecordMixin, TaskDescendant, Base):
 class ExpDetTrialGroupSpec(GenericTabletRecordMixin, TaskDescendant, Base):
     __tablename__ = "cardinal_expdet_trialgroupspec"
 
-    cardinal_expdet_id = Column(
-        "cardinal_expdet_id",
-        Integer,
-        nullable=False,
+    cardinal_expdet_id: Mapped[int] = mapped_column(
         comment="FK to cardinal_expdet",
     )
-    group_num = Column(
-        "group_num", Integer, nullable=False, comment="Group number (0-based)"
-    )
+    group_num: Mapped[int] = mapped_column(comment="Group number (0-based)")
 
     # Group spec
-    cue = Column("cue", Integer, comment="Cue number (0-based)")
-    target_modality = Column(
-        "target_modality",
-        Integer,
+    cue: Mapped[Optional[int]] = mapped_column(comment="Cue number (0-based)")
+    target_modality: Mapped[Optional[int]] = mapped_column(
         comment="Target modality (0 auditory, 1 visual)",
     )
-    target_number = Column(
-        "target_number", Integer, comment="Target number (0-based)"
+    target_number: Mapped[Optional[int]] = mapped_column(
+        comment="Target number (0-based)"
     )
-    n_target = Column(
-        "n_target", Integer, comment="Number of trials with target present"
+    n_target: Mapped[Optional[int]] = mapped_column(
+        comment="Number of trials with target present"
     )
-    n_no_target = Column(
-        "n_no_target", Integer, comment="Number of trials with target absent"
+    n_no_target: Mapped[Optional[int]] = mapped_column(
+        comment="Number of trials with target absent"
     )
 
     DP = 3
@@ -400,12 +378,12 @@ class ExpDetTrialGroupSpec(GenericTabletRecordMixin, TaskDescendant, Base):
         return CardinalExpectationDetection
 
     def task_ancestor(self) -> Optional["CardinalExpectationDetection"]:
-        return CardinalExpectationDetection.get_linked(
+        return CardinalExpectationDetection.get_linked(  # type: ignore[return-value]  # noqa: E501
             self.cardinal_expdet_id, self
         )
 
 
-class CardinalExpectationDetection(TaskHasPatientMixin, Task):
+class CardinalExpectationDetection(TaskHasPatientMixin, Task):  # type: ignore[misc]  # noqa: E501
     """
     Server implementation of the Cardinal_ExpDet task.
     """
@@ -415,99 +393,81 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
     use_landscape_for_pdf = True
 
     # Config
-    num_blocks = Column("num_blocks", Integer, comment="Number of blocks")
-    stimulus_counterbalancing = Column(
-        "stimulus_counterbalancing",
-        Integer,
+    num_blocks: Mapped[Optional[int]] = mapped_column(
+        comment="Number of blocks"
+    )
+    stimulus_counterbalancing: Mapped[Optional[int]] = mapped_column(
         comment="Stimulus counterbalancing condition",
     )
-    is_detection_response_on_right = Column(
-        "is_detection_response_on_right",
-        Integer,
+    is_detection_response_on_right: Mapped[Optional[int]] = mapped_column(
         comment='Is the "detection" response on the right? (0 no, 1 yes)',
     )
-    pause_every_n_trials = Column(
-        "pause_every_n_trials", Integer, comment="Pause every n trials"
+    pause_every_n_trials: Mapped[Optional[int]] = mapped_column(
+        comment="Pause every n trials"
     )
     # ... cue
-    cue_duration_s = Column(
-        "cue_duration_s", Float, comment="Cue duration (s)"
+    cue_duration_s: Mapped[Optional[float]] = mapped_column(
+        comment="Cue duration (s)"
     )
-    visual_cue_intensity = Column(
-        "visual_cue_intensity", Float, comment="Visual cue intensity (0.0-1.0)"
+    visual_cue_intensity: Mapped[Optional[float]] = mapped_column(
+        comment="Visual cue intensity (0.0-1.0)"
     )
-    auditory_cue_intensity = Column(
-        "auditory_cue_intensity",
-        Float,
+    auditory_cue_intensity: Mapped[Optional[float]] = mapped_column(
         comment="Auditory cue intensity (0.0-1.0)",
     )
     # ... ISI
-    isi_duration_s = Column(
-        "isi_duration_s", Float, comment="Interstimulus interval (s)"
+    isi_duration_s: Mapped[Optional[float]] = mapped_column(
+        comment="Interstimulus interval (s)"
     )
     # .. target
-    visual_target_duration_s = Column(
-        "visual_target_duration_s", Float, comment="Visual target duration (s)"
+    visual_target_duration_s: Mapped[Optional[float]] = mapped_column(
+        comment="Visual target duration (s)"
     )
-    visual_background_intensity = Column(
-        "visual_background_intensity",
-        Float,
+    visual_background_intensity: Mapped[Optional[float]] = mapped_column(
         comment="Visual background intensity (0.0-1.0)",
     )
-    visual_target_0_intensity = Column(
-        "visual_target_0_intensity",
-        Float,
+    visual_target_0_intensity: Mapped[Optional[float]] = mapped_column(
         comment="Visual target 0 intensity (0.0-1.0)",
     )
-    visual_target_1_intensity = Column(
-        "visual_target_1_intensity",
-        Float,
+    visual_target_1_intensity: Mapped[Optional[float]] = mapped_column(
         comment="Visual target 1 intensity (0.0-1.0)",
     )
-    auditory_background_intensity = Column(
-        "auditory_background_intensity",
-        Float,
+    auditory_background_intensity: Mapped[Optional[float]] = mapped_column(
         comment="Auditory background intensity (0.0-1.0)",
     )
-    auditory_target_0_intensity = Column(
-        "auditory_target_0_intensity",
-        Float,
+    auditory_target_0_intensity: Mapped[Optional[float]] = mapped_column(
         comment="Auditory target 0 intensity (0.0-1.0)",
     )
-    auditory_target_1_intensity = Column(
-        "auditory_target_1_intensity",
-        Float,
+    auditory_target_1_intensity: Mapped[Optional[float]] = mapped_column(
         comment="Auditory target 1 intensity (0.0-1.0)",
     )
     # ... ITI
-    iti_min_s = Column(
-        "iti_min_s", Float, comment="Intertrial interval minimum (s)"
+    iti_min_s: Mapped[Optional[float]] = mapped_column(
+        comment="Intertrial interval minimum (s)"
     )
-    iti_max_s = Column(
-        "iti_max_s", Float, comment="Intertrial interval maximum (s)"
+    iti_max_s: Mapped[Optional[float]] = mapped_column(
+        comment="Intertrial interval maximum (s)"
     )
 
     # Results
-    aborted = Column(
-        "aborted", Integer, comment="Was the task aborted? (0 no, 1 yes)"
+    aborted: Mapped[Optional[int]] = mapped_column(
+        comment="Was the task aborted? (0 no, 1 yes)"
     )
-    finished = Column(
-        "finished", Integer, comment="Was the task finished? (0 no, 1 yes)"
+    finished: Mapped[Optional[int]] = mapped_column(
+        comment="Was the task finished? (0 no, 1 yes)"
     )
-    last_trial_completed = Column(
-        "last_trial_completed",
-        Integer,
+    last_trial_completed: Mapped[Optional[int]] = mapped_column(
         comment="Number of last trial completed",
     )
 
     # Relationships
-    trials = ancillary_relationship(
+    trials = ancillary_relationship(  # type: ignore[assignment]
         parent_class_name="CardinalExpectationDetection",
         ancillary_class_name="ExpDetTrial",
         ancillary_fk_to_parent_attr_name="cardinal_expdet_id",
         ancillary_order_by_attr_name="trial",
     )  # type: List[ExpDetTrial]
-    groupspecs = ancillary_relationship(
+    groupspecs = ancillary_relationship(  # type: ignore[assignment]
         parent_class_name="CardinalExpectationDetection",
         ancillary_class_name="ExpDetTrialGroupSpec",
         ancillary_fk_to_parent_attr_name="cardinal_expdet_id",

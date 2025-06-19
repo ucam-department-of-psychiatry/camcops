@@ -65,6 +65,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """
 
+from typing import List
 import uuid
 
 CONSONANTS = "bdfghjklmnprstvz"
@@ -133,7 +134,7 @@ def proquint_from_int(int_value: int, size_in_bits: int) -> str:
     Returns:
         proquint string identifier
     """
-    proquint = []
+    proquint: List[str] = []
 
     if size_in_bits % 16 != 0:
         raise ValueError(
@@ -204,7 +205,7 @@ def _proquint_from_int16(int16_value: int) -> str:
     """
     Convert 16-bit integer into proquint.
     """
-    proquint = []
+    proquint: list[str] = []
     for i in range(5):
         if i & 1:
             letters = VOWELS

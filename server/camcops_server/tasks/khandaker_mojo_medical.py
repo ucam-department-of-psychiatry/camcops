@@ -25,402 +25,24 @@ camcops_server/tasks/khandaker_mojo_medical.py
 
 """
 
-from typing import Any, Dict, Tuple, Type
+from typing import Any, Type
 
-
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Date, Float, Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    BoolColumn,
-    CamcopsColumn,
+    bool_column,
+    camcops_column,
     ZERO_TO_TWO_CHECKER,
 )
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
-class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["KhandakerMojoMedical"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
-        setattr(
-            cls,
-            cls.FN_DIAGNOSIS,
-            CamcopsColumn(
-                cls.FN_DIAGNOSIS,
-                Integer,
-                permitted_value_checker=ZERO_TO_TWO_CHECKER,
-                comment=(
-                    "Diagnosis (0 Rheumatoid Arthritis, "
-                    "1 Ankylosing Spondylitis, 2 Sjögren’s Syndrome)"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_DIAGNOSIS_DATE,
-            CamcopsColumn(
-                cls.FN_DIAGNOSIS_DATE,
-                Date,
-                comment=(
-                    "Date of first diagnosis (may be approx from "
-                    "'duration of illness (years))'"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_DIAGNOSIS_DATE_APPROXIMATE,
-            BoolColumn(
-                cls.FN_DIAGNOSIS_DATE_APPROXIMATE,
-                comment="True if diagnosis date was derived from duration",
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_HAS_FIBROMYALGIA,
-            BoolColumn(
-                cls.FN_HAS_FIBROMYALGIA,
-                comment="Do you have a diagnosis of fibromyalgia?",
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_IS_PREGNANT,
-            BoolColumn(
-                cls.FN_IS_PREGNANT,
-                comment=(
-                    "Are you, or is there any possibility that you might "
-                    "be pregnant?"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_HAS_INFECTION_PAST_MONTH,
-            BoolColumn(
-                cls.FN_HAS_INFECTION_PAST_MONTH,
-                comment=(
-                    "Do you currently have an infection, or had "
-                    "treatment for an infection (e.g antibiotics) "
-                    "in the past month?"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_HAD_INFECTION_TWO_MONTHS_PRECEDING,
-            BoolColumn(
-                cls.FN_HAD_INFECTION_TWO_MONTHS_PRECEDING,
-                comment=(
-                    "Have you had an infection, or had treatment for "
-                    "an infection (e.g antibiotics) in the 2 months "
-                    "preceding last month?"
-                ),
-                constraint_name="ck_kh2mm_had_infection",
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_HAS_ALCOHOL_SUBSTANCE_DEPENDENCE,
-            BoolColumn(
-                cls.FN_HAS_ALCOHOL_SUBSTANCE_DEPENDENCE,
-                comment=(
-                    "Do you have a current diagnosis of alcohol or "
-                    "substance dependence?"
-                ),
-                constraint_name="ck_kh2mm_has_alcohol",
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_SMOKING_STATUS,
-            CamcopsColumn(
-                cls.FN_SMOKING_STATUS,
-                Integer,
-                permitted_value_checker=ZERO_TO_TWO_CHECKER,
-                comment=(
-                    "What is your smoking status? (0 Never smoked, "
-                    "1 Ex-smoker, 2 Current smoker)"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_ALCOHOL_UNITS_PER_WEEK,
-            CamcopsColumn(
-                cls.FN_ALCOHOL_UNITS_PER_WEEK,
-                Float,
-                comment=(
-                    "How much alcohol do you drink per week? (medium "
-                    "glass of wine = 2 units, pint of beer at 4.5% = "
-                    "2.5 units, 25ml of spirits at 40% = 1 unit)"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_DEPRESSION,
-            BoolColumn(
-                cls.FN_DEPRESSION,
-                comment=(
-                    "Have you had any of the following conditions "
-                    "diagnosed by a doctor?"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_BIPOLAR_DISORDER,
-            BoolColumn(
-                cls.FN_BIPOLAR_DISORDER,
-                comment=(
-                    "Have you had any of the following conditions "
-                    "diagnosed by a doctor?"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_SCHIZOPHRENIA,
-            BoolColumn(
-                cls.FN_SCHIZOPHRENIA,
-                comment=(
-                    "Have you had any of the following conditions "
-                    "diagnosed by a doctor?"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_AUTISM,
-            BoolColumn(
-                cls.FN_AUTISM,
-                comment=(
-                    "Have you had any of the following conditions "
-                    "diagnosed by a doctor?"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_PTSD,
-            BoolColumn(
-                cls.FN_PTSD,
-                comment=(
-                    "Have you had any of the following conditions "
-                    "diagnosed by a doctor?"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_ANXIETY,
-            BoolColumn(
-                cls.FN_ANXIETY,
-                comment=(
-                    "Have you had any of the following conditions "
-                    "diagnosed by a doctor?"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_PERSONALITY_DISORDER,
-            BoolColumn(
-                cls.FN_PERSONALITY_DISORDER,
-                comment=(
-                    "Have you had any of the following conditions "
-                    "diagnosed by a doctor?"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_INTELLECTUAL_DISABILITY,
-            BoolColumn(
-                cls.FN_INTELLECTUAL_DISABILITY,
-                comment=(
-                    "Have you had any of the following conditions "
-                    "diagnosed by a doctor?"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_OTHER_MENTAL_ILLNESS,
-            BoolColumn(
-                cls.FN_OTHER_MENTAL_ILLNESS,
-                comment=(
-                    "Have you had any of the following conditions "
-                    "diagnosed by a doctor?"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_OTHER_MENTAL_ILLNESS_DETAILS,
-            CamcopsColumn(
-                cls.FN_OTHER_MENTAL_ILLNESS_DETAILS,
-                UnicodeText,
-                comment="If other, please list here",
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_HOSPITALISED_IN_LAST_YEAR,
-            BoolColumn(
-                cls.FN_HOSPITALISED_IN_LAST_YEAR,
-                comment=(
-                    "Have you had a physical or mental illness "
-                    "requiring hospitalisation in the previous 12 "
-                    "months?"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_HOSPITALISATION_DETAILS,
-            CamcopsColumn(
-                cls.FN_HOSPITALISATION_DETAILS,
-                UnicodeText,
-                comment=(
-                    "If yes, please list here (name of illness, number "
-                    "of hospitilisations and duration):"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_FAMILY_DEPRESSION,
-            BoolColumn(
-                cls.FN_FAMILY_DEPRESSION,
-                comment=(
-                    "Has anyone in your immediate family "
-                    "(parents, siblings or children) had any of the "
-                    "following conditions diagnosed by a doctor?"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_FAMILY_BIPOLAR_DISORDER,
-            BoolColumn(
-                cls.FN_FAMILY_BIPOLAR_DISORDER,
-                comment=(
-                    "Has anyone in your immediate family "
-                    "(parents, siblings or children) had any of the "
-                    "following conditions diagnosed by a doctor?"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_FAMILY_SCHIZOPHRENIA,
-            BoolColumn(
-                cls.FN_FAMILY_SCHIZOPHRENIA,
-                comment=(
-                    "Has anyone in your immediate family "
-                    "(parents, siblings or children) had any of the "
-                    "following conditions diagnosed by a doctor?"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_FAMILY_AUTISM,
-            BoolColumn(
-                cls.FN_FAMILY_AUTISM,
-                comment=(
-                    "Has anyone in your immediate family "
-                    "(parents, siblings or children) had any of the "
-                    "following conditions diagnosed by a doctor?"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_FAMILY_PTSD,
-            BoolColumn(
-                cls.FN_FAMILY_PTSD,
-                comment=(
-                    "Has anyone in your immediate family "
-                    "(parents, siblings or children) had any of the "
-                    "following conditions diagnosed by a doctor?"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_FAMILY_ANXIETY,
-            BoolColumn(
-                cls.FN_FAMILY_ANXIETY,
-                comment=(
-                    "Has anyone in your immediate family "
-                    "(parents, siblings or children) had any of the "
-                    "following conditions diagnosed by a doctor?"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_FAMILY_PERSONALITY_DISORDER,
-            BoolColumn(
-                cls.FN_FAMILY_PERSONALITY_DISORDER,
-                comment=(
-                    "Has anyone in your immediate family "
-                    "(parents, siblings or children) had any of the "
-                    "following conditions diagnosed by a doctor?"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_FAMILY_INTELLECTUAL_DISABILITY,
-            BoolColumn(
-                cls.FN_FAMILY_INTELLECTUAL_DISABILITY,
-                comment=(
-                    "Has anyone in your immediate family "
-                    "(parents, siblings or children) had any of the "
-                    "following conditions diagnosed by a doctor?"
-                ),
-                constraint_name="ck_kh2mm_fam_int_dis",
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_FAMILY_OTHER_MENTAL_ILLNESS,
-            BoolColumn(
-                cls.FN_FAMILY_OTHER_MENTAL_ILLNESS,
-                comment=(
-                    "Has anyone in your immediate family "
-                    "(parents, siblings or children) had any of the "
-                    "following conditions diagnosed by a doctor?"
-                ),
-            ),
-        )
-        setattr(
-            cls,
-            cls.FN_FAMILY_OTHER_MENTAL_ILLNESS_DETAILS,
-            CamcopsColumn(
-                cls.FN_FAMILY_OTHER_MENTAL_ILLNESS_DETAILS,
-                UnicodeText,
-                comment="If other, please list here",
-            ),
-        )
-
-        super().__init__(name, bases, classdict)
-
-
-class KhandakerMojoMedical(
-    TaskHasPatientMixin, Task, metaclass=KhandakerMojoMedicalMetaclass
+class KhandakerMojoMedical(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
 ):
     """
     Server implementation of the KhandakerMojoMedical task
@@ -438,6 +60,377 @@ class KhandakerMojoMedical(
     FN_HAS_FIBROMYALGIA = "has_fibromyalgia"
     FN_IS_PREGNANT = "is_pregnant"
     FN_HAS_INFECTION_PAST_MONTH = "has_infection_past_month"
+
+    @classmethod
+    def extend_columns(
+        cls: Type["KhandakerMojoMedical"], **kwargs: Any
+    ) -> None:
+        setattr(
+            cls,
+            cls.FN_DIAGNOSIS,
+            camcops_column(
+                cls.FN_DIAGNOSIS,
+                Integer,
+                permitted_value_checker=ZERO_TO_TWO_CHECKER,
+                comment=(
+                    "Diagnosis (0 Rheumatoid Arthritis, "
+                    "1 Ankylosing Spondylitis, 2 Sjögren’s Syndrome)"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_DIAGNOSIS_DATE,
+            camcops_column(
+                cls.FN_DIAGNOSIS_DATE,
+                Date,
+                comment=(
+                    "Date of first diagnosis (may be approx from "
+                    "'duration of illness (years))'"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_DIAGNOSIS_DATE_APPROXIMATE,
+            bool_column(
+                cls.FN_DIAGNOSIS_DATE_APPROXIMATE,
+                comment="True if diagnosis date was derived from duration",
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_HAS_FIBROMYALGIA,
+            bool_column(
+                cls.FN_HAS_FIBROMYALGIA,
+                comment="Do you have a diagnosis of fibromyalgia?",
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_IS_PREGNANT,
+            bool_column(
+                cls.FN_IS_PREGNANT,
+                comment=(
+                    "Are you, or is there any possibility that you might "
+                    "be pregnant?"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_HAS_INFECTION_PAST_MONTH,
+            bool_column(
+                cls.FN_HAS_INFECTION_PAST_MONTH,
+                comment=(
+                    "Do you currently have an infection, or had "
+                    "treatment for an infection (e.g antibiotics) "
+                    "in the past month?"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_HAD_INFECTION_TWO_MONTHS_PRECEDING,
+            bool_column(
+                cls.FN_HAD_INFECTION_TWO_MONTHS_PRECEDING,
+                comment=(
+                    "Have you had an infection, or had treatment for "
+                    "an infection (e.g antibiotics) in the 2 months "
+                    "preceding last month?"
+                ),
+                constraint_name="ck_kh2mm_had_infection",
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_HAS_ALCOHOL_SUBSTANCE_DEPENDENCE,
+            bool_column(
+                cls.FN_HAS_ALCOHOL_SUBSTANCE_DEPENDENCE,
+                comment=(
+                    "Do you have a current diagnosis of alcohol or "
+                    "substance dependence?"
+                ),
+                constraint_name="ck_kh2mm_has_alcohol",
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_SMOKING_STATUS,
+            camcops_column(
+                cls.FN_SMOKING_STATUS,
+                Integer,
+                permitted_value_checker=ZERO_TO_TWO_CHECKER,
+                comment=(
+                    "What is your smoking status? (0 Never smoked, "
+                    "1 Ex-smoker, 2 Current smoker)"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_ALCOHOL_UNITS_PER_WEEK,
+            camcops_column(
+                cls.FN_ALCOHOL_UNITS_PER_WEEK,
+                Float,
+                comment=(
+                    "How much alcohol do you drink per week? (medium "
+                    "glass of wine = 2 units, pint of beer at 4.5% = "
+                    "2.5 units, 25ml of spirits at 40% = 1 unit)"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_DEPRESSION,
+            bool_column(
+                cls.FN_DEPRESSION,
+                comment=(
+                    "Have you had any of the following conditions "
+                    "diagnosed by a doctor?"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_BIPOLAR_DISORDER,
+            bool_column(
+                cls.FN_BIPOLAR_DISORDER,
+                comment=(
+                    "Have you had any of the following conditions "
+                    "diagnosed by a doctor?"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_SCHIZOPHRENIA,
+            bool_column(
+                cls.FN_SCHIZOPHRENIA,
+                comment=(
+                    "Have you had any of the following conditions "
+                    "diagnosed by a doctor?"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_AUTISM,
+            bool_column(
+                cls.FN_AUTISM,
+                comment=(
+                    "Have you had any of the following conditions "
+                    "diagnosed by a doctor?"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_PTSD,
+            bool_column(
+                cls.FN_PTSD,
+                comment=(
+                    "Have you had any of the following conditions "
+                    "diagnosed by a doctor?"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_ANXIETY,
+            bool_column(
+                cls.FN_ANXIETY,
+                comment=(
+                    "Have you had any of the following conditions "
+                    "diagnosed by a doctor?"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_PERSONALITY_DISORDER,
+            bool_column(
+                cls.FN_PERSONALITY_DISORDER,
+                comment=(
+                    "Have you had any of the following conditions "
+                    "diagnosed by a doctor?"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_INTELLECTUAL_DISABILITY,
+            bool_column(
+                cls.FN_INTELLECTUAL_DISABILITY,
+                comment=(
+                    "Have you had any of the following conditions "
+                    "diagnosed by a doctor?"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_OTHER_MENTAL_ILLNESS,
+            bool_column(
+                cls.FN_OTHER_MENTAL_ILLNESS,
+                comment=(
+                    "Have you had any of the following conditions "
+                    "diagnosed by a doctor?"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_OTHER_MENTAL_ILLNESS_DETAILS,
+            camcops_column(
+                cls.FN_OTHER_MENTAL_ILLNESS_DETAILS,
+                UnicodeText,
+                comment="If other, please list here",
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_HOSPITALISED_IN_LAST_YEAR,
+            bool_column(
+                cls.FN_HOSPITALISED_IN_LAST_YEAR,
+                comment=(
+                    "Have you had a physical or mental illness "
+                    "requiring hospitalisation in the previous 12 "
+                    "months?"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_HOSPITALISATION_DETAILS,
+            camcops_column(
+                cls.FN_HOSPITALISATION_DETAILS,
+                UnicodeText,
+                comment=(
+                    "If yes, please list here (name of illness, number "
+                    "of hospitilisations and duration):"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_FAMILY_DEPRESSION,
+            bool_column(
+                cls.FN_FAMILY_DEPRESSION,
+                comment=(
+                    "Has anyone in your immediate family "
+                    "(parents, siblings or children) had any of the "
+                    "following conditions diagnosed by a doctor?"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_FAMILY_BIPOLAR_DISORDER,
+            bool_column(
+                cls.FN_FAMILY_BIPOLAR_DISORDER,
+                comment=(
+                    "Has anyone in your immediate family "
+                    "(parents, siblings or children) had any of the "
+                    "following conditions diagnosed by a doctor?"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_FAMILY_SCHIZOPHRENIA,
+            bool_column(
+                cls.FN_FAMILY_SCHIZOPHRENIA,
+                comment=(
+                    "Has anyone in your immediate family "
+                    "(parents, siblings or children) had any of the "
+                    "following conditions diagnosed by a doctor?"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_FAMILY_AUTISM,
+            bool_column(
+                cls.FN_FAMILY_AUTISM,
+                comment=(
+                    "Has anyone in your immediate family "
+                    "(parents, siblings or children) had any of the "
+                    "following conditions diagnosed by a doctor?"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_FAMILY_PTSD,
+            bool_column(
+                cls.FN_FAMILY_PTSD,
+                comment=(
+                    "Has anyone in your immediate family "
+                    "(parents, siblings or children) had any of the "
+                    "following conditions diagnosed by a doctor?"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_FAMILY_ANXIETY,
+            bool_column(
+                cls.FN_FAMILY_ANXIETY,
+                comment=(
+                    "Has anyone in your immediate family "
+                    "(parents, siblings or children) had any of the "
+                    "following conditions diagnosed by a doctor?"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_FAMILY_PERSONALITY_DISORDER,
+            bool_column(
+                cls.FN_FAMILY_PERSONALITY_DISORDER,
+                comment=(
+                    "Has anyone in your immediate family "
+                    "(parents, siblings or children) had any of the "
+                    "following conditions diagnosed by a doctor?"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_FAMILY_INTELLECTUAL_DISABILITY,
+            bool_column(
+                cls.FN_FAMILY_INTELLECTUAL_DISABILITY,
+                comment=(
+                    "Has anyone in your immediate family "
+                    "(parents, siblings or children) had any of the "
+                    "following conditions diagnosed by a doctor?"
+                ),
+                constraint_name="ck_kh2mm_fam_int_dis",
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_FAMILY_OTHER_MENTAL_ILLNESS,
+            bool_column(
+                cls.FN_FAMILY_OTHER_MENTAL_ILLNESS,
+                comment=(
+                    "Has anyone in your immediate family "
+                    "(parents, siblings or children) had any of the "
+                    "following conditions diagnosed by a doctor?"
+                ),
+            ),
+        )
+        setattr(
+            cls,
+            cls.FN_FAMILY_OTHER_MENTAL_ILLNESS_DETAILS,
+            camcops_column(
+                cls.FN_FAMILY_OTHER_MENTAL_ILLNESS_DETAILS,
+                UnicodeText,
+                comment="If other, please list here",
+            ),
+        )
+
     FN_HAD_INFECTION_TWO_MONTHS_PRECEDING = (
         "had_infection_two_months_preceding"
     )

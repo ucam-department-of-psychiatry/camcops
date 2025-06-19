@@ -25,10 +25,9 @@ camcops_server/tasks/npiq.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Integer
 
 from camcops_server.cc_modules.cc_constants import (
@@ -57,14 +56,22 @@ SEVERITY = "severity"
 DISTRESS = "distress"
 
 
-class NpiQMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["NpiQ"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class NpiQ(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    TaskHasRespondentMixin,
+    Task,
+):
+    """
+    Server implementation of the NPI-Q task.
+    """
+
+    __tablename__ = "npiq"
+    shortname = "NPI-Q"
+
+    NQUESTIONS = 12
+
+    @classmethod
+    def extend_columns(cls: Type["NpiQ"], **kwargs: Any) -> None:
         question_snippets = [
             "delusions",  # 1
             "hallucinations",
@@ -107,20 +114,7 @@ class NpiQMetaclass(DeclarativeMeta):
             comment_fmt="Q{n}, {s}, distress (0-5), if endorsed",
             comment_strings=question_snippets,
         )
-        super().__init__(name, bases, classdict)
 
-
-class NpiQ(
-    TaskHasPatientMixin, TaskHasRespondentMixin, Task, metaclass=NpiQMetaclass
-):
-    """
-    Server implementation of the NPI-Q task.
-    """
-
-    __tablename__ = "npiq"
-    shortname = "NPI-Q"
-
-    NQUESTIONS = 12
     ENDORSED_FIELDS = strseq(ENDORSED, 1, NQUESTIONS)
     MAX_SEVERITY = 3 * NQUESTIONS
     MAX_DISTRESS = 5 * NQUESTIONS

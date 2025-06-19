@@ -47,7 +47,7 @@ class ByYearSelector(BooleanNode, RequestAwareMixin):
     Split report by year?
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, default=DEFAULT_BY_YEAR, **kwargs)
 
     # noinspection PyUnusedLocal
@@ -61,7 +61,7 @@ class ByMonthSelector(BooleanNode, RequestAwareMixin):
     Split report by month?
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, default=DEFAULT_BY_MONTH, **kwargs)
 
     # noinspection PyUnusedLocal
@@ -75,7 +75,7 @@ class ByDayOfMonthSelector(BooleanNode, RequestAwareMixin):
     Split report by day of month?
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, default=DEFAULT_BY_DAY_OF_MONTH, **kwargs)
 
     # noinspection PyUnusedLocal
@@ -89,7 +89,7 @@ class ByTaskSelector(BooleanNode, RequestAwareMixin):
     Split report by task type?
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, default=DEFAULT_BY_TASK, **kwargs)
 
     # noinspection PyUnusedLocal
@@ -103,7 +103,7 @@ class ByUserSelector(BooleanNode, RequestAwareMixin):
     Split report by user?
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, default=DEFAULT_BY_USER, **kwargs)
 
     # noinspection PyUnusedLocal

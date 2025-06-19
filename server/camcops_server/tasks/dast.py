@@ -25,10 +25,9 @@ camcops_server/tasks/dast.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -53,14 +52,24 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class DastMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Dast"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Dast(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the DAST task.
+    """
+
+    __tablename__ = "dast"
+    shortname = "DAST"
+    provides_trackers = True
+
+    prohibits_commercial = True
+
+    NQUESTIONS = 28
+
+    @classmethod
+    def extend_columns(cls: Type["Dast"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -100,21 +109,7 @@ class DastMetaclass(DeclarativeMeta):
                 "outpatient treatment for drug abuse (+)",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Dast(TaskHasPatientMixin, Task, metaclass=DastMetaclass):
-    """
-    Server implementation of the DAST task.
-    """
-
-    __tablename__ = "dast"
-    shortname = "DAST"
-    provides_trackers = True
-
-    prohibits_commercial = True
-
-    NQUESTIONS = 28
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 
     @staticmethod

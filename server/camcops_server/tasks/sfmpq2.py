@@ -31,7 +31,7 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa, tr, answer
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     ZERO_TO_10_CHECKER,
 )
 
@@ -40,18 +40,21 @@ from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, Task
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy import Float, Integer
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from typing import List, Type, Tuple, Dict, Any
+from typing import Any, List, Optional, Type
 
 
-class Sfmpq2Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Sfmpq2"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Sfmpq2(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    __tablename__ = "sfmpq2"
+    shortname = "SF-MPQ2"
+
+    N_QUESTIONS = 22
+    MAX_SCORE_PER_Q = 10
+
+    @classmethod
+    def extend_columns(cls: Type["Sfmpq2"], **kwargs: Any) -> None:
 
         # Field descriptions are open access, as per:
         # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5221718/
@@ -89,7 +92,7 @@ class Sfmpq2Metaclass(DeclarativeMeta):
             setattr(
                 cls,
                 q_field,
-                CamcopsColumn(
+                camcops_column(
                     q_field,
                     Integer,
                     permitted_value_checker=ZERO_TO_10_CHECKER,
@@ -99,15 +102,6 @@ class Sfmpq2Metaclass(DeclarativeMeta):
                 ),
             )
 
-        super().__init__(name, bases, classdict)
-
-
-class Sfmpq2(TaskHasPatientMixin, Task, metaclass=Sfmpq2Metaclass):
-    __tablename__ = "sfmpq2"
-    shortname = "SF-MPQ2"
-
-    N_QUESTIONS = 22
-    MAX_SCORE_PER_Q = 10
     ALL_QUESTIONS = strseq("q", 1, N_QUESTIONS)
 
     CONTINUOUS_PAIN_QUESTIONS = Task.fieldnames_from_list(
@@ -182,7 +176,7 @@ class Sfmpq2(TaskHasPatientMixin, Task, metaclass=Sfmpq2Metaclass):
     def affective_pain(self) -> float:
         return self.mean_fields(self.AFFECTIVE_PAIN_QUESTIONS)
 
-    def format_average(self, value) -> str:
+    def format_average(self, value: Optional[float]) -> str:
         return "{} / {}".format(
             answer(ws.number_to_dp(value, 3, default="?")),
             self.MAX_SCORE_PER_Q,

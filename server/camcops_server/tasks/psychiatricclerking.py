@@ -28,7 +28,7 @@ camcops_server/tasks/psychiatricclerking.py
 from typing import Dict, List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -52,7 +52,7 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 
-class PsychiatricClerking(
+class PsychiatricClerking(  # type: ignore[misc]
     TaskHasPatientMixin, TaskHasClinicianMixin, Task, Base
 ):
     """
@@ -65,68 +65,72 @@ class PsychiatricClerking(
 
     # FIELDSPEC_A = CLINICIAN_FIELDSPECS  # replaced by has_clinician, then by TaskHasClinicianMixin  # noqa
 
-    location = Column("location", UnicodeText)
-    contact_type = Column("contact_type", UnicodeText)
-    reason_for_contact = Column("reason_for_contact", UnicodeText)
-    presenting_issue = Column("presenting_issue", UnicodeText)
-    systems_review = Column("systems_review", UnicodeText)
-    collateral_history = Column("collateral_history", UnicodeText)
+    location: Mapped[Optional[str]] = mapped_column("location", UnicodeText)
+    contact_type: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    reason_for_contact: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    presenting_issue: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    systems_review: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    collateral_history: Mapped[Optional[str]] = mapped_column(UnicodeText)
 
-    diagnoses_psychiatric = Column("diagnoses_psychiatric", UnicodeText)
-    diagnoses_medical = Column("diagnoses_medical", UnicodeText)
-    operations_procedures = Column("operations_procedures", UnicodeText)
-    allergies_adverse_reactions = Column(
-        "allergies_adverse_reactions", UnicodeText
+    diagnoses_psychiatric: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    diagnoses_medical: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    operations_procedures: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    allergies_adverse_reactions: Mapped[Optional[str]] = mapped_column(
+        UnicodeText
     )
-    medications = Column("medications", UnicodeText)
-    recreational_drug_use = Column("recreational_drug_use", UnicodeText)
-    family_history = Column("family_history", UnicodeText)
-    developmental_history = Column("developmental_history", UnicodeText)
-    personal_history = Column("personal_history", UnicodeText)
-    premorbid_personality = Column("premorbid_personality", UnicodeText)
-    forensic_history = Column("forensic_history", UnicodeText)
-    current_social_situation = Column("current_social_situation", UnicodeText)
-
-    mse_appearance_behaviour = Column("mse_appearance_behaviour", UnicodeText)
-    mse_speech = Column("mse_speech", UnicodeText)
-    mse_mood_subjective = Column("mse_mood_subjective", UnicodeText)
-    mse_mood_objective = Column("mse_mood_objective", UnicodeText)
-    mse_thought_form = Column("mse_thought_form", UnicodeText)
-    mse_thought_content = Column("mse_thought_content", UnicodeText)
-    mse_perception = Column("mse_perception", UnicodeText)
-    mse_cognition = Column("mse_cognition", UnicodeText)
-    mse_insight = Column("mse_insight", UnicodeText)
-
-    physical_examination_general = Column(
-        "physical_examination_general", UnicodeText
-    )
-    physical_examination_cardiovascular = Column(
-        "physical_examination_cardiovascular", UnicodeText
-    )
-    physical_examination_respiratory = Column(
-        "physical_examination_respiratory", UnicodeText
-    )
-    physical_examination_abdominal = Column(
-        "physical_examination_abdominal", UnicodeText
-    )
-    physical_examination_neurological = Column(
-        "physical_examination_neurological", UnicodeText
+    medications: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    recreational_drug_use: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    family_history: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    developmental_history: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    personal_history: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    premorbid_personality: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    forensic_history: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    current_social_situation: Mapped[Optional[str]] = mapped_column(
+        UnicodeText
     )
 
-    assessment_scales = Column("assessment_scales", UnicodeText)
-    investigations_results = Column("investigations_results", UnicodeText)
+    mse_appearance_behaviour: Mapped[Optional[str]] = mapped_column(
+        UnicodeText
+    )
+    mse_speech: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    mse_mood_subjective: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    mse_mood_objective: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    mse_thought_form: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    mse_thought_content: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    mse_perception: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    mse_cognition: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    mse_insight: Mapped[Optional[str]] = mapped_column(UnicodeText)
 
-    safety_alerts = Column("safety_alerts", UnicodeText)
-    risk_assessment = Column("risk_assessment", UnicodeText)
-    relevant_legal_information = Column(
-        "relevant_legal_information", UnicodeText
+    physical_examination_general: Mapped[Optional[str]] = mapped_column(
+        UnicodeText
+    )
+    physical_examination_cardiovascular: Mapped[Optional[str]] = mapped_column(
+        UnicodeText
+    )
+    physical_examination_respiratory: Mapped[Optional[str]] = mapped_column(
+        UnicodeText
+    )
+    physical_examination_abdominal: Mapped[Optional[str]] = mapped_column(
+        UnicodeText
+    )
+    physical_examination_neurological: Mapped[Optional[str]] = mapped_column(
+        UnicodeText
     )
 
-    current_problems = Column("current_problems", UnicodeText)
-    patient_carer_concerns = Column("patient_carer_concerns", UnicodeText)
-    impression = Column("impression", UnicodeText)
-    management_plan = Column("management_plan", UnicodeText)
-    information_given = Column("information_given", UnicodeText)
+    assessment_scales: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    investigations_results: Mapped[Optional[str]] = mapped_column(UnicodeText)
+
+    safety_alerts: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    risk_assessment: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    relevant_legal_information: Mapped[Optional[str]] = mapped_column(
+        UnicodeText
+    )
+
+    current_problems: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    patient_carer_concerns: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    impression: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    management_plan: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    information_given: Mapped[Optional[str]] = mapped_column(UnicodeText)
 
     FIELDS_B = [
         "location",
@@ -420,7 +424,7 @@ class PsychiatricClerking(
                 req.snomed(
                     SnomedLookup.DIAGNOSTIC_PSYCHIATRIC_INTERVIEW_PROCEDURE
                 ),
-                refinement=refinement or None,
+                refinement=refinement or None,  # type: ignore[arg-type]
             )
         ]
         return codes

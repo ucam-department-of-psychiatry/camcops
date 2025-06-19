@@ -27,17 +27,16 @@ camcops_server/tasks/rapid3.py
 
 """
 
-from typing import Any, Dict, List, Optional, Type, Tuple
+from typing import Any, List, Optional, Type, Tuple
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy import Float, Integer
-from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import answer, tr_qa, tr, tr_span_col
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     PermittedValueChecker,
     ZERO_TO_THREE_CHECKER,
 )
@@ -55,14 +54,30 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class Rapid3Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Rapid3"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Rapid3(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    __tablename__ = "rapid3"
+    shortname = "RAPID3"
+    provides_trackers = True
+
+    N_Q1_QUESTIONS = 13
+    N_Q1_SCORING_QUESTIONS = 10
+
+    # > 12 = HIGH
+    # 6.1 - 12 = MODERATE
+    # 3.1 - 6 = LOW
+    # <= 3 = REMISSION
+
+    MINIMUM = 0
+    NEAR_REMISSION_MAX = 3
+    LOW_SEVERITY_MAX = 6
+    MODERATE_SEVERITY_MAX = 12
+    MAXIMUM = 30
+
+    @classmethod
+    def extend_columns(cls: Type["Rapid3"], **kwargs: Any) -> None:
 
         comment_strings = [
             "get dressed",
@@ -85,7 +100,7 @@ class Rapid3Metaclass(DeclarativeMeta):
             setattr(
                 cls,
                 q_fieldname,
-                CamcopsColumn(
+                camcops_column(
                     q_fieldname,
                     Integer,
                     permitted_value_checker=ZERO_TO_THREE_CHECKER,
@@ -102,7 +117,7 @@ class Rapid3Metaclass(DeclarativeMeta):
         setattr(
             cls,
             "q2",
-            CamcopsColumn(
+            camcops_column(
                 "q2",
                 Float,
                 permitted_value_checker=PermittedValueChecker(
@@ -118,7 +133,7 @@ class Rapid3Metaclass(DeclarativeMeta):
         setattr(
             cls,
             "q3",
-            CamcopsColumn(
+            camcops_column(
                 "q3",
                 Float,
                 permitted_value_checker=PermittedValueChecker(
@@ -128,28 +143,6 @@ class Rapid3Metaclass(DeclarativeMeta):
                 "(0 very well - very poorly)",
             ),
         )
-
-        super().__init__(name, bases, classdict)
-
-
-class Rapid3(TaskHasPatientMixin, Task, metaclass=Rapid3Metaclass):
-    __tablename__ = "rapid3"
-    shortname = "RAPID3"
-    provides_trackers = True
-
-    N_Q1_QUESTIONS = 13
-    N_Q1_SCORING_QUESTIONS = 10
-
-    # > 12 = HIGH
-    # 6.1 - 12 = MODERATE
-    # 3.1 - 6 = LOW
-    # <= 3 = REMISSION
-
-    MINIMUM = 0
-    NEAR_REMISSION_MAX = 3
-    LOW_SEVERITY_MAX = 6
-    MODERATE_SEVERITY_MAX = 12
-    MAXIMUM = 30
 
     @classmethod
     def q1_indexed_letters(cls, last: int) -> List[Tuple[int, str]]:
@@ -206,7 +199,7 @@ class Rapid3(TaskHasPatientMixin, Task, metaclass=Rapid3Metaclass):
             TrackerAxisTick(n, str(n)) for n in range(0, int(axis_max) + 1, 2)
         ]
 
-        horizontal_lines = [
+        horizontal_lines: list[float] = [
             self.MAXIMUM,
             self.MODERATE_SEVERITY_MAX,
             self.LOW_SEVERITY_MAX,
@@ -260,11 +253,11 @@ class Rapid3(TaskHasPatientMixin, Task, metaclass=Rapid3Metaclass):
 
     def pain_tolerance(self) -> float:
         # noinspection PyUnresolvedReferences
-        return self.q2
+        return self.q2  # type: ignore[attr-defined]
 
     def global_estimate(self) -> float:
         # noinspection PyUnresolvedReferences
-        return self.q3
+        return self.q3  # type: ignore[attr-defined]
 
     def is_complete(self) -> bool:
         if self.any_fields_none(self.all_fieldnames()):

@@ -37,7 +37,7 @@ from camcops_server.cc_modules.cc_config import CamcopsConfig, get_demo_config
 
 
 class EmailConfigTests(TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
 
         # Start with a working config and just set the things we want to test

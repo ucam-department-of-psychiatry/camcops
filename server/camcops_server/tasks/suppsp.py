@@ -27,11 +27,16 @@ camcops_server/tasks/suppsp.py
 
 """
 
+from typing import Any, cast, List, Type
+
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy import Integer
+
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa, tr, answer
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    camcops_column,
     ONE_TO_FOUR_CHECKER,
 )
 
@@ -42,20 +47,26 @@ from camcops_server.cc_modules.cc_task import (
     get_from_dict,
 )
 from camcops_server.cc_modules.cc_text import SS
-from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy import Integer
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from typing import List, Type, Tuple, Dict, Any
 
 
-class SuppspMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Suppsp"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Suppsp(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    __tablename__ = "suppsp"
+    shortname = "SUPPS-P"
+
+    N_QUESTIONS = 20
+    MIN_SCORE_PER_Q = 1
+    MAX_SCORE_PER_Q = 4
+    MIN_SCORE = MIN_SCORE_PER_Q * N_QUESTIONS
+    MAX_SCORE = MAX_SCORE_PER_Q * N_QUESTIONS
+    N_Q_PER_SUBSCALE = 4  # always
+    MIN_SUBSCALE = MIN_SCORE_PER_Q * N_Q_PER_SUBSCALE
+    MAX_SUBSCALE = MAX_SCORE_PER_Q * N_Q_PER_SUBSCALE
+
+    @classmethod
+    def extend_columns(cls: Type["Suppsp"], **kwargs: Any) -> None:
 
         comment_strings = [
             "see to end",
@@ -94,7 +105,7 @@ class SuppspMetaclass(DeclarativeMeta):
             setattr(
                 cls,
                 q_field,
-                CamcopsColumn(
+                camcops_column(
                     q_field,
                     Integer,
                     permitted_value_checker=ONE_TO_FOUR_CHECKER,
@@ -104,21 +115,6 @@ class SuppspMetaclass(DeclarativeMeta):
                 ),
             )
 
-        super().__init__(name, bases, classdict)
-
-
-class Suppsp(TaskHasPatientMixin, Task, metaclass=SuppspMetaclass):
-    __tablename__ = "suppsp"
-    shortname = "SUPPS-P"
-
-    N_QUESTIONS = 20
-    MIN_SCORE_PER_Q = 1
-    MAX_SCORE_PER_Q = 4
-    MIN_SCORE = MIN_SCORE_PER_Q * N_QUESTIONS
-    MAX_SCORE = MAX_SCORE_PER_Q * N_QUESTIONS
-    N_Q_PER_SUBSCALE = 4  # always
-    MIN_SUBSCALE = MIN_SCORE_PER_Q * N_Q_PER_SUBSCALE
-    MAX_SUBSCALE = MAX_SCORE_PER_Q * N_Q_PER_SUBSCALE
     ALL_QUESTIONS = strseq("q", 1, N_QUESTIONS)
     NEGATIVE_URGENCY_QUESTIONS = Task.fieldnames_from_list("q", {6, 8, 13, 15})
     LACK_OF_PERSEVERANCE_QUESTIONS = Task.fieldnames_from_list(
@@ -188,22 +184,22 @@ class Suppsp(TaskHasPatientMixin, Task, metaclass=SuppspMetaclass):
         return True
 
     def total_score(self) -> int:
-        return self.sum_fields(self.ALL_QUESTIONS)
+        return cast(int, self.sum_fields(self.ALL_QUESTIONS))
 
     def negative_urgency_score(self) -> int:
-        return self.sum_fields(self.NEGATIVE_URGENCY_QUESTIONS)
+        return cast(int, self.sum_fields(self.NEGATIVE_URGENCY_QUESTIONS))
 
     def lack_of_perseverance_score(self) -> int:
-        return self.sum_fields(self.LACK_OF_PERSEVERANCE_QUESTIONS)
+        return cast(int, self.sum_fields(self.LACK_OF_PERSEVERANCE_QUESTIONS))
 
     def lack_of_premeditation_score(self) -> int:
-        return self.sum_fields(self.LACK_OF_PREMEDITATION_QUESTIONS)
+        return cast(int, self.sum_fields(self.LACK_OF_PREMEDITATION_QUESTIONS))
 
     def sensation_seeking_score(self) -> int:
-        return self.sum_fields(self.SENSATION_SEEKING_QUESTIONS)
+        return cast(int, self.sum_fields(self.SENSATION_SEEKING_QUESTIONS))
 
     def positive_urgency_score(self) -> int:
-        return self.sum_fields(self.POSITIVE_URGENCY_QUESTIONS)
+        return cast(int, self.sum_fields(self.POSITIVE_URGENCY_QUESTIONS))
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         normal_score_dict = {

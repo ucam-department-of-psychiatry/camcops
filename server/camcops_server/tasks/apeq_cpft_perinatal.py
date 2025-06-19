@@ -25,15 +25,15 @@ camcops_server/tasks/apeq_cpft_perinatal.py
 
 """
 
-from typing import Dict, List, Optional, Tuple, Type
+from typing import Any, Dict, List, Optional, Tuple, Type
 
 from cardinal_pythonlib.classes import classproperty
 
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.expression import and_, column, select
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, UnicodeText
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
@@ -45,7 +45,7 @@ from camcops_server.cc_modules.cc_report import (
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    mapped_camcops_column,
     ZERO_TO_FIVE_CHECKER,
     ZERO_TO_TWO_CHECKER,
 )
@@ -71,56 +71,43 @@ class APEQCPFTPerinatal(Task):
     FN_QPREFIX = "q"
     MAIN_EXPLANATION = " (0 no, 1 yes to some extent, 2 yes)"
 
-    q1 = CamcopsColumn(
-        "q1",
-        Integer,
+    q1: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q1. Treated with respect/dignity" + MAIN_EXPLANATION,
     )
-    q2 = CamcopsColumn(
-        "q2",
-        Integer,
+    q2: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q2. Felt listened to" + MAIN_EXPLANATION,
     )
-    q3 = CamcopsColumn(
-        "q3",
-        Integer,
+    q3: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q3. Needs were understood" + MAIN_EXPLANATION,
     )
-    q4 = CamcopsColumn(
-        "q4",
-        Integer,
+    q4: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q4. Given info about team" + MAIN_EXPLANATION,
     )
-    q5 = CamcopsColumn(
-        "q5",
-        Integer,
+    q5: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q5. Family considered/included" + MAIN_EXPLANATION,
     )
-    q6 = CamcopsColumn(
-        "q6",
-        Integer,
+    q6: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Q6. Views on treatment taken into account" + MAIN_EXPLANATION,
     )
-    ff_rating = CamcopsColumn(
-        "ff_rating",
-        Integer,
+    ff_rating: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FIVE_CHECKER,
         comment="How likely to recommend service to friends and family "
         "(0 don't know, 1 extremely unlikely, 2 unlikely, "
         "3 neither likely nor unlikely, 4 likely, 5 extremely likely)",
     )
-    ff_why = Column(
-        "ff_why",
+    ff_why: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Why was friends/family rating given as it was?",
     )
-    comments = Column("comments", UnicodeText, comment="General comments")
+    comments: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="General comments"
+    )
 
     REQUIRED_FIELDS = ["q1", "q2", "q3", "q4", "q5", "q6", "ff_rating"]
 
@@ -210,7 +197,7 @@ class APEQCPFTPerinatalReport(
 
     COL_FF_WHY = 1
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.task = APEQCPFTPerinatal()  # dummy task, never written to DB
 
@@ -352,11 +339,11 @@ class APEQCPFTPerinatalReport(
             column("ff_why").isnot(None),
         ]
 
-        self.add_task_report_filters(wheres)
+        self.add_task_report_filters(wheres)  # type: ignore[arg-type]
 
         # noinspection PyUnresolvedReferences
         query = (
-            select([column("ff_rating"), column("ff_why")])
+            select(column("ff_rating"), column("ff_why"))  # type: ignore[var-annotated]  # noqa: E501
             .select_from(self.task.__table__)
             .where(and_(*wheres))
             .order_by("ff_why")
@@ -376,11 +363,11 @@ class APEQCPFTPerinatalReport(
 
         wheres = [column("comments").isnot(None)]
 
-        self.add_task_report_filters(wheres)
+        self.add_task_report_filters(wheres)  # type: ignore[arg-type]
 
         # noinspection PyUnresolvedReferences
         query = (
-            select([column("comments")])
+            select(column("comments"))  # type: ignore[var-annotated]
             .select_from(self.task.__table__)
             .where(and_(*wheres))
         )

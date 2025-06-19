@@ -25,11 +25,10 @@ camcops_server/tasks/honos.py
 
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -44,7 +43,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    mapped_camcops_column,
     CharColType,
     PermittedValueChecker,
 )
@@ -78,12 +77,12 @@ FOOTNOTE_SCORING = """
 
 
 # noinspection PyAbstractClass
-class HonosBase(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
+class HonosBase(TaskHasPatientMixin, TaskHasClinicianMixin, Task):  # type: ignore[misc]  # noqa: E501
     __abstract__ = True
     provides_trackers = True
 
-    period_rated = Column(
-        "period_rated", UnicodeText, comment="Period being rated"
+    period_rated: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Period being rated"
     )
 
     COPYRIGHT_DIV = f"""
@@ -158,14 +157,19 @@ class HonosBase(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
 # =============================================================================
 
 
-class HonosMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Honos"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Honos(
+    HonosBase,
+):
+    """
+    Server implementation of the HoNOS task.
+    """
+
+    __tablename__ = "honos"
+    shortname = "HoNOS"
+    info_filename_stem = "honos"
+
+    @classmethod
+    def extend_columns(cls: Type["Honos"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -188,20 +192,8 @@ class HonosMetaclass(DeclarativeMeta):
                 "occupation/activities",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Honos(HonosBase, metaclass=HonosMetaclass):
-    """
-    Server implementation of the HoNOS task.
-    """
-
-    __tablename__ = "honos"
-    shortname = "HoNOS"
-    info_filename_stem = "honos"
-
-    q8problemtype = CamcopsColumn(
-        "q8problemtype",
+    q8problemtype: Mapped[Optional[str]] = mapped_camcops_column(
         CharColType,
         permitted_value_checker=PermittedValueChecker(
             permitted_values=PV_PROBLEMTYPE
@@ -211,8 +203,8 @@ class Honos(HonosBase, metaclass=HonosMetaclass):
         "E dissociative; F somatoform; G eating; H sleep; "
         "I sexual; J other, specify)",
     )
-    q8otherproblem = Column(
-        "q8otherproblem", UnicodeText, comment="Q8: other problem: specify"
+    q8otherproblem: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Q8: other problem: specify"
     )
 
     NQUESTIONS = 12
@@ -230,11 +222,11 @@ class Honos(HonosBase, metaclass=HonosMetaclass):
             return False
         if not self.field_contents_valid():
             return False
-        if self.q8 != 0 and self.q8 != 9 and self.q8problemtype is None:
+        if self.q8 != 0 and self.q8 != 9 and self.q8problemtype is None:  # type: ignore[attr-defined]  # noqa: E501
             return False
         if (
-            self.q8 != 0
-            and self.q8 != 9
+            self.q8 != 0  # type: ignore[attr-defined]
+            and self.q8 != 9  # type: ignore[attr-defined]
             and self.q8problemtype == "J"
             and self.q8otherproblem is None
         ):
@@ -331,40 +323,40 @@ class Honos(HonosBase, metaclass=HonosMetaclass):
                         ): self.total_score(),
                         req.snomed(
                             SnomedLookup.HONOSWA_1_OVERACTIVE_SCORE
-                        ): self.q1,
+                        ): self.q1,  # type: ignore[attr-defined]
                         req.snomed(
                             SnomedLookup.HONOSWA_2_SELFINJURY_SCORE
-                        ): self.q2,
+                        ): self.q2,  # type: ignore[attr-defined]
                         req.snomed(
                             SnomedLookup.HONOSWA_3_SUBSTANCE_SCORE
-                        ): self.q3,
+                        ): self.q3,  # type: ignore[attr-defined]
                         req.snomed(
                             SnomedLookup.HONOSWA_4_COGNITIVE_SCORE
-                        ): self.q4,
+                        ): self.q4,  # type: ignore[attr-defined]
                         req.snomed(
                             SnomedLookup.HONOSWA_5_PHYSICAL_SCORE
-                        ): self.q5,
+                        ): self.q5,  # type: ignore[attr-defined]
                         req.snomed(
                             SnomedLookup.HONOSWA_6_PSYCHOSIS_SCORE
-                        ): self.q6,
+                        ): self.q6,  # type: ignore[attr-defined]
                         req.snomed(
                             SnomedLookup.HONOSWA_7_DEPRESSION_SCORE
-                        ): self.q7,
+                        ): self.q7,  # type: ignore[attr-defined]
                         req.snomed(
                             SnomedLookup.HONOSWA_8_OTHERMENTAL_SCORE
-                        ): self.q8,
+                        ): self.q8,  # type: ignore[attr-defined]
                         req.snomed(
                             SnomedLookup.HONOSWA_9_RELATIONSHIPS_SCORE
-                        ): self.q9,
+                        ): self.q9,  # type: ignore[attr-defined]
                         req.snomed(
                             SnomedLookup.HONOSWA_10_ADL_SCORE
-                        ): self.q10,
+                        ): self.q10,  # type: ignore[attr-defined]
                         req.snomed(
                             SnomedLookup.HONOSWA_11_LIVINGCONDITIONS_SCORE
-                        ): self.q11,
+                        ): self.q11,  # type: ignore[attr-defined]
                         req.snomed(
                             SnomedLookup.HONOSWA_12_OCCUPATION_SCORE
-                        ): self.q12,
+                        ): self.q12,  # type: ignore[attr-defined]
                     },
                 )
             )
@@ -376,14 +368,19 @@ class Honos(HonosBase, metaclass=HonosMetaclass):
 # =============================================================================
 
 
-class Honos65Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Honos65"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Honos65(
+    HonosBase,
+):
+    """
+    Server implementation of the HoNOS 65+ task.
+    """
+
+    __tablename__ = "honos65"
+    shortname = "HoNOS 65+"
+    info_filename_stem = "honos"
+
+    @classmethod
+    def extend_columns(cls: Type["Honos65"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -406,20 +403,8 @@ class Honos65Metaclass(DeclarativeMeta):
                 "occupation/activities",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Honos65(HonosBase, metaclass=Honos65Metaclass):
-    """
-    Server implementation of the HoNOS 65+ task.
-    """
-
-    __tablename__ = "honos65"
-    shortname = "HoNOS 65+"
-    info_filename_stem = "honos"
-
-    q8problemtype = CamcopsColumn(
-        "q8problemtype",
+    q8problemtype: Mapped[Optional[str]] = mapped_camcops_column(
         CharColType,
         permitted_value_checker=PermittedValueChecker(
             permitted_values=PV_PROBLEMTYPE
@@ -429,8 +414,8 @@ class Honos65(HonosBase, metaclass=Honos65Metaclass):
         "E dissociative; F somatoform; G eating; H sleep; "
         "I sexual; J other, specify)",
     )
-    q8otherproblem = Column(
-        "q8otherproblem", UnicodeText, comment="Q8: other problem: specify"
+    q8otherproblem: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Q8: other problem: specify"
     )
 
     NQUESTIONS = 12
@@ -448,11 +433,11 @@ class Honos65(HonosBase, metaclass=Honos65Metaclass):
             return False
         if not self.field_contents_valid():
             return False
-        if self.q8 != 0 and self.q8 != 9 and self.q8problemtype is None:
+        if self.q8 != 0 and self.q8 != 9 and self.q8problemtype is None:  # type: ignore[attr-defined]  # noqa: E501
             return False
         if (
-            self.q8 != 0
-            and self.q8 != 9
+            self.q8 != 0  # type: ignore[attr-defined]
+            and self.q8 != 9  # type: ignore[attr-defined]
             and self.q8problemtype == "J"
             and self.q8otherproblem is None
         ):
@@ -557,14 +542,21 @@ class Honos65(HonosBase, metaclass=Honos65Metaclass):
 # =============================================================================
 
 
-class HonoscaMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Honosca"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Honosca(
+    HonosBase,
+):
+    """
+    Server implementation of the HoNOSCA task.
+    """
+
+    __tablename__ = "honosca"
+    shortname = "HoNOSCA"
+    info_filename_stem = "honos"
+
+    NQUESTIONS = 15
+
+    @classmethod
+    def extend_columns(cls: Type["Honosca"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -590,19 +582,7 @@ class HonoscaMetaclass(DeclarativeMeta):
                 "lack of information about services",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Honosca(HonosBase, metaclass=HonoscaMetaclass):
-    """
-    Server implementation of the HoNOSCA task.
-    """
-
-    __tablename__ = "honosca"
-    shortname = "HoNOSCA"
-    info_filename_stem = "honos"
-
-    NQUESTIONS = 15
     QFIELDS = strseq("q", 1, NQUESTIONS)
     LAST_SECTION_A_Q = 13
     FIRST_SECTION_B_Q = 14

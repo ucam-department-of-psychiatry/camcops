@@ -99,7 +99,7 @@ class FhirExportTestCase(DemoRequestTestCase):
         super().setUp()
         recipientinfo = ExportRecipientInfo()
 
-        self.recipient = ExportRecipient(recipientinfo)
+        self.recipient = ExportRecipient(other=recipientinfo)
         self.recipient.fhir_api_url = "https://www.example.com/fhir"
 
         # auto increment doesn't work for BigInteger with SQLite

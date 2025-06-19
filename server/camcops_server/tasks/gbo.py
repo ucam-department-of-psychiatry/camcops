@@ -29,11 +29,12 @@ Goal-Based Outcomes tasks.
 
 """
 
-from typing import List
+import datetime
+from typing import List, Optional
 
 from cardinal_pythonlib.datetimefunc import format_datetime
-from sqlalchemy import Column
-from sqlalchemy.sql.sqltypes import Boolean, Integer, Date, UnicodeText
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass, DateFormat
 from camcops_server.cc_modules.cc_html import tr_qa, answer
@@ -75,7 +76,7 @@ def agent_description(agent: int, other_detail: str) -> str:
 # =============================================================================
 
 
-class Gbogres(TaskHasPatientMixin, Task):
+class Gbogres(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the GBO - Goal Record Sheet task.
     """
@@ -95,30 +96,28 @@ class Gbogres(TaskHasPatientMixin, Task):
 
     REQUIRED_FIELDS = [FN_DATE, FN_GOAL_1_DESC, FN_COMPLETED_BY]
 
-    date = Column(FN_DATE, Date, comment="Date of goal-setting")
-    goal_1_description = Column(
-        FN_GOAL_1_DESC, UnicodeText, comment="Goal 1 description"
+    date: Mapped[Optional[datetime.date]] = mapped_column(
+        comment="Date of goal-setting"
     )
-    goal_2_description = Column(
-        FN_GOAL_2_DESC, UnicodeText, comment="Goal 2 description"
+    goal_1_description: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Goal 1 description"
     )
-    goal_3_description = Column(
-        FN_GOAL_3_DESC, UnicodeText, comment="Goal 3 description"
+    goal_2_description: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Goal 2 description"
     )
-    other_goals = Column(
-        FN_GOAL_OTHER,
+    goal_3_description: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Goal 3 description"
+    )
+    other_goals: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Other/additional goal description(s)",
     )
-    completed_by = Column(
-        FN_COMPLETED_BY,
-        Integer,
+    completed_by: Mapped[Optional[int]] = mapped_column(
         comment="Who completed the form ({})".format(
             "; ".join(f"{k} = {v}" for k, v in AGENT_STRING_MAP.items())
         ),
     )
-    completed_by_other = Column(
-        FN_COMPLETED_BY_OTHER,
+    completed_by_other: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="If completed by 'other', who?",
     )
@@ -203,7 +202,7 @@ class Gbogres(TaskHasPatientMixin, Task):
 # =============================================================================
 
 
-class Gbogpc(TaskHasPatientMixin, Task):
+class Gbogpc(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the GBO-GPC task.
     """
@@ -222,28 +221,27 @@ class Gbogpc(TaskHasPatientMixin, Task):
     FN_WHOSE_GOAL = "whose_goal"
     FN_WHOSE_GOAL_OTHER = "whose_goal_other"
 
-    date = Column(FN_DATE, Date, comment="Session date")
-    session = Column(FN_SESSION, Integer, comment="Session number")
-    goal_number = Column(FN_GOAL_NUMBER, Integer, comment="Goal number (1-3)")
-    goal_text = Column(
+    date: Mapped[Optional[datetime.date]] = mapped_column(
+        comment="Session date"
+    )
+    session: Mapped[Optional[int]] = mapped_column(comment="Session number")
+    goal_number: Mapped[Optional[int]] = mapped_column(
+        comment="Goal number (1-3)"
+    )
+    goal_text: Mapped[Optional[str]] = mapped_column(
         FN_GOAL_DESCRIPTION,
         UnicodeText,
         comment="Brief description of the goal",
     )
-    progress = Column(
-        FN_PROGRESS,
-        Integer,
+    progress: Mapped[Optional[int]] = mapped_column(
         comment="Progress towards goal" + PROGRESS_COMMENT_SUFFIX,
     )
-    whose_goal = Column(
-        FN_WHOSE_GOAL,
-        Integer,
+    whose_goal: Mapped[Optional[int]] = mapped_column(
         comment="Whose goal is this ({})".format(
             "; ".join(f"{k} = {v}" for k, v in AGENT_STRING_MAP.items())
         ),
     )
-    whose_goal_other = Column(
-        FN_WHOSE_GOAL_OTHER,
+    whose_goal_other: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="If 'whose goal' is 'other', who?",
     )
@@ -351,7 +349,7 @@ class Gbogpc(TaskHasPatientMixin, Task):
 # =============================================================================
 
 
-class Gbogras(TaskHasPatientMixin, Task):
+class Gbogras(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the GBO-GRaS task.
     """
@@ -375,38 +373,32 @@ class Gbogras(TaskHasPatientMixin, Task):
     FN_COMPLETED_BY = "completed_by"
     FN_COMPLETED_BY_OTHER = "completed_by_other"
 
-    date = Column(FN_DATE, Date, comment="Date of ratings")
+    date: Mapped[Optional[datetime.date]] = mapped_column(
+        comment="Date of ratings"
+    )
     # ... NB SQL keyword too; doesn't matter
-    rate_goal_1 = Column(FN_RATE_GOAL_1, Boolean, comment="Rate goal 1?")
-    rate_goal_2 = Column(FN_RATE_GOAL_2, Boolean, comment="Rate goal 2?")
-    rate_goal_3 = Column(FN_RATE_GOAL_3, Boolean, comment="Rate goal 3?")
-    goal_1_description = Column(
-        FN_GOAL_1_DESC, UnicodeText, comment="Goal 1 description"
+    rate_goal_1: Mapped[Optional[bool]] = mapped_column(comment="Rate goal 1?")
+    rate_goal_2: Mapped[Optional[bool]] = mapped_column(comment="Rate goal 2?")
+    rate_goal_3: Mapped[Optional[bool]] = mapped_column(comment="Rate goal 3?")
+    goal_1_description: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Goal 1 description"
     )
-    goal_2_description = Column(
-        FN_GOAL_2_DESC, UnicodeText, comment="Goal 2 description"
+    goal_2_description: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Goal 2 description"
     )
-    goal_3_description = Column(
-        FN_GOAL_3_DESC, UnicodeText, comment="Goal 3 description"
+    goal_3_description: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Goal 3 description"
     )
-    goal_1_progress = Column(
-        FN_GOAL_1_PROGRESS,
-        Integer,
+    goal_1_progress: Mapped[Optional[int]] = mapped_column(
         comment="Goal 1 progress" + PROGRESS_COMMENT_SUFFIX,
     )
-    goal_2_progress = Column(
-        FN_GOAL_2_PROGRESS,
-        Integer,
+    goal_2_progress: Mapped[Optional[int]] = mapped_column(
         comment="Goal 2 progress" + PROGRESS_COMMENT_SUFFIX,
     )
-    goal_3_progress = Column(
-        FN_GOAL_3_PROGRESS,
-        Integer,
+    goal_3_progress: Mapped[Optional[int]] = mapped_column(
         comment="Goal 3 progress" + PROGRESS_COMMENT_SUFFIX,
     )
-    completed_by = Column(
-        FN_COMPLETED_BY,
-        Integer,
+    completed_by: Mapped[Optional[int]] = mapped_column(
         comment="Who completed the form ({})".format(
             "; ".join(
                 f"{k} = {v}"
@@ -415,8 +407,7 @@ class Gbogras(TaskHasPatientMixin, Task):
             )
         ),
     )
-    completed_by_other = Column(
-        FN_COMPLETED_BY_OTHER,
+    completed_by_other: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="If completed by 'other', who?",
     )

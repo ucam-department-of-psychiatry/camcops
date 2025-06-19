@@ -27,9 +27,10 @@ camcops_server/cc_modules/cc_email.py
 
 """
 
+import datetime
 import email.utils
 import logging
-from typing import List, Sequence, Tuple
+from typing import Optional, Sequence, Tuple
 
 from cardinal_pythonlib.datetimefunc import (
     convert_datetime_to_utc,
@@ -45,12 +46,9 @@ from cardinal_pythonlib.email.sendmail import (
 )
 from cardinal_pythonlib.httpconst import MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
-from sqlalchemy.orm import reconstructor
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import Mapped, mapped_column, reconstructor
 from sqlalchemy.sql.sqltypes import (
-    Boolean,
     BigInteger,
-    DateTime,
     Integer,
     Text,
 )
@@ -88,71 +86,79 @@ class Email(Base):
     # -------------------------------------------------------------------------
     # Basic things
     # -------------------------------------------------------------------------
-    id = Column(
+    id: Mapped[int] = mapped_column(
         # SQLite doesn't support autoincrement with BigInteger
-        "id",
         BigInteger().with_variant(Integer, "sqlite"),
         primary_key=True,
         autoincrement=True,
         comment="Arbitrary primary key",
     )
-    created_at_utc = Column(
-        "created_at_utc",
-        DateTime,
+    created_at_utc: Mapped[Optional[datetime.datetime]] = mapped_column(
         comment="Date/time message was created (UTC)",
     )
     # -------------------------------------------------------------------------
     # Headers
     # -------------------------------------------------------------------------
-    date = Column(
-        "date", Rfc2822DateColType, comment="Email date in RFC 2822 format"
+    date: Mapped[Optional[str]] = mapped_column(
+        Rfc2822DateColType, comment="Email date in RFC 2822 format"
     )
-    from_addr = Column(
-        "from_addr", EmailAddressColType, comment="Email 'From:' field"
+    from_addr: Mapped[Optional[str]] = mapped_column(
+        EmailAddressColType, comment="Email 'From:' field"
     )
-    sender = Column(
-        "sender", EmailAddressColType, comment="Email 'Sender:' field"
+    sender: Mapped[Optional[str]] = mapped_column(
+        EmailAddressColType, comment="Email 'Sender:' field"
     )
-    reply_to = Column(
-        "reply_to", EmailAddressColType, comment="Email 'Reply-To:' field"
+    reply_to: Mapped[Optional[str]] = mapped_column(
+        EmailAddressColType, comment="Email 'Reply-To:' field"
     )
-    to = Column("to", Text, comment="Email 'To:' field")
-    cc = Column("cc", Text, comment="Email 'Cc:' field")
-    bcc = Column("bcc", Text, comment="Email 'Bcc:' field")
-    subject = Column("subject", Text, comment="Email 'Subject:' field")
+    to: Mapped[Optional[str]] = mapped_column(
+        Text, comment="Email 'To:' field"
+    )
+    cc: Mapped[Optional[str]] = mapped_column(
+        Text, comment="Email 'Cc:' field"
+    )
+    bcc: Mapped[Optional[str]] = mapped_column(
+        Text, comment="Email 'Bcc:' field"
+    )
+    subject: Mapped[Optional[str]] = mapped_column(
+        Text, comment="Email 'Subject:' field"
+    )
     # -------------------------------------------------------------------------
     # Body, message
     # -------------------------------------------------------------------------
-    body = Column("body", Text, comment="Email body")
-    content_type = Column(
-        "content_type", MimeTypeColType, comment="MIME type for e-mail body"
+    body: Mapped[Optional[str]] = mapped_column(Text, comment="Email body")
+    content_type: Mapped[Optional[str]] = mapped_column(
+        MimeTypeColType, comment="MIME type for e-mail body"
     )
-    charset = Column(
-        "charset", CharsetColType, comment="Character set for e-mail body"
+    charset: Mapped[Optional[str]] = mapped_column(
+        CharsetColType, comment="Character set for e-mail body"
     )
-    msg_string = Column("msg_string", LongText, comment="Full encoded e-mail")
+    msg_string: Mapped[Optional[str]] = mapped_column(
+        LongText, comment="Full encoded e-mail"
+    )
     # -------------------------------------------------------------------------
     # Server
     # -------------------------------------------------------------------------
-    host = Column("host", HostnameColType, comment="Email server")
-    port = Column("port", Integer, comment="Port number on e-mail server")
-    username = Column(
-        "username",
+    host: Mapped[Optional[str]] = mapped_column(
+        HostnameColType, comment="Email server"
+    )
+    port: Mapped[Optional[int]] = mapped_column(
+        comment="Port number on e-mail server"
+    )
+    username: Mapped[Optional[str]] = mapped_column(
         UserNameExternalColType,
         comment="Username on e-mail server",
     )
-    use_tls = Column("use_tls", Boolean, comment="Use TLS?")
+    use_tls: Mapped[Optional[bool]] = mapped_column(comment="Use TLS?")
     # -------------------------------------------------------------------------
     # Status
     # -------------------------------------------------------------------------
-    sent = Column(
-        "sent", Boolean, default=False, nullable=False, comment="Sent?"
+    sent: Mapped[bool] = mapped_column(default=False, comment="Sent?")
+    sent_at_utc: Mapped[Optional[datetime.datetime]] = mapped_column(
+        comment="Date/time message was sent (UTC)"
     )
-    sent_at_utc = Column(
-        "sent_at_utc", DateTime, comment="Date/time message was sent (UTC)"
-    )
-    sending_failure_reason = Column(
-        "sending_failure_reason", Text, comment="Reason for sending failure"
+    sending_failure_reason: Mapped[Optional[str]] = mapped_column(
+        Text, comment="Reason for sending failure"
     )
 
     def __init__(
@@ -213,19 +219,15 @@ class Email(Base):
         # -------------------------------------------------------------------------
         if not date:
             date = email.utils.format_datetime(now_local)
-        attachment_filenames = (
-            attachment_filenames or []
-        )  # type: Sequence[str]
-        attachments_binary = (
-            attachments_binary or []
-        )  # type: Sequence[Tuple[str, bytes]]
+        attachment_filenames = attachment_filenames or []
+        attachments_binary = attachments_binary or []
         if attachments_binary:
             attachment_binary_filenames, attachment_binaries = zip(
                 *attachments_binary
             )
         else:
-            attachment_binary_filenames = []  # type: List[str]
-            attachment_binaries = []  # type: List[bytes]
+            attachment_binary_filenames = []  # type: ignore[assignment] # type: ignore[no-redef]  # noqa: E501
+            attachment_binaries = []  # type: ignore[assignment] # type: ignore[no-redef]  # noqa: E501
         # ... https://stackoverflow.com/questions/13635032/what-is-the-inverse-function-of-zip-in-python  # noqa
         # Other checks performed by our e-mail function below
 

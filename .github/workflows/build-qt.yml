@@ -16,8 +16,6 @@ jobs:
         strategy:
             matrix:
                 include:
-                    - name: ubuntu-20.04
-                      os: ubuntu-20.04
                     - name: ubuntu-22.04
                       os: ubuntu-22.04
                     - name: windows-2019
@@ -83,33 +81,6 @@ jobs:
                   wget \
                   yasm \
                   zlib1g-dev
-
-            - name: Ubuntu 20.04 prerequisites
-              if: matrix.os == 'ubuntu-20.04'
-              run: |
-                  set -eux -o pipefail
-                  sudo apt-get -y build-dep qt5-default
-                  sudo apt-get -y install \
-                  libasound2-dev \
-                  libcap-dev \
-                  libclang-10-dev \
-                  libclang-11-dev \
-                  libclang-12-dev \
-                  libdbus-1-dev \
-                  libevent-dev \
-                  libglu1-mesa-dev \
-                  libicu-dev \
-                  libpci-dev \
-                  libudev-dev \
-                  libxcb-glx0-dev \
-                  libxcb-xinerama0-dev \
-                  libxslt-dev \
-                  libxss-dev \
-                  libxtst-dev \
-                  libzstd-dev \
-                  perl \
-                  python \
-                  ruby
 
             - name: Ubuntu 22.04 prerequisites
               if: matrix.os == 'ubuntu-22.04'

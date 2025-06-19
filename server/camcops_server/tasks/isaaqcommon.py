@@ -37,8 +37,10 @@ from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
 # noinspection PyAbstractClass
-class IsaaqCommon(TaskHasPatientMixin, Task):
+class IsaaqCommon(TaskHasPatientMixin, Task):  # type: ignore[misc]
     __abstract__ = True
+
+    ALL_FIELD_NAMES: list[str] = []
 
     def is_complete(self) -> bool:
         # noinspection PyUnresolvedReferences
@@ -73,7 +75,7 @@ class IsaaqCommon(TaskHasPatientMixin, Task):
 
     def get_task_html_rows_for_range(
         self, req: CamcopsRequest, prefix: str, first_q: int, last_q: int
-    ):
+    ) -> str:
         rows = ""
         for q_num in range(first_q, last_q + 1):
             field = prefix + str(q_num)

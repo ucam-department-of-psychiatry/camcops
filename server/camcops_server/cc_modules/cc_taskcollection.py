@@ -33,6 +33,7 @@ from enum import Enum
 import logging
 from threading import Thread
 from typing import (
+    Any,
     Dict,
     Generator,
     List,
@@ -170,7 +171,7 @@ class FetchThread(Thread):
         req: "CamcopsRequest",
         task_class: Type[Task],
         factory: "TaskCollection",
-        **kwargs
+        **kwargs: Any
     ) -> None:
         self.req = req
         self.task_class = task_class
@@ -276,8 +277,8 @@ class TaskCollection(object):
             if not export_recipient.all_groups:
                 self._filter.group_ids = export_recipient.group_ids
             self._filter.task_types = export_recipient.tasks
-            self._filter.start_datetime = export_recipient.start_datetime_utc
-            self._filter.end_datetime = export_recipient.end_datetime_utc
+            self._filter.start_datetime = export_recipient.start_datetime_utc  # type: ignore[assignment]  # noqa: E501
+            self._filter.end_datetime = export_recipient.end_datetime_utc  # type: ignore[assignment]  # noqa: E501
             self._filter.finalized_only = export_recipient.finalized_only
             self._filter.tasks_with_patient_only = (
                 not export_recipient.anonymous_ok()
@@ -464,7 +465,7 @@ class TaskCollection(object):
             log.info("_fetch_all_tasks took {}", time_taken)
 
         # Build our joint task list
-        self._all_tasks = []  # type: List[Task]
+        self._all_tasks = []  # type: ignore[no-redef] # type: List[Task]
         for single_task_list in self._tasks_by_class.values():
             self._all_tasks += single_task_list
         sort_tasks_in_place(self._all_tasks, self._sort_method_global)
@@ -479,7 +480,7 @@ class TaskCollection(object):
         if q is None:
             newtasks = []  # type: List[Task]
         else:
-            newtasks = q.all()  # type: List[Task]
+            newtasks = q.all()  # type: ignore[no-redef] # type: List[Task]
             # Apply Python-side filters?
             newtasks = self._filter_through_python(newtasks)
             sort_tasks_in_place(newtasks, self._sort_method_by_class)
@@ -591,7 +592,7 @@ class TaskCollection(object):
             if tf.any_patient_filtering():
                 # q = q.join(Patient) # fails
                 q = q.join(
-                    cls.patient
+                    cls.patient  # type: ignore[arg-type]
                 )  # use explicitly configured relationship
                 q = tf.filter_query_by_patient(q, via_index=False)
 
@@ -803,13 +804,13 @@ class TaskCollection(object):
 
         d = tablename_to_task_class_dict()
         dbsession = self.req.dbsession
-        self._all_tasks = []  # type: List[Task]
+        self._all_tasks = []  # type: ignore[no-redef] # type: List[Task]
 
         # Fetch indexes
         if isinstance(self._all_indexes, Query):
             # Query built, but indexes not yet fetched.
             # Replace the query with actual indexes
-            self._all_indexes = (
+            self._all_indexes = (  # type: ignore[no-redef]
                 self._all_indexes.all()
             )  # type: List[TaskIndexEntry]
         indexes = self._all_indexes
@@ -931,17 +932,16 @@ class TaskCollection(object):
                 liberal_group_ids = (
                     user.group_ids_nonsuperuser_may_see_when_unfiltered()
                 )
+                # Anonymous is OK:
                 # noinspection PyPep8
                 liberal_or_anon_criteria = [
-                    TaskIndexEntry.patient_pk
-                    == None  # noqa: E711
-                    # anonymous OK
+                    TaskIndexEntry.patient_pk == None  # noqa: E711
                 ]  # type: List[ClauseElement]
                 for gid in liberal_group_ids:
                     liberal_or_anon_criteria.append(
                         TaskIndexEntry.group_id == gid  # this group OK
                     )
-                q = q.filter(or_(*liberal_or_anon_criteria))
+                q = q.filter(or_(*liberal_or_anon_criteria))  # type: ignore[arg-type]  # noqa: E501
 
         # Patient filtering
 

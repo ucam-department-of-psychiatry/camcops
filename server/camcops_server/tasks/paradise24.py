@@ -27,10 +27,9 @@ camcops_server/tasks/paradise24.py
 
 """
 
-from typing import Any, Dict, Optional, Type, Tuple
+from typing import Any, cast, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -40,13 +39,19 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, Task
 
 
-class Paradise24Metaclass(DeclarativeMeta):
-    def __init__(
-        cls: Type["Paradise24"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Paradise24(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    __tablename__ = "paradise24"
+    shortname = "PARADISE 24"
+
+    Q_PREFIX = "q"
+    FIRST_Q = 1
+    LAST_Q = 24
+
+    @classmethod
+    def extend_columns(cls: Type["Paradise24"], **kwargs: Any) -> None:
 
         add_multiple_columns(
             cls,
@@ -85,17 +90,6 @@ class Paradise24Metaclass(DeclarativeMeta):
             ],
         )
 
-        super().__init__(name, bases, classdict)
-
-
-class Paradise24(TaskHasPatientMixin, Task, metaclass=Paradise24Metaclass):
-    __tablename__ = "paradise24"
-    shortname = "PARADISE 24"
-
-    Q_PREFIX = "q"
-    FIRST_Q = 1
-    LAST_Q = 24
-
     ALL_FIELD_NAMES = strseq(Q_PREFIX, FIRST_Q, LAST_Q)
 
     @staticmethod
@@ -115,7 +109,7 @@ class Paradise24(TaskHasPatientMixin, Task, metaclass=Paradise24Metaclass):
         if not self.is_complete():
             return None
 
-        return self.sum_fields(self.ALL_FIELD_NAMES)
+        return cast(int, self.sum_fields(self.ALL_FIELD_NAMES))
 
     def metric_score(self) -> Optional[int]:
         total_score = self.total_score()

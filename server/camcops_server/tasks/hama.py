@@ -25,10 +25,9 @@ camcops_server/tasks/hama.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, cast, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -56,14 +55,23 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 # =============================================================================
 
 
-class HamaMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Hama"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Hama(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
+):
+    """
+    Server implementation of the HAM-A task.
+    """
+
+    __tablename__ = "hama"
+    shortname = "HAM-A"
+    provides_trackers = True
+
+    NQUESTIONS = 14
+
+    @classmethod
+    def extend_columns(cls: Type["Hama"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -89,21 +97,7 @@ class HamaMetaclass(DeclarativeMeta):
                 "behaviour in interview",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Hama(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=HamaMetaclass
-):
-    """
-    Server implementation of the HAM-A task.
-    """
-
-    __tablename__ = "hama"
-    shortname = "HAM-A"
-    provides_trackers = True
-
-    NQUESTIONS = 14
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 56
 
@@ -165,7 +159,7 @@ class Hama(
         )
 
     def total_score(self) -> int:
-        return self.sum_fields(self.TASK_FIELDS)
+        return cast(int, self.sum_fields(self.TASK_FIELDS))
 
     def severity(self, req: CamcopsRequest) -> str:
         score = self.total_score()
@@ -183,7 +177,7 @@ class Hama(
         severity = self.severity(req)
         answer_dicts = []
         for q in range(1, self.NQUESTIONS + 1):
-            d = {None: None}
+            d: dict[Optional[int], Optional[str]] = {None: None}
             for option in range(0, 4 + 1):
                 d[option] = self.wxstring(
                     req, "q" + str(q) + "_option" + str(option)

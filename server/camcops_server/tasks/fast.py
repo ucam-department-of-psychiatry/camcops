@@ -25,10 +25,9 @@ camcops_server/tasks/fast.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, cast, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -52,14 +51,21 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # =============================================================================
 
 
-class FastMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Fast"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Fast(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the FAST task.
+    """
+
+    __tablename__ = "fast"
+    shortname = "FAST"
+
+    NQUESTIONS = 4
+
+    @classmethod
+    def extend_columns(cls: Type["Fast"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -75,18 +81,7 @@ class FastMetaclass(DeclarativeMeta):
                 "others concerned",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Fast(TaskHasPatientMixin, Task, metaclass=FastMetaclass):
-    """
-    Server implementation of the FAST task.
-    """
-
-    __tablename__ = "fast"
-    shortname = "FAST"
-
-    NQUESTIONS = 4
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_SCORE = 16
 
@@ -142,14 +137,14 @@ class Fast(TaskHasPatientMixin, Task, metaclass=FastMetaclass):
         )
 
     def total_score(self) -> int:
-        return self.sum_fields(self.TASK_FIELDS)
+        return cast(int, self.sum_fields(self.TASK_FIELDS))
 
     # noinspection PyUnresolvedReferences
     def is_positive(self) -> bool:
-        if self.q1 is not None:
-            if self.q1 == 0:
+        if self.q1 is not None:  # type: ignore[attr-defined]
+            if self.q1 == 0:  # type: ignore[attr-defined]
                 return False
-            if self.q1 >= 3:
+            if self.q1 >= 3:  # type: ignore[attr-defined]
                 return True
         return self.total_score() >= 3
 
@@ -170,15 +165,15 @@ class Fast(TaskHasPatientMixin, Task, metaclass=FastMetaclass):
             4: "4 — " + self.wxstring(req, "q4_option4"),
         }
         q_a = tr_qa(
-            self.wxstring(req, "q1"), get_from_dict(main_dict, self.q1)
+            self.wxstring(req, "q1"), get_from_dict(main_dict, self.q1)  # type: ignore[attr-defined]  # noqa: E501
         )
         q_a += tr_qa(
-            self.wxstring(req, "q2"), get_from_dict(main_dict, self.q2)
+            self.wxstring(req, "q2"), get_from_dict(main_dict, self.q2)  # type: ignore[attr-defined]  # noqa: E501
         )
         q_a += tr_qa(
-            self.wxstring(req, "q3"), get_from_dict(main_dict, self.q3)
+            self.wxstring(req, "q3"), get_from_dict(main_dict, self.q3)  # type: ignore[attr-defined]  # noqa: E501
         )
-        q_a += tr_qa(self.wxstring(req, "q4"), get_from_dict(q4_dict, self.q4))
+        q_a += tr_qa(self.wxstring(req, "q4"), get_from_dict(q4_dict, self.q4))  # type: ignore[attr-defined]  # noqa: E501
 
         tr_total_score = tr(
             req.sstring(SS.TOTAL_SCORE),
