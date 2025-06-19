@@ -3959,5 +3959,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Fix cursor placement when entering the access key on iOS. The workaround for
   https://bugreports.qt.io/browse/QTBUG-115756 is now only applied for Android.
 
+- When building the Docker image, don't try to pull camcops_server from https://hub.docker.com
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/265
+
 - Update to use SQLAlchemy 2.0 (Database revision 0086 for minor changes to
   comments for HAMD and HAMD7).

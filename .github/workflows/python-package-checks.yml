@@ -29,7 +29,9 @@ jobs:
                   echo checking packages for conflicts
                   python -m pip check
                   echo installing vulnerability checker
-                  python -m pip install safety
+                  # safety check is unsupported beyond June 2024 and is replaced with a paid service
+                  # Marshmallow 4.0.0 gives error "post_dump() got an unexpected keyword argument 'pass_many'"
+                  python -m pip install safety "marshmallow<4.0.0"
                   echo checking packages for vulnerabilities
                   # All of these vulnerabilities look either harmless or very low risk
                   # 52495 setuptools. Fix in 65.5.1. We'll be careful not to
