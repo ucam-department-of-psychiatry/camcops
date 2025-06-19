@@ -28,7 +28,7 @@ camcops_server/cc_modules/cc_device.py
 """
 
 import datetime
-from typing import Optional, TYPE_CHECKING
+from typing import Any, Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.classes import classproperty
 from pendulum import DateTime as Pendulum
@@ -36,11 +36,12 @@ from semantic_version import Version
 from sqlalchemy.orm import (
     Mapped,
     mapped_column,
-    Query,
     relationship,
     Session as SqlASession,
 )
+from sqlalchemy.sql.expression import select
 from sqlalchemy.sql.schema import ForeignKey
+from sqlalchemy.sql.selectable import Select
 from sqlalchemy.sql.sqltypes import Text
 
 from camcops_server.cc_modules.cc_constants import DEVICE_NAME_FOR_SERVER
@@ -216,9 +217,8 @@ class DeviceReport(Report):
         _ = req.gettext
         return _("(Server) Devices registered with the server")
 
-    def get_query(self, req: "CamcopsRequest") -> Query:
-        dbsession = req.dbsession
-        query = dbsession.query(
+    def get_query(self, req: "CamcopsRequest") -> Select[Any]:
+        select_fields = [
             Device.id,
             Device.name,
             Device.registered_by_user_id,
@@ -226,5 +226,6 @@ class DeviceReport(Report):
             Device.friendly_name,
             Device.camcops_version,
             Device.last_upload_batch_utc,
-        ).order_by(Device.id)
+        ]
+        query = select(*select_fields).order_by(Device.id)
         return query

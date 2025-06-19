@@ -53,8 +53,6 @@ from deform.form import Form
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
-from sqlalchemy.engine import CursorResult
-from sqlalchemy.orm.query import Query
 from sqlalchemy.sql.elements import ColumnElement
 from sqlalchemy.sql.expression import and_, column, func, select
 from sqlalchemy.sql.selectable import SelectBase
@@ -185,15 +183,16 @@ class Report(object):
         """
         return []
 
-    def get_query(
-        self, req: "CamcopsRequest"
-    ) -> Union[None, SelectBase, Query]:
+    def get_query(self, req: "CamcopsRequest") -> Optional[SelectBase]:
         """
         Overriding this function is one way of providing a report. (The other
         is :func:`get_rows_colnames`.)
 
         To override this function, return the SQLAlchemy Base :class:`Select`
-        statement or the SQLAlchemy ORM :class:`Query` to execute the report.
+        statement to execute the report.
+
+        (Do not return a :class:`Query`; that can no longer be executed via
+        ``session.execute()`` in SQLAlchemy 2.)
 
         Parameters are passed in via the request.
         """
@@ -470,7 +469,7 @@ class Report(object):
         """
         statement = self.get_query(req)
         if statement is not None:
-            rp = req.dbsession.execute(statement)  # type: CursorResult
+            rp = req.dbsession.execute(statement)
             column_names = rp.keys()
             rows = rp.fetchall()
 

@@ -30,7 +30,7 @@ camcops_server/cc_modules/cc_taskfilter.py
 import datetime
 from enum import Enum
 import logging
-from typing import Dict, List, Optional, Type, TYPE_CHECKING, Union
+from typing import Any, Dict, List, Optional, Type, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.datetimefunc import convert_datetime_to_utc
 from cardinal_pythonlib.json.serialize import register_class_for_json
@@ -258,7 +258,8 @@ class TaskFilter(Base):
         comment="Task filter: task complete?"
     )
 
-    def __init__(self) -> None:
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
         # We need to initialize these explicitly, because if we create an
         # instance via "x = TaskFilter()", they will be initialized to None,
         # without any recourse to our database to-and-fro conversion code for

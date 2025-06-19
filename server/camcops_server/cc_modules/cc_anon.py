@@ -60,6 +60,13 @@ from camcops_server.cc_modules.cc_patientidnum import (
     EXTRA_IDNUM_FIELD_PREFIX,
 )
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    COLATTR_EXEMPT_FROM_ANONYMISATION,
+    COLATTR_IDENTIFIES_PATIENT,
+    COLATTR_INCLUDE_IN_ANON_STAGING_DB,
+    COLATTR_IS_CAMCOPS_COLUMN,
+    COLATTR_PERMITTED_VALUE_CHECKER,
+)
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_exportrecipientinfo import (
@@ -170,14 +177,14 @@ def _get_cris_dd_row(
         exempt_from_anonymisation = False
         identifies_patient = False
 
-        if column.info.get("is_camcops_column", False):
+        if column.info.get(COLATTR_IS_CAMCOPS_COLUMN, False):
             exempt_from_anonymisation = column.info[
-                "exempt_from_anonymisation"
+                COLATTR_EXEMPT_FROM_ANONYMISATION
             ]
-            identifies_patient = column.info["identifies_patient"]
-            if column.info["permitted_value_checker"]:
+            identifies_patient = column.info[COLATTR_IDENTIFIES_PATIENT]
+            if column.info[COLATTR_PERMITTED_VALUE_CHECKER]:
                 valid_values = column.info[
-                    "permitted_value_checker"
+                    COLATTR_PERMITTED_VALUE_CHECKER
                 ].permitted_values_csv()
 
         needs_scrubbing = is_free_text and not exempt_from_anonymisation
@@ -200,7 +207,8 @@ def _get_cris_dd_row(
         patient_idnum_field = colname.startswith(EXTRA_IDNUM_FIELD_PREFIX)
         internal_field = colname.startswith("_")
         if identifies_patient and (
-            tablename == Patient.__tablename__ and colname == Patient.dob.name
+            tablename == Patient.__tablename__
+            and colname == Patient.dob.name  # type: ignore[attr-defined]
         ):
             security_status = 3  # truncate (e.g. DOB, postcode)
         elif identifies_patient and tablename == Patient.__tablename__:
@@ -345,12 +353,12 @@ def _get_crate_dd_row(
             coltype, min_length=MIN_STRING_LENGTH_TO_CONSIDER_SCRUBBING
         )
 
-        if column.info.get("is_camcops_column", False):
+        if column.info.get(COLATTR_IS_CAMCOPS_COLUMN, False):
             exempt_from_anonymisation = column.info[
-                "exempt_from_anonymisation"
+                COLATTR_EXEMPT_FROM_ANONYMISATION
             ]
-            identifies_patient = column.info["identifies_patient"]
-            force_include = column.info["include_in_anon_staging_db"]
+            identifies_patient = column.info[COLATTR_IDENTIFIES_PATIENT]
+            force_include = column.info[COLATTR_INCLUDE_IN_ANON_STAGING_DB]
 
         needs_scrubbing = is_free_text and not exempt_from_anonymisation
         desttype = convert_sqla_type_for_dialect(
@@ -403,7 +411,10 @@ def _get_crate_dd_row(
     # alter_method
     if needs_scrubbing:
         alter_method = "scrub"
-    elif tablename == Patient.__tablename__ and colname == Patient.dob.name:
+    elif (
+        tablename == Patient.__tablename__
+        and colname == Patient.dob.name  # type: ignore[attr-defined]
+    ):
         alter_method = "truncate_date"
     else:
         alter_method = None

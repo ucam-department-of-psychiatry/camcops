@@ -40,6 +40,8 @@ from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column
 
 from camcops_server.cc_modules.cc_sqla_coltypes import (
+    COLATTR_IS_BLOB_ID_FIELD,
+    COLATTR_IS_CAMCOPS_COLUMN,
     gen_camcops_blob_columns,
     gen_camcops_columns,
     gen_columns_matching_attrnames,
@@ -282,7 +284,7 @@ class GenCamcopsColumnsTests(SqlaColtypesTestCase):
                 self.fail(
                     f"Unexpected camcops column returned with name '{name}'"
                 )
-            self.assertTrue(column.info.get("is_camcops_column"))
+            self.assertTrue(column.info.get(COLATTR_IS_CAMCOPS_COLUMN))
 
 
 class GenCamcopsBlobColumnsTests(SqlaColtypesTestCase):
@@ -294,7 +296,7 @@ class GenCamcopsBlobColumnsTests(SqlaColtypesTestCase):
                 self.fail(
                     f"Unexpected blob column returned with name '{name}'"
                 )
-            self.assertTrue(column.info.get("is_blob_id_field"))
+            self.assertTrue(column.info.get(COLATTR_IS_BLOB_ID_FIELD))
 
 
 class GenColumnsMatchingAttrnamesTests(SqlaColtypesTestCase):

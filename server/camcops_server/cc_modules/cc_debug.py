@@ -37,7 +37,7 @@ TraceFuncType = Callable[[FrameType, str, Any], Union[Callable, None]]
 
 
 # https://stackoverflow.com/questions/5375624/a-decorator-that-profiles-a-method-call-and-logs-the-profiling-result  # noqa
-def profile(func: Any) -> Any:
+def profile(func: Callable) -> Any:
     """
     Decorator to generate profiler output for slow code
     from camcops_server.cc_debug import profile.
@@ -105,7 +105,5 @@ def makefunc_trace_unique_calls(file_only: bool = False) -> TraceFuncType:
         if signature not in called:
             print(f"- First call to {signature}")
             called.add(signature)
-
-        return None
 
     return _trace_calls

@@ -194,7 +194,7 @@ from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
 from sqlalchemy import insert
-from sqlalchemy.engine import create_engine, CursorResult
+from sqlalchemy.engine import create_engine, Result
 from sqlalchemy.orm import Session as SqlASession, sessionmaker
 from sqlalchemy.sql.expression import text
 from sqlalchemy.sql.schema import Column, MetaData, Table
@@ -653,7 +653,7 @@ def gen_audited_tasks_by_task_class(
             yield task
 
 
-def get_information_schema_query(req: "CamcopsRequest") -> CursorResult:
+def get_information_schema_query(req: "CamcopsRequest") -> Result:
     """
     Returns an SQLAlchemy query object that fetches the
     INFORMATION_SCHEMA.COLUMNS information from our source database.
@@ -672,8 +672,7 @@ def get_information_schema_query(req: "CamcopsRequest") -> CursorResult:
         WHERE table_schema = :dbname
     """
     ).bindparams(dbname=dbname)
-    result_proxy = req.dbsession.execute(query)
-    return result_proxy
+    return req.dbsession.execute(query)
 
 
 def get_information_schema_spreadsheet_page(
