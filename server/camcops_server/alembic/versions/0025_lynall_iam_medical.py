@@ -62,7 +62,7 @@ depends_on = None
 
 
 # noinspection PyPep8,PyTypeChecker
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         "lynall_1_iam_medical",
         sa.Column(
@@ -632,5 +632,5 @@ def upgrade():
         )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_table("lynall_1_iam_medical")

@@ -40,8 +40,12 @@ from camcops_server.cc_modules.cc_simpleobjects import (
     HL7PatientIdentifier,
     TaskExportOptions,
 )
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
-from camcops_server.tasks.phq9 import Phq9
+from camcops_server.cc_modules.cc_testfactories import (
+    ServerCreatedPatientFactory,
+    SpecialNoteFactory,
+)
+from camcops_server.cc_modules.cc_unittest import BasicDatabaseTestCase
+from camcops_server.tasks.tests.factories import Phq9Factory
 
 
 # =============================================================================
@@ -49,13 +53,16 @@ from camcops_server.tasks.phq9 import Phq9
 # =============================================================================
 
 
-class HL7CoreTests(DemoDatabaseTestCase):
+class HL7CoreTests(BasicDatabaseTestCase):
     """
     Unit tests.
     """
 
     def test_hl7core_func(self) -> None:
-        self.announce("test_hl7core_func")
+        patient = ServerCreatedPatientFactory()
+        phq9 = Phq9Factory(patient=patient)
+        SpecialNoteFactory(task=phq9)
+        SpecialNoteFactory(task=phq9)
 
         pitlist = [
             HL7PatientIdentifier(
@@ -65,8 +72,6 @@ class HL7CoreTests(DemoDatabaseTestCase):
         # noinspection PyTypeChecker
         dob = Date.today()  # type: Date
         now = Pendulum.now()
-        task = self.dbsession.query(Phq9).first()
-        assert task, "Missing Phq9 in demo database!"
 
         self.assertIsInstance(get_mod11_checkdigit("12345"), str)
         self.assertIsInstance(get_mod11_checkdigit("badnumber"), str)
@@ -83,7 +88,7 @@ class HL7CoreTests(DemoDatabaseTestCase):
             ),
             hl7.Segment,
         )
-        self.assertIsInstance(make_obr_segment(task), hl7.Segment)
+        self.assertIsInstance(make_obr_segment(phq9), hl7.Segment)
         for task_format in (FileType.PDF, FileType.HTML, FileType.XML):
             for comments in (True, False):
                 export_options = TaskExportOptions(
@@ -93,7 +98,7 @@ class HL7CoreTests(DemoDatabaseTestCase):
                 self.assertIsInstance(
                     make_obx_segment(
                         req=self.req,
-                        task=task,
+                        task=phq9,
                         task_format=task_format,
                         observation_identifier="obs_id",
                         observation_datetime=now,

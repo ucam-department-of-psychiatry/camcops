@@ -28,8 +28,10 @@ uploading to/preserving.**
 
 """
 
-from sqlalchemy.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import Integer
+from typing import Optional
+
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.schema import ForeignKey
 
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_sqla_coltypes import TableNameColType
@@ -48,21 +50,16 @@ class DirtyTable(Base):
 
     __tablename__ = "_dirty_tables"
 
-    id = Column(
+    id: Mapped[int] = mapped_column(
         # new in 2.1.0; ditch composite PK
-        "id",
-        Integer,
         primary_key=True,
         autoincrement=True,
     )
-    device_id = Column(
-        "device_id",
-        Integer,
+    device_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey(Device.id),
         comment="Source tablet device ID",
     )
-    tablename = Column(
-        "tablename",
+    tablename: Mapped[Optional[str]] = mapped_column(
         TableNameColType,
         comment="Table in the process of being preserved",
     )

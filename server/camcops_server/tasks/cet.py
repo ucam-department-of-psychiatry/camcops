@@ -26,10 +26,9 @@ camcops_server/tasks/cet.py
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Float
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -79,14 +78,34 @@ Taranis et al. (2011), {pmid(21584918)}; Meyer et al. (2016), {pmid(27547403)}.
 # =============================================================================
 
 
-class CetMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Cet"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Cet(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the CET task.
+    """
+
+    __tablename__ = "cet"
+    shortname = "CET"
+    provides_trackers = True
+
+    FIRST_Q = 1
+    N_QUESTIONS = 24
+    MIN_ANSWER = 0
+    MAX_ANSWER = 5
+    MAX_SUBSCALE_SCORE = MAX_ANSWER
+    N_SUBSCALES = 5
+    MAX_TOTAL_SCORE = MAX_SUBSCALE_SCORE * N_SUBSCALES
+    Q_REVERSE_SCORED = [8, 12]
+    Q_SUBSCALE_1_AVOID_RULE = [9, 10, 11, 15, 16, 20, 22, 23]
+    Q_SUBSCALE_2_WT_CONTROL = [2, 6, 8, 13, 18]
+    Q_SUBSCALE_3_MOOD = [1, 4, 14, 17, 24]
+    Q_SUBSCALE_4_LACK_EX_ENJOY = [5, 12, 21]
+    Q_SUBSCALE_5_EX_RIGIDITY = [3, 7, 19]
+
+    @classmethod
+    def extend_columns(cls: Type["Cet"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -122,31 +141,7 @@ class CetMetaclass(DeclarativeMeta):
                 "less depressed/low after exercise",  # 24
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Cet(TaskHasPatientMixin, Task, metaclass=CetMetaclass):
-    """
-    Server implementation of the CET task.
-    """
-
-    __tablename__ = "cet"
-    shortname = "CET"
-    provides_trackers = True
-
-    FIRST_Q = 1
-    N_QUESTIONS = 24
-    MIN_ANSWER = 0
-    MAX_ANSWER = 5
-    MAX_SUBSCALE_SCORE = MAX_ANSWER
-    N_SUBSCALES = 5
-    MAX_TOTAL_SCORE = MAX_SUBSCALE_SCORE * N_SUBSCALES
-    Q_REVERSE_SCORED = [8, 12]
-    Q_SUBSCALE_1_AVOID_RULE = [9, 10, 11, 15, 16, 20, 22, 23]
-    Q_SUBSCALE_2_WT_CONTROL = [2, 6, 8, 13, 18]
-    Q_SUBSCALE_3_MOOD = [1, 4, 14, 17, 24]
-    Q_SUBSCALE_4_LACK_EX_ENJOY = [5, 12, 21]
-    Q_SUBSCALE_5_EX_RIGIDITY = [3, 7, 19]
     QUESTIONS = strseq("q", FIRST_Q, N_QUESTIONS)  # fields and string names
     SUBSCALE_LOOKUP = {
         1: Q_SUBSCALE_1_AVOID_RULE,
@@ -214,7 +209,7 @@ class Cet(TaskHasPatientMixin, Task, metaclass=CetMetaclass):
         ]
 
     def subscale_comment(
-        self, n: int, full=True, description: str = ""
+        self, n: int, full: bool = True, description: str = ""
     ) -> str:
         """
         Returns a comment describing the subscale.
@@ -334,7 +329,7 @@ class Cet(TaskHasPatientMixin, Task, metaclass=CetMetaclass):
     def subscale_5_rigidity(self) -> float:
         return self.mean_score(self.Q_SUBSCALE_5_EX_RIGIDITY)
 
-    def total_score(self) -> int:
+    def total_score(self) -> Union[int, float]:
         return self.sum_values(
             [
                 self.subscale_1_avoidance_rule_based(),
@@ -346,7 +341,7 @@ class Cet(TaskHasPatientMixin, Task, metaclass=CetMetaclass):
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        answerdict = {None: None}
+        answerdict: dict[Optional[int], Optional[str]] = {None: None}
         for a in range(self.MIN_ANSWER, self.MAX_ANSWER + 1):
             answerdict[a] = f"{a}: " + self.wxstring(req, f"a{a}")
         q_a = ""

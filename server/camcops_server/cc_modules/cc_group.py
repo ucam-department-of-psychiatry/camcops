@@ -35,7 +35,12 @@ from cardinal_pythonlib.reprfunc import simple_repr
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
 from cardinal_pythonlib.sqlalchemy.orm_query import exists_orm
 from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.orm import relationship, Session as SqlASession
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_column,
+    relationship,
+    Session as SqlASession,
+)
 from sqlalchemy.sql.schema import Column, ForeignKey, Table
 from sqlalchemy.sql.sqltypes import Integer
 
@@ -90,43 +95,33 @@ class Group(Base):
 
     __tablename__ = "_security_groups"
 
-    id = Column(
-        "id",
-        Integer,
+    id: Mapped[int] = mapped_column(
         primary_key=True,
         autoincrement=True,
         index=True,
         comment="Group ID",
     )
-    name = Column(
-        "name",
+    name: Mapped[str] = mapped_column(
         GroupNameColType,
-        nullable=False,
         index=True,
         unique=True,
         comment="Group name",
     )
-    description = Column(
-        "description",
+    description: Mapped[Optional[str]] = mapped_column(
         GroupDescriptionColType,
         comment="Description of the group",
     )
-    upload_policy = Column(
-        "upload_policy",
+    upload_policy: Mapped[Optional[str]] = mapped_column(
         IdPolicyColType,
         comment="Upload policy for the group, as a string",
     )
-    finalize_policy = Column(
-        "finalize_policy",
+    finalize_policy: Mapped[Optional[str]] = mapped_column(
         IdPolicyColType,
         comment="Finalize policy for the group, as a string",
     )
 
-    ip_use_id = Column(
-        "ip_use_id",
-        Integer,
+    ip_use_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey(IpUse.id),
-        nullable=True,
         comment=f"FK to {IpUse.__tablename__}.{IpUse.id.name}",
     )
 
@@ -259,7 +254,7 @@ class Group(Base):
         """
         Does a particular group (specified by its integer ID) exist?
         """
-        return exists_orm(dbsession, cls, cls.id == group_id)
+        return exists_orm(dbsession, cls, cls.id == group_id)  # type: ignore[arg-type]  # noqa: E501
 
     def tokenized_upload_policy(self) -> TokenizedPolicy:
         """

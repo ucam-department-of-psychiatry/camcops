@@ -35,6 +35,7 @@ import pprint
 import sys
 import tracemalloc
 from typing import Dict, List, Optional, Type, TYPE_CHECKING
+import warnings
 
 from cardinal_pythonlib.argparse_func import (
     ShowAllSubparserHelpAction,
@@ -58,7 +59,7 @@ from rich_argparse import (
     ArgumentDefaultsRichHelpFormatter,
     RawDescriptionRichHelpFormatter,
 )
-
+from sqlalchemy import exc
 from camcops_server.cc_modules.cc_baseconstants import (
     ENVVAR_CONFIG_FILE,
     EXIT_SUCCESS,
@@ -86,6 +87,9 @@ from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 if TYPE_CHECKING:
     # noinspection PyProtectedMember,PyUnresolvedReferences
     from argparse import _SubParsersAction
+
+warnings.filterwarnings("error", category=exc.MovedIn20Warning)
+warnings.filterwarnings("error", category=exc.SADeprecationWarning)
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -616,7 +620,7 @@ def add_req_named(
         kwargs["action"] = action
     elif type:
         kwargs["type"] = type
-    reqgroup.add_argument(switch, **kwargs)
+    reqgroup.add_argument(switch, **kwargs)  # type: ignore[arg-type]
 
 
 def camcops_main() -> int:
@@ -908,7 +912,7 @@ def camcops_main() -> int:
     # Merge in data fom another database
     # noinspection PyTypeChecker
     int_int_mapper = MapType(
-        from_type=nonnegative_int, to_type=nonnegative_int
+        from_type=nonnegative_int, to_type=nonnegative_int  # type: ignore[arg-type]  # noqa: E501
     )
     mergedb_parser = add_sub(
         subparsers,
@@ -967,7 +971,7 @@ def camcops_main() -> int:
     add_req_named(
         mergedb_parser,
         "--whichidnum_map",
-        type=int_int_mapper,
+        type=int_int_mapper,  # type: ignore[arg-type]
         help="Map to convert ID number types, in the format "
         "'from_a:to_a,from_b:to_b,...', where all values are integers.",
     )
@@ -975,7 +979,7 @@ def camcops_main() -> int:
     add_req_named(
         mergedb_parser,
         "--groupnum_map",
-        type=int_int_mapper,
+        type=int_int_mapper,  # type: ignore[arg-type]
         help="Map to convert group numbers, in the format "
         "'from_a:to_a,from_b:to_b,...', where all values are integers.",
     )

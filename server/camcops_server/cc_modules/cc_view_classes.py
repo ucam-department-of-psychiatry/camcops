@@ -311,7 +311,7 @@ class TemplateResponseMixin(object):
 
 
 class ProcessFormView(
-    View, with_typehints(ContextMixin, TemplateResponseMixin)
+    View, with_typehints(ContextMixin, TemplateResponseMixin)  # type: ignore[misc]  # noqa: E501
 ):
     """
     Render a form on GET and processes it on POST.
@@ -425,7 +425,7 @@ class ProcessFormView(
 # =============================================================================
 
 
-class FormMixin(ContextMixin, with_typehint(ProcessFormView)):
+class FormMixin(ContextMixin, with_typehint(ProcessFormView)):  # type: ignore[misc]  # noqa: E501
     """
     Provide a way to show and handle a single form in a request.
     """
@@ -575,7 +575,7 @@ class FormView(TemplateResponseMixin, BaseFormView):
 # =============================================================================
 
 
-class FormWizardMixin(with_typehints(FormMixin, ProcessFormView)):
+class FormWizardMixin(with_typehints(FormMixin, ProcessFormView)):  # type: ignore[misc]  # noqa: E501
     """
     Basic support for multi-step form entry.
     For more complexity we could do something like
@@ -610,7 +610,7 @@ class FormWizardMixin(with_typehints(FormMixin, ProcessFormView)):
     wizard_templates: Dict[str, str] = {}
     wizard_extra_contexts: Dict[str, Dict[str, Any]] = {}
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """
         We prevent stale state from messing things up by clearing state when a
         form sequence starts. Form sequences start with HTTP GET and proceed
@@ -785,6 +785,7 @@ class FormWizardMixin(with_typehints(FormMixin, ProcessFormView)):
     # Success
     # -------------------------------------------------------------------------
 
+    # noinspection PyUnusedLocal
     def form_valid_response(
         self, form: "Form", appstruct: Dict[str, Any]
     ) -> Response:

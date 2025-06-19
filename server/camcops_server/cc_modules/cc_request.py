@@ -44,7 +44,6 @@ from typing import (
     Set,
     Tuple,
     TYPE_CHECKING,
-    Union,
 )
 import urllib.parse
 
@@ -150,9 +149,6 @@ if TYPE_CHECKING:
     from matplotlib.axes import Axes
     from matplotlib.text import Text
     from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
-    from camcops_server.cc_modules.cc_exportrecipientinfo import (
-        ExportRecipientInfo,
-    )
     from camcops_server.cc_modules.cc_session import CamcopsSession
     from camcops_server.cc_modules.cc_snomed import SnomedConcept
 
@@ -216,7 +212,7 @@ class CamcopsRequest(Request):
 
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """
         This is called as the Pyramid request factory; see
         ``config.set_request_factory(CamcopsRequest)``
@@ -1331,7 +1327,7 @@ class CamcopsRequest(Request):
         self.provide_png_fallback_for_svg = provide_png_fallback
 
     @staticmethod
-    def create_figure(**kwargs) -> Figure:
+    def create_figure(**kwargs: Any) -> Figure:
         """
         Creates and returns a :class:`matplotlib.figure.Figure` with a canvas.
         The canvas will be available as ``fig.canvas``.
@@ -1785,7 +1781,7 @@ class CamcopsRequest(Request):
         all_push_recipients: bool = False,
         save: bool = True,
         database_versions: bool = True,
-    ) -> List[Union["ExportRecipient", "ExportRecipientInfo"]]:
+    ) -> List["ExportRecipient"]:
         """
         Returns a list of export recipients, with some filtering if desired.
         Validates them against the database.
@@ -1874,7 +1870,7 @@ class CamcopsRequest(Request):
 
         # Convert to SQLAlchemy ORM ExportRecipient objects:
         recipients = [
-            ExportRecipient(x) for x in recipientinfolist
+            ExportRecipient(other=x) for x in recipientinfolist
         ]  # type: List[ExportRecipient]
 
         final_recipients = []  # type: List[ExportRecipient]

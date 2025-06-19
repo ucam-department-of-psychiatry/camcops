@@ -38,7 +38,9 @@ from typing import Generator, TYPE_CHECKING
 import pytest
 from sqlalchemy import event, MetaData
 from sqlalchemy.engine import create_engine
+from sqlalchemy.engine.interfaces import DBAPIConnection
 from sqlalchemy.orm import Session
+from sqlalchemy.pool import ConnectionPoolEntry
 
 import camcops_server.cc_modules.cc_all_models  # noqa: F401
 
@@ -66,7 +68,7 @@ TEST_DATABASE_FILENAME = os.path.join(
 )
 
 
-def pytest_addoption(parser: "Parser"):
+def pytest_addoption(parser: "Parser") -> None:
     parser.addoption(
         "--database-in-memory",
         action="store_false",
@@ -112,7 +114,9 @@ def pytest_addoption(parser: "Parser"):
 
 
 # noinspection PyUnusedLocal
-def set_sqlite_pragma(dbapi_connection, connection_record):
+def set_sqlite_pragma(
+    dbapi_connection: DBAPIConnection, connection_record: ConnectionPoolEntry
+) -> None:
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
@@ -124,7 +128,7 @@ def database_on_disk(request: "FixtureRequest") -> bool:
 
 
 @pytest.fixture(scope="session")
-def create_db(request: "FixtureRequest", database_on_disk) -> bool:
+def create_db(request: "FixtureRequest", database_on_disk: bool) -> bool:
     if not database_on_disk:
         return True
 
@@ -210,7 +214,7 @@ def engine(
     engine.dispose()
 
 
-def create_engine_mysql(db_url: str, create_db: bool, echo: bool):
+def create_engine_mysql(db_url: str, create_db: bool, echo: bool) -> "Engine":
 
     # The database and the user with the given password from db_url
     # need to exist.
@@ -225,7 +229,9 @@ def create_engine_mysql(db_url: str, create_db: bool, echo: bool):
     return engine
 
 
-def create_engine_sqlite(create_db: bool, echo: bool, database_on_disk: bool):
+def create_engine_sqlite(
+    create_db: bool, echo: bool, database_on_disk: bool
+) -> "Engine":
     if create_db and database_on_disk:
         try:
             os.remove(TEST_DATABASE_FILENAME)
@@ -307,11 +313,11 @@ def setup(
 
 
 @pytest.fixture(scope="session")
-def dest_engine(
+def temp_engine(
     request: "FixtureRequest", echo: bool
 ) -> Generator["Engine", None, None]:
     """
-    An in-memory database for testing export via the dest_session fixture.
+    An in-memory database for testing export via the temp_session fixture.
     """
     engine = make_memory_sqlite_engine(echo=echo)
 
@@ -322,8 +328,8 @@ def dest_engine(
 
 # noinspection PyUnusedLocal
 @pytest.fixture
-def dest_tables(
-    request: "FixtureRequest", dest_engine: "Engine"
+def temp_tables(
+    request: "FixtureRequest", temp_engine: "Engine"
 ) -> Generator[None, None, None]:
 
     # Unlike the tables fixture, we don't create any tables as they are created
@@ -335,22 +341,22 @@ def dest_tables(
     yield
 
     metadata = MetaData()
-    metadata.reflect(dest_engine)
-    metadata.drop_all(dest_engine)
+    metadata.reflect(temp_engine)
+    metadata.drop_all(temp_engine)
 
 
 # noinspection PyUnusedLocal
 @pytest.fixture
-def dest_session(
+def temp_session(
     request: "FixtureRequest",
-    dest_engine: "Engine",
-    dest_tables: None,
+    temp_engine: "Engine",
+    temp_tables: None,
 ) -> Generator[Session, None, None]:
     """
     Returns an sqlalchemy session, and after the test tears down everything
     properly.
     """
-    connection = dest_engine.connect()
+    connection = temp_engine.connect()
     # begin the nested transaction
     transaction = connection.begin()
     # use the connection with the already started transaction
@@ -366,14 +372,14 @@ def dest_session(
 
 
 @pytest.fixture
-def setup_dest_session(
+def setup_temp_session(
     request: "FixtureRequest",
-    dest_engine: "Engine",
-    dest_session: Session,
+    temp_engine: "Engine",
+    temp_session: Session,
 ) -> None:
     """
     Use this fixture where a second, in-memory database is required.
     Slow, so use sparingly.
     """
-    request.cls.dest_session = dest_session
-    request.cls.dest_engine = dest_engine
+    request.cls.temp_session = temp_session
+    request.cls.temp_engine = temp_engine

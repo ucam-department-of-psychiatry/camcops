@@ -25,12 +25,13 @@ camcops_server/tasks/contactlog.py
 
 """
 
-from typing import List
+from typing import List, Optional
 
 from cardinal_pythonlib.datetimefunc import format_datetime, get_duration_h_m
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, UnicodeText
+from pendulum import DateTime as Pendulum
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass, DateFormat
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
@@ -42,7 +43,7 @@ from camcops_server.cc_modules.cc_html import (
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    mapped_camcops_column,
     BIT_CHECKER,
     PendulumDateTimeAsIsoTextColType,
 )
@@ -58,7 +59,7 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 
-class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task):  # type: ignore[misc]  # noqa: E501
     """
     Server implementation of the ContactLog task.
     """
@@ -67,36 +68,33 @@ class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     shortname = "ContactLog"
     info_filename_stem = "clinical"
 
-    location = Column("location", UnicodeText, comment="Location")
-    start = Column(
-        "start",
+    location: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Location"
+    )
+    start: Mapped[Optional[Pendulum]] = mapped_column(
         PendulumDateTimeAsIsoTextColType,
         comment="Date/time that contact started",
     )
-    end = Column(
+    end: Mapped[Optional[Pendulum]] = mapped_column(
         "end",
         PendulumDateTimeAsIsoTextColType,
         comment="Date/time that contact ended",
     )
-    patient_contact = CamcopsColumn(
-        "patient_contact",
-        Integer,
+    patient_contact: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Patient contact involved (0 no, 1 yes)?",
     )
-    staff_liaison = CamcopsColumn(
-        "staff_liaison",
-        Integer,
+    staff_liaison: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Liaison with staff involved (0 no, 1 yes)?",
     )
-    other_liaison = CamcopsColumn(
-        "other_liaison",
-        Integer,
+    other_liaison: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Liaison with others (e.g. family) involved (0 no, 1 yes)?",
     )
-    comment = Column("comment", UnicodeText, comment="Comment")
+    comment: Mapped[Optional[str]] = mapped_column(
+        "comment", UnicodeText, comment="Comment"
+    )
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

@@ -27,7 +27,8 @@ camcops_server/tasks/khandaker_mojo_medicationtherapy.py
 
 from typing import List, Optional, Type, TYPE_CHECKING
 
-from sqlalchemy.sql.sqltypes import Float, Integer, UnicodeText
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import (
@@ -37,7 +38,6 @@ from camcops_server.cc_modules.cc_db import (
 )
 from camcops_server.cc_modules.cc_html import answer, tr_qa
 from camcops_server.cc_modules.cc_sqlalchemy import Base
-from camcops_server.cc_modules.cc_sqla_coltypes import CamcopsColumn
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 if TYPE_CHECKING:
@@ -60,7 +60,7 @@ class KhandakerMojoTableItem(GenericTabletRecordMixin, TaskDescendant, Base):
     def get_response_option(self, req: "CamcopsRequest") -> Optional[str]:
         # Reads "self.response" from derived class.
         # noinspection PyUnresolvedReferences
-        response = self.response  # type: Optional[int]
+        response = self.response  # type: ignore[attr-defined]
         if response is None:
             return None
         return self.task_ancestor().xstring(req, f"response_{response}")
@@ -76,43 +76,38 @@ class KhandakerMojoTableItem(GenericTabletRecordMixin, TaskDescendant, Base):
     def task_ancestor(self) -> Optional["KhandakerMojoMedicationTherapy"]:
         # Reads "self.medicationtable_id" from derived class.
         # noinspection PyUnresolvedReferences
-        return KhandakerMojoMedicationTherapy.get_linked(
-            self.medicationtable_id, self
+        return KhandakerMojoMedicationTherapy.get_linked(  # type: ignore[return-value]  # noqa: E501
+            self.medicationtable_id, self  # type: ignore[attr-defined]
         )
 
 
 class KhandakerMojoMedicationItem(KhandakerMojoTableItem):
     __tablename__ = "khandaker_mojo_medication_item"
 
-    medicationtable_id = CamcopsColumn(
-        "medicationtable_id",
-        Integer,
-        nullable=False,
+    medicationtable_id: Mapped[int] = mapped_column(
         comment="FK to medicationtable",
     )
-    seqnum = CamcopsColumn(
-        "seqnum",
-        Integer,
-        nullable=False,
+    seqnum: Mapped[int] = mapped_column(
         comment="Sequence number of this medication",
     )
-    brand_name = CamcopsColumn("brand_name", UnicodeText, comment="Brand name")
-    chemical_name = CamcopsColumn(
-        "chemical_name", UnicodeText, comment="Chemical name for study team"
+    brand_name: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Brand name"
     )
-    dose = CamcopsColumn("dose", UnicodeText, comment="Dose")
-    frequency = CamcopsColumn("frequency", UnicodeText, comment="Frequency")
-    duration_months = CamcopsColumn(
-        "duration_months", Float, comment="Duration (months)"
+    chemical_name: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Chemical name for study team"
     )
-    indication = CamcopsColumn(
-        "indication",
+    dose: Mapped[Optional[str]] = mapped_column(UnicodeText, comment="Dose")
+    frequency: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Frequency"
+    )
+    duration_months: Mapped[Optional[float]] = mapped_column(
+        comment="Duration (months)"
+    )
+    indication: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Indication (what is the medication used for?)",
     )
-    response = CamcopsColumn(
-        "response",
-        Integer,
+    response: Mapped[Optional[int]] = mapped_column(
         comment=(
             "1 = treats all symptoms, "
             "2 = most symptoms, "
@@ -150,34 +145,29 @@ class KhandakerMojoMedicationItem(KhandakerMojoTableItem):
 class KhandakerMojoTherapyItem(KhandakerMojoTableItem):
     __tablename__ = "khandaker_mojo_therapy_item"
 
-    medicationtable_id = CamcopsColumn(
-        "medicationtable_id",
-        Integer,
-        nullable=False,
+    medicationtable_id: Mapped[int] = mapped_column(
         comment="FK to medicationtable",
     )
-    seqnum = CamcopsColumn(
-        "seqnum",
-        Integer,
-        nullable=False,
+    seqnum: Mapped[int] = mapped_column(
         comment="Sequence number of this therapy",
     )
-    therapy = CamcopsColumn("therapy", UnicodeText, comment="Therapy")
-    frequency = CamcopsColumn("frequency", UnicodeText, comment="Frequency")
-    sessions_completed = CamcopsColumn(
-        "sessions_completed", Integer, comment="Sessions completed"
+    therapy: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Therapy"
     )
-    sessions_planned = CamcopsColumn(
-        "sessions_planned", Integer, comment="Sessions planned"
+    frequency: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Frequency"
     )
-    indication = CamcopsColumn(
-        "indication",
+    sessions_completed: Mapped[Optional[int]] = mapped_column(
+        comment="Sessions completed"
+    )
+    sessions_planned: Mapped[Optional[int]] = mapped_column(
+        comment="Sessions planned"
+    )
+    indication: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Indication (what is the medication used for?)",
     )
-    response = CamcopsColumn(
-        "response",
-        Integer,
+    response: Mapped[Optional[int]] = mapped_column(
         comment=(
             "1 = treats all symptoms, "
             "2 = most symptoms, "
@@ -210,7 +200,7 @@ class KhandakerMojoTherapyItem(KhandakerMojoTableItem):
         """
 
 
-class KhandakerMojoMedicationTherapy(TaskHasPatientMixin, Task):
+class KhandakerMojoMedicationTherapy(TaskHasPatientMixin, Task):  # type: ignore[misc]  # noqa: E501
     """
     Server implementation of the KhandakerMojoMedicationTherapy task
     """
@@ -220,14 +210,14 @@ class KhandakerMojoMedicationTherapy(TaskHasPatientMixin, Task):
     info_filename_stem = "khandaker_mojo"
     provides_trackers = False
 
-    medication_items = ancillary_relationship(
+    medication_items = ancillary_relationship(  # type: ignore[assignment]
         parent_class_name="KhandakerMojoMedicationTherapy",
         ancillary_class_name="KhandakerMojoMedicationItem",
         ancillary_fk_to_parent_attr_name="medicationtable_id",
         ancillary_order_by_attr_name="seqnum",
     )  # type: List[KhandakerMojoMedicationItem]
 
-    therapy_items = ancillary_relationship(
+    therapy_items = ancillary_relationship(  # type: ignore[assignment]
         parent_class_name="KhandakerMojoMedicationTherapy",
         ancillary_class_name="KhandakerMojoTherapyItem",
         ancillary_fk_to_parent_attr_name="medicationtable_id",

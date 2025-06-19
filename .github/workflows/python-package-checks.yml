@@ -34,8 +34,6 @@ jobs:
                   python -m pip install safety "marshmallow<4.0.0"
                   echo checking packages for vulnerabilities
                   # All of these vulnerabilities look either harmless or very low risk
-                  # 51668 sqlalchemy. Fix in 2.0 beta. We don't log Engine.URL()
-                  #       https://github.com/sqlalchemy/sqlalchemy/issues/8567
                   # 52495 setuptools. Fix in 65.5.1. We'll be careful not to
                   #       install malicious packages.
                   # 67599 pip. Disputed and only relevant if using --extra-index-url,
@@ -44,4 +42,4 @@ jobs:
                   #       believe that this vulnerability isn't valid because
                   #       users shouldn't use untrusted templates without
                   #       sandboxing.
-                  safety check --full-report --ignore=51668 --ignore=52495 --ignore=67599 --ignore=70612
+                  safety check --full-report --ignore=52495 --ignore=67599 --ignore=70612

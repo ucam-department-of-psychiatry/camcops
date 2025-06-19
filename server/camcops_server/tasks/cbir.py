@@ -25,12 +25,11 @@ camcops_server/tasks/cbir.py
 
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Float, Integer, UnicodeText
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import Float, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
@@ -43,7 +42,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    mapped_camcops_column,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
@@ -107,14 +106,20 @@ QUESTION_SNIPPETS = [
 ]
 
 
-class CbiRMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["CbiR"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class CbiR(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    TaskHasRespondentMixin,
+    Task,
+):
+    """
+    Server implementation of the CBI-R task.
+    """
+
+    __tablename__ = "cbir"
+    shortname = "CBI-R"
+
+    @classmethod
+    def extend_columns(cls: Type["CbiR"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "frequency",
@@ -135,27 +140,15 @@ class CbiRMetaclass(DeclarativeMeta):
             maximum=cls.MAX_SCORE,
             comment_strings=QUESTION_SNIPPETS,
         )
-        super().__init__(name, bases, classdict)
 
-
-class CbiR(
-    TaskHasPatientMixin, TaskHasRespondentMixin, Task, metaclass=CbiRMetaclass
-):
-    """
-    Server implementation of the CBI-R task.
-    """
-
-    __tablename__ = "cbir"
-    shortname = "CBI-R"
-
-    confirm_blanks = CamcopsColumn(
-        "confirm_blanks",
-        Integer,
+    confirm_blanks: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Respondent confirmed that blanks are deliberate (N/A) "
         "(0/NULL no, 1 yes)",
     )
-    comments = Column("comments", UnicodeText, comment="Additional comments")
+    comments: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Additional comments"
+    )
 
     MIN_SCORE = 0
     MAX_SCORE = 4
@@ -335,8 +328,8 @@ class CbiR(
         return self.all_fields_not_none(self.TASK_FIELDS)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        freq_dict = {None: None}
-        distress_dict = {None: None}
+        freq_dict: dict[Optional[int], Optional[str]] = {None: None}
+        distress_dict: dict[Optional[int], Optional[str]] = {None: None}
         for a in range(self.MIN_SCORE, self.MAX_SCORE + 1):
             freq_dict[a] = self.wxstring(req, "f" + str(a))
             distress_dict[a] = self.wxstring(req, "d" + str(a))
@@ -352,7 +345,7 @@ class CbiR(
         heading_motor = self.wxstring(req, "h_stereotypy_motor")
         heading_motivation = self.wxstring(req, "h_motivation")
 
-        def get_question_rows(first, last):
+        def get_question_rows(first: int, last: int) -> str:
             html = ""
             for q in range(first, last + 1):
                 f = getattr(self, "frequency" + str(q))

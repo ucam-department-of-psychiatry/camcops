@@ -25,11 +25,10 @@ camcops_server/tasks/moca.py
 
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any, cast, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Integer, String, UnicodeText
 
 from camcops_server.cc_modules.cc_blob import (
@@ -52,8 +51,7 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
-    ZERO_TO_THREE_CHECKER,
+    mapped_camcops_column,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
@@ -77,21 +75,31 @@ WORDLIST = ["FACE", "VELVET", "CHURCH", "DAISY", "RED"]
 # =============================================================================
 
 
-class MocaMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Moca"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Moca(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+    Task,
+):
+    """
+    Server implementation of the MoCA task.
+    """
+
+    __tablename__ = "moca"
+    shortname = "MoCA"
+    provides_trackers = True
+
+    prohibits_commercial = True
+    prohibits_research = True
+
+    @classmethod
+    def extend_columns(cls: Type["Moca"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
             1,
-            cls.NQUESTIONS,
+            11,
             minimum=0,
-            maximum=1,  # see below
+            maximum=1,
             comment_fmt="{s}",
             comment_strings=[
                 "Q1 (VSE/path) (0-1)",
@@ -105,7 +113,29 @@ class MocaMetaclass(DeclarativeMeta):
                 "Q9 (attention/5 digits) (0-1)",
                 "Q10 (attention/3 digits) (0-1)",
                 "Q11 (attention/tapping) (0-1)",
-                "Q12 (attention/serial 7s) (0-3)",  # different max
+            ],
+        )
+        add_multiple_columns(
+            cls,
+            "q",
+            12,
+            12,
+            minimum=0,
+            maximum=3,
+            comment_fmt="{s}",
+            comment_strings=[
+                "Q12 (attention/serial 7s) (0-3)",
+            ],
+        )
+        add_multiple_columns(
+            cls,
+            "q",
+            13,
+            cls.NQUESTIONS,
+            minimum=0,
+            maximum=1,  # see below
+            comment_fmt="{s}",
+            comment_strings=[
                 "Q13 (language/sentence 1) (0-1)",
                 "Q14 (language/sentence 2) (0-1)",
                 "Q15 (language/fluency) (0-1)",
@@ -124,9 +154,6 @@ class MocaMetaclass(DeclarativeMeta):
                 "Q28 (orientation/city) (0-1)",
             ],
         )
-        # Fix maximum for Q12:
-        # noinspection PyUnresolvedReferences
-        cls.q12.set_permitted_value_checker(ZERO_TO_THREE_CHECKER)
 
         add_multiple_columns(
             cls,
@@ -168,61 +195,39 @@ class MocaMetaclass(DeclarativeMeta):
             "{n}: {s} (0 or 1)",
             comment_strings=WORDLIST,
         )
-        super().__init__(name, bases, classdict)
 
-
-class Moca(
-    TaskHasPatientMixin, TaskHasClinicianMixin, Task, metaclass=MocaMetaclass
-):
-    """
-    Server implementation of the MoCA task.
-    """
-
-    __tablename__ = "moca"
-    shortname = "MoCA"
-    provides_trackers = True
-
-    prohibits_commercial = True
-    prohibits_research = True
-
-    education12y_or_less = CamcopsColumn(
-        "education12y_or_less",
-        Integer,
+    education12y_or_less: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="<=12 years of education (0 no, 1 yes)",
     )
-    trailpicture_blobid = CamcopsColumn(
-        "trailpicture_blobid",
-        Integer,
+    trailpicture_blobid: Mapped[Optional[int]] = mapped_camcops_column(
         is_blob_id_field=True,
         blob_relationship_attr_name="trailpicture",
         comment="BLOB ID of trail picture",
     )
-    cubepicture_blobid = CamcopsColumn(
-        "cubepicture_blobid",
-        Integer,
+    cubepicture_blobid: Mapped[Optional[int]] = mapped_camcops_column(
         is_blob_id_field=True,
         blob_relationship_attr_name="cubepicture",
         comment="BLOB ID of cube picture",
     )
-    clockpicture_blobid = CamcopsColumn(
-        "clockpicture_blobid",
-        Integer,
+    clockpicture_blobid: Mapped[Optional[int]] = mapped_camcops_column(
         is_blob_id_field=True,
         blob_relationship_attr_name="clockpicture",
         comment="BLOB ID of clock picture",
     )
-    comments = Column("comments", UnicodeText, comment="Clinician's comments")
+    comments: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Clinician's comments"
+    )
 
-    trailpicture = blob_relationship(
+    trailpicture: Mapped[Optional[Blob]] = blob_relationship(  # type: ignore[assignment]  # noqa: E501
         "Moca", "trailpicture_blobid"
-    )  # type: Optional[Blob]
-    cubepicture = blob_relationship(
+    )
+    cubepicture: Mapped[Optional[Blob]] = blob_relationship(  # type: ignore[assignment]  # noqa: E501
         "Moca", "cubepicture_blobid"
-    )  # type: Optional[Blob]
-    clockpicture = blob_relationship(
+    )
+    clockpicture: Mapped[Optional[Blob]] = blob_relationship(  # type: ignore[assignment]  # noqa: E501
         "Moca", "clockpicture_blobid"
-    )  # type: Optional[Blob]
+    )
 
     NQUESTIONS = 28
     MAX_SCORE = 30
@@ -301,28 +306,28 @@ class Moca(
         if score < self.MAX_SCORE:
             score += self.sum_fields(["education12y_or_less"])
             # extra point for this
-        return score
+        return cast(int, score)
 
     def score_vsp(self) -> int:
-        return self.sum_fields(self.VSP_FIELDS)
+        return cast(int, self.sum_fields(self.VSP_FIELDS))
 
     def score_naming(self) -> int:
-        return self.sum_fields(self.NAMING_FIELDS)
+        return cast(int, self.sum_fields(self.NAMING_FIELDS))
 
     def score_attention(self) -> int:
-        return self.sum_fields(self.ATTN_FIELDS)
+        return cast(int, self.sum_fields(self.ATTN_FIELDS))
 
     def score_language(self) -> int:
-        return self.sum_fields(self.LANG_FIELDS)
+        return cast(int, self.sum_fields(self.LANG_FIELDS))
 
     def score_abstraction(self) -> int:
-        return self.sum_fields(self.ABSTRACTION_FIELDS)
+        return cast(int, self.sum_fields(self.ABSTRACTION_FIELDS))
 
     def score_memory(self) -> int:
-        return self.sum_fields(self.MEM_FIELDS)
+        return cast(int, self.sum_fields(self.MEM_FIELDS))
 
     def score_orientation(self) -> int:
-        return self.sum_fields(self.ORIENTATION_FIELDS)
+        return cast(int, self.sum_fields(self.ORIENTATION_FIELDS))
 
     def category(self, req: CamcopsRequest) -> str:
         totalscore = self.total_score()
@@ -382,7 +387,7 @@ class Moca(
             "Path, cube, clock/contour, clock/numbers, clock/hands",
             ", ".join(
                 answer(x)
-                for x in (self.q1, self.q2, self.q3, self.q4, self.q5)
+                for x in (self.q1, self.q2, self.q3, self.q4, self.q5)  # type: ignore[attr-defined]  # noqa: E501
             ),
         )
 
@@ -393,7 +398,7 @@ class Moca(
         )
         h += tr(
             "Lion, rhino, camel",
-            ", ".join(answer(x) for x in (self.q6, self.q7, self.q8)),
+            ", ".join(answer(x) for x in (self.q6, self.q7, self.q8)),  # type: ignore[attr-defined]  # noqa: E501
         )
 
         h += tr(
@@ -405,7 +410,7 @@ class Moca(
             "5 digits forwards, 3 digits backwards, tapping, serial 7s "
             "[<i>scores 3</i>]",
             ", ".join(
-                answer(x) for x in (self.q9, self.q10, self.q11, self.q12)
+                answer(x) for x in (self.q9, self.q10, self.q11, self.q12)  # type: ignore[attr-defined]  # noqa: E501
             ),
         )
 
@@ -416,7 +421,7 @@ class Moca(
         )
         h += tr(
             "Repeat sentence 1, repeat sentence 2, fluency to letter ‘F’",
-            ", ".join(answer(x) for x in (self.q13, self.q14, self.q15)),
+            ", ".join(answer(x) for x in (self.q13, self.q14, self.q15)),  # type: ignore[attr-defined]  # noqa: E501
         )
 
         h += tr(
@@ -426,7 +431,7 @@ class Moca(
         )
         h += tr(
             "Means of transportation, measuring instruments",
-            ", ".join(answer(x) for x in (self.q16, self.q17)),
+            ", ".join(answer(x) for x in (self.q16, self.q17)),  # type: ignore[attr-defined]  # noqa: E501
         )
 
         h += tr(
@@ -439,11 +444,11 @@ class Moca(
             ", ".join(
                 answer(x, formatter_answer=italic)
                 for x in (
-                    self.register_trial1_1,
-                    self.register_trial1_2,
-                    self.register_trial1_3,
-                    self.register_trial1_4,
-                    self.register_trial1_5,
+                    self.register_trial1_1,  # type: ignore[attr-defined]
+                    self.register_trial1_2,  # type: ignore[attr-defined]
+                    self.register_trial1_3,  # type: ignore[attr-defined]
+                    self.register_trial1_4,  # type: ignore[attr-defined]
+                    self.register_trial1_5,  # type: ignore[attr-defined]
                 )
             ),
         )
@@ -452,11 +457,11 @@ class Moca(
             ", ".join(
                 answer(x, formatter_answer=italic)
                 for x in (
-                    self.register_trial2_1,
-                    self.register_trial2_2,
-                    self.register_trial2_3,
-                    self.register_trial2_4,
-                    self.register_trial2_5,
+                    self.register_trial2_1,  # type: ignore[attr-defined]
+                    self.register_trial2_2,  # type: ignore[attr-defined]
+                    self.register_trial2_3,  # type: ignore[attr-defined]
+                    self.register_trial2_4,  # type: ignore[attr-defined]
+                    self.register_trial2_5,  # type: ignore[attr-defined]
                 )
             ),
         )
@@ -464,7 +469,7 @@ class Moca(
             "Recall FACE, VELVET, CHURCH, DAISY, RED with no cue",
             ", ".join(
                 answer(x)
-                for x in (self.q18, self.q19, self.q20, self.q21, self.q22)
+                for x in (self.q18, self.q19, self.q20, self.q21, self.q22)  # type: ignore[attr-defined]  # noqa: E501
             ),
         )
         h += tr(
@@ -472,11 +477,11 @@ class Moca(
             ", ".join(
                 answer(x, formatter_answer=italic)
                 for x in (
-                    self.recall_category_cue_1,
-                    self.recall_category_cue_2,
-                    self.recall_category_cue_3,
-                    self.recall_category_cue_4,
-                    self.recall_category_cue_5,
+                    self.recall_category_cue_1,  # type: ignore[attr-defined]
+                    self.recall_category_cue_2,  # type: ignore[attr-defined]
+                    self.recall_category_cue_3,  # type: ignore[attr-defined]
+                    self.recall_category_cue_4,  # type: ignore[attr-defined]
+                    self.recall_category_cue_5,  # type: ignore[attr-defined]
                 )
             ),
         )
@@ -485,11 +490,11 @@ class Moca(
             ", ".join(
                 answer(x, formatter_answer=italic)
                 for x in (
-                    self.recall_mc_cue_1,
-                    self.recall_mc_cue_2,
-                    self.recall_mc_cue_3,
-                    self.recall_mc_cue_4,
-                    self.recall_mc_cue_5,
+                    self.recall_mc_cue_1,  # type: ignore[attr-defined]
+                    self.recall_mc_cue_2,  # type: ignore[attr-defined]
+                    self.recall_mc_cue_3,  # type: ignore[attr-defined]
+                    self.recall_mc_cue_4,  # type: ignore[attr-defined]
+                    self.recall_mc_cue_5,  # type: ignore[attr-defined]
                 )
             ),
         )
@@ -504,12 +509,12 @@ class Moca(
             ", ".join(
                 answer(x)
                 for x in (
-                    self.q23,
-                    self.q24,
-                    self.q25,
-                    self.q26,
-                    self.q27,
-                    self.q28,
+                    self.q23,  # type: ignore[attr-defined]
+                    self.q24,  # type: ignore[attr-defined]
+                    self.q25,  # type: ignore[attr-defined]
+                    self.q26,  # type: ignore[attr-defined]
+                    self.q27,  # type: ignore[attr-defined]
+                    self.q28,  # type: ignore[attr-defined]
                 )
             ),
         )

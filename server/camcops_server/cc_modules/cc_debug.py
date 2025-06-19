@@ -37,7 +37,7 @@ TraceFuncType = Callable[[FrameType, str, Any], Union[Callable, None]]
 
 
 # https://stackoverflow.com/questions/5375624/a-decorator-that-profiles-a-method-call-and-logs-the-profiling-result  # noqa
-def profile(func):
+def profile(func: Callable) -> Any:
     """
     Decorator to generate profiler output for slow code
     from camcops_server.cc_debug import profile.
@@ -48,7 +48,7 @@ def profile(func):
     Can be visualised with e.g. SnakeViz (pip install snakeviz)
     """
 
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any) -> int:
         datafn = func.__name__ + ".profile"
         prof = cProfile.Profile()
         retval = prof.runcall(func, *args, **kwargs)
@@ -60,9 +60,7 @@ def profile(func):
 
 
 # noinspection PyUnusedLocal
-def trace_calls(
-    frame: FrameType, event: str, arg: Any
-) -> Union[TraceFuncType, None]:
+def trace_calls(frame: FrameType, event: str, arg: Any) -> None:
     """
     A function that can be used as an argument to ``sys.settrace``. It prints
     details of every function called (filename, line number, function name).
@@ -92,9 +90,7 @@ def makefunc_trace_unique_calls(file_only: bool = False) -> TraceFuncType:
     called = set()  # type: Set[str]
 
     # noinspection PyUnusedLocal
-    def _trace_calls(
-        frame: FrameType, event: str, arg: Any
-    ) -> Union[TraceFuncType, None]:
+    def _trace_calls(frame: FrameType, event: str, arg: Any) -> None:
         nonlocal called
         if event != "call":
             return

@@ -56,7 +56,7 @@ depends_on = None
 # =============================================================================
 
 
-def upgrade():
+def upgrade() -> None:
     with op.batch_alter_table(
         "_security_webviewer_sessions", schema=None
     ) as batch_op:
@@ -73,7 +73,7 @@ def upgrade():
         )
 
 
-def downgrade():
+def downgrade() -> None:
     with op.batch_alter_table(
         "_security_webviewer_sessions", schema=None
     ) as batch_op:

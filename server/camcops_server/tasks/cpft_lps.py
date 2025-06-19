@@ -25,6 +25,7 @@ camcops_server/tasks/cpft_lps.py
 
 """
 
+import datetime
 import logging
 from typing import Any, List, Optional, Type
 
@@ -32,11 +33,12 @@ from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
+from pendulum import DateTime as Pendulum
 import pyramid.httpexceptions as exc
 from sqlalchemy.sql.expression import and_, exists, select
 from sqlalchemy.sql.selectable import SelectBase
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Date, Integer, UnicodeText
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_constants import (
     CssClass,
@@ -68,8 +70,8 @@ from camcops_server.cc_modules.cc_pyramid import ViewParam
 from camcops_server.cc_modules.cc_report import Report
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    BoolColumn,
-    CamcopsColumn,
+    mapped_bool_column,
+    mapped_camcops_column,
     CharColType,
     PendulumDateTimeAsIsoTextColType,
     DiagnosticCodeColType,
@@ -90,7 +92,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 
-class CPFTLPSReferral(TaskHasPatientMixin, Task):
+class CPFTLPSReferral(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the CPFT_LPS_Referral task.
     """
@@ -99,67 +101,89 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
     shortname = "CPFT_LPS_Referral"
     info_filename_stem = "clinical"
 
-    referral_date_time = Column(
-        "referral_date_time", PendulumDateTimeAsIsoTextColType
+    referral_date_time: Mapped[Optional[Pendulum]] = mapped_column(
+        PendulumDateTimeAsIsoTextColType
     )
-    lps_division = CamcopsColumn(
-        "lps_division", UnicodeText, exempt_from_anonymisation=True
+    lps_division: Mapped[Optional[str]] = mapped_camcops_column(
+        UnicodeText, exempt_from_anonymisation=True
     )
-    referral_priority = CamcopsColumn(
-        "referral_priority", UnicodeText, exempt_from_anonymisation=True
+    referral_priority: Mapped[Optional[str]] = mapped_camcops_column(
+        UnicodeText, exempt_from_anonymisation=True
     )
-    referral_method = CamcopsColumn(
-        "referral_method", UnicodeText, exempt_from_anonymisation=True
+    referral_method: Mapped[Optional[str]] = mapped_camcops_column(
+        UnicodeText, exempt_from_anonymisation=True
     )
-    referrer_name = Column("referrer_name", UnicodeText)
-    referrer_contact_details = Column("referrer_contact_details", UnicodeText)
-    referring_consultant = Column("referring_consultant", UnicodeText)
-    referring_specialty = CamcopsColumn(
-        "referring_specialty", UnicodeText, exempt_from_anonymisation=True
+    referrer_name: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    referrer_contact_details: Mapped[Optional[str]] = mapped_column(
+        UnicodeText
     )
-    referring_specialty_other = Column(
-        "referring_specialty_other", UnicodeText
+    referring_consultant: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    referring_specialty: Mapped[Optional[str]] = mapped_camcops_column(
+        UnicodeText, exempt_from_anonymisation=True
     )
-    patient_location = Column("patient_location", UnicodeText)
-    admission_date = Column("admission_date", Date)
-    estimated_discharge_date = Column("estimated_discharge_date", Date)
-    patient_aware_of_referral = BoolColumn("patient_aware_of_referral")
-    interpreter_required = BoolColumn("interpreter_required")
-    sensory_impairment = BoolColumn("sensory_impairment")
-    marital_status_code = CamcopsColumn(
-        "marital_status_code",
+    referring_specialty_other: Mapped[Optional[str]] = mapped_column(
+        UnicodeText
+    )
+    patient_location: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    admission_date: Mapped[Optional[datetime.date]] = mapped_column()
+    estimated_discharge_date: Mapped[Optional[datetime.date]] = mapped_column()
+    patient_aware_of_referral: Mapped[Optional[bool]] = mapped_bool_column(
+        "patient_aware_of_referral"
+    )
+    interpreter_required: Mapped[Optional[bool]] = mapped_bool_column(
+        "interpreter_required"
+    )
+    sensory_impairment: Mapped[Optional[bool]] = mapped_bool_column(
+        "sensory_impairment"
+    )
+    marital_status_code: Mapped[Optional[str]] = mapped_camcops_column(
         CharColType,
         permitted_value_checker=PermittedValueChecker(
             permitted_values=PV_NHS_MARITAL_STATUS
         ),
     )
-    ethnic_category_code = CamcopsColumn(
-        "ethnic_category_code",
+    ethnic_category_code: Mapped[Optional[str]] = mapped_camcops_column(
         CharColType,
         permitted_value_checker=PermittedValueChecker(
             permitted_values=PV_NHS_ETHNIC_CATEGORY
         ),
     )
-    admission_reason_overdose = BoolColumn("admission_reason_overdose")
-    admission_reason_self_harm_not_overdose = BoolColumn(
-        "admission_reason_self_harm_not_overdose",
-        constraint_name="ck_cpft_lps_referral_arshno",
+    admission_reason_overdose: Mapped[Optional[bool]] = mapped_bool_column(
+        "admission_reason_overdose"
     )
-    admission_reason_confusion = BoolColumn("admission_reason_confusion")
-    admission_reason_trauma = BoolColumn("admission_reason_trauma")
-    admission_reason_falls = BoolColumn("admission_reason_falls")
-    admission_reason_infection = BoolColumn("admission_reason_infection")
-    admission_reason_poor_adherence = BoolColumn(
-        "admission_reason_poor_adherence",
-        constraint_name="ck_cpft_lps_referral_adpa",
+    admission_reason_self_harm_not_overdose: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "admission_reason_self_harm_not_overdose",
+            constraint_name="ck_cpft_lps_referral_arshno",
+        )
     )
-    admission_reason_other = BoolColumn("admission_reason_other")
-    existing_psychiatric_teams = Column(
-        "existing_psychiatric_teams", UnicodeText
+    admission_reason_confusion: Mapped[Optional[bool]] = mapped_bool_column(
+        "admission_reason_confusion"
     )
-    care_coordinator = Column("care_coordinator", UnicodeText)
-    other_contact_details = Column("other_contact_details", UnicodeText)
-    referral_reason = Column("referral_reason", UnicodeText)
+    admission_reason_trauma: Mapped[Optional[bool]] = mapped_bool_column(
+        "admission_reason_trauma"
+    )
+    admission_reason_falls: Mapped[Optional[bool]] = mapped_bool_column(
+        "admission_reason_falls"
+    )
+    admission_reason_infection: Mapped[Optional[bool]] = mapped_bool_column(
+        "admission_reason_infection"
+    )
+    admission_reason_poor_adherence: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "admission_reason_poor_adherence",
+            constraint_name="ck_cpft_lps_referral_adpa",
+        )
+    )
+    admission_reason_other: Mapped[Optional[bool]] = mapped_bool_column(
+        "admission_reason_other"
+    )
+    existing_psychiatric_teams: Mapped[Optional[str]] = mapped_column(
+        UnicodeText
+    )
+    care_coordinator: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    other_contact_details: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    referral_reason: Mapped[Optional[str]] = mapped_column(UnicodeText)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -375,7 +399,7 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
 # =============================================================================
 
 
-class CPFTLPSResetResponseClock(
+class CPFTLPSResetResponseClock(  # type: ignore[misc]
     TaskHasPatientMixin, TaskHasClinicianMixin, Task
 ):
     """
@@ -386,10 +410,10 @@ class CPFTLPSResetResponseClock(
     shortname = "CPFT_LPS_ResetResponseClock"
     info_filename_stem = "clinical"
 
-    reset_start_time_to = Column(
-        "reset_start_time_to", PendulumDateTimeAsIsoTextColType
+    reset_start_time_to: Mapped[Optional[Pendulum]] = mapped_column(
+        PendulumDateTimeAsIsoTextColType
     )
-    reason = Column("reason", UnicodeText)
+    reason: Mapped[Optional[str]] = mapped_column(UnicodeText)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -437,7 +461,7 @@ class CPFTLPSResetResponseClock(
 # =============================================================================
 
 
-class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
+class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):  # type: ignore[misc]  # noqa: E501
     """
     Server implementation of the CPFT_LPS_Discharge task.
     """
@@ -446,192 +470,287 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     shortname = "CPFT_LPS_Discharge"
     info_filename_stem = "clinical"
 
-    discharge_date = Column("discharge_date", Date)
-    discharge_reason_code = CamcopsColumn(
-        "discharge_reason_code", UnicodeText, exempt_from_anonymisation=True
+    discharge_date: Mapped[Optional[datetime.date]] = mapped_column()
+    discharge_reason_code: Mapped[Optional[str]] = mapped_camcops_column(
+        UnicodeText, exempt_from_anonymisation=True
     )
 
-    leaflet_or_discharge_card_given = BoolColumn(
-        "leaflet_or_discharge_card_given",
-        constraint_name="ck_cpft_lps_discharge_lodcg",
+    leaflet_or_discharge_card_given: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "leaflet_or_discharge_card_given",
+            constraint_name="ck_cpft_lps_discharge_lodcg",
+        )
     )
-    frequent_attender = BoolColumn("frequent_attender")
-    patient_wanted_copy_of_letter = BoolColumn(
+    frequent_attender: Mapped[Optional[bool]] = mapped_bool_column(
+        "frequent_attender"
+    )
+    patient_wanted_copy_of_letter: Mapped[Optional[bool]] = mapped_bool_column(
         # Was previously text! That wasn't right.
         "patient_wanted_copy_of_letter"
     )
-    gaf_at_first_assessment = CamcopsColumn(
-        "gaf_at_first_assessment",
-        Integer,
+    gaf_at_first_assessment: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=100),
     )
-    gaf_at_discharge = CamcopsColumn(
-        "gaf_at_discharge",
-        Integer,
+    gaf_at_discharge: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=100),
     )
 
-    referral_reason_self_harm_overdose = BoolColumn(
-        "referral_reason_self_harm_overdose",
-        constraint_name="ck_cpft_lps_discharge_rrshoverdose",
+    referral_reason_self_harm_overdose: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "referral_reason_self_harm_overdose",
+            constraint_name="ck_cpft_lps_discharge_rrshoverdose",
+        )
     )
-    referral_reason_self_harm_other = BoolColumn(
-        "referral_reason_self_harm_other",
-        constraint_name="ck_cpft_lps_discharge_rrshother",
+    referral_reason_self_harm_other: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "referral_reason_self_harm_other",
+            constraint_name="ck_cpft_lps_discharge_rrshother",
+        )
     )
-    referral_reason_suicidal_ideas = BoolColumn(
-        "referral_reason_suicidal_ideas",
-        constraint_name="ck_cpft_lps_discharge_rrsuicidal",
+    referral_reason_suicidal_ideas: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "referral_reason_suicidal_ideas",
+            constraint_name="ck_cpft_lps_discharge_rrsuicidal",
+        )
     )
-    referral_reason_behavioural_disturbance = BoolColumn(
-        "referral_reason_behavioural_disturbance",
-        constraint_name="ck_cpft_lps_discharge_behavdisturb",
+    referral_reason_behavioural_disturbance: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "referral_reason_behavioural_disturbance",
+            constraint_name="ck_cpft_lps_discharge_behavdisturb",
+        )
     )
-    referral_reason_low_mood = BoolColumn("referral_reason_low_mood")
-    referral_reason_elevated_mood = BoolColumn("referral_reason_elevated_mood")
-    referral_reason_psychosis = BoolColumn("referral_reason_psychosis")
-    referral_reason_pre_transplant = BoolColumn(
-        "referral_reason_pre_transplant",
-        constraint_name="ck_cpft_lps_discharge_pretransplant",
+    referral_reason_low_mood: Mapped[Optional[bool]] = mapped_bool_column(
+        "referral_reason_low_mood"
     )
-    referral_reason_post_transplant = BoolColumn(
-        "referral_reason_post_transplant",
-        constraint_name="ck_cpft_lps_discharge_posttransplant",
+    referral_reason_elevated_mood: Mapped[Optional[bool]] = mapped_bool_column(
+        "referral_reason_elevated_mood"
     )
-    referral_reason_delirium = BoolColumn("referral_reason_delirium")
-    referral_reason_anxiety = BoolColumn("referral_reason_anxiety")
-    referral_reason_somatoform_mus = BoolColumn(
-        "referral_reason_somatoform_mus",
-        constraint_name="ck_cpft_lps_discharge_mus",
+    referral_reason_psychosis: Mapped[Optional[bool]] = mapped_bool_column(
+        "referral_reason_psychosis"
     )
-    referral_reason_motivation_adherence = BoolColumn(
-        "referral_reason_motivation_adherence",
-        constraint_name="ck_cpft_lps_discharge_motivadherence",
+    referral_reason_pre_transplant: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "referral_reason_pre_transplant",
+            constraint_name="ck_cpft_lps_discharge_pretransplant",
+        )
     )
-    referral_reason_capacity = BoolColumn("referral_reason_capacity")
-    referral_reason_eating_disorder = BoolColumn(
-        "referral_reason_eating_disorder",
-        constraint_name="ck_cpft_lps_discharge_eatingdis",
+    referral_reason_post_transplant: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "referral_reason_post_transplant",
+            constraint_name="ck_cpft_lps_discharge_posttransplant",
+        )
     )
-    referral_reason_safeguarding = BoolColumn("referral_reason_safeguarding")
-    referral_reason_discharge_placement = BoolColumn(
-        "referral_reason_discharge_placement",
-        constraint_name="ck_cpft_lps_discharge_dcplacement",
+    referral_reason_delirium: Mapped[Optional[bool]] = mapped_bool_column(
+        "referral_reason_delirium"
     )
-    referral_reason_cognitive_problem = BoolColumn(
-        "referral_reason_cognitive_problem",
-        constraint_name="ck_cpft_lps_discharge_cognitiveprob",
+    referral_reason_anxiety: Mapped[Optional[bool]] = mapped_bool_column(
+        "referral_reason_anxiety"
     )
-    referral_reason_substance_alcohol = BoolColumn(
-        "referral_reason_substance_alcohol",
-        constraint_name="ck_cpft_lps_discharge_alcohol",
+    referral_reason_somatoform_mus: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "referral_reason_somatoform_mus",
+            constraint_name="ck_cpft_lps_discharge_mus",
+        )
     )
-    referral_reason_substance_other = BoolColumn(
-        "referral_reason_substance_other",
-        constraint_name="ck_cpft_lps_discharge_substanceother",
+    referral_reason_motivation_adherence: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "referral_reason_motivation_adherence",
+            constraint_name="ck_cpft_lps_discharge_motivadherence",
+        )
     )
-    referral_reason_other = BoolColumn("referral_reason_other")
-    referral_reason_transplant_organ = CamcopsColumn(
-        "referral_reason_transplant_organ",
-        UnicodeText,
-        exempt_from_anonymisation=True,
+    referral_reason_capacity: Mapped[Optional[bool]] = mapped_bool_column(
+        "referral_reason_capacity"
     )
-    referral_reason_other_detail = Column(
-        "referral_reason_other_detail", UnicodeText
+    referral_reason_eating_disorder: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "referral_reason_eating_disorder",
+            constraint_name="ck_cpft_lps_discharge_eatingdis",
+        )
+    )
+    referral_reason_safeguarding: Mapped[Optional[bool]] = mapped_bool_column(
+        "referral_reason_safeguarding"
+    )
+    referral_reason_discharge_placement: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "referral_reason_discharge_placement",
+            constraint_name="ck_cpft_lps_discharge_dcplacement",
+        )
+    )
+    referral_reason_cognitive_problem: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "referral_reason_cognitive_problem",
+            constraint_name="ck_cpft_lps_discharge_cognitiveprob",
+        )
+    )
+    referral_reason_substance_alcohol: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "referral_reason_substance_alcohol",
+            constraint_name="ck_cpft_lps_discharge_alcohol",
+        )
+    )
+    referral_reason_substance_other: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "referral_reason_substance_other",
+            constraint_name="ck_cpft_lps_discharge_substanceother",
+        )
+    )
+    referral_reason_other: Mapped[Optional[bool]] = mapped_bool_column(
+        "referral_reason_other"
+    )
+    referral_reason_transplant_organ: Mapped[Optional[str]] = (
+        mapped_camcops_column(
+            UnicodeText,
+            exempt_from_anonymisation=True,
+        )
+    )
+    referral_reason_other_detail: Mapped[Optional[str]] = mapped_column(
+        UnicodeText
     )
 
-    diagnosis_no_active_mental_health_problem = BoolColumn(
-        "diagnosis_no_active_mental_health_problem",
-        constraint_name="ck_cpft_lps_discharge_nomhprob",
+    diagnosis_no_active_mental_health_problem: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "diagnosis_no_active_mental_health_problem",
+            constraint_name="ck_cpft_lps_discharge_nomhprob",
+        )
     )
-    diagnosis_psych_1_icd10code = Column(
-        "diagnosis_psych_1_icd10code", DiagnosticCodeColType
+    diagnosis_psych_1_icd10code: Mapped[Optional[str]] = mapped_column(
+        DiagnosticCodeColType
     )
-    diagnosis_psych_1_description = CamcopsColumn(
-        "diagnosis_psych_1_description",
-        UnicodeText,
-        exempt_from_anonymisation=True,
+    diagnosis_psych_1_description: Mapped[Optional[str]] = (
+        mapped_camcops_column(
+            UnicodeText,
+            exempt_from_anonymisation=True,
+        )
     )
-    diagnosis_psych_2_icd10code = Column(
-        "diagnosis_psych_2_icd10code", DiagnosticCodeColType
+    diagnosis_psych_2_icd10code: Mapped[Optional[str]] = mapped_column(
+        DiagnosticCodeColType
     )
-    diagnosis_psych_2_description = CamcopsColumn(
-        "diagnosis_psych_2_description",
-        UnicodeText,
-        exempt_from_anonymisation=True,
+    diagnosis_psych_2_description: Mapped[Optional[str]] = (
+        mapped_camcops_column(
+            UnicodeText,
+            exempt_from_anonymisation=True,
+        )
     )
-    diagnosis_psych_3_icd10code = Column(
-        "diagnosis_psych_3_icd10code", DiagnosticCodeColType
+    diagnosis_psych_3_icd10code: Mapped[Optional[str]] = mapped_column(
+        DiagnosticCodeColType
     )
-    diagnosis_psych_3_description = CamcopsColumn(
-        "diagnosis_psych_3_description",
-        UnicodeText,
-        exempt_from_anonymisation=True,
+    diagnosis_psych_3_description: Mapped[Optional[str]] = (
+        mapped_camcops_column(
+            UnicodeText,
+            exempt_from_anonymisation=True,
+        )
     )
-    diagnosis_psych_4_icd10code = Column(
-        "diagnosis_psych_4_icd10code", DiagnosticCodeColType
+    diagnosis_psych_4_icd10code: Mapped[Optional[str]] = mapped_column(
+        DiagnosticCodeColType
     )
-    diagnosis_psych_4_description = CamcopsColumn(
-        "diagnosis_psych_4_description",
-        UnicodeText,
-        exempt_from_anonymisation=True,
+    diagnosis_psych_4_description: Mapped[Optional[str]] = (
+        mapped_camcops_column(
+            UnicodeText,
+            exempt_from_anonymisation=True,
+        )
     )
-    diagnosis_medical_1 = Column("diagnosis_medical_1", UnicodeText)
-    diagnosis_medical_2 = Column("diagnosis_medical_2", UnicodeText)
-    diagnosis_medical_3 = Column("diagnosis_medical_3", UnicodeText)
-    diagnosis_medical_4 = Column("diagnosis_medical_4", UnicodeText)
+    diagnosis_medical_1: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    diagnosis_medical_2: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    diagnosis_medical_3: Mapped[Optional[str]] = mapped_column(UnicodeText)
+    diagnosis_medical_4: Mapped[Optional[str]] = mapped_column(UnicodeText)
 
-    management_assessment_diagnostic = BoolColumn(
-        "management_assessment_diagnostic",
-        constraint_name="ck_cpft_lps_discharge_mx_ass_diag",
+    management_assessment_diagnostic: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "management_assessment_diagnostic",
+            constraint_name="ck_cpft_lps_discharge_mx_ass_diag",
+        )
     )
-    management_medication = BoolColumn("management_medication")
-    management_specialling_behavioural_disturbance = BoolColumn(
-        "management_specialling_behavioural_disturbance",
-        # Constraint name too long for MySQL unless we do this:
-        constraint_name="ck_cpft_lps_discharge_msbd",
+    management_medication: Mapped[Optional[bool]] = mapped_bool_column(
+        "management_medication"
     )
-    management_supportive_patient = BoolColumn("management_supportive_patient")
-    management_supportive_carers = BoolColumn("management_supportive_carers")
-    management_supportive_staff = BoolColumn("management_supportive_staff")
-    management_nursing_management = BoolColumn("management_nursing_management")
-    management_therapy_cbt = BoolColumn("management_therapy_cbt")
-    management_therapy_cat = BoolColumn("management_therapy_cat")
-    management_therapy_other = BoolColumn("management_therapy_other")
-    management_treatment_adherence = BoolColumn(
-        "management_treatment_adherence",
-        constraint_name="ck_cpft_lps_discharge_mx_rx_adhere",
+    management_specialling_behavioural_disturbance: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "management_specialling_behavioural_disturbance",
+            # Constraint name too long for MySQL unless we do this:
+            constraint_name="ck_cpft_lps_discharge_msbd",
+        )
     )
-    management_capacity = BoolColumn("management_capacity")
-    management_education_patient = BoolColumn("management_education_patient")
-    management_education_carers = BoolColumn("management_education_carers")
-    management_education_staff = BoolColumn("management_education_staff")
-    management_accommodation_placement = BoolColumn(
-        "management_accommodation_placement",
-        constraint_name="ck_cpft_lps_discharge_accom",
+    management_supportive_patient: Mapped[Optional[bool]] = mapped_bool_column(
+        "management_supportive_patient"
     )
-    management_signposting_external_referral = BoolColumn(
-        "management_signposting_external_referral",
-        constraint_name="ck_cpft_lps_discharge_mx_signpostrefer",
+    management_supportive_carers: Mapped[Optional[bool]] = mapped_bool_column(
+        "management_supportive_carers"
     )
-    management_mha_s136 = BoolColumn("management_mha_s136")
-    management_mha_s5_2 = BoolColumn("management_mha_s5_2")
-    management_mha_s2 = BoolColumn("management_mha_s2")
-    management_mha_s3 = BoolColumn("management_mha_s3")
-    management_complex_case_conference = BoolColumn(
-        "management_complex_case_conference",
-        constraint_name="ck_cpft_lps_discharge_caseconf",
+    management_supportive_staff: Mapped[Optional[bool]] = mapped_bool_column(
+        "management_supportive_staff"
     )
-    management_other = BoolColumn("management_other")
-    management_other_detail = Column("management_other_detail", UnicodeText)
+    management_nursing_management: Mapped[Optional[bool]] = mapped_bool_column(
+        "management_nursing_management"
+    )
+    management_therapy_cbt: Mapped[Optional[bool]] = mapped_bool_column(
+        "management_therapy_cbt"
+    )
+    management_therapy_cat: Mapped[Optional[bool]] = mapped_bool_column(
+        "management_therapy_cat"
+    )
+    management_therapy_other: Mapped[Optional[bool]] = mapped_bool_column(
+        "management_therapy_other"
+    )
+    management_treatment_adherence: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "management_treatment_adherence",
+            constraint_name="ck_cpft_lps_discharge_mx_rx_adhere",
+        )
+    )
+    management_capacity: Mapped[Optional[bool]] = mapped_bool_column(
+        "management_capacity"
+    )
+    management_education_patient: Mapped[Optional[bool]] = mapped_bool_column(
+        "management_education_patient"
+    )
+    management_education_carers: Mapped[Optional[bool]] = mapped_bool_column(
+        "management_education_carers"
+    )
+    management_education_staff: Mapped[Optional[bool]] = mapped_bool_column(
+        "management_education_staff"
+    )
+    management_accommodation_placement: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "management_accommodation_placement",
+            constraint_name="ck_cpft_lps_discharge_accom",
+        )
+    )
+    management_signposting_external_referral: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "management_signposting_external_referral",
+            constraint_name="ck_cpft_lps_discharge_mx_signpostrefer",
+        )
+    )
+    management_mha_s136: Mapped[Optional[bool]] = mapped_bool_column(
+        "management_mha_s136"
+    )
+    management_mha_s5_2: Mapped[Optional[bool]] = mapped_bool_column(
+        "management_mha_s5_2"
+    )
+    management_mha_s2: Mapped[Optional[bool]] = mapped_bool_column(
+        "management_mha_s2"
+    )
+    management_mha_s3: Mapped[Optional[bool]] = mapped_bool_column(
+        "management_mha_s3"
+    )
+    management_complex_case_conference: Mapped[Optional[bool]] = (
+        mapped_bool_column(
+            "management_complex_case_conference",
+            constraint_name="ck_cpft_lps_discharge_caseconf",
+        )
+    )
+    management_other: Mapped[Optional[bool]] = mapped_bool_column(
+        "management_other"
+    )
+    management_other_detail: Mapped[Optional[str]] = mapped_column(UnicodeText)
 
-    outcome = CamcopsColumn(
-        "outcome", UnicodeText, exempt_from_anonymisation=True
+    outcome: Mapped[Optional[str]] = mapped_camcops_column(
+        UnicodeText, exempt_from_anonymisation=True
     )
-    outcome_hospital_transfer_detail = Column(
-        "outcome_hospital_transfer_detail", UnicodeText
+    outcome_hospital_transfer_detail: Mapped[Optional[str]] = mapped_column(
+        UnicodeText
     )
-    outcome_other_detail = Column("outcome_other_detail", UnicodeText)
+    outcome_other_detail: Mapped[Optional[str]] = mapped_column(UnicodeText)
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

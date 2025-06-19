@@ -653,7 +653,7 @@ class CamcopsHttpSession(Base):
 def http_session_tween_factory(
     handler: Callable[[Request], Response], registry: Registry
 ) -> Callable[[Request], Response]:
-    get_config()  # type: DummyConfig
+    get_config()
 
     def http_session_tween(request: Request) -> Response:
         log.debug("Starting http_session_tween")

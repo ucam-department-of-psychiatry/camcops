@@ -27,15 +27,17 @@ camcops_server/tasks/ors.py
 
 """
 
-from typing import List
+import datetime
+from typing import List, Optional
 
-from sqlalchemy.sql.sqltypes import Date, Float, Integer, UnicodeText
+from sqlalchemy.orm import Mapped
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    mapped_camcops_column,
     ZERO_TO_10_CHECKER,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -47,7 +49,7 @@ from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 # =============================================================================
 
 
-class Ors(TaskHasPatientMixin, Task):
+class Ors(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the PHQ9 task.
     """
@@ -62,33 +64,31 @@ class Ors(TaskHasPatientMixin, Task):
     VAS_MIN_INT = 0
     VAS_MAX_INT = 10
 
-    q_session = CamcopsColumn("q_session", Integer, comment="Session number")
-    q_date = CamcopsColumn("q_date", Date, comment="Session date")
-    q_who = CamcopsColumn("q_who", Integer, comment="Completed by")
-    q_who_other = CamcopsColumn(
-        "q_who_other", UnicodeText, comment="Completed by other: who?"
+    q_session: Mapped[Optional[int]] = mapped_camcops_column(
+        comment="Session number"
     )
-    q_individual = CamcopsColumn(
-        "q_individual",
-        Float,
+    q_date: Mapped[Optional[datetime.date]] = mapped_camcops_column(
+        comment="Session date"
+    )
+    q_who: Mapped[Optional[int]] = mapped_camcops_column(
+        comment="Completed by"
+    )
+    q_who_other: Mapped[Optional[str]] = mapped_camcops_column(
+        UnicodeText, comment="Completed by other: who?"
+    )
+    q_individual: Mapped[Optional[float]] = mapped_camcops_column(
         comment="Individual rating (0-10, 10 better)",
         permitted_value_checker=ZERO_TO_10_CHECKER,
     )
-    q_interpersonal = CamcopsColumn(
-        "q_interpersonal",
-        Float,
+    q_interpersonal: Mapped[Optional[float]] = mapped_camcops_column(
         comment="Interpersonal rating (0-10, 10 better)",
         permitted_value_checker=ZERO_TO_10_CHECKER,
     )
-    q_social = CamcopsColumn(
-        "q_social",
-        Float,
+    q_social: Mapped[Optional[float]] = mapped_camcops_column(
         comment="Social rating (0-10, 10 better)",
         permitted_value_checker=ZERO_TO_10_CHECKER,
     )
-    q_overall = CamcopsColumn(
-        "q_overall",
-        Float,
+    q_overall: Mapped[Optional[float]] = mapped_camcops_column(
         comment="Overall rating (0-10, 10 better)",
         permitted_value_checker=ZERO_TO_10_CHECKER,
     )
