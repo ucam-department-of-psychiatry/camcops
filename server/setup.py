@@ -119,7 +119,7 @@ INSTALL_REQUIRES = [
     "sqlalchemy==2.0.39",  # database access
     "statsmodels==0.14.4",  # e.g. logistic regression
     "twilio==7.9.3",  # SMS backend for Multi-factor authentication
-    "urllib3==1.26.19",  # dependency, pinned to avoid vulnerabilities
+    "urllib3==2.5.0",  # requests dependency
     "Wand==0.6.1",  # ImageMagick binding
     # -------------------------------------------------------------------------
     # Not installed here
