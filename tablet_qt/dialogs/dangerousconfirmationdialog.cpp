@@ -47,8 +47,6 @@ DangerousConfirmationDialog::DangerousConfirmationDialog(
     prompt2->setWordWrap(true);
 
     m_editor = new QLineEdit();
-    // Work around https://bugreports.qt.io/browse/QTBUG-125337
-    setFocusProxy(m_editor);
 
     auto buttonbox = new QDialogButtonBox(
         QDialogButtonBox::Ok | QDialogButtonBox::Cancel

@@ -67,9 +67,6 @@ PasswordChangeDialog::PasswordChangeDialog(
         m_editor_old = new QLineEdit();
         m_editor_old->setEchoMode(QLineEdit::Password);
         mainlayout->addWidget(m_editor_old);
-
-        // Work around https://bugreports.qt.io/browse/QTBUG-125337
-        setFocusProxy(m_editor_old);
     }
 
     auto prompt_new1 = new QLabel(tr("Enter new password:"));
@@ -80,10 +77,6 @@ PasswordChangeDialog::PasswordChangeDialog(
     m_editor_new1->setPlaceholderText(
         tr("Must be at least %1 characters").arg(MINIMUM_PASSWORD_LENGTH)
     );
-    if (!require_old_password) {
-        // Work around https://bugreports.qt.io/browse/QTBUG-125337
-        setFocusProxy(m_editor_new1);
-    }
     mainlayout->addWidget(m_editor_new1);
 
     auto prompt_new2
