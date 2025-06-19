@@ -42,6 +42,9 @@ PasswordEntryDialog::PasswordEntryDialog(
     m_editor = new QLineEdit();
     m_editor->setEchoMode(QLineEdit::Password);
 
+    // Work around https://bugreports.qt.io/browse/QTBUG-125337
+    setFocusProxy(m_editor);
+
     auto buttonbox = new QDialogButtonBox(
         QDialogButtonBox::Ok | QDialogButtonBox::Cancel
     );

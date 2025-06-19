@@ -523,11 +523,12 @@ DEFAULT_ANDROID_TOOLCHAIN_VERSION = "4.9"
 # Qt
 # Yes qt5.git is correct even for qt6
 QT_GIT_URL = "git://code.qt.io/qt/qt5.git"
-with open(join(TABLET_QT_DIR, "qt_version.txt")) as f:
-    QT_GIT_VERSION = f.read().strip()
-
 # Branch, tag or commit ID (long) to check out when cloning / checking out Qt
-QT_GIT_COMMIT = f"v{QT_GIT_VERSION}"
+with open(join(TABLET_QT_DIR, "qt_version.txt")) as f:
+    QT_GIT_COMMIT = f.read().strip()
+
+QT_GIT_VERSION = QT_GIT_COMMIT.replace("v", "").replace("-lts-lgpl", "")
+
 # For comparison when selecting tools. Not currently used.
 QT_VERSION = Version(QT_GIT_VERSION)
 QT_GIT_SUBMODULES = [
@@ -3462,14 +3463,13 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
             # "-android-toolchain-version",
             # cfg.android_toolchain_version,
             "--disable-rpath",  # 2019-06-16; https://wiki.qt.io/Android
-            # MAY POSSIBLY NEED:
-            # (https://wiki.qt.io/Qt5_platform_configurations,
-            # https://wiki.qt.io/Android)
-            # "-skip", "qttools",
-            # "-skip", "qttranslations",
-            # "-skip", "qtwebkit",
-            # "-skip", "qtwebkit-examples",
-            # we always skip qtserialport (see QT_CONFIG_COMMON_ARGS)
+            # qttools will try to build assistant and this requires
+            # qhelpgenerator on the host. qhelpgenerator is not built because
+            # SQLite is replaced with our own SQLCipher
+            "-skip",
+            "qttools",
+            "-skip",
+            "qttranslations",  # Requires qttools so skip as well
         ]
         qt_config_args += ["-xplatform", "android-clang"]
         # log.critical(sysroot)
