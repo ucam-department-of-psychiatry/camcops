@@ -111,7 +111,7 @@ INSTALL_REQUIRES = [
     "pytest==8.3.4",  # automatic testing
     "pytest-env==1.1.5",  # automatic testing
     "qrcode[pil]==7.2",  # for registering with Authenticators
-    "requests==2.32.2",  # in fetch_snomed_codes.py and cc_sms.py, but also required by something else?  # noqa: E501
+    "requests==2.32.4",  # in fetch_snomed_codes.py and cc_sms.py, but also required by something else?  # noqa: E501
     "rich-argparse==0.5.0",  # colourful help
     "sadisplay==0.4.9",  # SQL Alchemy schema display script
     "scipy==1.13.1",  # used by some tasks. slow installation.
@@ -119,7 +119,7 @@ INSTALL_REQUIRES = [
     "sqlalchemy==2.0.39",  # database access
     "statsmodels==0.14.4",  # e.g. logistic regression
     "twilio==7.9.3",  # SMS backend for Multi-factor authentication
-    "urllib3==1.26.19",  # dependency, pinned to avoid vulnerabilities
+    "urllib3==2.5.0",  # requests dependency
     "Wand==0.6.1",  # ImageMagick binding
     # -------------------------------------------------------------------------
     # Not installed here
@@ -165,7 +165,7 @@ INSTALL_REQUIRES = [
     "alabaster==0.7.12",  # for sphinx
     "amqp==5.3.1",  # for celery
     "Chameleon==3.8.1",  # for Deform
-    "tornado==6.4.2",  # for celery
+    "tornado==6.5",  # for celery
     "webob==1.8.8",  # for pyramid
 ]
 

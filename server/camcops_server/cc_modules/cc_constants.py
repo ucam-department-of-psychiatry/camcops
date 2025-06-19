@@ -32,6 +32,7 @@ camcops_server/cc_modules/cc_constants.py
 import logging
 import multiprocessing
 import os
+from typing import cast
 
 from cardinal_pythonlib.randomness import create_base64encoded_randomness
 from cardinal_pythonlib.sqlalchemy.session import make_mysql_url
@@ -718,7 +719,7 @@ class ConfigDefaults(object):
     CLIENT_API_LOGLEVEL_TEXTFORMAT = "info"  # should match CLIENT_API_LOGLEVEL
     DB_DATABASE = "camcops"  # for demo configs only
     DB_ECHO = False
-    DB_PORT = Ports.MYSQL  # for demo configs only
+    DB_PORT = str(Ports.MYSQL)  # for demo configs only
     DB_SERVER = "localhost"  # for demo configs only
     DB_USER = "YYY_USERNAME_REPLACE_ME"  # cosmetic; for demo configs only
     DB_PASSWORD = "ZZZ_PASSWORD_REPLACE_ME"  # cosmetic; for demo configs only
@@ -838,7 +839,7 @@ class ConfigDefaults(object):
                 DockerConstants.DEFAULT_LOCKDIR, "camcops_celerybeat_schedule"
             )
             self.DB_SERVER = "@@db_server@@"
-            self.DB_PORT: int = "@@db_port@@"  # type: ignore[assignment]
+            self.DB_PORT = "@@db_port@@"  # string so that we can substitute
             self.DB_USER = "@@db_user@@"
             self.DB_PASSWORD = "@@db_password@@"
             self.DB_DATABASE = "@@db_database@@"
@@ -859,7 +860,10 @@ class ConfigDefaults(object):
         return make_mysql_url(
             driver=driver,
             host=self.DB_SERVER,
-            port=self.DB_PORT,
+            # A bit suboptimal here. cardinal_pythonlib quite understandably
+            # thinks a port should be an int but we want to put in the string
+            # @@db_port@@ to be replaced later in the config file
+            port=cast(int, self.DB_PORT),
             username=self.DB_USER,
             password=self.DB_PASSWORD,
             dbname=self.DB_DATABASE,
