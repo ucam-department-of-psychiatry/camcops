@@ -428,7 +428,7 @@ def validate_ip_address(
 
 # Per https://mathiasbynens.be/demo/url-regex, using @stephenhay's regex but
 # restricted further.
-VALID_REDIRECT_URL_REGEX = re.compile(r"^https?://[^\s/$.?#].[^\s]*$")
+VALID_REDIRECT_URL_REGEX = re.compile(r"^https?://[^\s/$.?#].\S*$")
 
 
 def validate_any_url(url: str, req: Optional["CamcopsRequest"] = None) -> None:
@@ -646,7 +646,7 @@ def validate_task_tablename(
 # Filenames
 # -----------------------------------------------------------------------------
 
-DOWNLOAD_FILENAME_REGEX = re.compile(r"\w[\w-]*.[\w]+")
+DOWNLOAD_FILENAME_REGEX = re.compile(r"\w[\w-]*.\w+")
 # \w is equivalent to [A-Za-z0-9_]; see https://regexr.com/
 
 

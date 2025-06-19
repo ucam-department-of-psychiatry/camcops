@@ -140,7 +140,7 @@ class Blob(GenericTabletRecordMixin, TaskDescendant, Base):
         # noinspection PyPep8
         blob = (
             dbsession.query(cls)
-            .filter(cls.id == clientpk)
+            .filter(cls.id == clientpk)  # type: ignore[arg-type]
             .filter(cls._device_id == device_id)
             .filter(cls._era == era)
             .filter(cls._current == True)  # noqa: E712
@@ -165,7 +165,7 @@ class Blob(GenericTabletRecordMixin, TaskDescendant, Base):
         """
         blob = (
             dbsession.query(cls)
-            .filter(cls.id == clientpk)
+            .filter(cls.id == clientpk)  # type: ignore[arg-type]
             .filter(cls._device_id == device_id)
             .filter(cls._era == era)
             .filter(cls._when_added_batch_utc <= referrer_added_utc)
@@ -216,7 +216,9 @@ class Blob(GenericTabletRecordMixin, TaskDescendant, Base):
         blobdata = self._get_xml_theblob_value_binary()
         branches.append(
             get_xml_blob_element(
-                name="theblob", blobdata=blobdata, comment=Blob.theblob.comment
+                name="theblob",
+                blobdata=blobdata,
+                comment=Blob.theblob.comment,  # type: ignore[attr-defined]
             )
         )
         return XmlElement(name=self.__tablename__, value=branches)
