@@ -3140,7 +3140,6 @@ def download_qt(cfg: Config) -> None:
     git_clone(
         prettyname="Qt",
         url=cfg.qt_git_url,
-        branch=cfg.qt_git_commit,
         directory=cfg.qt_src_gitdir,
         run_func=run,
     )
