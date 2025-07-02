@@ -7,6 +7,6 @@ POSITIONAL ARGUMENTS:
 OPTIONS:
   -h, --help            show this help message and exit
   --replacement REPLACEMENT
-                        Replace string contents with this, default is to use
+                        Replace string contents with this; default is to use
                         the name attribute on the containing string element
                         (default: None)

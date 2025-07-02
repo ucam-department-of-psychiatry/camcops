@@ -31,7 +31,7 @@ Tasks in CamCOPS by category
 
 
 ..  All tasks should appear in this list. Categories alphabetical (except
-    "set menu" collections at the end).
+    "set menu" collections at the end). Tasks may appear in >1 category.
 
 Affective (mood and anxiety) disorders
 --------------------------------------
@@ -209,11 +209,15 @@ Eating disorders
 
 |dolphin|
 
+- :ref:`Body mass index (BMI) <bmi>`
+
 - :ref:`Clinical Impairment Assessment questionnaire (CIA) <cia>`
 
 - :ref:`Compulsive Exercise Test (CET) <cet>`
 
 - :ref:`Eating Disorder Examination Questionnaire (EDE-Q) <edeq>`
+
+- :ref:`Eating and Meal Preparation Skills Assessment (EMPSA) <empsa>`
 
 - :ref:`Internet Severity and Activities Addiction Questionnaire, 10-items (ISAAQ-10) <isaaq10>`
 
