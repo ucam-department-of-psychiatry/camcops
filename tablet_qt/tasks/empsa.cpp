@@ -146,8 +146,7 @@ QStringList Empsa::detail() const
         html.append(QString("<td>%1</td>").arg(q));
         html.append(QString("<td>%1</td>").arg(xstring(q_str)));
         html.append(QString("<td>%1</td>").arg(valueInt(ability_field_name)));
-        html.append(
-            QString("<td>%1</td>").arg(valueInt(motivation_field_name))
+        html.append(QString("<td>%1</td>").arg(valueInt(motivation_field_name))
         );
         html.append("</tr>");
     }
