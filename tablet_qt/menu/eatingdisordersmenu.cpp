@@ -50,7 +50,7 @@ void EatingDisordersMenu::makeItems()
         MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Cet::CET_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Cia::CIA_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(Empsa::EMPSA_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Edeq::EDEQ_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Empsa::EMPSA_TABLENAME, m_app),
     };
 }

@@ -54,7 +54,6 @@ def print_skeleton(xml_filename: str, replacement_text: Optional[str]) -> None:
 
     parent_map = {c: p for p in tree.iter() for c in p}
 
-    name = ""
     for string in list(tree.iter("string")):
         name = string.attrib["name"]
         parent = parent_map[string]
@@ -92,7 +91,7 @@ def main() -> None:
         type=str,
         default=None,
         help=(
-            "Replace string contents with this, default is to use the "
+            "Replace string contents with this; default is to use the "
             "name attribute on the containing string element"
         ),
     )

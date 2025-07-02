@@ -29,6 +29,7 @@ Eating and Meal Preparation Skills Assessment (EMPSA)
 
 from typing import Optional, TYPE_CHECKING
 
+import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy import UnicodeText
 from sqlalchemy.orm import Mapped
@@ -44,6 +45,9 @@ from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
 
+DP = 2
+RANGE_SUFFIX = " (0 none - 10 total)"
+
 
 class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
     __tablename__ = "empsa"
@@ -51,11 +55,11 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
 
     q1_ability: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_10_CHECKER,
-        comment="Q1 ability (planning)",
+        comment="Q1 ability (planning)" + RANGE_SUFFIX,
     )
     q1_motivation: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_10_CHECKER,
-        comment="Q1 motivation (planning)",
+        comment="Q1 motivation (planning)" + RANGE_SUFFIX,
     )
     q1_comments: Mapped[Optional[str]] = mapped_camcops_column(
         UnicodeText, comment="Q1 comments (planning)"
@@ -63,11 +67,11 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
 
     q2_ability: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_10_CHECKER,
-        comment="Q2 ability (budget)",
+        comment="Q2 ability (budget)" + RANGE_SUFFIX,
     )
     q2_motivation: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_10_CHECKER,
-        comment="Q2 motivation (budget)",
+        comment="Q2 motivation (budget)" + RANGE_SUFFIX,
     )
     q2_comments: Mapped[Optional[str]] = mapped_camcops_column(
         UnicodeText, comment="Q2 comments (budget)"
@@ -75,11 +79,11 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
 
     q3_ability: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_10_CHECKER,
-        comment="Q3 ability (shopping)",
+        comment="Q3 ability (shopping)" + RANGE_SUFFIX,
     )
     q3_motivation: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_10_CHECKER,
-        comment="Q3 motivation (shopping)",
+        comment="Q3 motivation (shopping)" + RANGE_SUFFIX,
     )
     q3_comments: Mapped[Optional[str]] = mapped_camcops_column(
         UnicodeText, comment="Q3 comments (shopping)"
@@ -87,11 +91,11 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
 
     q4_ability: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_10_CHECKER,
-        comment="Q4 ability (cooking)",
+        comment="Q4 ability (cooking)" + RANGE_SUFFIX,
     )
     q4_motivation: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_10_CHECKER,
-        comment="Q4 motivation (cooking)",
+        comment="Q4 motivation (cooking)" + RANGE_SUFFIX,
     )
     q4_comments: Mapped[Optional[str]] = mapped_camcops_column(
         UnicodeText, comment="Q4 comments (cooking)"
@@ -99,11 +103,11 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
 
     q5_ability: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_10_CHECKER,
-        comment="Q5 ability (preparing)",
+        comment="Q5 ability (preparing)" + RANGE_SUFFIX,
     )
     q5_motivation: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_10_CHECKER,
-        comment="Q5 motivation (preparing)",
+        comment="Q5 motivation (preparing)" + RANGE_SUFFIX,
     )
     q5_comments: Mapped[Optional[str]] = mapped_camcops_column(
         UnicodeText, comment="Q5 comments (preparing)"
@@ -111,11 +115,11 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
 
     q6_ability: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_10_CHECKER,
-        comment="Q6 ability (portions)",
+        comment="Q6 ability (portions)" + RANGE_SUFFIX,
     )
     q6_motivation: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_10_CHECKER,
-        comment="Q6 motivation (portions)",
+        comment="Q6 motivation (portions)" + RANGE_SUFFIX,
     )
     q6_comments: Mapped[Optional[str]] = mapped_camcops_column(
         UnicodeText, comment="Q6 comments (portions)"
@@ -123,11 +127,11 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
 
     q7_ability: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_10_CHECKER,
-        comment="Q7 ability (throwing away)",
+        comment="Q7 ability (throwing away)" + RANGE_SUFFIX,
     )
     q7_motivation: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_10_CHECKER,
-        comment="Q7 motivation (throwing away)",
+        comment="Q7 motivation (throwing away)" + RANGE_SUFFIX,
     )
     q7_comments: Mapped[Optional[str]] = mapped_camcops_column(
         UnicodeText, comment="Q7 comments (throwing away)"
@@ -135,11 +139,11 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
 
     q8_ability: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_10_CHECKER,
-        comment="Q8 ability (difficult food)",
+        comment="Q8 ability (difficult food)" + RANGE_SUFFIX,
     )
     q8_motivation: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_10_CHECKER,
-        comment="Q8 motivation (difficult food)",
+        comment="Q8 motivation (difficult food)" + RANGE_SUFFIX,
     )
     q8_comments: Mapped[Optional[str]] = mapped_camcops_column(
         UnicodeText, comment="Q8 comments (difficult food)"
@@ -147,11 +151,11 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
 
     q9_ability: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_10_CHECKER,
-        comment="Q9 ability (normal pace)",
+        comment="Q9 ability (normal pace)" + RANGE_SUFFIX,
     )
     q9_motivation: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_10_CHECKER,
-        comment="Q9 motivation (normal pace)",
+        comment="Q9 motivation (normal pace)" + RANGE_SUFFIX,
     )
     q9_comments: Mapped[Optional[str]] = mapped_camcops_column(
         UnicodeText, comment="Q9 comments (normal pace)"
@@ -159,11 +163,11 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
 
     q10_ability: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_10_CHECKER,
-        comment="Q10 ability (others)",
+        comment="Q10 ability (others)" + RANGE_SUFFIX,
     )
     q10_motivation: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_10_CHECKER,
-        comment="Q10 motivation (others)",
+        comment="Q10 motivation (others)" + RANGE_SUFFIX,
     )
     q10_comments: Mapped[Optional[str]] = mapped_camcops_column(
         UnicodeText, comment="Q10 comments (others)"
@@ -171,11 +175,11 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
 
     q11_ability: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_10_CHECKER,
-        comment="Q11 ability (public)",
+        comment="Q11 ability (public)" + RANGE_SUFFIX,
     )
     q11_motivation: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_10_CHECKER,
-        comment="Q11 motivation (public)",
+        comment="Q11 motivation (public)" + RANGE_SUFFIX,
     )
     q11_comments: Mapped[Optional[str]] = mapped_camcops_column(
         UnicodeText, comment="Q11 comments (public)"
@@ -183,11 +187,11 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
 
     q12_ability: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_10_CHECKER,
-        comment="Q12 ability (distress)",
+        comment="Q12 ability (distress)" + RANGE_SUFFIX,
     )
     q12_motivation: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_10_CHECKER,
-        comment="Q12 motivation (distress)",
+        comment="Q12 motivation (distress)" + RANGE_SUFFIX,
     )
     q12_comments: Mapped[Optional[str]] = mapped_camcops_column(
         UnicodeText, comment="Q12 comments (distress)"
@@ -248,11 +252,19 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
             tr_is_complete=self.get_is_complete_tr(req),
             ability_subscale=tr(
                 self.wxstring(req, "ability") + "<sup>[1]</sup>",
-                answer(self.ability_subscale()) + f" / {self.MAX_SCORE}",
+                answer(
+                    ws.number_to_dp(self.ability_subscale(), DP, default=None)
+                )
+                + f" / {self.MAX_SCORE}",
             ),
             motivation_subscale=tr(
                 self.wxstring(req, "motivation") + "<sup>[2]</sup>",
-                answer(self.motivation_subscale()) + f" / {self.MAX_SCORE}",
+                answer(
+                    ws.number_to_dp(
+                        self.motivation_subscale(), DP, default=None
+                    ),
+                )
+                + f" / {self.MAX_SCORE}",
             ),
             rows=rows,
             ability_footnote=self.wxstring(req, "ability_footnote"),
@@ -294,7 +306,7 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
                 question_cell,
                 answer(getattr(self, ability_field)),
                 answer(getattr(self, motivation_field)),
-                answer(getattr(self, comments_field)),
+                answer(getattr(self, comments_field), default=""),
             )
 
         return rows

@@ -63,19 +63,20 @@ depends_on = None
 
 # noinspection PyPep8,PyTypeChecker
 def upgrade() -> None:
+    range_suffix = " (0 none - 10 total)"
     op.create_table(
         "empsa",
         sa.Column(
             "q1_ability",
             sa.Integer(),
             nullable=True,
-            comment="Q1 ability (planning)",
+            comment="Q1 ability (planning)" + range_suffix,
         ),
         sa.Column(
             "q1_motivation",
             sa.Integer(),
             nullable=True,
-            comment="Q1 motivation (planning)",
+            comment="Q1 motivation (planning)" + range_suffix,
         ),
         sa.Column(
             "q1_comments",
@@ -87,13 +88,13 @@ def upgrade() -> None:
             "q2_ability",
             sa.Integer(),
             nullable=True,
-            comment="Q2 ability (budget)",
+            comment="Q2 ability (budget)" + range_suffix,
         ),
         sa.Column(
             "q2_motivation",
             sa.Integer(),
             nullable=True,
-            comment="Q2 motivation (budget)",
+            comment="Q2 motivation (budget)" + range_suffix,
         ),
         sa.Column(
             "q2_comments",
@@ -105,13 +106,13 @@ def upgrade() -> None:
             "q3_ability",
             sa.Integer(),
             nullable=True,
-            comment="Q3 ability (shopping)",
+            comment="Q3 ability (shopping)" + range_suffix,
         ),
         sa.Column(
             "q3_motivation",
             sa.Integer(),
             nullable=True,
-            comment="Q3 motivation (shopping)",
+            comment="Q3 motivation (shopping)" + range_suffix,
         ),
         sa.Column(
             "q3_comments",
@@ -123,13 +124,13 @@ def upgrade() -> None:
             "q4_ability",
             sa.Integer(),
             nullable=True,
-            comment="Q4 ability (cooking)",
+            comment="Q4 ability (cooking)" + range_suffix,
         ),
         sa.Column(
             "q4_motivation",
             sa.Integer(),
             nullable=True,
-            comment="Q4 motivation (cooking)",
+            comment="Q4 motivation (cooking)" + range_suffix,
         ),
         sa.Column(
             "q4_comments",
@@ -141,13 +142,13 @@ def upgrade() -> None:
             "q5_ability",
             sa.Integer(),
             nullable=True,
-            comment="Q5 ability (preparing)",
+            comment="Q5 ability (preparing)" + range_suffix,
         ),
         sa.Column(
             "q5_motivation",
             sa.Integer(),
             nullable=True,
-            comment="Q5 motivation (preparing)",
+            comment="Q5 motivation (preparing)" + range_suffix,
         ),
         sa.Column(
             "q5_comments",
@@ -159,13 +160,13 @@ def upgrade() -> None:
             "q6_ability",
             sa.Integer(),
             nullable=True,
-            comment="Q6 ability (portions)",
+            comment="Q6 ability (portions)" + range_suffix,
         ),
         sa.Column(
             "q6_motivation",
             sa.Integer(),
             nullable=True,
-            comment="Q6 motivation (portions)",
+            comment="Q6 motivation (portions)" + range_suffix,
         ),
         sa.Column(
             "q6_comments",
@@ -177,13 +178,13 @@ def upgrade() -> None:
             "q7_ability",
             sa.Integer(),
             nullable=True,
-            comment="Q7 ability (throwing away)",
+            comment="Q7 ability (throwing away)" + range_suffix,
         ),
         sa.Column(
             "q7_motivation",
             sa.Integer(),
             nullable=True,
-            comment="Q7 motivation (throwing away)",
+            comment="Q7 motivation (throwing away)" + range_suffix,
         ),
         sa.Column(
             "q7_comments",
@@ -195,13 +196,13 @@ def upgrade() -> None:
             "q8_ability",
             sa.Integer(),
             nullable=True,
-            comment="Q8 ability (difficult food)",
+            comment="Q8 ability (difficult food)" + range_suffix,
         ),
         sa.Column(
             "q8_motivation",
             sa.Integer(),
             nullable=True,
-            comment="Q8 motivation (difficult food)",
+            comment="Q8 motivation (difficult food)" + range_suffix,
         ),
         sa.Column(
             "q8_comments",
@@ -213,13 +214,13 @@ def upgrade() -> None:
             "q9_ability",
             sa.Integer(),
             nullable=True,
-            comment="Q9 ability (normal pace)",
+            comment="Q9 ability (normal pace)" + range_suffix,
         ),
         sa.Column(
             "q9_motivation",
             sa.Integer(),
             nullable=True,
-            comment="Q9 motivation (normal pace)",
+            comment="Q9 motivation (normal pace)" + range_suffix,
         ),
         sa.Column(
             "q9_comments",
@@ -231,13 +232,13 @@ def upgrade() -> None:
             "q10_ability",
             sa.Integer(),
             nullable=True,
-            comment="Q10 ability (others)",
+            comment="Q10 ability (others)" + range_suffix,
         ),
         sa.Column(
             "q10_motivation",
             sa.Integer(),
             nullable=True,
-            comment="Q10 motivation (others)",
+            comment="Q10 motivation (others)" + range_suffix,
         ),
         sa.Column(
             "q10_comments",
@@ -249,13 +250,13 @@ def upgrade() -> None:
             "q11_ability",
             sa.Integer(),
             nullable=True,
-            comment="Q11 ability (public)",
+            comment="Q11 ability (public)" + range_suffix,
         ),
         sa.Column(
             "q11_motivation",
             sa.Integer(),
             nullable=True,
-            comment="Q11 motivation (public)",
+            comment="Q11 motivation (public)" + range_suffix,
         ),
         sa.Column(
             "q11_comments",
@@ -267,13 +268,13 @@ def upgrade() -> None:
             "q12_ability",
             sa.Integer(),
             nullable=True,
-            comment="Q12 ability (distress)",
+            comment="Q12 ability (distress)" + range_suffix,
         ),
         sa.Column(
             "q12_motivation",
             sa.Integer(),
             nullable=True,
-            comment="Q12 motivation (distress)",
+            comment="Q12 motivation (distress)" + range_suffix,
         ),
         sa.Column(
             "q12_comments",

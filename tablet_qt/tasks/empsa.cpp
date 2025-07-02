@@ -40,8 +40,9 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int LAST_Q = 12;
-const int MIN_SCORE = 1;
+const int MIN_SCORE = 0;  // see empsa.rst; confirmed with creator
 const int MAX_SCORE = 10;
+const int DP = 2;
 
 const QString Q_PREFIX("q");
 const QString ABILITY_SUFFIX("_ability");
@@ -145,7 +146,8 @@ QStringList Empsa::detail() const
         html.append(QString("<td>%1</td>").arg(q));
         html.append(QString("<td>%1</td>").arg(xstring(q_str)));
         html.append(QString("<td>%1</td>").arg(valueInt(ability_field_name)));
-        html.append(QString("<td>%1</td>").arg(valueInt(motivation_field_name))
+        html.append(
+            QString("<td>%1</td>").arg(valueInt(motivation_field_name))
         );
         html.append("</tr>");
     }
@@ -167,7 +169,7 @@ QStringList Empsa::summary() const
         return QString("%1: <b>%2</b> [%3–%4].")
             .arg(
                 description,
-                convert::prettyValue(score, 2),
+                convert::prettyValue(score, DP),
                 QString::number(min),
                 QString::number(max)
             );
@@ -196,7 +198,7 @@ QVariant Empsa::motivationSubscale() const
 
 OpenableWidget* Empsa::editor(const bool read_only)
 {
-    auto subtitle = new QuText(xstring("subtitle"));
+    auto subtitle = (new QuText(xstring("subtitle")))->setItalic();
     auto instructions_1 = new QuText(xstring("instructions_1"));
     auto instructions_2 = new QuText(xstring("instructions_2"));
 
