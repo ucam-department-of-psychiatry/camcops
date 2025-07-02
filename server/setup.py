@@ -152,7 +152,7 @@ INSTALL_REQUIRES = [
     "openpyxl==3.0.7",  # also for pyexcel-xlsx
     "pandas==1.4.4",
     "prettytable==0.7.2",
-    "psutil==6.1.1",
+    "psutil==6.1.1",  # process management, cardinal_pythonlib dependency, not currently used  # noqa: E501
     "pyparsing==2.4.7",
     "pypdf==3.17.0",  # Used by cardinal_pythonlib.pdf
     "python-dateutil==2.9.0.post0",  # date/time extensions.

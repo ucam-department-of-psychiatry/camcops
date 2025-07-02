@@ -240,6 +240,8 @@ EIGEN_VERSION = $$cat($${EIGEN_VERSION_FILE})
 
 QT_VERSION_FILE = "$${CAMCOPS_SOURCE_ROOT}/qt_version.txt"
 QT_GIT_VERSION = $$cat($${QT_VERSION_FILE})
+QT_GIT_VERSION = $$replace(QT_GIT_VERSION, "v", "")
+QT_GIT_VERSION = $$replace(QT_GIT_VERSION, "-lts-lgpl", "")
 
 !equals(QT_GIT_VERSION, $$[QT_VERSION]) {
     error("This version of CamCOPS should be built with '$${QT_GIT_VERSION}', not '$$[QT_VERSION]'")
