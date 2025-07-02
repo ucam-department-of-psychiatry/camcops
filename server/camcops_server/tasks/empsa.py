@@ -37,7 +37,7 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import answer, tr
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     mapped_camcops_column,
-    ONE_TO_TEN_CHECKER,
+    ZERO_TO_10_CHECKER,
 )
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
@@ -50,11 +50,11 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
     shortname = "EMPSA"
 
     q1_ability: Mapped[Optional[int]] = mapped_camcops_column(
-        permitted_value_checker=ONE_TO_TEN_CHECKER,
+        permitted_value_checker=ZERO_TO_10_CHECKER,
         comment="Q1 ability (planning)",
     )
     q1_motivation: Mapped[Optional[int]] = mapped_camcops_column(
-        permitted_value_checker=ONE_TO_TEN_CHECKER,
+        permitted_value_checker=ZERO_TO_10_CHECKER,
         comment="Q1 motivation (planning)",
     )
     q1_comments: Mapped[Optional[str]] = mapped_camcops_column(
@@ -62,11 +62,11 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
     )
 
     q2_ability: Mapped[Optional[int]] = mapped_camcops_column(
-        permitted_value_checker=ONE_TO_TEN_CHECKER,
+        permitted_value_checker=ZERO_TO_10_CHECKER,
         comment="Q2 ability (budget)",
     )
     q2_motivation: Mapped[Optional[int]] = mapped_camcops_column(
-        permitted_value_checker=ONE_TO_TEN_CHECKER,
+        permitted_value_checker=ZERO_TO_10_CHECKER,
         comment="Q2 motivation (budget)",
     )
     q2_comments: Mapped[Optional[str]] = mapped_camcops_column(
@@ -74,11 +74,11 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
     )
 
     q3_ability: Mapped[Optional[int]] = mapped_camcops_column(
-        permitted_value_checker=ONE_TO_TEN_CHECKER,
+        permitted_value_checker=ZERO_TO_10_CHECKER,
         comment="Q3 ability (shopping)",
     )
     q3_motivation: Mapped[Optional[int]] = mapped_camcops_column(
-        permitted_value_checker=ONE_TO_TEN_CHECKER,
+        permitted_value_checker=ZERO_TO_10_CHECKER,
         comment="Q3 motivation (shopping)",
     )
     q3_comments: Mapped[Optional[str]] = mapped_camcops_column(
@@ -86,11 +86,11 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
     )
 
     q4_ability: Mapped[Optional[int]] = mapped_camcops_column(
-        permitted_value_checker=ONE_TO_TEN_CHECKER,
+        permitted_value_checker=ZERO_TO_10_CHECKER,
         comment="Q4 ability (cooking)",
     )
     q4_motivation: Mapped[Optional[int]] = mapped_camcops_column(
-        permitted_value_checker=ONE_TO_TEN_CHECKER,
+        permitted_value_checker=ZERO_TO_10_CHECKER,
         comment="Q4 motivation (cooking)",
     )
     q4_comments: Mapped[Optional[str]] = mapped_camcops_column(
@@ -98,11 +98,11 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
     )
 
     q5_ability: Mapped[Optional[int]] = mapped_camcops_column(
-        permitted_value_checker=ONE_TO_TEN_CHECKER,
+        permitted_value_checker=ZERO_TO_10_CHECKER,
         comment="Q5 ability (preparing)",
     )
     q5_motivation: Mapped[Optional[int]] = mapped_camcops_column(
-        permitted_value_checker=ONE_TO_TEN_CHECKER,
+        permitted_value_checker=ZERO_TO_10_CHECKER,
         comment="Q5 motivation (preparing)",
     )
     q5_comments: Mapped[Optional[str]] = mapped_camcops_column(
@@ -110,11 +110,11 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
     )
 
     q6_ability: Mapped[Optional[int]] = mapped_camcops_column(
-        permitted_value_checker=ONE_TO_TEN_CHECKER,
+        permitted_value_checker=ZERO_TO_10_CHECKER,
         comment="Q6 ability (portions)",
     )
     q6_motivation: Mapped[Optional[int]] = mapped_camcops_column(
-        permitted_value_checker=ONE_TO_TEN_CHECKER,
+        permitted_value_checker=ZERO_TO_10_CHECKER,
         comment="Q6 motivation (portions)",
     )
     q6_comments: Mapped[Optional[str]] = mapped_camcops_column(
@@ -122,11 +122,11 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
     )
 
     q7_ability: Mapped[Optional[int]] = mapped_camcops_column(
-        permitted_value_checker=ONE_TO_TEN_CHECKER,
+        permitted_value_checker=ZERO_TO_10_CHECKER,
         comment="Q7 ability (throwing away)",
     )
     q7_motivation: Mapped[Optional[int]] = mapped_camcops_column(
-        permitted_value_checker=ONE_TO_TEN_CHECKER,
+        permitted_value_checker=ZERO_TO_10_CHECKER,
         comment="Q7 motivation (throwing away)",
     )
     q7_comments: Mapped[Optional[str]] = mapped_camcops_column(
@@ -134,11 +134,11 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
     )
 
     q8_ability: Mapped[Optional[int]] = mapped_camcops_column(
-        permitted_value_checker=ONE_TO_TEN_CHECKER,
+        permitted_value_checker=ZERO_TO_10_CHECKER,
         comment="Q8 ability (difficult food)",
     )
     q8_motivation: Mapped[Optional[int]] = mapped_camcops_column(
-        permitted_value_checker=ONE_TO_TEN_CHECKER,
+        permitted_value_checker=ZERO_TO_10_CHECKER,
         comment="Q8 motivation (difficult food)",
     )
     q8_comments: Mapped[Optional[str]] = mapped_camcops_column(
@@ -146,11 +146,11 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
     )
 
     q9_ability: Mapped[Optional[int]] = mapped_camcops_column(
-        permitted_value_checker=ONE_TO_TEN_CHECKER,
+        permitted_value_checker=ZERO_TO_10_CHECKER,
         comment="Q9 ability (normal pace)",
     )
     q9_motivation: Mapped[Optional[int]] = mapped_camcops_column(
-        permitted_value_checker=ONE_TO_TEN_CHECKER,
+        permitted_value_checker=ZERO_TO_10_CHECKER,
         comment="Q9 motivation (normal pace)",
     )
     q9_comments: Mapped[Optional[str]] = mapped_camcops_column(
@@ -158,11 +158,11 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
     )
 
     q10_ability: Mapped[Optional[int]] = mapped_camcops_column(
-        permitted_value_checker=ONE_TO_TEN_CHECKER,
+        permitted_value_checker=ZERO_TO_10_CHECKER,
         comment="Q10 ability (others)",
     )
     q10_motivation: Mapped[Optional[int]] = mapped_camcops_column(
-        permitted_value_checker=ONE_TO_TEN_CHECKER,
+        permitted_value_checker=ZERO_TO_10_CHECKER,
         comment="Q10 motivation (others)",
     )
     q10_comments: Mapped[Optional[str]] = mapped_camcops_column(
@@ -170,11 +170,11 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
     )
 
     q11_ability: Mapped[Optional[int]] = mapped_camcops_column(
-        permitted_value_checker=ONE_TO_TEN_CHECKER,
+        permitted_value_checker=ZERO_TO_10_CHECKER,
         comment="Q11 ability (public)",
     )
     q11_motivation: Mapped[Optional[int]] = mapped_camcops_column(
-        permitted_value_checker=ONE_TO_TEN_CHECKER,
+        permitted_value_checker=ZERO_TO_10_CHECKER,
         comment="Q11 motivation (public)",
     )
     q11_comments: Mapped[Optional[str]] = mapped_camcops_column(
@@ -182,11 +182,11 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
     )
 
     q12_ability: Mapped[Optional[int]] = mapped_camcops_column(
-        permitted_value_checker=ONE_TO_TEN_CHECKER,
+        permitted_value_checker=ZERO_TO_10_CHECKER,
         comment="Q12 ability (distress)",
     )
     q12_motivation: Mapped[Optional[int]] = mapped_camcops_column(
-        permitted_value_checker=ONE_TO_TEN_CHECKER,
+        permitted_value_checker=ZERO_TO_10_CHECKER,
         comment="Q12 motivation (distress)",
     )
     q12_comments: Mapped[Optional[str]] = mapped_camcops_column(
@@ -204,7 +204,7 @@ class Empsa(TaskHasPatientMixin, Task):  # type: ignore[misc]
     )
     FIRST_Q = 1
     LAST_Q = 12
-    MAX_SCORE = 10
+    MAX_SCORE = 10  # per question, or for subscales that are means
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
