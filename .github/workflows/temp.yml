@@ -12,5 +12,9 @@ jobs:
             - name: Checkout Qt
               run: |
                 set -euxo pipefail
-                mkdir -p ${HOME}/qt_local_build/src/qt6
-                git clone --branch v6.5.5-lts-lgpl git://code.qt.io/qt/qt5.git /home/runner/qt_local_build/src/qt6
+                QT6_DIR=${HOME}/qt_local_build/src/qt6
+                mkdir -p ${QT6_DIR}
+                git clone git://code.qt.io/qt/qt5.git ${QT6_DIR}
+                cd ${QT6_DIR}
+                git tag
+                git checkout v6.5.5-lts-lgpl
