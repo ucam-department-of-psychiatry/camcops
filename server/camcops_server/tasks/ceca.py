@@ -28,8 +28,8 @@ camcops_server/tasks/ceca.py
 from typing import Any, Dict, List, Optional, Sequence
 
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, Float, Integer, UnicodeText
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import Boolean, Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import (
@@ -43,7 +43,7 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    mapped_camcops_column,
     MIN_ZERO_CHECKER,
     ONE_TO_FOUR_CHECKER,
     ONE_TO_FIVE_CHECKER,
@@ -68,7 +68,7 @@ from camcops_server.cc_modules.cc_task import (
 FREQUENCY_COMMENT = "Frequency (0 never - 3 often)"
 
 
-class CecaQ3(TaskHasPatientMixin, Task):
+class CecaQ3(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the CECA-Q3 task.
     """
@@ -79,107 +79,103 @@ class CecaQ3(TaskHasPatientMixin, Task):
     # -------------------------------------------------------------------------
     # Section 1(A)
     # -------------------------------------------------------------------------
-    s1a_motherfigure_birthmother = CamcopsColumn(
-        "s1a_motherfigure_birthmother",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Raised by, maternal, birth mother?",
+    s1a_motherfigure_birthmother: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="Raised by, maternal, birth mother?",
+        )
     )
-    s1a_motherfigure_stepmother = CamcopsColumn(
-        "s1a_motherfigure_stepmother",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Raised by, maternal, stepmother?",
+    s1a_motherfigure_stepmother: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="Raised by, maternal, stepmother?",
+        )
     )
-    s1a_motherfigure_femalerelative = CamcopsColumn(
-        "s1a_motherfigure_femalerelative",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Raised by, maternal, female relative?",
+    s1a_motherfigure_femalerelative: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="Raised by, maternal, female relative?",
+        )
     )
-    s1a_motherfigure_femalerelative_detail = Column(
-        "s1a_motherfigure_femalerelative_detail",
-        UnicodeText,
-        comment="Raised by, maternal, female relative, detail",
+    s1a_motherfigure_femalerelative_detail: Mapped[Optional[str]] = (
+        mapped_column(
+            UnicodeText,
+            comment="Raised by, maternal, female relative, detail",
+        )
     )
-    s1a_motherfigure_familyfriend = CamcopsColumn(
-        "s1a_motherfigure_familyfriend",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Raised by, maternal, family friend?",
+    s1a_motherfigure_familyfriend: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="Raised by, maternal, family friend?",
+        )
     )
-    s1a_motherfigure_fostermother = CamcopsColumn(
-        "s1a_motherfigure_fostermother",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Raised by, maternal, foster mother?",
+    s1a_motherfigure_fostermother: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="Raised by, maternal, foster mother?",
+        )
     )
-    s1a_motherfigure_adoptivemother = CamcopsColumn(
-        "s1a_motherfigure_adoptivemother",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Raised by, maternal, adoptive mother?",
+    s1a_motherfigure_adoptivemother: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="Raised by, maternal, adoptive mother?",
+        )
     )
-    s1a_motherfigure_other = CamcopsColumn(
-        "s1a_motherfigure_other",
-        Boolean,
+    s1a_motherfigure_other: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Raised by, maternal, other?",
     )
-    s1a_motherfigure_other_detail = Column(
-        "s1a_motherfigure_other_detail",
+    s1a_motherfigure_other_detail: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Raised by, maternal, other, detail",
     )
-    s1a_fatherfigure_birthfather = CamcopsColumn(
-        "s1a_fatherfigure_birthfather",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Raised by, paternal, birth father?",
+    s1a_fatherfigure_birthfather: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="Raised by, paternal, birth father?",
+        )
     )
-    s1a_fatherfigure_stepfather = CamcopsColumn(
-        "s1a_fatherfigure_stepfather",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Raised by, paternal, stepfather?",
+    s1a_fatherfigure_stepfather: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="Raised by, paternal, stepfather?",
+        )
     )
-    s1a_fatherfigure_malerelative = CamcopsColumn(
-        "s1a_fatherfigure_malerelative",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Raised by, paternal, male relative?",
+    s1a_fatherfigure_malerelative: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="Raised by, paternal, male relative?",
+        )
     )
-    s1a_fatherfigure_malerelative_detail = Column(
-        "s1a_fatherfigure_malerelative_detail",
-        UnicodeText,
-        comment="Raised by, paternal, male relative, detail",
+    s1a_fatherfigure_malerelative_detail: Mapped[Optional[str]] = (
+        mapped_column(
+            UnicodeText,
+            comment="Raised by, paternal, male relative, detail",
+        )
     )
-    s1a_fatherfigure_familyfriend = CamcopsColumn(
-        "s1a_fatherfigure_familyfriend",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Raised by, paternal, family friend?",
+    s1a_fatherfigure_familyfriend: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="Raised by, paternal, family friend?",
+        )
     )
-    s1a_fatherfigure_fosterfather = CamcopsColumn(
-        "s1a_fatherfigure_fosterfather",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Raised by, paternal, foster father?",
+    s1a_fatherfigure_fosterfather: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="Raised by, paternal, foster father?",
+        )
     )
-    s1a_fatherfigure_adoptivefather = CamcopsColumn(
-        "s1a_fatherfigure_adoptivefather",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Raised by, paternal, adoptive father?",
+    s1a_fatherfigure_adoptivefather: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="Raised by, paternal, adoptive father?",
+        )
     )
-    s1a_fatherfigure_other = CamcopsColumn(
-        "s1a_fatherfigure_other",
-        Boolean,
+    s1a_fatherfigure_other: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Raised by, paternal, other?",
     )
-    s1a_fatherfigure_other_detail = Column(
-        "s1a_fatherfigure_other_detail",
+    s1a_fatherfigure_other_detail: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Raised by, paternal, other, detail",
     )
@@ -187,100 +183,93 @@ class CecaQ3(TaskHasPatientMixin, Task):
     # -------------------------------------------------------------------------
     # Section 1(B)
     # -------------------------------------------------------------------------
-    s1b_institution = CamcopsColumn(
-        "s1b_institution",
-        Boolean,
+    s1b_institution: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="In institution before 17?",
     )
-    s1b_institution_time_years = CamcopsColumn(
-        "s1b_institution_time_years",
-        Float,
-        permitted_value_checker=MIN_ZERO_CHECKER,
-        comment="In institution, time (years)",
+    s1b_institution_time_years: Mapped[Optional[float]] = (
+        mapped_camcops_column(
+            permitted_value_checker=MIN_ZERO_CHECKER,
+            comment="In institution, time (years)",
+        )
     )
 
     # -------------------------------------------------------------------------
     # Section 1(C)
     # -------------------------------------------------------------------------
-    s1c_mother_died = CamcopsColumn(
-        "s1c_mother_died",
-        Boolean,
+    s1c_mother_died: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Mother died before 17?",
     )
-    s1c_father_died = CamcopsColumn(
-        "s1c_father_died",
-        Boolean,
+    s1c_father_died: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Father died before 17?",
     )
-    s1c_mother_died_subject_aged = CamcopsColumn(
-        "s1c_mother_died_subject_aged",
-        Float,
-        permitted_value_checker=MIN_ZERO_CHECKER,
-        comment="Age when mother died (years)",
+    s1c_mother_died_subject_aged: Mapped[Optional[float]] = (
+        mapped_camcops_column(
+            permitted_value_checker=MIN_ZERO_CHECKER,
+            comment="Age when mother died (years)",
+        )
     )
-    s1c_father_died_subject_aged = CamcopsColumn(
-        "s1c_father_died_subject_aged",
-        Float,
-        permitted_value_checker=MIN_ZERO_CHECKER,
-        comment="Age when father died (years)",
+    s1c_father_died_subject_aged: Mapped[Optional[float]] = (
+        mapped_camcops_column(
+            permitted_value_checker=MIN_ZERO_CHECKER,
+            comment="Age when father died (years)",
+        )
     )
-    s1c_separated_from_mother = CamcopsColumn(
-        "s1c_separated_from_mother",
-        Boolean,
+    s1c_separated_from_mother: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Separated from mother for >=1y before 17?",
     )
-    s1c_separated_from_father = CamcopsColumn(
-        "s1c_separated_from_father",
-        Boolean,
+    s1c_separated_from_father: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Separated from father for >=1y before 17?",
     )
-    s1c_first_separated_from_mother_aged = CamcopsColumn(
-        "s1c_first_separated_from_mother_aged",
-        Float,
-        permitted_value_checker=MIN_ZERO_CHECKER,
-        comment="Maternal separation, age (years)",
+    s1c_first_separated_from_mother_aged: Mapped[Optional[float]] = (
+        mapped_camcops_column(
+            permitted_value_checker=MIN_ZERO_CHECKER,
+            comment="Maternal separation, age (years)",
+        )
     )
-    s1c_first_separated_from_father_aged = CamcopsColumn(
-        "s1c_first_separated_from_father_aged",
-        Float,
-        permitted_value_checker=MIN_ZERO_CHECKER,
-        comment="Paternal separation, age (years)",
+    s1c_first_separated_from_father_aged: Mapped[Optional[float]] = (
+        mapped_camcops_column(
+            permitted_value_checker=MIN_ZERO_CHECKER,
+            comment="Paternal separation, age (years)",
+        )
     )
-    s1c_mother_how_long_first_separation_years = CamcopsColumn(
-        "s1c_mother_how_long_first_separation_years",
-        Float,
-        permitted_value_checker=MIN_ZERO_CHECKER,
-        comment="Maternal separation, how long first separation (y)",
+    s1c_mother_how_long_first_separation_years: Mapped[Optional[float]] = (
+        mapped_camcops_column(
+            permitted_value_checker=MIN_ZERO_CHECKER,
+            comment="Maternal separation, how long first separation (y)",
+        )
     )
-    s1c_father_how_long_first_separation_years = CamcopsColumn(
-        "s1c_father_how_long_first_separation_years",
-        Float,
-        permitted_value_checker=MIN_ZERO_CHECKER,
-        comment="Paternal separation, how long first separation (y)",
+    s1c_father_how_long_first_separation_years: Mapped[Optional[float]] = (
+        mapped_camcops_column(
+            permitted_value_checker=MIN_ZERO_CHECKER,
+            comment="Paternal separation, how long first separation (y)",
+        )
     )
-    s1c_mother_separation_reason = CamcopsColumn(
-        "s1c_mother_separation_reason",
-        Integer,
-        permitted_value_checker=PermittedValueChecker(minimum=1, maximum=6),
-        comment="Maternal separation, reason "
-        "(1 illness, 2 work, 3 divorce/separation, 4 never knew, "
-        "5 abandoned, 6 other)",
+    s1c_mother_separation_reason: Mapped[Optional[int]] = (
+        mapped_camcops_column(
+            permitted_value_checker=PermittedValueChecker(
+                minimum=1, maximum=6
+            ),
+            comment="Maternal separation, reason "
+            "(1 illness, 2 work, 3 divorce/separation, 4 never knew, "
+            "5 abandoned, 6 other)",
+        )
     )
-    s1c_father_separation_reason = CamcopsColumn(
-        "s1c_father_separation_reason",
-        Integer,
-        permitted_value_checker=PermittedValueChecker(minimum=1, maximum=6),
-        comment="Paternal separation, reason "
-        "(1 illness, 2 work, 3 divorce/separation, 4 never knew, "
-        "5 abandoned, 6 other)",
+    s1c_father_separation_reason: Mapped[Optional[int]] = (
+        mapped_camcops_column(
+            permitted_value_checker=PermittedValueChecker(
+                minimum=1, maximum=6
+            ),
+            comment="Paternal separation, reason "
+            "(1 illness, 2 work, 3 divorce/separation, 4 never knew, "
+            "5 abandoned, 6 other)",
+        )
     )
-    s1c_describe_experience = Column(
-        "s1c_describe_experience",
+    s1c_describe_experience: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Loss of/separation from parent, description",
     )
@@ -288,790 +277,548 @@ class CecaQ3(TaskHasPatientMixin, Task):
     # -------------------------------------------------------------------------
     # Section 2(A)
     # -------------------------------------------------------------------------
-    s2a_which_mother_figure = CamcopsColumn(
-        "s2a_which_mother_figure",
-        Integer,
+    s2a_which_mother_figure: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(minimum=0, maximum=5),
         comment="Mother figure, which one (0 none/skip, 1 birth mother, "
         "2 stepmother, 3 other relative, 4 other non-relative, "
         "5 other)",
     )
-    s2a_which_mother_figure_other_detail = Column(
-        "s2a_which_mother_figure_other_detail",
-        UnicodeText,
-        comment="Mother figure, other, detail",
+    s2a_which_mother_figure_other_detail: Mapped[Optional[str]] = (
+        mapped_column(
+            UnicodeText,
+            comment="Mother figure, other, detail",
+        )
     )
-    s2a_q1 = CamcopsColumn(
-        "s2a_q1",
-        Integer,
+    s2a_q1: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Mother figure, difficult to please (1 no - 5 yes)",
     )
-    s2a_q2 = CamcopsColumn(
-        "s2a_q2",
-        Integer,
+    s2a_q2: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Mother figure, concerned re my worries (1 no - 5 yes)",
     )
-    s2a_q3 = CamcopsColumn(
-        "s2a_q3",
-        Integer,
+    s2a_q3: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Mother figure, interested re school (1 no - 5 yes)",
     )
-    s2a_q4 = CamcopsColumn(
-        "s2a_q4",
-        Integer,
+    s2a_q4: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Mother figure, made me feel unwanted (1 no - 5 yes)",
     )
-    s2a_q5 = CamcopsColumn(
-        "s2a_q5",
-        Integer,
+    s2a_q5: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Mother figure, better when upset (1 no - 5 yes)",
     )
-    s2a_q6 = CamcopsColumn(
-        "s2a_q6",
-        Integer,
+    s2a_q6: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Mother figure, critical (1 no - 5 yes)",
     )
-    s2a_q7 = CamcopsColumn(
-        "s2a_q7",
-        Integer,
+    s2a_q7: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Mother figure, unsupervised <10y (1 no - 5 yes)",
     )
-    s2a_q8 = CamcopsColumn(
-        "s2a_q8",
-        Integer,
+    s2a_q8: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Mother figure, time to talk (1 no - 5 yes)",
     )
-    s2a_q9 = CamcopsColumn(
-        "s2a_q9",
-        Integer,
+    s2a_q9: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Mother figure, nuisance (1 no - 5 yes)",
     )
-    s2a_q10 = CamcopsColumn(
-        "s2a_q10",
-        Integer,
+    s2a_q10: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Mother figure, picked on unfairly (1 no - 5 yes)",
     )
-    s2a_q11 = CamcopsColumn(
-        "s2a_q11",
-        Integer,
+    s2a_q11: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Mother figure, there if needed (1 no - 5 yes)",
     )
-    s2a_q12 = CamcopsColumn(
-        "s2a_q12",
-        Integer,
+    s2a_q12: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Mother figure, interested in friends (1 no - 5 yes)",
     )
-    s2a_q13 = CamcopsColumn(
-        "s2a_q13",
-        Integer,
+    s2a_q13: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Mother figure, concerned re whereabouts (1 no - 5 yes)",
     )
-    s2a_q14 = CamcopsColumn(
-        "s2a_q14",
-        Integer,
+    s2a_q14: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Mother figure, cared when ill (1 no - 5 yes)",
     )
-    s2a_q15 = CamcopsColumn(
-        "s2a_q15",
-        Integer,
+    s2a_q15: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Mother figure, neglected basic needs (1 no - 5 yes)",
     )
-    s2a_q16 = CamcopsColumn(
-        "s2a_q16",
-        Integer,
+    s2a_q16: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Mother figure, preferred siblings (1 no - 5 yes)",
     )
-    s2a_extra = Column(
-        "s2a_extra", UnicodeText, comment="Mother figure, extra detail"
+    s2a_extra: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Mother figure, extra detail"
     )
 
     # -------------------------------------------------------------------------
     # Section 2(B)
     # -------------------------------------------------------------------------
-    s2b_q1 = CamcopsColumn(
-        "s2b_q1",
-        Integer,
+    s2b_q1: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Mother figure, tease me (0 no - 2 yes)",
     )
-    s2b_q2 = CamcopsColumn(
-        "s2b_q2",
-        Integer,
+    s2b_q2: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Mother figure, made me keep secrets (0 no - 2 yes)",
     )
-    s2b_q3 = CamcopsColumn(
-        "s2b_q3",
-        Integer,
+    s2b_q3: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Mother figure, undermined confidence (0 no - 2 yes)",
     )
-    s2b_q4 = CamcopsColumn(
-        "s2b_q4",
-        Integer,
+    s2b_q4: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Mother figure, contradictory (0 no - 2 yes)",
     )
-    s2b_q5 = CamcopsColumn(
-        "s2b_q5",
-        Integer,
+    s2b_q5: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Mother figure, played on fears (0 no - 2 yes)",
     )
-    s2b_q6 = CamcopsColumn(
-        "s2b_q6",
-        Integer,
+    s2b_q6: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Mother figure, liked to see me suffer (0 no - 2 yes)",
     )
-    s2b_q7 = CamcopsColumn(
-        "s2b_q7",
-        Integer,
+    s2b_q7: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Mother figure, humiliated me (0 no - 2 yes)",
     )
-    s2b_q8 = CamcopsColumn(
-        "s2b_q8",
-        Integer,
+    s2b_q8: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Mother figure, shamed me before others (0 no - 2 yes)",
     )
-    s2b_q9 = CamcopsColumn(
-        "s2b_q9",
-        Integer,
+    s2b_q9: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Mother figure, rejecting (0 no - 2 yes)",
     )
-    s2b_q10 = CamcopsColumn(
-        "s2b_q10",
-        Integer,
+    s2b_q10: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Mother figure, took things I cherished (0 no - 2 yes)",
     )
-    s2b_q11 = CamcopsColumn(
-        "s2b_q11",
-        Integer,
+    s2b_q11: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Mother figure, eat disliked until sick (0 no - 2 yes)",
     )
-    s2b_q12 = CamcopsColumn(
-        "s2b_q12",
-        Integer,
+    s2b_q12: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Mother figure, deprived light/food/company (0 no - 2 yes)",
     )
-    s2b_q13 = CamcopsColumn(
-        "s2b_q13",
-        Integer,
+    s2b_q13: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Mother figure, wouldn't let me mix (0 no - 2 yes)",
     )
-    s2b_q14 = CamcopsColumn(
-        "s2b_q14",
-        Integer,
+    s2b_q14: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Mother figure, obedience through guilt (0 no - 2 yes)",
     )
-    s2b_q15 = CamcopsColumn(
-        "s2b_q15",
-        Integer,
+    s2b_q15: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Mother figure, threatened to hurt people dear to me "
         "(0 no - 2 yes)",
     )
-    s2b_q16 = CamcopsColumn(
-        "s2b_q16",
-        Integer,
+    s2b_q16: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Mother figure, forced to break law (0 no - 2 yes)",
     )
-    s2b_q17 = CamcopsColumn(
-        "s2b_q17",
-        Integer,
+    s2b_q17: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Mother figure, said wanted me dead (0 no - 2 yes)",
     )
-    s2b_q1_frequency = CamcopsColumn(
-        "s2b_q1_frequency",
-        Integer,
+    s2b_q1_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s2b_q2_frequency = CamcopsColumn(
-        "s2b_q2_frequency",
-        Integer,
+    s2b_q2_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s2b_q3_frequency = CamcopsColumn(
-        "s2b_q3_frequency",
-        Integer,
+    s2b_q3_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s2b_q4_frequency = CamcopsColumn(
-        "s2b_q4_frequency",
-        Integer,
+    s2b_q4_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s2b_q5_frequency = CamcopsColumn(
-        "s2b_q5_frequency",
-        Integer,
+    s2b_q5_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s2b_q6_frequency = CamcopsColumn(
-        "s2b_q6_frequency",
-        Integer,
+    s2b_q6_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s2b_q7_frequency = CamcopsColumn(
-        "s2b_q7_frequency",
-        Integer,
+    s2b_q7_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s2b_q8_frequency = CamcopsColumn(
-        "s2b_q8_frequency",
-        Integer,
+    s2b_q8_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s2b_q9_frequency = CamcopsColumn(
-        "s2b_q9_frequency",
-        Integer,
+    s2b_q9_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s2b_q10_frequency = CamcopsColumn(
-        "s2b_q10_frequency",
-        Integer,
+    s2b_q10_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s2b_q11_frequency = CamcopsColumn(
-        "s2b_q11_frequency",
-        Integer,
+    s2b_q11_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s2b_q12_frequency = CamcopsColumn(
-        "s2b_q12_frequency",
-        Integer,
+    s2b_q12_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s2b_q13_frequency = CamcopsColumn(
-        "s2b_q13_frequency",
-        Integer,
+    s2b_q13_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s2b_q14_frequency = CamcopsColumn(
-        "s2b_q14_frequency",
-        Integer,
+    s2b_q14_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s2b_q15_frequency = CamcopsColumn(
-        "s2b_q15_frequency",
-        Integer,
+    s2b_q15_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s2b_q16_frequency = CamcopsColumn(
-        "s2b_q16_frequency",
-        Integer,
+    s2b_q16_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s2b_q17_frequency = CamcopsColumn(
-        "s2b_q17_frequency",
-        Integer,
+    s2b_q17_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s2b_age_began = CamcopsColumn(
-        "s2b_age_began",
-        Float,
+    s2b_age_began: Mapped[Optional[float]] = mapped_camcops_column(
         permitted_value_checker=MIN_ZERO_CHECKER,
         comment="Age these experienced began (years)",
     )
-    s2b_extra = Column("s2b_extra", UnicodeText, comment="Extra detail")
+    s2b_extra: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Extra detail"
+    )
 
     # -------------------------------------------------------------------------
     # Section 3(A)
     # -------------------------------------------------------------------------
-    s3a_which_father_figure = CamcopsColumn(
-        "s3a_which_father_figure",
-        Integer,
+    s3a_which_father_figure: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FIVE_CHECKER,
         comment="Father figure, which one (0 none/skip, 1 birth father, "
         "2 stepfather, 3 other relative, 4 other non-relative, "
         "5 other)",
     )
-    s3a_which_father_figure_other_detail = Column(
-        "s3a_which_father_figure_other_detail",
-        UnicodeText,
-        comment="Father figure, other, detail",
+    s3a_which_father_figure_other_detail: Mapped[Optional[str]] = (
+        mapped_column(
+            UnicodeText,
+            comment="Father figure, other, detail",
+        )
     )
-    s3a_q1 = CamcopsColumn(
-        "s3a_q1",
-        Integer,
+    s3a_q1: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Father figure, difficult to please (1 no - 5 yes)",
     )
-    s3a_q2 = CamcopsColumn(
-        "s3a_q2",
-        Integer,
+    s3a_q2: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Father figure, concerned re my worries (1 no - 5 yes)",
     )
-    s3a_q3 = CamcopsColumn(
-        "s3a_q3",
-        Integer,
+    s3a_q3: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Father figure, interested re school (1 no - 5 yes)",
     )
-    s3a_q4 = CamcopsColumn(
-        "s3a_q4",
-        Integer,
+    s3a_q4: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Father figure, made me feel unwanted (1 no - 5 yes)",
     )
-    s3a_q5 = CamcopsColumn(
-        "s3a_q5",
-        Integer,
+    s3a_q5: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Father figure, better when upset (1 no - 5 yes)",
     )
-    s3a_q6 = CamcopsColumn(
-        "s3a_q6",
-        Integer,
+    s3a_q6: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Father figure, critical (1 no - 5 yes)",
     )
-    s3a_q7 = CamcopsColumn(
-        "s3a_q7",
-        Integer,
+    s3a_q7: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Father figure, unsupervised <10y (1 no - 5 yes)",
     )
-    s3a_q8 = CamcopsColumn(
-        "s3a_q8",
-        Integer,
+    s3a_q8: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Father figure, time to talk (1 no - 5 yes)",
     )
-    s3a_q9 = CamcopsColumn(
-        "s3a_q9",
-        Integer,
+    s3a_q9: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Father figure, nuisance (1 no - 5 yes)",
     )
-    s3a_q10 = CamcopsColumn(
-        "s3a_q10",
-        Integer,
+    s3a_q10: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Father figure, picked on unfairly (1 no - 5 yes)",
     )
-    s3a_q11 = CamcopsColumn(
-        "s3a_q11",
-        Integer,
+    s3a_q11: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Father figure, there if needed (1 no - 5 yes)",
     )
-    s3a_q12 = CamcopsColumn(
-        "s3a_q12",
-        Integer,
+    s3a_q12: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Father figure, interested in friends (1 no - 5 yes)",
     )
-    s3a_q13 = CamcopsColumn(
-        "s3a_q13",
-        Integer,
+    s3a_q13: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Father figure, concerned re whereabouts (1 no - 5 yes)",
     )
-    s3a_q14 = CamcopsColumn(
-        "s3a_q14",
-        Integer,
+    s3a_q14: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Father figure, cared when ill (1 no - 5 yes)",
     )
-    s3a_q15 = CamcopsColumn(
-        "s3a_q15",
-        Integer,
+    s3a_q15: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Father figure, neglected basic needs (1 no - 5 yes)",
     )
-    s3a_q16 = CamcopsColumn(
-        "s3a_q16",
-        Integer,
+    s3a_q16: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Father figure, preferred siblings (1 no - 5 yes)",
     )
-    s3a_extra = Column(
-        "s3a_extra", UnicodeText, comment="Father figure, extra detail"
+    s3a_extra: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Father figure, extra detail"
     )
 
     # -------------------------------------------------------------------------
     # Section 3(B)
     # -------------------------------------------------------------------------
-    s3b_q1 = CamcopsColumn(
-        "s3b_q1",
-        Integer,
+    s3b_q1: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Father figure, tease me (0 no - 2 yes)",
     )
-    s3b_q2 = CamcopsColumn(
-        "s3b_q2",
-        Integer,
+    s3b_q2: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Father figure, made me keep secrets (0 no - 2 yes)",
     )
-    s3b_q3 = CamcopsColumn(
-        "s3b_q3",
-        Integer,
+    s3b_q3: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Father figure, undermined confidence (0 no - 2 yes)",
     )
-    s3b_q4 = CamcopsColumn(
-        "s3b_q4",
-        Integer,
+    s3b_q4: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Father figure, contradictory (0 no - 2 yes)",
     )
-    s3b_q5 = CamcopsColumn(
-        "s3b_q5",
-        Integer,
+    s3b_q5: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Father figure, played on fears (0 no - 2 yes)",
     )
-    s3b_q6 = CamcopsColumn(
-        "s3b_q6",
-        Integer,
+    s3b_q6: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Father figure, liked to see me suffer (0 no - 2 yes)",
     )
-    s3b_q7 = CamcopsColumn(
-        "s3b_q7",
-        Integer,
+    s3b_q7: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Father figure, humiliated me (0 no - 2 yes)",
     )
-    s3b_q8 = CamcopsColumn(
-        "s3b_q8",
-        Integer,
+    s3b_q8: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Father figure, shamed me before others (0 no - 2 yes)",
     )
-    s3b_q9 = CamcopsColumn(
-        "s3b_q9",
-        Integer,
+    s3b_q9: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Father figure, rejecting (0 no - 2 yes)",
     )
-    s3b_q10 = CamcopsColumn(
-        "s3b_q10",
-        Integer,
+    s3b_q10: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Father figure, took things I cherished (0 no - 2 yes)",
     )
-    s3b_q11 = CamcopsColumn(
-        "s3b_q11",
-        Integer,
+    s3b_q11: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Father figure, eat disliked until sick (0 no - 2 yes)",
     )
-    s3b_q12 = CamcopsColumn(
-        "s3b_q12",
-        Integer,
+    s3b_q12: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Father figure, deprived light/food/company (0 no - 2 yes)",
     )
-    s3b_q13 = CamcopsColumn(
-        "s3b_q13",
-        Integer,
+    s3b_q13: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Father figure, wouldn't let me mix (0 no - 2 yes)",
     )
-    s3b_q14 = CamcopsColumn(
-        "s3b_q14",
-        Integer,
+    s3b_q14: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Father figure, obedience through guilt (0 no - 2 yes)",
     )
-    s3b_q15 = CamcopsColumn(
-        "s3b_q15",
-        Integer,
+    s3b_q15: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Father figure, threatened to hurt people dear to me "
         "(0 no - 2 yes)",
     )
-    s3b_q16 = CamcopsColumn(
-        "s3b_q16",
-        Integer,
+    s3b_q16: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Father figure, forced to break law (0 no - 2 yes)",
     )
-    s3b_q17 = CamcopsColumn(
-        "s3b_q17",
-        Integer,
+    s3b_q17: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Father figure, said wanted me dead (0 no - 2 yes)",
     )
-    s3b_q1_frequency = CamcopsColumn(
-        "s3b_q1_frequency",
-        Integer,
+    s3b_q1_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s3b_q2_frequency = CamcopsColumn(
-        "s3b_q2_frequency",
-        Integer,
+    s3b_q2_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s3b_q3_frequency = CamcopsColumn(
-        "s3b_q3_frequency",
-        Integer,
+    s3b_q3_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s3b_q4_frequency = CamcopsColumn(
-        "s3b_q4_frequency",
-        Integer,
+    s3b_q4_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s3b_q5_frequency = CamcopsColumn(
-        "s3b_q5_frequency",
-        Integer,
+    s3b_q5_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s3b_q6_frequency = CamcopsColumn(
-        "s3b_q6_frequency",
-        Integer,
+    s3b_q6_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s3b_q7_frequency = CamcopsColumn(
-        "s3b_q7_frequency",
-        Integer,
+    s3b_q7_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s3b_q8_frequency = CamcopsColumn(
-        "s3b_q8_frequency",
-        Integer,
+    s3b_q8_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s3b_q9_frequency = CamcopsColumn(
-        "s3b_q9_frequency",
-        Integer,
+    s3b_q9_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s3b_q10_frequency = CamcopsColumn(
-        "s3b_q10_frequency",
-        Integer,
+    s3b_q10_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s3b_q11_frequency = CamcopsColumn(
-        "s3b_q11_frequency",
-        Integer,
+    s3b_q11_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s3b_q12_frequency = CamcopsColumn(
-        "s3b_q12_frequency",
-        Integer,
+    s3b_q12_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s3b_q13_frequency = CamcopsColumn(
-        "s3b_q13_frequency",
-        Integer,
+    s3b_q13_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s3b_q14_frequency = CamcopsColumn(
-        "s3b_q14_frequency",
-        Integer,
+    s3b_q14_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s3b_q15_frequency = CamcopsColumn(
-        "s3b_q15_frequency",
-        Integer,
+    s3b_q15_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s3b_q16_frequency = CamcopsColumn(
-        "s3b_q16_frequency",
-        Integer,
+    s3b_q16_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s3b_q17_frequency = CamcopsColumn(
-        "s3b_q17_frequency",
-        Integer,
+    s3b_q17_frequency: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_THREE_CHECKER,
         comment=FREQUENCY_COMMENT,
     )
-    s3b_age_began = CamcopsColumn(
-        "s3b_age_began",
-        Float,
+    s3b_age_began: Mapped[Optional[float]] = mapped_camcops_column(
         permitted_value_checker=MIN_ZERO_CHECKER,
         comment="Age these experienced began (years)",
     )
-    s3b_extra = Column("s3b_extra", UnicodeText, comment="Extra detail")
+    s3b_extra: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Extra detail"
+    )
 
     # -------------------------------------------------------------------------
     # Section 3(C)
     # -------------------------------------------------------------------------
-    s3c_q1 = CamcopsColumn(
-        "s3c_q1",
-        Integer,
+    s3c_q1: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Responsibility (1 no - 5 yes)",
     )
-    s3c_q2 = CamcopsColumn(
-        "s3c_q2",
-        Integer,
+    s3c_q2: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Housework (1 no - 5 yes)",
     )
-    s3c_q3 = CamcopsColumn(
-        "s3c_q3",
-        Integer,
+    s3c_q3: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Look after young siblings (1 no - 5 yes)",
     )
-    s3c_q4 = CamcopsColumn(
-        "s3c_q4",
-        Integer,
+    s3c_q4: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Cooking/cleaning (1 no - 5 yes)",
     )
-    s3c_q5 = CamcopsColumn(
-        "s3c_q5",
-        Integer,
+    s3c_q5: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Miss school for domestic responsibilities (1 no - 5 yes)",
     )
-    s3c_q6 = CamcopsColumn(
-        "s3c_q6",
-        Integer,
+    s3c_q6: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Miss seeing friends for domestic responsibilities "
         "(1 no - 5 yes)",
     )
-    s3c_q7 = CamcopsColumn(
-        "s3c_q7",
-        Integer,
+    s3c_q7: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Parents said they couldn't cope (1 no - 5 yes)",
     )
-    s3c_q8 = CamcopsColumn(
-        "s3c_q8",
-        Integer,
+    s3c_q8: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Parents looked to you for help (1 no - 5 yes)",
     )
-    s3c_q9 = CamcopsColumn(
-        "s3c_q9",
-        Integer,
+    s3c_q9: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Parents coped if you were hurt/ill (1 no - 5 yes)",
     )
-    s3c_q10 = CamcopsColumn(
-        "s3c_q10",
-        Integer,
+    s3c_q10: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Parents confided their problems (1 no - 5 yes)",
     )
-    s3c_q11 = CamcopsColumn(
-        "s3c_q11",
-        Integer,
+    s3c_q11: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Parents relied on you for emotional support (1 no - 5 yes)",
     )
-    s3c_q12 = CamcopsColumn(
-        "s3c_q12",
-        Integer,
+    s3c_q12: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Parents cried in front of you (1 no - 5 yes)",
     )
-    s3c_q13 = CamcopsColumn(
-        "s3c_q13",
-        Integer,
+    s3c_q13: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Concerned/worried re parent (1 no - 5 yes)",
     )
-    s3c_q14 = CamcopsColumn(
-        "s3c_q14",
-        Integer,
+    s3c_q14: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Tried to support/care for parent (1 no - 5 yes)",
     )
-    s3c_q15 = CamcopsColumn(
-        "s3c_q15",
-        Integer,
+    s3c_q15: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Try to make parent smile when upset (1 no - 5 yes)",
     )
-    s3c_q16 = CamcopsColumn(
-        "s3c_q16",
-        Integer,
+    s3c_q16: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Parents made you feel guilty for their sacrifices "
         "(1 no - 5 yes)",
     )
-    s3c_q17 = CamcopsColumn(
-        "s3c_q17",
-        Integer,
+    s3c_q17: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FIVE_CHECKER,
         comment="Had to keep secrets for parent (1 no - 5 yes)",
     )
-    s3c_which_parent_cared_for = CamcopsColumn(
-        "s3c_which_parent_cared_for",
-        Integer,
+    s3c_which_parent_cared_for: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_FOUR_CHECKER,
         comment="Which parent did you have to provide care for (0 none, "
         "1 mother, 2 father, 3 both, 4 other)",
     )
-    s3c_parent_mental_problem = CamcopsColumn(
-        "s3c_parent_mental_problem",
-        Integer,
+    s3c_parent_mental_problem: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Parent/s had emotional/mental health problems (0 no - 2 yes)",
     )
-    s3c_parent_physical_problem = CamcopsColumn(
-        "s3c_parent_physical_problem",
-        Integer,
+    s3c_parent_physical_problem: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Parent/s had disability/physical illness (0 no - 2 yes)",
     )
@@ -1079,55 +826,45 @@ class CecaQ3(TaskHasPatientMixin, Task):
     # -------------------------------------------------------------------------
     # Section 4(A)
     # -------------------------------------------------------------------------
-    s4a_adultconfidant = CamcopsColumn(
-        "s4a_adultconfidant",
-        Boolean,
+    s4a_adultconfidant: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Adult confidant?",
     )
-    s4a_adultconfidant_mother = CamcopsColumn(
-        "s4a_adultconfidant_mother",
-        Boolean,
+    s4a_adultconfidant_mother: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Adult confidant, mother?",
     )
-    s4a_adultconfidant_father = CamcopsColumn(
-        "s4a_adultconfidant_father",
-        Boolean,
+    s4a_adultconfidant_father: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Adult confidant, father?",
     )
-    s4a_adultconfidant_otherrelative = CamcopsColumn(
-        "s4a_adultconfidant_otherrelative",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Adult confidant, other relative?",
+    s4a_adultconfidant_otherrelative: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="Adult confidant, other relative?",
+        )
     )
-    s4a_adultconfidant_familyfriend = CamcopsColumn(
-        "s4a_adultconfidant_familyfriend",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Adult confidant, family friend?",
+    s4a_adultconfidant_familyfriend: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="Adult confidant, family friend?",
+        )
     )
-    s4a_adultconfidant_responsibleadult = CamcopsColumn(
-        "s4a_adultconfidant_responsibleadult",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Adult confidant, teacher/vicar/etc.?",
+    s4a_adultconfidant_responsibleadult: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="Adult confidant, teacher/vicar/etc.?",
+        )
     )
-    s4a_adultconfidant_other = CamcopsColumn(
-        "s4a_adultconfidant_other",
-        Boolean,
+    s4a_adultconfidant_other: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Adult confidant, other?",
     )
-    s4a_adultconfidant_other_detail = Column(
-        "s4a_adultconfidant_other_detail",
+    s4a_adultconfidant_other_detail: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Adult confidant, other, detail",
     )
-    s4a_adultconfidant_additional = Column(
-        "s4a_adultconfidant_additional",
+    s4a_adultconfidant_additional: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Adult confidant, additional notes",
     )
@@ -1135,55 +872,45 @@ class CecaQ3(TaskHasPatientMixin, Task):
     # -------------------------------------------------------------------------
     # Section 4(B)
     # -------------------------------------------------------------------------
-    s4b_childconfidant = CamcopsColumn(
-        "s4b_childconfidant",
-        Boolean,
+    s4b_childconfidant: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Child confidant?",
     )
-    s4b_childconfidant_sister = CamcopsColumn(
-        "s4b_childconfidant_sister",
-        Boolean,
+    s4b_childconfidant_sister: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Child confidant, sister?",
     )
-    s4b_childconfidant_brother = CamcopsColumn(
-        "s4b_childconfidant_brother",
-        Boolean,
+    s4b_childconfidant_brother: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Child confidant, brother?",
     )
-    s4b_childconfidant_otherrelative = CamcopsColumn(
-        "s4b_childconfidant_otherrelative",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Child confidant, other relative?",
+    s4b_childconfidant_otherrelative: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="Child confidant, other relative?",
+        )
     )
-    s4b_childconfidant_closefriend = CamcopsColumn(
-        "s4b_childconfidant_closefriend",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Child confidant, close friend?",
+    s4b_childconfidant_closefriend: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="Child confidant, close friend?",
+        )
     )
-    s4b_childconfidant_otherfriend = CamcopsColumn(
-        "s4b_childconfidant_otherfriend",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Child confidant, other less close friend(s)?",
+    s4b_childconfidant_otherfriend: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="Child confidant, other less close friend(s)?",
+        )
     )
-    s4b_childconfidant_other = CamcopsColumn(
-        "s4b_childconfidant_other",
-        Boolean,
+    s4b_childconfidant_other: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Child confidant, other person?",
     )
-    s4b_childconfidant_other_detail = Column(
-        "s4b_childconfidant_other_detail",
+    s4b_childconfidant_other_detail: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Child confidant, other person, detail",
     )
-    s4b_childconfidant_additional = Column(
-        "s4b_childconfidant_additional",
+    s4b_childconfidant_additional: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Child confidant, additional notes",
     )
@@ -1191,55 +918,39 @@ class CecaQ3(TaskHasPatientMixin, Task):
     # -------------------------------------------------------------------------
     # Section 4(C)
     # -------------------------------------------------------------------------
-    s4c_closest_mother = CamcopsColumn(
-        "s4c_closest_mother",
-        Boolean,
+    s4c_closest_mother: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Two closest people include: mother?",
     )
-    s4c_closest_father = CamcopsColumn(
-        "s4c_closest_father",
-        Boolean,
+    s4c_closest_father: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Two closest people include: father?",
     )
-    s4c_closest_sibling = CamcopsColumn(
-        "s4c_closest_sibling",
-        Boolean,
+    s4c_closest_sibling: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Two closest people include: sibling?",
     )
-    s4c_closest_otherrelative = CamcopsColumn(
-        "s4c_closest_otherrelative",
-        Boolean,
+    s4c_closest_otherrelative: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Two closest people include: other relative?",
     )
-    s4c_closest_adultfriend = CamcopsColumn(
-        "s4c_closest_adultfriend",
-        Boolean,
+    s4c_closest_adultfriend: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Two closest people include: adult family friend?",
     )
-    s4c_closest_childfriend = CamcopsColumn(
-        "s4c_closest_childfriend",
-        Boolean,
+    s4c_closest_childfriend: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Two closest people include: friend your age?",
     )
-    s4c_closest_other = CamcopsColumn(
-        "s4c_closest_other",
-        Boolean,
+    s4c_closest_other: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Two closest people include: other?",
     )
-    s4c_closest_other_detail = Column(
-        "s4c_closest_other_detail",
+    s4c_closest_other_detail: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Two closest people include: other, detail",
     )
-    s4c_closest_additional = Column(
-        "s4c_closest_additional",
+    s4c_closest_additional: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Two closest people include: additional notes",
     )
@@ -1247,97 +958,75 @@ class CecaQ3(TaskHasPatientMixin, Task):
     # -------------------------------------------------------------------------
     # Section 5(C)
     # -------------------------------------------------------------------------
-    s5c_physicalabuse = CamcopsColumn(
-        "s5c_physicalabuse",
-        Boolean,
+    s5c_physicalabuse: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Physical abuse?",
     )
-    s5c_abused_by_mother = CamcopsColumn(
-        "s5c_abused_by_mother",
-        Boolean,
+    s5c_abused_by_mother: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Physical abuse, by mother?",
     )
-    s5c_abused_by_father = CamcopsColumn(
-        "s5c_abused_by_father",
-        Boolean,
+    s5c_abused_by_father: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Physical abuse, by father?",
     )
-    s5c_mother_abuse_age_began = CamcopsColumn(
-        "s5c_mother_abuse_age_began",
-        Float,
-        comment="Physical abuse, by mother, age began (y)",
+    s5c_mother_abuse_age_began: Mapped[Optional[float]] = (
+        mapped_camcops_column(
+            comment="Physical abuse, by mother, age began (y)",
+        )
     )
-    s5c_father_abuse_age_began = CamcopsColumn(
-        "s5c_father_abuse_age_began",
-        Float,
-        comment="Physical abuse, by father, age began (y)",
+    s5c_father_abuse_age_began: Mapped[Optional[float]] = (
+        mapped_camcops_column(
+            comment="Physical abuse, by father, age began (y)",
+        )
     )
-    s5c_mother_hit_more_than_once = CamcopsColumn(
-        "s5c_mother_hit_more_than_once",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Physical abuse, by mother, hit on >1 occasion",
+    s5c_mother_hit_more_than_once: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="Physical abuse, by mother, hit on >1 occasion",
+        )
     )
-    s5c_father_hit_more_than_once = CamcopsColumn(
-        "s5c_father_hit_more_than_once",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Physical abuse, by father, hit on >1 occasion",
+    s5c_father_hit_more_than_once: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment="Physical abuse, by father, hit on >1 occasion",
+        )
     )
-    s5c_mother_hit_how = CamcopsColumn(
-        "s5c_mother_hit_how",
-        Integer,
+    s5c_mother_hit_how: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
         comment="Physical abuse, by mother, hit how (1 belt/stick, "
         "2 punched/kicked, 3 hit with hand, 4 other)",
     )
-    s5c_father_hit_how = CamcopsColumn(
-        "s5c_father_hit_how",
-        Integer,
+    s5c_father_hit_how: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_FOUR_CHECKER,
         comment="Physical abuse, by father, hit how (1 belt/stick, "
         "2 punched/kicked, 3 hit with hand, 4 other)",
     )
-    s5c_mother_injured = CamcopsColumn(
-        "s5c_mother_injured",
-        Boolean,
+    s5c_mother_injured: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Physical abuse, by mother, injured?",
     )
-    s5c_father_injured = CamcopsColumn(
-        "s5c_father_injured",
-        Boolean,
+    s5c_father_injured: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Physical abuse, by father, injured?",
     )
-    s5c_mother_out_of_control = CamcopsColumn(
-        "s5c_mother_out_of_control",
-        Boolean,
+    s5c_mother_out_of_control: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Physical abuse, by mother, out of control?",
     )
-    s5c_father_out_of_control = CamcopsColumn(
-        "s5c_father_out_of_control",
-        Boolean,
+    s5c_father_out_of_control: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Physical abuse, by father, out of control?",
     )
-    s5c_parental_abuse_description = Column(
-        "s5c_parental_abuse_description",
+    s5c_parental_abuse_description: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Physical abuse, description",
     )
-    s5c_abuse_by_nonparent = CamcopsColumn(
-        "s5c_abuse_by_nonparent",
-        Boolean,
+    s5c_abuse_by_nonparent: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Physical abuse, by anyone else in household?",
     )
-    s5c_nonparent_abuse_description = Column(
-        "s5c_nonparent_abuse_description",
+    s5c_nonparent_abuse_description: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Physical abuse, nonparent, description",
     )
@@ -1345,129 +1034,112 @@ class CecaQ3(TaskHasPatientMixin, Task):
     # -------------------------------------------------------------------------
     # Section 6
     # -------------------------------------------------------------------------
-    s6_any_unwanted_sexual_experience = CamcopsColumn(
-        # Prior to 2.1.0: was cctype="BOOL" on the server, but this gave
-        # TINYINT(1), which can store -128 to 128. Corrected to Integer.
-        "s6_any_unwanted_sexual_experience",
-        Integer,
-        permitted_value_checker=ZERO_TO_TWO_CHECKER,
-        comment="Any unwanted sexual experiences (0 no - 2 yes)",
+    s6_any_unwanted_sexual_experience: Mapped[Optional[int]] = (
+        mapped_camcops_column(
+            # Prior to 2.1.0: was cctype="BOOL" on the server, but this gave
+            # TINYINT(1), which can store -128 to 128. Corrected to Integer.
+            "s6_any_unwanted_sexual_experience",
+            Integer,
+            permitted_value_checker=ZERO_TO_TWO_CHECKER,
+            comment="Any unwanted sexual experiences (0 no - 2 yes)",
+        )
     )
-    s6_unwanted_intercourse = CamcopsColumn(
+    s6_unwanted_intercourse: Mapped[Optional[int]] = mapped_camcops_column(
         # Prior to 2.1.0: was cctype="BOOL" on the server, but this gave
         # TINYINT(1), which can store -128 to 128. Corrected to Integer.
-        "s6_unwanted_intercourse",
-        Integer,
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Unwanted intercourse before 17yo (0 no - 2 yes)",
     )
-    s6_upsetting_sexual_adult_authority = CamcopsColumn(
-        # Prior to 2.1.0: was cctype="BOOL" on the server, but this gave
-        # TINYINT(1), which can store -128 to 128. Corrected to Integer.
-        "s6_upsetting_sexual_adult_authority",
-        Integer,
-        permitted_value_checker=ZERO_TO_TWO_CHECKER,
-        comment="Upsetting sexual experiences under 17yo with "
-        "related adult or someone in authority (0 no - 2 yes)",
+    s6_upsetting_sexual_adult_authority: Mapped[Optional[int]] = (
+        mapped_camcops_column(
+            # Prior to 2.1.0: was cctype="BOOL" on the server, but this gave
+            # TINYINT(1), which can store -128 to 128. Corrected to Integer.
+            permitted_value_checker=ZERO_TO_TWO_CHECKER,
+            comment="Upsetting sexual experiences under 17yo with "
+            "related adult or someone in authority (0 no - 2 yes)",
+        )
     )
-    s6_first_age = CamcopsColumn(
-        "s6_first_age",
-        Float,
+    s6_first_age: Mapped[Optional[float]] = mapped_camcops_column(
         permitted_value_checker=MIN_ZERO_CHECKER,
         comment="Sexual abuse, first experience, age it began",
     )
-    s6_other_age = CamcopsColumn(
-        "s6_other_age",
-        Float,
+    s6_other_age: Mapped[Optional[float]] = mapped_camcops_column(
         permitted_value_checker=MIN_ZERO_CHECKER,
         comment="Sexual abuse, other experience, age it began",
     )
-    s6_first_person_known = CamcopsColumn(
-        "s6_first_person_known",
-        Boolean,
+    s6_first_person_known: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Sexual abuse, first experience, knew the person?",
     )
-    s6_other_person_known = CamcopsColumn(
-        "s6_other_person_known",
-        Boolean,
+    s6_other_person_known: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Sexual abuse, other experience, knew the person?",
     )
-    s6_first_relative = CamcopsColumn(
-        "s6_first_relative",
-        Boolean,
+    s6_first_relative: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Sexual abuse, first experience, person was a relative?",
     )
-    s6_other_relative = CamcopsColumn(
-        "s6_other_relative",
-        Boolean,
+    s6_other_relative: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Sexual abuse, other experience, person was a relative?",
     )
-    s6_first_in_household = CamcopsColumn(
-        "s6_first_in_household",
-        Boolean,
+    s6_first_in_household: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Sexual abuse, first experience, person lived in household?",
     )
-    s6_other_in_household = CamcopsColumn(
-        "s6_other_in_household",
-        Boolean,
+    s6_other_in_household: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Sexual abuse, other experience, person lived in household?",
     )
-    s6_first_more_than_once = CamcopsColumn(
-        "s6_first_more_than_once",
-        Boolean,
+    s6_first_more_than_once: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Sexual abuse, first experience, happened more than once?",
     )
-    s6_other_more_than_once = CamcopsColumn(
-        "s6_other_more_than_once",
-        Boolean,
+    s6_other_more_than_once: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Sexual abuse, other experience, happened more than once?",
     )
-    s6_first_touch_privates_subject = CamcopsColumn(
-        "s6_first_touch_privates_subject",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Sexual abuse, first experience, touched your private parts?",
+    s6_first_touch_privates_subject: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment=(
+                "Sexual abuse, first experience, touched your private parts?"
+            ),
+        )
     )
-    s6_other_touch_privates_subject = CamcopsColumn(
-        "s6_other_touch_privates_subject",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Sexual abuse, other experience, touched your private parts?",
+    s6_other_touch_privates_subject: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment=(
+                "Sexual abuse, other experience, touched your private parts?"
+            ),
+        )
     )
-    s6_first_touch_privates_other = CamcopsColumn(
-        "s6_first_touch_privates_other",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Sexual abuse, first experience, touched their private parts?",
+    s6_first_touch_privates_other: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment=(
+                "Sexual abuse, first experience, touched their private parts?"
+            ),
+        )
     )
-    s6_other_touch_privates_other = CamcopsColumn(
-        "s6_other_touch_privates_other",
-        Boolean,
-        permitted_value_checker=BIT_CHECKER,
-        comment="Sexual abuse, other experience, touched their private parts?",
+    s6_other_touch_privates_other: Mapped[Optional[bool]] = (
+        mapped_camcops_column(
+            permitted_value_checker=BIT_CHECKER,
+            comment=(
+                "Sexual abuse, other experience, touched their private parts?"
+            ),
+        )
     )
-    s6_first_intercourse = CamcopsColumn(
-        "s6_first_intercourse",
-        Boolean,
+    s6_first_intercourse: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Sexual abuse, first experience, sexual intercourse?",
     )
-    s6_other_intercourse = CamcopsColumn(
-        "s6_other_intercourse",
-        Boolean,
+    s6_other_intercourse: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Sexual abuse, other experience, sexual intercourse?",
     )
-    s6_unwanted_sexual_description = Column(
-        "s6_unwanted_sexual_description",
+    s6_unwanted_sexual_description: Mapped[Optional[str]] = mapped_column(
         UnicodeText,
         comment="Sexual abuse, description",
     )
@@ -1475,8 +1147,8 @@ class CecaQ3(TaskHasPatientMixin, Task):
     # -------------------------------------------------------------------------
     # Final
     # -------------------------------------------------------------------------
-    any_other_comments = CamcopsColumn(
-        "any_other_comments", UnicodeText, comment="Any other comments"
+    any_other_comments: Mapped[Optional[str]] = mapped_camcops_column(
+        UnicodeText, comment="Any other comments"
     )
 
     @staticmethod
@@ -1717,7 +1389,7 @@ class CecaQ3(TaskHasPatientMixin, Task):
             return False
         return True
 
-    def complete_3a(self):
+    def complete_3a(self) -> bool:
         if self.s3a_which_father_figure is None:
             return False
         if self.s3a_which_father_figure == 0:

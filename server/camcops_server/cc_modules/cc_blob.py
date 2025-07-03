@@ -34,9 +34,8 @@ from cardinal_pythonlib.httpconst import MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from pendulum import DateTime as Pendulum
 from sqlalchemy.orm import relationship
-from sqlalchemy.orm import Session as SqlASession
+from sqlalchemy.orm import Mapped, mapped_column, Session as SqlASession
 from sqlalchemy.orm.relationships import RelationshipProperty
-from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, Text
 import wand.image
 
@@ -50,7 +49,7 @@ from camcops_server.cc_modules.cc_html import (
 )
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    mapped_camcops_column,
     MimeTypeColType,
     TableNameColType,
 )
@@ -93,54 +92,43 @@ class Blob(GenericTabletRecordMixin, TaskDescendant, Base):
     """
 
     __tablename__ = "blobs"
-    id = Column(
-        "id",
-        Integer,
-        nullable=False,
+    id: Mapped[int] = mapped_column(
         comment="BLOB (binary large object) primary key on the source "
         "tablet device",
     )
-    tablename = Column(
-        "tablename",
+    tablename: Mapped[str] = mapped_column(
         TableNameColType,
-        nullable=False,
         comment="Name of the table referring to this BLOB",
     )
-    tablepk = Column(
-        "tablepk",
-        Integer,
-        nullable=False,
+    tablepk: Mapped[int] = mapped_column(
         comment="Client-perspective primary key (id field) of the row "
         "referring to this BLOB",
     )
-    fieldname = Column(
-        "fieldname",
+    fieldname: Mapped[str] = mapped_column(
         TableNameColType,
-        nullable=False,
         comment="Field name of the field referring to this BLOB by ID",
     )
-    filename = CamcopsColumn(
-        "filename",
+    filename: Mapped[Optional[str]] = mapped_camcops_column(
         Text,  # Text is correct; filenames can be long
         exempt_from_anonymisation=True,
         comment="Filename of the BLOB on the source tablet device (on "
         "the source device, BLOBs are stored in files, not in "
         "the database)",
     )
-    mimetype = Column(
-        "mimetype", MimeTypeColType, comment="MIME type of the BLOB"
+    mimetype: Mapped[Optional[str]] = mapped_column(
+        MimeTypeColType, comment="MIME type of the BLOB"
     )
-    image_rotation_deg_cw = Column(
+    image_rotation_deg_cw: Mapped[Optional[int]] = mapped_column(
         "image_rotation_deg_cw",
         Integer,
         comment="For images: rotation to be applied, clockwise, in degrees",
     )
-    theblob = Column(
+    theblob: Mapped[Optional[bytes]] = mapped_column(
         "theblob",
         LongBlob,
         comment="The BLOB itself, a binary object containing arbitrary "
         "information (such as a picture)",
-    )  # type: Optional[bytes]
+    )
 
     @classmethod
     def get_current_blob_by_client_info(
@@ -152,7 +140,7 @@ class Blob(GenericTabletRecordMixin, TaskDescendant, Base):
         # noinspection PyPep8
         blob = (
             dbsession.query(cls)
-            .filter(cls.id == clientpk)
+            .filter(cls.id == clientpk)  # type: ignore[arg-type]
             .filter(cls._device_id == device_id)
             .filter(cls._era == era)
             .filter(cls._current == True)  # noqa: E712
@@ -177,7 +165,7 @@ class Blob(GenericTabletRecordMixin, TaskDescendant, Base):
         """
         blob = (
             dbsession.query(cls)
-            .filter(cls.id == clientpk)
+            .filter(cls.id == clientpk)  # type: ignore[arg-type]
             .filter(cls._device_id == device_id)
             .filter(cls._era == era)
             .filter(cls._when_added_batch_utc <= referrer_added_utc)
@@ -228,7 +216,9 @@ class Blob(GenericTabletRecordMixin, TaskDescendant, Base):
         blobdata = self._get_xml_theblob_value_binary()
         branches.append(
             get_xml_blob_element(
-                name="theblob", blobdata=blobdata, comment=Blob.theblob.comment
+                name="theblob",
+                blobdata=blobdata,
+                comment=Blob.theblob.comment,  # type: ignore[attr-defined]
             )
         )
         return XmlElement(name=self.__tablename__, value=branches)
@@ -285,7 +275,7 @@ def blob_relationship(
 
         class Something(Base):
 
-            photo_blobid = CamcopsColumn(
+            photo_blobid = camcops_column(
                 "photo_blobid", Integer,
                 is_blob_id_field=True, blob_field_xml_name="photo_blob"
             )

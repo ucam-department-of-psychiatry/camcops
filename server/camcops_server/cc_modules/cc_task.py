@@ -99,8 +99,7 @@ from pendulum import Date as PendulumDate, DateTime as Pendulum
 from pyramid.renderers import render
 from semantic_version import Version
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import relationship
-from sqlalchemy.orm.relationships import RelationshipProperty
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.expression import not_, update
 from sqlalchemy.sql.schema import Column, Table
 from sqlalchemy.sql.sqltypes import (
@@ -137,12 +136,6 @@ from camcops_server.cc_modules.cc_db import (
     SFN_IS_COMPLETE,
     SFN_SECONDS_CREATION_TO_FIRST_FINISH,
     TASK_FREQUENT_FIELDS,
-    TFN_CLINICIAN_CONTACT_DETAILS,
-    TFN_CLINICIAN_NAME,
-    TFN_CLINICIAN_POST,
-    TFN_CLINICIAN_PROFESSIONAL_REGISTRATION,
-    TFN_CLINICIAN_SERVICE,
-    TFN_CLINICIAN_SPECIALTY,
     TFN_EDITING_TIME_S,
     TFN_FIRSTEXIT_IS_ABORT,
     TFN_FIRSTEXIT_IS_FINISH,
@@ -178,12 +171,12 @@ from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_snomed import SnomedLookup
 from camcops_server.cc_modules.cc_specialnote import SpecialNote
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    BoolColumn,
-    CamcopsColumn,
+    camcops_column,
     COLATTR_PERMITTED_VALUE_CHECKER,
     gen_ancillary_relationships,
     get_camcops_blob_column_attr_names,
     get_column_attr_names,
+    mapped_camcops_column,
     PendulumDateTimeAsIsoTextColType,
     permitted_value_failure_msgs,
     permitted_values_ok,
@@ -280,23 +273,19 @@ class TaskHasPatientMixin(object):
 
     # https://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/mixins.html#using-advanced-relationship-arguments-e-g-primaryjoin-etc  # noqa
 
-    # noinspection PyMethodParameters
-    @declared_attr
-    def patient_id(cls) -> Column:
-        """
+    """
         SQLAlchemy :class:`Column` that is a foreign key to the patient table.
-        """
-        return Column(
-            TFN_PATIENT_ID,
-            Integer,
-            nullable=False,
-            index=True,
-            comment="(TASK) Foreign key to patient.id (for this device/era)",
-        )
+    """
+    # noinspection PyMethodParameters
+    patient_id: Mapped[int] = mapped_column(
+        TFN_PATIENT_ID,
+        index=True,
+        comment="(TASK) Foreign key to patient.id (for this device/era)",
+    )
 
     # noinspection PyMethodParameters
     @declared_attr
-    def patient(cls) -> RelationshipProperty:
+    def patient(cls) -> Mapped["Patient"]:
         """
         SQLAlchemy relationship: "the patient for this task".
 
@@ -315,7 +304,7 @@ class TaskHasPatientMixin(object):
                 " remote(Patient._device_id) == foreign({task}._device_id), "
                 " remote(Patient._era) == foreign({task}._era), "
                 " remote(Patient._current) == True "
-                ")".format(task=cls.__name__)
+                ")".format(task=cls.__name__)  # type: ignore[attr-defined]
             ),
             uselist=False,
             viewonly=True,
@@ -356,68 +345,52 @@ class TaskHasClinicianMixin(object):
     """
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def clinician_specialty(cls) -> Column:
-        return CamcopsColumn(
-            TFN_CLINICIAN_SPECIALTY,
-            Text,
-            exempt_from_anonymisation=True,
-            comment="(CLINICIAN) Clinician's specialty "
-            "(e.g. Liaison Psychiatry)",
-        )
+    clinician_specialty: Mapped[Optional[str]] = mapped_camcops_column(
+        Text,
+        exempt_from_anonymisation=True,
+        comment="(CLINICIAN) Clinician's specialty "
+        "(e.g. Liaison Psychiatry)",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def clinician_name(cls) -> Column:
-        return CamcopsColumn(
-            TFN_CLINICIAN_NAME,
-            Text,
-            exempt_from_anonymisation=True,
-            comment="(CLINICIAN) Clinician's name (e.g. Dr X)",
-        )
+    clinician_name: Mapped[Optional[str]] = mapped_camcops_column(
+        Text,
+        exempt_from_anonymisation=True,
+        comment="(CLINICIAN) Clinician's name (e.g. Dr X)",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def clinician_professional_registration(cls) -> Column:
-        return CamcopsColumn(
-            TFN_CLINICIAN_PROFESSIONAL_REGISTRATION,
+    clinician_professional_registration: Mapped[Optional[str]] = (
+        mapped_camcops_column(
             Text,
             exempt_from_anonymisation=True,
             comment="(CLINICIAN) Clinician's professional registration (e.g. "
             "GMC# 12345)",
         )
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def clinician_post(cls) -> Column:
-        return CamcopsColumn(
-            TFN_CLINICIAN_POST,
-            Text,
-            exempt_from_anonymisation=True,
-            comment="(CLINICIAN) Clinician's post (e.g. Consultant)",
-        )
+    clinician_post: Mapped[Optional[str]] = mapped_camcops_column(
+        Text,
+        exempt_from_anonymisation=True,
+        comment="(CLINICIAN) Clinician's post (e.g. Consultant)",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def clinician_service(cls) -> Column:
-        return CamcopsColumn(
-            TFN_CLINICIAN_SERVICE,
-            Text,
-            exempt_from_anonymisation=True,
-            comment="(CLINICIAN) Clinician's service (e.g. Liaison Psychiatry "
-            "Service)",
-        )
+    clinician_service: Mapped[Optional[str]] = mapped_camcops_column(
+        Text,
+        exempt_from_anonymisation=True,
+        comment="(CLINICIAN) Clinician's service (e.g. Liaison Psychiatry "
+        "Service)",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def clinician_contact_details(cls) -> Column:
-        return CamcopsColumn(
-            TFN_CLINICIAN_CONTACT_DETAILS,
-            Text,
-            exempt_from_anonymisation=True,
-            comment="(CLINICIAN) Clinician's contact details (e.g. bleep, "
-            "extension)",
-        )
+    clinician_contact_details: Mapped[Optional[str]] = mapped_camcops_column(
+        Text,
+        exempt_from_anonymisation=True,
+        comment="(CLINICIAN) Clinician's contact details (e.g. bleep, "
+        "extension)",
+    )
 
     # For field order, see also:
     # https://stackoverflow.com/questions/3923910/sqlalchemy-move-mixin-columns-to-end  # noqa
@@ -489,23 +462,19 @@ class TaskHasRespondentMixin(object):
     """
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def respondent_name(cls) -> Column:
-        return CamcopsColumn(
-            TFN_RESPONDENT_NAME,
-            Text,
-            identifies_patient=True,
-            comment="(RESPONDENT) Respondent's name",
-        )
+    respondent_name: Mapped[Optional[str]] = camcops_column(  # type: ignore[assignment]  # noqa: E501
+        TFN_RESPONDENT_NAME,
+        Text,
+        identifies_patient=True,
+        comment="(RESPONDENT) Respondent's name",
+    )
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def respondent_relationship(cls) -> Column:
-        return Column(
-            TFN_RESPONDENT_RELATIONSHIP,
-            Text,
-            comment="(RESPONDENT) Respondent's relationship to patient",
-        )
+    respondent_relationship: Mapped[Optional[str]] = mapped_column(
+        TFN_RESPONDENT_RELATIONSHIP,
+        Text,
+        comment="(RESPONDENT) Respondent's relationship to patient",
+    )
 
     # noinspection PyMethodParameters
     @classproperty
@@ -535,7 +504,7 @@ class Task(GenericTabletRecordMixin, Base):
     Note:
 
     - For column definitions: use
-      :class:`camcops_server.cc_modules.cc_sqla_coltypes.CamcopsColumn`, not
+      :func:`camcops_server.cc_modules.cc_sqla_coltypes.camcops_column`, not
       :class:`Column`, if you have fields that need to define permitted values,
       mark them as BLOB-referencing fields, or do other CamCOPS-specific
       things.
@@ -545,9 +514,9 @@ class Task(GenericTabletRecordMixin, Base):
     __abstract__ = True
 
     # noinspection PyMethodParameters
-    @declared_attr
-    def __mapper_args__(cls):
-        return {"polymorphic_identity": cls.__name__, "concrete": True}
+    @declared_attr.directive
+    def __mapper_args__(cls) -> dict[str, Any]:
+        return {"polymorphic_identity": cls.__name__, "concrete": True}  # type: ignore[attr-defined]  # noqa: E501
 
     # =========================================================================
     # PART 0: COLUMNS COMMON TO ALL TASKS
@@ -555,76 +524,62 @@ class Task(GenericTabletRecordMixin, Base):
 
     # Columns
 
+    """
+    Column representing the task's creation time.
+    """
     # noinspection PyMethodParameters
-    @declared_attr
-    def when_created(cls) -> Column:
-        """
-        Column representing the task's creation time.
-        """
-        return Column(
-            TFN_WHEN_CREATED,
-            PendulumDateTimeAsIsoTextColType,
-            nullable=False,
-            comment="(TASK) Date/time this task instance was created "
-            "(ISO 8601)",
-        )
+    when_created: Mapped[Pendulum] = mapped_column(
+        TFN_WHEN_CREATED,
+        PendulumDateTimeAsIsoTextColType,
+        comment="(TASK) Date/time this task instance was created "
+        "(ISO 8601)",
+    )
 
+    """
+    Column representing when the user first exited the task's editor
+    (i.e. first "finish" or first "abort").
+    """
     # noinspection PyMethodParameters
-    @declared_attr
-    def when_firstexit(cls) -> Column:
-        """
-        Column representing when the user first exited the task's editor
-        (i.e. first "finish" or first "abort").
-        """
-        return Column(
-            TFN_WHEN_FIRSTEXIT,
-            PendulumDateTimeAsIsoTextColType,
-            comment="(TASK) Date/time of the first exit from this task "
-            "(ISO 8601)",
-        )
+    when_firstexit: Mapped[Optional[Pendulum]] = mapped_column(
+        TFN_WHEN_FIRSTEXIT,
+        PendulumDateTimeAsIsoTextColType,
+        comment="(TASK) Date/time of the first exit from this task (ISO 8601)",
+    )
 
+    """
+    Was the first exit from the task's editor a successful "finish"?
+    """
     # noinspection PyMethodParameters
-    @declared_attr
-    def firstexit_is_finish(cls) -> Column:
-        """
-        Was the first exit from the task's editor a successful "finish"?
-        """
-        return Column(
-            TFN_FIRSTEXIT_IS_FINISH,
-            Boolean,
-            comment="(TASK) Was the first exit from the task because it was "
-            "finished (1)?",
-        )
+    firstexit_is_finish: Mapped[Optional[bool]] = mapped_column(
+        TFN_FIRSTEXIT_IS_FINISH,
+        comment="(TASK) Was the first exit from the task because it was "
+        "finished (1)?",
+    )
 
+    """
+    Was the first exit from the task's editor an "abort"?
+    """
     # noinspection PyMethodParameters
-    @declared_attr
-    def firstexit_is_abort(cls) -> Column:
-        """
-        Was the first exit from the task's editor an "abort"?
-        """
-        return Column(
-            TFN_FIRSTEXIT_IS_ABORT,
-            Boolean,
-            comment="(TASK) Was the first exit from this task because it was "
-            "aborted (1)?",
-        )
+    firstexit_is_abort: Mapped[Optional[bool]] = mapped_column(
+        TFN_FIRSTEXIT_IS_ABORT,
+        comment="(TASK) Was the first exit from this task because it was "
+        "aborted (1)?",
+    )
 
+    """
+    How long has the user spent editing the task?
+    (Calculated by the CamCOPS client.)
+    """
     # noinspection PyMethodParameters
-    @declared_attr
-    def editing_time_s(cls) -> Column:
-        """
-        How long has the user spent editing the task?
-        (Calculated by the CamCOPS client.)
-        """
-        return Column(
-            TFN_EDITING_TIME_S, Float, comment="(TASK) Time spent editing (s)"
-        )
+    editing_time_: Mapped[Optional[float]] = mapped_column(
+        TFN_EDITING_TIME_S, comment="(TASK) Time spent editing (s)"
+    )
 
     # Relationships
 
     # noinspection PyMethodParameters
     @declared_attr
-    def special_notes(cls) -> RelationshipProperty:
+    def special_notes(cls) -> Mapped[List[SpecialNote]]:
         """
         List-style SQLAlchemy relationship to any :class:`SpecialNote` objects
         attached to this class. Skips hidden (quasi-deleted) notes.
@@ -639,7 +594,7 @@ class Task(GenericTabletRecordMixin, Base):
                 " remote(SpecialNote.era) == foreign({task}._era), "
                 " not_(SpecialNote.hidden)"
                 ")".format(
-                    task=cls.__name__,
+                    task=cls.__name__,  # type: ignore[attr-defined]
                     repr_task_tablename=repr(cls.__tablename__),
                 )
             ),
@@ -673,7 +628,7 @@ class Task(GenericTabletRecordMixin, Base):
     )  # type: str  # if None, tablename is used instead
     provides_trackers = False
     use_landscape_for_pdf = False
-    dependent_classes = []
+    dependent_classes = []  # type: ignore[var-annotated]
 
     prohibits_clinical = False
     prohibits_commercial = False
@@ -839,7 +794,7 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     @classmethod
-    def gen_all_subclasses(cls) -> Generator[Type[TASK_FWD_REF], None, None]:
+    def gen_all_subclasses(cls) -> Generator[Type[TASK_FWD_REF], None, None]:  # type: ignore[valid-type]  # noqa: E501
         """
         Generate all non-abstract SQLAlchemy ORM subclasses of :class:`Task` --
         that is, all task classes.
@@ -863,28 +818,28 @@ class Task(GenericTabletRecordMixin, Base):
 
     @classmethod
     @cache_region_static.cache_on_arguments(function_key_generator=fkg)
-    def all_subclasses_by_tablename(cls) -> List[Type[TASK_FWD_REF]]:
+    def all_subclasses_by_tablename(cls) -> List[Type[TASK_FWD_REF]]:  # type: ignore[valid-type]  # noqa: E501
         """
         Return all task classes, ordered by table name.
         """
         classes = list(cls.gen_all_subclasses())
-        classes.sort(key=lambda c: c.tablename)
+        classes.sort(key=lambda c: c.tablename)  # type: ignore[attr-defined]
         return classes
 
     @classmethod
     @cache_region_static.cache_on_arguments(function_key_generator=fkg)
-    def all_subclasses_by_shortname(cls) -> List[Type[TASK_FWD_REF]]:
+    def all_subclasses_by_shortname(cls) -> List[Type[TASK_FWD_REF]]:  # type: ignore[valid-type]  # noqa: E501
         """
         Return all task classes, ordered by short name.
         """
         classes = list(cls.gen_all_subclasses())
-        classes.sort(key=lambda c: c.shortname)
+        classes.sort(key=lambda c: c.shortname)  # type: ignore[attr-defined]
         return classes
 
     @classmethod
     def all_subclasses_by_longname(
         cls, req: "CamcopsRequest"
-    ) -> List[Type[TASK_FWD_REF]]:
+    ) -> List[Type[TASK_FWD_REF]]:  # type: ignore[valid-type]
         """
         Return all task classes, ordered by long name.
         """
@@ -985,8 +940,8 @@ class Task(GenericTabletRecordMixin, Base):
         Returns all table classes (primary table plus any ancillary tables).
         """
         # noinspection PyUnresolvedReferences
-        return [cls.__table__] + [
-            rel_cls.__table__
+        return [cls.__table__] + [  # type: ignore[return-value]
+            rel_cls.__table__  # type: ignore[attr-defined]
             for _, _, rel_cls in gen_ancillary_relationships(cls)
         ]
 
@@ -1223,7 +1178,7 @@ class Task(GenericTabletRecordMixin, Base):
                 DateTime,
                 comment="Task's creation date/time (UTC)",
             ),
-            CamcopsColumn(
+            camcops_column(
                 SNOMED_COLNAME_EXPRESSION,
                 Text,
                 exempt_from_anonymisation=True,
@@ -1247,7 +1202,7 @@ class Task(GenericTabletRecordMixin, Base):
         return ExtraSummaryTable(
             tablename=SNOMED_TABLENAME,
             xmlname=UNUSED_SNOMED_XML_NAME,  # though actual XML doesn't use this route  # noqa
-            columns=columns,
+            columns=columns,  # type: ignore[arg-type]
             rows=rows,
             task=self,
         )
@@ -1520,7 +1475,7 @@ class Task(GenericTabletRecordMixin, Base):
         # ... may raise FhirExportException
 
         # Sanity checks:
-        id_counter = Counter()
+        id_counter = Counter()  # type: ignore[var-annotated]
         for entry in bundle_entries:
             assert (
                 Fc.RESOURCE in entry
@@ -2154,7 +2109,7 @@ class Task(GenericTabletRecordMixin, Base):
         }
 
         if self.has_patient:
-            qr_jsondict[Fc.SUBJECT] = self._get_fhir_subject_ref(
+            qr_jsondict[Fc.SUBJECT] = self._get_fhir_subject_ref(  # type: ignore[assignment]  # noqa: E501
                 req, recipient
             )
 
@@ -2251,9 +2206,9 @@ class Task(GenericTabletRecordMixin, Base):
             if comment:
                 qtext_components.append(f"[{comment}]")
             if not qtext_components:
-                qtext_components = (attrname,)
+                qtext_components = (attrname,)  # type: ignore[assignment]
             if not qtext_components:
-                qtext_components = (FHIR_UNKNOWN_TEXT,)
+                qtext_components = (FHIR_UNKNOWN_TEXT,)  # type: ignore[assignment]  # noqa: E501
             qtext = " ".join(qtext_components)
             # Note that it's good to get the column comment in somewhere; these
             # often explain the meaning of the field quite well. It may or may
@@ -2268,7 +2223,6 @@ class Task(GenericTabletRecordMixin, Base):
             int_type = isinstance(coltype, Integer)
             bool_type = (
                 is_sqlatype_binary(coltype)
-                or isinstance(coltype, BoolColumn)
                 or isinstance(coltype, Boolean)
                 # For booleans represented as integers: it is better to be as
                 # constraining as possible and say that only 0/1 options are
@@ -2362,7 +2316,7 @@ class Task(GenericTabletRecordMixin, Base):
 
         # noinspection PyUnresolvedReferences
         statement = (
-            update(ExportedTask.__table__)
+            update(ExportedTask.__table__)  # type: ignore[arg-type]
             .where(ExportedTask.basetable == self.tablename)
             .where(ExportedTask.task_server_pk == self._pk)
             .where(
@@ -2722,7 +2676,7 @@ class Task(GenericTabletRecordMixin, Base):
                         self, attrname
                     )  # type: List[GenericTabletRecordMixin]
                 else:
-                    ancillaries = [
+                    ancillaries = [  # type: ignore[no-redef]
                         getattr(self, attrname)
                     ]  # type: List[GenericTabletRecordMixin]
                 for ancillary in ancillaries:
@@ -2738,7 +2692,7 @@ class Task(GenericTabletRecordMixin, Base):
 
         # Completely separate additional summary tables
         if options.xml_include_calculated:
-            item_collections = []  # type: List[XmlElement]
+            item_collections = []  # type: ignore[no-redef]
             found_est = False
             for est in self.get_extra_summary_tables(req):
                 # ... not get_all_summary_tables(); we handled SNOMED
@@ -3032,7 +2986,7 @@ class Task(GenericTabletRecordMixin, Base):
         """
 
         try:
-            client_id = self.patient.get_idnum_value(which_idnum)
+            client_id = str(self.patient.get_idnum_value(which_idnum))
         except AttributeError:
             client_id = ""
         title = "CamCOPS_" + self.shortname
@@ -3563,7 +3517,7 @@ def all_task_tables_with_min_client_version() -> Dict[str, Version]:
     d = {}  # type: Dict[str, Version]
     classes = list(Task.gen_all_subclasses())
     for cls in classes:
-        d.update(cls.all_tables_with_min_client_version())
+        d.update(cls.all_tables_with_min_client_version())  # type: ignore[attr-defined]  # noqa: E501
     return d
 
 
@@ -3574,7 +3528,7 @@ def tablename_to_task_class_dict() -> Dict[str, Type[Task]]:
     """
     d = {}  # type: Dict[str, Type[Task]]
     for cls in Task.gen_all_subclasses():
-        d[cls.tablename] = cls
+        d[cls.tablename] = cls  # type: ignore[attr-defined]
     return d
 
 

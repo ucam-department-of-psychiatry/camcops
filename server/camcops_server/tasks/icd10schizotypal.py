@@ -25,14 +25,14 @@ camcops_server/tasks/icd10schizotypal.py
 
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Type
+import datetime
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, Date, UnicodeText
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import Boolean, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import (
     CssClass,
@@ -46,7 +46,7 @@ from camcops_server.cc_modules.cc_html import get_yes_no_none, td, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BIT_CHECKER,
-    CamcopsColumn,
+    mapped_camcops_column,
 )
 from camcops_server.cc_modules.cc_string import AS
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
@@ -63,14 +63,21 @@ from camcops_server.cc_modules.cc_text import SS
 # =============================================================================
 
 
-class Icd10SchizotypalMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Icd10Schizotypal"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Icd10Schizotypal(  # type: ignore[misc]
+    TaskHasClinicianMixin,
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the ICD10-SZTYP task.
+    """
+
+    __tablename__ = "icd10schizotypal"
+    shortname = "ICD10-SZTYP"
+    info_filename_stem = "icd"
+
+    @classmethod
+    def extend_columns(cls: Type["Icd10Schizotypal"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "a",
@@ -91,30 +98,14 @@ class Icd10SchizotypalMetaclass(DeclarativeMeta):
                 "occasional transient quasi-psychotic episodes",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Icd10Schizotypal(
-    TaskHasClinicianMixin,
-    TaskHasPatientMixin,
-    Task,
-    metaclass=Icd10SchizotypalMetaclass,
-):
-    """
-    Server implementation of the ICD10-SZTYP task.
-    """
-
-    __tablename__ = "icd10schizotypal"
-    shortname = "ICD10-SZTYP"
-    info_filename_stem = "icd"
-
-    date_pertains_to = Column(
-        "date_pertains_to", Date, comment="Date the assessment pertains to"
+    date_pertains_to: Mapped[Optional[datetime.date]] = mapped_column(
+        comment="Date the assessment pertains to"
     )
-    comments = Column("comments", UnicodeText, comment="Clinician's comments")
-    b = CamcopsColumn(
-        "b",
-        Boolean,
+    comments: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Clinician's comments"
+    )
+    b: Mapped[Optional[bool]] = mapped_camcops_column(
         permitted_value_checker=BIT_CHECKER,
         comment="Criterion (B). True if: the subject has never met "
         "the criteria for any disorder in F20 (Schizophrenia).",

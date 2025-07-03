@@ -25,10 +25,9 @@ camcops_server/tasks/badls.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import (
@@ -54,30 +53,10 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 
-class BadlsMetaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Badls"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
-        add_multiple_columns(
-            cls,
-            "q",
-            1,
-            cls.NQUESTIONS,
-            CharColType,
-            comment_fmt="Q{n}, {s} ('a' best [0] to 'd' worst [3]; "
-            "'e'=N/A [scored 0])",
-            pv=list(cls.SCORING.keys()),
-            comment_strings=cls.QUESTION_SNIPPETS,
-        )
-        super().__init__(name, bases, classdict)
-
-
-class Badls(
-    TaskHasPatientMixin, TaskHasRespondentMixin, Task, metaclass=BadlsMetaclass
+class Badls(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    TaskHasRespondentMixin,
+    Task,
 ):
     """
     Server implementation of the BADLS task.
@@ -111,6 +90,21 @@ class Badls(
         "games/hobbies",
         "transport",  # 20
     ]
+
+    @classmethod
+    def extend_columns(cls: Type["Badls"], **kwargs: Any) -> None:
+        add_multiple_columns(
+            cls,
+            "q",
+            1,
+            cls.NQUESTIONS,
+            CharColType,
+            comment_fmt="Q{n}, {s} ('a' best [0] to 'd' worst [3]; "
+            "'e'=N/A [scored 0])",
+            pv=list(cls.SCORING.keys()),
+            comment_strings=cls.QUESTION_SNIPPETS,
+        )
+
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 
     @staticmethod

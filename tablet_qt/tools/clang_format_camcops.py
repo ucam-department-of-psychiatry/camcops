@@ -387,14 +387,16 @@ def clang_format_camcops_source() -> None:
 
     # Files to process:
     if args.files:
-        cpp_files = args.files
+        cpp_files_list: list[str] = args.files
     else:
-        cpp_files = set()  # type: Set[str]
+        cpp_files_set: set[str] = set()
         for inc in INCLUDE_GLOBS:
-            cpp_files = cpp_files.union(glob.glob(inc, recursive=True))
+            cpp_files_set = cpp_files_set.union(glob.glob(inc, recursive=True))
         for exc in EXCLUDE_GLOBS:
-            cpp_files = cpp_files.difference(glob.glob(exc, recursive=True))
-        cpp_files = sorted(cpp_files)  # type: List[str]
+            cpp_files_set = cpp_files_set.difference(
+                glob.glob(exc, recursive=True)
+            )
+        cpp_files_list = sorted(cpp_files_set)
 
     # -------------------------------------------------------------------------
     # Build clazy command
@@ -414,7 +416,7 @@ def clang_format_camcops_source() -> None:
     # Run it
     # -------------------------------------------------------------------------
     success = True
-    for filename in cpp_files:
+    for filename in cpp_files_list:
         filename = os.path.abspath(filename)
         if command == Command.CHECK:
             log.info(f"Checking: {filename}")

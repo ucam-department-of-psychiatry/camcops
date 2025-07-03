@@ -25,16 +25,17 @@ camcops_server/tasks/irac.py
 
 """
 
+from typing import Optional
 import cardinal_pythonlib.rnc_web as ws
 
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, UnicodeText
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    mapped_camcops_column,
     ZERO_TO_TWO_CHECKER,
 )
 from camcops_server.cc_modules.cc_task import (
@@ -49,7 +50,7 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 
-class Irac(TaskHasPatientMixin, Task):
+class Irac(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the IRAC task.
     """
@@ -57,10 +58,10 @@ class Irac(TaskHasPatientMixin, Task):
     __tablename__ = "irac"
     shortname = "IRAC"
 
-    aim = Column("aim", UnicodeText, comment="Main aim of the contact")
-    achieved = CamcopsColumn(
-        "achieved",
-        Integer,
+    aim: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Main aim of the contact"
+    )
+    achieved: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ZERO_TO_TWO_CHECKER,
         comment="Was the aim achieved? (0 not, 1 partially, 2 fully)",
     )

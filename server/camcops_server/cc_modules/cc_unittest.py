@@ -158,7 +158,7 @@ class DemoRequestTestCase(ExtendedTestCase):
         self.recipdef = ExportRecipient()
 
     def tearDown(self) -> None:
-        CamcopsRequest.config = self.old_config
+        CamcopsRequest.config = self.old_config  # type: ignore[method-assign]
 
     def set_echo(self, echo: bool) -> None:
         """
@@ -206,7 +206,7 @@ class DemoRequestTestCase(ExtendedTestCase):
         sql = f"SELECT {columns} FROM {tablename}"
         cursor.execute(sql)
         # noinspection PyTypeChecker
-        fieldnames = get_fieldnames_from_cursor(cursor)
+        fieldnames = get_fieldnames_from_cursor(cursor)  # type: ignore[arg-type]  # noqa: E501
         results = (
             ",".join(fieldnames)
             + "\n"

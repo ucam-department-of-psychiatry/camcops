@@ -93,7 +93,7 @@ def debug_op_object(
     lines.append(thisobj)
     if hasattr(op, "ops"):
         for sub_op in op.ops:
-            lines.append(debug_op_object(sub_op, level + 1))
+            lines.append(debug_op_object(sub_op, level + 1))  # type: ignore[arg-type]  # noqa: E501
     return "\n".join(lines)
 
 
@@ -222,7 +222,7 @@ def run_migrations_offline(
         compare_type=custom_compare_type,
         # ... http://blog.code4hire.com/2017/06/setting-up-alembic-to-detect-the-column-length-change/  # noqa
         # ... https://eshlox.net/2017/08/06/alembic-migration-for-string-length-change/  # noqa
-        process_revision_directives=process_revision_directives,
+        process_revision_directives=process_revision_directives,  # type: ignore[arg-type]  # noqa: E501
     )
     with context.begin_transaction():
         context.run_migrations()
@@ -252,7 +252,7 @@ def run_migrations_online(
             # ... for SQLite mode; http://stackoverflow.com/questions/30378233
             version_table=ALEMBIC_VERSION_TABLE,
             compare_type=custom_compare_type,
-            process_revision_directives=process_revision_directives,
+            process_revision_directives=process_revision_directives,  # type: ignore[arg-type]  # noqa: E501
         )
         with context.begin_transaction():
             context.run_migrations()

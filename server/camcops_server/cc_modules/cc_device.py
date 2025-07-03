@@ -27,13 +27,22 @@ camcops_server/cc_modules/cc_device.py
 
 """
 
-from typing import Optional, TYPE_CHECKING
+import datetime
+from typing import Any, Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.classes import classproperty
 from pendulum import DateTime as Pendulum
-from sqlalchemy.orm import Query, relationship, Session as SqlASession
-from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer, Text
+from semantic_version import Version
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_column,
+    relationship,
+    Session as SqlASession,
+)
+from sqlalchemy.sql.expression import select
+from sqlalchemy.sql.schema import ForeignKey
+from sqlalchemy.sql.selectable import Select
+from sqlalchemy.sql.sqltypes import Text
 
 from camcops_server.cc_modules.cc_constants import DEVICE_NAME_FOR_SERVER
 from camcops_server.cc_modules.cc_report import Report
@@ -60,63 +69,51 @@ class Device(Base):
     """
 
     __tablename__ = "_security_devices"
-    id = Column(
-        "id",
-        Integer,
+    id: Mapped[int] = mapped_column(
         primary_key=True,
         autoincrement=True,
         comment="ID of the source tablet device",
     )
-    name = Column(
-        "name",
+    name: Mapped[Optional[str]] = mapped_column(
         DeviceNameColType,
         unique=True,
         index=True,
         comment="Short cryptic unique name of the source tablet device",
     )
-    registered_by_user_id = Column(
-        "registered_by_user_id",
-        Integer,
+    registered_by_user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("_security_users.id"),
         comment="ID of user that registered the device",
     )
     registered_by_user = relationship(
         "User", foreign_keys=[registered_by_user_id]
     )
-    when_registered_utc = Column(
-        "when_registered_utc",
-        DateTime,
+    when_registered_utc: Mapped[Optional[datetime.datetime]] = mapped_column(
         comment="Date/time when the device was registered (UTC)",
     )
-    friendly_name = Column(
-        "friendly_name", Text, comment="Friendly name of the device"
+    friendly_name: Mapped[Optional[str]] = mapped_column(
+        Text, comment="Friendly name of the device"
     )
-    camcops_version = Column(
+    camcops_version: Mapped[Optional[Version]] = mapped_column(
         "camcops_version",
         SemanticVersionColType,
         comment="CamCOPS version number on the tablet device",
     )
-    last_upload_batch_utc = Column(
+    last_upload_batch_utc: Mapped[Optional[datetime.datetime]] = mapped_column(
         "last_upload_batch_utc",
-        DateTime,
         comment="Date/time when the device's last upload batch started (UTC)",
     )
-    ongoing_upload_batch_utc = Column(
-        "ongoing_upload_batch_utc",
-        DateTime,
-        comment="Date/time when the device's ongoing upload batch "
-        "started (UTC)",
+    ongoing_upload_batch_utc: Mapped[Optional[datetime.datetime]] = (
+        mapped_column(
+            comment="Date/time when the device's ongoing upload batch "
+            "started (UTC)",
+        )
     )
-    uploading_user_id = Column(
-        "uploading_user_id",
-        Integer,
+    uploading_user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("_security_users.id", use_alter=True),
         comment="ID of user in the process of uploading right now",
     )
     uploading_user = relationship("User", foreign_keys=[uploading_user_id])
-    currently_preserving = Column(
-        "currently_preserving",
-        Boolean,
+    currently_preserving: Mapped[Optional[bool]] = mapped_column(
         default=False,
         comment="Preservation currently in progress",
     )
@@ -220,9 +217,8 @@ class DeviceReport(Report):
         _ = req.gettext
         return _("(Server) Devices registered with the server")
 
-    def get_query(self, req: "CamcopsRequest") -> Query:
-        dbsession = req.dbsession
-        query = dbsession.query(
+    def get_query(self, req: "CamcopsRequest") -> Select[Any]:
+        select_fields = [
             Device.id,
             Device.name,
             Device.registered_by_user_id,
@@ -230,5 +226,6 @@ class DeviceReport(Report):
             Device.friendly_name,
             Device.camcops_version,
             Device.last_upload_batch_utc,
-        ).order_by(Device.id)
+        ]
+        query = select(*select_fields).order_by(Device.id)
         return query

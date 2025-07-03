@@ -133,6 +133,8 @@ from camcops_server.cc_modules.webview import (
     LoginView,
     MfaMixin,
     SendEmailFromPatientTaskScheduleView,
+    view_patient_task_schedule,
+    view_patient_task_schedules,
 )
 
 log = logging.getLogger(__name__)
@@ -1376,7 +1378,7 @@ class AddPatientViewTests(BasicDatabaseTestCase):
         )
 
     def test_patient_takes_next_available_id(self) -> None:
-        patient = ServerCreatedPatientFactory(id=1234)
+        ServerCreatedPatientFactory(id=1234)
         nhs_iddef = NHSIdNumDefinitionFactory()
 
         view = AddPatientView(self.req)
@@ -2368,6 +2370,63 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
         self.assertEqual(
             cm.exception.message, "Not authorized to email patients"
         )
+
+
+class ViewPatientTaskScheduleTests(BasicDatabaseTestCase):
+    def test_patient_listed_with_no_tasks(self) -> None:
+        patient = ServerCreatedPatientFactory(_group=self.group)
+        schedule = TaskScheduleFactory(group=self.group)
+
+        pts = PatientTaskScheduleFactory(
+            patient=patient, task_schedule=schedule
+        )
+        self.req.add_get_params(
+            {ViewParam.PATIENT_TASK_SCHEDULE_ID: str(pts.id)}
+        )
+
+        view_dict = view_patient_task_schedule(self.req)
+
+        self.assertEqual(view_dict["pts"], pts)
+        self.assertEqual(
+            view_dict["patient_descriptor"], patient.prettystr(self.req)
+        )
+        self.assertEqual(view_dict["task_list"], [])
+
+
+class ViewPatientTaskSchedulesTests(BasicDatabaseTestCase):
+    def test_patients_listed_alphabetically(self) -> None:
+        patient_a = ServerCreatedPatientFactory(
+            surname="alvarez", _group=self.group
+        )
+        patient_b = ServerCreatedPatientFactory(
+            surname="brown", _group=self.group
+        )
+        patient_c = ServerCreatedPatientFactory(
+            surname="chang", _group=self.group
+        )
+
+        schedule_1 = TaskScheduleFactory(group=self.group)
+        schedule_2 = TaskScheduleFactory(group=self.group)
+
+        PatientTaskScheduleFactory(patient=patient_a, task_schedule=schedule_1)
+        PatientTaskScheduleFactory(
+            patient=patient_a,
+            task_schedule=schedule_2,
+        )
+        PatientTaskScheduleFactory(
+            patient=patient_b,
+            task_schedule=schedule_1,
+        )
+        PatientTaskScheduleFactory(
+            patient=patient_c,
+            task_schedule=schedule_1,
+        )
+
+        patients = view_patient_task_schedules(self.req)["page"].collection
+
+        self.assertEqual(patients[0].surname, "alvarez")
+        self.assertEqual(patients[1].surname, "brown")
+        self.assertEqual(patients[2].surname, "chang")
 
 
 class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):

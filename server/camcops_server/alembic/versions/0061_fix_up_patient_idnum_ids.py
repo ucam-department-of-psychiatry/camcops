@@ -46,7 +46,8 @@ from alembic import op
 from sqlalchemy import orm
 from sqlalchemy.engine.strategies import MockEngineStrategy
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import declarative_base, Session as SqlASession
+from sqlalchemy.orm import DeclarativeBaseNoMeta
+from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer
@@ -67,7 +68,9 @@ branch_labels = None
 depends_on = None
 
 
-Base = declarative_base()  # not the same metadata as the rest; we redefine
+# not the same metadata as the rest; we redefine
+class Base(DeclarativeBaseNoMeta):
+    pass
 
 
 class TmpPatientIdNum(Base):
@@ -93,7 +96,7 @@ class TmpPatientIdNum(Base):
 
 
 # noinspection PyPep8,PyTypeChecker
-def upgrade():
+def upgrade() -> None:
     bind = op.get_bind()
     if isinstance(bind, MockEngineStrategy.MockConnection):
         log.warning("Using mock connection; skipping step")
@@ -108,7 +111,7 @@ def upgrade():
 
 
 # noinspection PyPep8,PyTypeChecker
-def downgrade():
+def downgrade() -> None:
     pass
 
 
@@ -131,16 +134,16 @@ def save_with_next_available_id(obj: Base, dbsession: SqlASession) -> None:
         dbsession
         # func.max(cls.id) + 1 here will do the right thing for
         # backends that support select for update (maybe not for no rows)
-        .query(func.max(cls.id))
-        .filter(cls._device_id == obj._device_id)
-        .filter(cls._era == ERA_NOW)
+        .query(func.max(cls.id))  # type: ignore[attr-defined]
+        .filter(cls._device_id == obj._device_id)  # type: ignore[attr-defined]
+        .filter(cls._era == ERA_NOW)  # type: ignore[attr-defined]
         .scalar()
     ) or 0
 
     next_id = last_id + 1
 
     while not saved_ok:
-        obj.id = next_id
+        obj.id = next_id  # type: ignore[attr-defined]
 
         dbsession.add(obj)
 

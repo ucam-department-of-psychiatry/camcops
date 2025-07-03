@@ -25,10 +25,9 @@ camcops_server/tasks/zbi.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, cast, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import (
@@ -54,14 +53,25 @@ from camcops_server.cc_modules.cc_task import (
 # =============================================================================
 
 
-class Zbi12Metaclass(DeclarativeMeta):
-    # noinspection PyInitNewSignature
-    def __init__(
-        cls: Type["Zbi12"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Zbi12(  # type: ignore[misc]
+    TaskHasRespondentMixin,
+    TaskHasPatientMixin,
+    Task,
+):
+    """
+    Server implementation of the ZBI-12 task.
+    """
+
+    __tablename__ = "zbi12"
+    shortname = "ZBI-12"
+    info_filename_stem = "zbi"
+
+    MIN_PER_Q = 0
+    MAX_PER_Q = 4
+    NQUESTIONS = 12
+
+    @classmethod
+    def extend_columns(cls: Type["Zbi12"], **kwargs: Any) -> None:
         add_multiple_columns(
             cls,
             "q",
@@ -85,23 +95,7 @@ class Zbi12Metaclass(DeclarativeMeta):
                 "could care better",
             ],
         )
-        super().__init__(name, bases, classdict)
 
-
-class Zbi12(
-    TaskHasRespondentMixin, TaskHasPatientMixin, Task, metaclass=Zbi12Metaclass
-):
-    """
-    Server implementation of the ZBI-12 task.
-    """
-
-    __tablename__ = "zbi12"
-    shortname = "ZBI-12"
-    info_filename_stem = "zbi"
-
-    MIN_PER_Q = 0
-    MAX_PER_Q = 4
-    NQUESTIONS = 12
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
     MAX_TOTAL = MAX_PER_Q * NQUESTIONS
 
@@ -131,7 +125,7 @@ class Zbi12(
         ]
 
     def total_score(self) -> int:
-        return self.sum_fields(self.TASK_FIELDS)
+        return cast(int, self.sum_fields(self.TASK_FIELDS))
 
     def is_complete(self) -> bool:
         return (
@@ -141,7 +135,7 @@ class Zbi12(
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        option_dict = {None: None}
+        option_dict: dict[Optional[int], Optional[str]] = {None: None}
         for a in range(self.MIN_PER_Q, self.MAX_PER_Q + 1):
             option_dict[a] = req.wappstring(AS.ZBI_A_PREFIX + str(a))
         h = f"""

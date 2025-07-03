@@ -59,7 +59,7 @@ if TYPE_CHECKING:
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
-def import_all_models():
+def import_all_models() -> None:
     """
     Imports all SQLAlchemy models. (This has side effects including setting up
     the SQLAlchemy metadata properly.)

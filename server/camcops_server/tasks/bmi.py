@@ -31,7 +31,7 @@ import cardinal_pythonlib.rnc_web as ws
 from fhirclient.models.codeableconcept import CodeableConcept
 from fhirclient.models.coding import Coding
 from fhirclient.models.quantity import Quantity
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Float, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass, FHIRConst as Fc
@@ -46,7 +46,7 @@ from camcops_server.cc_modules.cc_snomed import (
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
+    mapped_camcops_column,
     PermittedValueChecker,
 )
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
@@ -70,7 +70,7 @@ M_DP = 3
 CM_DP = 1
 
 
-class Bmi(TaskHasPatientMixin, Task):
+class Bmi(TaskHasPatientMixin, Task):  # type: ignore[misc]
     """
     Server implementation of the BMI task.
     """
@@ -79,25 +79,21 @@ class Bmi(TaskHasPatientMixin, Task):
     shortname = "BMI"
     provides_trackers = True
 
-    height_m = CamcopsColumn(
-        "height_m",
-        Float,
+    height_m: Mapped[Optional[float]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(minimum=0),
         comment="height (m)",
     )
-    mass_kg = CamcopsColumn(
-        "mass_kg",
-        Float,
+    mass_kg: Mapped[Optional[float]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(minimum=0),
         comment="mass (kg)",
     )
-    waist_cm = CamcopsColumn(
-        "waist_cm",
-        Float,
+    waist_cm: Mapped[Optional[float]] = mapped_camcops_column(
         permitted_value_checker=PermittedValueChecker(minimum=0),
         comment="waist circumference (cm)",
     )
-    comment = Column("comment", UnicodeText, comment="Clinician's comment")
+    comment: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Clinician's comment"
+    )
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

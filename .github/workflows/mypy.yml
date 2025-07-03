@@ -1,0 +1,33 @@
+---
+# yamllint disable rule:line-length
+name: Type checking with MyPy
+# yamllint disable-line rule:truthy
+on:
+    push:
+        paths:
+            - '**.py'
+            - .github/scripts/python_setup.sh
+            - .github/workflows/mypy.yml
+jobs:
+    mypy:
+        strategy:
+            matrix:
+                python-version: [3.9, "3.10", 3.11, 3.12]
+                # LTS versions
+                os: [ubuntu-22.04]
+        runs-on: ${{ matrix.os }}
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ matrix.python-version }}
+            - name: Type checking with MyPy
+              run: |
+                  set -euo pipefail
+                  ${GITHUB_WORKSPACE}/.github/scripts/python_setup.sh
+                  VENV_BIN=${HOME}/venv/bin
+                  PYTHON=${VENV_BIN}/python
+                  ${PYTHON} -m pip install mypy==1.15.0 types-docutils types-pexpect types-setuptools
+                  MYPY=${VENV_BIN}/mypy
+                  cd ${GITHUB_WORKSPACE}/server
+                  ${MYPY} camcops_server

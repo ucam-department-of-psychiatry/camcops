@@ -31,9 +31,13 @@ import logging
 from typing import Optional
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
-from sqlalchemy.orm import relationship, Session as SqlASession
-from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import Boolean, Integer
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_column,
+    relationship,
+    Session as SqlASession,
+)
+from sqlalchemy.sql.schema import ForeignKey
 
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 
@@ -83,72 +87,56 @@ class UserGroupMembership(Base):
     __tablename__ = "_security_user_group"
 
     # PK, so we can use this object easily on its own via the ORM.
-    id = Column("id", Integer, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
     # Many-to-many mapping between User and Group
-    user_id = Column("user_id", Integer, ForeignKey("_security_users.id"))
-    group_id = Column("group_id", Integer, ForeignKey("_security_groups.id"))
+    user_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("_security_users.id")
+    )
+    group_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("_security_groups.id")
+    )
 
     # User attributes that are specific to their group membership
-    groupadmin = Column(
-        "groupadmin",
-        Boolean,
+    groupadmin: Mapped[Optional[bool]] = mapped_column(
         default=False,
         comment="Is the user a privileged administrator for this group?",
     )
-    may_upload = Column(
-        "may_upload",
-        Boolean,
+    may_upload: Mapped[Optional[bool]] = mapped_column(
         default=False,
         comment="May the user upload data from a tablet device?",
     )
-    may_register_devices = Column(
-        "may_register_devices",
-        Boolean,
+    may_register_devices: Mapped[Optional[bool]] = mapped_column(
         default=False,
         comment="May the user register tablet devices?",
     )
-    may_use_webviewer = Column(
-        "may_use_webviewer",
-        Boolean,
+    may_use_webviewer: Mapped[Optional[bool]] = mapped_column(
         default=False,
         comment="May the user use the web front end to view " "CamCOPS data?",
     )
-    view_all_patients_when_unfiltered = Column(
-        "view_all_patients_when_unfiltered",
-        Boolean,
+    view_all_patients_when_unfiltered: Mapped[Optional[bool]] = mapped_column(
         default=False,
         comment="When no record filters are applied, can the user see "
         "all records? (If not, then none are shown.)",
     )
-    may_dump_data = Column(
-        "may_dump_data",
-        Boolean,
+    may_dump_data: Mapped[Optional[bool]] = mapped_column(
         default=False,
         comment="May the user run database data dumps via the web interface?",
     )
-    may_run_reports = Column(
-        "may_run_reports",
-        Boolean,
+    may_run_reports: Mapped[Optional[bool]] = mapped_column(
         default=False,
         comment="May the user run reports via the web interface? "
         "(Overrides other view restrictions.)",
     )
-    may_add_notes = Column(
-        "may_add_notes",
-        Boolean,
+    may_add_notes: Mapped[Optional[bool]] = mapped_column(
         default=False,
         comment="May the user add special notes to tasks?",
     )
-    may_manage_patients = Column(
-        "may_manage_patients",
-        Boolean,
+    may_manage_patients: Mapped[Optional[bool]] = mapped_column(
         default=False,
         comment="May the user add/edit/delete patients?",
     )
-    may_email_patients = Column(
-        "may_email_patients",
-        Boolean,
+    may_email_patients: Mapped[Optional[bool]] = mapped_column(
         default=False,
         comment="May the user send emails to patients?",
     )

@@ -63,7 +63,7 @@ depends_on = None
 
 
 # noinspection PyPep8,PyTypeChecker
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         "_task_schedule",
         sa.Column(
@@ -186,7 +186,7 @@ def upgrade():
 
 
 # noinspection PyPep8,PyTypeChecker
-def downgrade():
+def downgrade() -> None:
     op.drop_table("_patient_task_schedule")
     op.drop_table("_task_schedule_item")
     op.drop_table("_task_schedule")

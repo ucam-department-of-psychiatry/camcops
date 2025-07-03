@@ -28,10 +28,10 @@ hence the tasks that will be permitted).
 
 """
 
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, Integer
+from typing import Any
 
 from cardinal_pythonlib.reprfunc import auto_repr, auto_str
+from sqlalchemy.orm import Mapped, mapped_column
 
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 
@@ -61,40 +61,26 @@ class IpUse(Base):
     )
     _DEFAULT = False
 
-    id = Column(
-        "id",
-        Integer,
+    id: Mapped[int] = mapped_column(
         primary_key=True,
         autoincrement=True,
         index=True,
         comment="IP Use ID",
     )
 
-    clinical = Column(
-        "clinical",
-        Boolean,
-        nullable=False,
+    clinical: Mapped[bool] = mapped_column(
         default=_DEFAULT,
         comment="Applicable to a clinical context",
     )
-    commercial = Column(
-        "commercial",
-        Boolean,
-        nullable=False,
+    commercial: Mapped[bool] = mapped_column(
         default=_DEFAULT,
         comment="Applicable to a commercial context",
     )
-    educational = Column(
-        "educational",
-        Boolean,
-        nullable=False,
+    educational: Mapped[bool] = mapped_column(
         default=_DEFAULT,
         comment="Applicable to an educational context",
     )
-    research = Column(
-        "research",
-        Boolean,
-        nullable=False,
+    research: Mapped[bool] = mapped_column(
         default=_DEFAULT,
         comment="Applicable to a research context",
     )
@@ -105,11 +91,13 @@ class IpUse(Base):
         commercial: bool = _DEFAULT_APPLICABILITY,
         educational: bool = _DEFAULT_APPLICABILITY,
         research: bool = _DEFAULT_APPLICABILITY,
+        **kwargs: Any
     ) -> None:
         """
         We provide __init__() so we can create a default object without
         touching the database.
         """
+        super().__init__(**kwargs)
         self.clinical = clinical
         self.commercial = commercial
         self.educational = educational

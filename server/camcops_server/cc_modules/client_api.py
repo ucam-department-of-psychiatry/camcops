@@ -1105,7 +1105,7 @@ def get_select_reply(
         for val in row:
             encodedvalues.append(encode_single_value(val))
         reply[TabletParam.RECORD_PREFIX + str(r)] = ",".join(encodedvalues)
-    return reply
+    return reply  # type: ignore[return-value]
 
 
 # =============================================================================
@@ -1370,7 +1370,7 @@ def flag_multiple_records_for_preservation(
         new_era = batchdetails.new_era
         # noinspection PyUnresolvedReferences
         req.dbsession.execute(
-            update(SpecialNote.__table__)
+            update(SpecialNote.__table__)  # type: ignore[arg-type]
             .where(SpecialNote.basetable == table.name)
             .where(SpecialNote.device_id == req.tabletsession.device_id)
             .where(SpecialNote.era == ERA_NOW)
@@ -1497,7 +1497,7 @@ def process_upload_record_special(
                 if idnum_value is None or patient_id is None:
                     continue
                 # noinspection PyUnresolvedReferences
-                mark_table_dirty(req, PatientIdNum.__table__)
+                mark_table_dirty(req, PatientIdNum.__table__)  # type: ignore[arg-type]  # noqa: E501
                 client_date_value = coerce_to_pendulum(
                     valuedict[CLIENT_DATE_FIELD]
                 )
@@ -1505,7 +1505,7 @@ def process_upload_record_special(
                 upload_record_core(
                     req=req,
                     batchdetails=batchdetails,
-                    table=PatientIdNum.__table__,
+                    table=PatientIdNum.__table__,  # type: ignore[arg-type]
                     clientpk_name="id",
                     valuedict={
                         "id": fake_tablet_id_for_patientidnum(
@@ -1777,7 +1777,7 @@ def start_device_upload_batch(req: "CamcopsRequest") -> None:
     rollback_all(req)
     # noinspection PyUnresolvedReferences
     req.dbsession.execute(
-        update(Device.__table__)
+        update(Device.__table__)  # type: ignore[arg-type]
         .where(Device.id == req.tabletsession.device_id)
         .values(
             last_upload_batch_utc=req.now_utc,
@@ -1796,7 +1796,7 @@ def _clear_ongoing_upload_batch_details(req: "CamcopsRequest") -> None:
     """
     # noinspection PyUnresolvedReferences
     req.dbsession.execute(
-        update(Device.__table__)
+        update(Device.__table__)  # type: ignore[arg-type]
         .where(Device.id == req.tabletsession.device_id)
         .values(
             ongoing_upload_batch_utc=None,
@@ -1844,7 +1844,7 @@ def start_preserving(req: "CamcopsRequest") -> None:
     """
     # noinspection PyUnresolvedReferences
     req.dbsession.execute(
-        update(Device.__table__)
+        update(Device.__table__)  # type: ignore[arg-type]
         .where(Device.id == req.tabletsession.device_id)
         .values(currently_preserving=1)
     )
@@ -1861,14 +1861,14 @@ def mark_table_dirty(req: "CamcopsRequest", table: Table) -> None:
     # noinspection PyUnresolvedReferences
     table_already_dirty = exists_in_table(
         dbsession,
-        DirtyTable.__table__,
+        DirtyTable.__table__,  # type: ignore[arg-type]
         DirtyTable.device_id == device_id,
         DirtyTable.tablename == tablename,
     )
     if not table_already_dirty:
         # noinspection PyUnresolvedReferences
         dbsession.execute(
-            DirtyTable.__table__.insert().values(
+            DirtyTable.__table__.insert().values(  # type: ignore[attr-defined]
                 device_id=device_id, tablename=tablename
             )
         )
@@ -1885,7 +1885,7 @@ def mark_tables_dirty(req: "CamcopsRequest", tables: List[Table]) -> None:
     # Delete first
     # noinspection PyUnresolvedReferences
     req.dbsession.execute(
-        DirtyTable.__table__.delete()
+        DirtyTable.__table__.delete()  # type: ignore[attr-defined]
         .where(DirtyTable.device_id == device_id)
         .where(DirtyTable.tablename.in_(tablenames))
     )
@@ -1894,7 +1894,7 @@ def mark_tables_dirty(req: "CamcopsRequest", tables: List[Table]) -> None:
         {"device_id": device_id, "tablename": tn} for tn in tablenames
     ]
     # noinspection PyUnresolvedReferences
-    req.dbsession.execute(DirtyTable.__table__.insert(), insert_values)
+    req.dbsession.execute(DirtyTable.__table__.insert(), insert_values)  # type: ignore[attr-defined]  # noqa: E501
 
 
 def mark_all_tables_dirty(req: "CamcopsRequest") -> None:
@@ -1906,7 +1906,7 @@ def mark_all_tables_dirty(req: "CamcopsRequest") -> None:
     # Delete first
     # noinspection PyUnresolvedReferences
     req.dbsession.execute(
-        DirtyTable.__table__.delete().where(DirtyTable.device_id == device_id)
+        DirtyTable.__table__.delete().where(DirtyTable.device_id == device_id)  # type: ignore[attr-defined]  # noqa: E501
     )
     # Now insert
     # https://docs.sqlalchemy.org/en/latest/core/tutorial.html#execute-multiple
@@ -1916,7 +1916,7 @@ def mark_all_tables_dirty(req: "CamcopsRequest") -> None:
         for tn in all_client_tablenames
     ]
     # noinspection PyUnresolvedReferences
-    req.dbsession.execute(DirtyTable.__table__.insert(), insert_values)
+    req.dbsession.execute(DirtyTable.__table__.insert(), insert_values)  # type: ignore[attr-defined]  # noqa: E501
 
 
 def mark_table_clean(req: "CamcopsRequest", table: Table) -> None:
@@ -1931,7 +1931,7 @@ def mark_table_clean(req: "CamcopsRequest", table: Table) -> None:
     device_id = req.tabletsession.device_id
     # noinspection PyUnresolvedReferences
     req.dbsession.execute(
-        DirtyTable.__table__.delete()
+        DirtyTable.__table__.delete()  # type: ignore[attr-defined]
         .where(DirtyTable.device_id == device_id)
         .where(DirtyTable.tablename == tablename)
     )
@@ -1948,7 +1948,7 @@ def mark_tables_clean(req: "CamcopsRequest", tables: List[Table]) -> None:
     # Delete first
     # noinspection PyUnresolvedReferences
     req.dbsession.execute(
-        DirtyTable.__table__.delete()
+        DirtyTable.__table__.delete()  # type: ignore[attr-defined]
         .where(DirtyTable.device_id == device_id)
         .where(DirtyTable.tablename.in_(tablenames))
     )
@@ -1988,7 +1988,7 @@ def commit_all(req: "CamcopsRequest", batchdetails: BatchDetails) -> None:
         # but all in one go (2018-11-13).
         # noinspection PyUnresolvedReferences
         req.dbsession.execute(
-            update(SpecialNote.__table__)
+            update(SpecialNote.__table__)  # type: ignore[arg-type]
             .where(SpecialNote.device_id == req.tabletsession.device_id)
             .where(SpecialNote.era == ERA_NOW)
             .values(era=batchdetails.new_era)
@@ -2124,7 +2124,7 @@ def commit_table(
             # (2018-11-13).
             # noinspection PyUnresolvedReferences
             dbsession.execute(
-                update(SpecialNote.__table__)
+                update(SpecialNote.__table__)  # type: ignore[arg-type]
                 .where(SpecialNote.basetable == tablename)
                 .where(SpecialNote.device_id == device_id)
                 .where(SpecialNote.era == ERA_NOW)
@@ -2151,7 +2151,7 @@ def commit_table(
     if clear_dirty:
         # noinspection PyUnresolvedReferences
         dbsession.execute(
-            DirtyTable.__table__.delete()
+            DirtyTable.__table__.delete()  # type: ignore[attr-defined]
             .where(DirtyTable.device_id == device_id)
             .where(DirtyTable.tablename == tablename)
         )
@@ -2214,7 +2214,7 @@ def clear_dirty_tables(req: "CamcopsRequest") -> None:
     device_id = req.tabletsession.device_id
     # noinspection PyUnresolvedReferences
     req.dbsession.execute(
-        DirtyTable.__table__.delete().where(DirtyTable.device_id == device_id)
+        DirtyTable.__table__.delete().where(DirtyTable.device_id == device_id)  # type: ignore[attr-defined]  # noqa: E501
     )
 
 
@@ -2376,7 +2376,7 @@ def json_patient_info(patient: Patient) -> str:
     }
     for idnum in patient.idnums:
         key = f"{TabletParam.IDNUM_PREFIX}{idnum.which_idnum}"
-        patient_dict[key] = idnum.idnum_value
+        patient_dict[key] = idnum.idnum_value  # type: ignore[assignment]
     # One item list to be consistent with patients uploaded from the tablet
     return json.dumps([patient_dict])
 
@@ -2415,7 +2415,7 @@ def get_single_server_patient(req: "CamcopsRequest") -> Patient:
             Patient._era == ERA_NOW,
             Patient._current == True,  # noqa: E712
         )
-        .options(joinedload(Patient.task_schedules))
+        .options(joinedload(Patient.task_schedules))  # type: ignore[arg-type]
         .one_or_none()
     )
 
@@ -2657,13 +2657,13 @@ def op_register_device(req: "CamcopsRequest") -> Dict[str, Any]:
     )
     # noinspection PyUnresolvedReferences
     device_exists = exists_in_table(
-        dbsession, Device.__table__, Device.name == ts.device_name
+        dbsession, Device.__table__, Device.name == ts.device_name  # type: ignore[arg-type]  # noqa: E501
     )
     if device_exists:
         # device already registered, but accept re-registration
         # noinspection PyUnresolvedReferences
         dbsession.execute(
-            update(Device.__table__)
+            update(Device.__table__)  # type: ignore[arg-type]
             .where(Device.name == ts.device_name)
             .values(
                 friendly_name=device_friendly_name,
@@ -2677,7 +2677,7 @@ def op_register_device(req: "CamcopsRequest") -> Dict[str, Any]:
         try:
             # noinspection PyUnresolvedReferences
             dbsession.execute(
-                Device.__table__.insert().values(
+                Device.__table__.insert().values(  # type: ignore[attr-defined]
                     name=ts.device_name,
                     friendly_name=device_friendly_name,
                     camcops_version=ts.tablet_version_str,
@@ -2929,12 +2929,12 @@ def op_upload_table(req: "CamcopsRequest") -> str:
     # noinspection PyUnresolvedReferences
     if req.tabletsession.cope_with_old_idnums and table == Patient.__table__:
         # noinspection PyUnresolvedReferences
-        mark_table_dirty(req, PatientIdNum.__table__)
+        mark_table_dirty(req, PatientIdNum.__table__)  # type: ignore[arg-type]
         # Mark patient ID numbers for deletion if their parent Patient is
         # similarly being marked for deletion
         # noinspection PyUnresolvedReferences,PyProtectedMember
         req.dbsession.execute(
-            update(PatientIdNum.__table__)
+            update(PatientIdNum.__table__)  # type: ignore[arg-type]
             .where(PatientIdNum._device_id == Patient._device_id)
             .where(PatientIdNum._era == ERA_NOW)
             .where(PatientIdNum.patient_id == Patient.id)
@@ -3121,7 +3121,6 @@ def op_which_keys_to_send(req: "CamcopsRequest") -> str:
         cpkv = clientpk_values[i]
         if not isinstance(cpkv, int):
             fail_user_error(f"Bad (non-integer) client PK: {cpkv!r}")
-        dt = None  # for type checker
         try:
             dt = coerce_to_pendulum(client_dates[i])
             if dt is None:
@@ -3133,7 +3132,7 @@ def op_which_keys_to_send(req: "CamcopsRequest") -> str:
                 client_pk=cpkv,
                 client_when=dt,
                 client_move_off_tablet=(
-                    move_off_tablet_values[i]
+                    move_off_tablet_values[i]  # type: ignore[arg-type]
                     if client_reports_move_off_tablet
                     else False
                 ),
@@ -3364,7 +3363,7 @@ def main_client_api(req: "CamcopsRequest") -> Dict[str, str]:
 
     elif ts.operation in OPERATIONS_UPLOAD:
         ts.ensure_valid_device_and_user_for_uploading()
-        fn = OPERATIONS_UPLOAD.get(ts.operation)
+        fn = OPERATIONS_UPLOAD.get(ts.operation)  # type: ignore[assignment]
 
     if not fn:
         fail_unsupported_operation(ts.operation)

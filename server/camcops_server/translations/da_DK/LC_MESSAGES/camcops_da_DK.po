@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CamCOPS 2.3.3\n"
 "Report-Msgid-Bugs-To: rnc1001@cam.ac.uk\n"
-"POT-Creation-Date: 2025-03-11 15:46+0000\n"
-"PO-Revision-Date: 2025-03-11 09:20+0000\n"
+"POT-Creation-Date: 2025-07-03 14:05+0100\n"
+"PO-Revision-Date: 2025-04-11 15:28+0100\n"
 "Last-Translator: \n"
 "Language: da_DK\n"
 "Language-Team: da_DK <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_device.py:221
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_device.py:218
 msgid "(Server) Devices registered with the server"
 msgstr "(Server) Enheder, der er registreret på serveren"
 
@@ -81,8 +81,8 @@ msgid "Please enter the following: "
 msgstr "Indtast venligst følgende: "
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:537
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:907
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4772
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:913
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4793
 msgid "Add"
 msgstr "Tilføj"
 
@@ -94,35 +94,35 @@ msgstr "Ugyldigt CSRF-token"
 msgid "OK"
 msgstr "Okay"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:887
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3996
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:890
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4017
 msgid "Apply"
 msgstr "Ansøg"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:888
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:908
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:939
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3743
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3997
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5247
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5345
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5712
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5870
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:891
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:914
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:945
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3764
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4018
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5268
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5366
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5733
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5891
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/tests/cc_request_tests.py:46
 msgid "Cancel"
 msgstr "Annuller"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:958
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4738
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4797
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4886
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5828
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:967
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4759
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4818
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4907
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5849
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_area.mako:55
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:55
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:96
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:62
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:232
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:168
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:179
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:56
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:90
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:55
@@ -132,1060 +132,1060 @@ msgstr "Annuller"
 msgid "Delete"
 msgstr "Slet"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:995
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1029
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1004
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1038
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks_table.mako:49
 msgid "Task type"
 msgstr "Opgavetype"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:999
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2854
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1008
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2875
 msgid "[Any]"
 msgstr "[Enhver]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1072
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1081
 msgid "Task type(s)"
 msgstr "Opgavetype(r)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1074
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1083
 msgid "If none are selected, all task types will be offered."
 msgstr "Hvis der ikke er valgt nogen, vil alle opgavetyper blive tilbudt."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1112
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1121
 msgid "Use server index?"
 msgstr "Skal server indekset bruges?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1113
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1122
 msgid "Use server index? (Default is true; much faster.)"
 msgstr "Skal server indekset bruges? (Standard er sand; meget hurtigere.)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1143
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1152
 msgid "Identifier"
 msgstr "Identifier"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1148
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1412
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1157
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1421
 msgid "[ignore]"
 msgstr "[ignorere]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1171
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1180
 msgid "Linking ID number"
 msgstr "ID nummer at linke med"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1172
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1181
 msgid "Which ID number to link on?"
 msgstr "Hvilket ID-nummer skal du linke til?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1190
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1199
 msgid "ID# value"
 msgstr "ID# værdi"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1213
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1222
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:47
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:53
 msgid "ID number"
 msgstr "ID-nummer"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1224
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1233
 msgid "Bad ID number type"
 msgstr "Forkert id-nummertype"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1247
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1279
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1256
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1288
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:78
 msgid "ID numbers"
 msgstr "ID-numre"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1259
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1268
 msgid "You have specified duplicate ID definitions"
 msgstr "Du har angivet dublet-ID-definitioner"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1289
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1298
 msgid "You have specified >1 value for one ID number type"
 msgstr "Du har angivet >1 værdi for én ID-nummer type"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1312
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1333
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1321
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1342
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:283
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/describe_task_filter.mako:64
 msgid "Sex"
 msgstr "Køn"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1314
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1323
 msgid "Any"
 msgstr "Enhver"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1364
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1405
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1373
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1414
 msgid "User"
 msgstr "Bruger"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1437
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1449
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:81
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:52
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:45
 msgid "Username"
 msgstr "Brugernavn"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1446
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1458
 msgid "Cannot use system username"
 msgstr "System brugernavn kan ikke bruges"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1468
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1480
 msgid "Include auto-generated users"
 msgstr "Medtag automatisk genererede brugere"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1482
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3218
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1494
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3239
 msgid "Refresh"
 msgstr "Opdater"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1514
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1526
 msgid "Device"
 msgstr "Apparat"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1543
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1555
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:84
 msgid "Server PK"
 msgstr "Server PK"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1565
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1577
 msgid "Start date/time (local timezone; inclusive)"
 msgstr "Start dato/-klokkeslæt (lokal tidszone; inklusive)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1580
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1592
 msgid "End date/time (local timezone; exclusive)"
 msgstr "Slutdato/-klokkeslæt (lokal tidszone; eksklusiv)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1597
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1609
 msgid "Start date/time (UTC; inclusive)"
 msgstr "Start dato/-klokkeslæt (UTC; inklusive)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1612
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1624
 msgid "End date/time (UTC; exclusive)"
 msgstr "Slutdato/-klokkeslæt (UTC; eksklusiv)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1671
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1683
 msgid "Items to show per page"
 msgstr "Vis per side"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1694
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1725
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1757
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1822
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1870
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1995
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1706
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1737
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1769
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1834
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1882
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2009
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:52
 msgid "Group"
 msgstr "Gruppe"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1788
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1800
 msgid "Other group"
 msgstr "Anden gruppe"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1827
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1839
 msgid "[None]"
 msgstr "[Ingen]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1902
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1916
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/groups_view.mako:41
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:59
 msgid "Groups"
 msgstr "Grupper"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1910
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1924
 msgid "You have specified duplicate groups"
 msgstr "Du har angivet dublerede grupper"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1914
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1928
 msgid "You must specify at least {} group(s)"
 msgstr "Du skal angive mindst {} grupper"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1997
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2011
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:81
 msgid "Language"
 msgstr "Sprog"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2020
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2034
 msgid "Really?"
 msgstr "Virkelig?"
 
 #. TRANSLATOR: string context described here
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2023
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2037
 msgid "Leave ticked to confirm"
 msgstr "Lad afkrydses for at bekræfte"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2025
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2039
 msgid "Please untick to confirm"
 msgstr "Du skal fjerne markeringen for at bekræfte"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2027
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2041
 msgid "Be really sure; tick here also to confirm"
 msgstr "Vær virkelig sikker; kryds her også for at bekræfte"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2038
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2052
 msgid "Not fully confirmed"
 msgstr "Ikke fuldt bekræftet"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2058
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2072
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_validators.py:458
 msgid "Invalid redirection URL"
 msgstr "Ugyldig URL-adresse til omdirigering"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2078
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2094
 msgid "Invalid phone number"
 msgstr "Ugyldigt telefonnummer"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2126
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2142
 msgid "Phone number"
 msgstr "Telefonnummer"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2165
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2181
 msgid "Password"
 msgstr "Adgangskode"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2196
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2212
 msgid "Log in"
 msgstr "Log ind"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2221
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2237
 msgid "Enter the six-digit code"
 msgstr "Indtast den sekscifrede kode"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2234
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2436
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2481
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5224
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5244
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5342
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5709
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2250
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2457
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2502
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5245
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5265
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5363
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5730
 msgid "Submit"
 msgstr "Indsend"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2261
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2277
 msgid "User must change password at next login"
 msgstr "Brugeren skal skifte adgangskode ved næste login"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2262
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2278
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:73
 msgid "Must change password at next login?"
 msgstr "Skal ændre adgangskode ved næste login?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2282
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2298
 msgid "Old password"
 msgstr "Gammel adgangskode"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2290
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2306
 msgid "Old password incorrect"
 msgstr "Gammel adgangskode er forkert"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2318
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2334
 msgid "Choose strong passphrases. See {link}"
 msgstr "Vælg stærke adgangsudtryk. Se {link}"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2321
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2337
 msgid "Minimum password length is {limit} characters."
 msgstr "Minimum længden af adgangskoden er {limit} tegn."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2348
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2364
 msgid "New password"
 msgstr "Ny adgangskode"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2349
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2365
 msgid "Type the new password and confirm it"
 msgstr "Skriv den nye adgangskode, og bekræft den"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2384
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2402
 msgid "New password must differ from old"
 msgstr "Ny adgangskode skal afvige fra den gamle"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2459
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2580
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2480
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2601
 msgid "Disable multi-factor authentication"
 msgstr "Deaktiver multifaktorgodkendelse"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2460
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2481
 msgid "Disable multi-factor authentication?"
 msgstr "Vil du deaktivere multifaktorgodkendelse?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2525
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2546
 msgid "Open your authentication app."
 msgstr "Åbn din godkendelsesapp."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2526
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2547
 msgid "Add CamCOPS to the app by scanning this QR code:"
 msgstr "Føj CamCOPS til appen ved at scanne denne QR-kode:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2528
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2549
 msgid "If you can't scan the QR code, enter this key instead:"
 msgstr "Hvis du ikke kan scanne QR -koden, skal du i stedet indtaste denne nøgle:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2531
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2552
 msgid "When prompted, enter the 6-digit code displayed on the app."
 msgstr "Når du bliver bedt om det, skal du indtaste den 6-cifrede kode, der vises på appen."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2571
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2592
 msgid "Authentication type"
 msgstr "Godkendelsestype"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2576
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2597
 msgid "Use an app such as Google Authenticator or Twilio Authy"
 msgstr "Brug en app som f.eks. Google Authenticator eller Twilio Authy"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2578
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2599
 msgid "Send me a code by email"
 msgstr "Send mig en kode på e-mail"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2579
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2600
 msgid "Send me a code by text message"
 msgstr "Send mig en kode på sms"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2604
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2625
 msgid "How do you wish to authenticate?"
 msgstr "Hvordan ønsker du at godkende?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2618
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2639
 msgid "Follow these steps:"
 msgstr "Følg disse trin:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2648
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2669
 msgid "Include the country code (e.g. +123) for numbers outside of the '{region_code}' region"
 msgstr "Medtag landekoden (f.eks. +123) for numre uden for området '{region_code}'"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2794
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2815
 msgid "Source (e.g. webviewer, tablet, console)"
 msgstr "Kilde (f. eks. webfremviser, tablet, konsol)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2796
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2817
 msgid "Remote IP address"
 msgstr "Ekstern IP-adresse"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2798
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2819
 msgid "Truncate details for easy viewing"
 msgstr "Afkorte detaljer for nem visning"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2810
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2831
 msgid "View audit trail"
 msgstr "Vis revisionsspor"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2880
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2901
 msgid "ExportedTask ID"
 msgstr "ExportedTask-ID"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2892
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2913
 msgid "View exported task log"
 msgstr "Vis eksporteret opgaveark"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2922
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2943
 msgid "Text contents"
 msgstr "Tekst indhold"
 
 #. TRANSLATOR: For the task filter form: the text in "Add text"
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2929
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2950
 msgid "text"
 msgstr "tekst"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2936
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2957
 msgid "You have specified duplicate text filters"
 msgstr "Du har angivet dublerede tekstfiltre"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2956
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2977
 msgid "Uploading users"
 msgstr "Brugere, der uploadede"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2965
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2986
 msgid "You have specified duplicate users"
 msgstr "Du har angivet dublerede brugere"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2985
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3006
 msgid "Uploading devices"
 msgstr "Apparat"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3028
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3049
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/describe_task_filter.mako:52
 msgid "Surname"
 msgstr "Efternavn"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3030
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3051
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/describe_task_filter.mako:56
 msgid "Forename"
 msgstr "Fornavn"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3032
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5171
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3053
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5192
 msgid "Date of birth"
 msgstr "Fødselsdato"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3065
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3086
 msgid "Only completed tasks?"
 msgstr "Kun afsluttede opgaver?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3126
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3147
 msgid "Who"
 msgstr "Hvem"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3127
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3148
 msgid "What"
 msgstr "Hvad"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3128
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3149
 msgid "When"
 msgstr "Hvornår"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3129
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3150
 msgid "Administrative criteria"
 msgstr "Administrative kriterier"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3163
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3184
 msgid "Set filters"
 msgstr "Indstil filtre"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3164
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3185
 msgid "Clear"
 msgstr "Ryd"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3191
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3212
 msgid "Set n/page"
 msgstr "Indstil n/side"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3254
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3336
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3275
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3357
 msgid "View as"
 msgstr "Vis som"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3280
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3301
 msgid "Use all eligible task types?"
 msgstr "Skal alle kvalificerede opgavetyper bruges?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3306
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3327
 msgid "View CTV"
 msgstr "Vis CTV"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3306
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3327
 msgid "View tracker"
 msgstr "Vis tracker"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3346
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3367
 msgid "HTML"
 msgstr "HTML"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3347
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4114
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3368
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4135
 msgid "OpenOffice spreadsheet (ODS) file"
 msgstr "OpenOffice-regnearks fil (ODS)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3348
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3369
 msgid "TSV (tab-separated values)"
 msgstr "TSV (tabulatorseparerede værdier)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3349
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4115
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3370
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4136
 msgid "XLSX (Microsoft Excel) file"
 msgstr "XLSX (Microsoft Excel)-fil"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3383
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3404
 msgid "View report"
 msgstr "Vis rapport"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3402
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3423
 msgid "[WILL NOT WORK]"
 msgstr "[VIL IKKE ARBEJDE]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3431
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3452
 msgid "SQL dialect to use (not all may be valid)"
 msgstr "SQL-dialekt til brug (ikke alle kan være gyldige)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3455
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3476
 msgid "View DDL"
 msgstr "Vis DDL"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3506
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3527
 msgid "Permitted to upload from a tablet/device"
 msgstr "Tilladt at uploade fra en tablet/enhed"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3510
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3531
 msgid "Permitted to register tablet/client devices"
 msgstr "Tilladelse til at registrere tablet/klient-enheder"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3514
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3535
 msgid "May log in to web front end"
 msgstr "Kan logge ind på Webfrontend"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3518
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3539
 msgid "May add, edit or delete patients created on the server"
 msgstr "Kan tilføje, redigere eller slette patienter, der er oprettet på serveren"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3522
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3543
 msgid "May send emails to patients created on the server"
 msgstr "Kan sende e -mails til patienter, der er oprettet på serveren"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3528
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3549
 msgid "May view (browse) records from all patients when no patient filter set"
 msgstr "Kan se (gennemse) optegnelser fra alle patienter, når der ikke er angivet et filter"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3535
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3556
 msgid "May perform bulk data dumps"
 msgstr "Kan udføre bulk-data lossepladser"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3539
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3560
 msgid "May run reports"
 msgstr "Kan køre rapporter"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3543
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3564
 msgid "May add special notes to tasks"
 msgstr "Kan føje specielle noter til opgaver"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3562
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3583
 msgid "User is a privileged group administrator for this group"
 msgstr "Brugeren er en privilegeret gruppeadministrator for denne gruppe"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3590
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3611
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/all_tasks.mako:49
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:55
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:53
 msgid "Full name"
 msgstr "Fulde navn"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3592
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3613
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:57
 msgid "E-mail address"
 msgstr "E-mail adresse"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3609
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3630
 msgid "Superuser (CAUTION!)"
 msgstr "Superbruger (FORSIGTIG!)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3721
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3742
 msgid "Group into which to upload data"
 msgstr "Gruppe, som data skal uploades til"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3722
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3743
 msgid "Pick a group from those to which the user belongs"
 msgstr "Vælg en gruppe blandt dem, som brugeren tilhører"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3742
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3763
 msgid "Set"
 msgstr "Indstil"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3784
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3805
 msgid "Not a string"
 msgstr "Ikke en streng"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3787
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3808
 msgid "Syntactically invalid policy"
 msgstr "Syntaktisk ugyldig politik"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3791
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3812
 msgid "Invalid policy. Have you referred to non-existent ID numbers? Is the policy less restrictive than the tablet’s minimum ID policy?"
 msgstr "Ugyldig politik. Har du henvist til ikke-eksisterende ID-numre? Er politikken mindre restriktiv end tablettens minimum-ID-politik?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3845
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3866
 msgid "These settings will be applied to the patient's device when operating in single user mode."
 msgstr "Disse indstillinger anvendes på patientens enhed, når der arbejdes i enkeltbrugertilstand."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3849
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3870
 msgid "The settings here influence whether CamCOPS will consider some third-party tasks “permitted” on your behalf, according to their published use criteria. They do <b>not</b> remove your responsibility to ensure that you use them in accordance with their own requirements."
 msgstr "Indstillingerne her påvirker, om CamCOPS vil betragte nogle tredjepartsopgaver som \"tilladte\" på dine vegne i henhold til deres offentliggjorte brugskriterier. De fjerner <b>ikke</b> dit ansvar for at sikre, at du bruger dem i overensstemmelse med deres egne krav."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3856
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3877
 msgid "WARNING. Providing incorrect information here may lead to you VIOLATING copyright law, by using task for a purpose that is not permitted, and being subject to damages and/or prosecution."
 msgstr "ADVARSEL. Hvis du giver forkerte oplysninger her, kan det føre til, at du OVERTRÆDER ophavsretsloven ved at bruge opgaven til et formål, der ikke er tilladt, og blive udsat for erstatning og/eller retsforfølgning."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3862
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3883
 msgid "The authors of CamCOPS cannot be held responsible or liable for any consequences of you misusing materials subject to copyright."
 msgstr "Ophavsmændene til CamCOPS kan ikke holdes ansvarlige eller erstatningspligtige for eventuelle konsekvenser af, at du bruger ophavsretligt beskyttet materiale."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3867
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3888
 msgid "In which contexts does this group operate?"
 msgstr "I hvilke sammenhænge opererer denne gruppe?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3868
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3889
 msgid "Clinical"
 msgstr "Kliniske"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3869
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3890
 msgid "WARNING: NOT FOR GENERAL CLINICAL USE; not a Medical Device; see Terms and Conditions"
 msgstr "ADVARSEL: IKKE TIL ALMINDELIG KLINISK BRUG; ikke medicinsk udstyr; se Vilkår og betingelser"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3873
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3894
 msgid "Commercial"
 msgstr "Kommerciel"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3874
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3895
 msgid "Educational"
 msgstr "Uddannelsesmæssige"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3875
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3896
 msgid "Research"
 msgstr "Forskning"
 
 #. TRANSLATOR: keep short; table heading in user_info_detail.mako
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3950
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4014
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3971
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4035
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/groups_table.mako:41
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:184
 msgid "Group name"
 msgstr "Gruppenavn"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3953
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3974
 msgid "Group intellectual property settings"
 msgstr "Indstillinger for immaterielle rettigheder for gruppe"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3956
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3977
 msgid "Other groups this group may see"
 msgstr "Andre grupper, som denne gruppe kan se"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3958
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3979
 msgid "Upload policy"
 msgstr "Upload politik"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3959
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3980
 msgid "Minimum required patient information to copy data to server"
 msgstr "Minimum krævede patientoplysninger for at kopiere data til serveren"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3963
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3984
 msgid "Finalize policy"
 msgstr "Færdiggør politik"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3964
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3985
 msgid "Minimum required patient information to clear data off source device"
 msgstr "Minimum krævede patientoplysninger for at rydde data fra kildeenheden"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3978
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4023
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3999
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4044
 msgid "Name is used by another group!"
 msgstr "Navnet bruges af en anden gruppe!"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4080
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4101
 msgid "Dump method"
 msgstr "Dump-metode"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4082
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4103
 msgid "Everything"
 msgstr "Alt"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4083
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4104
 msgid "Use the session filter settings"
 msgstr "Brug indstillingerne for sessions filteret"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4086
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4107
 msgid "Specify tasks/groups manually (see below)"
 msgstr "Angive opgaver/grupper manuelt (se nedenfor)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4111
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4132
 msgid "Spreadsheet format"
 msgstr "Regnearksformat"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4113
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4134
 msgid "R script"
 msgstr "R-script"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4118
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4139
 msgid "ZIP file of tab-separated value (TSV) files"
 msgstr "ZIP-fil med tabulatorseparerede værdier (TSV)-filer"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4143
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4164
 msgid "Delivery"
 msgstr "Levering"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4145
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4166
 msgid "Serve immediately"
 msgstr "Tjene straks"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4146
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4167
 msgid "E-mail me"
 msgstr "E-mail mig"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4147
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4168
 msgid "Create a file for me to download"
 msgstr "Opret en fil for mig at downloade"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4160
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4181
 msgid "Disabled by the system administrator"
 msgstr "Deaktiveret af systemadministratoren"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4166
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4187
 msgid "Your user does not have an email address"
 msgstr "Din bruger har ikke en e-mailadresse"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4172
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4193
 msgid "User downloads not configured by administrator"
 msgstr "Bruger-downloads er ikke konfigureret af administrator"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4177
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4198
 msgid "Bad value"
 msgstr "Dårlig værdi"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4198
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4219
 msgid "Database download method"
 msgstr "Metode til hentning af database"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4201
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4222
 msgid "Binary SQLite database"
 msgstr "Binær SQLite-database"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4202
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4223
 msgid "SQL text to create SQLite database"
 msgstr "SQL-tekst til oprettelse af SQLite-database"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4226
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4247
 msgid "Simplify spreadsheets?"
 msgstr "Forenkle regneark?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4227
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4248
 msgid "Remove non-essential details?"
 msgstr "Vil du fjerne ikke-væsentlige detaljer?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4247
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4268
 msgid "Sort columns?"
 msgstr "Sortere kolonner?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4248
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4269
 msgid "Sort by heading (column) names within spreadsheets?"
 msgstr "Sortere efter overskrift (kolonne) navne i regneark?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4271
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4292
 msgid "Include column information?"
 msgstr "Skal kolonneoplysninger medtages?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4272
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4293
 msgid "Include details of all columns in the source database?"
 msgstr "Skal oplysninger om alle kolonner medtages i kildedatabasen?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4294
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4315
 msgid "Include BLOBs?"
 msgstr "Medtag BLOBs?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4295
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4316
 msgid "Include binary large objects (BLOBs)? WARNING: may be large"
 msgstr "Skal binære store objekter medtages (BLOBs)? Advarsel: kan være stor"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4320
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4341
 msgid "Patient ID per row?"
 msgstr "Patient-ID pr. række?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4321
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4342
 msgid "Include patient ID numbers and task cross-referencing (denormalized) information per row?"
 msgstr "Medtag patient-ID-numre og kryds referering af opgave (denormaliseret) pr. række?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4344
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4365
 msgid "Manual settings"
 msgstr "Manuelle indstillinger"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4372
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4403
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4393
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4424
 msgid "Dump"
 msgstr "Dump"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4431
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4452
 msgid "Database friendly title"
 msgstr "Databasens fulde titel"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4465
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4486
 msgid "Full description (e.g. “NHS number”)"
 msgstr "Fuld beskrivelse (f. eks. “NHS-nummer”)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4484
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4505
 msgid "Short description (e.g. “NHS#”)"
 msgstr "Kort beskrivelse (f. eks. “NHS #”)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4485
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4506
 msgid "Try to keep it very short!"
 msgstr "Prøv at holde det meget kort!"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4504
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4525
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:50
 msgid "Validation method"
 msgstr "Valideringsmetode"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4505
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4526
 msgid "Built-in CamCOPS ID number validation method"
 msgstr "Indbygget CamCOPS ID-nummer valideringsmetode"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4521
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4542
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:52
 msgid "HL7 Assigning Authority"
 msgstr "HL7 Myndighed, der tildeler"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4522
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4543
 msgid "For HL7 messaging: HL7 Assigning Authority for ID number (unique name of the system/organization/agency/department that creates the data)."
 msgstr "For HL7-meddelelser: HL7 tildeling af autoritet for ID-nummer (entydigt navn på det system/den organisation/det agentur/den afdeling, der opretter dataene)."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4549
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4570
 msgid "HL7 Identifier Type"
 msgstr "HL7-id-type"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4550
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4571
 msgid "For HL7 messaging: HL7 Identifier Type code: ‘a code corresponding to the type of identifier. In some cases, this code may be used as a qualifier to the “Assigning Authority” component.’"
 msgstr "For HL7 Messaging: HL7 Identifier type kode: ‘en kode, der svarer til typen af identifikator. I nogle tilfælde kan denne kode bruges som kvalifikatoren til komponenten “tildeling af autoritet”.’"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4583
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4604
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:53
 msgid "FHIR ID system"
 msgstr "FHIR ID-system"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4584
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4605
 msgid "For FHIR exports: URL defining the ID system."
 msgstr "For FHIR-eksport: URL-definition af id-systemet."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4625
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4695
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4646
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4716
 msgid "Description is used by another ID number!"
 msgstr "Beskrivelse bruges af et andet ID-nummer!"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4640
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4704
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4661
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4725
 msgid "Short description is used by another ID number!"
 msgstr "Kort beskrivelse bruges af et andet ID-nummer!"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4677
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4698
 msgid "Which ID number?"
 msgstr "Hvilket ID-nummer?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4690
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4711
 msgid "ID# clashes with another ID number!"
 msgstr "ID# sammenstød med et andet ID-nummer!"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4828
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4849
 msgid "Erase"
 msgstr "Slet"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4859
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4880
 msgid "Show tasks that will be deleted"
 msgstr "Vis opgaver, der vil blive slettet"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4944
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5119
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4965
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5140
 msgid "Task schedule"
 msgstr "Tidsplan for opgave"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5042
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5063
 msgid "Please enter valid JSON or leave blank"
 msgstr "Angiv gyldig JSON, eller lad den være tom"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5066
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5087
 msgid "Task-specific settings for this patient"
 msgstr "Opgavespecifikke indstillinger for denne patient"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5067
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5088
 msgid "ADVANCED. Only applicable to tasks that are configurable on a per-patient basis. Format: JSON object, with settings keyed on task table name."
 msgstr "Avanceret. Gælder kun for opgaver, der kan konfigureres pr. patient. Format: JSON-objekt med indstillinger tastet på opgavetabelnavnet."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5078
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5099
 msgid "Please enter a valid JSON object (with settings keyed on task table name) or leave blank"
 msgstr "Angiv et gyldigt JSON-objekt (med indstillinger indtastet på opgavetabelnavnet), eller lad det være tomt"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5121
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5142
 msgid "Leave blank for the date the patient first downloads the schedule"
 msgstr "Lad feltet være tomt for den dato, hvor patienten første gang downloader tidsplanen"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5126
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5147
 msgid "Advanced"
 msgstr "Avanceret"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5145
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5166
 msgid "Task Schedules"
 msgstr "Opgaveplaner"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5173
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5194
 msgid "GP"
 msgstr "Læge"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5194
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5215
 msgid "Patient would not meet 'finalize' ID policy for group:"
 msgstr "Patient ville ikke opfylde 'færdig' ID politik for gruppe:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5196
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5217
 msgid "That policy is:"
 msgstr "Denne politik er:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5263
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5284
 msgid "Email template"
 msgstr "E-mail skabelon"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5264
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5285
 msgid "Template of email to be sent to patients when inviting them to complete the tasks in the schedule. Valid placeholders: {}"
 msgstr "Skabelon med e-mail, der skal sendes til patienter, når de inviteres til at udføre opgaverne i tidsplanen. Gyldige pladsholdere: {}"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5279
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5300
 msgid "{bad_key} is not a valid placeholder"
 msgstr "{bad_key} er ikke en gyldig pladsholder"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5281
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5302
 msgid "Invalid email template. Is there a missing '{' or '}' ?"
 msgstr "Ugyldig e-mail-skabelon. Mangler der '{' eller '}'?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5292
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5313
 msgid "Email CC"
 msgstr "E-mail CC"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5293
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5314
 msgid "The patient will see these email addresses. Separate multiple addresses with commas."
 msgstr "Patienten vil se disse e-mail-adresser. Adskil flere adresser med kommaer."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5303
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5324
 msgid "Email BCC"
 msgstr "E-mail BCC"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5304
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5325
 msgid "The patient will not see these email addresses. Separate multiple addresses with commas."
 msgstr "Patienten kan ikke se disse e-mail-adresser. Adskil flere adresser med kommaer."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5314
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5335
 msgid "Email \"From\" address"
 msgstr "E-mail \"Fra\" adresse"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5315
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5336
 msgid "You must set this if you want to send emails to your patients"
 msgstr "Du skal indstille dette, hvis du vil sende e-mails til dine patienter"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5417
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5438
 msgid "1 week = 7 days"
 msgstr "1 uge = 7 dage"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5418
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5439
 msgid "1 month = 30 days"
 msgstr "1 måned = 30 dage"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5419
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5440
 msgid "Months"
 msgstr "Måneder"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5420
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5441
 msgid "Weeks"
 msgstr "Uger"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5421
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5442
 msgid "Days"
 msgstr "Dage"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5548
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5569
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:67
 msgid "Due from"
 msgstr "Forfalder fra"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5549
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5570
 msgid "Time from the start of schedule when the patient may begin this task"
 msgstr "Tid fra starten af tidsplanen, hvor patienten kan begynde denne opgave"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5554
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5575
 msgid "Due within"
 msgstr "Forfalder inden for"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5555
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5576
 msgid "Time the patient has to complete this task"
 msgstr "Tid patienten har til at fuldføre denne opgave"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5559
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5580
 msgid "Allow clinician tasks"
 msgstr "Tillad klinikeropgaver"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5561
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5582
 msgid "Tick this box to schedule a task that would normally be completed by (or with) a clinician"
 msgstr "Marker dette felt for at planlægge en opgave, der normalt ville være afsluttet af (eller med) en kliniker"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5586
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5607
 msgid "You have selected the task '{task_name}', which a patient would not normally complete by themselves. If you are sure you want to do this, you must tick 'Allow clinician tasks'."
 msgstr "Du har valgt opgaven '{task_name}', som en patient normalt ikke ville fuldføre af sig selv. Hvis du er sikker på, at du vil gøre dette, skal du sætte kryds ved \"Tillad klinikeropgaver\"."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5600
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5621
 msgid "'Due from' must be zero or more days"
 msgstr "'Forfalden fra' skal være nul eller flere dage"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5604
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5625
 msgid "'Due within' must be more than zero days"
 msgstr "'Forfalden inden' skal være mere end nul dage"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5630
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5651
 msgid "The task you have selected prohibits use in certain contexts. The group '{group_name}' has no intellectual property settings. You need to edit the group '{group_name}' to say which contexts it operates in."
 msgstr "Den valgte opgave forbyder brug i visse sammenhænge. Gruppen '{group_name}' har ingen indstillinger for immaterielle rettigheder. Du skal redigere gruppen '{group_name}' for at angive, hvilke kontekster den fungerer i."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5646
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5667
 msgid "The group '{group_name}' associated with schedule '{schedule_name}' operates in a commercial context but the task you have selected prohibits commercial use."
 msgstr "Gruppen '{group_name}', der er knyttet til tidsplanen '{schedule_name}', fungerer i en kommerciel kontekst, men den valgte opgave forbyder kommerciel brug."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5659
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5680
 msgid "The group '{group_name}' associated with schedule '{schedule_name}' operates in a clinical context but the task you have selected prohibits clinical use."
 msgstr "Gruppen '{group_name}', der er knyttet til tidsplanen '{schedule_name}', fungerer i en klinisk kontekst, men den opgave, du har valgt, forbyder klinisk brug."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5675
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5696
 msgid "The group '{group_name}' associated with schedule '{schedule_name}' operates in an educational context but the task you have selected prohibits educational use."
 msgstr "Gruppen '{group_name}', der er knyttet til tidsplanen '{schedule_name}', fungerer i en uddannelsesmæssig kontekst, men den opgave, du har valgt, forbyder undervisningsbrug."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5688
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5709
 msgid "The group '{group_name}' associated with schedule '{schedule_name}' operates in a research context but the task you have selected prohibits research use."
 msgstr "Gruppen '{group_name}', der er knyttet til tidsplanen '{schedule_name}', fungerer i en forskningskontekst, men den opgave, du har valgt, forbyder brug af forskning."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5759
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5780
 msgid "View affected tasks"
 msgstr "Få vist påvirkede opgaver"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5784
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5805
 msgid "Forcibly finalize"
 msgstr "Afslut med magt"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5843
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5864
 msgid "Message"
 msgstr "Besked"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5869
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5890
 msgid "Send"
 msgstr "Sende"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_idnumdef.py:103
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_idnumdef.py:102
 msgid "Not an integer"
 msgstr "Ikke et heltal"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_idnumdef.py:108
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_idnumdef.py:107
 msgid "Invalid UK NHS number"
 msgstr "Ugyldigt britisk NHS-nummer"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_idnumdef.py:109
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_idnumdef.py:108
 msgid "Unknown validation method"
 msgstr "Ukendt valideringsmetode"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_idnumdef.py:215
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_idnumdef.py:207
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:67
 msgid "Default:"
 msgstr "Standard:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:694
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:688
 msgid "Date of birth:"
 msgstr "Fødselsdato:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:697
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:691
 msgid "DOB:"
 msgstr "Født:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:1324
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:1341
 msgid "(Server) Patients, distinct by name, sex, DOB, all ID numbers"
 msgstr "(Server) Patienter, særskilt efter navn, køn, DOB, alle ID-numre"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patientidnum.py:232
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patientidnum.py:241
 msgid "ID number fails basic checks"
 msgstr "Id-nummer fejler grundlæggende kontroller"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1740
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1738
 msgid "Page $page of $page_count; total $item_count records"
 msgstr "Side $page af $page_count; samlede $item_count poster"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:805
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:806
 msgid "Number of initial records"
 msgstr "Antal indledende poster"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:806
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:807
 msgid "Number of latest subsequent records"
 msgstr "Antal seneste efterfølgende poster"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:838
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:839
 msgid "Date filters"
 msgstr "Datofiltre"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:839
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:840
 msgid "Start date"
 msgstr "Startdato"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:839
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:840
 msgid "End date"
 msgstr "Slutdato"
 
@@ -1209,19 +1209,19 @@ msgstr "Opdelt efter opgavetype?"
 msgid "Split by user?"
 msgstr "Opdelt efter bruger?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_request.py:1664
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_request.py:1660
 msgid "Can't fetch ID number definition"
 msgstr "Definitionen af id-nummer kan ikke hentes"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_task.py:2798
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_task.py:2752
 msgid "Anonymous"
 msgstr "Anonym"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskreports.py:112
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskreports.py:118
 msgid "(Server) Count current task instances"
 msgstr "(Server) Tæl aktuelle opgaveforekomster"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskschedule.py:556
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskschedule.py:522
 msgid "{task_name} @ {due_days} days"
 msgstr "{task_name} @ {due_days} dage"
 
@@ -1401,9 +1401,9 @@ msgid "Present"
 msgstr "Nuværende"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:278
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:291
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:322
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/perinatalpoem.py:559
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:278
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:309
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/perinatalpoem.py:514
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/task_details.mako:191
 msgid "Question"
 msgstr "Spørgsmål"
@@ -1413,7 +1413,7 @@ msgid "Severe"
 msgstr "Alvorlig"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_text.py:286
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pbq.py:360
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pbq.py:355
 msgid "Total score"
 msgstr "Samlet score"
 
@@ -1445,19 +1445,19 @@ msgstr "Ja"
 msgid "consistent (no values)"
 msgstr "konsistent (ingen værdier)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_user.py:1522
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_user.py:1492
 msgid "Nobody may edit the system user"
 msgstr "Ingen kan redigere systembrugeren"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_user.py:1525
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_user.py:1495
 msgid "You may not edit a superuser"
 msgstr "Du må ikke redigere en superbruger"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_user.py:1527
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_user.py:1497
 msgid "You may not edit a group administrator"
 msgstr "Du må ikke redigere en gruppeadministrator"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_user.py:1532
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_user.py:1502
 msgid "You are not a group administrator for any groups that this user is in"
 msgstr "Du er ikke gruppeadministrator for de grupper, som denne bruger er i"
 
@@ -1538,7 +1538,7 @@ msgstr "Opgavetabelnavne skal starte med et bogstav og må kun indeholde alfanum
 msgid "Download filenames must (1) begin with an alphanumeric/underscore character; (2) contain only alphanumeric characters, underscores, and hyphens; and (3) end with a full stop followed by an alphanumeric/underscore extension."
 msgstr "Hent filnavne skal (1) begynde med et alfanumerisk/understregningstegn; (2) indeholder kun alfanumeriske tegn, understregningstegn og bindestreger; og (3) slutter med et fuldt stop efterfulgt af en alfanumerisk/understregningsudvidelse."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_view_classes.py:870
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_view_classes.py:871
 msgid "Cannot find {object_class} with {server_pk_name}:{pk_value}"
 msgstr "{object_class} blev ikke fundet med {server_pk_name}:{pk_value}"
 
@@ -1675,447 +1675,447 @@ msgstr "Konfigurere godkendelse via SMS"
 msgid "Multi-factor authentication: success!"
 msgstr "Multifaktorautentisering: succes!"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2177
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2178
 msgid "No such patient or not authorized"
 msgstr "Ingen sådan patient eller ikke autoriseret"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2301
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2302
 msgid "Invalid tasks specified"
 msgstr "Der er angivet ugyldige opgaver"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2303
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2304
 msgid "Not all tasks specified provide trackers"
 msgstr "Ikke alle angivne opgaver giver trackere"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3327
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3328
 msgid "Last 1 minute"
 msgstr "Sidste 1 minut"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3333
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3334
 msgid "Last 5 minutes"
 msgstr "Sidste 5 minutter"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3339
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3340
 msgid "Last 10 minutes"
 msgstr "Sidste 10 minutter"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3345
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3346
 msgid "Last 1 hour"
 msgstr "Sidste 1 time"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3460
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3461
 msgid "You may not administer this group"
 msgstr "Du må ikke administrere denne gruppe"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3517
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3518
 msgid "Can't rename user"
 msgstr "Kan ikke omdøbe brugeren"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3518
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3519
 msgid "that conflicts with an existing user with ID"
 msgstr "der er i konflikt med en eksisterende bruger med ID"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3526
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3527
 msgid "This user's email address is used for multi-factor authentication. If you want to remove their email address, you must first disable multi-factor authentication"
 msgstr "Denne brugers e-mail-adresse bruges til godkendelse af flere faktorer. Hvis du vil fjerne deres e-mail-adresse, skal du først deaktivere multifaktorgodkendelse"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3789
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3790
 msgid "User {username} enabled"
 msgstr "Bruger {username} aktiveret"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3919
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3920
 msgid "Can't delete your own user!"
 msgstr "Kan ikke slette din egen bruger!"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3921
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3922
 msgid "Unable to delete user: user still has webviewer login and/or tablet upload permission"
 msgstr "Kan ikke slette bruger: brugeren har stadig webviewer login og/eller tablet upload tilladelse"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3926
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3927
 msgid "Unable to delete user: they are a superuser and you are not"
 msgstr "Kan ikke slette bruger: de er en superbruger, og du er ikke"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3932
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3933
 msgid "Unable to delete user: user belongs to groups that you do not administer"
 msgstr "Brugeren kan ikke slettes: brugeren tilhører grupper, som du ikke administrerer"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3938
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3939
 msgid "Unable to delete user; records (or audit trails) refer to that user. Disable login and upload permissions instead."
 msgstr "Brugeren kan ikke slettes. poster (eller revisionsspor) refererer til den pågældende bruger. Deaktiver login og upload tilladelser i stedet."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4191
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4192
 msgid "Unable to delete group; there are users who are members!"
 msgstr "Gruppen kan ikke slettes; der er brugere, der er medlemmer!"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4194
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4195
 msgid "Unable to delete group; records refer to it."
 msgstr "Gruppen kan ikke slettes; optegnelser refererer til det."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4430
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4431
 msgid "Unable to delete ID definition; records refer to it."
 msgstr "ID-definitionen kunne ikke slettes; optegnelser refererer til det."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4499
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4500
 msgid "Not authorized to add special notes for this task's group"
 msgstr "Der er ikke tilladelse til at tilføje særlige notater for denne opgaves gruppe"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4547
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4548
 msgid "Not authorized to delete this special note"
 msgstr "Ikke autoriseret til at slette denne særlige note"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4624
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4625
 msgid "Not authorized to erase tasks for this task's group"
 msgstr "Ikke autoriseret til at slette opgaver for denne opgaves gruppe"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4650
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4651
 msgid "Task already erased"
 msgstr "Opgaven er allerede slettet"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4685
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4686
 msgid "Task erased:"
 msgstr "Opgave slettet:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4757
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4758
 msgid "You're not an admin for this group"
 msgstr "Du er ikke administrator for denne gruppe"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4925
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4926
 msgid "Some records for this device are in groups for which you are not an administrator"
 msgstr "Nogle poster for denne enhed findes i grupper, som du ikke er administrator for"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5069
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5070
 msgid "Bad patient: not in a group"
 msgstr "Dårlig patient: ikke i en gruppe"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5072
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5073
 msgid "Not authorized to edit this patient"
 msgstr "Ikke autoriseret til at redigere denne patient"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5109
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5110
 msgid "Patient details edited. Changes:"
 msgstr "Patient oplysninger redigeret. Ændringer:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5277
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5278
 msgid "Patient is not editable - was not created on the server"
 msgstr "Patienten kan ikke redigeres - blev ikke oprettet på serveren"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5381
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:79
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5382
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:85
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:44
 msgid "Task schedules"
 msgstr "Opgaveplaner"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5381
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5382
 msgid "Updated"
 msgstr "Opdateret"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5431
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5432
 msgid "Patient is not editable (likely: not finalized, so a copy still on a client device)"
 msgstr "Patienten kan ikke redigeres (sandsynligvis: ikke afsluttet, så en kopi stadig på en klient enhed)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5481
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5482
 msgid "Not authorized to manage patients"
 msgstr "Ikke autoriseret til at håndtere patienter"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5576
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5577
 msgid "Not authorized to delete this patient"
 msgstr "Ikke autoriseret til at slette denne patient"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5583
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:81
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5584
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:87
 msgid "Delete patient"
 msgstr "Slet patient"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5669
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5670
 msgid "Schedule does not exist"
 msgstr "Tidsplanen findes ikke"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5746
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5748
 msgid "Patient's task schedule does not exist"
 msgstr "Patientens opgaveplan findes ikke"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5749
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5751
 msgid "Not authorized to manage this patient"
 msgstr "Ikke autoriseret til at styre denne patient"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5791
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5941
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5793
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5943
 msgid "You a not a group administrator for this task schedule's group"
 msgstr "Du er ikke gruppeadministrator for denne opgaveplans gruppe"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5809
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5811
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:119
 msgid "Add a task schedule"
 msgstr "Tilføje en opgaveplan"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5826
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5828
 msgid "Edit details for a task schedule"
 msgstr "Redigere detaljer for en opgaveplan"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5843
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5845
 msgid "Delete a task schedule"
 msgstr "Slette en opgaveplan"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5963
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5965
 msgid "Add an item to the {schedule_name} schedule"
 msgstr "Føje et element til tidsplanen {schedule_name}"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5991
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5993
 msgid "Edit details for a task schedule item"
 msgstr "Redigere detaljer for et opgaveskemaelement"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:6024
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:6026
 msgid "Delete a task schedule item"
 msgstr "Slette et opgaveplanelement"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:6109
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:6111
 msgid "Not authorized to email patients"
 msgstr "Ikke autoriseret til at e -maile patienter"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:6157
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:6188
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:6159
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:6190
 msgid "Patient task schedule does not exist"
 msgstr "Patientopgaveplan findes ikke"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:6169
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:6171
 msgid "Email sent to {patient_email}"
 msgstr "E-mail sendt til {patient_email}"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:6177
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:6179
 msgid "Failed to send email to {patient_email}"
 msgstr "Kunne ikke sende e-mail til {patient_email}"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ace3.py:572
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ace3.py:536
 msgid "Addenbrooke’s Cognitive Examination III"
 msgstr "Addenbrooke’s Cognitive Examination [Addenbrooke's kognitive undersøgelse], revision 3"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ace3.py:1442
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ace3.py:1392
 msgid "Mini-Addenbrooke’s Cognitive Examination"
 msgstr "Mini-Addenbrooke’s Cognitive Examination [Mini-Addenbrooke's kognitive undersøgelse]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/aims.py:125
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/aims.py:118
 msgid "Abnormal Involuntary Movement Scale"
 msgstr "Abnormal Involuntary Movement Scale [unormal ufrivillig bevægelsesskala]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:130
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:117
 msgid "Assessment Patient Experience Questionnaire for CPFT Perinatal Services"
 msgstr "Assessment Patient Experience Questionnaire for CPFT Perinatal Services [vurdering patient oplevelse spørgeskema for CPFT perinatal tjenester]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:229
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:216
 msgid "APEQ CPFT Perinatal — Question summaries"
 msgstr "APEQ CPFT perinatal — spørgsmål resuméer"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:266
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:253
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/tasks/apeq_cpft_perinatal_report.mako:63
 msgid "Main questions"
 msgstr "Vigtigste spørgsmål"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:271
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:258
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/tasks/apeq_cpft_perinatal_report.mako:67
 msgid "Friends and family question"
 msgstr "Venner og familiespørgsmål"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:276
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:263
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/tasks/apeq_cpft_perinatal_report.mako:71
 msgid "Reasons given for the above responses"
 msgstr "Begrundelse for ovenstående svar"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:277
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:264
 msgid "Response"
 msgstr "Svar"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:277
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:264
 msgid "Reason"
 msgstr "Årsag"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:281
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/perinatalpoem.py:629
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:268
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/perinatalpoem.py:584
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/tasks/apeq_cpft_perinatal_report.mako:75
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/tasks/perinatal_poem_report.mako:70
 msgid "Comments"
 msgstr "Kommentarer"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:282
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/perinatalpoem.py:630
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:269
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/perinatalpoem.py:585
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/task_details.mako:77
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/task_details.mako:103
 msgid "Comment"
 msgstr "Kommentar"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:292
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:323
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/perinatalpoem.py:559
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:279
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeq_cpft_perinatal.py:310
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/perinatalpoem.py:514
 msgid "Total responses"
 msgstr "Samlet antal svar"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeqpt.py:118
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/apeqpt.py:111
 msgid "Assessment Patient Experience Questionnaire for Psychological Therapies"
 msgstr "Assessment Patient Experience Questionnaire for Psychological Therapies [vurdering patient oplevelse spørgeskema for psykologiske terapier]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/aq.py:216
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/aq.py:211
 msgid "Adult Autism Spectrum Quotient"
 msgstr "Adult Autism Spectrum Quotient [voksen autismespektrum kvotienten]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/aq.py:411
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/isaaq10.py:134
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/isaaqed.py:110
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/aq.py:406
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/isaaq10.py:126
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/isaaqed.py:103
 msgid "Score"
 msgstr "Score"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/asdas.py:111
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/asdas.py:105
 msgid "Ankylosing Spondylitis Disease Activity Score"
 msgstr "Ankylosing Spondylitis Disease Activity Score [ankyloserende spondylitis sygdom aktivitet score]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/audit.py:104
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/audit.py:99
 msgid "WHO Alcohol Use Disorders Identification Test"
 msgstr "Alcohol Use Disorders Identification Test [alkoholforstyrrelser identifikationstest]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/audit.py:289
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/audit.py:287
 msgid "AUDIT Alcohol Consumption Questions"
 msgstr "AUDIT Alcohol Consumption Questions [alkoholforbrug spørgsmål]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/badls.py:119
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/badls.py:113
 msgid "Bristol Activities of Daily Living Scale"
 msgstr "Bristol Activities of Daily Living Scale [Bristol aktiviteter med daglig levetidskala]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/basdai.py:102
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/basdai.py:96
 msgid "Bath Ankylosing Spondylitis Disease Activity Index"
 msgstr "Bath Ankylosing Spondylitis Disease Activity Index [ankyloserende spondylitis sygdom aktivitetsindeks]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/bdi.py:202
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/bdi.py:196
 msgid "Beck Depression Inventory (data collection only)"
 msgstr "Beck Depression Inventory [Beck depression inventar] [dataindsamling kun]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/bmi.py:105
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/bmi.py:101
 msgid "Body mass index"
 msgstr "Kropsmasseindeks"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/bprs.py:117
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/bprs.py:111
 msgid "Brief Psychiatric Rating Scale"
 msgstr "Brief Psychiatric Rating Scale [kort psykiatrisk vurdering skala]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/bprse.py:119
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/bprse.py:113
 msgid "Brief Psychiatric Rating Scale, Expanded"
 msgstr "Brief Psychiatric Rating Scale, Expanded [kort psykiatrisk vurdering skala, udvidet]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cage.py:88
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cage.py:83
 msgid "CAGE Questionnaire"
 msgstr "CAGE Questionnaire [CAGE spørgeskema]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cape42.py:187
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cape42.py:181
 msgid "Community Assessment of Psychic Experiences"
 msgstr "Community Assessment of Psychic Experiences [samfundsvurdering af psykiske oplevelser]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/caps.py:157
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/caps.py:152
 msgid "Cardiff Anomalous Perceptions Scale"
 msgstr "Cardiff Anomalous Perceptions Scale [Cardiff anomaløse opfattelser skala]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cardinal_expdetthreshold.py:293
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cardinal_expdetthreshold.py:268
 msgid "Cardinal RN – Threshold determination for Expectation–Detection task"
 msgstr "Cardinal RN — ExpDet-tærskelværdi opgave"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cardinal_expectationdetection.py:520
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cardinal_expectationdetection.py:480
 msgid "Cardinal RN – Expectation–Detection task"
 msgstr "Cardinal RN — Expectation–Detection task [forventning/påvisningsopgave]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cbir.py:181
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cbir.py:174
 msgid "Cambridge Behavioural Inventory, Revised"
 msgstr "Cambridge Behavioural Inventory, Revised [Cambridge adfærdsmæssige opgørelse, revideret]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ceca.py:1485
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ceca.py:1157
 msgid "Childhood Experience of Care and Abuse Questionnaire"
 msgstr "Childhood Experience of Care and Abuse Questionnaire [barndomserfaring af spørgeskema om pleje og misbrug], v3"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cesd.py:133
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cesd.py:124
 msgid "Center for Epidemiologic Studies Depression Scale"
 msgstr "Center for Epidemiologic Studies Depression Scale [center for epidemiologiske studier, depression skala]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cesdr.py:150
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cesdr.py:140
 msgid "Center for Epidemiologic Studies Depression Scale (Revised)"
 msgstr "Center for Epidemiologic Studies Depression Scale, Revised [center for epidemiologiske studier, depression skala, reviderede]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cet.py:162
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cet.py:157
 msgid "Compulsive Exercise Test"
 msgstr "Compulsive Exercise Test [kompulsiv træningstest]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cgi_task.py:101
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cgi_task.py:92
 msgid "Clinical Global Impressions"
 msgstr "Clinical Global Impressions [kliniske globale indtryk]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cgi_task.py:264
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cgi_task.py:253
 msgid "Clinical Global Impressions – Improvement"
 msgstr "Clinical Global Impressions – Improvement subscale [kliniske globale indtryk – forbedring sub-skala]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cgisch.py:115
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cgisch.py:104
 msgid "Clinical Global Impression – Schizophrenia"
 msgstr "Clinical Global Impression – Schizophrenia [klinisk global indtryk – skizofreni]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/chit.py:106
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/chit.py:100
 msgid "Cambridge–Chicago Compulsivity Trait Scale"
 msgstr "Cambridge–Chicago Compulsivity Trait Scale [Cambridge–Chicago kompulsivitet egenskab skalaen]"
 
 # | msgid "The Clinical Impairment Assessment questionnaire"
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cia.py:102
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cia.py:96
 msgid "Clinical Impairment Assessment questionnaire"
 msgstr "Clinical Impairment Assessment questionnaire [spørgeskema til vurdering af klinisk funktionsnedsættelse]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cisr.py:1297
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cisr.py:1298
 msgid "CIS-R suggestion ONLY"
 msgstr "Kun forslag fra CIS-R"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cisr.py:3053
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cisr.py:2750
 msgid "Clinical Interview Schedule, Revised"
 msgstr "Clinical Interview Schedule – Revised [klinisk interviewplan - revideret]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ciwa.py:153
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ciwa.py:139
 msgid "Clinical Institute Withdrawal Assessment for Alcohol Scale, Revised"
 msgstr "Clinical Institute Withdrawal Assessment for Alcohol Scale, Revised [klinisk institut tilbagetrækning vurdering for alkohol skala, revideret]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/contactlog.py:104
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/contactlog.py:102
 msgid "Clinical contact log"
 msgstr "Kontakt log"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cope.py:150
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cope.py:138
 msgid "Brief COPE Inventory"
 msgstr "Brief COPE Inventory [kortfattet COPE fortegnelse]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/core10.py:148
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/core10.py:129
 msgid "Clinical Outcomes in Routine Evaluation, 10-item measure"
 msgstr "Clinical Outcomes in Routine Evaluation [kliniske resultater i rutinemæssig evaluering], 10-punkts mål"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/core10.py:310
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/core10.py:291
 msgid "CORE-10 — Average scores"
 msgstr "CORE-10 — gennemsnitlig score"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/core10.py:322
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/core10.py:303
 msgid "CORE-10 clinical score"
 msgstr "CORE-10 klinisk score"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cpft_covid_medical.py:88
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cpft_covid_medical.py:79
 msgid "CPFT Post-COVID-19 Clinic Medical Questionnaire"
 msgstr "CPFT medicinsk spørgeskema efter COVID-19"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cpft_lps.py:167
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cpft_lps.py:191
 msgid "CPFT LPS – referral"
 msgstr "CPFT LPS – henvisning"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cpft_lps.py:397
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cpft_lps.py:421
 msgid "CPFT LPS – reset response clock"
 msgstr "CPFT LPS – nulstil svarklok"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cpft_lps.py:639
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cpft_lps.py:758
 msgid "CPFT LPS – discharge"
 msgstr "CPFT LPS – udledning"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cpft_lps.py:908
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cpft_lps.py:1027
 msgid "CPFT LPS – referred but not yet discharged"
 msgstr "CPFT LPS – henvist, men endnu ikke afsluttet"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cpft_lps.py:1035
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cpft_lps.py:1154
 msgid "CPFT LPS – referred but not yet fully assessed or discharged"
 msgstr "CPFT LPS – henvist, men endnu ikke fuldt vurderet eller afsluttet"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cpft_research_preferences.py:99
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cpft_research_preferences.py:91
 msgid "CPFT Research Preferences"
 msgstr "CPFT-forskningspræferencer"
 
@@ -2123,132 +2123,136 @@ msgstr "CPFT-forskningspræferencer"
 msgid "Childhood Trauma Questionnaire, Short Form"
 msgstr "Childhood Trauma Questionnaire, Short Form [barndoms traume spørgeskema, kort formular]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/dad.py:161
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/dad.py:151
 msgid "Disability Assessment for Dementia"
 msgstr "Disability Assessment for Dementia [handicapvurdering for demens]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/das28.py:151
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/das28.py:143
 msgid "Disease Activity Score-28"
 msgstr "Disease Activity Score-28 [sygdomsaktivitetsscore-28]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/dast.py:123
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/dast.py:118
 msgid "Drug Abuse Screening Test"
 msgstr "Drug Abuse Screening Test [screening test af stofmisbrug]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/deakin_s1_healthreview.py:332
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/deakin_s1_healthreview.py:423
 msgid "Deakin JB — Antibody-mediated psychosis study — health review"
 msgstr "Deakin JB — Antistofmedieret psykosestudie — Sundhedsanmeldelse"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/demoquestionnaire.py:156
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/demoquestionnaire.py:153
 msgid "Demonstration Questionnaire"
 msgstr "Demonstration opgave"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/demqol.py:172
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/demqol.py:164
 msgid "Dementia Quality of Life measure, self-report version"
 msgstr "Demens livskvalitet skala, selvrapporteringsversion"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/demqol.py:385
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/demqol.py:366
 msgid "Dementia Quality of Life measure, proxy version"
 msgstr "Demens livskvalitet skala, version besvaret af en fuldmægtig"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:367
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:361
 msgid "Diagnostic codes, ICD-10"
 msgstr "Diagnostisk kodning (ICD-10)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:485
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:477
 msgid "Diagnostic codes, ICD-9-CM (DSM-IV-TR)"
 msgstr "Diagnostisk kodning, ICD-9-CM (DSM-IV-TR)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:641
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:633
 msgid "Diagnosis – ICD-9-CM (DSM-IV-TR) diagnoses for all patients"
 msgstr "Diagnose – ICD-9-CM (DSM-IV-TR) diagnoser for alle patienter"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:671
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:663
 msgid "Diagnosis – ICD-10 diagnoses for all patients"
 msgstr "Diagnose – ICD-10 diagnoser for alle patienter"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:699
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:691
 msgid "Diagnosis – All diagnoses for all patients"
 msgstr "Diagnose – alle diagnoser for alle patienter"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:742
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:734
 msgid "Diagnostic code"
 msgstr "Diagnostisk kode"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:743
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:735
 #, python-format
 msgid "Type in a diagnostic code; you may use SQL 'LIKE' syntax for wildcards, i.e. _ for one character and % for zero/one/lots"
 msgstr "Indtast en diagnostik kode. Du kan bruge SQL 'LIKE' syntaks for jokertegn, dvs _ for et tegn og % for nul/en/partier"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:768
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:762
 msgid "Diagnostic codes"
 msgstr "Diagnostiske koder"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:770
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:764
 msgid "Use % as a wildcard (e.g. F32 matches only F32, but F32% matches F32, F32.1, F32.2...)."
 msgstr "Brug % som jokertegn (f. eks. F32 matcher kun F32, men F32% matcher F32, F 32.1, F 32.2...)."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:784
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:778
 msgid "You must specify at least"
 msgstr "Du skal angive mindst"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:787
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:781
 msgid "You have specified duplicate diagnoses"
 msgstr "Du har angivet identiske diagnoser"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:805
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:799
 msgid "Inclusion diagnoses (lifetime)"
 msgstr "Inklusions diagnoser (levetid)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:807
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:801
 msgid "Exclusion diagnoses (lifetime)"
 msgstr "Udelukkelses diagnoser (levetid)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:809
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:803
 msgid "Minimum age (years) (optional)"
 msgstr "Minimumsalder (år) (valgfrit)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:811
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:805
 msgid "Maximum age (years) (optional)"
 msgstr "Maksimal alder (år) (valgfrit)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:1060
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:1058
 msgid "Diagnosis – Find patients by ICD-10 diagnosis ± age"
 msgstr "Diagnose – Find patienter ved ICD-10 diagnose ± alder"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:1111
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:1109
 msgid "Diagnosis – Find patients by ICD-9-CM (DSM-IV-TR) diagnosis ± age"
 msgstr "Diagnose – Find patienter ved ICD-9-CM (DSM-IV-TR) diagnose ± alder"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/distressthermometer.py:137
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/distressthermometer.py:131
 msgid "Distress Thermometer"
 msgstr "Nød termometer"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/edeq.py:197
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/edeq.py:192
 msgid "Eating Disorder Examination Questionnaire"
 msgstr "Eating Disorder Examination Questionnaire (spørgeskema til undersøgelse af spiseforstyrrelse)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/elixhauserci.py:129
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/elixhauserci.py:119
 msgid "Elixhauser Comorbidity Index"
 msgstr "Elixhauser Comorbidity Index [Elixhauser comorbiditetsindeks]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/epds.py:85
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/empsa.py:216
+msgid "Eating and Meal Preparation Skills Assessment"
+msgstr "Eating and Meal Preparation Skills Assessment [evaluering af færdigheder i spise- og måltidsforberedelse]"
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/epds.py:80
 msgid "Edinburgh Postnatal Depression Scale"
 msgstr "Edinburgh Postnatal Depression Scale [postnatal depression skala]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/eq5d5l.py:128
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/eq5d5l.py:117
 msgid "EuroQol 5-Dimension, 5-Level Health Scale"
 msgstr "EuroQol 5-dimension, 5-niveau sundhedsskala"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/esspri.py:91
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/esspri.py:85
 msgid "EULAR Sjögren’s Syndrome Patient Reported Index"
 msgstr "EULAR Sjögren’s Syndrome Patient Reported Index [EULAR Sjögrens syndrom patient-rapporteret indeks]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/factg.py:290
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/factg.py:282
 msgid "Functional Assessment of Cancer Therapy — General"
 msgstr "Functional Assessment of Cancer Therapy—General [funktionel vurdering af kræftbehandling—generel]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/fast.py:96
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/fast.py:91
 msgid "Fast Alcohol Screening Test"
 msgstr "Fast Alcohol Screening Test [hurtig alkohol screening test]"
 
@@ -2256,127 +2260,127 @@ msgstr "Fast Alcohol Screening Test [hurtig alkohol screening test]"
 msgid "Friends and Family Test"
 msgstr "Friends and Family Test [venner og familie test]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/frs.py:246
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/frs.py:238
 msgid "Frontotemporal Dementia Rating Scale"
 msgstr "Frontotemporal Dementia Rating Scale [frontotemporal demens rating skala]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/gad7.py:104
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/gad7.py:99
 msgid "Generalized Anxiety Disorder Assessment"
 msgstr "Generalized Anxiety Disorder Assessment [generaliseret angstlidelse vurdering]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/gaf.py:78
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/gaf.py:76
 msgid "Global Assessment of Functioning (data collection only)"
 msgstr "Global Assessment of Functioning [global vurdering af funktionen] [dataindsamling kun]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/gbo.py:129
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/gbo.py:128
 msgid "Goal-Based Outcomes – 1 – Goal Record Sheet"
 msgstr "Goal-Based Outcomes [målbaserede resultater] – 1 – mål rekord ark"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/gbo.py:262
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/gbo.py:260
 msgid "Goal-Based Outcomes – 2 – Goal Progress Chart"
 msgstr "Goal-Based Outcomes [målbaserede resultater] – 2 – mål fremskridt diagram"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/gbo.py:435
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/gbo.py:426
 msgid "Goal-Based Outcomes – 3 – Goal Rating Sheet"
 msgstr "Goal-Based Outcomes [målbaserede resultater] – 3 – målsætningsskema"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/gds.py:107
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/gds.py:102
 msgid "Geriatric Depression Scale, 15-item version"
 msgstr "Geriatric Depression Scale [geriatrisk depression skala], 15-vare version"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/gmcpq.py:234
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/gmcpq.py:197
 msgid "GMC Patient Questionnaire"
 msgstr "UK General Medical Council (GMC) [generel medicinsk rådsforsamling] patient spørgeskema"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/hads.py:378
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/hads.py:234
 msgid "Hospital Anxiety and Depression Scale (data collection only)"
 msgstr "Hospital Anxiety and Depression Scale [hospital angst og depression skala]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/hads.py:419
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/hads.py:275
 msgid "Hospital Anxiety and Depression Scale (data collection only), non-patient respondent version"
 msgstr "Hospital Anxiety and Depression Scale [hospital angst og depression skala], version, hvor respondenten ikke er patienten"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/hama.py:113
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/hama.py:107
 msgid "Hamilton Rating Scale for Anxiety"
 msgstr "Hamilton Rating Scale for Anxiety [Hamilton rating skala for angst]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/hamd.py:200
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/hamd.py:242
 msgid "Hamilton Rating Scale for Depression"
 msgstr "Hamilton Depression Rating Scale (depression bedømmelse skala) [HDRS/HAM-D/HRSD]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/hamd7.py:113
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/hamd7.py:125
 msgid "Hamilton Rating Scale for Depression (7-item scale)"
 msgstr "Hamilton Depression Rating Scale (depression bedømmelse skala), 7-vare version"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/honos.py:225
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/honos.py:217
 msgid "Health of the Nation Outcome Scales, working age adults"
 msgstr "Health of the Nation Outcome Scales [sundhed af nationen resultat skalaer], voksne i erhvervsalderen"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/honos.py:443
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/honos.py:428
 msgid "Health of the Nation Outcome Scales, older adults"
 msgstr "Health of the Nation Outcome Scales [sundhed af nationen resultat skalaer], ældre voksne"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/honos.py:619
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/honos.py:599
 msgid "Health of the Nation Outcome Scales, Children and Adolescents"
 msgstr "Health of the Nation Outcome Scales [sundhed af nationen resultat skalaer], børn og unge"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/icd10depressive.py:295
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/icd10depressive.py:254
 msgid "ICD-10 symptomatic criteria for a depressive episode (as in e.g. F06.3, F25, F31, F32, F33)"
 msgstr "ICD-10 symptomatiske kriterier for en depressiv episode (som i fx F06.3, F25, F31, F32, F33)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/icd10manic.py:270
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/icd10manic.py:237
 msgid "ICD-10 symptomatic criteria for a manic/hypomanic episode (as in e.g. F06.3, F25, F30, F31)"
 msgstr "ICD-10 symptomatiske kriterier for en manisk/hypomanisk episode (som i fx F06.3, F25, F30, F31)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/icd10mixed.py:95
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/icd10mixed.py:96
 msgid "ICD-10 symptomatic criteria for a mixed affective episode (as in e.g. F06.3, F25, F38.00, F31.6)"
 msgstr "ICD-10 symptomatiske kriterier for en blandet affektiv episode (som i fx F06.3, F25, F38.00, F31.6)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/icd10schizophrenia.py:365
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/icd10schizophrenia.py:310
 msgid "ICD-10 criteria for schizophrenia (F20)"
 msgstr "ICD-10 kriterier for skizofreni (F20)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/icd10specpd.py:368
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/icd10specpd.py:341
 msgid "ICD-10 criteria for specific personality disorders (F60)"
 msgstr "ICD-10 kriterier for specifikke personlighedsforstyrrelser (F60)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ided3d.py:499
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ided3d.py:444
 msgid "Three-dimensional ID/ED task"
 msgstr "Tredimensionel intradimensionel/ekstradimensionel set-shifting opgave"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/iesr.py:137
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/iesr.py:133
 msgid "Impact of Events Scale – Revised"
 msgstr "Impact of Events Scale – Revised [virkning af begivenhedsskala – revideret]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ifs.py:191
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ifs.py:178
 msgid "INECO Frontal Screening"
 msgstr "INECO Frontal Screening [frontallappen screening test]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/irac.py:73
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/irac.py:74
 msgid "Identify and Rate the Aim of the Contact"
 msgstr "Identify and Rate the Aim of the Contact [identificere og vurdere formålet med kontakten]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/isaaq10.py:119
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/isaaq10.py:111
 msgid "Internet Severity and Activities Addiction Questionnaire, 10-items"
 msgstr "Internet Severity and Activities Addiction Questionnaire (internet sværhedsgrad og aktiviteter afhængighed spørgeskema), 10 punkter"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/isaaqed.py:89
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/isaaqed.py:82
 msgid "Internet Severity and Activities Addiction Questionnaire, Eating Disorders Appendix"
 msgstr "Internet Severity and Activities Addiction Questionnaire, Eating Disorders Appendix (internet sværhedsgrad og aktiviteter afhængighed spørgeskema, spiseforstyrrelser appendiks)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/khandaker_insight_medical.py:131
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/khandaker_insight_medical.py:125
 msgid "Khandaker GM — Insight — Medical history"
 msgstr "Khandaker GM — Insight — Medicinsk historie"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/khandaker_mojo_medical.py:531
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/khandaker_mojo_medical.py:524
 msgid "Khandaker GM — MOJO — Medical questionnaire"
 msgstr "Khandaker GM — MOJO — Medicinsk spørgeskema"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/khandaker_mojo_medicationtherapy.py:240
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/khandaker_mojo_medicationtherapy.py:230
 msgid "Khandaker GM — MOJO — Medications and therapies"
 msgstr "Khandaker GM — MOJO — Medicin og terapier"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/khandaker_mojo_sociodemographics.py:247
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/khandaker_mojo_sociodemographics.py:238
 msgid "Khandaker GM — MOJO — Sociodemographics"
 msgstr "Khandaker GM — MOJO — Sociodemografi"
 
@@ -2392,59 +2396,59 @@ msgstr "{money} i {days} dage"
 msgid "Would you prefer {sir}, or {ldr}?"
 msgstr "Vil du foretrække {sir} eller {ldr}?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/kirby_mcq.py:262
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/kirby_mcq.py:264
 msgid "Kirby et al. 1999 Monetary Choice Questionnaire"
 msgstr "Kirby et al. 1999 Monetary Choice Questionnaire [monetært valg-spørgeskema]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/lynall_iam_life.py:171
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/lynall_iam_life.py:164
 msgid "Lynall M-E — IAM — Life events"
 msgstr "Lynall M-E — IAM — Livsbegivenheder"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/lynall_iam_medical.py:268
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/lynall_iam_medical.py:243
 msgid "Lynall M-E — 1 — IAM — Medical history"
 msgstr "Lynall M-E — 1 — IAM — sygehistorie"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/maas.py:168
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/maas.py:159
 msgid "Maternal Antenatal Attachment Scale"
 msgstr "Maternal Antenatal Attachment Scale [maternel antenne vedhæftnings skala]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/maas.py:302
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/maas.py:293
 msgid "MAAS — Average scores"
 msgstr "MAAS — gennemsnitlig score"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/maas.py:314
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/maas.py:305
 msgid "Global attachment score"
 msgstr "Global vedhæftnings score"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/maas.py:321
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/maas.py:312
 msgid "Quality of attachment score"
 msgstr "Kvaliteten af vedhæftnings score"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/maas.py:328
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/maas.py:319
 msgid "Time spent in attachment mode"
 msgstr "Tid brugt i vedhæftnings tilstand"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/mast.py:123
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/mast.py:118
 msgid "Michigan Alcohol Screening Test"
 msgstr "Michigan Alcohol Screening Test [Michigan alkohol screening test]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/mds_updrs.py:531
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/mds_updrs.py:385
 msgid "Movement Disorder Society-Sponsored Revision of the Unified Parkinson’s Disease Rating Scale (data collection only)"
 msgstr "Movement Disorder Society-Sponsored Revision of the Unified Parkinson’s Disease Rating Scale [Revision af den samlede Parkinsons sygdomskvalitetsskala, sponsoreret af bevægelsesforstyrrelsessamfundet]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/mfi20.py:131
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/mfi20.py:128
 msgid "Multidimensional Fatigue Inventory"
 msgstr "Multidimensional Fatigue Inventory [multidimensionel træthedsinventar]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/moca.py:242
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/moca.py:247
 msgid "Montreal Cognitive Assessment"
 msgstr "Montreal Cognitive Assessment [Montreal kognitiv vurdering]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/nart.py:150
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/nart.py:143
 msgid "National Adult Reading Test"
 msgstr "National Adult Reading Test [national voksen læsning test; ENGELSK SPROG]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/npiq.py:131
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/npiq.py:125
 msgid "Neuropsychiatric Inventory Questionnaire"
 msgstr "Neuropsychiatry Inventory Questionnaire [neuropsykiatrisk opgørelse spørgeskema]"
 
@@ -2452,171 +2456,171 @@ msgstr "Neuropsychiatry Inventory Questionnaire [neuropsykiatrisk opgørelse sp�
 msgid "Outcome Rating Scale"
 msgstr "Outcome Rating Scale [resultat vurdering skala]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/panss.py:167
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/panss.py:160
 msgid "Positive and Negative Syndrome Scale"
 msgstr "Positive and Negative Syndrome Scale [positiv og negativ syndrom skala]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/paradise24.py:104
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/paradise24.py:98
 msgid "Psychosocial fActors Relevant to BrAin DISorders in Europe–24"
 msgstr "Psychosocial fActors Relevant to BrAin DISorders in Europe–24 (Psykosociale faktorer, der er relevante for hjernesygdomme i Europa–24)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pbq.py:166
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pbq.py:161
 msgid "Postpartum Bonding Questionnaire"
 msgstr "Postpartum Bonding Questionnaire [postpartum moder-spædbarn bindings spørgeskema]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pbq.py:348
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pbq.py:343
 msgid "PBQ — Average scores"
 msgstr "PBQ — gennemsnitlig score"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pbq.py:367
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pbq.py:362
 msgid "Factor 1 score"
 msgstr "Faktor 1-score"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pbq.py:374
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pbq.py:369
 msgid "Factor 2 score"
 msgstr "Faktor 2-score"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pbq.py:381
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pbq.py:376
 msgid "Factor 3 score"
 msgstr "Faktor 3-score"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pbq.py:388
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pbq.py:383
 msgid "Factor 4 score"
 msgstr "Faktor 4-score"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pcl.py:310
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pcl.py:299
 msgid "PTSD Checklist, Civilian version"
 msgstr "PTSD Checklist [post-traumatisk stresslidelse tjekliste], civilist version"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pcl.py:331
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pcl.py:320
 msgid "PTSD Checklist, Military version"
 msgstr "PTSD Checklist [post-traumatisk stresslidelse tjekliste], militær version"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pcl.py:358
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pcl.py:349
 msgid "PTSD Checklist, Stressor-specific version"
 msgstr "PTSD Checklist [post-traumatisk stresslidelse tjekliste], stressfaktor-specifik version"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pcl5.py:132
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pcl5.py:123
 msgid "PTSD Checklist, DSM-5 version"
 msgstr "PTSD Checklist [post-traumatisk stresslidelse tjekliste] til DSM-5"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pdss.py:104
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pdss.py:99
 msgid "Panic Disorder Severity Scale"
 msgstr "Panic Disorder Severity Scale [paniklidelse alvorlighedsskala]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/perinatalpoem.py:354
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/perinatalpoem.py:309
 msgid "Perinatal Patient-rated Outcome and Experience Measure"
 msgstr "Perinatal Patient-rated Outcome and Experience Measure [perinatalt patientrelateret udfald og erfaringsmål]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/perinatalpoem.py:590
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/perinatalpoem.py:545
 msgid "Perinatal-POEM — Question summaries"
 msgstr "Perinatal-POEM — spørgsmål resuméer"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/photo.py:95
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/photo.py:90
 msgid "Photograph"
 msgstr "Foto"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/photo.py:231
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/photo.py:215
 msgid "Photograph sequence"
 msgstr "Fotosekvens"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/phq15.py:116
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/phq15.py:110
 msgid "Patient Health Questionnaire-15"
 msgstr "Patient Health Questionnaire-15 [patientundersøgelse spørgeskema-15]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/phq8.py:115
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/phq8.py:110
 msgid "Patient Health Questionnaire 8-item depression scale"
 msgstr "Patient Health Spørgeskema 8-punkts depression skala"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/phq9.py:127
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/phq9.py:120
 msgid "Patient Health Questionnaire-9"
 msgstr "Patient Health Questionnaire-9 [patientundersøgelse spørgeskema-9]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/progressnote.py:71
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/progressnote.py:75
 msgid "Clinical progress note"
 msgstr "Fremskridt notat"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pswq.py:108
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/pswq.py:103
 msgid "Penn State Worry Questionnaire"
 msgstr "Penn State Worry Questionnaire [Penn State bekymre spørgeskema]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/psychiatricclerking.py:188
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/psychiatricclerking.py:192
 msgid "Psychiatric clerking"
 msgstr "Interview af en psykiater"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/qolbasic.py:87
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/qolbasic.py:84
 msgid "Quality of Life: basic assessment"
 msgstr "Livskvalitet: grundlæggende vurdering"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/qolsg.py:144
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/qolsg.py:129
 msgid "Quality of Life: Standard Gamble"
 msgstr "Livskvalitet: standard gamble"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/rand36.py:216
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/rand36.py:199
 msgid "RAND 36-Item Short Form Health Survey 1.0"
 msgstr "RAND 36-vare Short Form Health Survey [kort formundersøgelse] 1.0"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/rapid3.py:190
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/rapid3.py:183
 msgid "Routine Assessment of Patient Index Data"
 msgstr "Routine Assessment of Patient Index Data [rutinemæssig vurdering af patientindeksdata]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/service_satisfaction.py:149
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/service_satisfaction.py:146
 msgid "Patient Satisfaction Scale"
 msgstr "Patient Satisfaction Scale [patient tilfredshed skala]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/service_satisfaction.py:177
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/service_satisfaction.py:174
 msgid "Referrer Satisfaction Scale, survey"
 msgstr "Referrer Satisfaction Scale [referrer tilfredshed skala], anonym undersøgelse"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/service_satisfaction.py:207
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/service_satisfaction.py:204
 msgid "Referrer Satisfaction Scale, patient-specific"
 msgstr "Referrer Satisfaction Scale [referrer tilfredshed skala], patientspecifikke"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/sfmpq2.py:127
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/sfmpq2.py:121
 msgid "Short-Form McGill Pain Questionnaire 2"
 msgstr "Short-Form McGill Pain Questionnaire 2 [kortformet McGill smerte spørgeskema 2]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/shaps.py:108
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/shaps.py:102
 msgid "Snaith–Hamilton Pleasure Scale"
 msgstr "Snaith–Hamilton Pleasure Scale [Snaith–Hamilton fornøjelseskala]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/slums.py:278
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/slums.py:230
 msgid "St Louis University Mental Status"
 msgstr "St Louis University Mental Status [St Louis universitet mental status]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/smast.py:113
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/smast.py:108
 msgid "Short Michigan Alcohol Screening Test"
 msgstr "Short Michigan Alcohol Screening Test [kort Michigan alkohol screening test]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/srs.py:95
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/srs.py:92
 msgid "Session Rating Scale"
 msgstr "Session Rating Scale [sessionsvurdering skalaen]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/suppsp.py:140
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/suppsp.py:136
 msgid "Short UPPS-P Impulsive Behaviour Scale"
 msgstr "Short UPPS-P Impulsive Behaviour Scale [Kort UPPS-P impulsiv adfærdskala]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/wemwbs.py:110
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/wemwbs.py:105
 msgid "Warwick–Edinburgh Mental Well-Being Scale"
 msgstr "Warwick–Edinburgh Mental Well-Being Scale [mental velfærd skala]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/wemwbs.py:290
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/wemwbs.py:281
 msgid "Short Warwick–Edinburgh Mental Well-Being Scale"
 msgstr "Short Warwick–Edinburgh Mental Well-Being Scale [kort Warwick-Edinburgh mental velfærd skala]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/wsas.py:114
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/wsas.py:106
 msgid "Work and Social Adjustment Scale"
 msgstr "Work and Social Adjustment Scale [arbejds- og socialjusteringskala]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ybocs.py:149
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ybocs.py:142
 msgid "Yale–Brown Obsessive Compulsive Scale"
 msgstr "Yale–Brown Obsessive Compulsive Scale [obsessiv kompulsiv skala], 9/89 revision"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ybocs.py:466
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ybocs.py:450
 msgid "Y-BOCS Symptom Checklist"
 msgstr "Y-BOCS Symptom Checklist [symptom checkliste], 9/89 revision"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/zbi.py:111
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/zbi.py:105
 msgid "Zarit Burden Interview-12"
 msgstr "Zarit Burden Interview [Zarit byrdeinterview], 12-vare version"
 
@@ -3113,7 +3117,7 @@ msgid "Edit details for finalized patient"
 msgstr "Rediger detaljer for færdiggjorte patienter"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/finalized_patient_edit.mako:45
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/server_created_patient_edit.mako:45
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/server_created_patient_edit.mako:74
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:166
 msgid "Server PK:"
 msgstr "Server PK:"
@@ -3270,7 +3274,7 @@ msgstr "HL7 ID-type"
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:84
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:58
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:141
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:156
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:167
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:55
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:78
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:54
@@ -3463,7 +3467,7 @@ msgid "Page not found!"
 msgstr "Side ikke fundet!"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_add.mako:41
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:182
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:193
 msgid "Add a patient"
 msgstr "Tilføje en patient"
 
@@ -3525,6 +3529,10 @@ msgstr "Send e-mail til {patient}"
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/server_created_patient_edit.mako:41
 msgid "Edit details for patient"
 msgstr "Rediger detaljer for patienten"
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/server_created_patient_edit.mako:51
+msgid "Other patients exist with identifiers that match this patient. CamCOPS can handle this but it is probably due to a data entry mistake:"
+msgstr "Der findes andre patienter med identifikatorer, der matcher denne patient. CamCOPS kan håndtere dette, men det er sandsynligvis på grund af en dataindtastningsfejl:"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/server_settings_edit.mako:41
 msgid "Edit master database title"
@@ -3825,30 +3833,34 @@ msgstr "CamCOPS-serverplacering:"
 msgid "Patients and their task schedules"
 msgstr "Patienter og deres opgaveplaner"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:76
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:88
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:65
+msgid "Multiple patients exist with the same identifier. CamCOPS can handle this but it is probably due to a data entry mistake."
+msgstr "Der findes flere patienter med samme identifikator. CamCOPS kan håndtere dette, men det skyldes sandsynligvis en dataindtastningsfejl."
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:82
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:94
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks_table.mako:47
 msgid "Patient"
 msgstr "Patienten"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:77
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:83
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks_table.mako:48
 msgid "Identifiers"
 msgstr "Id'er"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:78
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:84
 msgid "Access key"
 msgstr "Adgangsnøgle"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:80
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:86
 msgid "Edit patient, assign schedules"
 msgstr "Rediger patient, tildel tidsplaner"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:108
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:119
 msgid "Send email"
 msgstr "Send e-mail"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:111
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:122
 msgid "Resend email"
 msgstr "Send mail igen"
 
@@ -4593,4 +4605,3 @@ msgstr "Medmindre administratoren har angivet et bestemt starttidspunkt, når en
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/tasks/task_assignment_report.mako:41
 msgid "Tasks for patients who are yet to register appear in the count of 'tasks_assigned' for the date 'None'."
 msgstr "Opgaver for patienter, der endnu ikke er registreret, fremgår af optællingen af 'tasks_assigned' for datoen 'None' ('Ingen')."
-

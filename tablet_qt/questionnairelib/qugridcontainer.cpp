@@ -239,6 +239,12 @@ QuGridContainer* QuGridContainer::setExpandHorizontally(const bool expand)
     return this;
 }
 
+QuGridContainer* QuGridContainer::setStyleSheet(const QString& style_sheet)
+{
+    m_style_sheet = style_sheet;
+    return this;
+}
+
 QPointer<QWidget> QuGridContainer::makeWidget(Questionnaire* questionnaire)
 {
     // m_expand: using preferredFixedHFWPolicy() doesn't prevent it expanding
@@ -247,6 +253,7 @@ QPointer<QWidget> QuGridContainer::makeWidget(Questionnaire* questionnaire)
 
     QPointer<QWidget> widget = new BaseWidget();
     widget->setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
+    widget->setStyleSheet(m_style_sheet);
 
 #ifdef DEBUG_GRID_CREATION
     qDebug() << Q_FUNC_INFO;

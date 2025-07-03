@@ -1,0 +1,219 @@
+===============================================================================
+Linting notes
+===============================================================================
+
+-------------------------------------------------------------------------------
+flake8
+-------------------------------------------------------------------------------
+
+Flake8 rules: https://www.flake8rules.com/
+
+Suppress with "# noqa: ..." comments at the end of a line.
+You can do a generic "# noqa" but we should avoid that.
+
+COMMON ONES TO SUPPRESS:
+
+- Spaces before commas
+  # noqa: E203
+  ... as Flake8 may disagree with black and PEP8
+  See https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html#slices
+
+- Import not at top of file
+  # noqa: E402
+
+- Line too long
+  # noqa: E501
+
+- Boolean comparison with "==" not "is" etc. -- SQLAlchemy may need this:
+  # noqa: E712
+
+- Import not used
+  # noqa: F401
+
+- "from module import *" used
+  # noqa: F403
+
+- Local variable assigned to but not used
+  # noqa: F841
+
+
+-------------------------------------------------------------------------------
+PyCharm
+-------------------------------------------------------------------------------
+
+Suppression marks on the line preceding the offending line (or function).
+Can combine several, e.g.:
+    # noinspection PyProtectedMember,PyUnresolvedReferences
+
+See:
+- https://gist.github.com/pylover/7870c235867cf22817ac5b096defb768
+- https://www.jetbrains.com/help/pycharm/disabling-and-enabling-inspections.html#comments-ref
+
+COMMON ONES:
+
+- Must implement all abstract methods
+# noinspection PyAbstractClass
+
+- "try/except" without qualification
+# noinspection PyBroadException
+
+- Method may be static
+# noinspection PyMethodMayBeStatic
+
+- "Usually first parameter of a method is named self" (e.g. for @classproperty)
+# noinspection PyMethodParameters
+
+- Turn off PEP8 checking
+# noinspection PyPep8
+
+- Allow PEP8-incompatible naming
+# noinspection PyPep8Naming
+
+- Access to a protected member of a class/module
+# noinspection PyProtectedMember
+
+- Shadowing a built-in name
+# noinspection PyShadowingBuiltins
+
+- Turn off type checker (but: see alternatives)
+# noinspection PyTypeChecker
+
+- Unresolved reference
+# noinspection PyUnresolvedReferences
+
+- Parameter not used
+# noinspection PyUnusedLocal
+
+
+===============================================================================
+Typing notes
+===============================================================================
+
+Some of the evolution of type checking in Python:
+
+- PEP 484: https://peps.python.org/pep-0484/; includes:
+
+    def func(a: str) -> str
+    vec = []  # type: List[float]
+
+- PEP 526: https://peps.python.org/pep-0526/; syntax for variable annotations,
+  i.e.
+
+    a: int = None
+    b: List[int] = []
+
+  These are stored in an __annotations__ attribute on functions, classes, and
+  modules.
+
+- PEP 563: https://peps.python.org/pep-0563/; postponed evaluation of
+  annotations, using "stringized annotations", activated via
+  "from __future__ import annotations".
+
+- PEP 649: https://peps.python.org/pep-0649/; deferred evaluation of
+  annotations using descriptors, supporting a wide variety of static and
+  runtime annotation use cases. Essentially, this removes the need to use
+  string annotations.
+
+
+-------------------------------------------------------------------------------
+Type annotation of variables
+-------------------------------------------------------------------------------
+
+- OLD STYLE: x = None  # type: Optional[int]
+- NEW STYLE: x: Optional[int] = None
+
+
+-------------------------------------------------------------------------------
+Need for imports
+-------------------------------------------------------------------------------
+
+(a) Import always:
+
+    from somewhere import Something
+
+(b) Import conditionally:
+
+    from typing import TYPE_CHECKING
+    if TYPE_CHECKING:
+        from somewhere import Something
+
+Conditional imports only work when:
+
+- the type name is in quotes, e.g. def fun(a: "ExpensiveType")
+
+or
+
+- the type name is in a comment, e.g. x = blah()  # type: ExpensiveType
+
+or
+
+- annotation evaluation is postponed per PEP 563
+  (https://peps.python.org/pep-0563/), or PEP 649
+  (https://peps.python.org/pep-0649/), by using "from __future__ import
+  annotations" in current (pre-4.0) versions of Python (e.g.
+  https://stackoverflow.com/questions/61544854/from-future-import-annotations).
+
+But note also that annotations can be RUNTIME as well as STATIC. SQLAlchemy 2
+uses runtime annotations, e.g. "somecol: Mapped[int] = mapped_column()" (see
+https://docs.sqlalchemy.org/en/20/orm/declarative_tables.html). And so do
+Python dataclasses.
+
+
+-------------------------------------------------------------------------------
+More complex types
+-------------------------------------------------------------------------------
+
+- If we have "def func(a: int, b: bool) -> str", then func is of type:
+  Callable[[int, bool], str]
+
+- If x = SomeClass(), then:
+
+  - x is of type: SomeClass
+  - type(x), the class, is itself of type: Type[SomeClass]
+
+- A generic class is of type Type, i.e. def func(cls: Type).
+
+- The tuple (1, ) is of type Tuple[int].
+  The tuple (1, 2) is of type Tuple[int, int].
+  The tuple (1, 2, 3, ...) is of type Tuple[int, ...].
+
+- If a function type is a generator, its return type is Generator[YieldType,
+  SendType, ReturnType]. If something just yields (e.g.) ints, its type is
+  Generator[int] or Generator[int, None, None]; you can also use Iterable[int].
+
+
+-------------------------------------------------------------------------------
+mypy
+-------------------------------------------------------------------------------
+
+See
+- Error codes: https://mypy.readthedocs.io/en/stable/error_codes.html
+
+  - https://mypy.readthedocs.io/en/stable/error_code_list.html#error-code-list
+  - https://mypy.readthedocs.io/en/stable/error_code_list2.html#error-codes-optional
+
+- Suppression: https://mypy.readthedocs.io/en/stable/common_issues.html#spurious-errors-and-locally-silencing-the-checker
+
+Suppressions (at the end of the line):
+
+- Check argument types for function calls.
+  # type: ignore[arg-type]
+
+- Check types in assignment statement.
+  # type: ignore[assignment]
+
+- Check that attribute exists
+  # type: ignore[attr-defined]
+
+- Check indexing operations (e.g. that an object supports indexing and the
+  index is of the right type)
+  # type: ignore[index]
+
+- Miscellaneous checks
+  # type: ignore[misc]
+
+- Check each name is defined once.
+  # type: ignore[no-redef]
+
+- Require annotation if variable type is unclear
+  # type: ignore[var-annotated]

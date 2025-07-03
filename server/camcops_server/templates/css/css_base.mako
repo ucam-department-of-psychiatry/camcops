@@ -245,6 +245,9 @@ table.clinician, table.clinician th, table.clinician td {
 .ctv_warnings {
     margin: ${va.ELEMENTGAP} ${va.ZERO} ${va.SMALLGAP} ${va.INDENT_NORMAL};
 }
+.duplicates {
+    list-style: none;
+}
 .error {
     color: rgb(255, 0, 0);
 }
@@ -338,6 +341,9 @@ p.hangingindent {
 }
 .highlight {
     background-color: rgb(255, 250, 205);
+}
+.idnum {
+    margin: 0;
 }
 .important {
     color: rgb(64, 0, 192);
@@ -502,7 +508,7 @@ table.taskdetail td {
     background-color: rgb(227, 227, 227);
 }
 .warning {
-    background-color: rgb(255, 100, 100);
+    background-color: rgb(255, 110, 110);
 }
 
 /* The next three: need both L/R to float and clear:both for IE */

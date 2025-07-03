@@ -45,12 +45,13 @@ from typing import Any, List
 
 
 class NhsNumberProvider(BaseProvider):
-    def nhs_number(self) -> str:
+    @staticmethod
+    def nhs_number() -> int:
         return generate_random_nhs_number()
 
 
 class ChoiceProvider(BaseProvider):
-    def random_choice(self, choices: List, **kwargs) -> Any:
+    def random_choice(self, choices: List, **kwargs: Any) -> Any:
         """
         Given a list of choices return a random value
         """

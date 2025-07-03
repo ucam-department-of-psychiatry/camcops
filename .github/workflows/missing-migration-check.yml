@@ -26,6 +26,7 @@ jobs:
                   source ${HOME}/venv/bin/activate
                   python -m pip install pymysql
                   export CAMCOPS_CONFIG_FILE="${HOME}/camcops.cfg"
+                  export SQLALCHEMY_WARN_20=1
                   ${GITHUB_WORKSPACE}/.github/scripts/create_config_file.sh
                   camcops_server upgrade_db --config ${CAMCOPS_CONFIG_FILE}
                   python ${GITHUB_WORKSPACE}/server/tools/create_database_migration.py test

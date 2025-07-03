@@ -27,10 +27,9 @@ camcops_server/tasks/cia.py
 
 """
 
-from typing import Any, Dict, List, Optional, Type, Tuple
+from typing import Any, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strnumlist, strseq
-from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -42,13 +41,21 @@ from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 
-class CiaMetaclass(DeclarativeMeta):
-    def __init__(
-        cls: Type["Cia"],
-        name: str,
-        bases: Tuple[Type, ...],
-        classdict: Dict[str, Any],
-    ) -> None:
+class Cia(  # type: ignore[misc]
+    TaskHasPatientMixin,
+    Task,
+):
+    __tablename__ = "cia"
+    shortname = "CIA"
+    provides_trackers = True
+
+    Q_PREFIX = "q"
+    FIRST_Q = 1
+    LAST_Q = 16
+    MAX_SCORE = 48
+
+    @classmethod
+    def extend_columns(cls: Type["Cia"], **kwargs: Any) -> None:
 
         add_multiple_columns(
             cls,
@@ -78,19 +85,6 @@ class CiaMetaclass(DeclarativeMeta):
                 "worry",
             ],
         )
-
-        super().__init__(name, bases, classdict)
-
-
-class Cia(TaskHasPatientMixin, Task, metaclass=CiaMetaclass):
-    __tablename__ = "cia"
-    shortname = "CIA"
-    provides_trackers = True
-
-    Q_PREFIX = "q"
-    FIRST_Q = 1
-    LAST_Q = 16
-    MAX_SCORE = 48
 
     ALL_FIELD_NAMES = strseq(Q_PREFIX, FIRST_Q, LAST_Q)
     MANDATORY_QUESTIONS = [1, 2, 5, 6, 8, 9, 11, 12, 13, 14, 15, 16]
@@ -139,6 +133,8 @@ class Cia(TaskHasPatientMixin, Task, metaclass=CiaMetaclass):
         return scale_factor * self.sum_fields(self.ALL_FIELD_NAMES)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
+        question = self.xstring(req, "grid_title")
+
         rows = ""
         for q_num in range(self.FIRST_Q, self.LAST_Q + 1):
             field = self.Q_PREFIX + str(q_num)
@@ -163,8 +159,8 @@ class Cia(TaskHasPatientMixin, Task, metaclass=CiaMetaclass):
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="60%">Question</th>
-                    <th width="40%">Score</th>
+                    <th width="60%">{question}</th>
+                    <th width="40%">Response</th>
                 </tr>
                 {rows}
             </table>
@@ -179,6 +175,7 @@ class Cia(TaskHasPatientMixin, Task, metaclass=CiaMetaclass):
                 req.sstring(SS.TOTAL_SCORE) + "<sup>[1]</sup>",
                 answer(global_score_display),
             ),
+            question=question,
             rows=rows,
         )
         return html

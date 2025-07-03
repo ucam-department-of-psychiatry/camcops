@@ -1210,7 +1210,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>Cisr</name>
     <message>
-        <location filename="../tasks/cisr.cpp" line="+1041"/>
+        <location filename="../tasks/cisr.cpp" line="+993"/>
         <source>Clinical Interview Schedule – Revised</source>
         <translation>Clinical Interview Schedule – Revised [klinisk interviewplan - revideret]</translation>
     </message>
@@ -1220,7 +1220,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
         <translation>Struktureret interview, der giver forslag til mulige ICD-10-diagnoser for depressive lidelser og angstlidelser. (Kan være forkert. Er ikke en erstatning for en diagnose stillet af en kvalificeret kliniker.)</translation>
     </message>
     <message>
-        <location line="+3081"/>
+        <location line="+3065"/>
         <source>CIS-R suggestion ONLY</source>
         <translation>Kun forslag fra CIS-R</translation>
     </message>
@@ -2536,7 +2536,7 @@ enig</translation>
 <context>
     <name>EatingDisordersMenu</name>
     <message>
-        <location filename="../menu/eatingdisordersmenu.cpp" line="+42"/>
+        <location filename="../menu/eatingdisordersmenu.cpp" line="+43"/>
         <source>Eating disorders</source>
         <translation>Spiseforstyrrelser</translation>
     </message>
@@ -2565,6 +2565,26 @@ enig</translation>
         <location line="+5"/>
         <source>31-item clinician-rated comorbidity catalogue.</source>
         <translation>31-punkts kliniker-bedømt comorbiditet katalog.</translation>
+    </message>
+</context>
+<context>
+    <name>Empsa</name>
+    <message>
+        <location filename="../tasks/empsa.cpp" line="+97"/>
+        <source>Eating &amp; Meal Preparation Skills Assessment</source>
+        <translation>Eating &amp; Meal Preparation Skills Assessment [Spise &amp; Måltidsforberedelse færdighedsvurdering]</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>A 12-item self-report assessment tool designed to measure eating disordered clients&apos; perceived ability and motivation to perform 12 eating and meal preparation tasks.</source>
+        <translation>Et 12-elements selvrapporteringsvurderingsværktøj designet til at måle spiseforstyrrede klienters opfattede evne og motivation til at udføre 12 spise- og måltidsforberedelsesopgaver.</translation>
+    </message>
+    <message>
+        <location line="+182"/>
+        <location line="+8"/>
+        <source>%1 to %2</source>
+        <extracomment>Range for integer input</extracomment>
+        <translation>%1 til %2</translation>
     </message>
 </context>
 <context>

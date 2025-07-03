@@ -30,10 +30,16 @@ camcops_server/cc_modules/cc_specialnote.py
 from typing import List, Optional, TYPE_CHECKING
 
 import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.orm import relationship, Session as SqlASession
+from pendulum import DateTime as Pendulum
+from sqlalchemy.orm import (
+    mapped_column,
+    Mapped,
+    relationship,
+    Session as SqlASession,
+)
 from sqlalchemy.sql.expression import update
-from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import Boolean, Integer, UnicodeText
+from sqlalchemy.sql.schema import ForeignKey
+from sqlalchemy.sql.sqltypes import UnicodeText
 
 from camcops_server.cc_modules.cc_constants import ERA_NOW
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -72,52 +78,43 @@ class SpecialNote(Base):
     __tablename__ = "_special_notes"
 
     # PK:
-    note_id = Column(
-        "note_id",
-        Integer,
+    note_id: Mapped[int] = mapped_column(
         primary_key=True,
         autoincrement=True,
         comment="Arbitrary primary key",
     )
     # Composite FK:
-    basetable = Column(
-        "basetable",
+    basetable: Mapped[Optional[str]] = mapped_column(
         TableNameColType,
         index=True,
         comment="Base table of task concerned (part of FK)",
     )
-    task_id = Column(
-        "task_id",
-        Integer,
+    task_id: Mapped[Optional[int]] = mapped_column(
         index=True,
         comment="Client-side ID of the task, or patient, concerned "
         "(part of FK)",
     )
-    device_id = Column(
-        "device_id",
-        Integer,
+    device_id: Mapped[Optional[int]] = mapped_column(
         index=True,
         comment="Source tablet device (part of FK)",
     )
-    era = Column("era", EraColType, index=True, comment="Era (part of FK)")
+    era: Mapped[Optional[str]] = mapped_column(
+        EraColType, index=True, comment="Era (part of FK)"
+    )
     # Details of note
-    note_at = Column(
-        "note_at",
+    note_at: Mapped[Optional[Pendulum]] = mapped_column(
         PendulumDateTimeAsIsoTextColType,
         comment="Date/time of note entry (ISO 8601)",
     )
-    user_id = Column(
-        "user_id",
-        Integer,
+    user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("_security_users.id"),
         comment="User that entered this note",
     )
     user = relationship("User")
-    note = Column("note", UnicodeText, comment="Special note, added manually")
-    hidden = Column(
-        "hidden",
-        Boolean,
-        nullable=False,
+    note: Mapped[Optional[str]] = mapped_column(
+        UnicodeText, comment="Special note, added manually"
+    )
+    hidden: Mapped[bool] = mapped_column(
         default=False,
         comment="Manually hidden (effectively: deleted)",
     )
@@ -187,7 +184,7 @@ class SpecialNote(Base):
 
         # noinspection PyUnresolvedReferences
         dbsession.execute(
-            update(cls.__table__)
+            update(cls.__table__)  # type: ignore[arg-type]
             .where(cls.device_id == device_id)
             .where(cls.era == ERA_NOW)
             .values(era=new_era)
