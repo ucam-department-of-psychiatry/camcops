@@ -379,6 +379,8 @@ bool confirmDangerousOperation(
 )
 {
     DangerousConfirmationDialog dlg(text, title, parent);
+    // Work around https://bugreports.qt.io/browse/QTBUG-125337
+    dlg.setFocus();
 
     return dlg.confirmed();
 }
@@ -395,6 +397,8 @@ bool getPassword(
 )
 {
     PasswordEntryDialog dlg(text, title, parent);
+    // Work around https://bugreports.qt.io/browse/QTBUG-125337
+    dlg.setFocus();
     const int reply = dlg.exec();
     if (reply != QDialog::Accepted) {
         return false;
@@ -414,6 +418,8 @@ bool getOldNewPasswords(
 )
 {
     PasswordChangeDialog dlg(text, title, require_old_password, parent);
+    // Work around https://bugreports.qt.io/browse/QTBUG-125337
+    dlg.setFocus();
     const int reply = dlg.exec();
     if (reply != QMessageBox::Accepted) {
         return false;

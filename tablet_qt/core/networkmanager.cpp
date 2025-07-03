@@ -637,6 +637,8 @@ bool NetworkManager::ensurePasswordKnown()
     const QString title = tr("Enter server password");
     QWidget* parent = m_logbox ? m_logbox : m_parent;
     PasswordEntryDialog dlg(text, title, parent);
+    // Work around https://bugreports.qt.io/browse/QTBUG-125337
+    dlg.setFocus();
     const int reply = dlg.exec();
     if (reply != QDialog::Accepted) {
         return false;
