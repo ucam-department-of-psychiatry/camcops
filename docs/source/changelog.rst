@@ -3968,3 +3968,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Display the question on the server side for :ref:`The Clinical Impairment Assessment questionnaire (CIA)
   <cia>`.
+
+- Qt version now 6.5.5. This fixes the display of the About Qt dialog on iOS
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/308
