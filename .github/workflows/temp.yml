@@ -1,0 +1,16 @@
+name: Temporary test of Qt git clone
+
+on:
+    push:
+        paths:
+            - .github/workflows/temp.yml
+
+jobs:
+    test:
+        runs-on: ubuntu-22.04
+        steps:
+            - name: Checkout Qt
+              run: |
+                set -euxo pipefail
+                mkdir -p ${HOME}/qt_local_build/src/qt6
+                git clone --branch v6.5.5-lts-lgpl git://code.qt.io/qt/qt5.git /home/runner/qt_local_build/src/qt6
