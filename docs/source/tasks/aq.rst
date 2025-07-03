@@ -77,7 +77,7 @@ contradict the assertion of copyright and the restrictions placed.]
 
 
 History
--------
+~~~~~~~
 
 Baron-Cohen S, Wheelwright S, Skinner R, Martin J, Clubley E (2001).
 The autism-spectrum quotient (AQ): evidence from Asperger

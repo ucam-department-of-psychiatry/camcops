@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CamCOPS 2.3.3\n"
 "Report-Msgid-Bugs-To: rnc1001@cam.ac.uk\n"
-"POT-Creation-Date: 2025-04-11 15:35+0100\n"
+"POT-Creation-Date: 2025-07-03 14:05+0100\n"
 "PO-Revision-Date: 2025-04-11 15:28+0100\n"
 "Last-Translator: \n"
 "Language: da_DK\n"
@@ -18,29 +18,29 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_device.py:217
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_device.py:218
 msgid "(Server) Devices registered with the server"
 msgstr "(Server) Enheder, der er registreret på serveren"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:886
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:961
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:885
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:960
 msgid "CamCOPS research data dump"
 msgstr "CamCOPS forskningsdata dump"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:887
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:886
 msgid "The research data dump you requested is attached."
 msgstr "Den forskningsdata-dump, du har anmodet om, er vedhæftet."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:927
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:926
 msgid "You do not have enough space to create this download. You are allowed {total_permitted} bytes and you are have {space} bytes free. This download would need {size} bytes."
 msgstr "Du har ikke tilstrækkelig plads til at oprette denne overførsel. Du har tilladelse {total_permitted} byte, og du har {space} byte gratis. Denne overførsel skal bruge {size} byte."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:941
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:940
 #, python-format
 msgid "The research data dump you requested is ready to be downloaded. You will find it in your download area. It is called %s"
 msgstr "Den forskningsdata dump, du har anmodet om, er klar til at blive hentet. Du finder det i dit download område. Det kaldes %s"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:950
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:949
 msgid "Failed to create file {filename}. Error was: {message}"
 msgstr "Filen {filename} kunne ikke oprettes. Fejlen var: {message}"
 
@@ -122,7 +122,7 @@ msgstr "Annuller"
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:96
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:62
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:232
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:186
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:179
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:56
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:90
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:55
@@ -1169,23 +1169,23 @@ msgstr "Id-nummer fejler grundlæggende kontroller"
 msgid "Page $page of $page_count; total $item_count records"
 msgstr "Side $page af $page_count; samlede $item_count poster"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:807
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:806
 msgid "Number of initial records"
 msgstr "Antal indledende poster"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:808
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:807
 msgid "Number of latest subsequent records"
 msgstr "Antal seneste efterfølgende poster"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:840
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:839
 msgid "Date filters"
 msgstr "Datofiltre"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:841
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:840
 msgid "Start date"
 msgstr "Startdato"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:841
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:840
 msgid "End date"
 msgstr "Slutdato"
 
@@ -1538,7 +1538,7 @@ msgstr "Opgavetabelnavne skal starte med et bogstav og må kun indeholde alfanum
 msgid "Download filenames must (1) begin with an alphanumeric/underscore character; (2) contain only alphanumeric characters, underscores, and hyphens; and (3) end with a full stop followed by an alphanumeric/underscore extension."
 msgstr "Hent filnavne skal (1) begynde med et alfanumerisk/understregningstegn; (2) indeholder kun alfanumeriske tegn, understregningstegn og bindestreger; og (3) slutter med et fuldt stop efterfulgt af en alfanumerisk/understregningsudvidelse."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_view_classes.py:870
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_view_classes.py:871
 msgid "Cannot find {object_class} with {server_pk_name}:{pk_value}"
 msgstr "{object_class} blev ikke fundet med {server_pk_name}:{pk_value}"
 
@@ -1800,7 +1800,7 @@ msgid "Patient is not editable - was not created on the server"
 msgstr "Patienten kan ikke redigeres - blev ikke oprettet på serveren"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5382
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:92
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:85
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:44
 msgid "Task schedules"
 msgstr "Opgaveplaner"
@@ -1822,7 +1822,7 @@ msgid "Not authorized to delete this patient"
 msgstr "Ikke autoriseret til at slette denne patient"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5584
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:94
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:87
 msgid "Delete patient"
 msgstr "Slet patient"
 
@@ -2232,6 +2232,10 @@ msgstr "Eating Disorder Examination Questionnaire (spørgeskema til undersøgels
 msgid "Elixhauser Comorbidity Index"
 msgstr "Elixhauser Comorbidity Index [Elixhauser comorbiditetsindeks]"
 
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/empsa.py:216
+msgid "Eating and Meal Preparation Skills Assessment"
+msgstr "Eating and Meal Preparation Skills Assessment [evaluering af færdigheder i spise- og måltidsforberedelse]"
+
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/epds.py:80
 msgid "Edinburgh Postnatal Depression Scale"
 msgstr "Edinburgh Postnatal Depression Scale [postnatal depression skala]"
@@ -2300,7 +2304,7 @@ msgstr "Hospital Anxiety and Depression Scale [hospital angst og depression skal
 msgid "Hamilton Rating Scale for Anxiety"
 msgstr "Hamilton Rating Scale for Anxiety [Hamilton rating skala for angst]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/hamd.py:239
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/hamd.py:242
 msgid "Hamilton Rating Scale for Depression"
 msgstr "Hamilton Depression Rating Scale (depression bedømmelse skala) [HDRS/HAM-D/HRSD]"
 
@@ -3270,7 +3274,7 @@ msgstr "HL7 ID-type"
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:84
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:58
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:141
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:174
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:167
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:55
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:78
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:54
@@ -3463,7 +3467,7 @@ msgid "Page not found!"
 msgstr "Side ikke fundet!"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_add.mako:41
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:200
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:193
 msgid "Add a patient"
 msgstr "Tilføje en patient"
 
@@ -3829,34 +3833,34 @@ msgstr "CamCOPS-serverplacering:"
 msgid "Patients and their task schedules"
 msgstr "Patienter og deres opgaveplaner"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:72
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:65
 msgid "Multiple patients exist with the same identifier. CamCOPS can handle this but it is probably due to a data entry mistake."
 msgstr "Der findes flere patienter med samme identifikator. CamCOPS kan håndtere dette, men det skyldes sandsynligvis en dataindtastningsfejl."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:89
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:101
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:82
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:94
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks_table.mako:47
 msgid "Patient"
 msgstr "Patienten"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:90
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:83
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks_table.mako:48
 msgid "Identifiers"
 msgstr "Id'er"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:91
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:84
 msgid "Access key"
 msgstr "Adgangsnøgle"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:93
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:86
 msgid "Edit patient, assign schedules"
 msgstr "Rediger patient, tildel tidsplaner"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:126
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:119
 msgid "Send email"
 msgstr "Send e-mail"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:129
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:122
 msgid "Resend email"
 msgstr "Send mail igen"
 

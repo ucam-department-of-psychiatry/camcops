@@ -723,6 +723,8 @@ tablet_qt
     tasks/edeq.h.rst
     tasks/elixhauserci.cpp.rst
     tasks/elixhauserci.h.rst
+    tasks/empsa.cpp.rst
+    tasks/empsa.h.rst
     tasks/epds.cpp.rst
     tasks/epds.h.rst
     tasks/eq5d5l.cpp.rst

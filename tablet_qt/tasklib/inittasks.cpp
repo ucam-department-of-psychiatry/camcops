@@ -72,6 +72,7 @@
 #include "tasks/distressthermometer.h"
 #include "tasks/edeq.h"
 #include "tasks/elixhauserci.h"
+#include "tasks/empsa.h"
 #include "tasks/epds.h"
 #include "tasks/eq5d5l.h"
 #include "tasks/esspri.h"
@@ -219,6 +220,7 @@ void InitTasks(TaskFactory& factory)
 
     initializeEdeq(factory);
     initializeElixhauserCI(factory);
+    initializeEmpsa(factory);
     initializeEpds(factory);
     initializeEq5d5l(factory);
     initializeEsspri(factory);

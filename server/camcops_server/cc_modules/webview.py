@@ -970,7 +970,7 @@ class LoginView(MfaMixin, FormView):
         if self._mfa_user is None:
             try:
                 user_id = self.state[self.KEY_MFA_USER_ID]
-                self.mfa_user = (
+                self._mfa_user = (
                     self.request.dbsession.query(User)
                     .filter(User.id == user_id)
                     .one_or_none()
