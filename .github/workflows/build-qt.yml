@@ -18,8 +18,8 @@ jobs:
                 include:
                     - name: ubuntu-22.04
                       os: ubuntu-22.04
-                    - name: windows-2019
-                      os: windows-2019
+                    - name: windows-2022
+                      os: windows-2022
         runs-on: ${{ matrix.os }}
         steps:
             - uses: actions/checkout@v4
@@ -109,7 +109,7 @@ jobs:
                   python3
 
             - name: Windows prerequisites
-              if: matrix.os == 'windows-2019'
+              if: matrix.os == 'windows-2022'
               run: |
                   $ErrorActionPreference = "Stop"
                   choco install ninja nasm msys2 --yes --no-progress
@@ -126,7 +126,7 @@ jobs:
                   echo "C:\Strawberry\perl\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
             - name: Windows FFmpeg prerequisites
-              if: matrix.os == 'windows-2019'
+              if: matrix.os == 'windows-2022'
               run: |
                   $ErrorActionPreference = "Stop"
                   ${{ github.workspace }}\.github\scripts\install_msys_packages.ps1
