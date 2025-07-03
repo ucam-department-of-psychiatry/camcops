@@ -60,14 +60,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
     ) | n }
 </h1>
 
-<%
-    duplicates = False
-    for patient in page:
-        if any([idobj.duplicates for idobj in patient.idnums]):
-           duplicates = True
-%>
-
-%if duplicates:
+%if any(idobj.duplicates for patient in page for idobj in patient.idnums):
 <div class="warning">
 ${ _("Multiple patients exist with the same identifier. CamCOPS can handle this but it is probably due to a data entry mistake.") }
 </div>
