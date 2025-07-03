@@ -3966,5 +3966,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   comments for HAMD and HAMD7).
   https://github.com/ucam-department-of-psychiatry/camcops/issues/322
 
+- Warn the user if duplicate server-created patient idenitifers exist in the same group.
+
 - Qt version now 6.5.5. This fixes the display of the About Qt dialog on iOS
   https://github.com/ucam-department-of-psychiatry/camcops/issues/308

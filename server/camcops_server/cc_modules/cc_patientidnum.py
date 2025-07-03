@@ -119,6 +119,22 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         viewonly=True,
     )
 
+    duplicates: Mapped[list["PatientIdNum"]] = relationship(
+        primaryjoin=(
+            "and_("
+            " remote(PatientIdNum._pk) != foreign(PatientIdNum._pk), "
+            " remote(PatientIdNum._group_id) == foreign(PatientIdNum._group_id), "  # noqa: E501
+            " remote(PatientIdNum.which_idnum) == foreign(PatientIdNum.which_idnum), "  # noqa: E501
+            " remote(PatientIdNum.idnum_value) == foreign(PatientIdNum.idnum_value), "  # noqa: E501
+            " remote(PatientIdNum._device_id) == foreign(PatientIdNum._device_id), "  # noqa: E501
+            " remote(PatientIdNum._era) == foreign(PatientIdNum._era), "
+            " remote(PatientIdNum._current) == True, "
+            ")"
+        ),
+        viewonly=True,
+        uselist=True,
+    )
+
     # -------------------------------------------------------------------------
     # String representations
     # -------------------------------------------------------------------------
