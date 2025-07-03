@@ -3967,6 +3967,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
   comments for HAMD and HAMD7).
   https://github.com/ucam-department-of-psychiatry/camcops/issues/322
 
+- Display the question on the server side for :ref:`The Clinical Impairment Assessment questionnaire (CIA)
+  <cia>`.
+
 - New task: :ref:`Eating and Meal Preparation Skills Assessment (EMPSA)
   <empsa>`. (Database revision 0087.)
 
