@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CamCOPS 2.4.21\n"
 "Report-Msgid-Bugs-To: rnc1001@cam.ac.uk\n"
-"POT-Creation-Date: 2025-04-16 12:11+0100\n"
+"POT-Creation-Date: 2025-07-03 14:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,29 +17,29 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_device.py:217
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_device.py:218
 msgid "(Server) Devices registered with the server"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:886
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:961
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:885
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:960
 msgid "CamCOPS research data dump"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:887
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:886
 msgid "The research data dump you requested is attached."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:927
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:926
 msgid "You do not have enough space to create this download. You are allowed {total_permitted} bytes and you are have {space} bytes free. This download would need {size} bytes."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:941
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:940
 #, python-format
 msgid "The research data dump you requested is ready to be downloaded. You will find it in your download area. It is called %s"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:950
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:949
 msgid "Failed to create file {filename}. Error was: {message}"
 msgstr ""
 
@@ -121,7 +121,7 @@ msgstr ""
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:96
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:62
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:232
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:168
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:179
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:56
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:90
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:55
@@ -1156,11 +1156,11 @@ msgstr ""
 msgid "DOB:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:1318
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:1341
 msgid "(Server) Patients, distinct by name, sex, DOB, all ID numbers"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patientidnum.py:225
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patientidnum.py:241
 msgid "ID number fails basic checks"
 msgstr ""
 
@@ -1168,23 +1168,23 @@ msgstr ""
 msgid "Page $page of $page_count; total $item_count records"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:807
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:806
 msgid "Number of initial records"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:808
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:807
 msgid "Number of latest subsequent records"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:840
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:839
 msgid "Date filters"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:841
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:840
 msgid "Start date"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:841
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:840
 msgid "End date"
 msgstr ""
 
@@ -1514,7 +1514,7 @@ msgstr ""
 msgid "Download filenames must (1) begin with an alphanumeric/underscore character; (2) contain only alphanumeric characters, underscores, and hyphens; and (3) end with a full stop followed by an alphanumeric/underscore extension."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_view_classes.py:870
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_view_classes.py:871
 msgid "Cannot find {object_class} with {server_pk_name}:{pk_value}"
 msgstr ""
 
@@ -1776,7 +1776,7 @@ msgid "Patient is not editable - was not created on the server"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5382
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:79
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:85
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:44
 msgid "Task schedules"
 msgstr ""
@@ -1798,7 +1798,7 @@ msgid "Not authorized to delete this patient"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5584
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:81
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:87
 msgid "Delete patient"
 msgstr ""
 
@@ -1806,58 +1806,58 @@ msgstr ""
 msgid "Schedule does not exist"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5750
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5748
 msgid "Patient's task schedule does not exist"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5753
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5751
 msgid "Not authorized to manage this patient"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5795
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5945
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5793
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5943
 msgid "You a not a group administrator for this task schedule's group"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5813
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5811
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:119
 msgid "Add a task schedule"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5830
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5828
 msgid "Edit details for a task schedule"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5847
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5845
 msgid "Delete a task schedule"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5967
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5965
 msgid "Add an item to the {schedule_name} schedule"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5995
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5993
 msgid "Edit details for a task schedule item"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:6028
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:6026
 msgid "Delete a task schedule item"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:6113
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:6111
 msgid "Not authorized to email patients"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:6161
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:6192
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:6159
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:6190
 msgid "Patient task schedule does not exist"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:6173
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:6171
 msgid "Email sent to {patient_email}"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:6181
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:6179
 msgid "Failed to send email to {patient_email}"
 msgstr ""
 
@@ -2207,7 +2207,7 @@ msgstr ""
 msgid "Elixhauser Comorbidity Index"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/empsa.py:211
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/empsa.py:216
 msgid "Eating and Meal Preparation Skills Assessment"
 msgstr ""
 
@@ -2279,7 +2279,7 @@ msgstr ""
 msgid "Hamilton Rating Scale for Anxiety"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/hamd.py:239
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/hamd.py:242
 msgid "Hamilton Rating Scale for Depression"
 msgstr ""
 
@@ -3092,7 +3092,7 @@ msgid "Edit details for finalized patient"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/finalized_patient_edit.mako:45
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/server_created_patient_edit.mako:45
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/server_created_patient_edit.mako:74
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:166
 msgid "Server PK:"
 msgstr ""
@@ -3249,7 +3249,7 @@ msgstr ""
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:84
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:58
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:141
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:156
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:167
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:55
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:78
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:54
@@ -3442,7 +3442,7 @@ msgid "Page not found!"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_add.mako:41
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:182
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:193
 msgid "Add a patient"
 msgstr ""
 
@@ -3503,6 +3503,10 @@ msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/server_created_patient_edit.mako:41
 msgid "Edit details for patient"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/server_created_patient_edit.mako:51
+msgid "Other patients exist with identifiers that match this patient. CamCOPS can handle this but it is probably due to a data entry mistake:"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/server_settings_edit.mako:41
@@ -3804,30 +3808,34 @@ msgstr ""
 msgid "Patients and their task schedules"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:76
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:88
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:65
+msgid "Multiple patients exist with the same identifier. CamCOPS can handle this but it is probably due to a data entry mistake."
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:82
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:94
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks_table.mako:47
 msgid "Patient"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:77
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:83
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks_table.mako:48
 msgid "Identifiers"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:78
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:84
 msgid "Access key"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:80
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:86
 msgid "Edit patient, assign schedules"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:108
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:119
 msgid "Send email"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:111
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:122
 msgid "Resend email"
 msgstr ""
 
