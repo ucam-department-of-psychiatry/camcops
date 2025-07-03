@@ -60,6 +60,12 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
     ) | n }
 </h1>
 
+%if any(idobj.duplicates for patient in page for idobj in patient.idnums):
+<div class="warning">
+${ _("Multiple patients exist with the same identifier. CamCOPS can handle this but it is probably due to a data entry mistake.") }
+</div>
+%endif
+
 <div>${ page.pager() | n }</div>
 
 <table>
@@ -93,8 +99,13 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
                 </td>
                 <td>
                     %for idobj in patient.idnums:
-                        ${ idobj.short_description(request) }:&nbsp;${ idobj.idnum_value }.
-                        <br>
+                    <%
+                        idnum_classes = "idnum"
+                        if idobj.duplicates:
+                            idnum_classes += " warning"
+
+                    %>
+                        <div class="${ idnum_classes}">${ idobj.short_description(request) }:&nbsp;${ idobj.idnum_value }.</div>
                     %endfor
                 </td>
                 <td>
