@@ -16,6 +16,8 @@ jobs:
         strategy:
             matrix:
                 include:
+                    - name: ubuntu-22.04
+                      os: ubuntu-22.04
                     - name: windows-2022
                       os: windows-2022
         runs-on: ${{ matrix.os }}
