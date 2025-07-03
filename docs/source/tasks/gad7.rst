@@ -71,7 +71,7 @@ Public domain.
 
 
 Notes
------
+~~~~~
 
 - CamCOPS does not suffer and has not suffered from the GAD-7 reproduction
   error noted by Zorowitz et al. (2021), *Lancet Psychiatry* 8: 180,

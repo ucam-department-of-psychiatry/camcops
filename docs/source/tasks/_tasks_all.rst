@@ -78,6 +78,7 @@ All tasks
     distressthermometer.rst
     edeq.rst
     elixhauserci.rst
+    empsa.rst
     epds.rst
     eq5d5l.rst
     esspri.rst

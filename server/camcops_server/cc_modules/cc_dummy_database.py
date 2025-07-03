@@ -140,9 +140,10 @@ class DummyDataInserter:
 
             if isinstance(column.type, UnicodeText):
                 self.set_unicode_text_field(task, column)  # type: ignore[arg-type]  # noqa: E501
+                continue
 
             if isinstance(column.type, String):
-                # covers String, Text, UnicodeText
+                # covers String, Text, UnicodeText (but handled above)
                 self.set_string_field(task, column)  # type: ignore[arg-type]
 
     def set_integer_field(self, task: Task, column: Column) -> None:

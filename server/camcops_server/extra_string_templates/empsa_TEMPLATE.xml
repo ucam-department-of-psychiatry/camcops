@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <task name="empsa">
+    <string name="title">(title)</string>
+    <string name="subtitle">(subtitle)</string>
+    <string name="instructions_1">(instructions_1)</string>
+    <string name="instructions_2">(instructions_2)</string>
+    <string name="instructions_3">(instructions_3)</string>
+    <string name="zero">(zero)</string>
+    <string name="ten">(ten)</string>
+    <string name="task">(task)</string>
+    <string name="ability">(ability)</string>
+    <string name="motivation">(motivation)</string>
+    <string name="comments">(comments)</string>
+    <string name="q1">(q1)</string>
+    <string name="q1_note">(q1_note)</string>
+    <string name="q2">(q2)</string>
+    <string name="q2_note">(q2_note)</string>
+    <string name="q3">(q3)</string>
+    <string name="q3_note">(q3_note)</string>
+    <string name="q4">(q4)</string>
+    <string name="q4_note">(q4_note)</string>
+    <string name="q5">(q5)</string>
+    <string name="q5_note">(q5_note)</string>
+    <string name="q6">(q6)</string>
+    <string name="q6_note">(q6_note)</string>
+    <string name="q7">(q7)</string>
+    <string name="q7_note">(q7_note)</string>
+    <string name="q8">(q8)</string>
+    <string name="q8_note">(q8_note)</string>
+    <string name="q9">(q9)</string>
+    <string name="q9_note">(q9_note)</string>
+    <string name="q10">(q10)</string>
+    <string name="q10_note">(q10_note)</string>
+    <string name="q11">(q11)</string>
+    <string name="q11_note">(q11_note)</string>
+    <string name="q12">(q12)</string>
+    <string name="q12_note">(q12_note)</string>
+    <string name="note">(note)</string>
+    <string name="copyright">(copyright)</string>
+    <string name="ref">(ref)</string>
+    <string name="ability_footnote">(ability_footnote)</string>
+    <string name="motivation_footnote">(motivation_footnote)</string>
+  </task>
+</resources>

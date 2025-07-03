@@ -910,6 +910,7 @@ SOURCES += \
     tasks/distressthermometer.cpp \
     tasks/edeq.cpp \
     tasks/elixhauserci.cpp \
+    tasks/empsa.cpp \
     tasks/epds.cpp \
     tasks/eq5d5l.cpp \
     tasks/esspri.cpp \
@@ -1408,6 +1409,7 @@ HEADERS += \
     tasks/distressthermometer.h \
     tasks/edeq.h \
     tasks/elixhauserci.h \
+    tasks/empsa.h \
     tasks/epds.h \
     tasks/eq5d5l.h \
     tasks/esspri.h \
