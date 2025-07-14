@@ -355,8 +355,78 @@ Fix for Azure Application Gateway:
 - https://docs.microsoft.com/en-us/azure/application-gateway/rewrite-http-headers
 
 
-Tablet upload errors
---------------------
+App (phone/tablet device) errors during registration or upload
+--------------------------------------------------------------
+
+"403 Forbidden"
+~~~~~~~~~~~~~~~
+
+**The CamCOPS app (on a phone/tablet device) fails with an error including
+“403 Forbidden”, or “server replied: Forbidden”.**
+
+This error suggests that something is preventing the mobile device from talking
+to the CamCOPS server, producing an HTTP "403 Forbidden" error.
+
+(You should be able to confirm this by looking at the server audit trail/log,
+where you'd expect to see "not much": you wouldn't expect entries to make it to
+that log when this is the error.)
+
+First, check the web front end by attempting to log into the CamCOPS server
+from a different machine. If this is NOT working, then something is blocking
+communication between the mobile device and the CamCOPS server. If this happens
+from several machines, there is probably a firewall or an "intermediate web
+server" (e.g. Apache) configuration problem.
+
+If the web site IS working, but the connection from the mobile device is not,
+then there are two main possibilities:
+
+- Something (a firewall or an "intermediate" web server on the CamCOPS server,
+  such as Apache) is blocking the IP address range including the mobile device.
+  In this circumstance, the web site will not work from the same mobile device
+  as the CamCOPS app.
+
+- Something (a firewall or e.g. Apache) is blocking HTTP POST requests (used by
+  the CamCOPS mobile app) but not HTTP GET requests (used, much of the time, by
+  the web site). In this circumstance, the web site will work (at least, you'll
+  see the login screen) from
+
+- It's possible to get combination problems, e.g. a firewall not allowing POST
+  requests from a specific address range.
+
+You may get a better view of the problem by running this command from a Linux
+machine:
+
+.. code-block:: bash
+
+    curl -i -X POST -H "some_header" -d "some_body" https://<CAMCOPS_SERVER>:443/database
+    #                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    #                                               replace with correct hostname/URL
+    # -i = include HTTP response headers in the output
+    # -X <method>, --request <method> = specify HTTP request method
+    # -H, --header = specify custom headers
+    # -d, --data = specify data to send in POST request
+
+The response should give an indication of the software that produced it. If the
+error is from firewall software, you've found your problem. For example, here's
+a failure message from the Microsoft Azure firewall system:
+
+.. code-block:: none
+
+    HTTP/1.1 403 Forbidden
+    Date: Mon, 14 Jul 2025 09:34:23 GMT
+    Content-Type: text/html
+    Content-Length: 179
+    Connection: keep-alive
+    Strict-Transport-Security: max-age=31536000; includeSubDomains
+
+    <html>
+    <head><title>403 Forbidden</title></head>
+    <body>
+    <center><h1>403 Forbidden</h1></center>
+    <hr><center>Microsoft-Azure-Application-Gateway/v2</center>
+    </body>
+    </html>
+
 
 MySQL server has gone away
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
