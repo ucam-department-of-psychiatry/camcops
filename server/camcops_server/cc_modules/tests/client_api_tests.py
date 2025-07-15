@@ -251,6 +251,15 @@ class ClientApiTestCase(DemoRequestTestCase):
         return get_reply_dict_from_response(response)
 
 
+class MalformedRequestTests(ClientApiTestCase):
+    def test_returns_400_bad_request(self) -> None:
+        self.req.set_post_body(b"rubbish")
+        response = client_api(self.req)
+
+        self.assertEqual(response.status, "400 Bad Request")
+        self.assertIn(b"Not a valid CamCOPS API request", response.body)
+
+
 class OpRegisterPatientTests(ClientApiTestCase):
     def setUp(self) -> None:
         super().setUp()
