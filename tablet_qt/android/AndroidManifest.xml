@@ -1,34 +1,60 @@
 <?xml version="1.0"?>
-<manifest package="org.camcops.camcops" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="2.4.20" android:versionCode="-- %%INSERT_VERSION_CODE%% --" android:installLocation="auto">
-    <application android:hardwareAccelerated="true" android:name="org.qtproject.qt.android.bindings.QtApplication" android:label="CamCOPS" android:icon="@drawable/icon" android:allowBackup="false">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="org.camcops.camcops"
+    android:installLocation="auto"
+    android:versionCode="-- %%INSERT_VERSION_CODE%% --"
+    android:versionName="2.4.20">
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:smallScreens="true" />
+    <application
+        android:name="org.qtproject.qt.android.bindings.QtApplication"
+        android:hardwareAccelerated="true"
+        android:label="CamCOPS"
+        android:icon="@drawable/icon"
+        android:allowBackup="false">
         <!-- singleTask is necessary to stop a second, inactive window from opening when the app is launched both from URL and icon -->
-        <activity android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation" android:name="org.camcops.camcops.CamcopsActivity" android:label="CamCOPS" android:screenOrientation="unspecified" android:launchMode="singleTask" android:exported="true">
+        <activity
+            android:name="org.camcops.camcops.CamcopsActivity"
+            android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|density"
+            android:label="CamCOPS"
+            android:launchMode="singleTask"
+            android:screenOrientation="unspecified"
+            android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!-- <meta-data android:name="android.app.lib_name" android:value="CamCOPS"/> -->
-            <meta-data android:name="android.app.lib_name" android:value="camcops"/>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
 
-            <meta-data android:name="android.app.background_running" android:value="false"/>
-            <!-- auto screen scale factor -->
-            <meta-data android:name="android.app.auto_screen_scale_factor" android:value="false"/>
-            <intent-filter>
-              <!-- Allow the app to be launched from a URL. It is possible to use a "camcops" scheme but this won't
-                   appear as a hyperlink in e.g. GMail or Yahoo Mail, even if in HTML. So we use "http", even though it isn't.
-              -->
-              <action android:name="android.intent.action.VIEW"/>
-              <category android:name="android.intent.category.DEFAULT"/>
-              <category android:name="android.intent.category.BROWSABLE"/>
-              <data android:scheme="http" android:host="camcops.org" android:path="/register/"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="https" />
+                <data android:host="ucam-department-of-psychiatry.github.io" />
+                <data android:path="/camcops/register" />
             </intent-filter>
-            <meta-data android:name="android.app.splash_screen_drawable" android:resource="@drawable/logo"/>
-            <meta-data android:name="android.app.splash_screen_drawable_portrait" android:resource="@drawable/logo_portrait"/>
-            <meta-data android:name="android.app.splash_screen_drawable_landscape" android:resource="@drawable/logo_landscape"/>
+            <meta-data android:name="android.app.lib_name" android:value="camcops" />
+            <meta-data android:name="android.app.background_running" android:value="false" />
+            <!-- auto screen scale factor -->
+            <meta-data
+                android:name="android.app.auto_screen_scale_factor"
+                android:value="false" />
+            <meta-data
+                android:name="android.app.splash_screen_drawable"
+                android:resource="@drawable/logo" />
+            <meta-data
+                android:name="android.app.splash_screen_drawable_portrait"
+                android:resource="@drawable/logo_portrait" />
+            <meta-data
+                android:name="android.app.splash_screen_drawable_landscape"
+                android:resource="@drawable/logo_landscape" />
         </activity>
     </application>
     <!-- minSdkVersion and targetSdkVersion moved to build.gradle -->
-    <supports-screens android:largeScreens="true" android:normalScreens="true" android:anyDensity="true" android:smallScreens="true"/>
 
     <!-- The following comment will be replaced upon deployment with default permissions based on the dependencies of the application.
          Remove the comment if you do not require these default permissions. -->

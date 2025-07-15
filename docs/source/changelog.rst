@@ -3959,7 +3959,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Fix cursor placement when entering the access key on iOS. The workaround for
   https://bugreports.qt.io/browse/QTBUG-115756 is now only applied for Android.
 
-
 - When building the Docker image, don't try to pull camcops_server from https://hub.docker.com
   https://github.com/ucam-department-of-psychiatry/camcops/issues/265
 
@@ -3977,3 +3976,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Qt version now 6.5.5. This fixes the display of the About Qt dialog on iOS
   https://github.com/ucam-department-of-psychiatry/camcops/issues/308
+
+- Fix automatic patient registration by URL for Android 12+ using applink verification at
+  https://ucam-department-of-psychiatry.github.io/camcops/register
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/335

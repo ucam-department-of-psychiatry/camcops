@@ -41,8 +41,8 @@ UrlHandler::UrlHandler()
     // So this is handled in:
     // tablet_qt/android/src/org/camcops/camcops/CamcopsActivity.java
 
-    // We use 'camcops' scheme instead of 'http' (with 'camcops.org' domain)
-    // on Android:
+    // We use 'camcops' scheme instead of 'https' (with
+    // 'ucam-department-of-psychiatry.github.io' domain) on Android:
     // https://doc.qt.io/qt-6.5/qdesktopservices.html#setUrlHandler says
     // "It is not possible to claim support for some well known URL schemes,
     // including http and https."

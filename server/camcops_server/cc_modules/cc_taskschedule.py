@@ -266,7 +266,7 @@ class PatientTaskSchedule(Base):
         """
         template_dict = dict(
             access_key=self.patient.uuid_as_proquint,
-            android_launch_url=self.launch_url(req, UriSchemes.HTTP),
+            android_launch_url=self.launch_url(req, UriSchemes.HTTPS),
             ios_launch_url=self.launch_url(req, "camcops"),
             forename=self.patient.forename,
             server_url=req.route_url(Routes.CLIENT_API),
@@ -283,8 +283,8 @@ class PatientTaskSchedule(Base):
         # And CFBundleURLSchemes in Info.plist
 
         # iOS doesn't care about these:
-        netloc = "camcops.org"
-        path = "/register/"
+        netloc = "ucam-department-of-psychiatry.github.io"
+        path = "/camcops/register"
         fragment = ""
 
         query_dict = {

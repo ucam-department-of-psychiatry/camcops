@@ -40,7 +40,7 @@ import org.qtproject.qt.android.bindings.QtApplication;
 public class CamcopsActivity extends QtActivity
 {
     /* Handle application launch from a hyperlink
-     * e.g. http://camcops.org/register/?default_single_user_mode=true&default_server_location=https%3A%2F%2Fserver.example.com%2Fapi&default_access_key=abcde-fghij-klmno-pqrst-uvwxy-zabcd-efghi-jklmn-o
+     * e.g. https://ucam-department-of-psychiatry.github.io/camcops/register/?default_single_user_mode=true&default_server_location=https%3A%2F%2Fserver.example.com%2Fapi&default_access_key=abcde-fghij-klmno-pqrst-uvwxy-zabcd-efghi-jklmn-o
      * If no instance of the app is running, onCreate() is called and we pass
      * the URL parameters as arguments to the app's main().
      * If the app is already running, onNewIntent() is called and the URL
