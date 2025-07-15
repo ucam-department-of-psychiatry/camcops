@@ -398,8 +398,8 @@ machine:
 
 .. code-block:: bash
 
-    curl -i -X POST -H "some_header" -d "some_body" https://<CAMCOPS_SERVER>:443/database
-    #                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    curl -i -X POST -H "some_header" -d "some_body" https://<CAMCOPS_SERVER>:443/api
+    #                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     #                                               replace with correct hostname/URL
     # -i = include HTTP response headers in the output
     # -X <method>, --request <method> = specify HTTP request method

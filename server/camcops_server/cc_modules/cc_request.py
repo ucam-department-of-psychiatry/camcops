@@ -506,7 +506,7 @@ class CamcopsRequest(Request):
             CamcopsSession,
         )  # delayed import
 
-        ts = TabletSession(self)
+        ts = TabletSession(self)  # may raise UserErrorException
         new_cc_session = CamcopsSession.get_session_for_tablet(ts)
         # ... does login
         self.replace_camcops_session(new_cc_session)

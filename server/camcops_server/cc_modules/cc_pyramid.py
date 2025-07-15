@@ -730,6 +730,9 @@ class Routes(object):
     - Used by the ``@view_config(route_name=...)`` decorator.
     - Configured via :class:`RouteCollection` / :class:`RoutePath` to the
       Pyramid route configurator.
+
+    Note: these are internal names, not (necessarily) URL paths. For those, see
+    RouteCollection.
     """
 
     # Hard-coded special paths
@@ -876,7 +879,7 @@ class RoutePath(object):
 
 MASTER_ROUTE_WEBVIEW = "/"
 MASTER_ROUTE_CLIENT_API = "/api"
-MASTER_ROUTE_CLIENT_API_ALIAS = "/database"
+MASTER_ROUTE_CLIENT_API_ALIAS = "/database"  # legacy path
 
 STATIC_CAMCOPS_PACKAGE_PATH = "camcops_server.static:"
 # ... the "static" package (directory with __init__.py) within the
