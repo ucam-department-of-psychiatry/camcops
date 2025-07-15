@@ -3406,6 +3406,20 @@ def client_api(req: "CamcopsRequest") -> Response:
     # log.debug("{!r}", req.params)
     t0 = time.time()  # in seconds
 
+    # -------------------------------------------------------------------------
+    # Establish session (requires something coherent from the client)
+    # -------------------------------------------------------------------------
+    try:
+        ts = req.tabletsession
+    except UserErrorException as e:
+        log.warning("CLIENT-SIDE SCRIPT ERROR: {}", e)
+        return TextResponse(
+            "Not a valid CamCOPS API request\n", status="400 Bad Request"
+        )
+
+    # -------------------------------------------------------------------------
+    # Call main API
+    # -------------------------------------------------------------------------
     try:
         resultdict = main_client_api(req)
         resultdict[TabletParam.SUCCESS] = SUCCESS_CODE
@@ -3440,7 +3454,6 @@ def client_api(req: "CamcopsRequest") -> Response:
         status = "200 OK"
 
     # Add session token information
-    ts = req.tabletsession
     resultdict[TabletParam.SESSION_ID] = ts.session_id
     resultdict[TabletParam.SESSION_TOKEN] = ts.session_token
 
