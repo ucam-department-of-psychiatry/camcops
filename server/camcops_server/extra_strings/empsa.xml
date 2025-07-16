@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="empsa">
+    <!-- Original has "South West London & St George’s Eating Disorders Service Occupational Therapy Department" -->
+
+    <string name="title">Eating &amp; Meal Preparation Skills Assessment (EMPSA)</string>
+    <string name="subtitle">Client’s self evaluation: Pre &amp; post-intervention measure © Lock, Williams &amp; Lacey 01.01.10</string>
+    <string name="instructions_1">The purpose of this questionnaire is to help people with eating disorders to measure how able and motivated they are to perform twelve tasks related to preparing and eating normal portion-sized cooked meals with dessert. This will highlight what they need to work on in treatment and measure if treatment has been effective.</string>
+    <!-- Original has: [... as honestly as you can] and return it to your Occupational Therapist. This information... -->
+    <string name="instructions_2">Please answer the below questions as honestly as you can. This information will be kept in strictest confidence.</string>
+    <!-- Original prompt has "Please rate yourself from 1 to 10..." but the anchors are 0/10 and the paper is clear the range is 0-10. Clarified with the creator (see empsa.rst); should be 0 to 10. -->
+    <string name="instructions_3">Please rate yourself from 0 to 10 in the following areas</string>
+    <string name="zero">0 = no ability/motivation</string>
+    <string name="ten">10 = total ability/motivation</string>
+    <string name="task">Task</string>
+    <string name="ability">Ability</string>
+    <string name="motivation">Motivation</string>
+    <string name="comments">Comments</string>
+    <string name="q1"><b>Planning a variety of menus</b></string>
+    <string name="q1_note"><i>(planning menus that are relevant to your personal circumstances/culture)</i></string>
+    <string name="q2"><b>Planning a variety of menus within a budget</b></string>
+    <string name="q2_note"><i>(realistic to your personal circumstances)</i></string>
+    <string name="q3"><b>Shopping</b></string>
+    <string name="q3_note"><i>(being able to use shops/supermarkets on your own without undue anxiety)</i></string>
+    <string name="q4"><b>Cooking</b></string>
+    <string name="q4_note"><i>(frying, baking, roasting, grilling, casseroling, making a sauce etc)</i></string>
+    <string name="q5"><b>Preparing food at a normal pace</b></string>
+    <string name="q5_note"><i>(within a 25-45 minute time boundary for a 2 course meal)</i></string>
+    <string name="q6"><b>Serving out portions</b></string>
+    <string name="q6_note"><i>(serving accurate portion sizes, and adjusting recipes accordingly)</i></string>
+    <string name="q7"><b>Throwing away excess food</b></string>
+    <string name="q7_note"></string>
+    <string name="q8"><b>Eating ‘difficult’ food</b></string>
+    <string name="q8_note"><i>(previously avoided, binged upon, emotion evoking, ‘messsy to eat’ etc)</i></string>
+    <string name="q9"><b>Eating at a normal pace</b></string>
+    <string name="q9_note"><i>(within a 25-45 minute time boundary for a 2 course meal)</i></string>
+    <string name="q10"><b>Eating in the presence of others</b></string>
+    <string name="q10_note"></string>
+    <string name="q11"><b>Eating in a public place</b></string>
+    <string name="q11_note"><i>(restaurant, pub, café, canteen, etc)</i></string>
+    <string name="q12"><b>Managing distress when eating</b></string>
+    <string name="q12_note"><i>(anxiety, anger, sadness, panic etc)</i></string>
+    <!-- Original has Office use only: Hospital Number:...... Post intervention: No. of sessions...... -->
+    <string name="note">NB: This assessment must not be changed in any way, or used without prior permission.</string>
+    <string name="copyright">Copyright © November 2011 Laura Lock, Associate Director of OT, South West London &amp; St Georges Mental Health NHS Trust. All rights reserved. For further information contact Laura Lock: Email laura.lock@swlstg-tr.nhs</string>
+    <string name="ref">Ref: Lock LC, Williams HA, Bamford B &amp; Lacey JH (2012). The St George’s Eating Disorders Service Meal Preparation Group for Inpatients and Day Patients Pursuing Full Recovery: A Pilot Study, European Eating Disorders Review Volume 20 p218-224</string>
+    <string name="ability_footnote">Mean of ability scores</string>
+    <string name="motivation_footnote">Mean of motivation scores</string>
+  </task>
+</resources>

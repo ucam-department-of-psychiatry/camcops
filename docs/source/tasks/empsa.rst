@@ -23,8 +23,6 @@
 Eating and Meal Preparation Skills Assessment (EMPSA)
 -----------------------------------------------------
 
-.. include:: include_data_collection_plus_local_upgrade.rst
-
 A 12-item self-report assessment tool designed to measure eating disordered
 clients' perceived ability and motivation to perform 12 eating and meal
 preparation tasks.
@@ -50,6 +48,11 @@ Email from Laura Lock (Spurgeon's College, London) to Jeremy Solly
         2.  you fully reference it accurately
         3.  from time to time, you provide me with a copy of any (anonymised)
             collated outcome measure reports
+
+Email from Laura Lock to Rudolf Cardinal on 3rd Jul 2025:
+
+    I am the EMPSA copyright holder, but I permit unrestricted use as long as
+    it is not changed in any way and is fully referenced.
 
 
 History
