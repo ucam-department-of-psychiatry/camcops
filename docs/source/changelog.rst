@@ -37,6 +37,7 @@ Quick links:
 - :ref:`2022 <changelog_2022>`
 - :ref:`2023 <changelog_2023>`
 - :ref:`2024 <changelog_2024>`
+- :ref:`2025 <changelog_2025>`
 
 - :ref:`v2.3.3 <changelog_v2.3.3>`
 - :ref:`v2.3.4 <changelog_v2.3.4>`
@@ -66,6 +67,7 @@ Quick links:
 - :ref:`v2.4.19 <changelog_v2.4.19>`
 - :ref:`v2.4.20 <changelog_v2.4.20>`
 - :ref:`v2.4.21 <changelog_v2.4.21>`
+- :ref:`v2.4.22 <changelog_v2.4.22>`
 
 Contributors
 ------------
@@ -3949,8 +3951,15 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Bump ``gunicorn`` to 23.0.0 to fix CVE-2024-1135
 
 
-**Client and server v2.4.22, IN PROGRESS**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. _changelog_2025:
+
+2025
+~~~~
+
+.. _changelog_v2.4.22:
+
+**Client and server v2.4.22, released 16 Jul 2025**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Update the Docker image to use Debian 11. Debian 10 has now reached end-of-life.
 
@@ -3980,3 +3989,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Fix automatic patient registration by URL for Android 12+ using applink verification at
   https://ucam-department-of-psychiatry.github.io/camcops/register
   https://github.com/ucam-department-of-psychiatry/camcops/issues/335
+
+**Client and server v2.4.23, IN PROGRESS**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

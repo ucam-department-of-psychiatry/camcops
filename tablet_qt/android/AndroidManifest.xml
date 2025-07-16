@@ -3,7 +3,7 @@
     package="org.camcops.camcops"
     android:installLocation="auto"
     android:versionCode="-- %%INSERT_VERSION_CODE%% --"
-    android:versionName="2.4.20">
+    android:versionName="2.4.22">
     <supports-screens
         android:anyDensity="true"
         android:largeScreens="true"
