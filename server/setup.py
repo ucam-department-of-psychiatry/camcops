@@ -85,8 +85,7 @@ INSTALL_REQUIRES = [
     "dogpile.cache==0.9.2",  # web caching
     "factory_boy==3.2.1",  # easier test data creation
     "Faker==4.1.1",  # create fake data; for test and dummy database creation
-    # FHIR export, our fork until https://github.com/smart-on-fhir/client-py/pull/105 is merged  # noqa: E501
-    "fhirclient @ git+https://github.com/ucam-department-of-psychiatry/client-py@128bbe3c2194a51ba6ff8cf880ef2fdb9bfcc2d6#egg=fhirclient-4.0.0.1",  # noqa: E501
+    "fhirclient==4.2.0",  # FHIR export
     "flake8==5.0.4",  # code checks, keep in sync with .pre-commit-config.yaml
     "flower==2.0.1",  # monitor for Celery
     "gunicorn==23.0.0",  # web server (Unix only)
