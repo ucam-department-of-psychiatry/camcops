@@ -1111,25 +1111,25 @@ def main() -> None:
         formatter_class=ArgumentDefaultsRichHelpFormatter,
     )
     parser.add_argument(
-        "--client-version",
+        "--client_version",
         type=str,
         required=True,
         help="New client version number (x.y.z)",
     )
     parser.add_argument(
-        "--server-version",
+        "--server_version",
         type=str,
         required=True,
         help="New server version number (x.y.z)",
     )
     parser.add_argument(
-        "--release-date",
+        "--release_date",
         type=valid_date,
         default=datetime.now().date(),
         help="Release date (YYYY-MM-DD)",
     )
     parser.add_argument(
-        "--update-versions",
+        "--update_versions",
         action="store_true",
         default=False,
         help="Update any incorrect version numbers",
@@ -1157,7 +1157,7 @@ def main() -> None:
             # TODO: Don't display this message if the versions are already
             # updated
             print(
-                "Run the script with --update-versions to automatically "
+                "Run the script with --update_versions to automatically "
                 "update version numbers"
             )
         sys.exit(EXIT_FAILURE)
