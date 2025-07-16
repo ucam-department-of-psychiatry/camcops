@@ -24,7 +24,10 @@ jobs:
                 cd ${GITHUB_WORKSPACE}
                 git archive --format=tar.gz -o /tmp/camcops_server.tar.gz --prefix=camcops/ ${{ steps.vars.outputs.tag }}
             - name: Create DEB and RPM packages
-              run: ${GITHUB_WORKSPACE}/.github/scripts/build_packages.sh
+              run:
+                set -euo pipefail
+                ${GITHUB_WORKSPACE}/.github/scripts/python_setup.sh
+                ${GITHUB_WORKSPACE}/.github/scripts/build_packages.sh
             - name: Create release with artifacts
               uses: ncipollo/release-action@v1
               with:
@@ -32,7 +35,7 @@ jobs:
                   token: ${{ secrets.GITHUB_TOKEN }}
             - name: Test installer
               run: |
-                set -eux -o pipefail
+                set -euo pipefail
                 source ${GITHUB_WORKSPACE}/.github/scripts/set_camcops_docker_environment
                 ${GITHUB_WORKSPACE}/.github/scripts/installer_setup.sh
                 cd ${HOME}
