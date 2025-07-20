@@ -24,7 +24,8 @@ jobs:
             - name: Download Qt
               uses: dsaltares/fetch-gh-release-asset@1.1.2
               with:
-                  repo: ucam-department-of-psychiatry/camcops
+                  # Can't do this from a different repo because the release
+                  # isn't public
                   # Has to download to GITHUB_WORKSPACE
                   file: qt.tgz
                   token: ${{ secrets.GITHUB_TOKEN }}
