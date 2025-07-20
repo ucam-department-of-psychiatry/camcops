@@ -1,0 +1,62 @@
+---
+# yamllint disable rule:line-length
+name: Build client
+# yamllint disable-line rule:truthy
+on:
+    push:
+        paths:
+            - '**.cpp'
+            - '**.h'
+            - .github/scripts/add_apt_sources.sh
+            - .github/scripts/change_apt_mirror.sh
+            - .github/scripts/build_client.sh
+            - .github/workflows/build-client.yml
+jobs:
+    build-client:
+        runs-on: ubuntu-22.04
+        steps:
+            - uses: actions/checkout@v4
+            - name: Download Qt
+              uses: dsaltares/fetch-gh-release-asset@1.1.2
+              with:
+                  # Can't do this from a different repo because the release
+                  # isn't public
+                  # Has to download to GITHUB_WORKSPACE
+                  file: qt.tgz
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  # The release ID is set by the build-qt.yml action
+                  # but the tagging is broken somehow. This is brittle
+                  # because editing the release on GitHub will change
+                  # the tag (which isn't a proper tag)
+                  version: 'tags/untagged-2ac5eb66666e2059a7e3'
+            - name: Install Qt
+              run: |
+                  set -euxo pipefail
+                  mv ${GITHUB_WORKSPACE}/qt.tgz ${HOME}
+                  cd ${HOME}
+                  ls
+                  # Remove home/runner from paths
+                  tar -xvzf qt.tgz --strip-components=2
+                  ls
+                  ls qt_local_build
+            - name: Ubuntu prerequisites
+              run: |
+                  set -euo pipefail
+                  ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
+                  ${GITHUB_WORKSPACE}/.github/scripts/add_apt_sources.sh
+                  sudo apt-get -y install \
+                  libxcb-icccm4 \
+                  libxcb-xkb1 \
+                  libxcb-icccm4 \
+                  libxcb-image0 \
+                  libxcb-render-util0 \
+                  libxcb-randr0 \
+                  libxcb-keysyms1 \
+                  libxcb-xinerama0 \
+                  libxcb-xinput-dev \
+                  libxcb-cursor0
+            - name: Build client
+              run: |
+                  set -euo pipefail
+                  export CAMCOPS_QT6_BASE_DIR=${HOME}/qt_local_build
+                  xvfb-run --auto-servernum ${GITHUB_WORKSPACE}/.github/scripts/build_client.sh
