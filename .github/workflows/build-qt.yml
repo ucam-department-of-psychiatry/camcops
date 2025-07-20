@@ -221,6 +221,7 @@ jobs:
                   echo "Free space:"
                   df -h
                   tar -czvf /tmp/qt.tgz \
+                      ${HOME}/qt_local_build/eigen \
                       ${HOME}/qt_local_build/ffmpeg_linux_x86_64_build \
                       ${HOME}/qt_local_build/openssl_linux_x86_64_build \
                       ${HOME}/qt_local_build/qt_linux_x86_64_install \
