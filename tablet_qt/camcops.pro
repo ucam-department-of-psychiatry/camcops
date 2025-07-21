@@ -259,11 +259,6 @@ gcc {
 }
 
 
-# INCLUDEPATH += "$${QT_BASE_DIR}/armadillo/armadillo-7.950.0/include"  # from which: <armadillo>
-# INCLUDEPATH += "$${QT_BASE_DIR}/armadillo/armadillo-7.950.0/include/armadillo_bits"
-# INCLUDEPATH += "$${QT_BASE_DIR}/boost/boost_1_64_0"  # from which: <boost/...>
-# INCLUDEPATH += "$${QT_BASE_DIR}/src/mlpack/src"  # from which: <mlpack/...>
-
 # =============================================================================
 # OS-specific options
 # =============================================================================
