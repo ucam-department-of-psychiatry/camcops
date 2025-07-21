@@ -60,4 +60,4 @@ jobs:
               run: |
                   set -euo pipefail
                   export CAMCOPS_QT6_BASE_DIR=${HOME}/qt_local_build
-                  xvfb-run --auto-servernum ${GITHUB_WORKSPACE}/.github/scripts/build_client.sh
+                  ${GITHUB_WORKSPACE}/.github/scripts/build_client.sh
