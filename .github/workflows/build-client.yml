@@ -7,6 +7,7 @@ on:
         paths:
             - '**.cpp'
             - '**.h'
+            - tablet_qt/camcops.pro
             - .github/scripts/add_apt_sources.sh
             - .github/scripts/change_apt_mirror.sh
             - .github/scripts/build_client.sh
