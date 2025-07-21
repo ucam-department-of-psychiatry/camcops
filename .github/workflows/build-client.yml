@@ -46,7 +46,18 @@ jobs:
                   ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
                   ${GITHUB_WORKSPACE}/.github/scripts/add_apt_sources.sh
                   sudo apt-get -y install \
+                  libcups2-dev \
+                  libdbus-1-dev \
+                  libdrm-dev \
+                  libegl1-mesa-dev \
                   libgl-dev \
+                  libharfbuzz-dev \
+                  libopengl-dev \
+                  libpulse-dev \
+                  libts-dev \
+                  libudev-dev \
+                  libvdpau-dev \
+                  libx11-xcb-dev \
                   libxcb-icccm4 \
                   libxcb-xkb1 \
                   libxcb-icccm4 \
@@ -55,8 +66,11 @@ jobs:
                   libxcb-randr0 \
                   libxcb-keysyms1 \
                   libxcb-xinerama0 \
-                  libxcb-xinput-dev \
-                  libxcb-cursor0
+                  libxcb-cursor0 \
+                  '^libxcb.*-dev' \
+                  libxkbcommon-dev \
+                  libxkbcommon-x11-dev \
+                  libxrandr-dev \
             - name: Build client
               run: |
                   set -euo pipefail
