@@ -45,6 +45,7 @@ jobs:
                   ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
                   ${GITHUB_WORKSPACE}/.github/scripts/add_apt_sources.sh
                   sudo apt-get -y install \
+                  libgl-dev \
                   libxcb-icccm4 \
                   libxcb-xkb1 \
                   libxcb-icccm4 \
