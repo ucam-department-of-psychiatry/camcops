@@ -115,4 +115,7 @@ const QString PRIV_PASSWORD_HASH("privPassword");
 // Device ID
 const QString DEVICE_ID("deviceId");
 
+// User-Agent header
+const QString USER_AGENT("userAgent");
+
 }  // namespace varconst

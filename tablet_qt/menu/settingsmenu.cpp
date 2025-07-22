@@ -141,6 +141,11 @@ void SettingsMenu::makeItems()
             std::bind(&SettingsMenu::fetchAllServerInfo, this)
         )
             .setNotIfLocked(),
+        MenuItem(
+            tr("Change user agent"),
+            std::bind(&SettingsMenu::changeUserAgent, this)
+        )
+            .setNotIfLocked(),
 #if 0
         MenuItem(
             tr("Re-accept ID descriptions from the server"),
@@ -1111,4 +1116,9 @@ void SettingsMenu::chooseLanguage()
 void SettingsMenu::changeMode()
 {
     m_app.setModeFromUser();
+}
+
+void SettingsMenu::changeUserAgent()
+{
+    m_app.setUserAgentFromUser();
 }

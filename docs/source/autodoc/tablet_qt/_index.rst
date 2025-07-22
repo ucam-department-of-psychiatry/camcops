@@ -174,6 +174,8 @@ tablet_qt
     dialogs/scrollmessagebox.h.rst
     dialogs/soundtestdialog.cpp.rst
     dialogs/soundtestdialog.h.rst
+    dialogs/useragentdialog.cpp.rst
+    dialogs/useragentdialog.h.rst
     dialogs/waitbox.cpp.rst
     dialogs/waitbox.h.rst
     graphics/buttonconfig.cpp.rst
