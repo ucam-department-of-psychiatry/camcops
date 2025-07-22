@@ -30,7 +30,11 @@
 #include "lib/uifunc.h"
 #include "qobjects/widgetpositioner.h"
 
-UserAgentDialog::UserAgentDialog(const QString default_user_agent, const QString current_user_agent, QWidget* parent) :
+UserAgentDialog::UserAgentDialog(
+    const QString default_user_agent,
+    const QString current_user_agent,
+    QWidget* parent
+) :
     QDialog(parent)
 {
     setWindowTitle(tr("Set user agent"));
@@ -40,17 +44,33 @@ UserAgentDialog::UserAgentDialog(const QString default_user_agent, const QString
         tr("WARNING: Changing the user agent could stop CamCOPS from "
            "connecting to the server. Do not change this unless there are "
            "problems connecting to the server.")
-        );
+    );
     m_default_user_agent = default_user_agent;
     m_user_agent_edit = new QLineEdit();
     m_user_agent_edit->setText(current_user_agent);
 
-    QDialogButtonBox::StandardButtons buttons = QDialogButtonBox::RestoreDefaults | QDialogButtonBox::Ok |
-        QDialogButtonBox::Cancel;
+    QDialogButtonBox::StandardButtons buttons
+        = QDialogButtonBox::RestoreDefaults | QDialogButtonBox::Ok
+        | QDialogButtonBox::Cancel;
     m_buttonbox = new QDialogButtonBox(buttons);
-    connect(m_buttonbox, &QDialogButtonBox::accepted, this, &UserAgentDialog::accept);
-    connect(m_buttonbox, &QDialogButtonBox::rejected, this, &UserAgentDialog::reject);
-    connect(m_buttonbox, &QDialogButtonBox::clicked, this, &UserAgentDialog::handleButtonClicked);
+    connect(
+        m_buttonbox,
+        &QDialogButtonBox::accepted,
+        this,
+        &UserAgentDialog::accept
+    );
+    connect(
+        m_buttonbox,
+        &QDialogButtonBox::rejected,
+        this,
+        &UserAgentDialog::reject
+    );
+    connect(
+        m_buttonbox,
+        &QDialogButtonBox::clicked,
+        this,
+        &UserAgentDialog::handleButtonClicked
+    );
 
     auto mainlayout = new QVBoxLayout();
 

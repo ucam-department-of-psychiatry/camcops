@@ -25,12 +25,15 @@
 #include <QLineEdit>
 #include <QPointer>
 
-class UserAgentDialog: public QDialog
+class UserAgentDialog : public QDialog
 {
     Q_OBJECT
+
 public:
     UserAgentDialog(
-        const QString default_user_agent, const QString current_user_agent, QWidget* parent = nullptr
+        const QString default_user_agent,
+        const QString current_user_agent,
+        QWidget* parent = nullptr
     );
     QString userAgent() const;
 
