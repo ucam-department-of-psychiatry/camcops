@@ -42,6 +42,7 @@
 #include <QUrl>
 #include <QUrlQuery>
 
+#include "common/platform.h"
 #include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "common/varconst.h"
 #include "core/camcopsapp.h"
@@ -363,10 +364,24 @@ QNetworkRequest NetworkManager::createRequest(
         }
     }
 
+    request.setHeader(QNetworkRequest::UserAgentHeader, userAgent());
+
     // URL
     request.setUrl(url);
 
     return request;
+}
+
+QString NetworkManager::userAgent() const
+{
+    const QString platform = QString("%1 %2")
+        .arg(platform::OS_CLASS, QSysInfo::currentCpuArchitecture());
+    const QString version = camcopsversion::CAMCOPS_CLIENT_VERSION.toString();
+
+    const QString user_agent = QString("Mozilla/5.0 (%1) CamCOPS/%2")
+        .arg(platform, version);
+
+    return user_agent;
 }
 
 QUrl NetworkManager::serverUrl(bool& success) const
