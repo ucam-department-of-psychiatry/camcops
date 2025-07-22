@@ -33,7 +33,7 @@ jobs:
                   # but the tagging is broken somehow. This is brittle
                   # because editing the release on GitHub will change
                   # the tag (which isn't a proper tag)
-                  version: 'tags/untagged-de3656cacfe8d9840ad0'
+                  version: 'tags/untagged-2ac5eb66666e2059a7e3'
             - name: Install Qt
               run: |
                   set -euxo pipefail

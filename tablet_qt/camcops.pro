@@ -251,11 +251,11 @@ QT_GIT_VERSION = $$replace(QT_GIT_VERSION, "-lts-lgpl", "")
 EIGEN_INCLUDE = "$${QT_BASE_DIR}/eigen/eigen-$${EIGEN_VERSION}"  # from which: <Eigen/...>
 
 gcc {
-  # Ignore Eigen warnings
-  # https://gitlab.com/libeigen/eigen/-/issues/2787
-  QMAKE_CXXFLAGS += "-isystem $${EIGEN_INCLUDE}"
-  } else {
-  INCLUDEPATH += "$${EIGEN_INCLUDE}"
+    # Ignore Eigen warnings
+    # https://gitlab.com/libeigen/eigen/-/issues/2787
+    QMAKE_CXXFLAGS += "-isystem $${EIGEN_INCLUDE}"
+} else {
+    INCLUDEPATH += "$${EIGEN_INCLUDE}"
 }
 
 
