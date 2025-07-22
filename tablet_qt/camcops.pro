@@ -247,11 +247,17 @@ QT_GIT_VERSION = $$replace(QT_GIT_VERSION, "-lts-lgpl", "")
     error("This version of CamCOPS should be built with '$${QT_GIT_VERSION}', not '$$[QT_VERSION]'")
 }
 
-INCLUDEPATH += "$${QT_BASE_DIR}/eigen/eigen-$${EIGEN_VERSION}"  # from which: <Eigen/...>
-# INCLUDEPATH += "$${QT_BASE_DIR}/armadillo/armadillo-7.950.0/include"  # from which: <armadillo>
-# INCLUDEPATH += "$${QT_BASE_DIR}/armadillo/armadillo-7.950.0/include/armadillo_bits"
-# INCLUDEPATH += "$${QT_BASE_DIR}/boost/boost_1_64_0"  # from which: <boost/...>
-# INCLUDEPATH += "$${QT_BASE_DIR}/src/mlpack/src"  # from which: <mlpack/...>
+
+EIGEN_INCLUDE = "$${QT_BASE_DIR}/eigen/eigen-$${EIGEN_VERSION}"  # from which: <Eigen/...>
+
+gcc {
+    # Ignore Eigen warnings
+    # https://gitlab.com/libeigen/eigen/-/issues/2787
+    QMAKE_CXXFLAGS += "-isystem $${EIGEN_INCLUDE}"
+} else {
+    INCLUDEPATH += "$${EIGEN_INCLUDE}"
+}
+
 
 # =============================================================================
 # OS-specific options
