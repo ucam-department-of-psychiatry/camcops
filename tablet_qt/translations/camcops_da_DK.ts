@@ -449,7 +449,7 @@
 <context>
     <name>CamcopsApp</name>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="+896"/>
+        <location filename="../core/camcopsapp.cpp" line="+901"/>
         <source>Configuring internal database</source>
         <translation>Konfiguration af intern database</translation>
     </message>
@@ -499,7 +499,7 @@
         <translation>Kan ikke læse databasen; ødelagt? krypteret? (Denne version af CamCOPS har haft sine krypteringsfaciliteter deaktiveret.)</translation>
     </message>
     <message>
-        <location line="+985"/>
+        <location line="+1024"/>
         <source>Upload?</source>
         <translation>Upload?</translation>
     </message>
@@ -514,13 +514,13 @@
         <translation>Ja, upload</translation>
     </message>
     <message>
-        <location line="-1947"/>
-        <location line="+1948"/>
+        <location line="-1986"/>
+        <location line="+1987"/>
         <source>No, cancel</source>
         <translation>Nej, annuller</translation>
     </message>
     <message>
-        <location line="-2132"/>
+        <location line="-2174"/>
         <source>You did not select how you would like to use CamCOPS</source>
         <translation>Du valgte ikke, hvordan du vil bruge CamCOPS</translation>
     </message>
@@ -535,7 +535,7 @@
         <translation>Du kan ikke ændre tilstand, når der stadig er opgaver, der skal overføres</translation>
     </message>
     <message>
-        <location line="+145"/>
+        <location line="+148"/>
         <source>Registering patient...</source>
         <translation>Registrering af patient...</translation>
     </message>
@@ -665,7 +665,7 @@ på grund af denne fejl:
 </translation>
     </message>
     <message>
-        <location line="+1066"/>
+        <location line="+1105"/>
         <source>Enter app password</source>
         <translation>Indtast programadgangskode</translation>
     </message>
@@ -725,7 +725,7 @@ på grund af denne fejl:
         <translation>JEG ER IKKE ENIG</translation>
     </message>
     <message>
-        <location line="-3182"/>
+        <location line="-3224"/>
         <source>OK. Goodbye.</source>
         <translation>Okay. Farvel.</translation>
     </message>
@@ -735,13 +735,13 @@ på grund af denne fejl:
         <translation>Du nægtede betingelserne.</translation>
     </message>
     <message>
-        <location line="+1180"/>
+        <location line="+1183"/>
         <source>You entered an incorrect password. Try again?&lt;br&gt;&lt;br&gt;Answer &lt;b&gt;%1&lt;/b&gt; to enter your password again.&lt;br&gt;Answer &lt;b&gt;%2&lt;/b&gt; if you can&apos;t remember your password.</source>
         <extracomment>%1 and %2 are Yes and No respectively i.e. the dialog button labels</extracomment>
         <translation>Du har indtastet en forkert adgangskode. Prøv igen??&lt;br&gt;&lt;br&gt;Svar &lt;b&gt;%1&lt;/b&gt; for at indtaste din adgangskode igen.&lt;br&gt;Svar &lt;b&gt;%2&lt;/b&gt; hvis du ikke kan huske din adgangskode.</translation>
     </message>
     <message>
-        <location line="+2044"/>
+        <location line="+2083"/>
         <source>Uploading...</source>
         <translation>Uploader …</translation>
     </message>
@@ -2570,7 +2570,7 @@ enig</translation>
 <context>
     <name>Empsa</name>
     <message>
-        <location filename="../tasks/empsa.cpp" line="+97"/>
+        <location filename="../tasks/empsa.cpp" line="+98"/>
         <source>Eating &amp; Meal Preparation Skills Assessment</source>
         <translation>Eating &amp; Meal Preparation Skills Assessment [Spise &amp; Måltidsforberedelse færdighedsvurdering]</translation>
     </message>
@@ -3119,7 +3119,7 @@ enig</translation>
         <translation>Software versioner</translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+19"/>
         <source>&lt;b&gt;Device ID:&lt;/b&gt; %1</source>
         <translation>&lt;b&gt;Enheds-id:&lt;/b&gt; %1</translation>
     </message>
@@ -3892,7 +3892,7 @@ enig</translation>
 <context>
     <name>NetworkManager</name>
     <message>
-        <location filename="../core/networkmanager.cpp" line="+423"/>
+        <location filename="../core/networkmanager.cpp" line="+431"/>
         <source>Server host details not specified; see Settings</source>
         <translation>Serverhost detaljer ikke specificeret; se Indstillinger</translation>
     </message>
@@ -3972,7 +3972,7 @@ enig</translation>
         <translation>Indtast serveradgangskode</translation>
     </message>
     <message>
-        <location line="+41"/>
+        <location line="+43"/>
         <source>+++ Ignoring %1 SSL error(s):</source>
         <translation>+++ Ignorerer %1 SSL-fejl(er):</translation>
     </message>
@@ -4048,12 +4048,12 @@ enig</translation>
         <translation>... Okay</translation>
     </message>
     <message>
-        <location line="-1798"/>
+        <location line="-1800"/>
         <source>Reply is not from CamCOPS API. Are your server settings misconfigured?</source>
         <translation>Svaret kommer ikke fra CamCOPS API. Er dine serverindstillinger forkert konfigureret?</translation>
     </message>
     <message>
-        <location line="+223"/>
+        <location line="+225"/>
         <source>Testing HTTP GET connection to:</source>
         <translation>Test af HTTP GET-forbindelse til:</translation>
     </message>
@@ -4466,7 +4466,7 @@ enig</translation>
         <translation>Indtast gammel adgangskode:</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+11"/>
         <source>Enter new password:</source>
         <translation>Indtast ny adgangskode:</translation>
     </message>
@@ -4476,7 +4476,7 @@ enig</translation>
         <translation>Skal være mindst %1 tegn</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+9"/>
         <source>Enter new password again for confirmation:</source>
         <translation>Indtast ny adgangskode igen for bekræftelse:</translation>
     </message>
@@ -4624,7 +4624,7 @@ enig</translation>
         <translation>Registrering</translation>
     </message>
     <message>
-        <location line="+49"/>
+        <location line="+51"/>
         <source>&lt;b&gt;CamCOPS server location&lt;/b&gt; (e.g. https://server.example.com/camcops/api):</source>
         <translation>&lt;b&gt;CamCOPS-serverplacering&lt;/b&gt; (f.eks. https://server.example.com/camcops/api):</translation>
     </message>
@@ -5016,7 +5016,7 @@ enig</translation>
         <translation>Lås først op</translation>
     </message>
     <message>
-        <location line="+90"/>
+        <location line="+96"/>
         <source>Choose language</source>
         <translation>Vælg sprog</translation>
     </message>
@@ -5812,18 +5812,18 @@ enig</translation>
     </message>
     <message>
         <location line="+8"/>
-        <location line="+450"/>
+        <location line="+455"/>
         <source>User settings</source>
         <translation>Brugerindstillinger</translation>
     </message>
     <message>
-        <location line="-443"/>
-        <location line="+236"/>
+        <location line="-448"/>
+        <location line="+241"/>
         <source>Intellectual property (IP) permissions</source>
         <translation>Intellektuelle ejendomsrettigheder</translation>
     </message>
     <message>
-        <location line="-227"/>
+        <location line="-232"/>
         <source>Change app password</source>
         <translation>Skift programadgangskode</translation>
     </message>
@@ -5834,17 +5834,17 @@ enig</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+821"/>
+        <location line="+826"/>
         <source>Show server information</source>
         <translation>Vis serveroplysninger</translation>
     </message>
     <message>
-        <location line="-812"/>
+        <location line="-817"/>
         <source>Infrequent user functions</source>
         <translation>Ufrivillige brugerfunktioner</translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+19"/>
         <source>Re-accept ID descriptions from the server</source>
         <translation>Genoptag ID-beskrivelser fra serveren</translation>
     </message>
@@ -5879,12 +5879,12 @@ enig</translation>
         <translation>Konfigurer serverindstillinger</translation>
     </message>
     <message>
-        <location line="-24"/>
+        <location line="-29"/>
         <source>Fetch all server info</source>
         <translation>Hent alle serveroplysninger</translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+36"/>
         <source>Register this device with the server</source>
         <translation>Registrér denne enhed med serveren</translation>
     </message>
@@ -6049,12 +6049,17 @@ enig</translation>
         <translation>Standard kliniker/forsker detaljer (for at spare dig for at skrive)</translation>
     </message>
     <message>
-        <location line="-278"/>
+        <location line="-283"/>
         <source>Change operating mode</source>
         <translation>Skift driftstilstand</translation>
     </message>
     <message>
-        <location line="+282"/>
+        <location line="+10"/>
+        <source>Change user agent</source>
+        <translation>Skift brugeragent</translation>
+    </message>
+    <message>
+        <location line="+277"/>
         <source>Default clinician/researcher’s specialty</source>
         <translation>Standard kliniker/forskers specialitet</translation>
     </message>
@@ -6309,7 +6314,7 @@ enig</translation>
         <translation>Optagelsestællinger for systemdatabasen</translation>
     </message>
     <message>
-        <location line="-1002"/>
+        <location line="-1007"/>
         <source>Choose language</source>
         <translation>Vælg sprog</translation>
     </message>
@@ -7618,6 +7623,19 @@ Opgaver kan planlægges for dig af dit kliniske team/ forskerhold, og vil dereft
 DETTE ER IKKE EN ERSTATNING FOR DIREKTE KOMMUNIKATION MED DIT KLINISKE/FORSKERHOLD ELLER REDNINGSTJENESTER. Oplysninger, du giver via CamCOPS, kan muligvis ikke ses hurtigt af en relevant person. Hvis du har noget presserende at fortælle din kliniske / forskerhold, komme i kontakt med dem direkte uden forsinkelse. Hvis noget er meget presserende (for eksempel, hvis du er meget syg eller i fare), så kontakt alarmcentralen straks.
 
 Tak!</translation>
+    </message>
+</context>
+<context>
+    <name>UserAgentDialog</name>
+    <message>
+        <location filename="../dialogs/useragentdialog.cpp" line="+40"/>
+        <source>Change user agent</source>
+        <translation>Skift brugeragent</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>WARNING: Changing the user agent could stop CamCOPS from connecting to the server. Do not change this unless there are problems connecting to the server.</source>
+        <translation>ADVARSEL: Ændring af brugeragenten kan forhindre CamCOPS i at oprette forbindelse til serveren. Undlad at ændre dette, medmindre der er problemer med at oprette forbindelse til serveren.</translation>
     </message>
 </context>
 <context>

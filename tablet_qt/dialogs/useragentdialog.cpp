@@ -37,7 +37,7 @@ UserAgentDialog::UserAgentDialog(
 ) :
     QDialog(parent)
 {
-    setWindowTitle(tr("Set user agent"));
+    setWindowTitle(tr("Change user agent"));
     setMinimumSize(uifunc::minimumSizeForTitle(this));
 
     auto warning = new QLabel(
