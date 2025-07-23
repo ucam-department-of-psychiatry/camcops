@@ -947,6 +947,9 @@ tablet_qt
     tests/auto/db/db.pro.rst
     tests/auto/db/field/field.pro.rst
     tests/auto/db/field/testfield.cpp.rst
+    tests/auto/dialogs/dialogs.pro.rst
+    tests/auto/dialogs/useragentdialog/testuseragentdialog.cpp.rst
+    tests/auto/dialogs/useragentdialog/useragentdialog.pro.rst
     tests/auto/graphics/graphics.pro.rst
     tests/auto/graphics/graphicsfunc/graphicsfunc.pro.rst
     tests/auto/graphics/graphicsfunc/testgraphicsfunc.cpp.rst
