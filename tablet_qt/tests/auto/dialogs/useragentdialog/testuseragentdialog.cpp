@@ -27,7 +27,6 @@
 #include "dialogs/useragentdialog.h"
 #include "qobjects/widgetpositioner.h"
 
-
 class TestUserAgentDialog : public QObject
 {
     Q_OBJECT
@@ -40,12 +39,13 @@ private slots:
 
 void TestUserAgentDialog::testDisplaysCurrent()
 {
-    auto default_user_agent = QString("Mozilla/5.0 (Linux x86_64) CamCOPS/v2.4.22");
+    auto default_user_agent
+        = QString("Mozilla/5.0 (Linux x86_64) CamCOPS/v2.4.22");
     auto current_user_agent = QString("Mozilla/5.0");
 
     auto dialog = new UserAgentDialog(default_user_agent, current_user_agent);
 
-    QLineEdit *user_agent_edit = dialog->findChild<QLineEdit *>();
+    QLineEdit* user_agent_edit = dialog->findChild<QLineEdit*>();
     QVERIFY(user_agent_edit);
 
     QCOMPARE(user_agent_edit->text(), current_user_agent);
@@ -53,12 +53,13 @@ void TestUserAgentDialog::testDisplaysCurrent()
 
 void TestUserAgentDialog::testSavesNewValue()
 {
-    auto default_user_agent = QString("Mozilla/5.0 (Linux x86_64) CamCOPS/v2.4.22");
+    auto default_user_agent
+        = QString("Mozilla/5.0 (Linux x86_64) CamCOPS/v2.4.22");
     auto current_user_agent = default_user_agent;
 
     auto dialog = new UserAgentDialog(default_user_agent, current_user_agent);
 
-    QLineEdit *user_agent_edit = dialog->findChild<QLineEdit *>();
+    QLineEdit* user_agent_edit = dialog->findChild<QLineEdit*>();
     QVERIFY(user_agent_edit);
 
     auto new_user_agent = QString("Mozilla/5.0");
@@ -69,17 +70,17 @@ void TestUserAgentDialog::testSavesNewValue()
 
 void TestUserAgentDialog::testRestoresDefault()
 {
-    auto default_user_agent = QString("Mozilla/5.0 (Linux x86_64) CamCOPS/v2.4.22");
+    auto default_user_agent
+        = QString("Mozilla/5.0 (Linux x86_64) CamCOPS/v2.4.22");
     auto current_user_agent = QString("Mozilla/5.0");
 
     auto dialog = new UserAgentDialog(default_user_agent, current_user_agent);
 
     dialog->open();
 
-    auto buttonbox = dialog->findChild<QDialogButtonBox *>();
-    QPushButton* defaults_button = buttonbox->button(
-        QDialogButtonBox::RestoreDefaults
-    );
+    auto buttonbox = dialog->findChild<QDialogButtonBox*>();
+    QPushButton* defaults_button
+        = buttonbox->button(QDialogButtonBox::RestoreDefaults);
 
     QTest::mouseClick(defaults_button, Qt::LeftButton);
 
