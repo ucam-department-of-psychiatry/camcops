@@ -3992,3 +3992,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client and server v2.4.23, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Change user agent on client to include the OS and CamCOPS version number. Make it configurable.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/403
