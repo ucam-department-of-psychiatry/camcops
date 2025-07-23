@@ -75,12 +75,13 @@ void TestUserAgentDialog::testRestoresDefault()
     auto current_user_agent = QString("Mozilla/5.0");
 
     auto dialog = new UserAgentDialog(default_user_agent, current_user_agent);
-
-    dialog->open();
+    QCOMPARE(dialog->userAgent(), current_user_agent);
 
     auto buttonbox = dialog->findChild<QDialogButtonBox*>();
     QPushButton* defaults_button
         = buttonbox->button(QDialogButtonBox::RestoreDefaults);
+
+    dialog->open();
 
     QTest::mouseClick(defaults_button, Qt::LeftButton);
 
