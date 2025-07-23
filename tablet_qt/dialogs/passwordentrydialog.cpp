@@ -25,7 +25,7 @@
 #include <QLineEdit>
 #include <QVBoxLayout>
 
-#include "lib/uifunc.h"
+#include "lib/widgetfunc.h"
 #include "qobjects/widgetpositioner.h"
 
 PasswordEntryDialog::PasswordEntryDialog(
@@ -34,7 +34,7 @@ PasswordEntryDialog::PasswordEntryDialog(
     QDialog(parent)
 {
     setWindowTitle(title);
-    setMinimumSize(uifunc::minimumSizeForTitle(this));
+    setMinimumSize(widgetfunc::minimumSizeForTitle(this));
 
     auto prompt = new QLabel(text);
     prompt->setWordWrap(true);

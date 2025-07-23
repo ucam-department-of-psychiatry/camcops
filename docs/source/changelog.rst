@@ -2285,7 +2285,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Ensure dialogs (e.g. initial password prompt) show the title in full, and
   don't clip text that they contain (e.g. good: upload dialogue; bad: ?some of
-  the cancellation dialogs). See ``uifunc::minimumSizeForTitle()``. Not
+  the cancellation dialogs). See ``widgetfunc::minimumSizeForTitle()``. Not
   perfect (some guesswork), but better.
 
 - Client option to drop unknown tables.

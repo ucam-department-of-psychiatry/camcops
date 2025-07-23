@@ -27,7 +27,7 @@
 #include <QLineEdit>
 #include <QVBoxLayout>
 
-#include "lib/uifunc.h"
+#include "lib/widgetfunc.h"
 #include "qobjects/widgetpositioner.h"
 
 UserAgentDialog::UserAgentDialog(
@@ -38,7 +38,7 @@ UserAgentDialog::UserAgentDialog(
     QDialog(parent)
 {
     setWindowTitle(tr("Change user agent"));
-    setMinimumSize(uifunc::minimumSizeForTitle(this));
+    setMinimumSize(widgetfunc::minimumSizeForTitle(this));
 
     auto warning = new QLabel(
         tr("WARNING: Changing the user agent could stop CamCOPS from "

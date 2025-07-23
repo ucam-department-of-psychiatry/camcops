@@ -12,6 +12,7 @@ SOURCES += \
     testgraphicsfunc.cpp \
     $$CAMCOPS_SRC/common/cssconst.cpp \
     $$CAMCOPS_SRC/common/dpi.cpp \
+    $$CAMCOPS_SRC/common/platform.cpp \
     $$CAMCOPS_SRC/common/textconst.cpp \
     $$CAMCOPS_SRC/common/uiconst.cpp \
     $$CAMCOPS_SRC/graphics/buttonconfig.cpp \
@@ -37,6 +38,7 @@ SOURCES += \
 HEADERS += \
     $$CAMCOPS_SRC/common/cssconst.h \
     $$CAMCOPS_SRC/common/dpi.h \
+    $$CAMCOPS_SRC/common/platform.h \
     $$CAMCOPS_SRC/common/textconst.h \
     $$CAMCOPS_SRC/common/uiconst.h \
     $$CAMCOPS_SRC/graphics/buttonconfig.h \

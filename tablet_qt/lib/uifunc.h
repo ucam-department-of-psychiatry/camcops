@@ -279,10 +279,6 @@ void makeItemViewScrollSmoothly(QObject* object);
 // Sizing
 // ============================================================================
 
-QSize minimumSizeForTitle(
-    const QDialog* dialog, bool include_app_name = false
-);
-
 QScreen* screen();
 QRect screenGeometry();
 int screenWidth();
