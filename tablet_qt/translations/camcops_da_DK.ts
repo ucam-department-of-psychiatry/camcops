@@ -4422,7 +4422,7 @@ enig</translation>
 <context>
     <name>PagePickerDialog</name>
     <message>
-        <location filename="../dialogs/pagepickerdialog.cpp" line="+150"/>
+        <location filename="../dialogs/pagepickerdialog.cpp" line="+151"/>
         <source>You can’t select this page yet because preceding pages (marked with a warning symbol) are incomplete.</source>
         <translation>Du kan ikke vælge denne side endnu, fordi de foregående sider (markeret med et advarselssymbol) er ufuldstændige.</translation>
     </message>
@@ -4461,7 +4461,7 @@ enig</translation>
 <context>
     <name>PasswordChangeDialog</name>
     <message>
-        <location filename="../dialogs/passwordchangedialog.cpp" line="+64"/>
+        <location filename="../dialogs/passwordchangedialog.cpp" line="+65"/>
         <source>Enter old password:</source>
         <translation>Indtast gammel adgangskode:</translation>
     </message>
@@ -5001,7 +5001,7 @@ enig</translation>
         <translation>[Ugyldig politik]</translation>
     </message>
     <message>
-        <location filename="../lib/uifunc.cpp" line="+300"/>
+        <location filename="../lib/uifunc.cpp" line="+297"/>
         <source>Abort</source>
         <translation>Afbryde</translation>
     </message>
@@ -6530,6 +6530,11 @@ enig</translation>
         <location line="+6"/>
         <source>Change operating mode</source>
         <translation>Ændre driftstilstand</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Change user agent</source>
+        <translation>Skift brugeragent</translation>
     </message>
 </context>
 <context>
