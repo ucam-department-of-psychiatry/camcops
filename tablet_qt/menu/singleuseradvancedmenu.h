@@ -35,4 +35,5 @@ protected:
     void enableNetworkLogging();
     void disableNetworkLogging();
     void changeMode();
+    void changeUserAgent();
 };
