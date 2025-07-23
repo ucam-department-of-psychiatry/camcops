@@ -362,9 +362,13 @@ server. If the database on the app is deleted and you re-register, we have no
 way of knowing if the anonymous task has been completed or not so it will always
 appear as incomplete.
 
-There are a couple of other options from :menuselection:`More options --> Advanced options`.
+There are a few other options from :menuselection:`More options --> Advanced options`.
 These are intended to aid debugging so you should not need to use these in normal operation.
 
 - :menuselection:`Advanced options --> Configure server settings`
 
 - :menuselection:`Advanced options --> Enable network activity log`
+
+- :menuselection:`Advanced options --> Change operating mode`
+
+- :menuselection:`Advanced options --> Change user agent`

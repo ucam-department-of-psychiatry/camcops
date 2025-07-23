@@ -42,6 +42,7 @@
 #include "common/textconst.h"
 #include "layouts/gridlayouthfw.h"
 #include "lib/uifunc.h"
+#include "lib/widgetfunc.h"
 #include "qobjects/widgetpositioner.h"
 #include "widgets/verticalscrollarea.h"
 
@@ -90,7 +91,7 @@ ScrollMessageBox::ScrollMessageBox(
 #ifdef ENFORCE_MINIMUM
     setMinimumSize(MIN_SIZE);
 #else
-    setMinimumSize(uifunc::minimumSizeForTitle(this));
+    setMinimumSize(widgetfunc::minimumSizeForTitle(this));
     scroll->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     // ... will shrink for small contents
 #endif

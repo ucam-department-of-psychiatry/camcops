@@ -122,4 +122,6 @@ extern const QString PRIV_PASSWORD_HASH;
 // Device ID
 extern const QString DEVICE_ID;
 
+// User-Agent header
+extern const QString USER_AGENT;
 }  // namespace varconst

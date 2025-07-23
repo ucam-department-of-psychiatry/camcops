@@ -2285,7 +2285,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Ensure dialogs (e.g. initial password prompt) show the title in full, and
   don't clip text that they contain (e.g. good: upload dialogue; bad: ?some of
-  the cancellation dialogs). See ``uifunc::minimumSizeForTitle()``. Not
+  the cancellation dialogs). See ``widgetfunc::minimumSizeForTitle()``. Not
   perfect (some guesswork), but better.
 
 - Client option to drop unknown tables.
@@ -3992,3 +3992,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client and server v2.4.23, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Change user agent on client to include the OS and CamCOPS version number. Make it configurable.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/403

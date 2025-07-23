@@ -27,7 +27,7 @@
 #include <QVBoxLayout>
 
 #include "common/textconst.h"
-#include "lib/uifunc.h"
+#include "lib/widgetfunc.h"
 #include "qobjects/widgetpositioner.h"
 
 DangerousConfirmationDialog::DangerousConfirmationDialog(
@@ -36,7 +36,7 @@ DangerousConfirmationDialog::DangerousConfirmationDialog(
     QDialog(parent)
 {
     setWindowTitle(title);
-    setMinimumSize(uifunc::minimumSizeForTitle(this));
+    setMinimumSize(widgetfunc::minimumSizeForTitle(this));
 
     auto prompt = new QLabel(text);
     prompt->setWordWrap(true);

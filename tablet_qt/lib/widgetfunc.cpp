@@ -21,21 +21,28 @@
 // Widget manipulations
 // ============================================================================
 
+// #define DEBUG_MIN_SIZE_FOR_TITLE
+
 #include "widgetfunc.h"
 
+#include <QApplication>
 #include <QByteArray>
 #include <QColor>
 #include <QDebug>
+#include <QFont>
+#include <QFontMetrics>
 #include <QLayout>
 #include <QLayoutItem>
 #include <QPlainTextEdit>
 #include <QScrollBar>
+#include <QSize>
 #include <QString>
 #include <QStyle>
 #include <QVariant>
 #include <QWidget>
 
 #include "common/cssconst.h"
+#include "common/platform.h"
 #include "lib/css.h"
 
 namespace widgetfunc {
@@ -222,5 +229,73 @@ bool isScrollAtEnd(QPlainTextEdit* editor)
     return vsb && vsb->value() == vsb->maximum();
 }
 */
+
+QSize minimumSizeForTitle(const QWidget* widget, const bool include_app_name)
+{
+    if (!widget) {
+        return QSize();
+    }
+    // +---------------------------------------------+
+    // | ICON  TITLETEXT - APPTITLE    WINDOWBUTTONS |
+    // |                                             |
+    // | contents                                    |
+    // +---------------------------------------------+
+
+    // https://doc.qt.io/qt-6.5/qwidget.html#windowTitle-prop
+    const QString window_title = widget->windowTitle();
+    const QString app_name = QApplication::applicationDisplayName();
+    QString full_title = window_title;
+    if (include_app_name && !platform::PLATFORM_TABLET) {
+        // Qt for Android doesn't append this suffix.
+        // It does for Linux and Windows.
+        const QString title_suffix = QString(" — %1").arg(app_name);
+        full_title += title_suffix;
+    }
+    const QFont title_font = QApplication::font("QWorkspaceTitleBar");
+    const QFontMetrics fm(title_font);
+    const int title_w = fm.boundingRect(full_title).width();
+    // ... "_w" means width
+
+    // dialog->ensurePolished();
+    // const QSize frame_size = dialog->frameSize();
+    // const QSize content_size = dialog->size();
+    // ... problem was that both are QSize(640, 480) upon creation
+    // ... even if ensurePolished() is called first
+    // const QSize frame_extra = frame_size - content_size;
+
+    // How to count the number of icons shown on a window? ***
+    // - Android: 0
+    // - Linux: presumably may vary with window manager, but 4 is typical under
+    //   XFCE (1 icon on left, 3 [rollup/maximize/close] on right), but need a
+    //   bit more for spacing; 6 works better (at 24 pixels width per icon)
+    // - Windows: also 4 (icon left, minimize/maximize/close on right)
+    const int n_icons = platform::PLATFORM_TABLET ? 0 : 6;
+
+    // How to read the size (esp. width) of a window icon? ***
+    // const int icon_w = frame_extra.height();
+    // ... on the basis that window icons are square!
+    // ... but the problem is that frame size may as yet be zero
+    const int icon_w = 24;
+
+    const int final_w = title_w + n_icons * icon_w;
+    const QSize widget_min_size = widget->minimumSize();
+    QSize size(widget_min_size);
+    size.setWidth(qMax(size.width(), final_w));
+    size.setWidth(qMin(size.width(), widget->maximumWidth()));
+#ifdef DEBUG_MIN_SIZE_FOR_TITLE
+    qDebug().nospace() << Q_FUNC_INFO << "window_title = " << window_title
+                       << ", app_name = " << app_name
+                       << ", full_title = " << full_title
+                       << ", title_font = " << title_font << ", title_w = "
+                       << title_w
+                       // << ", frame_size = " << frame_size
+                       // << ", content_size = " << content_size
+                       // << ", frame_extra = " << frame_extra
+                       << ", n_icons = " << n_icons << ", icon_w = " << icon_w
+                       << ", widget_min_size = " << widget_min_size
+                       << ", size = " << size;
+#endif
+    return size;
+}
 
 }  // namespace widgetfunc

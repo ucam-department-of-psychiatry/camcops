@@ -81,6 +81,7 @@
 #include "dialogs/modedialog.h"
 #include "dialogs/patientregistrationdialog.h"
 #include "dialogs/scrollmessagebox.h"
+#include "dialogs/useragentdialog.h"
 // #include "layouts/layouts.h"
 #include "lib/convert.h"
 #include "lib/customtypes.h"
@@ -1744,6 +1745,13 @@ void CamcopsApp::createStoredVars()
         regenerateDeviceId();
     }
 
+    // User-Agent header
+    createVar(
+        varconst::USER_AGENT,
+        QMetaType::fromType<QString>(),
+        defaultUserAgent()
+    );
+
     m_storedvars_available = true;
 }
 
@@ -2127,6 +2135,38 @@ bool CamcopsApp::isLoggingNetwork()
     }
 
     return false;
+}
+
+QString CamcopsApp::defaultUserAgent() const
+{
+    const QString platform = QString("%1 %2").arg(
+        platform::OS_CLASS, QSysInfo::currentCpuArchitecture()
+    );
+    const QString version = camcopsversion::CAMCOPS_CLIENT_VERSION.toString();
+
+    const QString user_agent
+        = QString("Mozilla/5.0 (%1) CamCOPS/%2").arg(platform, version);
+
+    return user_agent;
+}
+
+void CamcopsApp::setUserAgentFromUser()
+{
+    UserAgentDialog dialog(defaultUserAgent(), userAgent());
+    const int reply = dialog.exec();
+    if (reply == QDialog::Accepted) {
+        setUserAgent(dialog.userAgent());
+    }
+}
+
+QString CamcopsApp::userAgent() const
+{
+    return varString(varconst::USER_AGENT);
+}
+
+void CamcopsApp::setUserAgent(const QString user_agent)
+{
+    setVar(varconst::USER_AGENT, user_agent);
 }
 
 // ============================================================================

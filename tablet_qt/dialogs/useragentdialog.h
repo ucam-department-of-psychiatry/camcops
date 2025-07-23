@@ -19,21 +19,29 @@
 */
 
 #pragma once
-#include "menulib/menuwindow.h"
+#include <QAbstractButton>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QLineEdit>
+#include <QPointer>
 
-class SingleUserAdvancedMenu : public MenuWindow
+class UserAgentDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    SingleUserAdvancedMenu(CamcopsApp& app);
-    virtual QString title() const override;
+    UserAgentDialog(
+        const QString default_user_agent,
+        const QString current_user_agent,
+        QWidget* parent = nullptr
+    );
+    QString userAgent() const;
 
 protected:
-    virtual void makeItems() override;
-    OpenableWidget* configureServer(CamcopsApp& app);
-    void enableNetworkLogging();
-    void disableNetworkLogging();
-    void changeMode();
-    void changeUserAgent();
+    QString m_default_user_agent;
+    QPointer<QLineEdit> m_user_agent_edit;
+    QPointer<QDialogButtonBox> m_buttonbox;
+
+private slots:
+    void handleButtonClicked(QAbstractButton* button);
 };

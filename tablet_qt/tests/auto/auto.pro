@@ -1,6 +1,7 @@
 TEMPLATE = subdirs
 
 SUBDIRS += db
+SUBDIRS += dialogs
 SUBDIRS += graphics
 SUBDIRS += layouts
 SUBDIRS += lib

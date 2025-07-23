@@ -72,6 +72,7 @@ protected:
     void saveSystemDbAsSql();
     void chooseLanguage();
     void changeMode();
+    void changeUserAgent();
 
     // Internal helpers:
     QVariant serverPasswordGetter();

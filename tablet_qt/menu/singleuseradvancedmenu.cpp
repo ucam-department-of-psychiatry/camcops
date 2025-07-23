@@ -63,6 +63,11 @@ void SingleUserAdvancedMenu::makeItems()
         tr("Change operating mode"),
         std::bind(&SingleUserAdvancedMenu::changeMode, this)
     ));
+
+    m_items.append(MenuItem(
+        tr("Change user agent"),
+        std::bind(&SingleUserAdvancedMenu::changeUserAgent, this)
+    ));
 }
 
 OpenableWidget* SingleUserAdvancedMenu::configureServer(CamcopsApp& app)
@@ -87,4 +92,9 @@ void SingleUserAdvancedMenu::disableNetworkLogging()
 void SingleUserAdvancedMenu::changeMode()
 {
     m_app.setModeFromUser();
+}
+
+void SingleUserAdvancedMenu::changeUserAgent()
+{
+    m_app.setUserAgentFromUser();
 }

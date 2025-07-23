@@ -27,6 +27,7 @@
 
 #include "lib/filefunc.h"
 #include "lib/uifunc.h"
+#include "lib/widgetfunc.h"
 #include "qobjects/widgetpositioner.h"
 
 
@@ -52,7 +53,7 @@ PasswordChangeDialog::PasswordChangeDialog(
     m_editor_new2(nullptr)
 {
     setWindowTitle(title);
-    setMinimumSize(uifunc::minimumSizeForTitle(this));
+    setMinimumSize(widgetfunc::minimumSizeForTitle(this));
 
     auto mainlayout = new QVBoxLayout();
 

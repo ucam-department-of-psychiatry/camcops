@@ -573,6 +573,10 @@ public:
     // Will the user be able to see network interactions/errors?
     bool isLoggingNetwork();
 
+    void setUserAgentFromUser();
+    QString userAgent() const;
+    void setUserAgent(QString user_agent);
+
 protected:
     // Makes a new NetworkManager.
     void makeNetManager();
@@ -608,6 +612,8 @@ protected:
     // Allocated on the heap, unlike getSlowGuiGuard().
     void showNetworkGuiGuard(const QString& text);
     void deleteNetworkGuiGuard();
+
+    QString defaultUserAgent() const;
 
 signals:
     // Signal that the "needs upload" state has changed.
