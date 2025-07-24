@@ -718,8 +718,9 @@ class VersionReleaser:
                 version_code_string=version_code_string,
                 version_name=self.new_client_version,
                 release_date_string=self.release_date.strftime("%Y-%m-%d"),
+                # TODO: Read from camcops.pro
                 minimum_android_api=23,
-                target_android_api=34,  # As of 2024-08-31
+                target_android_api=34,  # As of 2025-08-31
             )
 
         self.errors.append(

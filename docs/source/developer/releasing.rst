@@ -105,6 +105,9 @@ Google Play Store settings
 Google Play Store release history
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+The minimum and target SDK versions are specified in the ``camcops.pro`` project
+file. See ``ANDROID_MIN_SDK_VERSION`` and ``ANDROID_TARGET_SDK_VERSION``.
+
 .. csv-table::
    :file: play_store_release_history.csv
    :header-rows: 1
