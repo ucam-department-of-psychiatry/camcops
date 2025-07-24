@@ -56,8 +56,6 @@ PatientRegistrationDialog::PatientRegistrationDialog(
     m_editor_server_url->getLineEdit()->setInputMethodHints(
         Qt::ImhNoAutoUppercase | Qt::ImhNoPredictiveText
     );
-    // Work around https://bugreports.qt.io/browse/QTBUG-125337
-    setFocusProxy(m_editor_server_url->getLineEdit());
     connect(
         m_editor_server_url,
         &ValidatingLineEdit::validated,
