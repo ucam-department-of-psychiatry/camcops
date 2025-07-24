@@ -76,8 +76,24 @@ android {
 
     defaultConfig {
         resConfig "en"
+        // Specified in camcops.pro:
+        // ANDROID_MIN_SDK_VERSION
+        // ANDROID_TARGET_SDK_VERSION
         minSdkVersion qtMinSdkVersion
         targetSdkVersion qtTargetSdkVersion
         ndk.abiFilters = qtTargetAbiList.split(",")
+    }
+
+    buildTypes {
+        release {
+            // Reduce app size with R8/proguard
+            minifyEnabled true
+            // Remove unused resources
+            shrinkResources true
+            ndk {
+                // Debugging symbols
+                debugSymbolLevel "SYMBOL_TABLE"
+            }
+        }
     }
 }
