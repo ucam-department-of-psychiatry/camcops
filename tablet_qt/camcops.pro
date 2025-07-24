@@ -311,6 +311,9 @@ android {
     CAMCOPS_32_BIT_VERSION_CODE = "51"
     CAMCOPS_64_BIT_VERSION_CODE = "52"
 
+    ANDROID_MIN_SDK_VERSION = "23"
+    ANDROID_TARGET_SDK_VERSION = "34"
+
     contains(ANDROID_TARGET_ARCH, x86) {
         ANDROID_VERSION_CODE = $${CAMCOPS_32_BIT_VERSION_CODE}
         message("Building for Android/x86_32 (e.g. Android emulator)")

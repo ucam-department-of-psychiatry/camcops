@@ -5,7 +5,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.2'
+        classpath 'com.android.tools.build:gradle:8.1.4'
     }
 }
 
@@ -33,6 +33,8 @@ android {
      * updated by QtCreator and androiddeployqt tools.
      * Changing them manually might break the compilation!
      *******************************************************/
+
+    namespace "org.camcops.camcops"
 
     compileSdkVersion androidCompileSdkVersion
     buildToolsVersion androidBuildToolsVersion
@@ -74,8 +76,24 @@ android {
 
     defaultConfig {
         resConfig "en"
+        // Specified in camcops.pro:
+        // ANDROID_MIN_SDK_VERSION
+        // ANDROID_TARGET_SDK_VERSION
         minSdkVersion qtMinSdkVersion
         targetSdkVersion qtTargetSdkVersion
         ndk.abiFilters = qtTargetAbiList.split(",")
+    }
+
+    buildTypes {
+        release {
+            // Reduce app size with R8/proguard
+            minifyEnabled true
+            // Remove unused resources
+            shrinkResources true
+            ndk {
+                // Debugging symbols
+                debugSymbolLevel "SYMBOL_TABLE"
+            }
+        }
     }
 }
