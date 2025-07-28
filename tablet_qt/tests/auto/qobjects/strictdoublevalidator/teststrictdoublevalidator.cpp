@@ -46,9 +46,11 @@ private slots:
     void testValidateReturnsIntermediateIfZeroAndRangeGreaterThanZero();
 #ifdef TESTSTRICTDOUBLE_INCLUDE_RANDOM
     void testRandomNumbersAndRanges();
+    void testRandomNumbersAndRanges_data();
 #endif
     void testSpecificFailure1();
     void testSpecificFailure2();
+    void testSpecificFailure3();
     void testSmallNegativeMinMax2dp();
 };
 
@@ -295,9 +297,10 @@ void TestStrictDoubleValidator::
 #ifdef TESTSTRICTDOUBLE_INCLUDE_RANDOM
 void TestStrictDoubleValidator::testRandomNumbersAndRanges()
 {
+    QFETCH(int, limit);
+
     const int seed = 1234;
     const int num_tests = 1000;
-    const int limit = 1000000;
     const int max_decimals = 10;  // a large number is likely to break things
 
     QRandomGenerator rng(seed);
@@ -351,6 +354,13 @@ void TestStrictDoubleValidator::testRandomNumbersAndRanges()
         QVERIFY(true);
     }
 }
+
+void TestStrictDoubleValidator::testRandomNumbersAndRanges_data()
+{
+    QTest::addColumn<int>("limit");
+    QTest::newRow("bigger numbers") << 1000000;
+    QTest::newRow("smaller numbers") << 10;
+}
 #endif
 
 void TestStrictDoubleValidator::testSpecificFailure1()
@@ -383,6 +393,21 @@ void TestStrictDoubleValidator::testSpecificFailure2()
     QCOMPARE(validator.validate(text, pos), QValidator::Acceptable);
 }
 
+void TestStrictDoubleValidator::testSpecificFailure3()
+{
+    // An example thrown up by testRandomNumbersAndRanges()
+    QString text("1");
+    const double bottom = 1.02;
+    const double top = 1.4;
+    const int decimals = 2;
+    const bool allow_empty = false;
+    StrictDoubleValidator validator(
+        bottom, top, decimals, allow_empty, nullptr
+    );
+    int pos = 0;
+    QCOMPARE(validator.validate(text, pos), QValidator::Intermediate);
+}
+
 void TestStrictDoubleValidator::testSmallNegativeMinMax2dp()
 {
     // From the demonstration task
@@ -397,6 +422,7 @@ void TestStrictDoubleValidator::testSmallNegativeMinMax2dp()
     int pos = 0;
     QCOMPARE(validator.validate(text, pos), QValidator::Intermediate);
 }
+
 
 QTEST_MAIN(TestStrictDoubleValidator)
 
