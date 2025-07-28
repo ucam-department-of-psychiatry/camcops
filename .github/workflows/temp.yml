@@ -1,0 +1,33 @@
+---
+name: Temp
+
+on:
+    push:
+        paths:
+          - .github/workflows/temp.yml
+
+jobs:
+    temp:
+        runs-on: ubuntu-22.04
+        steps:
+            - name: Write file
+              run: |
+                  set -euo pipefail
+                  echo "Testing..." > /tmp/test.txt
+            - name: Work out tag
+              # TODO: This seems to be ignored and instead the release gets
+              # called untagged-<some hash>
+              id: vars
+              run: |
+                  set -euo pipefail
+                  echo "tag=qt_${GITHUB_SHA}" >> $GITHUB_OUTPUT
+            - name: Release
+              uses: ncipollo/release-action@v1
+              with:
+                  artifacts: "/tmp/test.txt"
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  prerelease: true
+                  draft: true
+                  body: Testing draft release (${{ steps.vars.outputs.tag }})
+                  name: Test, please ignore (${{ steps.vars.outputs.tag }})
+                  tag: ${{ steps.vars.outputs.tag }}
