@@ -230,13 +230,15 @@ jobs:
                       ${HOME}/qt_local_build/sqlcipher_linux_x86_64
 
             - name: Work out tag
-              # TODO: This seems to be ignored and instead the release gets
-              # called untagged-<some hash>
+              # We need to specify a tag, but because we are creating a draft release we never
+              # intend to publish, GitHub will name the release untagged-<some hash>
               if: matrix.os == 'ubuntu-22.04'
               id: vars
               run: |
-                  set -eux -o pipefail
-                  echo "tag=qt_${GITHUB_SHA}" >> $GITHUB_OUTPUT
+                  set -euo pipefail
+                  QT_VERSION="$(sed 's/[a-z-]//g' ${GITHUB_WORKSPACE}/tablet_qt/qt_version.txt)"
+                  SHORT_SHA="$(echo ${GITHUB_SHA} | cut -c1-7)"
+                  echo "tag=qt_${QT_VERSION}_${SHORT_SHA}" >> $GITHUB_OUTPUT
             - name: Release Qt
               if: matrix.os == 'ubuntu-22.04'
               uses: ncipollo/release-action@v1
@@ -245,8 +247,11 @@ jobs:
                   token: ${{ secrets.GITHUB_TOKEN }}
                   prerelease: true
                   draft: true
-                  body: Qt and associated libraries for building and testing the CamCOPS app
-                  name: Qt and other libraries for CamCOPS
+                  body: |
+                    Qt and associated libraries for building and testing the CamCOPS app (${{ steps.vars.outputs.tag }}).
+                    Do not edit this text or publish this release.
+                  name: Qt and other libraries for CamCOPS (${{ steps.vars.outputs.tag }})
+                  # Necessary but ignored because we are creating a draft release
                   tag: ${{ steps.vars.outputs.tag }}
 
             - name: Windows Build Qt
