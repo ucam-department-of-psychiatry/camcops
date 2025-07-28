@@ -28,7 +28,7 @@
 
 #include "common/varconst.h"
 #include "lib/stringfunc.h"
-#include "lib/uifunc.h"
+#include "lib/widgetfunc.h"
 #include "qobjects/widgetpositioner.h"
 #include "widgets/radiobuttonwordwrap.h"
 
@@ -41,7 +41,7 @@ ModeDialog::ModeDialog(const int previous_choice, QWidget* parent) :
     const bool offer_cancel = previous_choice != varconst::MODE_NOT_SET;
 
     setWindowTitle(tr("Select clinician or single user mode"));
-    setMinimumSize(uifunc::minimumSizeForTitle(this));
+    setMinimumSize(widgetfunc::minimumSizeForTitle(this));
 
     auto prompt = new QLabel(tr("I would like to use CamCOPS as a:"));
     const QString single_user_text = tr("single user");

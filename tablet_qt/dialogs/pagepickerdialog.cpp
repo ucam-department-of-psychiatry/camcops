@@ -31,6 +31,7 @@
 #include "layouts/layouts.h"
 #include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
+#include "lib/widgetfunc.h"
 #include "qobjects/widgetpositioner.h"
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/imagebutton.h"
@@ -64,7 +65,7 @@ int PagePickerDialog::choose(int* new_page_number)
     }
     m_new_page_number = new_page_number;
     setWindowTitle(m_title);
-    setMinimumSize(uifunc::minimumSizeForTitle(this));
+    setMinimumSize(widgetfunc::minimumSizeForTitle(this));
 
     auto contentwidget = new QWidget();
     // ... doesn't need to be BaseWidget; contains scroll area

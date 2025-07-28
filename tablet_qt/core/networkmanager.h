@@ -143,6 +143,8 @@ protected:
         QSsl::SslProtocol ssl_protocol = QSsl::AnyProtocol
     );
 
+    QString userAgent() const;
+
     // Returns the URL for the CamCOPS server, as a QUrl.
     QUrl serverUrl(bool& success) const;
 
