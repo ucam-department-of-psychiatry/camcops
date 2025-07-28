@@ -21,7 +21,7 @@ jobs:
               id: vars
               run: |
                   set -euo pipefail
-                  QT_VERSION=$("$(sed 's/[a-z-]//g' ${GITHUB_WORKSPACE}/tablet_qt/qt_version.txt)")
+                  QT_VERSION="$(sed 's/[a-z-]//g' ${GITHUB_WORKSPACE}/tablet_qt/qt_version.txt)"
                   echo "commit=${GITHUB_SHA}" >> $GITHUB_OUTPUT
                   echo "tag=qt_${QT_VERSION}_${GITHUB_SHA}" >> $GITHUB_OUTPUT
             - name: Release
