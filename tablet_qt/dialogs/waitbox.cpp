@@ -25,7 +25,7 @@
 #include <QKeyEvent>
 #include <QThread>
 
-#include "lib/uifunc.h"
+#include "lib/widgetfunc.h"
 #include "qobjects/widgetpositioner.h"
 
 /*
@@ -87,7 +87,7 @@ WaitBox::WaitBox(
     // qDebug() << Q_FUNC_INFO;
     QApplication::setOverrideCursor(Qt::WaitCursor);
     setWindowTitle(title);
-    setMinimumSize(uifunc::minimumSizeForTitle(this));
+    setMinimumSize(widgetfunc::minimumSizeForTitle(this));
 
     // Prevent user interaction with what's behind:
     setWindowModality(Qt::WindowModal);

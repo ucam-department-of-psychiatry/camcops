@@ -42,6 +42,7 @@
 #include <QUrl>
 #include <QUrlQuery>
 
+#include "common/platform.h"
 #include "common/preprocessor_aid.h"  // IWYU pragma: keep
 #include "common/varconst.h"
 #include "core/camcopsapp.h"
@@ -363,10 +364,17 @@ QNetworkRequest NetworkManager::createRequest(
         }
     }
 
+    request.setHeader(QNetworkRequest::UserAgentHeader, userAgent());
+
     // URL
     request.setUrl(url);
 
     return request;
+}
+
+QString NetworkManager::userAgent() const
+{
+    return m_app.userAgent();
 }
 
 QUrl NetworkManager::serverUrl(bool& success) const

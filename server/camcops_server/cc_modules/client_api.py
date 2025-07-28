@@ -3406,6 +3406,8 @@ def client_api(req: "CamcopsRequest") -> Response:
     # log.debug("{!r}", req.params)
     t0 = time.time()  # in seconds
 
+    log.debug("User agent: {!r}", req.user_agent)
+
     # -------------------------------------------------------------------------
     # Establish session (requires something coherent from the client)
     # -------------------------------------------------------------------------

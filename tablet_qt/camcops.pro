@@ -658,6 +658,7 @@ SOURCES += \
     dialogs/progressbox.cpp \
     dialogs/scrollmessagebox.cpp \
     dialogs/soundtestdialog.cpp \
+    dialogs/useragentdialog.cpp \
     dialogs/waitbox.cpp \
     graphics/buttonconfig.cpp \
     graphics/geometry.cpp \
@@ -1152,6 +1153,7 @@ HEADERS += \
     dialogs/progressbox.h \
     dialogs/scrollmessagebox.h \
     dialogs/soundtestdialog.h \
+    dialogs/useragentdialog.h \
     dialogs/waitbox.h \
     graphics/buttonconfig.h \
     graphics/geometry.h \
