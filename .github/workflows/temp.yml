@@ -20,7 +20,8 @@ jobs:
               run: |
                   set -euo pipefail
                   QT_VERSION="$(sed 's/[a-z-]//g' ${GITHUB_WORKSPACE}/tablet_qt/qt_version.txt)"
-                  echo "tag=qt_${QT_VERSION}_${GITHUB_SHA}" >> $GITHUB_OUTPUT
+                  SHORT_SHA="$(echo ${GITHUB_SHA} | cut -c1-7)"
+                  echo "tag=qt_${QT_VERSION}_${SHORT_SHA}" >> $GITHUB_OUTPUT
             - name: Create tag
               run: |
                   set -euo pipefail
@@ -33,8 +34,8 @@ jobs:
               with:
                   artifacts: "/tmp/test.txt"
                   token: ${{ secrets.GITHUB_TOKEN }}
-                  prerelease: true
-                  draft: true
+                  # prerelease: true
+                  # draft: true
                   body: Testing draft release (${{ steps.vars.outputs.tag }})
                   name: Test, please ignore (${{ steps.vars.outputs.tag }})
                   tag: ${{ steps.vars.outputs.tag }}
