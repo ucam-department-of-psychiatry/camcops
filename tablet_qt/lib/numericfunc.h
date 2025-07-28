@@ -68,6 +68,9 @@ quint64 localeStrToNumber(
 // - Returns false for an empty string.
 bool containsOnlySignOrZeros(const QString& number_string);
 
+// As above but checking for decimal point as well
+bool containsOnlySignZerosOrPoint(const QString& number_string);
+
 
 // ============================================================================
 // Digit counting; first n digits

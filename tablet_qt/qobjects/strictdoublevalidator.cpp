@@ -43,7 +43,7 @@ StrictDoubleValidator::StrictDoubleValidator(
 
 QValidator::State StrictDoubleValidator::validate(QString& s, int&) const
 {
-    using numeric::containsOnlySignOrZeros;
+    using numeric::containsOnlySignZerosOrPoint;
 
     // 1. Empty string?
     if (s.isEmpty()) {
@@ -60,12 +60,12 @@ QValidator::State StrictDoubleValidator::validate(QString& s, int&) const
     }
 
     // 2. Too many digits after decimal point?
-    const QString decimalPoint = locale().decimalPoint();
-    int charsAfterPoint = -1;
-    if (s.indexOf(decimalPoint) != -1) {
-        charsAfterPoint = s.length() - s.indexOf(decimalPoint) - 1;
+    const QString decimal_point = locale().decimalPoint();
+    int chars_after_point = -1;
+    if (s.indexOf(decimal_point) != -1) {
+        chars_after_point = s.length() - s.indexOf(decimal_point) - 1;
     }
-    if (charsAfterPoint > decimals()) {  // Too many decimals
+    if (chars_after_point > decimals()) {  // Too many decimals
 #ifdef DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO
                  << "too many digits after decimal point -> Invalid";
@@ -109,8 +109,8 @@ QValidator::State StrictDoubleValidator::validate(QString& s, int&) const
         return QValidator::Acceptable;
     }
 
-    // 6. Contains only leading zeroes?
-    if (containsOnlySignOrZeros(s)) {
+    // 6. Contains only leading zeros or decimal point?
+    if (containsOnlySignZerosOrPoint(s)) {
         if (s.startsWith("-") && b > 0) {
 #ifdef DEBUG_VALIDATOR
             qDebug() << Q_FUNC_INFO << "-0, bottom > 0 -> Invalid";
@@ -124,13 +124,14 @@ QValidator::State StrictDoubleValidator::validate(QString& s, int&) const
             return QValidator::Invalid;
         }
 #ifdef DEBUG_VALIDATOR
-        qDebug() << Q_FUNC_INFO << "leading zeros only -> Intermediate";
+        qDebug() << Q_FUNC_INFO
+                 << "leading zeros or decimal point only -> Intermediate";
 #endif
         return QValidator::Intermediate;
     }
 
     // 7. Is the number on its way to being something valid?
-    if (numeric::isValidStartToDouble(d, b, t, decimals(), decimalPoint)) {
+    if (numeric::isValidStartToDouble(d, b, t, decimals(), decimal_point)) {
 #ifdef DEBUG_VALIDATOR
         qDebug() << Q_FUNC_INFO
                  << "within range for number of digits -> Intermediate; s ="

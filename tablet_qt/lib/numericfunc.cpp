@@ -97,6 +97,22 @@ bool containsOnlySignOrZeros(const QString& number_string)
     return true;
 }
 
+bool containsOnlySignZerosOrPoint(const QString& number_string)
+{
+    if (number_string.isEmpty()) {
+        return false;
+    }
+    const qsizetype length = number_string.length();
+    for (qsizetype pos = 0; pos < length; ++pos) {
+        const QChar c = number_string.at(pos);
+        if (c != '0' && c != '.' && !(pos == 0 && (c == '-' || c == '+'))) {
+            // Not a zero or decimal point; not a leading sign.
+            return false;
+        }
+    }
+    return true;
+}
+
 // ============================================================================
 // For double validation
 // ============================================================================
