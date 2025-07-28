@@ -49,6 +49,7 @@ private slots:
 #endif
     void testSpecificFailure1();
     void testSpecificFailure2();
+    void testSmallNegativeMinMax2dp();
 };
 
 void TestStrictDoubleValidator::
@@ -380,6 +381,21 @@ void TestStrictDoubleValidator::testSpecificFailure2()
     );
     int pos = 0;
     QCOMPARE(validator.validate(text, pos), QValidator::Acceptable);
+}
+
+void TestStrictDoubleValidator::testSmallNegativeMinMax2dp()
+{
+    // From the demonstration task
+    QString text("-0.");
+    const double bottom = -0.09;
+    const double top = -0.05;
+    const int decimals = 2;
+    const bool allow_empty = false;
+    StrictDoubleValidator validator(
+        bottom, top, decimals, allow_empty, nullptr
+    );
+    int pos = 0;
+    QCOMPARE(validator.validate(text, pos), QValidator::Intermediate);
 }
 
 QTEST_MAIN(TestStrictDoubleValidator)
