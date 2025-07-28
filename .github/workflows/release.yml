@@ -6,8 +6,7 @@ on:
     push:
         tags:
             - '*'
-        tags-ignore:
-            - 'qt_*'
+            - '!qt_*'
 
 jobs:
     release:
