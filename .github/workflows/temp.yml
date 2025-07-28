@@ -15,15 +15,19 @@ jobs:
               run: |
                   set -euo pipefail
                   echo "Testing..." > /tmp/test.txt
-            - name: Work out commit
-              # TODO: This seems to be ignored and instead the release gets
-              # called uncommitged-<some hash>
+            - name: Work out tag
               id: vars
               run: |
                   set -euo pipefail
                   QT_VERSION="$(sed 's/[a-z-]//g' ${GITHUB_WORKSPACE}/tablet_qt/qt_version.txt)"
-                  echo "commit=${GITHUB_SHA}" >> $GITHUB_OUTPUT
                   echo "tag=qt_${QT_VERSION}_${GITHUB_SHA}" >> $GITHUB_OUTPUT
+            - name: Create tag
+              run: |
+                  set -euo pipefail
+                  git config --local user.email "action@github.com"
+                  git config --local user.name "GitHub Action"
+                  git tag ${{ steps.vars.outputs.tag }}
+                  git push origin "${{ steps.vars.outputs.tag }}"
             - name: Release
               uses: ncipollo/release-action@v1
               with:
@@ -33,5 +37,4 @@ jobs:
                   draft: true
                   body: Testing draft release (${{ steps.vars.outputs.tag }})
                   name: Test, please ignore (${{ steps.vars.outputs.tag }})
-                  commit: ${{ steps.vars.outputs.commit }}
                   tag: ${{ steps.vars.outputs.tag }}
