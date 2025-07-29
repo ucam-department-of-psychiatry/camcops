@@ -1,8 +1,8 @@
 diff --git a/cmake/FindFFmpeg.cmake b/cmake/FindFFmpeg.cmake
-index 661de90ca..671f46d77 100644
+index 86be24dd7..68af3afba 100644
 --- a/cmake/FindFFmpeg.cmake
 +++ b/cmake/FindFFmpeg.cmake
-@@ -193,7 +193,7 @@ foreach (_component ${FFmpeg_FIND_COMPONENTS})
+@@ -208,7 +208,7 @@ foreach (_component ${FFmpeg_FIND_COMPONENTS})
    find_component(${_component} "lib${library}" ${library} "lib${library}/${library}.h")
  
    if (${_component}_FOUND)
@@ -11,7 +11,7 @@ index 661de90ca..671f46d77 100644
      list(APPEND FFMPEG_DEFINITIONS  ${${_component}_DEFINITIONS})
      list(APPEND FFMPEG_INCLUDE_DIRS ${${_component}_INCLUDE_DIR})
      list(APPEND FFMPEG_LIBRARY_DIRS ${${_component}_LIBRARY_DIR})
-@@ -281,13 +281,13 @@ endfunction()
+@@ -299,13 +299,13 @@ endfunction()
          set_target_properties(FFmpeg::${_lowerComponent} PROPERTIES
              INTERFACE_COMPILE_OPTIONS "${${_component}_DEFINITIONS}"
              INTERFACE_INCLUDE_DIRECTORIES ${${_component}_INCLUDE_DIR}
@@ -27,3 +27,12 @@ index 661de90ca..671f46d77 100644
          if (UNIX AND NOT APPLE)
            target_link_options(FFmpeg::${_lowerComponent} INTERFACE  "-Wl,--exclude-libs=lib${_lowerComponent}")
          endif ()
+@@ -339,7 +339,7 @@ if(FFMPEG_SHARED_COMPONENTS AND FFMPEG_STATIC_COMPONENTS)
+ endif()
+ 
+ if (shared_libs_desired AND NOT FFMPEG_SHARED_COMPONENTS)
+-  message(WARNING 
++  message(WARNING
+          "Shared FFmpeg libs are desired as QT_DEPLOY_FFMPEG=TRUE, but haven't been found!\n"
+          "Remove QT_DEPLOY_FFMPEG or set the proper path to shared FFmpeg via FFMPEG_DIR.")
+ endif()

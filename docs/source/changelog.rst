@@ -3995,3 +3995,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Change user agent on client to include the OS and CamCOPS version number. Make it configurable.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/403
+
+- Qt version now 6.5.6. This fixes snowy camera preview on MacOS.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/329

@@ -86,10 +86,16 @@ android {
 
     buildTypes {
         release {
+            // TODO: These two settings result in fatal error when launching app,
+            // at least on Samsung Galaxy Tab A7, Android 12.
+            // https://github.com/ucam-department-of-psychiatry/camcops/issues/409
+
             // Reduce app size with R8/proguard
-            minifyEnabled true
+            // minifyEnabled true
+
             // Remove unused resources
-            shrinkResources true
+            // shrinkResources true
+
             ndk {
                 // Debugging symbols
                 debugSymbolLevel "SYMBOL_TABLE"

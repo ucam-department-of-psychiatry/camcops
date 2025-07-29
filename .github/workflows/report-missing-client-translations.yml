@@ -6,6 +6,7 @@ on:
     push:
         paths:
             - .github/scripts/python_setup.sh
+            - .github/scripts/qt_untagged_release_id.txt
             - .github/scripts/report_missing_client_translations.sh
             - .github/workflows/report-missing-client-translations.yml
             - 'tablet_qt/**.cpp'
@@ -18,6 +19,19 @@ jobs:
         runs-on: ubuntu-22.04
         steps:
             - uses: actions/checkout@v4
+            - name: Work out Qt release
+              # We use the version of Qt built by the build-qt.yml action. This
+              # abuses the GitHub release mechanism by making a draft release
+              # with the Qt tarball attached as an asset. As long as we don't
+              # publish this release it will only be seen by us. However,
+              # because it is a draft release, it ends up with the name
+              # "untagged-<some random id>". This random id is created by GitHub
+              # and will change if the release is edited through the GitHub UI.
+              id: vars
+              run: |
+                  set -euo pipefail
+                  QT_DRAFT_ID="$(cat ${GITHUB_WORKSPACE}/.github/scripts/qt_untagged_release_id.txt)"
+                  echo "qt_draft_id=${QT_DRAFT_ID}" >> $GITHUB_OUTPUT
             - name: Download Qt
               uses: dsaltares/fetch-gh-release-asset@1.1.2
               with:
@@ -26,11 +40,7 @@ jobs:
                   # Has to download to GITHUB_WORKSPACE
                   file: qt.tgz
                   token: ${{ secrets.GITHUB_TOKEN }}
-                  # The release ID is set by the build-qt.yml action
-                  # but the tagging is broken somehow. This is brittle
-                  # because editing the release on GitHub will change
-                  # the tag (which isn't a proper tag)
-                  version: 'tags/untagged-2ac5eb66666e2059a7e3'
+                  version: 'tags/${{ steps.vars.outputs.qt_draft_id }}'
             - name: Install Qt
               run: |
                   set -euo pipefail

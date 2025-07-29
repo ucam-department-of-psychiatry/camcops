@@ -400,9 +400,6 @@ bool CamcopsApp::registerPatientWithServer()
         PatientRegistrationDialog dialog(
             nullptr, old_server_url, old_patient_proquint
         );
-        // Work around https://bugreports.qt.io/browse/QTBUG-125337
-        dialog.setFocus();
-
         const int reply = dialog.exec();
         if (reply != QDialog::Accepted) {
             return false;

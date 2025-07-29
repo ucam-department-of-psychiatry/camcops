@@ -3257,20 +3257,23 @@ def patch_qt(cfg: Config) -> None:
 
     for submodule in listdir(patches_dir):
         submodule_dir = join(patches_dir, submodule)
-        for patch_file in listdir(submodule_dir):
-            src_dir = join(cfg.qt_src_gitdir, submodule)
-            chdir(src_dir)
-            try:
-                subprocess.run(
-                    [GIT, "apply", join(submodule_dir, patch_file)], check=True
-                )
-                log.info("Successfully applied patch {}", patch_file)
-            except subprocess.CalledProcessError:
-                log.warning(
-                    "Failed to apply patch {}. "
-                    "It may be that is has already been applied.",
-                    patch_file,
-                )
+
+        if isdir(submodule_dir):
+            for patch_file in listdir(submodule_dir):
+                src_dir = join(cfg.qt_src_gitdir, submodule)
+                chdir(src_dir)
+                try:
+                    subprocess.run(
+                        [GIT, "apply", join(submodule_dir, patch_file)],
+                        check=True,
+                    )
+                    log.info("Successfully applied patch {}", patch_file)
+                except subprocess.CalledProcessError:
+                    log.warning(
+                        "Failed to apply patch {}. "
+                        "It may be that is has already been applied.",
+                        patch_file,
+                    )
 
 
 # def remove_readonly(
