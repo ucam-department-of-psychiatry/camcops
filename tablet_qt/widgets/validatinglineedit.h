@@ -21,6 +21,7 @@
 #pragma once
 #include <QLabel>
 #include <QLineEdit>
+#include <QPointer>
 #include <QValidator>
 #include <QVBoxLayout>
 
@@ -32,7 +33,7 @@ class ValidatingLineEdit : public QVBoxLayout
 
 public:
     ValidatingLineEdit(
-        QValidator* validator,
+        QValidator* validator = nullptr,
         QWidget* parent = nullptr,
         const QString& text = ""
     );
@@ -45,14 +46,14 @@ public:
     void textChanged();
     QValidator::State getState();
     bool isValid();
-    QLineEdit* getLineEdit();
+    QPointer<QLineEdit> getLineEdit();
 
 protected:
     virtual void processChangedText();
 
 private:
     QLabel* m_label;
-    QLineEdit* m_line_edit;
+    QPointer<QLineEdit> m_line_edit;
     QValidator::State m_state;
 
 signals:

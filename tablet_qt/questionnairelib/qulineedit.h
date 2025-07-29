@@ -23,6 +23,7 @@
 
 #include "db/fieldref.h"
 #include "questionnairelib/quelement.h"
+#include "widgets/validatinglineedit.h"
 
 class FocusWatcher;
 class QLineEdit;
@@ -81,7 +82,7 @@ protected slots:
 protected:
     FieldRefPtr m_fieldref;  // our field
     QString m_hint;  // hint text
-    QPointer<QLineEdit> m_editor;  // our editor widget
+    QPointer<ValidatingLineEdit> m_editor;  // our editor widget
     QPointer<FocusWatcher> m_focus_watcher;  // used to detect focus change
     QSharedPointer<QTimer> m_timer;  // used for typing delay, as above
     QLineEdit::EchoMode m_echo_mode;  // echo mode, as above

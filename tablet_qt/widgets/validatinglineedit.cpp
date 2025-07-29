@@ -39,18 +39,22 @@ ValidatingLineEdit::ValidatingLineEdit(
     QVBoxLayout(parent)
 {
     m_line_edit = new QLineEdit();
-    m_line_edit->setValidator(validator);
-
-    connect(
-        m_line_edit,
-        &QLineEdit::textChanged,
-        this,
-        &ValidatingLineEdit::textChanged
-    );
-    m_label = new QLabel();
-
     addWidget(m_line_edit);
-    addWidget(m_label);
+
+    if (validator) {
+        m_line_edit->setValidator(validator);
+
+        connect(
+            m_line_edit,
+            &QLineEdit::textChanged,
+            this,
+            &ValidatingLineEdit::textChanged
+        );
+        m_label = new QLabel();
+
+        addWidget(m_label);
+    }
+
     setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
     if (!text.isEmpty()) {
@@ -88,7 +92,7 @@ void ValidatingLineEdit::processChangedText()
     // in some way before validation
 }
 
-QLineEdit* ValidatingLineEdit::getLineEdit()
+QPointer<QLineEdit> ValidatingLineEdit::getLineEdit()
 {
     return m_line_edit;
 }

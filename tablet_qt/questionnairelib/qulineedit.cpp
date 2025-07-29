@@ -28,6 +28,7 @@
 #include "lib/widgetfunc.h"
 #include "qobjects/focuswatcher.h"
 #include "questionnairelib/questionnaire.h"
+#include "widgets/validatinglineedit.h"
 
 
 const int WRITE_DELAY_MS = 400;
@@ -84,21 +85,27 @@ void QuLineEdit::setFromField()
 QPointer<QWidget> QuLineEdit::makeWidget(Questionnaire* questionnaire)
 {
     const bool read_only = questionnaire->readOnly();
-    m_editor = new QLineEdit();
-    m_editor->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    m_editor->setEnabled(!read_only);
-    m_editor->setPlaceholderText(m_hint);
-    m_editor->setEchoMode(m_echo_mode);
-    extraLineEditCreation(m_editor.data());  // allow subclasses to modify
+
+    QPointer<QWidget> widget = new QWidget();
+    m_editor = new ValidatingLineEdit();
+    widget->setLayout(m_editor);
+
+    QPointer<QLineEdit> line_edit = m_editor->getLineEdit();
+
+    line_edit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    line_edit->setEnabled(!read_only);
+    line_edit->setPlaceholderText(m_hint);
+    line_edit->setEchoMode(m_echo_mode);
+    extraLineEditCreation(line_edit.data());  // allow subclasses to modify
     if (!read_only) {
         connect(
-            m_editor.data(),
+            line_edit.data(),
             &QLineEdit::textChanged,
             this,
             &QuLineEdit::keystroke
         );
         connect(
-            m_editor.data(),
+            line_edit.data(),
             &QLineEdit::editingFinished,
             this,
             &QuLineEdit::widgetTextChangedAndValid
@@ -112,7 +119,7 @@ QPointer<QWidget> QuLineEdit::makeWidget(Questionnaire* questionnaire)
 
         // So, if we lose focus without validation, how are we going to revert
         // to something sensible?
-        m_focus_watcher = new FocusWatcher(m_editor.data());
+        m_focus_watcher = new FocusWatcher(line_edit.data());
         connect(
             m_focus_watcher.data(),
             &FocusWatcher::focusChanged,
@@ -121,7 +128,7 @@ QPointer<QWidget> QuLineEdit::makeWidget(Questionnaire* questionnaire)
         );
     }
     setFromField();
-    return QPointer<QWidget>(m_editor);
+    return widget;
 }
 
 void QuLineEdit::extraLineEditCreation(QLineEdit* editor)
@@ -145,10 +152,12 @@ void QuLineEdit::widgetTextChangedMaybeValid()
     if (!m_editor) {
         return;
     }
-    const QValidator* validator = m_editor->validator();
+
+    QPointer<QLineEdit> line_edit = m_editor->getLineEdit();
+    const QValidator* validator = line_edit->validator();
     if (validator) {
         int pos = 0;
-        QString text = m_editor->text();
+        QString text = line_edit->text();
         if (validator->validate(text, pos) != QValidator::Acceptable) {
             // duff
             return;
@@ -166,7 +175,7 @@ void QuLineEdit::widgetTextChangedAndValid()
     // To cope with setting things to null, we need to use a QVariant.
     // We use null rather than a blank string, because QuLineEdit may be used
     // to set numeric fields (where "" will be converted to 0).
-    const QString text = m_editor->text();
+    const QString text = m_editor->getLineEdit()->text();
     const QVariant value = text.isEmpty() ? QVariant() : QVariant(text);
     const bool changed = m_fieldref->setValue(value, this);
     // ... Will trigger valueChanged
@@ -182,13 +191,16 @@ void QuLineEdit::fieldValueChanged(
     if (!m_editor) {
         return;
     }
-    widgetfunc::setPropertyMissing(m_editor, fieldref->missingInput());
+
+    auto line_edit = m_editor->getLineEdit();
+
+    widgetfunc::setPropertyMissing(line_edit, fieldref->missingInput());
     if (originator != this) {
         // Now we're detecting textChanged, we have to block signals for this:
-        const QSignalBlocker blocker(m_editor);
+        const QSignalBlocker blocker(line_edit);
         const QString text = fieldref->isNull() ? "" : fieldref->valueString();
         // qDebug() << Q_FUNC_INFO << "setting to" << text;
-        m_editor->setText(text);
+        line_edit->setText(text);
     }
 }
 
@@ -200,11 +212,12 @@ void QuLineEdit::widgetFocusChanged(const bool in)
         return;
     }
     m_timer->stop();  // just in case it's running
-    const QValidator* validator = m_editor->validator();
+    QPointer<QLineEdit> line_edit = m_editor->getLineEdit();
+    const QValidator* validator = line_edit->validator();
     if (!validator) {
         return;
     }
-    QString text = m_editor->text();
+    QString text = line_edit->text();
     int pos = 0;
     if (validator->validate(text, pos) != QValidator::Acceptable) {
         // Something duff
