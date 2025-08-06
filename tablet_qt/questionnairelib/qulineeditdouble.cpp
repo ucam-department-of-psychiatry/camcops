@@ -24,8 +24,6 @@
 #include <QDoubleValidator>
 #include <QLineEdit>
 
-#include "qobjects/strictdoublevalidator.h"
-
 QuLineEditDouble::QuLineEditDouble(
     FieldRefPtr fieldref, const bool allow_empty, QObject* parent
 ) :
@@ -42,8 +40,7 @@ QuLineEditDouble::QuLineEditDouble(
     m_minimum(std::numeric_limits<double>::lowest()),
     m_maximum(std::numeric_limits<double>::max()),
     m_decimals(2),
-    m_allow_empty(allow_empty),
-    m_strict_validator(true)
+    m_allow_empty(allow_empty)
 {
     setHint(tr("real number, %1 dp").arg(m_decimals));
 }
@@ -60,31 +57,28 @@ QuLineEditDouble::QuLineEditDouble(
     m_minimum(minimum),
     m_maximum(maximum),
     m_decimals(decimals),
-    m_allow_empty(allow_empty),
-    m_strict_validator(true)
+    m_allow_empty(allow_empty)
 {
+    Q_ASSERT(m_maximum > m_minimum);
+
     setHint(tr("real number, %1 to %2, %3 dp")
                 .arg(m_minimum)
                 .arg(m_maximum)
                 .arg(m_decimals));
 }
 
-QuLineEditDouble* QuLineEditDouble::setStrictValidator(const bool strict)
+QPointer<QValidator> QuLineEditDouble::getValidator()
 {
-    m_strict_validator = strict;
-    return this;
+    qDebug() << Q_FUNC_INFO << "m_minimum: " << m_minimum << "m_maximum: "
+             << m_maximum << "m_decimals: " << m_decimals;
+
+    auto validator = new QDoubleValidator(m_minimum, m_maximum, m_decimals, this);
+    validator->setNotation(QDoubleValidator::StandardNotation);
+
+    return validator;
 }
 
-void QuLineEditDouble::extraLineEditCreation(QLineEdit* editor)
+Qt::InputMethodHints QuLineEditDouble::getInputMethodHints()
 {
-    if (m_strict_validator) {
-        editor->setValidator(new StrictDoubleValidator(
-            m_minimum, m_maximum, m_decimals, m_allow_empty, this
-        ));
-    } else {
-        editor->setValidator(
-            new QDoubleValidator(m_minimum, m_maximum, m_decimals, this)
-        );
-    }
-    editor->setInputMethodHints(Qt::ImhFormattedNumbersOnly);
+    return Qt::ImhFormattedNumbersOnly;
 }

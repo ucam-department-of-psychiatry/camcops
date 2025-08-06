@@ -30,26 +30,11 @@ class ProquintLineEdit : public ValidatingLineEdit
     Q_OBJECT
 
 public:
-    ProquintLineEdit(QWidget* parent = nullptr, const QString& text = "");
-
-    ProquintLineEdit(const QString& text) :
-        ProquintLineEdit(nullptr, text)
-    {
-    }
-
-    void textChanged();
+    ProquintLineEdit(QWidget* parent = nullptr);
 
 protected:
     void processChangedText() override;
-#ifdef Q_OS_ANDROID
-    bool eventFilter(QObject* obj, QEvent* event) override;
-#endif
 
 private:
     QString m_old_text;
-
-#ifdef Q_OS_ANDROID
-    bool m_ignore_next_input_event = false;
-    void maybeIgnoreNextInputEvent();
-#endif
 };

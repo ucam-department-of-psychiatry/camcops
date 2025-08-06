@@ -49,10 +49,9 @@ public:
     QuLineEditInteger* setStrictValidator(bool strict);
 
 protected:
-    virtual void extraLineEditCreation(QLineEdit* editor) override;
-
-protected:
     void setDefaultHint();
+    virtual QPointer<QValidator> getValidator() override;
+    virtual Qt::InputMethodHints getInputMethodHints() override;
 
 protected:
     int m_minimum;  // minimum; may be std::numeric_limits<int>::min()

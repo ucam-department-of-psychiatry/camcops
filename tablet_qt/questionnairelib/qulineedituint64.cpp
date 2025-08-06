@@ -54,10 +54,12 @@ QuLineEditUInt64::QuLineEditUInt64(
     setHint(QString("integer, range %1 to %2").arg(m_minimum).arg(m_maximum));
 }
 
-void QuLineEditUInt64::extraLineEditCreation(QLineEdit* editor)
+QPointer<QValidator> QuLineEditUInt64::getValidator()
 {
-    editor->setValidator(
-        new StrictUInt64Validator(m_minimum, m_maximum, m_allow_empty, this)
-    );
-    editor->setInputMethodHints(Qt::ImhFormattedNumbersOnly);
+    return new StrictUInt64Validator(m_minimum, m_maximum, m_allow_empty, this);
+}
+
+Qt::InputMethodHints QuLineEditUInt64::getInputMethodHints()
+{
+    return Qt::ImhFormattedNumbersOnly;
 }

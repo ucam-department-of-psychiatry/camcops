@@ -31,5 +31,5 @@ public:
     QuLineEditEmail(FieldRefPtr fieldref);
 
 protected:
-    virtual void extraLineEditCreation(QLineEdit* editor) override;
+    virtual QPointer<QValidator> getValidator() override;
 };

@@ -44,7 +44,8 @@ public:
     );
 
 protected:
-    virtual void extraLineEditCreation(QLineEdit* editor) override;
+    virtual QPointer<QValidator> getValidator() override;
+    virtual Qt::InputMethodHints getInputMethodHints() override;
 
 protected:
     quint64 m_minimum;  // minimum; may be std::numeric_limits<quint64>::min()

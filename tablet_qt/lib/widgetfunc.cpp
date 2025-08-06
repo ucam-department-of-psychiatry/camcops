@@ -161,6 +161,25 @@ void setPropertyMissing(
     );
 }
 
+void setPropertyValid(
+    QWidget* widget, const bool valid, const bool repolish
+)
+{
+    setProperty(
+        widget, cssconst::PROPERTY_VALID, cssBoolean(valid), repolish
+    );
+}
+
+void setPropertyInvalid(
+    QWidget* widget, const bool invalid, const bool repolish
+)
+{
+    setProperty(
+        widget, cssconst::PROPERTY_INVALID, cssBoolean(invalid), repolish
+    );
+}
+
+
 void clearLayout(QLayout* layout, bool delete_widgets)
 {
     // DANGER: do not use "delete"; use "deleteLater()".

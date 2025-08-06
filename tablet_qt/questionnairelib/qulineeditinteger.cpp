@@ -65,14 +65,16 @@ QuLineEditInteger* QuLineEditInteger::setStrictValidator(const bool strict)
     return this;
 }
 
-void QuLineEditInteger::extraLineEditCreation(QLineEdit* editor)
+QPointer<QValidator> QuLineEditInteger::getValidator()
 {
     if (m_strict_validator) {
-        editor->setValidator(
-            new StrictIntValidator(m_minimum, m_maximum, m_allow_empty, this)
-        );
-    } else {
-        editor->setValidator(new QIntValidator(m_minimum, m_maximum, this));
+        return new StrictIntValidator(m_minimum, m_maximum, m_allow_empty, this);
     }
-    editor->setInputMethodHints(Qt::ImhFormattedNumbersOnly);
+
+    return new QIntValidator(m_minimum, m_maximum, this);
+}
+
+Qt::InputMethodHints QuLineEditInteger::getInputMethodHints()
+{
+    return Qt::ImhFormattedNumbersOnly;
 }

@@ -50,18 +50,14 @@ public:
         QObject* parent = nullptr
     );
 
-    // Use StrictDoubleValidator, not QDoubleValidator?
-    QuLineEditDouble* setStrictValidator(bool strict);
-
 protected:
-    virtual void extraLineEditCreation(QLineEdit* editor) override;
+    virtual QPointer<QValidator> getValidator() override;
+    virtual Qt::InputMethodHints getInputMethodHints() override;
 
 protected:
     double m_minimum;  // minimum; may be std::numeric_limits<double>::lowest()
     double m_maximum;  // maximum; may be std::numeric_limits<double>::max()
     int m_decimals;
-    // ... maximum number of decimal places, for StrictDoubleValidator
+    // ... maximum number of decimal places
     bool m_allow_empty;  // allow an empty field?
-    bool m_strict_validator;
-    // ... Use StrictDoubleValidator, not QDoubleValidator?
 };

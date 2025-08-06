@@ -23,9 +23,11 @@
 #include <QLineEdit>
 #include <QPointer>
 #include <QValidator>
-#include <QVBoxLayout>
+#include <QWidget>
 
-class ValidatingLineEdit : public QVBoxLayout
+class FocusWatcher;
+
+class ValidatingLineEdit : public QWidget
 {
     // One-line text editor with validation and visual feedback
 
@@ -34,28 +36,70 @@ class ValidatingLineEdit : public QVBoxLayout
 public:
     ValidatingLineEdit(
         QValidator* validator = nullptr,
-        QWidget* parent = nullptr,
-        const QString& text = ""
+        const bool read_only = false,
+        const bool delayed = false,
+        const bool vertical = true,
+        QWidget* parent = nullptr
     );
 
-    ValidatingLineEdit(QValidator* validator, const QString& text = "") :
-        ValidatingLineEdit(validator, nullptr, text)
-    {
-    }
-
-    void textChanged();
     QValidator::State getState();
-    bool isValid();
-    QPointer<QLineEdit> getLineEdit();
+    bool isValid() const;
+    void validate();
+    void addInputMethodHints(Qt::InputMethodHints hints);
+    QString text() const;
+    void setText(const QString& text);
+    void setTextBlockingSignals(const QString& text);
+    void setValidator(QValidator* validator);
+    void setPlaceholderText(const QString& text);
+    void setEchoMode(QLineEdit::EchoMode);
+    int cursorPosition();
+    void setPropertyMissing(bool missing, bool repolish = true);
 
 protected:
     virtual void processChangedText();
 
+protected slots:
+    // "A key has been pressed."
+    // In delayed mode initiates a delay (to prevent rapid typists from getting
+    // cross); then calls textChanged().
+    virtual void keystroke();
+
+    // Validate and emit valid() or invalid() accordingly
+    virtual void textChanged();
+
+    // Finished editing and valid. Emit valid() to anything interested.
+    virtual void widgetTextChangedAndValid();
+
+    // "The widget has gained or lost focus."
+    virtual void widgetFocusChanged(bool gaining_focus);
+
 private:
+    bool m_delayed;  // Delay validation by WRITE_DELAY_MS
     QLabel* m_label;
     QPointer<QLineEdit> m_line_edit;
     QValidator::State m_state;
+    QSharedPointer<QTimer> m_timer;  // used for typing delay, as above
+    QPointer<FocusWatcher> m_focus_watcher;  // used to detect focus change
+
+    void resetValidatorFeedback();
+    void runValidation(QString& text);
 
 signals:
     void validated();
+    void valid();
+    void invalid();
+    void reset();
+
+#ifdef Q_OS_ANDROID
+// Workaround problem where the cursor does not get updated properly
+// if the text is modified in a textChanged signal, such as where
+// ProquintLineEdit inserts dashes into the access key.
+private:
+    bool m_ignore_next_input_event = false;
+
+protected:
+    bool eventFilter(QObject* obj, QEvent* event) override;
+    void ignoreInputMethodEvents();
+    void maybeIgnoreNextInputEvent();
+#endif
 };
