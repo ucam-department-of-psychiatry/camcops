@@ -91,9 +91,10 @@ signals:
     void reset();
 
 #ifdef Q_OS_ANDROID
-// Workaround problem where the cursor does not get updated properly
-// if the text is modified in a textChanged signal, such as where
-// ProquintLineEdit inserts dashes into the access key.
+    // Workaround problem where the cursor does not get updated properly
+    // if the text is modified in a textChanged signal, such as where
+    // ProquintLineEdit inserts dashes into the access key.
+
 private:
     bool m_ignore_next_input_event = false;
 

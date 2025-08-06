@@ -28,7 +28,6 @@
 #include "questionnairelib/questionnaire.h"
 #include "widgets/validatinglineedit.h"
 
-
 QuLineEdit::QuLineEdit(FieldRefPtr fieldref, QObject* parent) :
     QuElement(parent),
     m_fieldref(fieldref),
@@ -76,7 +75,8 @@ QPointer<QWidget> QuLineEdit::makeWidget(Questionnaire* questionnaire)
     const bool delayed = true;
     const bool vertical = false;
 
-    m_editor = new ValidatingLineEdit(getValidator(), read_only, delayed, vertical);
+    m_editor
+        = new ValidatingLineEdit(getValidator(), read_only, delayed, vertical);
     m_editor->addInputMethodHints(getInputMethodHints());
     m_editor->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     m_editor->setEnabled(!read_only);

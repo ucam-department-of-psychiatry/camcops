@@ -68,7 +68,9 @@ QuLineEditInteger* QuLineEditInteger::setStrictValidator(const bool strict)
 QPointer<QValidator> QuLineEditInteger::getValidator()
 {
     if (m_strict_validator) {
-        return new StrictIntValidator(m_minimum, m_maximum, m_allow_empty, this);
+        return new StrictIntValidator(
+            m_minimum, m_maximum, m_allow_empty, this
+        );
     }
 
     return new QIntValidator(m_minimum, m_maximum, this);

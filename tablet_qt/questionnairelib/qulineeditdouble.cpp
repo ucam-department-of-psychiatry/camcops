@@ -69,10 +69,11 @@ QuLineEditDouble::QuLineEditDouble(
 
 QPointer<QValidator> QuLineEditDouble::getValidator()
 {
-    qDebug() << Q_FUNC_INFO << "m_minimum: " << m_minimum << "m_maximum: "
-             << m_maximum << "m_decimals: " << m_decimals;
+    qDebug() << Q_FUNC_INFO << "m_minimum: " << m_minimum
+             << "m_maximum: " << m_maximum << "m_decimals: " << m_decimals;
 
-    auto validator = new QDoubleValidator(m_minimum, m_maximum, m_decimals, this);
+    auto validator
+        = new QDoubleValidator(m_minimum, m_maximum, m_decimals, this);
     validator->setNotation(QDoubleValidator::StandardNotation);
 
     return validator;

@@ -24,8 +24,8 @@
 #include <QDialog>
 
 #ifdef Q_OS_ANDROID
-#include <QEvent>
-#include <QGuiApplication>
+    #include <QEvent>
+    #include <QGuiApplication>
 #endif
 
 #include <QLabel>
@@ -47,14 +47,20 @@
 const int WRITE_DELAY_MS = 400;
 
 ValidatingLineEdit::ValidatingLineEdit(
-    QValidator* validator, const bool read_only, const bool delayed, const bool vertical, QWidget* parent
+    QValidator* validator,
+    const bool read_only,
+    const bool delayed,
+    const bool vertical,
+    QWidget* parent
 ) :
     QWidget(parent),
     m_delayed(delayed),
     m_focus_watcher(nullptr)
 {
     m_line_edit = new QLineEdit();
-    m_line_edit->setStyleSheet(filefunc::textfileContents(uiconst::CSS_CAMCOPS_VALIDATINGLINEEDIT));
+    m_line_edit->setStyleSheet(
+        filefunc::textfileContents(uiconst::CSS_CAMCOPS_VALIDATINGLINEEDIT)
+    );
 
     QLayout* layout;
 

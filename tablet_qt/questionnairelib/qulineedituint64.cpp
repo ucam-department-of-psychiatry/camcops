@@ -56,7 +56,9 @@ QuLineEditUInt64::QuLineEditUInt64(
 
 QPointer<QValidator> QuLineEditUInt64::getValidator()
 {
-    return new StrictUInt64Validator(m_minimum, m_maximum, m_allow_empty, this);
+    return new StrictUInt64Validator(
+        m_minimum, m_maximum, m_allow_empty, this
+    );
 }
 
 Qt::InputMethodHints QuLineEditUInt64::getInputMethodHints()
