@@ -75,6 +75,7 @@ protected slots:
 
 private:
     bool m_delayed;  // Delay validation by WRITE_DELAY_MS
+    bool m_vertical;
     QLabel* m_label;
     QPointer<QLineEdit> m_line_edit;
     QValidator::State m_state;

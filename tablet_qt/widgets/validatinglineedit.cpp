@@ -55,6 +55,7 @@ ValidatingLineEdit::ValidatingLineEdit(
 ) :
     QWidget(parent),
     m_delayed(delayed),
+    m_vertical(vertical),
     m_focus_watcher(nullptr)
 {
 #ifdef DEBUG_VALIDATING_LINEEDIT
@@ -127,7 +128,7 @@ ValidatingLineEdit::ValidatingLineEdit(
         );
 
         m_label = new QLabel();
-        if (vertical) {
+        if (m_vertical) {
             m_label->setAlignment(Qt::AlignRight);
         }
         auto style_hints = QGuiApplication::styleHints();
@@ -141,6 +142,8 @@ ValidatingLineEdit::ValidatingLineEdit(
         layout->addWidget(m_label);
 
         m_line_edit->setValidator(validator);
+
+        resetValidatorFeedback();
     }
 }
 
@@ -254,6 +257,9 @@ void ValidatingLineEdit::resetValidatorFeedback()
     widgetfunc::setPropertyInvalid(m_line_edit, false);
 
     m_label->setText("");
+    if (!m_vertical) {
+        m_label->hide();
+    }
 }
 
 void ValidatingLineEdit::runValidation(QString& text)
@@ -276,6 +282,9 @@ void ValidatingLineEdit::runValidation(QString& text)
     widgetfunc::setPropertyInvalid(m_line_edit, !is_valid);
 
     m_label->setText(feedback);
+    if (!m_vertical) {
+        m_label->show();
+    }
 
     if (is_valid) {
         emit valid();
