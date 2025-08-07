@@ -28,7 +28,7 @@
 ProquintLineEdit::ProquintLineEdit(QWidget* parent) :
     ValidatingLineEdit(new ProquintValidator(), parent)
 {
-    setInputMethodHints(
+    addInputMethodHints(
         Qt::ImhSensitiveData | Qt::ImhNoAutoUppercase | Qt::ImhNoPredictiveText
     );
     m_old_text = "";
