@@ -25,13 +25,13 @@
 
 #ifdef Q_OS_ANDROID
     #include <QEvent>
-    #include <QGuiApplication>
 #endif
-
+#include <QGuiApplication>
 #include <QLabel>
 #include <QLayout>
 #include <QLineEdit>
 #include <QPalette>
+#include <QStyleHints>
 #include <QTimer>
 #include <QValidator>
 #include <QWidget>
@@ -57,10 +57,14 @@ ValidatingLineEdit::ValidatingLineEdit(
     m_delayed(delayed),
     m_focus_watcher(nullptr)
 {
-    m_line_edit = new QLineEdit();
-    m_line_edit->setStyleSheet(
+#ifdef DEBUG_VALIDATING_LINEEDIT
+    qDebug() << Q_FUNC_INFO;
+#endif
+    setStyleSheet(
         filefunc::textfileContents(uiconst::CSS_CAMCOPS_VALIDATINGLINEEDIT)
     );
+
+    m_line_edit = new QLineEdit();
 
     QLayout* layout;
 
@@ -74,10 +78,6 @@ ValidatingLineEdit::ValidatingLineEdit(
     setLayout(layout);
 
     layout->addWidget(m_line_edit);
-
-#ifdef DEBUG_VALIDATING_LINEEDIT
-    qDebug() << Q_FUNC_INFO;
-#endif
 
     if (!read_only and validator) {
         if (delayed) {
@@ -130,6 +130,14 @@ ValidatingLineEdit::ValidatingLineEdit(
         if (vertical) {
             m_label->setAlignment(Qt::AlignRight);
         }
+        auto style_hints = QGuiApplication::styleHints();
+        auto label_name = QString("validatorfeedback%1").arg(
+            style_hints->colorScheme() == Qt::ColorScheme::Dark ? "dark": "light"
+        );
+
+        qDebug() << "Setting label name to " << label_name;
+
+        m_label->setObjectName(label_name);
         layout->addWidget(m_label);
 
         m_line_edit->setValidator(validator);
