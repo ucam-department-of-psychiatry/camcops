@@ -99,6 +99,12 @@ VISIBLE_SYMBOL int main(int argc, char* argv[])
     #endif
 
     #ifdef Q_OS_ANDROID
+    // Some Android platforms, notably Samsung do not completely disable
+    // predictive text with the Qt::ImhNoPredictiveText flag. The suggestions
+    // don't appear but the textChanged callback on QLineEdit doesn't get called
+    // until the user has typed in a whole word (by adding a space or
+    // punctuation). See https://bugreports.qt.io/browse/QTBUG-37533 which is
+    // closed because it isn't a Qt problem and this workaround exists.
     qputenv("QT_ANDROID_ENABLE_WORKAROUND_TO_DISABLE_PREDICTIVE_TEXT", "1");
     #endif
 
