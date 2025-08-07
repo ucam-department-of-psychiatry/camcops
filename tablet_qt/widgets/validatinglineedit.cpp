@@ -132,9 +132,13 @@ ValidatingLineEdit::ValidatingLineEdit(
             m_label->setAlignment(Qt::AlignRight);
         }
         auto style_hints = QGuiApplication::styleHints();
-        auto label_name = QString("validatorfeedback%1").arg(
-            style_hints->colorScheme() == Qt::ColorScheme::Dark ? "dark": "light"
-        );
+        auto label_name
+            = QString("validatorfeedback%1")
+                  .arg(
+                      style_hints->colorScheme() == Qt::ColorScheme::Dark
+                          ? "dark"
+                          : "light"
+                  );
 
         qDebug() << "Setting label name to " << label_name;
 
