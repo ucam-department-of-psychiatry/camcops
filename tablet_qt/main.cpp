@@ -98,6 +98,10 @@ VISIBLE_SYMBOL int main(int argc, char* argv[])
         //     qandroidplatformtheme.cpp
     #endif
 
+    #ifdef Q_OS_ANDROID
+    qputenv("QT_ANDROID_ENABLE_WORKAROUND_TO_DISABLE_PREDICTIVE_TEXT", "1");
+    #endif
+
     #ifdef QT_OPENGL_IN_SOFTWARE
         // To fix a crash when opening the camera system of
         // "fatal: unknown(0): Failed to create OpenGL context for format
