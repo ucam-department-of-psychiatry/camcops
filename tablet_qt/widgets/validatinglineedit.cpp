@@ -206,7 +206,6 @@ bool ValidatingLineEdit::isValid() const
 
 void ValidatingLineEdit::widgetFocusChanged(const bool gaining_focus)
 {
-    // If focus is leaving the widget, and its state is duff, reset the value.
 #ifdef DEBUG_VALIDATING_LINEEDIT
     qDebug() << Q_FUNC_INFO;
 #endif
@@ -220,15 +219,7 @@ void ValidatingLineEdit::widgetFocusChanged(const bool gaining_focus)
 
     validate();
 
-    if (!isValid()) {
-        // Something duff
-#ifdef DEBUG_VALIDATING_LINEEDIT
-        qDebug() << "Resetting";
-#endif
-        emit reset();
-    }
-
-    resetValidatorFeedback();
+    emit focusLost();
 }
 
 void ValidatingLineEdit::validate()

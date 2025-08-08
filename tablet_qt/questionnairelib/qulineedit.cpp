@@ -91,9 +91,9 @@ QPointer<QWidget> QuLineEdit::makeWidget(Questionnaire* questionnaire)
         );
         connect(
             m_editor.data(),
-            &ValidatingLineEdit::reset,
+            &ValidatingLineEdit::focusLost,
             this,
-            &QuLineEdit::setFromField
+            &QuLineEdit::focusLost
         );
     }
     setFromField();
@@ -148,4 +148,14 @@ void QuLineEdit::fieldValueChanged(
         // qDebug() << Q_FUNC_INFO << "setting to" << text;
         m_editor->setTextBlockingSignals(text);
     }
+}
+
+void QuLineEdit::focusLost()
+{
+    // If focus is leaving the widget, and its state is duff, reset the value.
+    if (!m_editor->isValid()) {
+        setFromField();
+    }
+
+    m_editor->resetValidatorFeedback();
 }

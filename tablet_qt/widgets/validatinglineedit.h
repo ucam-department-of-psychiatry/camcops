@@ -54,6 +54,7 @@ public:
     void setEchoMode(QLineEdit::EchoMode);
     int cursorPosition();
     void setPropertyMissing(bool missing, bool repolish = true);
+    void resetValidatorFeedback();
 
 protected:
     virtual void processChangedText();
@@ -82,14 +83,13 @@ private:
     QSharedPointer<QTimer> m_timer;  // used for typing delay, as above
     QPointer<FocusWatcher> m_focus_watcher;  // used to detect focus change
 
-    void resetValidatorFeedback();
     void runValidation(QString& text);
 
 signals:
+    void focusLost();
+    void invalid();
     void validated();
     void valid();
-    void invalid();
-    void reset();
 
 #ifdef Q_OS_ANDROID
     // Workaround problem where the cursor does not get updated properly
