@@ -51,9 +51,9 @@ PatientRegistrationDialog::PatientRegistrationDialog(
 
     setMinimumWidth(min_size);
 
-    m_editor_server_url
-        = new ValidatingLineEdit(new UrlValidator(), server_url.url());
-    m_editor_server_url->getLineEdit()->setInputMethodHints(
+    m_editor_server_url = new ValidatingLineEdit(new UrlValidator());
+    m_editor_server_url->setText(server_url.url());
+    m_editor_server_url->addInputMethodHints(
         Qt::ImhNoAutoUppercase | Qt::ImhNoPredictiveText
     );
     connect(
@@ -63,7 +63,8 @@ PatientRegistrationDialog::PatientRegistrationDialog(
         &PatientRegistrationDialog::updateOkButtonEnabledState
     );
 
-    m_editor_patient_proquint = new ProquintLineEdit(patient_proquint);
+    m_editor_patient_proquint = new ProquintLineEdit();
+    m_editor_patient_proquint->setText(patient_proquint);
     connect(
         m_editor_patient_proquint,
         &ValidatingLineEdit::validated,
@@ -104,9 +105,9 @@ PatientRegistrationDialog::PatientRegistrationDialog(
 
     // and remove these lines:
     mainlayout->addWidget(server_url_label);
-    mainlayout->addLayout(m_editor_server_url);
+    mainlayout->addWidget(m_editor_server_url);
     mainlayout->addWidget(patient_proquint_label);
-    mainlayout->addLayout(m_editor_patient_proquint);
+    mainlayout->addWidget(m_editor_patient_proquint);
 
     mainlayout->addStretch(1);
     mainlayout->addWidget(m_buttonbox);
@@ -121,12 +122,12 @@ PatientRegistrationDialog::PatientRegistrationDialog(
 
 QString PatientRegistrationDialog::patientProquint() const
 {
-    return m_editor_patient_proquint->getLineEdit()->text().trimmed();
+    return m_editor_patient_proquint->text().trimmed();
 }
 
 QString PatientRegistrationDialog::serverUrlAsString() const
 {
-    return m_editor_server_url->getLineEdit()->text().trimmed();
+    return m_editor_server_url->text().trimmed();
 }
 
 QUrl PatientRegistrationDialog::serverUrl() const

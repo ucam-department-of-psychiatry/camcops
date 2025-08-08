@@ -22,30 +22,21 @@
 
 #include <QDebug>
 
-#include "qobjects/strictuint64validator.h"
-
-QuLineEditUInt64::QuLineEditUInt64(
-    FieldRefPtr fieldref, const bool allow_empty
-) :
+QuLineEditUInt64::QuLineEditUInt64(FieldRefPtr fieldref) :
     QuLineEditUInt64(
         fieldref,
         std::numeric_limits<quint64>::min(),
-        std::numeric_limits<quint64>::max(),
-        allow_empty
+        std::numeric_limits<quint64>::max()
     )
 {
 }
 
 QuLineEditUInt64::QuLineEditUInt64(
-    FieldRefPtr fieldref,
-    const quint64 minimum,
-    const quint64 maximum,
-    const bool allow_empty
+    FieldRefPtr fieldref, const quint64 minimum, const quint64 maximum
 ) :
     QuLineEdit(fieldref),
     m_minimum(minimum),
-    m_maximum(maximum),
-    m_allow_empty(allow_empty)
+    m_maximum(maximum)
 {
     qWarning() << "SQLite v3 does not properly support unsigned 64-bit "
                   "integers (https://www.sqlite.org/datatype3.html); "
@@ -54,10 +45,12 @@ QuLineEditUInt64::QuLineEditUInt64(
     setHint(QString("integer, range %1 to %2").arg(m_minimum).arg(m_maximum));
 }
 
-void QuLineEditUInt64::extraLineEditCreation(QLineEdit* editor)
+QPointer<QValidator> QuLineEditUInt64::getValidator()
 {
-    editor->setValidator(
-        new StrictUInt64Validator(m_minimum, m_maximum, m_allow_empty, this)
-    );
-    editor->setInputMethodHints(Qt::ImhFormattedNumbersOnly);
+    return new QIntValidator(m_minimum, m_maximum, this);
+}
+
+Qt::InputMethodHints QuLineEditUInt64::getInputMethodHints()
+{
+    return Qt::ImhFormattedNumbersOnly;
 }

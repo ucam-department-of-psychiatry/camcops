@@ -32,36 +32,25 @@ class QuLineEditDouble : public QuLineEdit
 
 public:
     // Constructor for unconstrained numbers
-    QuLineEditDouble(
-        FieldRefPtr fieldref,
-        bool allow_empty = true,
-        QObject* parent = nullptr
-    );
+    QuLineEditDouble(FieldRefPtr fieldref, QObject* parent = nullptr);
 
     // Constructor for constrained numbers.
     // - decimals: maximum number of decimal places; see above.
-    // - allow_empty: OK to be blank?
     QuLineEditDouble(
         FieldRefPtr fieldref,
         double minimum,
         double maximum,
         int decimals = 1000,
-        bool allow_empty = true,
         QObject* parent = nullptr
     );
 
-    // Use StrictDoubleValidator, not QDoubleValidator?
-    QuLineEditDouble* setStrictValidator(bool strict);
-
 protected:
-    virtual void extraLineEditCreation(QLineEdit* editor) override;
+    virtual QPointer<QValidator> getValidator() override;
+    virtual Qt::InputMethodHints getInputMethodHints() override;
 
 protected:
     double m_minimum;  // minimum; may be std::numeric_limits<double>::lowest()
     double m_maximum;  // maximum; may be std::numeric_limits<double>::max()
     int m_decimals;
-    // ... maximum number of decimal places, for StrictDoubleValidator
-    bool m_allow_empty;  // allow an empty field?
-    bool m_strict_validator;
-    // ... Use StrictDoubleValidator, not QDoubleValidator?
+    // ... maximum number of decimal places
 };

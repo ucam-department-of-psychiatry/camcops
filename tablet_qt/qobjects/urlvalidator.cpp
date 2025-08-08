@@ -31,19 +31,25 @@ UrlValidator::UrlValidator(QObject* parent) :
 
 QValidator::State UrlValidator::validate(QString& input, int&) const
 {
+    qDebug() << Q_FUNC_INFO;
+    qDebug() << input;
+
     const auto url = QUrl(input);
 
     if (!url.isValid()) {
+        qDebug() << "URL not valid";
         return QValidator::Intermediate;
     }
 
     const QList<QString> valid_schemes = {"http", "https"};
 
     if (!valid_schemes.contains(url.scheme())) {
+        qDebug() << "Scheme not valid";
         return QValidator::Intermediate;
     }
 
     if (url.host().length() == 0) {
+        qDebug() << "Host length zero";
         return QValidator::Intermediate;
     }
 

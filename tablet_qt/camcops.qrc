@@ -130,6 +130,7 @@
         <file>resources/camcops/stylesheets/menu.css</file>
         <file>resources/camcops/stylesheets/main.css</file>
         <file>resources/camcops/stylesheets/diagnostic_code.css</file>
+        <file>resources/camcops/stylesheets/validatinglineedit.css</file>
         <file>resources/camcops/images/branch-closed.png</file>
         <file>resources/camcops/images/branch-end.png</file>
         <file>resources/camcops/images/branch-more.png</file>

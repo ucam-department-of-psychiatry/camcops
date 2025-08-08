@@ -27,13 +27,18 @@
 QuLineEditNHSNumber::QuLineEditNHSNumber(
     FieldRefPtr fieldref, bool allow_empty
 ) :
-    QuLineEditInt64(fieldref, allow_empty)
+    QuLineEditInt64(fieldref),
+    m_allow_empty(allow_empty)
 {
     setHint("NHS number (10-digit integer with checksum)");
 }
 
-void QuLineEditNHSNumber::extraLineEditCreation(QLineEdit* editor)
+QPointer<QValidator> QuLineEditNHSNumber::getValidator()
 {
-    editor->setValidator(new NHSNumberValidator(m_allow_empty, this));
-    editor->setInputMethodHints(Qt::ImhFormattedNumbersOnly);
+    return new NHSNumberValidator(m_allow_empty, this);
+}
+
+Qt::InputMethodHints QuLineEditNHSNumber::getInputMethodHints()
+{
+    return Qt::ImhFormattedNumbersOnly;
 }
