@@ -80,7 +80,7 @@ ValidatingLineEdit::ValidatingLineEdit(
 
     layout->addWidget(m_line_edit);
 
-    if (!read_only and validator) {
+    if (!read_only) {
         if (delayed) {
             timerfunc::makeSingleShotTimer(m_timer);
             connect(

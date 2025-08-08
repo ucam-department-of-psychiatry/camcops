@@ -79,7 +79,7 @@ private:
     bool m_vertical;
     QLabel* m_label;
     QPointer<QLineEdit> m_line_edit;
-    QValidator::State m_state;
+    QValidator::State m_state = QValidator::Acceptable;
     QSharedPointer<QTimer> m_timer;  // used for typing delay, as above
     QPointer<FocusWatcher> m_focus_watcher;  // used to detect focus change
 
