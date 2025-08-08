@@ -783,10 +783,6 @@ SOURCES += \
     qobjects/showwatcher.cpp \
     qobjects/sizewatcher.cpp \
     qobjects/slownonguifunctioncaller.cpp \
-    qobjects/strictdoublevalidator.cpp \
-    qobjects/strictint64validator.cpp \
-    qobjects/strictintvalidator.cpp \
-    qobjects/strictuint64validator.cpp \
     qobjects/stylenofocusrect.cpp \
     qobjects/threadworker.cpp \
     qobjects/urlhandler.cpp \
@@ -1283,10 +1279,6 @@ HEADERS += \
     qobjects/showwatcher.h \
     qobjects/sizewatcher.h \
     qobjects/slownonguifunctioncaller.h \
-    qobjects/strictdoublevalidator.h \
-    qobjects/strictint64validator.h \
-    qobjects/strictintvalidator.h \
-    qobjects/strictuint64validator.h \
     qobjects/stylenofocusrect.h \
     qobjects/threadworker.h \
     qobjects/urlhandler.h \

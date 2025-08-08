@@ -29,24 +29,15 @@ class QuLineEditInteger : public QuLineEdit
 
 public:
     // Constructor for unconstrained numbers
-    QuLineEditInteger(
-        FieldRefPtr fieldref,
-        bool allow_empty = true,
-        QObject* parent = nullptr
-    );
+    QuLineEditInteger(FieldRefPtr fieldref, QObject* parent = nullptr);
 
     // Constructor for constrained numbers.
-    // - allow_empty: OK to be blank?
     QuLineEditInteger(
         FieldRefPtr fieldref,
         int minimum,
         int maximum,
-        bool allow_empty = true,
         QObject* parent = nullptr
     );
-
-    // Use StrictIntValidator, not StrictIntValidator?
-    QuLineEditInteger* setStrictValidator(bool strict);
 
 protected:
     void setDefaultHint();
@@ -56,7 +47,4 @@ protected:
 protected:
     int m_minimum;  // minimum; may be std::numeric_limits<int>::min()
     int m_maximum;  // maximum; may be std::numeric_limits<int>::max()
-    bool m_allow_empty;  // allow an empty field?
-    bool m_strict_validator;
-    // ... Use StrictIntValidator, not StrictIntValidator?
 };

@@ -24,32 +24,20 @@
 #include <QIntValidator>
 #include <QLineEdit>
 
-#include "qobjects/strictintvalidator.h"
-
-QuLineEditInteger::QuLineEditInteger(
-    FieldRefPtr fieldref, const bool allow_empty, QObject* parent
-) :
+QuLineEditInteger::QuLineEditInteger(FieldRefPtr fieldref, QObject* parent) :
     QuLineEdit(fieldref, parent),
     m_minimum(std::numeric_limits<int>::min()),
-    m_maximum(std::numeric_limits<int>::max()),
-    m_allow_empty(allow_empty),
-    m_strict_validator(true)
+    m_maximum(std::numeric_limits<int>::max())
 {
     setDefaultHint();
 }
 
 QuLineEditInteger::QuLineEditInteger(
-    FieldRefPtr fieldref,
-    const int minimum,
-    const int maximum,
-    const bool allow_empty,
-    QObject* parent
+    FieldRefPtr fieldref, const int minimum, const int maximum, QObject* parent
 ) :
     QuLineEdit(fieldref, parent),
     m_minimum(minimum),
-    m_maximum(maximum),
-    m_allow_empty(allow_empty),
-    m_strict_validator(true)
+    m_maximum(maximum)
 {
     setDefaultHint();
 }
@@ -59,20 +47,8 @@ void QuLineEditInteger::setDefaultHint()
     setHint(QString("integer, range %1 to %2").arg(m_minimum).arg(m_maximum));
 }
 
-QuLineEditInteger* QuLineEditInteger::setStrictValidator(const bool strict)
-{
-    m_strict_validator = strict;
-    return this;
-}
-
 QPointer<QValidator> QuLineEditInteger::getValidator()
 {
-    if (m_strict_validator) {
-        return new StrictIntValidator(
-            m_minimum, m_maximum, m_allow_empty, this
-        );
-    }
-
     return new QIntValidator(m_minimum, m_maximum, this);
 }
 

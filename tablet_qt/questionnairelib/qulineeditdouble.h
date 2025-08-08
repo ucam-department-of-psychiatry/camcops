@@ -32,21 +32,15 @@ class QuLineEditDouble : public QuLineEdit
 
 public:
     // Constructor for unconstrained numbers
-    QuLineEditDouble(
-        FieldRefPtr fieldref,
-        bool allow_empty = true,
-        QObject* parent = nullptr
-    );
+    QuLineEditDouble(FieldRefPtr fieldref, QObject* parent = nullptr);
 
     // Constructor for constrained numbers.
     // - decimals: maximum number of decimal places; see above.
-    // - allow_empty: OK to be blank?
     QuLineEditDouble(
         FieldRefPtr fieldref,
         double minimum,
         double maximum,
         int decimals = 1000,
-        bool allow_empty = true,
         QObject* parent = nullptr
     );
 
@@ -59,5 +53,4 @@ protected:
     double m_maximum;  // maximum; may be std::numeric_limits<double>::max()
     int m_decimals;
     // ... maximum number of decimal places
-    bool m_allow_empty;  // allow an empty field?
 };

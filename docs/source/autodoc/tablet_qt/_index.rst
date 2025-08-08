@@ -430,14 +430,6 @@ tablet_qt
     qobjects/sizewatcher.h.rst
     qobjects/slownonguifunctioncaller.cpp.rst
     qobjects/slownonguifunctioncaller.h.rst
-    qobjects/strictdoublevalidator.cpp.rst
-    qobjects/strictdoublevalidator.h.rst
-    qobjects/strictint64validator.cpp.rst
-    qobjects/strictint64validator.h.rst
-    qobjects/strictintvalidator.cpp.rst
-    qobjects/strictintvalidator.h.rst
-    qobjects/strictuint64validator.cpp.rst
-    qobjects/strictuint64validator.h.rst
     qobjects/stylenofocusrect.cpp.rst
     qobjects/stylenofocusrect.h.rst
     qobjects/threadworker.cpp.rst
@@ -971,10 +963,6 @@ tablet_qt
     tests/auto/lib/stringfunc/stringfunc.pro.rst
     tests/auto/lib/stringfunc/teststringfunc.cpp.rst
     tests/auto/qobjects/qobjects.pro.rst
-    tests/auto/qobjects/strictdoublevalidator/strictdoublevalidator.pro.rst
-    tests/auto/qobjects/strictdoublevalidator/teststrictdoublevalidator.cpp.rst
-    tests/auto/qobjects/strictintvalidator/strictintvalidator.pro.rst
-    tests/auto/qobjects/strictintvalidator/teststrictintvalidator.cpp.rst
     tests/auto/qobjects/widgetpositioner/testwidgetpositioner.cpp.rst
     tests/auto/qobjects/widgetpositioner/widgetpositioner.pro.rst
     tests/auto/questionnairelib/namevalueoptions/namevalueoptions.pro.rst

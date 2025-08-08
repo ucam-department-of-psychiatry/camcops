@@ -24,9 +24,7 @@
 #include <QDoubleValidator>
 #include <QLineEdit>
 
-QuLineEditDouble::QuLineEditDouble(
-    FieldRefPtr fieldref, const bool allow_empty, QObject* parent
-) :
+QuLineEditDouble::QuLineEditDouble(FieldRefPtr fieldref, QObject* parent) :
     QuLineEdit(fieldref, parent),
     /* Compare
        https://en.cppreference.com/w/cpp/types/numeric_limits/min
@@ -39,8 +37,7 @@ QuLineEditDouble::QuLineEditDouble(
     */
     m_minimum(std::numeric_limits<double>::lowest()),
     m_maximum(std::numeric_limits<double>::max()),
-    m_decimals(2),
-    m_allow_empty(allow_empty)
+    m_decimals(2)
 {
     setHint(tr("real number, %1 dp").arg(m_decimals));
 }
@@ -50,14 +47,12 @@ QuLineEditDouble::QuLineEditDouble(
     const double minimum,
     const double maximum,
     const int decimals,
-    const bool allow_empty,
     QObject* parent
 ) :
     QuLineEdit(fieldref, parent),
     m_minimum(minimum),
     m_maximum(maximum),
-    m_decimals(decimals),
-    m_allow_empty(allow_empty)
+    m_decimals(decimals)
 {
     Q_ASSERT(m_maximum > m_minimum);
 
