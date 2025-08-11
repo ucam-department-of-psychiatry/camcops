@@ -36,6 +36,7 @@ class ValidatingLineEdit : public QWidget
 public:
     ValidatingLineEdit(
         QValidator* validator = nullptr,
+        const bool allow_empty = false,
         const bool read_only = false,
         const bool delayed = false,
         const bool vertical = true,
@@ -58,6 +59,7 @@ public:
 
 protected:
     virtual void processChangedText();
+    void setValidatorFeedback(const bool valid, const bool invalid);
 
 protected slots:
     // "A key has been pressed."
@@ -75,6 +77,7 @@ protected slots:
     virtual void widgetFocusChanged(bool gaining_focus);
 
 private:
+    bool m_allow_empty;
     bool m_delayed;  // Delay validation by WRITE_DELAY_MS
     bool m_vertical;
     QLabel* m_label;
@@ -82,8 +85,6 @@ private:
     QValidator::State m_state = QValidator::Acceptable;
     QSharedPointer<QTimer> m_timer;  // used for typing delay, as above
     QPointer<FocusWatcher> m_focus_watcher;  // used to detect focus change
-
-    void runValidation(QString& text);
 
 signals:
     void focusLost();

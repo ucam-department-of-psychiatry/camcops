@@ -30,10 +30,16 @@ class QuLineEditInt64 : public QuLineEdit
 
 public:
     // Constructor for unconstrained numbers
-    QuLineEditInt64(FieldRefPtr fieldref);
+    QuLineEditInt64(FieldRefPtr fieldref, bool allow_empty = true);
 
     // Constructor for constrained numbers.
-    QuLineEditInt64(FieldRefPtr fieldref, qint64 minimum, qint64 maximum);
+    // - allow_empty: OK to be blank?
+    QuLineEditInt64(
+        FieldRefPtr fieldref,
+        qint64 minimum,
+        qint64 maximum,
+        bool allow_empty = true
+    );
 
 protected:
     qint64 m_minimum;  // minimum; may be std::numeric_limits<qint64>::min()

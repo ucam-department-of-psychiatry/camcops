@@ -126,6 +126,7 @@ void FontSizeAndDpiWindow::setUpPage(QuPagePtr page)
     int row = 0;
     const Qt::Alignment labelalign = Qt::AlignRight | Qt::AlignTop;
     const int dpi_dp = 2;
+    const bool dpi_allow_empty = true;
     dpi_grid->addCell(QuGridCell(new QuText(logical_info), row, 0, 1, 2));
     ++row;
     dpi_grid->addCell(QuGridCell(
@@ -151,7 +152,11 @@ void FontSizeAndDpiWindow::setUpPage(QuPagePtr page)
     ));
     dpi_grid->addCell(QuGridCell(
         (new QuLineEditDouble(
-             m_dpi_override_logical_x_fr, dpi_min, dpi_max, dpi_dp
+             m_dpi_override_logical_x_fr,
+             dpi_min,
+             dpi_max,
+             dpi_dp,
+             dpi_allow_empty
          ))
             ->setHint(dpi_hint)
             ->addTag(TAG_DPI_LOGICAL),
@@ -168,7 +173,11 @@ void FontSizeAndDpiWindow::setUpPage(QuPagePtr page)
     ));
     dpi_grid->addCell(QuGridCell(
         (new QuLineEditDouble(
-             m_dpi_override_logical_y_fr, dpi_min, dpi_max, dpi_dp
+             m_dpi_override_logical_y_fr,
+             dpi_min,
+             dpi_max,
+             dpi_dp,
+             dpi_allow_empty
          ))
             ->setHint(dpi_hint)
             ->addTag(TAG_DPI_LOGICAL),
@@ -202,7 +211,11 @@ void FontSizeAndDpiWindow::setUpPage(QuPagePtr page)
     ));
     dpi_grid->addCell(QuGridCell(
         (new QuLineEditDouble(
-             m_dpi_override_physical_x_fr, dpi_min, dpi_max, dpi_dp
+             m_dpi_override_physical_x_fr,
+             dpi_min,
+             dpi_max,
+             dpi_dp,
+             dpi_allow_empty
          ))
             ->setHint(dpi_hint)
             ->addTag(TAG_DPI_PHYSICAL),
@@ -219,7 +232,11 @@ void FontSizeAndDpiWindow::setUpPage(QuPagePtr page)
     ));
     dpi_grid->addCell(QuGridCell(
         (new QuLineEditDouble(
-             m_dpi_override_physical_y_fr, dpi_min, dpi_max, dpi_dp
+             m_dpi_override_physical_y_fr,
+             dpi_min,
+             dpi_max,
+             dpi_dp,
+             dpi_allow_empty
          ))
             ->setHint(dpi_hint)
             ->addTag(TAG_DPI_PHYSICAL),

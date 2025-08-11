@@ -32,7 +32,11 @@ class QuLineEditDouble : public QuLineEdit
 
 public:
     // Constructor for unconstrained numbers
-    QuLineEditDouble(FieldRefPtr fieldref, QObject* parent = nullptr);
+    QuLineEditDouble(
+        FieldRefPtr fieldref,
+        bool allow_empty = true,
+        QObject* parent = nullptr
+    );
 
     // Constructor for constrained numbers.
     // - decimals: maximum number of decimal places; see above.
@@ -41,6 +45,7 @@ public:
         double minimum,
         double maximum,
         int decimals = 1000,
+        bool allow_empty = true,
         QObject* parent = nullptr
     );
 

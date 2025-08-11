@@ -24,8 +24,10 @@
 #include <QIntValidator>
 #include <QLineEdit>
 
-QuLineEditInteger::QuLineEditInteger(FieldRefPtr fieldref, QObject* parent) :
-    QuLineEdit(fieldref, parent),
+QuLineEditInteger::QuLineEditInteger(
+    FieldRefPtr fieldref, const bool allow_empty, QObject* parent
+) :
+    QuLineEdit(fieldref, allow_empty, parent),
     m_minimum(std::numeric_limits<int>::min()),
     m_maximum(std::numeric_limits<int>::max())
 {
@@ -33,9 +35,13 @@ QuLineEditInteger::QuLineEditInteger(FieldRefPtr fieldref, QObject* parent) :
 }
 
 QuLineEditInteger::QuLineEditInteger(
-    FieldRefPtr fieldref, const int minimum, const int maximum, QObject* parent
+    FieldRefPtr fieldref,
+    const int minimum,
+    const int maximum,
+    const bool allow_empty,
+    QObject* parent
 ) :
-    QuLineEdit(fieldref, parent),
+    QuLineEdit(fieldref, allow_empty, parent),
     m_minimum(minimum),
     m_maximum(maximum)
 {

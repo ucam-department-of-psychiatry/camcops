@@ -20,19 +20,25 @@
 
 #include "qulineeditint64.h"
 
-QuLineEditInt64::QuLineEditInt64(FieldRefPtr fieldref) :
+QuLineEditInt64::QuLineEditInt64(
+    FieldRefPtr fieldref, const bool allow_empty
+) :
     QuLineEditInt64(
         fieldref,
         std::numeric_limits<qint64>::min(),
-        std::numeric_limits<qint64>::max()
+        std::numeric_limits<qint64>::max(),
+        allow_empty
     )
 {
 }
 
 QuLineEditInt64::QuLineEditInt64(
-    FieldRefPtr fieldref, const qint64 minimum, const qint64 maximum
+    FieldRefPtr fieldref,
+    const qint64 minimum,
+    const qint64 maximum,
+    const bool allow_empty
 ) :
-    QuLineEdit(fieldref),
+    QuLineEdit(fieldref, allow_empty),
     m_minimum(minimum),
     m_maximum(maximum)
 {

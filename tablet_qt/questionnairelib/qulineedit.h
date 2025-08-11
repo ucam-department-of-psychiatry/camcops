@@ -36,7 +36,7 @@ class QuLineEdit : public QuElement
 
 public:
     // Constructor
-    QuLineEdit(FieldRefPtr fieldref, QObject* parent = nullptr);
+    QuLineEdit(FieldRefPtr fieldref, bool allow_empty = true, QObject* parent = nullptr);
 
     // Sets the hint text (what's shown, greyed out, in the editor when the
     // line editor has no user-entered text in it).
@@ -67,6 +67,7 @@ protected slots:
 
 protected:
     FieldRefPtr m_fieldref;  // our field
+    bool m_allow_empty;  // allow an empty field?
     QPointer<QValidator> m_validator;
     QString m_hint;  // hint text
     QPointer<ValidatingLineEdit> m_editor;  // our editor widget

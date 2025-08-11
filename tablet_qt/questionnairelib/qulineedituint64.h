@@ -32,11 +32,16 @@ class QuLineEditUInt64 : public QuLineEdit
 
 public:
     // Constructor for unconstrained numbers
-    QuLineEditUInt64(FieldRefPtr fieldref);
+    QuLineEditUInt64(FieldRefPtr fieldref, bool allow_empty = true);
 
     // Constructor for constrained numbers.
     // - allow_empty: OK to be blank?
-    QuLineEditUInt64(FieldRefPtr fieldref, quint64 minimum, quint64 maximum);
+    QuLineEditUInt64(
+        FieldRefPtr fieldref,
+        quint64 minimum,
+        quint64 maximum,
+        bool allow_empty = true
+    );
 
 protected:
     virtual QPointer<QValidator> getValidator() override;

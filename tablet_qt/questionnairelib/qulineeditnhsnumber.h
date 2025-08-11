@@ -40,7 +40,4 @@ public:
 protected:
     virtual QPointer<QValidator> getValidator() override;
     virtual Qt::InputMethodHints getInputMethodHints() override;
-
-private:
-    bool m_allow_empty = true;
 };

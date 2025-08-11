@@ -29,13 +29,19 @@ class QuLineEditInteger : public QuLineEdit
 
 public:
     // Constructor for unconstrained numbers
-    QuLineEditInteger(FieldRefPtr fieldref, QObject* parent = nullptr);
+    QuLineEditInteger(
+        FieldRefPtr fieldref,
+        bool allow_empty = true,
+        QObject* parent = nullptr
+    );
 
     // Constructor for constrained numbers.
+    // - allow_empty: OK to be blank?
     QuLineEditInteger(
         FieldRefPtr fieldref,
         int minimum,
         int maximum,
+        bool allow_empty = true,
         QObject* parent = nullptr
     );
 

@@ -48,12 +48,14 @@ const int WRITE_DELAY_MS = 400;
 
 ValidatingLineEdit::ValidatingLineEdit(
     QValidator* validator,
+    const bool allow_empty,
     const bool read_only,
     const bool delayed,
     const bool vertical,
     QWidget* parent
 ) :
     QWidget(parent),
+    m_allow_empty(allow_empty),
     m_delayed(delayed),
     m_vertical(vertical),
     m_focus_watcher(nullptr)
@@ -227,20 +229,32 @@ void ValidatingLineEdit::validate()
 #ifdef DEBUG_VALIDATING_LINEEDIT
     qDebug() << Q_FUNC_INFO;
 #endif
-    const QValidator* validator = m_line_edit->validator();
-    if (!validator) {
-#ifdef DEBUG_VALIDATING_LINEEDIT
-        qDebug() << "No validator";
-#endif
-        return;
-    }
 
     QString text = m_line_edit->text().trimmed();
+    const QValidator* validator = m_line_edit->validator();
 
-    if (text.isEmpty()) {
-        resetValidatorFeedback();
+    if (validator) {
+        qDebug() << "Validating: " << text;
+
+        if (text.isEmpty() && m_allow_empty) {
+            m_state = QValidator::Acceptable;
+        } else {
+            int pos = 0;
+
+            m_state = validator->validate(text, pos);
+        }
+    }
+
+    const bool is_valid = isValid();
+
+    if (validator) {
+        setValidatorFeedback(is_valid, !is_valid);
+    }
+
+    if (is_valid) {
+        emit valid();
     } else {
-        runValidation(text);
+        emit invalid();
     }
 
     emit validated();
@@ -248,46 +262,30 @@ void ValidatingLineEdit::validate()
 
 void ValidatingLineEdit::resetValidatorFeedback()
 {
-    widgetfunc::setPropertyValid(m_line_edit, false);
-    widgetfunc::setPropertyInvalid(m_line_edit, false);
-
-    m_label->setText("");
-    if (!m_vertical) {
-        m_label->hide();
-    }
+    setValidatorFeedback(false, false);
 }
 
-void ValidatingLineEdit::runValidation(QString& text)
+void ValidatingLineEdit::setValidatorFeedback(const bool valid, const bool invalid)
 {
-    const QValidator* validator = m_line_edit->validator();
-    int pos = 0;
+    // If both valid and invalid are false, there is no validation
+    Q_ASSERT(!(valid && invalid));
 
-    qDebug() << "Validating: " << text;
+    widgetfunc::setPropertyValid(m_line_edit, valid);
+    widgetfunc::setPropertyInvalid(m_line_edit, invalid);
 
-    m_state = validator->validate(text, pos);
+    QString feedback = QString("");
+    const bool visible = valid || invalid;
 
-    const bool is_valid = isValid();
-    const QString feedback = is_valid ? tr("Valid") : tr("Invalid");
+    if (visible) {
+        feedback = valid ? tr("Valid") : tr("Invalid");
+    }
 
 #ifdef DEBUG_VALIDATING_LINEEDIT
     qDebug() << feedback;
 #endif
 
-    widgetfunc::setPropertyValid(m_line_edit, is_valid);
-    widgetfunc::setPropertyInvalid(m_line_edit, !is_valid);
-
     m_label->setText(feedback);
-    if (!m_vertical) {
-        m_label->show();
-    }
-
-    if (is_valid) {
-        emit valid();
-
-        return;
-    }
-
-    emit invalid();
+    m_label->setVisible(visible);
 }
 
 QString ValidatingLineEdit::text() const

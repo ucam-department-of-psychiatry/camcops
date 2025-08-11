@@ -22,19 +22,25 @@
 
 #include <QDebug>
 
-QuLineEditUInt64::QuLineEditUInt64(FieldRefPtr fieldref) :
+QuLineEditUInt64::QuLineEditUInt64(
+    FieldRefPtr fieldref, const bool allow_empty
+) :
     QuLineEditUInt64(
         fieldref,
         std::numeric_limits<quint64>::min(),
-        std::numeric_limits<quint64>::max()
+        std::numeric_limits<quint64>::max(),
+        allow_empty
     )
 {
 }
 
 QuLineEditUInt64::QuLineEditUInt64(
-    FieldRefPtr fieldref, const quint64 minimum, const quint64 maximum
+    FieldRefPtr fieldref,
+    const quint64 minimum,
+    const quint64 maximum,
+    const bool allow_empty
 ) :
-    QuLineEdit(fieldref),
+    QuLineEdit(fieldref, allow_empty),
     m_minimum(minimum),
     m_maximum(maximum)
 {
