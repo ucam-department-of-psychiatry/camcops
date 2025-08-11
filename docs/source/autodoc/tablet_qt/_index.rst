@@ -416,6 +416,8 @@ tablet_qt
     qobjects/flickcharm.h.rst
     qobjects/focuswatcher.cpp.rst
     qobjects/focuswatcher.h.rst
+    qobjects/int64validator.cpp.rst
+    qobjects/int64validator.h.rst
     qobjects/keypresswatcher.cpp.rst
     qobjects/keypresswatcher.h.rst
     qobjects/nhsnumbervalidator.cpp.rst
@@ -434,6 +436,8 @@ tablet_qt
     qobjects/stylenofocusrect.h.rst
     qobjects/threadworker.cpp.rst
     qobjects/threadworker.h.rst
+    qobjects/uint64validator.cpp.rst
+    qobjects/uint64validator.h.rst
     qobjects/urlhandler.cpp.rst
     qobjects/urlhandler.h.rst
     qobjects/urlvalidator.cpp.rst

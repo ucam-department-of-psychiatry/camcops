@@ -22,6 +22,8 @@
 
 #include <QDebug>
 
+#include "qobjects/uint64validator.h"
+
 QuLineEditUInt64::QuLineEditUInt64(
     FieldRefPtr fieldref, const bool allow_empty
 ) :
@@ -53,7 +55,7 @@ QuLineEditUInt64::QuLineEditUInt64(
 
 QPointer<QValidator> QuLineEditUInt64::getValidator()
 {
-    return new QIntValidator(m_minimum, m_maximum, this);
+    return new UInt64Validator(m_minimum, m_maximum, this);
 }
 
 Qt::InputMethodHints QuLineEditUInt64::getInputMethodHints()

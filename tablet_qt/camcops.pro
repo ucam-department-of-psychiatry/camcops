@@ -776,6 +776,7 @@ SOURCES += \
     qobjects/emailvalidator.cpp \
     qobjects/flickcharm.cpp \
     qobjects/focuswatcher.cpp \
+    qobjects/int64validator.cpp \
     qobjects/keypresswatcher.cpp \
     qobjects/nhsnumbervalidator.cpp \
     qobjects/proquintvalidator.cpp \
@@ -785,6 +786,7 @@ SOURCES += \
     qobjects/slownonguifunctioncaller.cpp \
     qobjects/stylenofocusrect.cpp \
     qobjects/threadworker.cpp \
+    qobjects/uint64validator.cpp \
     qobjects/urlhandler.cpp \
     qobjects/urlvalidator.cpp \
     qobjects/widgetpositioner.cpp \
@@ -1272,6 +1274,7 @@ HEADERS += \
     qobjects/emailvalidator.h \
     qobjects/flickcharm.h \
     qobjects/focuswatcher.h \
+    qobjects/int64validator.h \
     qobjects/keypresswatcher.h \
     qobjects/nhsnumbervalidator.h \
     qobjects/proquintvalidator.h \
@@ -1281,6 +1284,7 @@ HEADERS += \
     qobjects/slownonguifunctioncaller.h \
     qobjects/stylenofocusrect.h \
     qobjects/threadworker.h \
+    qobjects/uint64validator.h \
     qobjects/urlhandler.h \
     qobjects/urlvalidator.h \
     qobjects/widgetpositioner.h \
