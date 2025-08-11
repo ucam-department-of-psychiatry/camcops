@@ -964,6 +964,8 @@ tablet_qt
     tests/auto/lib/soundfunc/testsoundfunc.cpp.rst
     tests/auto/lib/stringfunc/stringfunc.pro.rst
     tests/auto/lib/stringfunc/teststringfunc.cpp.rst
+    tests/auto/qobjects/int64validator/int64validator.pro.rst
+    tests/auto/qobjects/int64validator/testint64validator.cpp.rst
     tests/auto/qobjects/qobjects.pro.rst
     tests/auto/qobjects/widgetpositioner/testwidgetpositioner.cpp.rst
     tests/auto/qobjects/widgetpositioner/widgetpositioner.pro.rst

@@ -77,6 +77,10 @@ QValidator::State Int64Validator::validate(QString& input, int&) const
         return Acceptable;
     }
 
+    if (entered > 0 && m_top < 0) {
+        return Invalid;
+    }
+
     return Intermediate;
 }
 
