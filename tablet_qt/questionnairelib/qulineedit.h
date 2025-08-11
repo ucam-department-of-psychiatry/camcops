@@ -36,7 +36,11 @@ class QuLineEdit : public QuElement
 
 public:
     // Constructor
-    QuLineEdit(FieldRefPtr fieldref, bool allow_empty = true, QObject* parent = nullptr);
+    QuLineEdit(
+        FieldRefPtr fieldref,
+        bool allow_empty = true,
+        QObject* parent = nullptr
+    );
 
     // Sets the hint text (what's shown, greyed out, in the editor when the
     // line editor has no user-entered text in it).

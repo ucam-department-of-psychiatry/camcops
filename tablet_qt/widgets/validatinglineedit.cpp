@@ -265,7 +265,9 @@ void ValidatingLineEdit::resetValidatorFeedback()
     setValidatorFeedback(false, false);
 }
 
-void ValidatingLineEdit::setValidatorFeedback(const bool valid, const bool invalid)
+void ValidatingLineEdit::setValidatorFeedback(
+    const bool valid, const bool invalid
+)
 {
     // If both valid and invalid are false, there is no validation
     Q_ASSERT(!(valid && invalid));
