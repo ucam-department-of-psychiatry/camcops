@@ -36,6 +36,12 @@ private:
 #endif
 
 private slots:
+    void testSetRangeSetsTopAndBottom();
+    void testSetRangeSignalsWhenTopChanges();
+    void testSetRangeSignalsWhenBottomChanges();
+    void testSetRangeSignalsWhenNothingChanges();
+    void testSetBottomSetsBottom();
+    void testSetTopSetsTop();
     void testValidateReturnsIntermediateIfEmpty();
     void testValidateReturnsInvalidIfDecimalPoint();
     void testValidateReturnsInvalidIfMinus();
@@ -51,6 +57,116 @@ private slots:
     void testRandomNumbersAndRangesSmallRange();
 #endif
 };
+
+void TestUInt64Validator::testSetRangeSetsTopAndBottom()
+{
+    const quint64 bottom = 0;
+    const quint64 top = 10;
+
+    UInt64Validator *validator = new UInt64Validator();
+
+    validator->setRange(bottom, top);
+
+    QCOMPARE(validator->top(), top);
+    QCOMPARE(validator->bottom(), bottom);
+}
+
+void TestUInt64Validator::testSetRangeSignalsWhenTopChanges()
+{
+    const quint64 bottom = 0;
+    const quint64 old_top = 10;
+
+    UInt64Validator *validator = new UInt64Validator(bottom, old_top);
+
+    QSignalSpy changed_spy(validator, SIGNAL(changed()));
+    QVERIFY(changed_spy.isValid());
+
+    QSignalSpy top_spy(validator, SIGNAL(topChanged(quint64)));
+    QVERIFY(top_spy.isValid());
+
+    QSignalSpy bottom_spy(validator, SIGNAL(bottomChanged(quint64)));
+    QVERIFY(bottom_spy.isValid());
+
+    const quint64 new_top = 20;
+    validator->setRange(bottom, new_top);
+
+    QCOMPARE(changed_spy.count(), 1);
+    QCOMPARE(top_spy.count(), 1);
+    QList<QVariant> arguments = top_spy.takeFirst();
+    QVERIFY(arguments.at(0).toInt() == new_top);
+
+    QCOMPARE(bottom_spy.count(), 0);
+}
+
+void TestUInt64Validator::testSetRangeSignalsWhenBottomChanges()
+{
+    const quint64 old_bottom = 0;
+    const quint64 top = 10;
+
+    UInt64Validator *validator = new UInt64Validator(old_bottom, top);
+
+    QSignalSpy changed_spy(validator, SIGNAL(changed()));
+    QVERIFY(changed_spy.isValid());
+
+    QSignalSpy top_spy(validator, SIGNAL(topChanged(quint64)));
+    QVERIFY(top_spy.isValid());
+
+    QSignalSpy bottom_spy(validator, SIGNAL(bottomChanged(quint64)));
+    QVERIFY(bottom_spy.isValid());
+
+    const quint64 new_bottom = 5;
+    validator->setRange(new_bottom, top);
+
+    QCOMPARE(changed_spy.count(), 1);
+    QCOMPARE(top_spy.count(), 0);
+
+    QCOMPARE(bottom_spy.count(), 1);
+    QList<QVariant> arguments = bottom_spy.takeFirst();
+    QVERIFY(arguments.at(0).toInt() == new_bottom);
+}
+
+void TestUInt64Validator::testSetRangeSignalsWhenNothingChanges()
+{
+    const quint64 bottom = 0;
+    const quint64 top = 10;
+
+    UInt64Validator *validator = new UInt64Validator(bottom, top);
+
+    QSignalSpy changed_spy(validator, SIGNAL(changed()));
+    QVERIFY(changed_spy.isValid());
+
+    QSignalSpy top_spy(validator, SIGNAL(topChanged(quint64)));
+    QVERIFY(top_spy.isValid());
+
+    QSignalSpy bottom_spy(validator, SIGNAL(bottomChanged(quint64)));
+    QVERIFY(bottom_spy.isValid());
+
+    validator->setRange(bottom, top);
+
+    QCOMPARE(changed_spy.count(), 0);
+    QCOMPARE(top_spy.count(), 0);
+    QCOMPARE(bottom_spy.count(), 0);
+}
+
+void TestUInt64Validator::testSetBottomSetsBottom()
+{
+    const quint64 bottom = 10;
+
+    UInt64Validator *validator = new UInt64Validator();
+    validator->setBottom(bottom);
+
+    QCOMPARE(validator->bottom(), bottom);
+}
+
+void TestUInt64Validator::testSetTopSetsTop()
+{
+    const quint64 top = 10;
+
+    UInt64Validator *validator = new UInt64Validator();
+    validator->setTop(top);
+
+    QCOMPARE(validator->top(), top);
+}
 
 void TestUInt64Validator::testValidateReturnsIntermediateIfEmpty()
 {
@@ -208,7 +324,7 @@ void TestUInt64Validator::validateRandomNumbers(
         if (bottom == top) {
             str_number.setNum(bottom);
         } else {
-            const qint64 number = rng.bounded(top - bottom) + bottom;
+            const quint64 number = rng.bounded(top - bottom) + bottom;
             str_number.setNum(number);
         }
 
