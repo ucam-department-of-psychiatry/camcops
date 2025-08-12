@@ -142,8 +142,6 @@ ValidatingLineEdit::ValidatingLineEdit(
                           : "light"
                   );
 
-        qDebug() << "Setting label name to " << label_name;
-
         m_label->setObjectName(label_name);
         layout->addWidget(m_label);
 
@@ -234,8 +232,6 @@ void ValidatingLineEdit::validate()
     const QValidator* validator = m_line_edit->validator();
 
     if (validator) {
-        qDebug() << "Validating: " << text;
-
         if (text.isEmpty() && m_allow_empty) {
             m_state = QValidator::Acceptable;
         } else {
@@ -331,8 +327,6 @@ void ValidatingLineEdit::setPropertyMissing(bool missing, bool repolish)
 #ifdef Q_OS_ANDROID
 void ValidatingLineEdit::ignoreInputMethodEvents()
 {
-    qDebug() << Q_FUNC_INFO;
-
     m_line_edit->installEventFilter(this);
 }
 
@@ -343,8 +337,6 @@ void ValidatingLineEdit::ignoreInputMethodEvents()
 // to a regression elsewhere).
 bool ValidatingLineEdit::eventFilter(QObject* obj, QEvent* event)
 {
-    qDebug() << Q_FUNC_INFO;
-
     if (obj != m_line_edit || event->type() != QEvent::InputMethod) {
         return false;
     }
@@ -360,8 +352,6 @@ bool ValidatingLineEdit::eventFilter(QObject* obj, QEvent* event)
 
 void ValidatingLineEdit::maybeIgnoreNextInputEvent()
 {
-    qDebug() << Q_FUNC_INFO;
-
     if (QGuiApplication::inputMethod()->isVisible()) {
         m_ignore_next_input_event = true;
     }
