@@ -29,6 +29,12 @@ class TestInt64Validator : public QObject
 {
     Q_OBJECT
 
+#ifdef TESTINT64_INCLUDE_RANDOM
+
+private:
+    void validateRandomNumbers(const qint64 lowest, const qint64 highest);
+#endif
+
 private slots:
     void testValidateReturnsIntermediateIfEmpty();
     void testValidateReturnsInvalidIfDecimalPoint();
@@ -44,7 +50,8 @@ private slots:
     void testValidateReturnsIntermediateIfHasInvalidStart();
     void testValidateReturnsIntermediateIfZeroAndRangeGreaterThanZero();
 #ifdef TESTINT64_INCLUDE_RANDOM
-    void testRandomNumbersAndRanges();
+    void testRandomNumbersAndRangesLargeRange();
+    void testRandomNumbersAndRangesSmallRange();
 #endif
 };
 
@@ -210,7 +217,21 @@ void TestInt64Validator::
 }
 
 #ifdef TESTINT64_INCLUDE_RANDOM
-void TestInt64Validator::testRandomNumbersAndRanges()
+void TestInt64Validator::testRandomNumbersAndRangesLargeRange()
+{
+    // QRandomGenerator does not work across the full range but this is
+    // good enough for our purposes
+    validateRandomNumbers(-1e10, 1e10);
+}
+
+void TestInt64Validator::testRandomNumbersAndRangesSmallRange()
+{
+    validateRandomNumbers(-1000, 1000);
+}
+
+void TestInt64Validator::validateRandomNumbers(
+    const qint64 lowest, const qint64 highest
+)
 {
     const int seed = 1234;
     const int num_tests = 1000;
@@ -218,16 +239,20 @@ void TestInt64Validator::testRandomNumbersAndRanges()
     QRandomGenerator rng(seed);
 
     for (int test = 0; test < num_tests; ++test) {
-        const int limit_1 = rng.generate64();
-        const int limit_2 = rng.generate64();
+        const qint64 limit_1 = rng.bounded(lowest, highest);
+        const qint64 limit_2 = rng.bounded(lowest, highest);
 
         const qint64 bottom = std::min(limit_1, limit_2);
         const qint64 top = std::max(limit_1, limit_2);
 
-        const qint64 number = rng.bounded(top - bottom) + bottom;
-
         QString str_number;
-        str_number.setNum(number);
+
+        if (bottom == top) {
+            str_number.setNum(bottom);
+        } else {
+            const qint64 number = rng.bounded(top - bottom) + bottom;
+            str_number.setNum(number);
+        }
 
         int pos = 0;
 
@@ -240,7 +265,7 @@ void TestInt64Validator::testRandomNumbersAndRanges()
 
             if (state == QValidator::Invalid) {
                 qDebug() << "Validation failed for" << typed << "from"
-                         << number << "range" << bottom << "to" << top;
+                         << str_number << "range" << bottom << "to" << top;
                 QVERIFY(false);
             }
         }
