@@ -63,7 +63,7 @@ void TestUInt64Validator::testSetRangeSetsTopAndBottom()
     const quint64 bottom = 0;
     const quint64 top = 10;
 
-    UInt64Validator *validator = new UInt64Validator();
+    UInt64Validator* validator = new UInt64Validator();
 
     validator->setRange(bottom, top);
 
@@ -76,7 +76,7 @@ void TestUInt64Validator::testSetRangeSignalsWhenTopChanges()
     const quint64 bottom = 0;
     const quint64 old_top = 10;
 
-    UInt64Validator *validator = new UInt64Validator(bottom, old_top);
+    UInt64Validator* validator = new UInt64Validator(bottom, old_top);
 
     QSignalSpy changed_spy(validator, SIGNAL(changed()));
     QVERIFY(changed_spy.isValid());
@@ -103,7 +103,7 @@ void TestUInt64Validator::testSetRangeSignalsWhenBottomChanges()
     const quint64 old_bottom = 0;
     const quint64 top = 10;
 
-    UInt64Validator *validator = new UInt64Validator(old_bottom, top);
+    UInt64Validator* validator = new UInt64Validator(old_bottom, top);
 
     QSignalSpy changed_spy(validator, SIGNAL(changed()));
     QVERIFY(changed_spy.isValid());
@@ -130,7 +130,7 @@ void TestUInt64Validator::testSetRangeSignalsWhenNothingChanges()
     const quint64 bottom = 0;
     const quint64 top = 10;
 
-    UInt64Validator *validator = new UInt64Validator(bottom, top);
+    UInt64Validator* validator = new UInt64Validator(bottom, top);
 
     QSignalSpy changed_spy(validator, SIGNAL(changed()));
     QVERIFY(changed_spy.isValid());
@@ -152,7 +152,7 @@ void TestUInt64Validator::testSetBottomSetsBottom()
 {
     const quint64 bottom = 10;
 
-    UInt64Validator *validator = new UInt64Validator();
+    UInt64Validator* validator = new UInt64Validator();
     validator->setBottom(bottom);
 
     QCOMPARE(validator->bottom(), bottom);
@@ -162,7 +162,7 @@ void TestUInt64Validator::testSetTopSetsTop()
 {
     const quint64 top = 10;
 
-    UInt64Validator *validator = new UInt64Validator();
+    UInt64Validator* validator = new UInt64Validator();
     validator->setTop(top);
 
     QCOMPARE(validator->top(), top);

@@ -63,7 +63,7 @@ private slots:
 
 void TestInt64Validator::testSetRangeSetsTopAndBottom()
 {
-    Int64Validator *validator = new Int64Validator();
+    Int64Validator* validator = new Int64Validator();
 
     validator->setRange(-10, 10);
 
@@ -76,7 +76,7 @@ void TestInt64Validator::testSetRangeSignalsWhenTopChanges()
     const qint64 bottom = -10;
     const qint64 old_top = 0;
 
-    Int64Validator *validator = new Int64Validator(bottom, old_top);
+    Int64Validator* validator = new Int64Validator(bottom, old_top);
 
     QSignalSpy changed_spy(validator, SIGNAL(changed()));
     QVERIFY(changed_spy.isValid());
@@ -103,7 +103,7 @@ void TestInt64Validator::testSetRangeSignalsWhenBottomChanges()
     const qint64 old_bottom = -10;
     const qint64 top = 10;
 
-    Int64Validator *validator = new Int64Validator(old_bottom, top);
+    Int64Validator* validator = new Int64Validator(old_bottom, top);
 
     QSignalSpy changed_spy(validator, SIGNAL(changed()));
     QVERIFY(changed_spy.isValid());
@@ -130,7 +130,7 @@ void TestInt64Validator::testSetRangeSignalsWhenNothingChanges()
     const qint64 bottom = 0;
     const qint64 top = 10;
 
-    Int64Validator *validator = new Int64Validator(bottom, top);
+    Int64Validator* validator = new Int64Validator(bottom, top);
 
     QSignalSpy changed_spy(validator, SIGNAL(changed()));
     QVERIFY(changed_spy.isValid());
@@ -150,7 +150,7 @@ void TestInt64Validator::testSetRangeSignalsWhenNothingChanges()
 
 void TestInt64Validator::testSetBottomSetsBottom()
 {
-    Int64Validator *validator = new Int64Validator();
+    Int64Validator* validator = new Int64Validator();
     validator->setBottom(-10);
 
     QCOMPARE(validator->bottom(), -10);
@@ -158,7 +158,7 @@ void TestInt64Validator::testSetBottomSetsBottom()
 
 void TestInt64Validator::testSetTopSetsTop()
 {
-    Int64Validator *validator = new Int64Validator();
+    Int64Validator* validator = new Int64Validator();
     validator->setTop(10);
 
     QCOMPARE(validator->top(), 10);
