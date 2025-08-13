@@ -59,6 +59,8 @@ private slots:
     void testHasVerticalLayout();
     void testSignalsForValidInput();
     void testSignalsForIntermediateInput();
+    void testSignalsForDelayedValidInputFastTyping();
+    void testSignalsForDelayedValidInputSlowTyping();
 };
 
 void TestValidatingLineEdit::testHasVerticalLayout()
@@ -91,7 +93,7 @@ void TestValidatingLineEdit::testHasHorizontalLayout()
     QVERIFY(qobject_cast<QHBoxLayout*>(vle->layout()) != nullptr);
 }
 
-void::TestValidatingLineEdit::testSignalsForValidInput()
+void TestValidatingLineEdit::testSignalsForValidInput()
 {
     auto vle = new ValidatingLineEdit(new TestValidator());
     QLineEdit* line_edit = vle->findChild<QLineEdit*>();
@@ -109,11 +111,11 @@ void::TestValidatingLineEdit::testSignalsForValidInput()
     QTest::keyClicks(line_edit, input);
 
     QCOMPARE(valid_spy.count(), 1);
-    QCOMPARE(invalid_spy.count(), input.length()-1);
+    QCOMPARE(invalid_spy.count(), input.length() - 1);
     QCOMPARE(validated_spy.count(), input.length());
 }
 
-void::TestValidatingLineEdit::testSignalsForIntermediateInput()
+void TestValidatingLineEdit::testSignalsForIntermediateInput()
 {
     auto vle = new ValidatingLineEdit(new TestValidator());
     QLineEdit* line_edit = vle->findChild<QLineEdit*>();
@@ -133,6 +135,78 @@ void::TestValidatingLineEdit::testSignalsForIntermediateInput()
     QCOMPARE(valid_spy.count(), 0);
     QCOMPARE(invalid_spy.count(), input.length());
     QCOMPARE(validated_spy.count(), input.length());
+}
+
+void TestValidatingLineEdit::testSignalsForDelayedValidInputFastTyping()
+{
+    const bool allow_empty = false;
+    const bool read_only = false;
+    const bool delayed = true;
+
+    auto vle = new ValidatingLineEdit(
+        new TestValidator(), allow_empty, read_only, delayed
+    );
+    QLineEdit* line_edit = vle->findChild<QLineEdit*>();
+
+    QSignalSpy valid_spy(vle, SIGNAL(valid()));
+    QVERIFY(valid_spy.isValid());
+
+    QSignalSpy invalid_spy(vle, SIGNAL(invalid()));
+    QVERIFY(invalid_spy.isValid());
+
+    QSignalSpy validated_spy(vle, SIGNAL(validated()));
+    QVERIFY(validated_spy.isValid());
+
+    QString input("valid");
+    QTest::keyClicks(line_edit, input);
+
+    // With delayed validation there is a 400ms delay between the text being
+    // entered and our validation being run. Each simulated keypress will
+    // restart the timer. This test assumes that the pretend typing will
+    // complete within that time. So we should expect the signals to be
+    // broadcast once.
+    validated_spy.wait(1000);
+
+    QCOMPARE(validated_spy.count(), 1);
+    QCOMPARE(valid_spy.count(), 1);
+
+    // Never invalid because the whole string is validated and never the
+    // intermediate parts
+    QCOMPARE(invalid_spy.count(), 0);
+}
+
+void TestValidatingLineEdit::testSignalsForDelayedValidInputSlowTyping()
+{
+    const bool allow_empty = false;
+    const bool read_only = false;
+    const bool delayed = true;
+
+    auto vle = new ValidatingLineEdit(
+        new TestValidator(), allow_empty, read_only, delayed
+    );
+    QLineEdit* line_edit = vle->findChild<QLineEdit*>();
+
+    QSignalSpy valid_spy(vle, SIGNAL(valid()));
+    QVERIFY(valid_spy.isValid());
+
+    QSignalSpy invalid_spy(vle, SIGNAL(invalid()));
+    QVERIFY(invalid_spy.isValid());
+
+    QSignalSpy validated_spy(vle, SIGNAL(validated()));
+    QVERIFY(validated_spy.isValid());
+
+    QString input("valid");
+    QTest::keyClicks(line_edit, input, Qt::NoModifier, 500);
+
+    // The simulated typist types slower thant the validation timeout
+    // so we should expect signals for every character.
+    for (int i = 0; i < input.length(); ++i) {
+        validated_spy.wait(1000);
+    }
+
+    QCOMPARE(validated_spy.count(), input.length());
+    QCOMPARE(valid_spy.count(), 1);
+    QCOMPARE(invalid_spy.count(), input.length() - 1);
 }
 
 QTEST_MAIN(TestValidatingLineEdit)
