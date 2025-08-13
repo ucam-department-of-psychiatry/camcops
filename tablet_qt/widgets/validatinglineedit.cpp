@@ -105,12 +105,15 @@ ValidatingLineEdit::ValidatingLineEdit(
             );
         }
 
-        // QLineEdit::textChanged: emitted whenever text changed.
+        // QLineEdit::textChanged: emitted whenever text changed but not when
+        //      validator returns Invalid
         // QLineEdit::textEdited: NOT emitted when the widget's value is set
         //      programmatically.
         // QLineEdit::editingFinished: emitted when Return/Enter is pressed,
         //      or the editor loses focus. In the former case, only fires if
         //      validation is passed.
+        // QLineEdit::inputRejected: emitted for example when a keypress
+        //      results in a validator returning Invalid.
         connect(
             m_line_edit,
             &QLineEdit::editingFinished,
