@@ -88,6 +88,7 @@ https://github.com/ucam-department-of-psychiatry/camcops.
 """
 SKIP_GLOBS = [
     "*/build/*",
+    "*/build-tests/*",
     "*/moc/*",
     "*/static/*",
     "__init__.py",

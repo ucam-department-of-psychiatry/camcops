@@ -33,9 +33,6 @@ tablet_qt
     android/AndroidManifest.xml.rst
     android/res/values/libs.xml.rst
     android/src/org/camcops/camcops/CamcopsActivity.java.rst
-    build-tests/auto/widgets/validatinglineedit/qrc_camcops.cpp.rst
-    build-tests/auto/widgets/validatinglineedit/qrc_test.cpp.rst
-    build-tests/auto/widgets/validatinglineedit/qrc_validatinglineedit.cpp.rst
     camcops.pro.rst
     camcops_windows_innosetup.iss.rst
     common/aliases_camcops.h.rst
