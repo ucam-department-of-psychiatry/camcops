@@ -233,9 +233,14 @@ void ValidatingLineEdit::validate()
     if (validator) {
         if (text.isEmpty() && m_allow_empty) {
             m_state = QValidator::Acceptable;
+#ifdef DEBUG_VALIDATING_LINEEDIT
+            qDebug() << "Allowed to be empty so valid";
+#endif
         } else {
             int pos = 0;
-
+#ifdef DEBUG_VALIDATING_LINEEDIT
+            qDebug() << "Running validator";
+#endif
             m_state = validator->validate(text, pos);
         }
     }
@@ -247,8 +252,14 @@ void ValidatingLineEdit::validate()
     }
 
     if (is_valid) {
+#ifdef DEBUG_VALIDATING_LINEEDIT
+        qDebug() << "emit valid()";
+#endif
         emit valid();
     } else {
+#ifdef DEBUG_VALIDATING_LINEEDIT
+        qDebug() << "emit invalid()";
+#endif
         emit invalid();
     }
 
@@ -278,7 +289,7 @@ void ValidatingLineEdit::setValidatorFeedback(
     }
 
 #ifdef DEBUG_VALIDATING_LINEEDIT
-    qDebug() << feedback;
+    qDebug() << "Feedback:" << feedback;
 #endif
 
     m_label->setText(feedback);
