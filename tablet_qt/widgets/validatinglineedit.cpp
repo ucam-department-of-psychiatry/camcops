@@ -42,7 +42,7 @@
 #include "lib/widgetfunc.h"
 #include "qobjects/focuswatcher.h"
 
-#define DEBUG_VALIDATING_LINEEDIT
+// #define DEBUG_VALIDATING_LINEEDIT
 
 const int WRITE_DELAY_MS = 400;
 
@@ -73,7 +73,6 @@ ValidatingLineEdit::ValidatingLineEdit(
 
     if (vertical) {
         layout = new QVBoxLayout();
-        // layout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
     } else {
         layout = new QHBoxLayout();
     }
