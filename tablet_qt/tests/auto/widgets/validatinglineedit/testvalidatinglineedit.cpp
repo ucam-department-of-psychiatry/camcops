@@ -24,6 +24,32 @@
 
 #include "widgets/validatinglineedit.h"
 
+class TestValidator : public QValidator
+{
+    Q_OBJECT
+
+public:
+    TestValidator(QObject* parent = nullptr);
+    virtual QValidator::State
+        validate(QString& input, int& pos) const override;
+};
+
+TestValidator::TestValidator(QObject* parent) :
+    QValidator(parent)
+{
+}
+
+QValidator::State TestValidator::validate(QString& input, int&) const
+{
+    qDebug() << Q_FUNC_INFO << input;
+
+    if (input == "valid") {
+        return Acceptable;
+    }
+
+    return Intermediate;
+}
+
 class TestValidatingLineEdit : public QObject
 {
     Q_OBJECT
@@ -31,6 +57,8 @@ class TestValidatingLineEdit : public QObject
 private slots:
     void testHasHorizontalLayout();
     void testHasVerticalLayout();
+    void testSignalsForValidInput();
+    void testSignalsForIntermediateInput();
 };
 
 void TestValidatingLineEdit::testHasVerticalLayout()
@@ -41,11 +69,11 @@ void TestValidatingLineEdit::testHasVerticalLayout()
     const bool delayed = false;
     const bool vertical = true;
 
-    auto line_edit = new ValidatingLineEdit(
+    auto vle = new ValidatingLineEdit(
         validator, allow_empty, read_only, delayed, vertical
     );
 
-    QVERIFY(qobject_cast<QVBoxLayout*>(line_edit->layout()) != nullptr);
+    QVERIFY(qobject_cast<QVBoxLayout*>(vle->layout()) != nullptr);
 }
 
 void TestValidatingLineEdit::testHasHorizontalLayout()
@@ -56,11 +84,55 @@ void TestValidatingLineEdit::testHasHorizontalLayout()
     const bool delayed = false;
     const bool vertical = false;
 
-    auto line_edit = new ValidatingLineEdit(
+    auto vle = new ValidatingLineEdit(
         validator, allow_empty, read_only, delayed, vertical
     );
 
-    QVERIFY(qobject_cast<QHBoxLayout*>(line_edit->layout()) != nullptr);
+    QVERIFY(qobject_cast<QHBoxLayout*>(vle->layout()) != nullptr);
+}
+
+void::TestValidatingLineEdit::testSignalsForValidInput()
+{
+    auto vle = new ValidatingLineEdit(new TestValidator());
+    QLineEdit* line_edit = vle->findChild<QLineEdit*>();
+
+    QSignalSpy valid_spy(vle, SIGNAL(valid()));
+    QVERIFY(valid_spy.isValid());
+
+    QSignalSpy invalid_spy(vle, SIGNAL(invalid()));
+    QVERIFY(invalid_spy.isValid());
+
+    QSignalSpy validated_spy(vle, SIGNAL(validated()));
+    QVERIFY(validated_spy.isValid());
+
+    QString input("valid");
+    QTest::keyClicks(line_edit, input);
+
+    QCOMPARE(valid_spy.count(), 1);
+    QCOMPARE(invalid_spy.count(), input.length()-1);
+    QCOMPARE(validated_spy.count(), input.length());
+}
+
+void::TestValidatingLineEdit::testSignalsForIntermediateInput()
+{
+    auto vle = new ValidatingLineEdit(new TestValidator());
+    QLineEdit* line_edit = vle->findChild<QLineEdit*>();
+
+    QSignalSpy valid_spy(vle, SIGNAL(valid()));
+    QVERIFY(valid_spy.isValid());
+
+    QSignalSpy invalid_spy(vle, SIGNAL(invalid()));
+    QVERIFY(invalid_spy.isValid());
+
+    QSignalSpy validated_spy(vle, SIGNAL(validated()));
+    QVERIFY(validated_spy.isValid());
+
+    QString input("intermediate");
+    QTest::keyClicks(line_edit, input);
+
+    QCOMPARE(valid_spy.count(), 0);
+    QCOMPARE(invalid_spy.count(), input.length());
+    QCOMPARE(validated_spy.count(), input.length());
 }
 
 QTEST_MAIN(TestValidatingLineEdit)
