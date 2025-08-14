@@ -72,6 +72,8 @@ private slots:
     void testCursorPosition();
     void testSetPropertyMissing();
     void testResetValidatorFeedback();
+    void testEmptyInputValidWhenAllowed();
+    void testEmptyInputInvalidWhenNotAllowed();
 };
 
 void TestValidatingLineEdit::testHasVerticalLayout()
@@ -367,10 +369,34 @@ void TestValidatingLineEdit::testResetValidatorFeedback()
 
     vle->resetValidatorFeedback();
     QCOMPARE(label->text(), "");
-    QCOMPARE(line_edit->property(cssconst::PROPERTY_VALID), cssconst::VALUE_FALSE);
-    QCOMPARE(line_edit->property(cssconst::PROPERTY_INVALID), cssconst::VALUE_FALSE);
+    QCOMPARE(
+        line_edit->property(cssconst::PROPERTY_VALID), cssconst::VALUE_FALSE
+    );
+    QCOMPARE(
+        line_edit->property(cssconst::PROPERTY_INVALID), cssconst::VALUE_FALSE
+    );
 
     QVERIFY(!label->isVisible());
+}
+
+void TestValidatingLineEdit::testEmptyInputValidWhenAllowed()
+{
+    const bool allow_empty = true;
+
+    auto vle = new ValidatingLineEdit(new TestValidator(), allow_empty);
+    vle->validate();
+
+    QCOMPARE(vle->getState(), QValidator::State::Acceptable);
+}
+
+void TestValidatingLineEdit::testEmptyInputInvalidWhenNotAllowed()
+{
+    const bool allow_empty = false;
+
+    auto vle = new ValidatingLineEdit(new TestValidator(), allow_empty);
+    vle->validate();
+
+    QCOMPARE(vle->getState(), QValidator::State::Intermediate);
 }
 
 QTEST_MAIN(TestValidatingLineEdit)
