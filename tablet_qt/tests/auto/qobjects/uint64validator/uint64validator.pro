@@ -1,7 +1,5 @@
 CONFIG += testcase
 QT += testlib
-QT += widgets
-QT -= gui
 
 TARGET = bin/test_uint64validator
 
