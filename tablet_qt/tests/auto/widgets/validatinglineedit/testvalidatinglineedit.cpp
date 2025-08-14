@@ -22,6 +22,7 @@
 #include <QtTest/QtTest>
 #include <QVBoxLayout>
 
+#include "common/cssconst.h"
 #include "widgets/validatinglineedit.h"
 
 class TestValidator : public QValidator
@@ -69,6 +70,7 @@ private slots:
     void testSetPlaceholderText();
     void testSetEchoMode();
     void testCursorPosition();
+    void testSetPropertyMissing();
 };
 
 void TestValidatingLineEdit::testHasVerticalLayout()
@@ -339,7 +341,18 @@ void TestValidatingLineEdit::testCursorPosition()
     QCOMPARE(line_edit->cursorPosition(), 4);
 }
 
+void TestValidatingLineEdit::testSetPropertyMissing()
+{
+    auto vle = new ValidatingLineEdit();
+    QLineEdit* line_edit = vle->findChild<QLineEdit*>();
+    QVERIFY(!line_edit->property(cssconst::PROPERTY_MISSING).isValid());
 
+    vle->setPropertyMissing(true);
+
+    QCOMPARE(
+        line_edit->property(cssconst::PROPERTY_MISSING), cssconst::VALUE_TRUE
+    );
+}
 
 QTEST_MAIN(TestValidatingLineEdit)
 
