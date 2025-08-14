@@ -155,6 +155,9 @@ ValidatingLineEdit::ValidatingLineEdit(
 
 void ValidatingLineEdit::addInputMethodHints(Qt::InputMethodHints hints)
 {
+    // It is recommended to OR with the existing hints here, even though
+    // at the time of writing the default for QLineEdit appears to be ImhNone
+    // i.e. zero.
     auto existing_hints = m_line_edit->inputMethodHints();
     m_line_edit->setInputMethodHints(existing_hints | hints);
 }
