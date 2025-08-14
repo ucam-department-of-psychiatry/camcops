@@ -66,6 +66,7 @@ private slots:
     void testSetText();
     void testText();
     void testSetTextBlockingSignals();
+    void testSetPlaceholderText();
 };
 
 void TestValidatingLineEdit::testHasVerticalLayout()
@@ -302,6 +303,16 @@ void TestValidatingLineEdit::testSetTextBlockingSignals()
 
     // But the text should be set
     QCOMPARE(line_edit->text(), "Test");
+}
+
+void TestValidatingLineEdit::testSetPlaceholderText()
+{
+    auto vle = new ValidatingLineEdit();
+    QLineEdit* line_edit = vle->findChild<QLineEdit*>();
+
+    vle->setPlaceholderText("Test");
+
+    QCOMPARE(line_edit->placeholderText(), "Test");
 }
 
 QTEST_MAIN(TestValidatingLineEdit)
