@@ -68,6 +68,7 @@ private slots:
     void testSetTextBlockingSignals();
     void testSetPlaceholderText();
     void testSetEchoMode();
+    void testCursorPosition();
 };
 
 void TestValidatingLineEdit::testHasVerticalLayout()
@@ -325,6 +326,20 @@ void TestValidatingLineEdit::testSetEchoMode()
 
     QCOMPARE(line_edit->echoMode(), QLineEdit::Password);
 }
+
+void TestValidatingLineEdit::testCursorPosition()
+{
+    auto vle = new ValidatingLineEdit();
+    QLineEdit* line_edit = vle->findChild<QLineEdit*>();
+
+    QString input("Test");
+    QTest::keyClicks(line_edit, input);
+
+    QCOMPARE(vle->cursorPosition(), 4);
+    QCOMPARE(line_edit->cursorPosition(), 4);
+}
+
+
 
 QTEST_MAIN(TestValidatingLineEdit)
 
