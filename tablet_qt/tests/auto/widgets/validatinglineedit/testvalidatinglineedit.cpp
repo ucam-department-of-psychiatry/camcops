@@ -63,6 +63,8 @@ private slots:
     void testSignalsForDelayedValidInputSlowTyping();
     void testSignalsForReadOnly();
     void testAddInputMethodHintsUpdatesExisting();
+    void testSetText();
+    void testText();
 };
 
 void TestValidatingLineEdit::testHasVerticalLayout()
@@ -251,6 +253,27 @@ void TestValidatingLineEdit::testAddInputMethodHintsUpdatesExisting()
     vle->addInputMethodHints(Qt::ImhSensitiveData);
 
     QCOMPARE(line_edit->inputMethodHints(), Qt::ImhPreferNumbers | Qt::ImhSensitiveData);
+}
+
+void TestValidatingLineEdit::testSetText()
+{
+    auto vle = new ValidatingLineEdit();
+    QLineEdit* line_edit = vle->findChild<QLineEdit*>();
+
+    vle->setText("Test");
+
+    QCOMPARE(line_edit->text(), "Test");
+}
+
+void TestValidatingLineEdit::testText()
+{
+    auto vle = new ValidatingLineEdit();
+    QLineEdit* line_edit = vle->findChild<QLineEdit*>();
+
+    QString input("Test");
+    QTest::keyClicks(line_edit, input);
+
+    QCOMPARE(line_edit->text(), "Test");
 }
 
 QTEST_MAIN(TestValidatingLineEdit)
