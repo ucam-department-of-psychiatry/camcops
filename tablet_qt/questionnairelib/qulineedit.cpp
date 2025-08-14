@@ -24,7 +24,6 @@
 
 #include "common/textconst.h"
 #include "lib/widgetfunc.h"
-#include "qobjects/focuswatcher.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/validatinglineedit.h"
 
