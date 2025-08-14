@@ -61,6 +61,7 @@ private slots:
     void testSignalsForIntermediateInput();
     void testSignalsForDelayedValidInputFastTyping();
     void testSignalsForDelayedValidInputSlowTyping();
+    void testSignalsForReadOnly();
 };
 
 void TestValidatingLineEdit::testHasVerticalLayout()
@@ -210,6 +211,34 @@ void TestValidatingLineEdit::testSignalsForDelayedValidInputSlowTyping()
     QCOMPARE(validated_spy.count(), input.length());
     QCOMPARE(valid_spy.count(), 1);
     QCOMPARE(invalid_spy.count(), input.length() - 1);
+}
+
+void TestValidatingLineEdit::testSignalsForReadOnly()
+{
+    const bool allow_empty = false;
+    const bool read_only = true;
+
+    auto vle = new ValidatingLineEdit(
+        new TestValidator(), allow_empty, read_only
+    );
+    QLineEdit* line_edit = vle->findChild<QLineEdit*>();
+
+    QSignalSpy valid_spy(vle, SIGNAL(valid()));
+    QVERIFY(valid_spy.isValid());
+
+    QSignalSpy invalid_spy(vle, SIGNAL(invalid()));
+    QVERIFY(invalid_spy.isValid());
+
+    QSignalSpy validated_spy(vle, SIGNAL(validated()));
+    QVERIFY(validated_spy.isValid());
+
+    QString input("valid");
+    QTest::keyClicks(line_edit, input);
+
+    // Nothing should happen
+    QCOMPARE(validated_spy.count(), 0);
+    QCOMPARE(valid_spy.count(), 0);
+    QCOMPARE(invalid_spy.count(), 0);
 }
 
 QTEST_MAIN(TestValidatingLineEdit)
