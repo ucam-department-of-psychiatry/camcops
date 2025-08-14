@@ -110,6 +110,8 @@ void TestValidatingLineEdit::testSignalsForValidInput()
     QString input("valid");
     QTest::keyClicks(line_edit, input);
 
+    // Input is only valid once the whole string has been
+    // typed in.
     QCOMPARE(valid_spy.count(), 1);
     QCOMPARE(invalid_spy.count(), input.length() - 1);
     QCOMPARE(validated_spy.count(), input.length());
@@ -132,6 +134,7 @@ void TestValidatingLineEdit::testSignalsForIntermediateInput()
     QString input("intermediate");
     QTest::keyClicks(line_edit, input);
 
+    // Input is never valid because it never equals the string "valid".
     QCOMPARE(valid_spy.count(), 0);
     QCOMPARE(invalid_spy.count(), input.length());
     QCOMPARE(validated_spy.count(), input.length());
@@ -170,8 +173,8 @@ void TestValidatingLineEdit::testSignalsForDelayedValidInputFastTyping()
     QCOMPARE(validated_spy.count(), 1);
     QCOMPARE(valid_spy.count(), 1);
 
-    // Never invalid because the whole string is validated and never the
-    // intermediate parts
+    // Never invalid because the whole string is validated once and never the
+    // intermediate parts.
     QCOMPARE(invalid_spy.count(), 0);
 }
 
@@ -198,7 +201,7 @@ void TestValidatingLineEdit::testSignalsForDelayedValidInputSlowTyping()
     QString input("valid");
     QTest::keyClicks(line_edit, input, Qt::NoModifier, 500);
 
-    // The simulated typist types slower thant the validation timeout
+    // The simulated typist types slower than the validation timeout
     // so we should expect signals for every character.
     for (int i = 0; i < input.length(); ++i) {
         validated_spy.wait(1000);
