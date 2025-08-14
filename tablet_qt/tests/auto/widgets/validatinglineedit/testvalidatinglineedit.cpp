@@ -221,9 +221,8 @@ void TestValidatingLineEdit::testSignalsForReadOnly()
     const bool allow_empty = false;
     const bool read_only = true;
 
-    auto vle = new ValidatingLineEdit(
-        new TestValidator(), allow_empty, read_only
-    );
+    auto vle
+        = new ValidatingLineEdit(new TestValidator(), allow_empty, read_only);
     QLineEdit* line_edit = vle->findChild<QLineEdit*>();
 
     QSignalSpy valid_spy(vle, SIGNAL(valid()));
@@ -252,7 +251,10 @@ void TestValidatingLineEdit::testAddInputMethodHintsUpdatesExisting()
     vle->addInputMethodHints(Qt::ImhPreferNumbers);
     vle->addInputMethodHints(Qt::ImhSensitiveData);
 
-    QCOMPARE(line_edit->inputMethodHints(), Qt::ImhPreferNumbers | Qt::ImhSensitiveData);
+    QCOMPARE(
+        line_edit->inputMethodHints(),
+        Qt::ImhPreferNumbers | Qt::ImhSensitiveData
+    );
 }
 
 void TestValidatingLineEdit::testSetText()
