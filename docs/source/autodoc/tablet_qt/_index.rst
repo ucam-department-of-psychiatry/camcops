@@ -966,6 +966,8 @@ tablet_qt
     tests/auto/lib/stringfunc/teststringfunc.cpp.rst
     tests/auto/qobjects/int64validator/int64validator.pro.rst
     tests/auto/qobjects/int64validator/testint64validator.cpp.rst
+    tests/auto/qobjects/proquintvalidator/proquintvalidator.pro.rst
+    tests/auto/qobjects/proquintvalidator/testproquintvalidator.cpp.rst
     tests/auto/qobjects/qobjects.pro.rst
     tests/auto/qobjects/uint64validator/testuint64validator.cpp.rst
     tests/auto/qobjects/uint64validator/uint64validator.pro.rst
