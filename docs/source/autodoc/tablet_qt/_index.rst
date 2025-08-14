@@ -33,6 +33,7 @@ tablet_qt
     android/AndroidManifest.xml.rst
     android/res/values/libs.xml.rst
     android/src/org/camcops/camcops/CamcopsActivity.java.rst
+    build-tests-debug/auto/widgets/validatinglineedit/qrc_test.cpp.rst
     camcops.pro.rst
     camcops_windows_innosetup.iss.rst
     common/aliases_camcops.h.rst
@@ -969,6 +970,8 @@ tablet_qt
     tests/auto/qobjects/qobjects.pro.rst
     tests/auto/qobjects/uint64validator/testuint64validator.cpp.rst
     tests/auto/qobjects/uint64validator/uint64validator.pro.rst
+    tests/auto/qobjects/urlvalidator/testurlvalidator.cpp.rst
+    tests/auto/qobjects/urlvalidator/urlvalidator.pro.rst
     tests/auto/qobjects/widgetpositioner/testwidgetpositioner.cpp.rst
     tests/auto/qobjects/widgetpositioner/widgetpositioner.pro.rst
     tests/auto/questionnairelib/namevalueoptions/namevalueoptions.pro.rst
