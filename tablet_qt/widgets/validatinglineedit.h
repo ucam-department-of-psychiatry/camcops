@@ -50,7 +50,6 @@ public:
     QString text() const;
     void setText(const QString& text);
     void setTextBlockingSignals(const QString& text);
-    void setValidator(QValidator* validator);
     void setPlaceholderText(const QString& text);
     void setEchoMode(QLineEdit::EchoMode);
     int cursorPosition();
