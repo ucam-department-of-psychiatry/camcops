@@ -71,6 +71,7 @@ private slots:
     void testSetEchoMode();
     void testCursorPosition();
     void testSetPropertyMissing();
+    void testResetValidatorFeedback();
 };
 
 void TestValidatingLineEdit::testHasVerticalLayout()
@@ -352,6 +353,24 @@ void TestValidatingLineEdit::testSetPropertyMissing()
     QCOMPARE(
         line_edit->property(cssconst::PROPERTY_MISSING), cssconst::VALUE_TRUE
     );
+}
+
+void TestValidatingLineEdit::testResetValidatorFeedback()
+{
+    auto vle = new ValidatingLineEdit(new TestValidator());
+    QLineEdit* line_edit = vle->findChild<QLineEdit*>();
+    QLabel* label = vle->findChild<QLabel*>();
+
+    QString input("Test");
+    QTest::keyClicks(line_edit, input);
+    QCOMPARE(label->text(), "Invalid");
+
+    vle->resetValidatorFeedback();
+    QCOMPARE(label->text(), "");
+    QCOMPARE(line_edit->property(cssconst::PROPERTY_VALID), cssconst::VALUE_FALSE);
+    QCOMPARE(line_edit->property(cssconst::PROPERTY_INVALID), cssconst::VALUE_FALSE);
+
+    QVERIFY(!label->isVisible());
 }
 
 QTEST_MAIN(TestValidatingLineEdit)
