@@ -65,6 +65,7 @@ private slots:
     void testAddInputMethodHintsUpdatesExisting();
     void testSetText();
     void testText();
+    void testSetTextBlockingSignals();
 };
 
 void TestValidatingLineEdit::testHasVerticalLayout()
@@ -275,6 +276,31 @@ void TestValidatingLineEdit::testText()
     QString input("Test");
     QTest::keyClicks(line_edit, input);
 
+    QCOMPARE(line_edit->text(), "Test");
+}
+
+void TestValidatingLineEdit::testSetTextBlockingSignals()
+{
+    auto vle = new ValidatingLineEdit();
+    QLineEdit* line_edit = vle->findChild<QLineEdit*>();
+
+    QSignalSpy valid_spy(vle, SIGNAL(valid()));
+    QVERIFY(valid_spy.isValid());
+
+    QSignalSpy invalid_spy(vle, SIGNAL(invalid()));
+    QVERIFY(invalid_spy.isValid());
+
+    QSignalSpy validated_spy(vle, SIGNAL(validated()));
+    QVERIFY(validated_spy.isValid());
+
+    vle->setTextBlockingSignals("Test");
+
+    // None of our callbacks should be called
+    QCOMPARE(validated_spy.count(), 0);
+    QCOMPARE(valid_spy.count(), 0);
+    QCOMPARE(invalid_spy.count(), 0);
+
+    // But the text should be set
     QCOMPARE(line_edit->text(), "Test");
 }
 
