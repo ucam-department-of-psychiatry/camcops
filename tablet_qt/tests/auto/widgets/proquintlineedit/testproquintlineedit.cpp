@@ -28,6 +28,7 @@ class TestProquintLineEdit : public QObject
 
 private slots:
     void testTextIsTrimmed();
+    void testDashesInserted();
 };
 
 void TestProquintLineEdit::testTextIsTrimmed()
@@ -42,6 +43,19 @@ void TestProquintLineEdit::testTextIsTrimmed()
     );
 }
 
+void TestProquintLineEdit::testDashesInserted()
+{
+    auto ple = new ProquintLineEdit();
+    QLineEdit* line_edit = ple->findChild<QLineEdit*>();
+
+    QString input("kidilsovibdufobhivolnutablinujkivadnozovt");
+
+    QTest::keyClicks(line_edit, input);
+
+    QCOMPARE(
+        ple->text(), "kidil-sovib-dufob-hivol-nutab-linuj-kivad-nozov-t"
+    );
+}
 
 QTEST_MAIN(TestProquintLineEdit)
 
