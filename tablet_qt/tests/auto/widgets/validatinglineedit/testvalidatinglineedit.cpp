@@ -69,11 +69,14 @@ private slots:
     void testSetEchoMode();
     void testCursorPosition();
     void testSetPropertyMissing();
-    void testResetValidatorFeedback();
+    void testResetValidatorFeedbackHorizontal();
+    void testResetValidatorFeedbackVertical();
     void testEmptyInputValidWhenAllowed();
     void testEmptyInputInvalidWhenNotAllowed();
     void testFeedbackWhenValid();
     void testFeedbackWhenInvalid();
+    void testFeedbackWhenEmptyHorizontal();
+    void testFeedbackWhenEmptyVertical();
 };
 
 void TestValidatingLineEdit::testHasVerticalLayout()
@@ -357,7 +360,38 @@ void TestValidatingLineEdit::testSetPropertyMissing()
     );
 }
 
-void TestValidatingLineEdit::testResetValidatorFeedback()
+void TestValidatingLineEdit::testResetValidatorFeedbackHorizontal()
+{
+    QValidator* validator = new TestValidator();
+    const bool allow_empty = false;
+    const bool read_only = false;
+    const bool delayed = false;
+    const bool vertical = false;
+
+    auto vle = new ValidatingLineEdit(
+        validator, allow_empty, read_only, delayed, vertical
+    );
+    QLineEdit* line_edit = vle->findChild<QLineEdit*>();
+    QLabel* label = vle->findChild<QLabel*>();
+
+    QString input("Test");
+    QTest::keyClicks(line_edit, input);
+    QCOMPARE(label->text(), "Invalid");
+
+    vle->resetValidatorFeedback();
+    QCOMPARE(label->text(), "");
+    QCOMPARE(
+        line_edit->property(cssconst::PROPERTY_VALID), cssconst::VALUE_FALSE
+    );
+    QCOMPARE(
+        line_edit->property(cssconst::PROPERTY_INVALID), cssconst::VALUE_FALSE
+    );
+
+    vle->show();  // Otherwise child widget won't be visible
+    QVERIFY(!label->isVisible());
+}
+
+void TestValidatingLineEdit::testResetValidatorFeedbackVertical()
 {
     auto vle = new ValidatingLineEdit(new TestValidator());
     QLineEdit* line_edit = vle->findChild<QLineEdit*>();
@@ -377,7 +411,7 @@ void TestValidatingLineEdit::testResetValidatorFeedback()
     );
 
     vle->show();  // Otherwise child widget won't be visible
-    QVERIFY(!label->isVisible());
+    QVERIFY(label->isVisible());
 }
 
 void TestValidatingLineEdit::testEmptyInputValidWhenAllowed()
@@ -443,6 +477,59 @@ void TestValidatingLineEdit::testFeedbackWhenInvalid()
         line_edit->property(cssconst::PROPERTY_INVALID), cssconst::VALUE_TRUE
     );
 
+    QVERIFY(label->isVisible());
+}
+
+void TestValidatingLineEdit::testFeedbackWhenEmptyHorizontal()
+{
+    QValidator* validator = new TestValidator();
+    const bool allow_empty = false;
+    const bool read_only = false;
+    const bool delayed = false;
+    const bool vertical = false;
+
+    auto vle = new ValidatingLineEdit(
+        validator, allow_empty, read_only, delayed, vertical
+    );
+    vle->show();  // Otherwise child widget won't be visible
+
+    QLineEdit* line_edit = vle->findChild<QLineEdit*>();
+    QLabel* label = vle->findChild<QLabel*>();
+
+    vle->validate();
+
+    QCOMPARE(label->text(), "");
+
+    QCOMPARE(
+        line_edit->property(cssconst::PROPERTY_VALID), cssconst::VALUE_FALSE
+    );
+    QCOMPARE(
+        line_edit->property(cssconst::PROPERTY_INVALID), cssconst::VALUE_FALSE
+    );
+
+    QVERIFY(!label->isVisible());
+}
+
+void TestValidatingLineEdit::testFeedbackWhenEmptyVertical()
+{
+    auto vle = new ValidatingLineEdit(new TestValidator());
+    vle->show();  // Otherwise child widget won't be visible
+
+    QLineEdit* line_edit = vle->findChild<QLineEdit*>();
+    QLabel* label = vle->findChild<QLabel*>();
+
+    vle->validate();
+
+    QCOMPARE(label->text(), "");
+
+    QCOMPARE(
+        line_edit->property(cssconst::PROPERTY_VALID), cssconst::VALUE_FALSE
+    );
+    QCOMPARE(
+        line_edit->property(cssconst::PROPERTY_INVALID), cssconst::VALUE_FALSE
+    );
+
+    // Label is visible so the containing widget doesn't jump around
     QVERIFY(label->isVisible());
 }
 

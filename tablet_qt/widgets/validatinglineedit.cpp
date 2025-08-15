@@ -255,7 +255,11 @@ void ValidatingLineEdit::validate()
     const bool is_valid = m_state == QValidator::Acceptable;
 
     if (validator) {
-        setValidatorFeedback(is_valid, !is_valid);
+        if (text.isEmpty()) {
+            resetValidatorFeedback();
+        } else {
+            setValidatorFeedback(is_valid, !is_valid);
+        }
     }
 
     if (is_valid) {
@@ -289,9 +293,9 @@ void ValidatingLineEdit::setValidatorFeedback(
     widgetfunc::setPropertyInvalid(m_line_edit, invalid);
 
     QString feedback = QString("");
-    const bool visible = valid || invalid;
+    const bool display_feedback = valid || invalid;
 
-    if (visible) {
+    if (display_feedback) {
         feedback = valid ? tr("Valid") : tr("Invalid");
     }
 
@@ -300,6 +304,12 @@ void ValidatingLineEdit::setValidatorFeedback(
 #endif
 
     m_label->setText(feedback);
+
+    // Hide the label if it is to the right of the text box, otherwise the text
+    // box looks oddly shorter.
+    // If the label is below the text box, don't hide it, otherwise the
+    // containing widget will jump around.
+    const bool visible = display_feedback || m_vertical;
     m_label->setVisible(visible);
 }
 
