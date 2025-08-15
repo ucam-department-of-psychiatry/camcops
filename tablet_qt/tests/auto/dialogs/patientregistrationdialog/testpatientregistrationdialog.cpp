@@ -18,11 +18,14 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <QDialogButtonBox>
+#include <QPushButton>
 #include <QString>
 #include <QtTest/QtTest>
 #include <QUrl>
 
 #include "dialogs/patientregistrationdialog.h"
+#include "widgets/validatinglineedit.h"
 
 class TestPatientRegistrationDialog : public QObject
 {
@@ -34,9 +37,10 @@ private slots:
     void testServerUrl();
     void testPatientProquintTrimmed();
     void testServerUrlTrimmed();
-    // void testOKButtonDisabledWhenProquintInvalid();
-    // void testOKButtonDisabledWhenUrlInvalid();
-    // void testOKButtonEnabledWhenAllValid();
+    void testNoValdationFeedbackWhenFieldsAreEmpty();
+    void testOKButtonDisabledWhenProquintInvalid();
+    void testOKButtonDisabledWhenUrlInvalid();
+    void testOKButtonEnabledWhenAllValid();
 };
 
 void TestPatientRegistrationDialog::testPatientProquint()
@@ -86,6 +90,53 @@ void TestPatientRegistrationDialog::testServerUrlTrimmed()
     QCOMPARE(dialog->serverUrlAsString(), server_url.trimmed());
 }
 
+void TestPatientRegistrationDialog::testNoValdationFeedbackWhenFieldsAreEmpty()
+{
+    auto dialog = new PatientRegistrationDialog();
+
+    auto vles = dialog->findChildren<ValidatingLineEdit*>();
+    QCOMPARE(vles.size(), 2);
+
+    for (auto& vle : vles) {
+        auto label = vle->findChild<QLabel*>();
+        QCOMPARE(label->text(), "");
+    }
+}
+
+void TestPatientRegistrationDialog::testOKButtonDisabledWhenProquintInvalid()
+{
+    QUrl server_url("https://example.com/");
+    auto dialog = new PatientRegistrationDialog(nullptr, server_url, "");
+
+    auto buttonbox = dialog->findChild<QDialogButtonBox*>();
+    QPushButton* ok_button = buttonbox->button(QDialogButtonBox::Ok);
+
+    QVERIFY(!ok_button->isEnabled());
+}
+
+void TestPatientRegistrationDialog::testOKButtonDisabledWhenUrlInvalid()
+{
+    QUrl server_url("");
+    QString proquint("kidil-sovib-dufob-hivol-nutab-linuj-kivad-nozov-t");
+    auto dialog = new PatientRegistrationDialog(nullptr, server_url, proquint);
+
+    auto buttonbox = dialog->findChild<QDialogButtonBox*>();
+    QPushButton* ok_button = buttonbox->button(QDialogButtonBox::Ok);
+
+    QVERIFY(!ok_button->isEnabled());
+}
+
+void TestPatientRegistrationDialog::testOKButtonEnabledWhenAllValid()
+{
+    QUrl server_url("https://example.com/");
+    QString proquint("kidil-sovib-dufob-hivol-nutab-linuj-kivad-nozov-t");
+    auto dialog = new PatientRegistrationDialog(nullptr, server_url, proquint);
+
+    auto buttonbox = dialog->findChild<QDialogButtonBox*>();
+    QPushButton* ok_button = buttonbox->button(QDialogButtonBox::Ok);
+
+    QVERIFY(ok_button->isEnabled());
+}
 
 QTEST_MAIN(TestPatientRegistrationDialog)
 

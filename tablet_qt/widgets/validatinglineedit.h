@@ -43,8 +43,12 @@ public:
         QWidget* parent = nullptr
     );
 
-    QValidator::State getState();
-    bool isValid() const;
+    // If there is no validator, getState() will always return
+    // QValidator:Acceptable
+    // If there is a validator and validation has not yet been run, this will
+    // be a null QVariant.
+    // Otherwise the QVariant will contain a QValidator::State.
+    QVariant getState();
     void validate();
     void addInputMethodHints(Qt::InputMethodHints hints);
     QString text() const;
@@ -81,7 +85,7 @@ private:
     bool m_vertical;
     QLabel* m_label;
     QPointer<QLineEdit> m_line_edit;
-    QValidator::State m_state = QValidator::Acceptable;
+    QVariant m_state;
     QSharedPointer<QTimer> m_timer;  // used for typing delay, as above
     QPointer<FocusWatcher> m_focus_watcher;  // used to detect focus change
 

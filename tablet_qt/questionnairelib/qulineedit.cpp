@@ -155,8 +155,12 @@ void QuLineEdit::fieldValueChanged(
 
 void QuLineEdit::focusLost()
 {
+    auto state = m_editor->getState();
+    // Validation should already have been run before the signal is emitted
+    Q_ASSERT(!state.isNull());
+
     // If focus is leaving the widget, and its state is duff, reset the value.
-    if (!m_editor->isValid()) {
+    if (state != QValidator::Acceptable) {
         setFromField();
     }
 

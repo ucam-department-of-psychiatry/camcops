@@ -151,6 +151,10 @@ ValidatingLineEdit::ValidatingLineEdit(
 
         resetValidatorFeedback();
     }
+
+    if (!validator) {
+        m_state = QValidator::Acceptable;
+    }
 }
 
 void ValidatingLineEdit::addInputMethodHints(Qt::InputMethodHints hints)
@@ -199,14 +203,9 @@ void ValidatingLineEdit::processChangedText()
     // in some way before validation
 }
 
-QValidator::State ValidatingLineEdit::getState()
+QVariant ValidatingLineEdit::getState()
 {
     return m_state;
-}
-
-bool ValidatingLineEdit::isValid() const
-{
-    return m_state == QValidator::Acceptable;
 }
 
 void ValidatingLineEdit::widgetFocusChanged(const bool gaining_focus)
@@ -238,10 +237,10 @@ void ValidatingLineEdit::validate()
 
     if (validator) {
         if (text.isEmpty() && m_allow_empty) {
-            m_state = QValidator::Acceptable;
 #ifdef DEBUG_VALIDATING_LINEEDIT
             qDebug() << "Allowed to be empty so valid";
 #endif
+            m_state = QValidator::Acceptable;
         } else {
             int pos = 0;
 #ifdef DEBUG_VALIDATING_LINEEDIT
@@ -251,7 +250,9 @@ void ValidatingLineEdit::validate()
         }
     }
 
-    const bool is_valid = isValid();
+    Q_ASSERT(m_state.isNull());
+
+    const bool is_valid = m_state == QValidator::Acceptable;
 
     if (validator) {
         setValidatorFeedback(is_valid, !is_valid);
