@@ -39,8 +39,6 @@ QValidator::State ProquintValidator::validate(QString& input, int&) const
         // treated very harshly and you can't (for example) copy/paste in
         // things that are too long (the paste operation simply does nothing)
         // which is more confusing for users than showing the "bad colour".
-
-        qDebug() << "Too long";
         return QValidator::Intermediate;
     }
     const QString consonant = "[bdfghjklmnprstvz]";
@@ -72,12 +70,10 @@ QValidator::State ProquintValidator::validate(QString& input, int&) const
     const QRegularExpressionMatch match = proquint_regex.match(input);
 
     if (!match.hasMatch()) {
-        qDebug() << "No match";
         return QValidator::Intermediate;
     }
 
     if (!validateLuhnMod16(input)) {
-        qDebug() << "Invalid";
         return QValidator::Intermediate;
     }
 
