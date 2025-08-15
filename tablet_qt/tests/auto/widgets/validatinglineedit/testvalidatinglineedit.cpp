@@ -42,8 +42,6 @@ TestValidator::TestValidator(QObject* parent) :
 
 QValidator::State TestValidator::validate(QString& input, int&) const
 {
-    qDebug() << Q_FUNC_INFO << input;
-
     if (input == "valid") {
         return Acceptable;
     }
