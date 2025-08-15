@@ -32,6 +32,11 @@ private slots:
     void testPatientProquint();
     void testServerUrlAsString();
     void testServerUrl();
+    void testPatientProquintTrimmed();
+    // void testServerUrlTrimmed()
+    // void testOKButtonDisabledWhenProquintInvalid()
+    // void testOKButtonDisabledWhenUrlInvalid()
+    // void testOKButtonEnabledWhenAllValid()
 };
 
 void TestPatientRegistrationDialog::testPatientProquint()
@@ -62,6 +67,16 @@ void TestPatientRegistrationDialog::testServerUrl()
     QCOMPARE(dialog->serverUrl(), server_url);
 }
 
+void TestPatientRegistrationDialog::testPatientProquintTrimmed()
+{
+    QString current_proquint(
+        "    kidil-sovib-dufob-hivol-nutab-linuj-kivad-nozov-t    "
+    );
+    auto dialog
+        = new PatientRegistrationDialog(nullptr, QUrl(), current_proquint);
+
+    QCOMPARE(dialog->patientProquint(), current_proquint.trimmed());
+}
 
 QTEST_MAIN(TestPatientRegistrationDialog)
 
