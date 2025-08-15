@@ -33,10 +33,10 @@ private slots:
     void testServerUrlAsString();
     void testServerUrl();
     void testPatientProquintTrimmed();
-    // void testServerUrlTrimmed()
-    // void testOKButtonDisabledWhenProquintInvalid()
-    // void testOKButtonDisabledWhenUrlInvalid()
-    // void testOKButtonEnabledWhenAllValid()
+    void testServerUrlTrimmed();
+    // void testOKButtonDisabledWhenProquintInvalid();
+    // void testOKButtonDisabledWhenUrlInvalid();
+    // void testOKButtonEnabledWhenAllValid();
 };
 
 void TestPatientRegistrationDialog::testPatientProquint()
@@ -77,6 +77,15 @@ void TestPatientRegistrationDialog::testPatientProquintTrimmed()
 
     QCOMPARE(dialog->patientProquint(), current_proquint.trimmed());
 }
+
+void TestPatientRegistrationDialog::testServerUrlTrimmed()
+{
+    QString server_url("https://example.com/   ");
+    auto dialog = new PatientRegistrationDialog(nullptr, QUrl(server_url), "");
+
+    QCOMPARE(dialog->serverUrlAsString(), server_url.trimmed());
+}
+
 
 QTEST_MAIN(TestPatientRegistrationDialog)
 
