@@ -3,13 +3,13 @@ QT += testlib
 QT += widgets
 QT -= gui
 
-TARGET = bin/test_patientregistrationdialog
+TARGET = bin/test_proquintlineedit
 
 RESOURCES += \
     $$CAMCOPS_SRC/test.qrc
 
 SOURCES += \
-    testpatientregistrationdialog.cpp \
+    testproquintlineedit.cpp \
     $$CAMCOPS_SRC/common/cssconst.cpp \
     $$CAMCOPS_SRC/common/dpi.cpp \
     $$CAMCOPS_SRC/common/platform.cpp \
@@ -20,12 +20,8 @@ SOURCES += \
     $$CAMCOPS_SRC/lib/timerfunc.cpp \
     $$CAMCOPS_SRC/lib/widgetfunc.cpp \
     $$CAMCOPS_SRC/qobjects/focuswatcher.cpp \
-    $$CAMCOPS_SRC/dialogs/patientregistrationdialog.cpp \
     $$CAMCOPS_SRC/qobjects/proquintvalidator.cpp \
-    $$CAMCOPS_SRC/qobjects/urlvalidator.cpp \
-    $$CAMCOPS_SRC/qobjects/widgetpositioner.cpp \
     $$CAMCOPS_SRC/widgets/proquintlineedit.cpp \
-    $$CAMCOPS_SRC/widgets/urllineedit.cpp \
     $$CAMCOPS_SRC/widgets/validatinglineedit.cpp
 
 HEADERS += \
@@ -33,7 +29,6 @@ HEADERS += \
     $$CAMCOPS_SRC/common/dpi.h \
     $$CAMCOPS_SRC/common/platform.h \
     $$CAMCOPS_SRC/common/uiconst.h \
-    $$CAMCOPS_SRC/dialogs/patientregistrationdialog.h \
     $$CAMCOPS_SRC/lib/css.h \
     $$CAMCOPS_SRC/lib/errorfunc.h \
     $$CAMCOPS_SRC/lib/filefunc.h \
@@ -41,10 +36,7 @@ HEADERS += \
     $$CAMCOPS_SRC/lib/widgetfunc.h \
     $$CAMCOPS_SRC/qobjects/focuswatcher.h \
     $$CAMCOPS_SRC/qobjects/proquintvalidator.h \
-    $$CAMCOPS_SRC/qobjects/urlvalidator.h \
-    $$CAMCOPS_SRC/qobjects/widgetpositioner.h \
     $$CAMCOPS_SRC/widgets/proquintlineedit.h \
-    $$CAMCOPS_SRC/widgets/urllineedit.h \
     $$CAMCOPS_SRC/widgets/validatinglineedit.h
 
 INCLUDEPATH += $$CAMCOPS_SRC

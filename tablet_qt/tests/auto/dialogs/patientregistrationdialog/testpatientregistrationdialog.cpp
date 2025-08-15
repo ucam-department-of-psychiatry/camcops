@@ -35,8 +35,6 @@ private slots:
     void testPatientProquint();
     void testServerUrlAsString();
     void testServerUrl();
-    void testPatientProquintTrimmed();
-    void testServerUrlTrimmed();
     void testNoValdationFeedbackWhenFieldsAreEmpty();
     void testOKButtonDisabledWhenProquintInvalid();
     void testOKButtonDisabledWhenUrlInvalid();
@@ -69,25 +67,6 @@ void TestPatientRegistrationDialog::testServerUrl()
     auto dialog = new PatientRegistrationDialog(nullptr, server_url);
 
     QCOMPARE(dialog->serverUrl(), server_url);
-}
-
-void TestPatientRegistrationDialog::testPatientProquintTrimmed()
-{
-    QString current_proquint(
-        "    kidil-sovib-dufob-hivol-nutab-linuj-kivad-nozov-t    "
-    );
-    auto dialog
-        = new PatientRegistrationDialog(nullptr, QUrl(), current_proquint);
-
-    QCOMPARE(dialog->patientProquint(), current_proquint.trimmed());
-}
-
-void TestPatientRegistrationDialog::testServerUrlTrimmed()
-{
-    QString server_url("https://example.com/   ");
-    auto dialog = new PatientRegistrationDialog(nullptr, QUrl(server_url), "");
-
-    QCOMPARE(dialog->serverUrlAsString(), server_url.trimmed());
 }
 
 void TestPatientRegistrationDialog::testNoValdationFeedbackWhenFieldsAreEmpty()

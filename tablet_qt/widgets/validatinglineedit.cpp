@@ -232,7 +232,7 @@ void ValidatingLineEdit::validate()
     qDebug() << Q_FUNC_INFO;
 #endif
 
-    QString text = m_line_edit->text().trimmed();
+    QString text = m_line_edit->text();
     const QValidator* validator = m_line_edit->validator();
 
     if (validator) {

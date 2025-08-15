@@ -31,6 +31,7 @@
 #include "qobjects/urlvalidator.h"
 #include "qobjects/widgetpositioner.h"
 #include "widgets/proquintlineedit.h"
+#include "widgets/urllineedit.h"
 #include "widgets/validatinglineedit.h"
 
 const int MIN_WIDTH = 500;
@@ -51,7 +52,7 @@ PatientRegistrationDialog::PatientRegistrationDialog(
 
     setMinimumWidth(min_size);
 
-    m_editor_server_url = new ValidatingLineEdit(new UrlValidator());
+    m_editor_server_url = new UrlLineEdit();
     m_editor_server_url->addInputMethodHints(
         Qt::ImhNoAutoUppercase | Qt::ImhNoPredictiveText
     );
@@ -125,12 +126,12 @@ PatientRegistrationDialog::PatientRegistrationDialog(
 
 QString PatientRegistrationDialog::patientProquint() const
 {
-    return m_editor_patient_proquint->text().trimmed();
+    return m_editor_patient_proquint->text();
 }
 
 QString PatientRegistrationDialog::serverUrlAsString() const
 {
-    return m_editor_server_url->text().trimmed();
+    return m_editor_server_url->text();
 }
 
 QUrl PatientRegistrationDialog::serverUrl() const

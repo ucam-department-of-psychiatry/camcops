@@ -980,6 +980,10 @@ tablet_qt
     tests/auto/questionnairelib/namevalueoptions/namevalueoptions.pro.rst
     tests/auto/questionnairelib/namevalueoptions/testnamevalueoptions.cpp.rst
     tests/auto/questionnairelib/questionnairelib.pro.rst
+    tests/auto/widgets/proquintlineedit/proquintlineedit.pro.rst
+    tests/auto/widgets/proquintlineedit/testproquintlineedit.cpp.rst
+    tests/auto/widgets/urllineedit/testurllineedit.cpp.rst
+    tests/auto/widgets/urllineedit/urllineedit.pro.rst
     tests/auto/widgets/validatinglineedit/testvalidatinglineedit.cpp.rst
     tests/auto/widgets/validatinglineedit/validatinglineedit.pro.rst
     tests/auto/widgets/widgets.pro.rst
@@ -1079,6 +1083,8 @@ tablet_qt
     widgets/treeviewcontroldelegate.h.rst
     widgets/treeviewproxystyle.cpp.rst
     widgets/treeviewproxystyle.h.rst
+    widgets/urllineedit.cpp.rst
+    widgets/urllineedit.h.rst
     widgets/validatinglineedit.cpp.rst
     widgets/validatinglineedit.h.rst
     widgets/verticalline.cpp.rst

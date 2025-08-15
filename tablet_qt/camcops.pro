@@ -1068,6 +1068,7 @@ SOURCES += \
     widgets/tickslider.cpp \
     widgets/treeviewcontroldelegate.cpp \
     widgets/treeviewproxystyle.cpp \
+    widgets/urllineedit.cpp \
     widgets/validatinglineedit.cpp \
     widgets/verticalline.cpp \
     widgets/verticalscrollarea.cpp \
@@ -1566,6 +1567,7 @@ HEADERS += \
     widgets/tickslider.h \
     widgets/treeviewcontroldelegate.h \
     widgets/treeviewproxystyle.h \
+    widgets/urllineedit.h \
     widgets/validatinglineedit.h \
     widgets/verticalline.h \
     widgets/verticalscrollarea.h \
