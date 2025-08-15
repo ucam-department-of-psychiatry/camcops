@@ -52,9 +52,7 @@ void TestProquintLineEdit::testDashesInserted()
 
     QTest::keyClicks(line_edit, input);
 
-    QCOMPARE(
-        ple->text(), "kidil-sovib-dufob-hivol-nutab-linuj-kivad-nozov-t"
-    );
+    QCOMPARE(ple->text(), "kidil-sovib-dufob-hivol-nutab-linuj-kivad-nozov-t");
 }
 
 QTEST_MAIN(TestProquintLineEdit)
