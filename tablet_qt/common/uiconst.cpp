@@ -94,6 +94,10 @@ const QString CSS_CAMCOPS_CAMERA(camcopsStylesheetFilename("camera.css"));
 const QString CSS_CAMCOPS_DIAGNOSTIC_CODE(
     camcopsStylesheetFilename("diagnostic_code.css")
 );
+const QString CSS_CAMCOPS_VALIDATINGLINEEDIT(
+    camcopsStylesheetFilename("validatinglineedit.css")
+);
+
 
 // ============================================================================
 // Fonts, colours

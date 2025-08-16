@@ -32,8 +32,12 @@ QuLineEditNHSNumber::QuLineEditNHSNumber(
     setHint("NHS number (10-digit integer with checksum)");
 }
 
-void QuLineEditNHSNumber::extraLineEditCreation(QLineEdit* editor)
+QPointer<QValidator> QuLineEditNHSNumber::getValidator()
 {
-    editor->setValidator(new NHSNumberValidator(m_allow_empty, this));
-    editor->setInputMethodHints(Qt::ImhFormattedNumbersOnly);
+    return new NHSNumberValidator(m_allow_empty, this);
+}
+
+Qt::InputMethodHints QuLineEditNHSNumber::getInputMethodHints()
+{
+    return Qt::ImhFormattedNumbersOnly;
 }

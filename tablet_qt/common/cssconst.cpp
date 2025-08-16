@@ -54,10 +54,12 @@ const char* OPTION_BACKGROUND = "option_background";
 const char* OPTION = "option";
 const char* PICKER_INLINE = "picker_inline";
 const char* PICKER_POPUP = "picker_popup";
+const char* PROPERTY_INVALID = "invalid";
 const char* PROPERTY_ITALIC = "italic";
 const char* PROPERTY_MISSING = "missing";
 const char* PROPERTY_READ_ONLY = "readonly";
 const char* PROPERTY_STATE = "state";
+const char* PROPERTY_VALID = "valid";
 const char* QUESTIONNAIRE_BACKGROUND_CLINICIAN
     = "questionnaire_background_clinician";
 const char* QUESTIONNAIRE_BACKGROUND_CONFIG

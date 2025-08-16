@@ -27,8 +27,8 @@ QuLineEditEmail::QuLineEditEmail(FieldRefPtr fieldref) :
 {
 }
 
-void QuLineEditEmail::extraLineEditCreation(QLineEdit* editor)
+QPointer<QValidator> QuLineEditEmail::getValidator()
 {
     const bool allow_blank = true;
-    editor->setValidator(new EmailValidator(this, allow_blank));
+    return new EmailValidator(this, allow_blank);
 }

@@ -42,10 +42,9 @@ public:
     );
 
 protected:
-    virtual void extraLineEditCreation(QLineEdit* editor) override;
-
-protected:
     qint64 m_minimum;  // minimum; may be std::numeric_limits<qint64>::min()
     qint64 m_maximum;  // maximum; may be std::numeric_limits<qint64>::max()
-    bool m_allow_empty;  // allow an empty field?
+
+    virtual QPointer<QValidator> getValidator() override;
+    virtual Qt::InputMethodHints getInputMethodHints() override;
 };

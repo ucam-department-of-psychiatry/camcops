@@ -76,6 +76,9 @@ void setPropertyItalic(QWidget* widget, bool italic, bool repolish = true);
 // Sets the widget's "missing" property.
 void setPropertyMissing(QWidget* widget, bool missing, bool repolish = true);
 
+void setPropertyValid(QWidget* widget, bool missing, bool repolish = true);
+void setPropertyInvalid(QWidget* widget, bool missing, bool repolish = true);
+
 // Clear all widgets from a layout
 void clearLayout(QLayout* layout, bool delete_widgets = true);
 

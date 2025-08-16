@@ -1,0 +1,6 @@
+<!-- Any resources needed by automated tests -->
+<RCC>
+    <qresource prefix="/">
+        <file>resources/camcops/stylesheets/validatinglineedit.css</file>
+    </qresource>
+</RCC>
