@@ -70,7 +70,7 @@ void ProquintLineEdit::processChangedText()
 #ifdef Q_OS_ANDROID
         maybeIgnoreNextInputEvent();
 #endif
-        setText(new_text);
+        setTextBlockingSignals(new_text);
     }
 
     m_old_text = new_text;
