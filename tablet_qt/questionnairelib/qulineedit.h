@@ -65,6 +65,7 @@ protected slots:
     virtual void fieldValueChanged(
         const FieldRef* fieldref, const QObject* originator = nullptr
     );
+    // Widget has lost focus
     virtual void focusLost();
     // Writes new data to our field.
     virtual void widgetTextChangedAndValid();

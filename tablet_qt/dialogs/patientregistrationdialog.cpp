@@ -116,9 +116,9 @@ PatientRegistrationDialog::PatientRegistrationDialog(
 
     setLayout(mainlayout);
 
-    // If the text boxes are empty, validation won't happen and
-    // updateOkButtonEnabledState() won't get called because the text hasn't
-    // changed. So disable the button first.
+    // If the text boxes are empty, setting the text here won't trigger
+    // validation and updateOkButtonEnabledState() won't get called because the
+    // text hasn't changed. So disable the button first.
     m_buttonbox->button(QDialogButtonBox::Ok)->setEnabled(false);
     m_editor_server_url->setText(server_url.url());
     m_editor_patient_proquint->setText(patient_proquint);
