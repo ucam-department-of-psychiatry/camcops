@@ -49,18 +49,29 @@ public:
     // be a null QVariant.
     // Otherwise the QVariant will contain a QValidator::State.
     QVariant getState();
+    // If there is a validator, run it and set the visual feedback accordingly.
+    // Emit any relevant signals.
     void validate();
+    // Add input methods hints to the underlying QLineEdit
     void addInputMethodHints(Qt::InputMethodHints hints);
+    // Wrappers to methods on the underlying QLineEdit
     QString text() const;
     void setText(const QString& text);
-    void setTextBlockingSignals(const QString& text);
     void setPlaceholderText(const QString& text);
     void setEchoMode(QLineEdit::EchoMode);
     int cursorPosition();
+
+    // Set text on QLineEdit without emitting any signals. Avoids multiple
+    // validation.
+    void setTextBlockingSignals(const QString& text);
+
+    // Set missing CSS property (rendered yellow for mandatory fields)
     void setPropertyMissing(bool missing, bool repolish = true);
     void resetValidatorFeedback();
 
 protected:
+    // May be implemented in derived class to change the text
+    // in some way before validation
     virtual void processChangedText();
     void setValidatorFeedback(const bool valid, const bool invalid);
 
