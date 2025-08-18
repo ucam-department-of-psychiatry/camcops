@@ -73,7 +73,6 @@ protected slots:
 protected:
     FieldRefPtr m_fieldref;  // our field
     bool m_allow_empty;  // allow an empty field?
-    QPointer<QValidator> m_validator;
     QString m_hint;  // hint text
     QPointer<ValidatingLineEdit> m_editor;  // our editor widget
     QLineEdit::EchoMode m_echo_mode;  // echo mode, as above
