@@ -139,8 +139,6 @@ void QuLineEdit::fieldValueChanged(
     const FieldRef* fieldref, const QObject* originator
 )
 {
-    qDebug() << Q_FUNC_INFO;
-
     if (!m_editor) {
         return;
     }
