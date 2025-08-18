@@ -20,7 +20,6 @@
 
 #include "validatinglineedit.h"
 
-#include <QColor>
 #include <QDialog>
 
 #ifdef Q_OS_ANDROID
@@ -30,7 +29,6 @@
 #include <QLabel>
 #include <QLayout>
 #include <QLineEdit>
-#include <QPalette>
 #include <QStyleHints>
 #include <QTimer>
 #include <QValidator>
