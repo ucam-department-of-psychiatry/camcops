@@ -199,7 +199,7 @@ void ValidatingLineEdit::textChanged()
 
 void ValidatingLineEdit::processChangedText()
 {
-    // May be implemented in derived class to change the text
+    // May be implemented in subclass to change the text
     // in some way before validation
 }
 
@@ -320,7 +320,6 @@ QString ValidatingLineEdit::text() const
 
 void ValidatingLineEdit::setTextBlockingSignals(const QString& text)
 {
-    // Now we're detecting textChanged, we have to block signals for this:
     const QSignalBlocker blocker(m_line_edit);
 
     setText(text);

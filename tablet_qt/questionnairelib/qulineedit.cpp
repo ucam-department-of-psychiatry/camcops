@@ -145,6 +145,7 @@ void QuLineEdit::fieldValueChanged(
 
     m_editor->setPropertyMissing(fieldref->missingInput());
     if (originator != this) {
+        // Now we're detecting valid, we have to block signals for this:
         const QString text = fieldref->isNull() ? "" : fieldref->valueString();
         // qDebug() << Q_FUNC_INFO << "setting to" << text;
         m_editor->setTextBlockingSignals(text);
