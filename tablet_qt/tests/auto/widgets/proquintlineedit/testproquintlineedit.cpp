@@ -1,0 +1,92 @@
+/*
+    Copyright (C) 2012, University of Cambridge, Department of Psychiatry.
+    Created by Rudolf Cardinal (rnc1001@cam.ac.uk).
+
+    This file is part of CamCOPS.
+
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
+*/
+
+#include <QtTest/QtTest>
+
+#include "widgets/proquintlineedit.h"
+
+class TestProquintLineEdit : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testTextIsTrimmed();
+    void testDashesInserted();
+    void testDashesNotInsertedWhenDeleting();
+    void testDashesNotInsertedWhenTooLong();
+};
+
+void TestProquintLineEdit::testTextIsTrimmed()
+{
+    auto line_edit = new ProquintLineEdit();
+    line_edit->setText(
+        "   kidil-sovib-dufob-hivol-nutab-linuj-kivad-nozov-t    "
+    );
+
+    QCOMPARE(
+        line_edit->text(), "kidil-sovib-dufob-hivol-nutab-linuj-kivad-nozov-t"
+    );
+}
+
+void TestProquintLineEdit::testDashesInserted()
+{
+    auto ple = new ProquintLineEdit();
+    QLineEdit* line_edit = ple->findChild<QLineEdit*>();
+
+    QString input("kidilsovibdufobhivolnutablinujkivadnozovt");
+
+    QTest::keyClicks(line_edit, input);
+
+    QCOMPARE(ple->text(), "kidil-sovib-dufob-hivol-nutab-linuj-kivad-nozov-t");
+}
+
+void TestProquintLineEdit::testDashesNotInsertedWhenDeleting()
+{
+    auto ple = new ProquintLineEdit();
+    QLineEdit* line_edit = ple->findChild<QLineEdit*>();
+
+    QString input("kidilsovibdufob");
+
+    QTest::keyClicks(line_edit, input);
+
+    QCOMPARE(ple->text(), "kidil-sovib-dufob-");
+
+    QTest::keyClick(line_edit, Qt::Key_Backspace);
+
+    QCOMPARE(ple->text(), "kidil-sovib-dufob");
+}
+
+void TestProquintLineEdit::testDashesNotInsertedWhenTooLong()
+{
+    auto ple = new ProquintLineEdit();
+    QLineEdit* line_edit = ple->findChild<QLineEdit*>();
+
+    QString input("kidilsovibdufobhivolnutablinujkivadnozovtaaaaaaa");
+
+    QTest::keyClicks(line_edit, input);
+
+    QCOMPARE(
+        ple->text(), "kidil-sovib-dufob-hivol-nutab-linuj-kivad-nozov-taaaaaaa"
+    );
+}
+
+QTEST_MAIN(TestProquintLineEdit)
+
+#include "testproquintlineedit.moc"

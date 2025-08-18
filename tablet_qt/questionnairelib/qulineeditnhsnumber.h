@@ -38,5 +38,6 @@ public:
     ) = delete;
 
 protected:
-    virtual void extraLineEditCreation(QLineEdit* editor) override;
+    virtual QPointer<QValidator> getValidator() override;
+    virtual Qt::InputMethodHints getInputMethodHints() override;
 };

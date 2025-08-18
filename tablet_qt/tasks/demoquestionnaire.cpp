@@ -1362,7 +1362,7 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
                  tr("Line editor (double, range -0.05 to -0.09, 2dp):")
              ),
              new QuLineEditDouble(
-                 fieldRef(QStringLiteral("typedvar_real")), -0.05, -0.09, 2
+                 fieldRef(QStringLiteral("typedvar_real")), -0.09, -0.05, 2
              ),
              new QuHeading(tr("Variables in a grid:")),
              questionnairefunc::defaultGridRawPointer(

@@ -23,8 +23,8 @@
 
 #include "db/fieldref.h"
 #include "questionnairelib/quelement.h"
+#include "widgets/validatinglineedit.h"
 
-class FocusWatcher;
 class QLineEdit;
 
 class QuLineEdit : public QuElement
@@ -36,7 +36,11 @@ class QuLineEdit : public QuElement
 
 public:
     // Constructor
-    QuLineEdit(FieldRefPtr fieldref, QObject* parent = nullptr);
+    QuLineEdit(
+        FieldRefPtr fieldref,
+        bool allow_empty = true,
+        QObject* parent = nullptr
+    );
 
     // Sets the hint text (what's shown, greyed out, in the editor when the
     // line editor has no user-entered text in it).
@@ -53,36 +57,23 @@ protected:
     ) override;
     virtual FieldRefPtrList fieldrefs() const override;
 
-    // Called from makeWidget(). Does nothing here; override to specialize.
-    virtual void extraLineEditCreation(QLineEdit* editor);
+    virtual QPointer<QValidator> getValidator();
+    virtual Qt::InputMethodHints getInputMethodHints();
 
 protected slots:
-    // "A key has been pressed."
-    // Initiates delay (to prevent rapid typists from getting cross); then
-    // calls widgetTextChangedMaybeValid().
-    virtual void keystroke();
-
-    // "A key was pressed a short while ago."
-    // If a validator is in use, checks for validity.
-    // If valid, calls widgetTextChangedAndValid(),
-    virtual void widgetTextChangedMaybeValid();
-
-    // Writes new data to our field.
-    virtual void widgetTextChangedAndValid();
-
     // "The field's data has changed."
     virtual void fieldValueChanged(
         const FieldRef* fieldref, const QObject* originator = nullptr
     );
-
-    // "The widget has gained or lost focus."
-    virtual void widgetFocusChanged(bool in);
+    // Widget has lost focus
+    virtual void focusLost();
+    // Writes new data to our field.
+    virtual void widgetTextChangedAndValid();
 
 protected:
     FieldRefPtr m_fieldref;  // our field
+    bool m_allow_empty;  // allow an empty field?
     QString m_hint;  // hint text
-    QPointer<QLineEdit> m_editor;  // our editor widget
-    QPointer<FocusWatcher> m_focus_watcher;  // used to detect focus change
-    QSharedPointer<QTimer> m_timer;  // used for typing delay, as above
+    QPointer<ValidatingLineEdit> m_editor;  // our editor widget
     QLineEdit::EchoMode m_echo_mode;  // echo mode, as above
 };
