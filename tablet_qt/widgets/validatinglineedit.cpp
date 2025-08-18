@@ -250,7 +250,7 @@ void ValidatingLineEdit::validate()
         }
     }
 
-    Q_ASSERT(m_state.isNull());
+    Q_ASSERT(!m_state.isNull());
 
     const bool is_valid = m_state == QValidator::Acceptable;
 
