@@ -40,7 +40,7 @@ public:
         const bool read_only = false,
         const bool delayed = false,  // Delay validation by WRITE_DELAY_MS
         const bool vertical = true,
-            // Validity label below (not to right of) text box?
+        // ... Validity label below (not to right of) text box?
         QWidget* parent = nullptr
     );
 
