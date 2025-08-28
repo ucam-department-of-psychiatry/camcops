@@ -141,8 +141,8 @@ QUrl PatientRegistrationDialog::serverUrl() const
 
 void PatientRegistrationDialog::updateOkButtonEnabledState()
 {
-    auto url_state = m_editor_server_url->getState();
-    auto proquint_state = m_editor_patient_proquint->getState();
+    const auto url_state = m_editor_server_url->getState();
+    const auto proquint_state = m_editor_patient_proquint->getState();
 
     const bool enable = url_state == QValidator::Acceptable
         && proquint_state == QValidator::Acceptable;

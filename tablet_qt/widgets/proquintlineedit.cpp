@@ -42,7 +42,7 @@ void ProquintLineEdit::processChangedText()
 {
     // Automatically strip white space and insert the dashes, because it's a
     // pain having to do that on a mobile on-screen keyboard
-    QString initial_text = text();
+    const QString initial_text = text();
     const bool cursor_at_end = (cursorPosition() == initial_text.length());
     QString new_text = initial_text.trimmed();
 
@@ -58,7 +58,7 @@ void ProquintLineEdit::processChangedText()
         // ...or beyond the maximum length
         const int max_len = 8 * 6 + 1;  // 8 groups of 5-and-dash, then check
         if (new_text.length() < max_len) {
-            int prev_dash_pos = new_text.lastIndexOf('-');
+            const int prev_dash_pos = new_text.lastIndexOf('-');
             if ((new_text.length() - prev_dash_pos) == 6) {
                 new_text += '-';
             }
