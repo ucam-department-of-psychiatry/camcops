@@ -3998,3 +3998,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Qt version now 6.5.6. This fixes snowy camera preview on MacOS.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/329
+
+- Replace strict number validation with standard Qt validators and user feedback. The validation
+  was broken in the demonstration task such that you couldn't enter a valid negative number.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/407
