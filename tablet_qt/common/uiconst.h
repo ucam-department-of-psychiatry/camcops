@@ -95,6 +95,7 @@ extern const QString CSS_CAMCOPS_MENU;
 extern const QString CSS_CAMCOPS_QUESTIONNAIRE;
 extern const QString CSS_CAMCOPS_CAMERA;
 extern const QString CSS_CAMCOPS_DIAGNOSTIC_CODE;
+extern const QString CSS_CAMCOPS_VALIDATINGLINEEDIT;
 
 // ============================================================================
 // Fonts, colours

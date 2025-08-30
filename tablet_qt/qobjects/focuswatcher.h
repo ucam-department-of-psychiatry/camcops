@@ -43,5 +43,5 @@ public:
 
 signals:
     // "The watched widget's focus has changed."
-    void focusChanged(bool in);
+    void focusChanged(bool gained_focus);
 };

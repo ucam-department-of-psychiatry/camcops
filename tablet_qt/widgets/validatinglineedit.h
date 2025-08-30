@@ -21,10 +21,13 @@
 #pragma once
 #include <QLabel>
 #include <QLineEdit>
+#include <QPointer>
 #include <QValidator>
-#include <QVBoxLayout>
+#include <QWidget>
 
-class ValidatingLineEdit : public QVBoxLayout
+class FocusWatcher;
+
+class ValidatingLineEdit : public QWidget
 {
     // One-line text editor with validation and visual feedback
 
@@ -32,29 +35,89 @@ class ValidatingLineEdit : public QVBoxLayout
 
 public:
     ValidatingLineEdit(
-        QValidator* validator,
-        QWidget* parent = nullptr,
-        const QString& text = ""
+        QValidator* validator = nullptr,
+        const bool allow_empty = false,  // Allow empty content
+        const bool read_only = false,
+        const bool delayed = false,  // Delay validation by WRITE_DELAY_MS
+        const bool vertical = true,
+        // ... Validity label below (not to right of) text box?
+        QWidget* parent = nullptr
     );
 
-    ValidatingLineEdit(QValidator* validator, const QString& text = "") :
-        ValidatingLineEdit(validator, nullptr, text)
-    {
-    }
+    // If there is no validator, getState() will always return
+    // QValidator:Acceptable
+    // If there is a validator and validation has not yet been run, this will
+    // be a null QVariant.
+    // Otherwise the QVariant will contain a QValidator::State.
+    QVariant getState();
+    // If there is a validator, run it and set the visual feedback accordingly.
+    // Emit any relevant signals.
+    void validate();
+    // Add input methods hints to the underlying QLineEdit
+    void addInputMethodHints(Qt::InputMethodHints hints);
+    // Wrappers to methods on the underlying QLineEdit
+    QString text() const;
+    void setText(const QString& text);
+    void setPlaceholderText(const QString& text);
+    void setEchoMode(QLineEdit::EchoMode);
+    int cursorPosition();
 
-    void textChanged();
-    QValidator::State getState();
-    bool isValid();
-    QLineEdit* getLineEdit();
+    // Set text on QLineEdit without emitting any signals. Avoids multiple
+    // validation.
+    void setTextBlockingSignals(const QString& text);
+
+    // Set missing CSS property (rendered yellow for mandatory fields)
+    void setPropertyMissing(bool missing, bool repolish = true);
+    void resetValidatorFeedback();
 
 protected:
+    // May be implemented in derived class to change the text
+    // in some way before validation
     virtual void processChangedText();
+    void setValidatorFeedback(const bool valid, const bool invalid);
+
+protected slots:
+    // "A key has been pressed."
+    // In delayed mode initiates a delay (to prevent rapid typists from getting
+    // cross); then calls textChanged().
+    virtual void keystroke();
+
+    // Validate and emit valid() or invalid() accordingly
+    virtual void textChanged();
+
+    // Finished editing and valid. Emit valid() to anything interested.
+    virtual void widgetTextChangedAndValid();
+
+    // "The widget has gained or lost focus."
+    virtual void widgetFocusChanged(bool gaining_focus);
 
 private:
+    bool m_allow_empty;
+    bool m_delayed;  // Delay validation by WRITE_DELAY_MS
+    bool m_vertical;
     QLabel* m_label;
-    QLineEdit* m_line_edit;
-    QValidator::State m_state;
+    QPointer<QLineEdit> m_line_edit;
+    QVariant m_state;
+    QSharedPointer<QTimer> m_timer;  // used for typing delay, as above
+    QPointer<FocusWatcher> m_focus_watcher;  // used to detect focus change
 
 signals:
+    void focusLost();
+    void invalid();
     void validated();
+    void valid();
+
+#ifdef Q_OS_ANDROID
+    // Workaround problem where the cursor does not get updated properly
+    // if the text is modified in a textChanged signal, such as where
+    // ProquintLineEdit inserts dashes into the access key.
+
+private:
+    bool m_ignore_next_input_event = false;
+
+protected:
+    bool eventFilter(QObject* obj, QEvent* event) override;
+    void ignoreInputMethodEvents();
+    void maybeIgnoreNextInputEvent();
+#endif
 };

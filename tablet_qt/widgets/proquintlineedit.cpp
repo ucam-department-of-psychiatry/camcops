@@ -20,36 +20,30 @@
 
 #include "proquintlineedit.h"
 
-#include <QGuiApplication>
 #include <QString>
 
 #include "qobjects/proquintvalidator.h"
 #include "widgets/validatinglineedit.h"
 
-ProquintLineEdit::ProquintLineEdit(QWidget* parent, const QString& text) :
-    ValidatingLineEdit(new ProquintValidator(), parent, text)
+ProquintLineEdit::ProquintLineEdit(QWidget* parent) :
+    ValidatingLineEdit(new ProquintValidator(), parent)
 {
-    getLineEdit()->setInputMethodHints(
+    addInputMethodHints(
         Qt::ImhSensitiveData | Qt::ImhNoAutoUppercase | Qt::ImhNoPredictiveText
     );
     m_old_text = "";
-};
+
+#ifdef Q_OS_ANDROID
+    ignoreInputMethodEvents();
+#endif
+}
 
 void ProquintLineEdit::processChangedText()
 {
     // Automatically strip white space and insert the dashes, because it's a
     // pain having to do that on a mobile on-screen keyboard
-    auto line_edit = getLineEdit();
-
-#ifdef Q_OS_ANDROID
-    line_edit->installEventFilter(this);
-#endif
-
-    QString initial_text = line_edit->text();
-
-    const bool cursor_at_end
-        = (line_edit->cursorPosition() == initial_text.length());
-
+    const QString initial_text = text();
+    const bool cursor_at_end = (cursorPosition() == initial_text.length());
     QString new_text = initial_text.trimmed();
 
     // Only add a dash when cursor is at the end and we're not deleting...
@@ -64,7 +58,7 @@ void ProquintLineEdit::processChangedText()
         // ...or beyond the maximum length
         const int max_len = 8 * 6 + 1;  // 8 groups of 5-and-dash, then check
         if (new_text.length() < max_len) {
-            int prev_dash_pos = new_text.lastIndexOf('-');
+            const int prev_dash_pos = new_text.lastIndexOf('-');
             if ((new_text.length() - prev_dash_pos) == 6) {
                 new_text += '-';
             }
@@ -76,39 +70,8 @@ void ProquintLineEdit::processChangedText()
 #ifdef Q_OS_ANDROID
         maybeIgnoreNextInputEvent();
 #endif
-        line_edit->setText(new_text);
+        setTextBlockingSignals(new_text);
     }
 
     m_old_text = new_text;
 }
-
-#ifdef Q_OS_ANDROID
-// Thanks to Axel Spoerl for this workaround for
-// https://bugreports.qt.io/browse/QTBUG-115756
-// On Android, the cursor does not get updated properly if a dash is appended
-// Remove this when fixed (the change on that ticket was actually reverted due
-// to a regression elsewhere).
-bool ProquintLineEdit::eventFilter(QObject* obj, QEvent* event)
-{
-    auto line_edit = getLineEdit();
-
-    if (obj != line_edit || event->type() != QEvent::InputMethod) {
-        return false;
-    }
-
-    if (m_ignore_next_input_event) {
-        m_ignore_next_input_event = false;
-        event->ignore();
-        return true;
-    }
-
-    return false;
-}
-
-void ProquintLineEdit::maybeIgnoreNextInputEvent()
-{
-    if (QGuiApplication::inputMethod()->isVisible()) {
-        m_ignore_next_input_event = true;
-    }
-}
-#endif

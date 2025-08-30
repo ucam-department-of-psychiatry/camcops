@@ -776,6 +776,7 @@ SOURCES += \
     qobjects/emailvalidator.cpp \
     qobjects/flickcharm.cpp \
     qobjects/focuswatcher.cpp \
+    qobjects/int64validator.cpp \
     qobjects/keypresswatcher.cpp \
     qobjects/nhsnumbervalidator.cpp \
     qobjects/proquintvalidator.cpp \
@@ -783,12 +784,9 @@ SOURCES += \
     qobjects/showwatcher.cpp \
     qobjects/sizewatcher.cpp \
     qobjects/slownonguifunctioncaller.cpp \
-    qobjects/strictdoublevalidator.cpp \
-    qobjects/strictint64validator.cpp \
-    qobjects/strictintvalidator.cpp \
-    qobjects/strictuint64validator.cpp \
     qobjects/stylenofocusrect.cpp \
     qobjects/threadworker.cpp \
+    qobjects/uint64validator.cpp \
     qobjects/urlhandler.cpp \
     qobjects/urlvalidator.cpp \
     qobjects/widgetpositioner.cpp \
@@ -1070,6 +1068,7 @@ SOURCES += \
     widgets/tickslider.cpp \
     widgets/treeviewcontroldelegate.cpp \
     widgets/treeviewproxystyle.cpp \
+    widgets/urllineedit.cpp \
     widgets/validatinglineedit.cpp \
     widgets/verticalline.cpp \
     widgets/verticalscrollarea.cpp \
@@ -1276,6 +1275,7 @@ HEADERS += \
     qobjects/emailvalidator.h \
     qobjects/flickcharm.h \
     qobjects/focuswatcher.h \
+    qobjects/int64validator.h \
     qobjects/keypresswatcher.h \
     qobjects/nhsnumbervalidator.h \
     qobjects/proquintvalidator.h \
@@ -1283,12 +1283,9 @@ HEADERS += \
     qobjects/showwatcher.h \
     qobjects/sizewatcher.h \
     qobjects/slownonguifunctioncaller.h \
-    qobjects/strictdoublevalidator.h \
-    qobjects/strictint64validator.h \
-    qobjects/strictintvalidator.h \
-    qobjects/strictuint64validator.h \
     qobjects/stylenofocusrect.h \
     qobjects/threadworker.h \
+    qobjects/uint64validator.h \
     qobjects/urlhandler.h \
     qobjects/urlvalidator.h \
     qobjects/widgetpositioner.h \
@@ -1570,6 +1567,7 @@ HEADERS += \
     widgets/tickslider.h \
     widgets/treeviewcontroldelegate.h \
     widgets/treeviewproxystyle.h \
+    widgets/urllineedit.h \
     widgets/validatinglineedit.h \
     widgets/verticalline.h \
     widgets/verticalscrollarea.h \

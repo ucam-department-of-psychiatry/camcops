@@ -31,6 +31,7 @@
 #include "qobjects/urlvalidator.h"
 #include "qobjects/widgetpositioner.h"
 #include "widgets/proquintlineedit.h"
+#include "widgets/urllineedit.h"
 #include "widgets/validatinglineedit.h"
 
 const int MIN_WIDTH = 500;
@@ -51,9 +52,8 @@ PatientRegistrationDialog::PatientRegistrationDialog(
 
     setMinimumWidth(min_size);
 
-    m_editor_server_url
-        = new ValidatingLineEdit(new UrlValidator(), server_url.url());
-    m_editor_server_url->getLineEdit()->setInputMethodHints(
+    m_editor_server_url = new UrlLineEdit();
+    m_editor_server_url->addInputMethodHints(
         Qt::ImhNoAutoUppercase | Qt::ImhNoPredictiveText
     );
     connect(
@@ -63,7 +63,7 @@ PatientRegistrationDialog::PatientRegistrationDialog(
         &PatientRegistrationDialog::updateOkButtonEnabledState
     );
 
-    m_editor_patient_proquint = new ProquintLineEdit(patient_proquint);
+    m_editor_patient_proquint = new ProquintLineEdit();
     connect(
         m_editor_patient_proquint,
         &ValidatingLineEdit::validated,
@@ -79,8 +79,6 @@ PatientRegistrationDialog::PatientRegistrationDialog(
         this,
         &PatientRegistrationDialog::accept
     );
-
-    updateOkButtonEnabledState();
 
     // If we do this the labels won't wrap properly
     // https://bugreports.qt.io/browse/QTBUG-89805
@@ -104,9 +102,9 @@ PatientRegistrationDialog::PatientRegistrationDialog(
 
     // and remove these lines:
     mainlayout->addWidget(server_url_label);
-    mainlayout->addLayout(m_editor_server_url);
+    mainlayout->addWidget(m_editor_server_url);
     mainlayout->addWidget(patient_proquint_label);
-    mainlayout->addLayout(m_editor_patient_proquint);
+    mainlayout->addWidget(m_editor_patient_proquint);
 
     mainlayout->addStretch(1);
     mainlayout->addWidget(m_buttonbox);
@@ -117,16 +115,23 @@ PatientRegistrationDialog::PatientRegistrationDialog(
     new WidgetPositioner(this);
 
     setLayout(mainlayout);
+
+    // If the text boxes are empty, setting the text here won't trigger
+    // validation and updateOkButtonEnabledState() won't get called because the
+    // text hasn't changed. So disable the button first.
+    m_buttonbox->button(QDialogButtonBox::Ok)->setEnabled(false);
+    m_editor_server_url->setText(server_url.url());
+    m_editor_patient_proquint->setText(patient_proquint);
 }
 
 QString PatientRegistrationDialog::patientProquint() const
 {
-    return m_editor_patient_proquint->getLineEdit()->text().trimmed();
+    return m_editor_patient_proquint->text();
 }
 
 QString PatientRegistrationDialog::serverUrlAsString() const
 {
-    return m_editor_server_url->getLineEdit()->text().trimmed();
+    return m_editor_server_url->text();
 }
 
 QUrl PatientRegistrationDialog::serverUrl() const
@@ -136,8 +141,11 @@ QUrl PatientRegistrationDialog::serverUrl() const
 
 void PatientRegistrationDialog::updateOkButtonEnabledState()
 {
-    const bool enable = m_editor_server_url->isValid()
-        && m_editor_patient_proquint->isValid();
+    const auto url_state = m_editor_server_url->getState();
+    const auto proquint_state = m_editor_patient_proquint->getState();
+
+    const bool enable = url_state == QValidator::Acceptable
+        && proquint_state == QValidator::Acceptable;
 
     m_buttonbox->button(QDialogButtonBox::Ok)->setEnabled(enable);
 }
