@@ -476,6 +476,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 TABLET_QT_DIR = join(THIS_DIR, "..")
+VERSIONS_DIR = join(TABLET_QT_DIR, "versions")
 
 USER_DIR = expanduser("~")
 HEAD = "HEAD"  # git commit meaning "the most recent"
@@ -524,7 +525,7 @@ DEFAULT_ANDROID_TOOLCHAIN_VERSION = "4.9"
 # Yes qt5.git is correct even for qt6
 QT_GIT_URL = "git://code.qt.io/qt/qt5.git"
 # Branch, tag or commit ID (long) to check out when cloning / checking out Qt
-with open(join(TABLET_QT_DIR, "qt_version.txt")) as f:
+with open(join(VERSIONS_DIR, "qt.txt")) as f:
     QT_GIT_COMMIT = f.read().strip()
 
 QT_GIT_VERSION = QT_GIT_COMMIT.replace("v", "").replace("-lts-lgpl", "")
@@ -550,7 +551,7 @@ ADD_SO_VERSION_OF_LIBQTFORANDROID = False
 USE_CLANG_NOT_GCC_FOR_ANDROID_ARM = True
 
 # OpenSSL
-with open(join(TABLET_QT_DIR, "openssl_version.txt")) as f:
+with open(join(VERSIONS_DIR, "openssl.txt")) as f:
     OPENSSL_VERSION = f.read().strip()
 
 OPENSSL_FAILS_OWN_TESTS = True
@@ -568,7 +569,7 @@ SQLCIPHER_GIT_URL = "https://github.com/sqlcipher/sqlcipher.git"
 SQLCIPHER_GIT_COMMIT = "7c460791eba939e6c6872825219a6644ca47283b"
 
 # Eigen
-with open(join(TABLET_QT_DIR, "eigen_version.txt")) as f:
+with open(join(VERSIONS_DIR, "eigen.txt")) as f:
     EIGEN_VERSION = f.read().strip()
 
 # FFmpeg

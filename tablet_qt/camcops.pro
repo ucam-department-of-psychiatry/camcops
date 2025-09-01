@@ -61,6 +61,8 @@ message("... Examples: $$[QT_INSTALL_EXAMPLES]")
 CAMCOPS_SOURCE_ROOT = $${PWD}  # at time of qmake ("now")
 message("Expecting CamCOPS source root at: $${CAMCOPS_SOURCE_ROOT}")
 
+VERSIONS_DIR = "$${CAMCOPS_SOURCE_ROOT}/versions"
+
 # message("QMAKESPEC: $${QMAKESPEC}")
 # message("QMAKE_PLATFORM: $${QMAKE_PLATFORM}")
 message("... QT_ARCH: $${QT_ARCH}")
@@ -235,10 +237,10 @@ TEMPLATE = app
 # =============================================================================
 # See build_qt.py for how these are built (or not built) as required.
 
-EIGEN_VERSION_FILE = "$${CAMCOPS_SOURCE_ROOT}/eigen_version.txt"
+EIGEN_VERSION_FILE = "$${VERSIONS_DIR}/eigen.txt"
 EIGEN_VERSION = $$cat($${EIGEN_VERSION_FILE})
 
-QT_VERSION_FILE = "$${CAMCOPS_SOURCE_ROOT}/qt_version.txt"
+QT_VERSION_FILE = "$${VERSIONS_DIR}/qt.txt"
 QT_GIT_VERSION = $$cat($${QT_VERSION_FILE})
 QT_GIT_VERSION = $$replace(QT_GIT_VERSION, "v", "")
 QT_GIT_VERSION = $$replace(QT_GIT_VERSION, "-lts-lgpl", "")
@@ -264,7 +266,7 @@ gcc {
 # =============================================================================
 # https://wiki.qt.io/Technical_FAQ#How_can_I_detect_in_the_.pro_file_if_I_am_compiling_for_a_32_bit_or_a_64_bit_platform.3F
 
-OPENSSL_VERSION_FILE = "$${CAMCOPS_SOURCE_ROOT}/openssl_version.txt"
+OPENSSL_VERSION_FILE = "$${VERSIONS_DIR}/openssl.txt"
 OPENSSL_VERSION = $$cat($${OPENSSL_VERSION_FILE})
 # ... see build_qt.py or changelog.rst for chronology
 
