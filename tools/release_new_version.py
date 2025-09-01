@@ -33,12 +33,15 @@ from datetime import date, datetime
 import logging
 import os
 from pathlib import Path
+from platform import uname
 import re
+import shutil
 from subprocess import CalledProcessError, PIPE, run
 import sys
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+import requests
 from rich_argparse import ArgumentDefaultsRichHelpFormatter
 from semantic_version import Version
 
@@ -75,16 +78,20 @@ SERVER_VERSION_FILE = os.path.join(
 )
 
 # Client paths
-CPP_SOURCE_DIR = os.path.join(PROJECT_ROOT, "tablet_qt")
-PROJECT_FILE = os.path.join(CPP_SOURCE_DIR, "camcops.pro")
+TABLET_QT_DIR = os.path.join(PROJECT_ROOT, "tablet_qt")
+VERSIONS_DIR = os.path.join(TABLET_QT_DIR, "versions")
+QT_VERSION_FILE = os.path.join(VERSIONS_DIR, "qt.txt")
+ANDROID_NDK_VERSION_FILE = os.path.join(VERSIONS_DIR, "android_ndk.txt")
+CLIENT_BUILD_DIR = os.path.join(TABLET_QT_DIR, "build")
+PROJECT_FILE = os.path.join(TABLET_QT_DIR, "camcops.pro")
 CLIENT_VERSION_FILE = os.path.join(
-    CPP_SOURCE_DIR, "version", "camcopsversion.cpp"
+    TABLET_QT_DIR, "version", "camcopsversion.cpp"
 )
 ANDROID_MANIFEST_FILE = os.path.join(
-    CPP_SOURCE_DIR, "android", "AndroidManifest.xml"
+    TABLET_QT_DIR, "android", "AndroidManifest.xml"
 )
-INNOSETUP_FILE = os.path.join(CPP_SOURCE_DIR, "camcops_windows_innosetup.iss")
-IOS_INFO_PLIST_FILE = os.path.join(CPP_SOURCE_DIR, "ios", "Info.plist")
+INNOSETUP_FILE = os.path.join(TABLET_QT_DIR, "camcops_windows_innosetup.iss")
+IOS_INFO_PLIST_FILE = os.path.join(TABLET_QT_DIR, "ios", "Info.plist")
 
 log = logging.getLogger(__name__)
 
@@ -995,35 +1002,73 @@ class VersionReleaser:
 
     def release(self) -> None:
         if self.should_release_server:
-            self.remove_old_packages()
-            self.run_with_check([MAKE_LINUX_PACKAGES])
-
-            self.remove_old_pypi_builds()
-            os.chdir(SERVER_SOURCE_DIR)
-
-            # "bdist_wheel" removed from below to allow GitHub dependencies
-            # Currenly fhirclient is on a fork
-            self.run_with_check(["python", "setup.py", "sdist"])
-            pypi_packages = [str(f) for f in self.get_pypi_builds()]
-            print(
-                "Uploading to PyPI. You will need an API token from "
-                "https://pypi.org/manage/account/. If prompted for username "
-                "and password, enter '__token__' as the username and the API "
-                "token (long string beginning with pypi-) as the password. "
-                "Alternatively you can store these details in ~/.pypirc. See "
-                "https://packaging.python.org/en/latest/specifications/pypirc/"
-                "..."
-            )
-            self.run_with_check(["twine", "upload"] + pypi_packages)
-
-            print(
-                "A new release will be created on GitHub with the "
-                ".rpm and .deb files attached. They are also in "
-                f"{SERVER_PACKAGE_DIR}"
-            )
+            self.release_server()
 
         if self.should_release_client:
-            print("Now build the various client apps and upload.")
+            self.build_client_releases()
+
+    def release_server(self) -> None:
+        self.make_linux_packages()
+        self.upload_to_pypi()
+
+    def make_linux_packages(self) -> None:
+        if self.linux_packages_exist():
+            print("Linux packages already built.")
+            return
+
+        self.remove_old_packages()
+        self.run_with_check([MAKE_LINUX_PACKAGES])
+
+        print(
+            "A new release will be created on GitHub with the "
+            ".rpm and .deb files attached. They are also in "
+            f"{SERVER_PACKAGE_DIR}"
+        )
+
+    def linux_packages_exist(self) -> bool:
+        deb_file = os.path.join(
+            SERVER_PACKAGE_DIR,
+            f"camcops-server_{self.new_server_version}_1_all.deb",
+        )
+        if not os.path.exists(deb_file):
+            return False
+
+        rpm_file = os.path.join(
+            SERVER_PACKAGE_DIR,
+            f"camcops-server-{self.new_server_version}-2.noarch.rpm",
+        )
+        if not os.path.exists(rpm_file):
+            return False
+
+        return True
+
+    def upload_to_pypi(self) -> None:
+        if self.uploaded_to_pypi():
+            print(f"{self.new_server_version} already uploaded to PyPI")
+            return
+
+        self.remove_old_pypi_builds()
+        os.chdir(SERVER_SOURCE_DIR)
+
+        self.run_with_check(["python", "setup.py", "sdist", "bdist_wheel"])
+        pypi_packages = [str(f) for f in self.get_pypi_builds()]
+        print(
+            "Uploading to PyPI. You will need an API token from "
+            "https://pypi.org/manage/account/. If prompted for username "
+            "and password, enter '__token__' as the username and the API "
+            "token (long string beginning with pypi-) as the password. "
+            "Alternatively you can store these details in ~/.pypirc. See "
+            "https://packaging.python.org/en/latest/specifications/pypirc/"
+            "..."
+        )
+        self.run_with_check(["twine", "upload"] + pypi_packages)
+
+    def uploaded_to_pypi(self) -> bool:
+        response = requests.get("https://pypi.org/pypi/camcops-server/json")
+        response.raise_for_status()
+        versions = response.json()["versions"]["releases"].keys()
+
+        return self.new_server_version in versions
 
     @property
     def should_release_client(self) -> bool:
@@ -1074,6 +1119,110 @@ class VersionReleaser:
         """
         for f in self.get_pypi_builds():
             f.unlink()
+
+    def build_client_releases(self) -> None:
+        sys_info = uname()
+
+        if sys_info.system == "Linux":
+            return self.build_client_releases_for_linux_host()
+
+        if sys_info.system == "Darwin":
+            return self.build_client_releases_for_mac_host()
+
+        if sys_info.system == "Windows":
+            return self.build_client_releases_for_windows_host()
+
+        print(f"No client releases for {sys_info.system}.")
+        sys.exit(EXIT_FAILURE)
+
+    def build_client_releases_for_linux_host(self) -> None:
+        self.build_client_linux_x86_64()
+        self.build_client_android_arm_v7_32()
+        self.build_client_android_arm_v8_64()
+
+    def build_client_linux_x86_64(self) -> None:
+        make = shutil.which("make")
+        self.build_client("linux_x86_64", make)
+
+    def build_client_android_arm_v7_32(self) -> None:
+        self.build_client_android("arm_v7_32")
+
+    def build_client_android_arm_v8_64(self) -> None:
+        self.build_client_android("arm_v8_64")
+
+    def build_client_android(self, arch: str) -> None:
+        ndk_root = self.get_android_ndk_root()
+        make = os.path.join(
+            ndk_root, "prebuilt", "linux_x86_64", "bin", "make"
+        )
+        android_arch = f"android_{arch}"
+        self.build_client(android_arch, make)
+        build_dir = self.get_build_dir(android_arch)
+        install_root = os.path.join(build_dir, "android-build")
+        self.run_with_check(make, f"INSTALL_ROOT={install_root}", "install")
+
+    def get_android_ndk_root(self) -> str:
+        return self.getenv_or_exit("ANDROID_NDK_ROOT")
+
+    def build_client_releases_for_mac_host(self) -> None:
+        self.build_client_macos_x86_64()
+        self.build_client_ios_arm_v8_64()
+
+    def build_client_macos_x86_64(self) -> None:
+        self.build_client("macos_x86_64")
+
+    def build_client_ios_arm_v8_64(self) -> None:
+        self.build_client("arm_v8_64")
+
+    def build_client_releases_for_windows_host(self) -> None:
+        self.build_client_windows_x86_32()
+        self.build_client_windows_x86_64()
+
+    def build_client_windows_x86_32(self) -> None:
+        self.build_client("windows_x86_32")
+
+    def build_client_windows_x86_64(self) -> None:
+        self.build_client("windows_x86_64")
+
+    def build_client(self, arch: str, make: str) -> None:
+        qmake = self.get_qmake("qt_{arch}_install")
+        build_dir = self.get_build_dir(arch)
+
+        os.makedirs(build_dir, exist_ok=True)
+        os.chdir(build_dir)
+        self.run_with_check([qmake, PROJECT_FILE])
+        self.run_with_check([make, "-j8"])
+
+    def get_qmake(self, sub_dir: str) -> str:
+        qt_base_dir = self.getenv_or_exit("CAMCOPS_QT6_BASE_DIR")
+        qmake = os.path.join(qt_base_dir, sub_dir, "bin", "qmake")
+        if os.path.exists(qmake):
+            return qmake
+
+        print(f"{qmake} does not exist")
+        sys.exit(EXIT_FAILURE)
+
+    def get_build_dir(self, arch: str) -> str:
+        qt_version = self.get_qt_version().replace(".", "_")
+        return os.path.join(
+            CLIENT_BUILD_DIR,
+            self.new_client_version,
+            f"qt_{qt_version}_{arch}",
+        )
+
+    def get_qt_version(self) -> str:
+        with open(QT_VERSION_FILE) as f:
+            qt_git_commit = f.read().strip()
+
+            return qt_git_commit.replace("v", "").replace("-lts-lgpl", "")
+
+    def getenv_or_exit(self, name: str) -> str:
+        value = os.getenv(name)
+        if value is None:
+            print(f"{name} is not defined")
+            sys.exit(EXIT_FAILURE)
+
+        return value
 
 
 def main() -> None:

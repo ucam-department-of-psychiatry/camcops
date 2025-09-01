@@ -504,7 +504,8 @@ DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-linux")
 
 
 # https://doc.qt.io/qt-6.5/android-getting-started.html
-ANDROID_NDK_VERSION = "25.1.8937393"
+with open(join(VERSIONS_DIR, "android_ndk.txt")) as f:
+    ANDROID_NDK_VERSION = f.read().strip()
 
 DEFAULT_JAVA_HOME = "/usr/lib/jvm/java-17-openjdk-amd64"
 
