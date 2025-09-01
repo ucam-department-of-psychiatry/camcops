@@ -30,6 +30,7 @@ tools/release_new_version.py
 import argparse
 import csv
 from datetime import date, datetime
+from getpass import getpass
 import logging
 import os
 from pathlib import Path
@@ -204,12 +205,12 @@ class VersionReleaser:
         self.update_versions = update_versions
         self.errors: list[Any] = []
 
-    def run_with_check(self, args: List[str]) -> None:
+    def run_with_check(self, args: List[str], env=None) -> None:
         """
         Run a command with arguments. Raise :exc:`CalledProcessError` if the
         exit code was not zero.
         """
-        run(args, check=True)
+        run(args, check=True, env=env)
 
     @property
     def progress_version(self) -> Optional[Version]:
@@ -1137,6 +1138,7 @@ class VersionReleaser:
 
     def build_client_releases_for_linux_host(self) -> None:
         self.build_client_linux_x86_64()
+        self.keystore_password = getpass("Enter the keystore password: ")
         self.build_client_android_arm_v7_32()
         self.build_client_android_arm_v8_64()
 
@@ -1152,17 +1154,72 @@ class VersionReleaser:
 
     def build_client_android(self, arch: str) -> None:
         ndk_root = self.get_android_ndk_root()
+
         make = os.path.join(
-            ndk_root, "prebuilt", "linux_x86_64", "bin", "make"
+            ndk_root,
+            "prebuilt",
+            "linux-x86_64",
+            "bin",
+            "make",
         )
+
         android_arch = f"android_{arch}"
-        self.build_client(android_arch, make)
+
+        env = self.get_android_environment()
+
+        self.build_client(android_arch, make, env=env)
         build_dir = self.get_build_dir(android_arch)
         install_root = os.path.join(build_dir, "android-build")
-        self.run_with_check(make, f"INSTALL_ROOT={install_root}", "install")
+        self.run_with_check(
+            [make, f"INSTALL_ROOT={install_root}", "install"], env=env
+        )
+        qt_base_dir = self.get_qt_base_dir()
+        android_deploy_qt = os.path.join(
+            qt_base_dir, "qt_linux_x86_64_install", "bin", "androiddeployqt"
+        )
+        settings_json = os.path.join(
+            build_dir, "android-camcops-deployment-settings.json"
+        )
+        android_version = "android-35"  # TODO
+        java_home = self.get_java_home()
+
+        # Read by androiddeployqt so make sure it's defined
+        self.getenv_or_exit("QT_ANDROID_KEYSTORE_PATH")
+        self.run_with_check(
+            [
+                android_deploy_qt,
+                "--input",
+                settings_json,
+                "--output",
+                install_root,
+                "--android_platform",
+                android_version,
+                "--jdk",
+                java_home,
+                "--gradle",
+                "--release",
+                "--sign",
+            ],
+            env=env,
+        )
+
+    def get_android_environment(self) -> dict[str, str]:
+        env = os.environ.copy()
+
+        env["ANDROID_NDK_ROOT"] = self.get_android_ndk_root()
+        env["QT_ANDROID_KEYSTORE_ALIAS"] = "camcops"
+        env["QT_ANDROID_KEYSTORE_STORE_PASS"] = self.keystore_password
+
+        return env
 
     def get_android_ndk_root(self) -> str:
-        return self.getenv_or_exit("ANDROID_NDK_ROOT")
+        sdk_root = self.get_android_sdk_root()
+        ndk_version = self.get_android_ndk_version()
+
+        return os.path.join(sdk_root, "ndk", ndk_version)
+
+    def get_android_sdk_root(self) -> str:
+        return self.getenv_or_exit("ANDROID_SDK_ROOT")
 
     def build_client_releases_for_mac_host(self) -> None:
         self.build_client_macos_x86_64()
@@ -1184,23 +1241,28 @@ class VersionReleaser:
     def build_client_windows_x86_64(self) -> None:
         self.build_client("windows_x86_64")
 
-    def build_client(self, arch: str, make: str) -> None:
+    def build_client(
+        self, arch: str, make: str, env: dict[str, str] = None
+    ) -> None:
         qmake = self.get_qmake(f"qt_{arch}_install")
         build_dir = self.get_build_dir(arch)
 
         os.makedirs(build_dir, exist_ok=True)
         os.chdir(build_dir)
-        self.run_with_check([qmake, PROJECT_FILE])
-        self.run_with_check([make, "-j8"])
+        self.run_with_check([qmake, PROJECT_FILE], env=env)
+        self.run_with_check([make, "-j8"], env=env)
 
     def get_qmake(self, sub_dir: str) -> str:
-        qt_base_dir = self.getenv_or_exit("CAMCOPS_QT6_BASE_DIR")
+        qt_base_dir = self.get_qt_base_dir()
         qmake = os.path.join(qt_base_dir, sub_dir, "bin", "qmake")
         if os.path.exists(qmake):
             return qmake
 
         print(f"{qmake} does not exist")
         sys.exit(EXIT_FAILURE)
+
+    def get_qt_base_dir(self) -> str:
+        return self.getenv_or_exit("CAMCOPS_QT6_BASE_DIR")
 
     def get_build_dir(self, arch: str) -> str:
         qt_version = self.get_qt_version().replace(".", "_")
@@ -1215,6 +1277,15 @@ class VersionReleaser:
             qt_git_commit = f.read().strip()
 
             return qt_git_commit.replace("v", "").replace("-lts-lgpl", "")
+
+    def get_android_ndk_version(self) -> str:
+        with open(ANDROID_NDK_VERSION_FILE) as f:
+            version = f.read().strip()
+
+        return version
+
+    def get_java_home(self) -> str:
+        return self.getenv_or_exit("JAVA_HOME")
 
     def getenv_or_exit(self, name: str) -> str:
         value = os.getenv(name)
