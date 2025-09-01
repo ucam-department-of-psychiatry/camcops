@@ -28,9 +28,9 @@
          if the version has been approved by Apple.
     -->
 	<key>CFBundleShortVersionString</key>
-        <string>2.4.22</string>
+        <string>2.4.23</string>
 	<key>CFBundleVersion</key>
-        <string>2.4.22.1</string>
+        <string>2.4.23.1</string>
     <key>CFBundleURLTypes</key>
     <array>
       <dict>
