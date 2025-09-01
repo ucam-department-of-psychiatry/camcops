@@ -6,9 +6,9 @@ name: Build Qt
 on:
     push:
         paths:
-            - tablet_qt/qt_version.txt
             - tablet_qt/tools/build_qt.py
             - tablet_qy/tools/patches/**.patch
+            - tablet_qt/versions/qt_version.txt
             - .github/scripts/change_apt_mirror.sh
             - .github/scripts/free_up_disk_space.sh
             - .github/scripts/install_msys_packages.ps1
@@ -236,7 +236,7 @@ jobs:
               id: vars
               run: |
                   set -euo pipefail
-                  QT_VERSION="$(sed 's/[a-z-]//g' ${GITHUB_WORKSPACE}/tablet_qt/qt_version.txt)"
+                  QT_VERSION="$(sed 's/[a-z-]//g' ${GITHUB_WORKSPACE}/tablet_qt/versions/qt_version.txt)"
                   SHORT_SHA="$(echo ${GITHUB_SHA} | cut -c1-7)"
                   echo "tag=qt_${QT_VERSION}_${SHORT_SHA}" >> $GITHUB_OUTPUT
             - name: Release Qt

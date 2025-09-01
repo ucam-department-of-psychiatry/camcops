@@ -12,7 +12,7 @@ on:
             - .github/scripts/cpp_tests.sh
             - .github/scripts/python_setup.sh
             - .github/workflows/cpp-tests.yml
-            - tablet_qt/qt_version.txt
+            - tablet_qt/versions/qt_version.txt
             - tablet_qt/tools/build_qt.py
             - tablet_qt/tools/run_cpp_tests.py
 
