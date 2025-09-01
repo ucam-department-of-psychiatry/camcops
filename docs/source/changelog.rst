@@ -68,6 +68,7 @@ Quick links:
 - :ref:`v2.4.20 <changelog_v2.4.20>`
 - :ref:`v2.4.21 <changelog_v2.4.21>`
 - :ref:`v2.4.22 <changelog_v2.4.22>`
+- :ref:`v2.4.23 <changelog_v2.4.23>`
 
 Contributors
 ------------
@@ -3990,8 +3991,10 @@ Current C++/SQLite client, Python/SQLAlchemy server
   https://ucam-department-of-psychiatry.github.io/camcops/register
   https://github.com/ucam-department-of-psychiatry/camcops/issues/335
 
-**Client and server v2.4.23, IN PROGRESS**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. _changelog_v2.4.23:
+
+**Client and server v2.4.23, released 01 Sep 2025**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Change user agent on client to include the OS and CamCOPS version number. Make it configurable.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/403
@@ -4002,3 +4005,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Replace strict number validation with standard Qt validators and user feedback. The validation
   was broken in the demonstration task such that you couldn't enter a valid negative number.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/407
+
+**Client and server v2.4.24, IN PROGRESS**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
