@@ -1185,7 +1185,7 @@ class VersionReleaser:
         self.build_client("windows_x86_64")
 
     def build_client(self, arch: str, make: str) -> None:
-        qmake = self.get_qmake("qt_{arch}_install")
+        qmake = self.get_qmake(f"qt_{arch}_install")
         build_dir = self.get_build_dir(arch)
 
         os.makedirs(build_dir, exist_ok=True)
