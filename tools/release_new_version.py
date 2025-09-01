@@ -1145,10 +1145,10 @@ class VersionReleaser:
         self.build_client("linux_x86_64", make)
 
     def build_client_android_arm_v7_32(self) -> None:
-        self.build_client_android("arm_v7_32")
+        self.build_client_android("armv7")
 
     def build_client_android_arm_v8_64(self) -> None:
-        self.build_client_android("arm_v8_64")
+        self.build_client_android("armv8_64")
 
     def build_client_android(self, arch: str) -> None:
         ndk_root = self.get_android_ndk_root()
@@ -1172,7 +1172,7 @@ class VersionReleaser:
         self.build_client("macos_x86_64")
 
     def build_client_ios_arm_v8_64(self) -> None:
-        self.build_client("arm_v8_64")
+        self.build_client("armv8_64")
 
     def build_client_releases_for_windows_host(self) -> None:
         self.build_client_windows_x86_32()
@@ -1206,7 +1206,7 @@ class VersionReleaser:
         qt_version = self.get_qt_version().replace(".", "_")
         return os.path.join(
             CLIENT_BUILD_DIR,
-            self.new_client_version,
+            str(self.new_client_version),
             f"qt_{qt_version}_{arch}",
         )
 
