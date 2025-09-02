@@ -40,6 +40,7 @@ import re
 import shutil
 from subprocess import CalledProcessError, PIPE, run
 import sys
+import time
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
@@ -1228,7 +1229,113 @@ class VersionReleaser:
         self.build_client_ios_arm_v8_64()
 
     def build_client_macos_x86_64(self) -> None:
-        self.build_client("macos_x86_64", self.make_on_path)
+        self.build_client(self.macos_arch, self.make_on_path)
+        self.sign_macos_client()
+        submission_id = self.submit_macos_dmg_for_notarization()
+        self.check_macos_dmg_submission(submission_id)
+        self.staple_macos_dmg()
+
+    def sign_macos_client(self) -> None:
+        # Sign app with valid developer ID certificate, include a secure
+        # timestamp and have the hardened runtime enabled.
+        qt_base_dir = self.get_qt_base_dir()
+        mac_deploy_qt = os.path.join(
+            qt_base_dir, "qt_macos_x86_64_install", "bin", "macdeployqt"
+        )
+
+        certificate_name = self.getenv_or_exit(
+            "CAMCOPS_MACOS_DEVELOPER_ID_CERTIFICATE_NAME"
+        )
+        self.run_with_check(
+            [
+                mac_deploy_qt,
+                self.macos_camcops_app,
+                "-always-overwrite",
+                "-verbose=3",
+                "-no-strip",
+                f'-sign-for-notarization="{certificate_name}"',
+                "-dmg",
+            ]
+        )
+
+    def submit_macos_dmg_for_notarization(self) -> str:
+        print(
+            "When prompted, enter the app-specific password for 'notarytool'"
+        )
+        output = run(
+            [
+                "xcrun",
+                "notarytool",
+                "submit",
+                "--apple-id",
+                self.apple_id,
+                "--team-id",
+                self.apple_team_id,
+                self.macos_camcops_dmg,
+            ],
+            bufsize=1,
+            text=True,
+            check=True,
+            stdout=PIPE,
+        )
+
+        id_regex = r"^\s*id:\s*(\S+)$"
+        for line in output:
+            m = re.match(id_regex, line)
+            if m is not None:
+                submission_id = m.group(1)
+                return submission_id
+
+        print("Could not find submission ID in output")
+        sys.exit(EXIT_FAILURE)
+
+    def check_macos_dmg_submission(self, submission_id: str) -> None:
+        accepted_regex = r"\s*status:\s*Accepted$"
+        delay = 60
+
+        while True:
+            print(
+                f"Waiting {delay} seconds "
+                "before checking if submission was successful..."
+            )
+            time.sleep(delay)
+
+            output = run(
+                [
+                    "xcrun",
+                    "notarytool",
+                    "info",
+                    "--apple-id",
+                    self.apple_id,
+                    "--team-id",
+                    self.apple_team_id,
+                    submission_id,
+                ],
+                bufsize=1,
+                text=True,
+                check=True,
+                stdout=PIPE,
+            )
+
+            for line in output:
+                if re.match(accepted_regex, line) is not None:
+                    break
+
+            delay = delay * 2
+
+            if delay > 600:
+                print("Gave up waiting.")
+                sys.exit(EXIT_FAILURE)
+
+    def staple_macos_dmg(self) -> None:
+        self.run_with_check(
+            [
+                "xcrun",
+                "stapler",
+                "staple" "-v",
+                self.macos_camcops_dmg,
+            ]
+        )
 
     def build_client_ios_arm_v8_64(self) -> None:
         self.build_client("ios_armv8_64", self.make_on_path)
@@ -1266,6 +1373,16 @@ class VersionReleaser:
     def get_qt_base_dir(self) -> str:
         return self.getenv_or_exit("CAMCOPS_QT6_BASE_DIR")
 
+    @property
+    def macos_camcops_app(self) -> str:
+        build_dir = self.get_build_dir(self.macos_arch)
+        return os.path.join(build_dir, "camcops.app")
+
+    @property
+    def macos_camcops_dmg(self) -> str:
+        build_dir = self.get_build_dir(self.macos_arch)
+        return os.path.join(build_dir, "camcops.dmg")
+
     def get_build_dir(self, arch: str) -> str:
         qt_version = self.get_qt_version().replace(".", "_")
         return os.path.join(
@@ -1273,6 +1390,18 @@ class VersionReleaser:
             str(self.new_client_version),
             f"qt_{qt_version}_{arch}",
         )
+
+    @property
+    def macos_arch(self) -> str:
+        return "macos_x86_64"
+
+    @property
+    def apple_id(self) -> str:
+        return self.getenv_or_exit("CAMCOPS_APPLE_ID")
+
+    @property
+    def apple_team_id(self) -> str:
+        return self.getenv_or_exit("CAMCOPS_APPLE_TEAM_ID")
 
     def get_qt_version(self) -> str:
         with open(QT_VERSION_FILE) as f:
