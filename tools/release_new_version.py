@@ -1252,7 +1252,7 @@ class VersionReleaser:
         os.makedirs(build_dir, exist_ok=True)
         os.chdir(build_dir)
         self.run_with_check([qmake, PROJECT_FILE], env=env)
-        self.run_with_check([make, "-j{self.cpu_count}"], env=env)
+        self.run_with_check([make, f"-j{self.cpu_count}"], env=env)
 
     def get_qmake(self, sub_dir: str) -> str:
         qt_base_dir = self.get_qt_base_dir()
