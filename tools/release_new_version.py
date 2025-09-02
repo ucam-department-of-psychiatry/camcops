@@ -1122,6 +1122,7 @@ class VersionReleaser:
             f.unlink()
 
     def build_client_releases(self) -> None:
+        self.make_on_path = shutil.which("make")
         sys_info = uname()
 
         if sys_info.system == "Linux":
@@ -1143,8 +1144,7 @@ class VersionReleaser:
         self.build_client_android_arm_v8_64()
 
     def build_client_linux_x86_64(self) -> None:
-        make = shutil.which("make")
-        self.build_client("linux_x86_64", make)
+        self.build_client("linux_x86_64", self.make_on_path)
 
     def build_client_android_arm_v7_32(self) -> None:
         self.build_client_android("armv7")
@@ -1226,7 +1226,7 @@ class VersionReleaser:
         self.build_client_ios_arm_v8_64()
 
     def build_client_macos_x86_64(self) -> None:
-        self.build_client("macos_x86_64")
+        self.build_client("macos_x86_64", self.make_on_path)
 
     def build_client_ios_arm_v8_64(self) -> None:
         self.build_client("armv8_64")
