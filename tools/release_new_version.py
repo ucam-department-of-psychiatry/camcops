@@ -1231,7 +1231,7 @@ class VersionReleaser:
         self.build_client("macos_x86_64", self.make_on_path)
 
     def build_client_ios_arm_v8_64(self) -> None:
-        self.build_client("armv8_64", self.make_on_path)
+        self.build_client("ios_armv8_64", self.make_on_path)
 
     def build_client_releases_for_windows_host(self) -> None:
         self.build_client_windows_x86_32()
