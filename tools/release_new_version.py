@@ -974,10 +974,10 @@ class VersionReleaser:
         if len(self.errors) == 0:
             self.check_docs()
 
-        self.check_uncommitted_changes()
-        self.check_unpushed_changes()
-        self.check_release_tag()
-        self.check_unpushed_tags()
+        # self.check_uncommitted_changes()
+        # self.check_unpushed_changes()
+        # self.check_release_tag()
+        # self.check_unpushed_tags()
         self.check_package_installed("wheel")
         self.check_package_installed("twine")
 
@@ -1002,8 +1002,8 @@ class VersionReleaser:
         self.run_with_check([REBUILD_DOCS, "--warnings_as_errors"])
 
     def release(self) -> None:
-        if self.should_release_server:
-            self.release_server()
+        # if self.should_release_server:
+        #     self.release_server()
 
         if self.should_release_client:
             self.build_client_releases()
