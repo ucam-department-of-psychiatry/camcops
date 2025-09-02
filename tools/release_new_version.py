@@ -32,6 +32,7 @@ import csv
 from datetime import date, datetime
 from getpass import getpass
 import logging
+import multiprocessing
 import os
 from pathlib import Path
 from platform import uname
@@ -1122,6 +1123,7 @@ class VersionReleaser:
             f.unlink()
 
     def build_client_releases(self) -> None:
+        self.cpu_count = multiprocessing.cpu_count()
         self.make_on_path = shutil.which("make")
         sys_info = uname()
 
@@ -1250,7 +1252,7 @@ class VersionReleaser:
         os.makedirs(build_dir, exist_ok=True)
         os.chdir(build_dir)
         self.run_with_check([qmake, PROJECT_FILE], env=env)
-        self.run_with_check([make, "-j8"], env=env)
+        self.run_with_check([make, "-j{self.cpu_count}"], env=env)
 
     def get_qmake(self, sub_dir: str) -> str:
         qt_base_dir = self.get_qt_base_dir()
