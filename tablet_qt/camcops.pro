@@ -44,7 +44,21 @@ isEmpty(QT_BASE_DIR) {
     error("Environment variable CAMCOPS_QT6_BASE_DIR is undefined")
 }
 message("From environment variable CAMCOPS_QT6_BASE_DIR, using custom Qt/library base directory: $${QT_BASE_DIR}")
-message("... Qt version: $$[QT_VERSION]")
+
+# When cross-compiling, QT_VERSION is that of the host machine. So if a newer
+# version of Qt is built for Linux but Android is still using an older version
+# we can end up with the wrong version of Qt being used.
+
+# Seems a bit of a hack:
+CORE_VERSION_FILE = $$[QT_INSTALL_PREFIX]/include/QtCore/qtcoreversion.h
+CORE_VERSION_FILE_CONTENTS=$$cat($${CORE_VERSION_FILE}, lines)
+
+VERSION_NUMBER_LINE = $$find(CORE_VERSION_FILE_CONTENTS, "$${LITERAL_HASH}define QTCORE_VERSION_STR "(.*)"$")
+QUOTED_VERSION = $$replace(VERSION_NUMBER_LINE, "$${LITERAL_HASH}define QTCORE_VERSION_STR ", "")
+INSTALLED_QT_VERSION = $$replace(QUOTED_VERSION, "\"", "")
+
+message("... Installed Qt version: $${INSTALLED_QT_VERSION}")
+message("... Host Qt version: $$[QT_VERSION]")
 message("... Qt is installed in: $$[QT_INSTALL_PREFIX]")
 message("... Qt resources can be found in the following locations:")
 message("... Documentation: $$[QT_INSTALL_DOCS]")
@@ -245,8 +259,8 @@ QT_GIT_VERSION = $$cat($${QT_VERSION_FILE})
 QT_GIT_VERSION = $$replace(QT_GIT_VERSION, "v", "")
 QT_GIT_VERSION = $$replace(QT_GIT_VERSION, "-lts-lgpl", "")
 
-!equals(QT_GIT_VERSION, $$[QT_VERSION]) {
-    error("This version of CamCOPS should be built with '$${QT_GIT_VERSION}', not '$$[QT_VERSION]'")
+!equals(QT_GIT_VERSION, $${INSTALLED_QT_VERSION}) {
+    error("This version of CamCOPS should be built with '$${QT_GIT_VERSION}', not '$${INSTALLED_QT_VERSION}'")
 }
 
 
