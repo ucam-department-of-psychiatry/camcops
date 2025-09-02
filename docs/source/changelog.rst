@@ -3993,7 +3993,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 .. _changelog_v2.4.23:
 
-**Client and server v2.4.23, released 01 Sep 2025**
+**Client and server v2.4.23, released 02 Sep 2025**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Change user agent on client to include the OS and CamCOPS version number. Make it configurable.
