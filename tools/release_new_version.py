@@ -1366,7 +1366,7 @@ class VersionReleaser:
         qmake_args: list[str] = None,
         env: dict[str, str] = None,
     ) -> None:
-        qmake = self.get_qmake(f"qt_{arch}_install")
+        qmake = self.get_qmake(arch)
         qmake_args = qmake_args or []
         build_dir = self.get_build_dir(arch)
 
@@ -1375,9 +1375,14 @@ class VersionReleaser:
         self.run_with_check([qmake, PROJECT_FILE] + qmake_args, env=env)
         self.run_with_check([make, f"-j{self.cpu_count}"], env=env)
 
-    def get_qmake(self, sub_dir: str) -> str:
+    def get_qmake(self, arch: str) -> str:
+        sub_dir = f"qt_{arch}_install"
         qt_base_dir = self.get_qt_base_dir()
-        qmake = os.path.join(qt_base_dir, sub_dir, "bin", "qmake")
+        if "windows" in arch:
+            executable = "qmake.exe"
+        else:
+            executable = "qmake"
+        qmake = os.path.join(qt_base_dir, sub_dir, "bin", executable)
         if os.path.exists(qmake):
             return qmake
 
