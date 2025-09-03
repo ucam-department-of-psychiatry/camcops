@@ -1078,7 +1078,7 @@ class VersionReleaser:
 
         versions = response.json()["releases"].keys()
 
-        return self.new_server_version in versions
+        return str(self.new_server_version) in versions
 
     @property
     def should_release_client(self) -> bool:
