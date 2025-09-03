@@ -1349,21 +1349,16 @@ class VersionReleaser:
         self.build_windows_installer()
 
     def build_client_windows_x86_32(self) -> None:
-        self.build_client_windows(
-            "x86_32",
-            qmake_args=["-spec", "win32-msvc", '"CONFIG+=qtquickcompiler"'],
-        )
+        self.build_client_windows("x86_32")
 
     def build_client_windows_x86_64(self) -> None:
         self.build_client_windows("x86_64")
 
-    def build_client_windows(
-        self, arch: str, qmake_args: list[str] = None
-    ) -> None:
-        self.build_client(f"windows_{arch}", "jom", qmake_args)
+    def build_client_windows(self, arch: str) -> None:
         env = self.get_windows_environment(arch)
 
-        self.build_client(f"windows_{arch}", "jom", qmake_args, env)
+        qmake_args = ["-spec", "win32-msvc", '"CONFIG+=qtquickcompiler"']
+        self.build_client("windows_{arch}", "jom", qmake_args, env)
 
     def build_client(
         self,
