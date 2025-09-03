@@ -222,7 +222,7 @@ class VersionReleaser:
         """
         if self._progress_version is None:
             regex = r"^\*\*.*(\d+)\.(\d+)\.(\d+).*(IN PROGRESS).*\*\*$"
-            with open(CHANGELOG, "r") as f:
+            with open(CHANGELOG, "r", encoding="utf-8") as f:
                 for line in f.readlines():
                     m = re.match(regex, line)
                     if m is not None:
@@ -387,7 +387,7 @@ class VersionReleaser:
         ref_regex = r"- :ref:`(\d{4}) <changelog_(\d{4})>`$"
         refs = []
 
-        with open(CHANGELOG, "r") as f:
+        with open(CHANGELOG, "r", encoding="utf-8") as f:
             for line in f.readlines():
                 m = re.match(ref_regex, line)
                 if m is not None:
@@ -403,7 +403,7 @@ class VersionReleaser:
         targets = []
         headings = []
 
-        with open(CHANGELOG, "r") as f:
+        with open(CHANGELOG, "r", encoding="utf-8") as f:
             year_heading = None
             for line in f.readlines():
                 m = re.match(target_regex, line)
@@ -451,7 +451,7 @@ class VersionReleaser:
         ref_regex = r"- :ref:`v(\d+\.\d+\.\d+) <changelog_v(\d+\.\d+\.\d+)>`$"
         refs = []
 
-        with open(CHANGELOG, "r") as f:
+        with open(CHANGELOG, "r", encoding="utf-8") as f:
             for line in f.readlines():
                 m = re.match(ref_regex, line)
                 if m is not None:
@@ -466,7 +466,7 @@ class VersionReleaser:
 
         targets = []
 
-        with open(CHANGELOG, "r") as f:
+        with open(CHANGELOG, "r", encoding="utf-8") as f:
             for line in f.readlines():
                 m = re.match(target_regex, line)
                 if m is not None:
