@@ -1428,15 +1428,16 @@ class VersionReleaser:
         return env
 
     def build_windows_installer(self) -> None:
-        env = {
-            "CAMCOPS_SOURCE_DIR": PROJECT_ROOT,
-            "CAMCOPS_WINDOWS_BUILD_32_DIR": self.get_build_dir(
+        env = os.environ.copy()
+        env.update(
+            CAMCOPS_SOURCE_DIR=PROJECT_ROOT,
+            CAMCOPS_WINDOWS_BUILD_32_DIR=self.get_build_dir(
                 "windows_x86_32"
             ),
-            "CAMCOPS_WINDOWS_BUILD_64_DIR": self.get_build_dir(
+            CAMCOPS_WINDOWS_BUILD_64_DIR=self.get_build_dir(
                 "windows_x86_64"
             ),
-        }
+        )
 
         self.run_with_check(["iscc", INNOSETUP_FILE], env=env)
 
