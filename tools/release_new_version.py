@@ -44,6 +44,9 @@ import time
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+from cardinal_pythonlib.platformfunc import (
+    windows_get_environment_from_batch_command,
+)
 import requests
 from rich_argparse import ArgumentDefaultsRichHelpFormatter
 from semantic_version import Version
@@ -1358,6 +1361,9 @@ class VersionReleaser:
         self, arch: str, qmake_args: list[str] = None
     ) -> None:
         self.build_client(f"windows_{arch}", "jom", qmake_args)
+        env = self.get_windows_environment(arch)
+
+        self.build_client(f"windows_{arch}", "jom", qmake_args, env)
 
     def build_client(
         self,
@@ -1401,6 +1407,30 @@ class VersionReleaser:
     def macos_camcops_dmg(self) -> str:
         build_dir = self.get_build_dir(self.macos_arch)
         return os.path.join(build_dir, "camcops.dmg")
+
+    def get_windows_environment(self, windows_arch: str) -> dict[str, str]:
+        # Lifted from the build_qt.py script
+        env = os.environ.copy()
+
+        # VCVARSALL.BAT
+
+        # We can't CALL a batch file and have it change our environment,
+        # so we must implement the functionality of VCVARSALL.BAT <arch>
+        if windows_arch == "x86_32":
+            # "x86" in VC\vcvarsall.bat
+            arch = "x86"
+        else:
+            assert windows_arch == "x86_64"
+            # "amd64" in VC\vcvarsall.bat
+            arch = "amd64"
+        # Now read the result from vcvarsall.bat directly
+        args = ["vcvarsall.bat", arch]
+        fetched_env = windows_get_environment_from_batch_command(
+            env_cmd=args, initial_env=env
+        )
+        env.update(**fetched_env)
+
+        return env
 
     def build_windows_installer(self) -> None:
         env = {
