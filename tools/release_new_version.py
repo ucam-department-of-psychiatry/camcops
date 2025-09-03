@@ -1343,22 +1343,36 @@ class VersionReleaser:
     def build_client_releases_for_windows_host(self) -> None:
         self.build_client_windows_x86_32()
         self.build_client_windows_x86_64()
+        self.build_windows_installer()
 
     def build_client_windows_x86_32(self) -> None:
-        self.build_client("windows_x86_32")
+        self.build_client_windows(
+            "x86_32",
+            qmake_args=["-spec", "win32-msvc", '"CONFIG+=qtquickcompiler"'],
+        )
 
     def build_client_windows_x86_64(self) -> None:
-        self.build_client("windows_x86_64")
+        self.build_client_windows("x86_64")
+
+    def build_client_windows(
+        self, arch: str, qmake_args: list[str] = None
+    ) -> None:
+        self.build_client("windows_{arch}", "jom", qmake_args)
 
     def build_client(
-        self, arch: str, make: str, env: dict[str, str] = None
+        self,
+        arch: str,
+        make: str,
+        qmake_args: list[str] = None,
+        env: dict[str, str] = None,
     ) -> None:
         qmake = self.get_qmake(f"qt_{arch}_install")
+        qmake_args = qmake_args or []
         build_dir = self.get_build_dir(arch)
 
         os.makedirs(build_dir, exist_ok=True)
         os.chdir(build_dir)
-        self.run_with_check([qmake, PROJECT_FILE], env=env)
+        self.run_with_check([qmake, PROJECT_FILE] + qmake_args, env=env)
         self.run_with_check([make, f"-j{self.cpu_count}"], env=env)
 
     def get_qmake(self, sub_dir: str) -> str:
@@ -1382,6 +1396,19 @@ class VersionReleaser:
     def macos_camcops_dmg(self) -> str:
         build_dir = self.get_build_dir(self.macos_arch)
         return os.path.join(build_dir, "camcops.dmg")
+
+    def build_windows_installer(self) -> None:
+        env = {
+            "CAMCOPS_SOURCE_DIR": PROJECT_ROOT,
+            "CAMCOPS_WINDOWS_BUILD_32_DIR": self.get_build_dir(
+                "windows_x86_32"
+            ),
+            "CAMCOPS_WINDOWS_BUILD_64_DIR": self.get_build_dir(
+                "windows_x86_64"
+            ),
+        }
+
+        self.run_with_check(["iscc", INNOSETUP_FILE], env=env)
 
     def get_build_dir(self, arch: str) -> str:
         qt_version = self.get_qt_version().replace(".", "_")

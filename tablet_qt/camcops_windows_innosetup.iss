@@ -24,20 +24,21 @@
     #error "Must define environment variable CAMCOPS_SOURCE_DIR; e.g. D:\dev\camcops"
 #endif
 
-#define CamcopsQtBaseDir GetEnv("CAMCOPS_QT6_BASE_DIR")
-#if CamcopsQtBaseDir == ""
-    #error "Must define environment variable CAMCOPS_QT6_BASE_DIR; e.g. D:\dev\qt_local_build"
+#define CamcopsWindowsBuild32Dir GetEnv("CAMCOPS_WINDOWS_BUILD_32_DIR")
+#if CamcopsWindowsBuild32Dir == ""
+    #error "Must define environment variable CAMCOPS_WINDOWS_BUILD_32_DIR; e.g. D:\dev\camcops\tablet_qt\build\" + CamcopsClientVersion + "\qt_6_5_6_windows_x86_32"
 #endif
+
+#define CamcopsWindowsBuild64Dir GetEnv("CAMCOPS_WINDOWS_BUILD_64_DIR")
+#if CamcopsWindowsBuild32Dir == ""
+    #error "Must define environment variable CAMCOPS_WINDOWS_BUILD_64_DIR; e.g. D:\dev\camcops\tablet_qt\build\" + CamcopsClientVersion + "\qt_6_5_6_windows_x86_64"
+#endif
+
 
 #define VisualStudioRedistRoot GetEnv("CAMCOPS_VISUAL_STUDIO_REDIST_ROOT")
 #if VisualStudioRedistRoot == ""
     #error "Must define environment variable CAMCOPS_VISUAL_STUDIO_REDIST_ROOT; e.g. C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Redist\MSVC\14.14.26405"
 #endif
-
-; Note that the next two lines presuppose that you have used the suggested name
-; for the Qt kits.
-#define CamcopsWindowsBuildDir32Name "build-camcops-Custom_Windows_x86_32-Release"
-#define CamcopsWindowsBuildDir64Name "build-camcops-Custom_Windows_x86_64-Release"
 
 ; =============================================================================
 ; Constants
@@ -60,10 +61,8 @@
 #define CCAppExeName CamcopsAppNameLowerCase + ".exe"
 #define CCInstallableOutputDir CamcopsSourceDir + "\distributables"
 #define CCSrcTabletDir CamcopsSourceDir + "\tablet_qt"
-#define CCSrcBuild32Dir CamcopsSourceDir + "\" + CamcopsWindowsBuildDir32Name + "\release"
-#define CCSrcBuild64Dir CamcopsSourceDir + "\" + CamcopsWindowsBuildDir64Name + "\release"
-#define CCSrcExe32 CCSrcBuild32Dir + "\" + CamcopsAppNameLowerCase + ".exe"
-#define CCSrcExe64 CCSrcBuild64Dir + "\" + CamcopsAppNameLowerCase + ".exe"
+#define CCSrcExe32 CamcopsWindowsBuild32Dir + "\" + CamcopsAppNameLowerCase + ".exe"
+#define CCSrcExe64 CamcopsWindowsBuild64Dir + "\" + CamcopsAppNameLowerCase + ".exe"
 #define CCIconName CamcopsAppNameLowerCase + ".ico"
 #define SrcIconFilename CCSrcTabletDir + "\windows\" + CCIconName
 #define VCRedist32Name "vcredist_x86.exe"
