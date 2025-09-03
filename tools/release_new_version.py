@@ -250,7 +250,7 @@ class VersionReleaser:
 
         released_versions = []
 
-        with open(CHANGELOG, "r") as f:
+        with open(CHANGELOG, "r", encoding="utf-8") as f:
             for line in f.readlines():
                 m = re.match(regex, line)
                 if m is not None:
