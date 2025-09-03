@@ -1358,7 +1358,7 @@ class VersionReleaser:
         env = self.get_windows_environment(arch)
 
         qmake_args = ["-spec", "win32-msvc", '"CONFIG+=qtquickcompiler"']
-        self.build_client("windows_{arch}", "jom", qmake_args, env)
+        self.build_client(f"windows_{arch}", "jom", qmake_args, env)
 
     def build_client(
         self,
