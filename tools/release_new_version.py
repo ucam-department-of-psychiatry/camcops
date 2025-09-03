@@ -1043,7 +1043,7 @@ class VersionReleaser:
     def linux_packages_exist(self) -> bool:
         deb_file = os.path.join(
             SERVER_PACKAGE_DIR,
-            f"camcops-server_{self.new_server_version}_1_all.deb",
+            f"camcops-server_{self.new_server_version}-1_all.deb",
         )
         if not os.path.exists(deb_file):
             return False
