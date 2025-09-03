@@ -201,6 +201,7 @@ class VersionReleaser:
         new_server_version: Version,
         release_date: date,
         update_versions: bool,
+        skip_git_checks: bool,
     ) -> None:
         self.new_client_version = new_client_version
         self.new_server_version = new_server_version
@@ -208,6 +209,7 @@ class VersionReleaser:
         self.release_date = release_date
         self._released_versions: Optional[list[tuple[Version, date]]] = None
         self.update_versions = update_versions
+        self.skip_git_checks = skip_git_checks
         self.errors: list[Any] = []
 
     def run_with_check(self, args: List[str], env=None) -> None:
@@ -979,10 +981,14 @@ class VersionReleaser:
         if len(self.errors) == 0:
             self.check_docs()
 
-        self.check_uncommitted_changes()
-        self.check_unpushed_changes()
-        self.check_release_tag()
-        self.check_unpushed_tags()
+        if not self.skip_git_checks:
+            # Sometimes it is necessary to skip these git checks because of
+            # shortcomings of this script, such as git requiring a passphrase.
+            # TODO: Improve this.
+            self.check_uncommitted_changes()
+            self.check_unpushed_changes()
+            self.check_release_tag()
+            self.check_unpushed_tags()
         self.check_package_installed("wheel")
         self.check_package_installed("twine")
 
@@ -1550,6 +1556,12 @@ def main() -> None:
         default=False,
         help="If all checks pass, build and release",
     )
+    parser.add_argument(
+        "--skip_git_checks",
+        action="store_true",
+        default=False,
+        help="Don't check for clean git checkout, pushed tags etc",
+    )
     args = parser.parse_args()
 
     releaser = VersionReleaser(
@@ -1557,6 +1569,7 @@ def main() -> None:
         new_server_version=Version(args.server_version),
         release_date=args.release_date,
         update_versions=args.update_versions,
+        skip_git_checks=args.skip_git_checks,
     )
     releaser.perform_checks()
 
