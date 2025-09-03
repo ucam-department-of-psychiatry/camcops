@@ -61,8 +61,8 @@
 #define CCAppExeName CamcopsAppNameLowerCase + ".exe"
 #define CCInstallableOutputDir CamcopsSourceDir + "\distributables"
 #define CCSrcTabletDir CamcopsSourceDir + "\tablet_qt"
-#define CCSrcExe32 CamcopsWindowsBuild32Dir + "\" + CamcopsAppNameLowerCase + ".exe"
-#define CCSrcExe64 CamcopsWindowsBuild64Dir + "\" + CamcopsAppNameLowerCase + ".exe"
+#define CCSrcExe32 CamcopsWindowsBuild32Dir + "\release\" + CamcopsAppNameLowerCase + ".exe"
+#define CCSrcExe64 CamcopsWindowsBuild64Dir + "\release\" + CamcopsAppNameLowerCase + ".exe"
 #define CCIconName CamcopsAppNameLowerCase + ".ico"
 #define SrcIconFilename CCSrcTabletDir + "\windows\" + CCIconName
 #define VCRedist32Name "vcredist_x86.exe"
