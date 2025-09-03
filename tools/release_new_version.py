@@ -1072,7 +1072,8 @@ class VersionReleaser:
     def uploaded_to_pypi(self) -> bool:
         response = requests.get("https://pypi.org/pypi/camcops-server/json")
         response.raise_for_status()
-        versions = response.json()["versions"]["releases"].keys()
+
+        versions = response.json()["releases"].keys()
 
         return self.new_server_version in versions
 
