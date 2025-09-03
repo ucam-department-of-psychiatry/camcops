@@ -46,7 +46,7 @@
 
 #define CamcopsAppName "CamCOPS"
 #define CamcopsAppNameLowerCase "camcops"
-#define CamcopsPublisher "Rudolf Cardinal"
+#define CamcopsPublisher "University of Cambridge"
 #define CamcopsURL "https://camcops.readthedocs.io/"
 
 ; =============================================================================
