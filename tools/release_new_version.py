@@ -1357,7 +1357,7 @@ class VersionReleaser:
     def build_client_windows(
         self, arch: str, qmake_args: list[str] = None
     ) -> None:
-        self.build_client("windows_{arch}", "jom", qmake_args)
+        self.build_client(f"windows_{arch}", "jom", qmake_args)
 
     def build_client(
         self,
