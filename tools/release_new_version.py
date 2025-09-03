@@ -1014,7 +1014,10 @@ class VersionReleaser:
             self.build_client_releases()
 
     def release_server(self) -> None:
-        self.make_linux_packages()
+        sys_info = uname()
+
+        if sys_info.system == "Linux":
+            self.make_linux_packages()
         self.upload_to_pypi()
 
     def make_linux_packages(self) -> None:
