@@ -1266,7 +1266,8 @@ class VersionReleaser:
                 "-always-overwrite",
                 "-verbose=3",
                 "-no-strip",
-                f'-sign-for-notarization="{certificate_name}"',
+                "-sign-for-notarization",
+                certificate_name,
                 "-dmg",
             ]
         )
