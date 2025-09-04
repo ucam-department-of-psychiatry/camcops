@@ -1350,7 +1350,8 @@ class VersionReleaser:
             [
                 "xcrun",
                 "stapler",
-                "staple" "-v",
+                "staple",
+                "-v",
                 self.macos_camcops_dmg,
             ]
         )
