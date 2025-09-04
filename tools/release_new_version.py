@@ -1291,7 +1291,7 @@ class VersionReleaser:
             text=True,
             check=True,
             stdout=PIPE,
-        ).stderr.decode("utf-8")
+        ).stdout.decode("utf-8")
 
         print(output)
 
@@ -1331,7 +1331,7 @@ class VersionReleaser:
                 text=True,
                 check=True,
                 stdout=PIPE,
-            ).stderr.decode("utf-8")
+            ).stdout.decode("utf-8")
 
             print(output)
 
