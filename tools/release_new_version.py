@@ -1305,7 +1305,8 @@ class VersionReleaser:
 
     def check_macos_dmg_submission(self, submission_id: str) -> None:
         accepted_regex = r"\s*status:\s*Accepted$"
-        delay = 60
+        invalid_regex = r"\s*status:\s*Invalid$"
+        delay = 180
 
         while True:
             print(
@@ -1332,12 +1333,15 @@ class VersionReleaser:
             print(output)
 
             for line in output.splitlines():
+                if re.match(invalid_regex, line) is not None:
+                    print("Invalid submission")
+                    sys.exit(EXIT_FAILURE)
                 if re.match(accepted_regex, line) is not None:
-                    break
+                    return
 
             delay = delay * 2
 
-            if delay > 600:
+            if delay > 1000:
                 print("Gave up waiting.")
                 sys.exit(EXIT_FAILURE)
 
