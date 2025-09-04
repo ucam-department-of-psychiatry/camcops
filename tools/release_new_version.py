@@ -1287,8 +1287,6 @@ class VersionReleaser:
                 self.apple_team_id,
                 self.macos_camcops_dmg,
             ],
-            bufsize=1,
-            text=True,
             check=True,
             stdout=PIPE,
         ).stdout.decode("utf-8")
@@ -1296,7 +1294,7 @@ class VersionReleaser:
         print(output)
 
         id_regex = r"^\s*id:\s*(\S+)$"
-        for line in output:
+        for line in output.splitlines():
             m = re.match(id_regex, line)
             if m is not None:
                 submission_id = m.group(1)
@@ -1327,15 +1325,13 @@ class VersionReleaser:
                     self.apple_team_id,
                     submission_id,
                 ],
-                bufsize=1,
-                text=True,
                 check=True,
                 stdout=PIPE,
             ).stdout.decode("utf-8")
 
             print(output)
 
-            for line in output:
+            for line in output.splitlines():
                 if re.match(accepted_regex, line) is not None:
                     break
 
