@@ -1291,7 +1291,9 @@ class VersionReleaser:
             text=True,
             check=True,
             stdout=PIPE,
-        )
+        ).stderr.decode("utf-8")
+
+        print(output)
 
         id_regex = r"^\s*id:\s*(\S+)$"
         for line in output:
@@ -1329,7 +1331,9 @@ class VersionReleaser:
                 text=True,
                 check=True,
                 stdout=PIPE,
-            )
+            ).stderr.decode("utf-8")
+
+            print(output)
 
             for line in output:
                 if re.match(accepted_regex, line) is not None:
