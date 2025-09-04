@@ -1259,6 +1259,7 @@ class VersionReleaser:
         certificate_name = self.getenv_or_exit(
             "CAMCOPS_MACOS_DEVELOPER_ID_CERTIFICATE_NAME"
         )
+        # macdeployqt does not always return non-zero return code on failure
         self.run_with_check(
             [
                 mac_deploy_qt,
