@@ -36,7 +36,7 @@ versions of the CamCOPS client, the script needs to be run on:
 * Windows (for Windows 32/64-bit Windows builds)
 * MacOS (for MacOS and iOS builds)
 
-The builds are created under ``tablet_qt/build\<version>/qt_<qt_version>_<platform>``
+The builds are created under ``tablet_qt/build/<version>/qt_<qt_version>_<platform>``
 
 When a git tag with a new release version number (e.g. v2.4.23) is pushed to
 GitHub, an automated workflow will create the new release with the server DEB
