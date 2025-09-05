@@ -20,11 +20,11 @@ jobs:
               run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
             - name: Create tar file
               run: |
-                set -eux -o pipefail
+                set -euo pipefail
                 cd ${GITHUB_WORKSPACE}
                 git archive --format=tar.gz -o /tmp/camcops_server.tar.gz --prefix=camcops/ ${{ steps.vars.outputs.tag }}
             - name: Create DEB and RPM packages
-              run:
+              run: |
                 set -euo pipefail
                 ${GITHUB_WORKSPACE}/.github/scripts/python_setup.sh
                 ${GITHUB_WORKSPACE}/.github/scripts/build_packages.sh
