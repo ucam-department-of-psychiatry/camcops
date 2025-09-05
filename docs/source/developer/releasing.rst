@@ -26,34 +26,45 @@
 Releasing CamCOPS
 =================
 
-First build the client for all appropriate platforms (see :ref:`Building the
-CamCOPS client <dev_building_client>`).
+The ``tools/release_new_version.py`` script will do most of the work required to
+create a new release of the CamCOPS client and/or server. To see the options
+available to this script, run it without any arguments. The script will advise
+you on what needs to change before it can build the new release. To create new
+versions of the CamCOPS client, the script needs to be run on:
 
-If the client or server core has changed, remember to ensure appropriate
-strings are internationalized (see :ref:`Internationalization
-<dev_internationalization>`).
+* Linux (for Linux and 32/64-bit Android builds)
+* Windows (for Windows 32/64-bit Windows builds)
+* MacOS (for MacOS and iOS builds)
 
-Releasing a new client and server involves the following steps:
+The builds are created under ``tablet_qt/build\<version>/qt_<qt_version>_<platform>``
 
+When a git tag with a new release version number (e.g. v2.4.23) is pushed to
+GitHub, an automated workflow will create the new release with the server DEB
+and RPM files as artifacts. The client binaries can then be uploaded manually as
+artifacts to the same release.
 
 Code and documentation
 ----------------------
 
-- Push to Github (https://github.com/ucam-department-of-psychiatry/camcops).
-  This also automatically updates the docs at https://camcops.readthedocs.io/.
+When the GitHub repository
+https://github.com/ucam-department-of-psychiatry/camcops is updated with a new
+version tag, the **stable** version of the docs at https://camcops.readthedocs.io/
+is updated automatically. Pushing code to the master branch will update the
+**latest** version of the docs.
 
 
 Android client
 --------------
 
+The ``tools/release_new_version.py`` script will create and sign the Android APK
+files and place them in
+``tablet_qt/build/<version>/qt_<qt_version>_<platform>/android-build/build/outputs/apk/release``.
+
+
 Google Play Store settings
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Developer URL is https://play.google.com/apps/publish
-  :menuselection:`--> pick your application
-  --> e.g. Release management --> App releases`
-
-- App category: "Utility/other".
+- Developer URL is https://play.google.com/console/developers
 
 - Content rating: by Google's definitions, CamCOPS hits criteria for references
   to illegal drugs (e.g. Deakin1HealthReview, and when strings are available,
@@ -65,14 +76,10 @@ Google Play Store settings
 
 - Note re versions:
 
-  - As above, the AndroidManifest.xml has an INTEGER version, so we may as
-    well use consecutive numbers. See the release history below.
-
   The Google Developer site will check the version codes.
-  Failed uploads can sometimes block that version number.
 
-- **You upload a new version with** :menuselection:`[Release] Production -->
-  Create Release`.
+- **You upload a new version with** :menuselection:`--> CamCOPS -->
+  Test and release  --> Production --> Create new release`.
 
   - You can upload two files with the same name (e.g.
     ``android-build-release-signed.apk``) -- for example, one for 32-bit ARM
@@ -84,6 +91,10 @@ Google Play Store settings
     https://www.qt.io/blog/2019/06/28/comply-upcoming-requirements-google-play.
     The 64-bit version should have the higher version number. (You upload both
     APK files before saving/reviewing/rolling out the single release.)
+
+  - If an upload fails validation, you should be able to delete the APK file from
+    :menuselection:`--> CamCOPS -> Test and release --> Production --> Latest releases and bundles`
+    and re-upload a fixed APK with the same version code.
 
   .. todo: look at creating an Android App Bundle for multiple architectures. Does Qt now support this?
 
@@ -98,9 +109,6 @@ Google Play Store settings
   https://play.google.com/store/apps/details?id=org.camcops.camcops). Perhaps
   10 minutes to the main web site?
 
-  As of 2024-02-08, there is a problem with Qt Creator overriding the minimum and target SDK versions
-  in the AndroidManifest.xml file. See https://forum.qt.io/topic/150354/cannot-select-api-33-for-android-target-sdk-in-qt-creator/20
-  for workarounds.
 
 Google Play Store release history
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -117,16 +125,13 @@ iOS client
 
 To deploy to the Apple Store:
 
-- Up the version numbers in Info.plist
-- Build the project first in QtCreator for iOS (arm64) device, release
-- Start Xcode
-- Load the xcodeproj file for this build into Xcode
+- Start Xcode with ``open camcops.xcodeproj`` from ``tablet_qt/build/<version>/qt_<qt_version>_ios_armv8_64``.
+  This will ensure any of your environment variables are available to Xcode.
 - Set the Active scheme to be Any iOS Device (arm64)
 - Archive the project (Product -> Archive)
-- Open the Organizer (Window -> Organizer)
 - Select the Archive and then Distribute App to App Store Connect, accepting all the defaults
 
-The progress bar shows 100% throughout the upload but you can watch the java
+The progress bar may show 100% throughout the upload but you can watch the java
 process on the Network tab of the Activity Monitor.
 
 Validate App does not run the same set of tests as the App Store does. Even if
@@ -143,101 +148,28 @@ in QtCreator (error message mkdir failed). You can just delete it.
 
 MacOS client
 ------------
-Build in QtCreator as usual then sign for distribution outside the Apple Store as a dmg file:
 
-    .. code-block:: bash
-
-        /path/to/macos/qt/install/bin/macdeployqt camcops.app -always-overwrite -verbose=3 -no-strip -sign-for-notarization="Developer ID Application: UNIVERSITY OF CAMBRIDGE DEPARTMENT OF PSYCHIATRY (XXXXXXXXXX)" -dmg
-
-This should sign with a valid Developer ID certificate, include a secure timestamp and have the hardened runtime enabled.
-
-To notarize the app with Apple (to prevent malicious software warnings), you
-need to know the app-specific password for ``notarytool`` which was generated at
-https://appleid.apple.com/ and then:
-
-    .. code-block:: bash
-
-        xcrun notarytool submit --apple-id <ACCOUNT OWNER APPLE ID> --team-id <ACCOUNT OWNER TEAM ID> camcops.dmg
-
-You will be prompted to enter the app-specific password generated by the account owner.
-
-After the upload has finished, you should see something like:
-
-    .. code-block:: bash
-
-        Submission ID received
-          id: <some UUID>
-        Upload progress: 100.00% (39.7 MB of 39.7 MB)
-        Successfully uploaded file
-          id: <some UUID>
-          path: /some/path/camcops.dmg
-
-To check progress:
-
-    .. code-block:: bash
-
-        xcrun notarytool info --apple-id <ACCOUNT OWNER APPLE ID> --team-id <ACCOUNT OWNER TEAM ID> <the UUID above>
-
-Again use the app-specific password.
-
-If notarization failed, try this for more information:
-
-    .. code-block:: bash
-
-        xcrun notarytool info --apple-id <ACCOUNT OWNER APPLE ID> --team-id <ACCOUNT OWNER TEAM ID> <the UUID above>
-
-Again use the app-specific password.
-
-
-If notarization succeeded, run this command:
-
-   .. code-block:: bash
-
-      xcrun stapler staple -v camcops.dmg
-
-``camcops.dmg`` can now be uploaded to the GitHub release assets.
+The ``tools/release_new_version.py`` script will create ``camcops.dmg`` under
+``tablet_qt/build\<version>/qt_<qt_version>_macos_x86_64`` and this can be
+uploaded to the GitHub release assets.
 
 
 Windows client
 --------------
 
-The client will be packaged automatically by the
-``camcops_windows_innosetup.iss`` script, which runs under `Inno Setup`_.
+The ``tools/release_new_version.py`` script will package the client via `Inno Setup`_.
 
-To sign the executables you'll need a valid certificate and a tool such as
-`SignTool`_. This is distributed as part of the Windows 10 SDK.
+To sign the installer executable you'll need a valid certificate and
+`SignTool`_.
 
-Within Inno Setup, select :menuselection:`Tools --> Configure Sign
-Tools...`. Add a tool called ``signtool`` with a command to sign the executable.
+Upload the executable from the ``distributables`` directory to the
+GitHub release assets.
 
-For example:
-
-``C:\Program Files (x86)\Windows Kits\10\bin\10.0.20348.0\x64\signtool.exe sign /debug /sha1 <SHA1 Thumbprint of certificate> /tr http://timestamp.sectigo.com /td SHA256 /fd SHA256 $f``
-
-You can use the `/debug` switch for more verbose output when running `signtool` from the command line.
-
-.. warning::
-
-    Under Windows, be particularly careful that both the 32-bit and 64-bit
-    versions are fresh. Sometimes :menuselection:`Build --> Clean All` doesn't
-    seem to delete all the old executables -- just delete the whole build tree
-    manually if need be. Check from the development root directory with
-    ``dir camcops.exe /s``.
-
-Upload to https://github.com/ucam-department-of-psychiatry/camcops/releases with a tag named
-``v<VERSION_NUMBER>``.
 
 
 Server
 ------
 
-- Create the Debian (``.deb``) and CentOS (``.rpm``) editions using the
-  ``server/tools/MAKE_LINUX_PACKAGES.py`` script. Binaries will end up in
-  ``server/packagebuild/``. Upload to
-  https://github.com/ucam-department-of-psychiatry/camcops/releases with a tag named
-  ``v<VERSION_NUMBER>``.
-
-- The step above will also create a Python distibution in ``server/dist/``.
-  (If you want to run that step by itself, use
-  ``server/MAKE_PYTHON_PACKAGE.sh``.)
-  Upload it to PyPI via ``twine upload dist/camcops_server-VERSION.tar.gz``.
+The ``tools/release_new_version.py`` script will upload the new version of the
+CamCOPS Server to PyPI. the DEB and RPM files are created automatically by the
+GitHub release workflow when the version tag is pushed.

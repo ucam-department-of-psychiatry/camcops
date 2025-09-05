@@ -1027,6 +1027,14 @@ class VersionReleaser:
         self.upload_to_pypi()
 
     def make_linux_packages(self) -> None:
+        # This step isn't strictly necessary because the GitHub release action
+        # currently does this automatically when the new version tag is pushed.
+        # However if the release action fails for any reason (by putting
+        # [no ci] in the last commit message for example) then it's useful just
+        # to be able to upload the packages to GitHub from here. Given that all
+        # the client builds and the push to PyPI are also happening here, it
+        # would probably make sense to create the packages here as well and
+        # not do them from GitHub release action.
         if self.linux_packages_exist():
             print("Linux packages already built.")
             return
@@ -1512,7 +1520,7 @@ def main() -> None:
     / Distribute the server packages to PyPI
     / Use GitHub release action to create the server packages on GitHub
 
-    - Build the client (depending on the platform)
+    / Build the client (depending on the platform)
     - Distribute to Play Store / Apple Store / GitHub
 
     Ideally we want to do all the checks before tagging and building so we
