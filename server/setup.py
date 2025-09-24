@@ -73,7 +73,7 @@ INSTALL_REQUIRES = [
     "cardinal_pythonlib==2.0.5",  # RNC libraries
     "celery==5.3.6",  # background tasks
     "colander==1.7.0",  # serialization/deserialization from web forms
-    "CherryPy==18.6.0",  # web server
+    "CherryPy==18.10.0",  # web server
     (  # deform: web forms
         "deform @ git+https://github.com/RudolfCardinal/deform@b40ea6ccf5fdd3116405e0d5233387bf34e20b37#egg=deform-3.0.0.dev0a"  # noqa: E501
         # ... "a" appended
