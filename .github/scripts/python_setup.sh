@@ -6,7 +6,7 @@ python3 -m venv ${HOME}/venv
 PYTHON=${HOME}/venv/bin/python
 ${PYTHON} -VV
 ${PYTHON} -m site
-${PYTHON} -m pip install -U pip setuptools
+${PYTHON} -m pip install -U pip setuptools wheel
 echo dumping pre-installed packages
 ${PYTHON} -m pip freeze
 echo installing pip packages
