@@ -4008,3 +4008,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client and server v2.4.24, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Bump CherryPy to fix error ``AttributeError: module 'inspect' has no attribute
+  'getargspec'`` when running ``camcops_server`` commands on Python 3.11 and
+  above.
