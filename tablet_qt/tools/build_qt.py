@@ -797,7 +797,6 @@ class Cpu(object):
     ARM_V5_32 = "ARM v5 (32-bit)"
     ARM_V7_32 = "ARM v7 (32-bit)"
     ARM_V8_64 = "ARM v8 (64/32-bit)"
-    UNIVERSAL = "Intel x86 and ARM (64-bit)"
 
 
 ALL_CPUS = [getattr(Cpu, _) for _ in dir(Cpu) if not _.startswith("_")]
@@ -1551,7 +1550,7 @@ class Config(object):
             args.build_android_arm_v8_64
         )  # type: bool
         self.build_linux_x86_64 = args.build_linux_x86_64  # type: bool
-        self.build_macos_universal = args.build_macos_universal  # type: bool
+        self.build_macos_x86_64 = args.build_macos_x86_64  # type: bool
         self.build_windows_x86_64 = args.build_windows_x86_64  # type: bool
         self.build_windows_x86_32 = args.build_windows_x86_32  # type: bool
         self.build_ios_arm_v7_32 = args.build_ios_arm_v7_32  # type: bool
@@ -1573,7 +1572,7 @@ class Config(object):
                 self.build_android_arm_v8_64 = True
             elif BUILD_PLATFORM.macos:
                 # MacOS
-                self.build_macos_universal = True
+                self.build_macos_x86_64 = True
                 # iOS
                 self.build_ios_arm_v7_32 = True
                 self.build_ios_arm_v8_64 = True
@@ -3493,8 +3492,6 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
         pass
 
     elif target_platform.macos:
-        qt_config_cmake_args += ['-DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"']
-
         if BUILD_PLATFORM.macos:
             qt_config_args += []  # not cross-compiling
         else:
@@ -3533,7 +3530,7 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
 
     if cfg.qt_host_path:
         # on iOS this must be set to something like:
-        # /Users/me/qt6_local_build/qt_macos_universal_install
+        # /Users/me/qt6_local_build/qt_macos_x86_64_install
         # for MacOS Qt built with this script
         # or
         # /Users/me/Qt/<version>/macos
@@ -4362,8 +4359,8 @@ def master_builder(args: argparse.Namespace) -> None:
     if cfg.build_linux_x86_64:  # for 64-bit Linux
         build_for(Os.LINUX, Cpu.X86_64)
 
-    if cfg.build_macos_universal:  # for 64-bit Intel or ARM macOS
-        build_for(Os.MACOS, Cpu.UNIVERSAL)
+    if cfg.build_macos_x86_64:  # for 64-bit Intel macOS
+        build_for(Os.MACOS, Cpu.X86_64)
 
     if cfg.build_windows_x86_64:  # for 64-bit Windows
         build_for(Os.WINDOWS, Cpu.X86_64)
@@ -4623,9 +4620,9 @@ def main() -> None:
         "CPU; check with 'lscpu' and 'uname -a'",
     )
     archgroup.add_argument(
-        "--build_macos_universal",
+        "--build_macos_x86_64",
         action="store_true",
-        help="An architecture target (macOS under an Intel or ARM 64-bit CPU; "
+        help="An architecture target (macOS under an Intel 64-bit CPU; "
         "check with 'sysctl -a|grep cpu', and see "
         "https://support.apple.com/en-gb/HT201948 )",
     )
