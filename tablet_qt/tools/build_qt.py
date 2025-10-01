@@ -939,11 +939,16 @@ class Platform(object):
 
     @property
     def cpu_x86_family(self) -> bool:
-        return self.cpu in (Cpu.X86_32, Cpu.X86_64, Cpu.AMD_64)
+        return self.cpu in (Cpu.X86_32, Cpu.X86_64, Cpu.AMD_64, Cpu.UNIVERSAL)
 
     @property
     def cpu_64bit(self) -> bool:
-        return self.cpu in (Cpu.X86_64, Cpu.AMD_64, Cpu.ARM_V8_64)
+        return self.cpu in (
+            Cpu.X86_64,
+            Cpu.AMD_64,
+            Cpu.ARM_V8_64,
+            Cpu.UNIVERSAL,
+        )
 
     @property
     def cpu_x86_64bit_family(self) -> bool:
@@ -955,7 +960,12 @@ class Platform(object):
 
     @property
     def cpu_arm_family(self) -> bool:
-        return self.cpu in (Cpu.ARM_V5_32, Cpu.ARM_V7_32, Cpu.ARM_V8_64)
+        return self.cpu in (
+            Cpu.ARM_V5_32,
+            Cpu.ARM_V7_32,
+            Cpu.ARM_V8_64,
+            Cpu.UNIVERSAL,
+        )
 
     @property
     def cpu_arm_32bit(self) -> bool:
@@ -963,7 +973,7 @@ class Platform(object):
 
     @property
     def cpu_arm_64bit(self) -> bool:
-        return self.cpu in (Cpu.ARM_V8_64,)
+        return self.cpu in (Cpu.ARM_V8_64, Cpu.UNIVERSAL)
 
     # -------------------------------------------------------------------------
     # Linkage method of Qt
