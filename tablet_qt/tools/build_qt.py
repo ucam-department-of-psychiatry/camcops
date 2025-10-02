@@ -826,7 +826,7 @@ class Platform(object):
             raise NotImplementedError(f"Unknown target CPU: {cpu!r}")
 
         # 64-bit support only (thus far)?
-        if os in (Os.LINUX, Os.MACOS) and not self.cpu_x86_64bit_family:
+        if os in (Os.LINUX, Os.MACOS) and not self.cpu_64bit:
             raise NotImplementedError(
                 f"Don't know how to build for CPU {cpu} on system {os}"
             )
@@ -1360,7 +1360,7 @@ class Platform(object):
                 "macos_platform_name requested but not using MacOS"
             )
 
-        if self.cpu_x86_family:
+        if self.cpu_x86_family or self.cpu_arm_family:
             return "MacOSX"
 
         raise ValueError("Unknown combination for macos_platform_name")
