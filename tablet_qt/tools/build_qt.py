@@ -4191,7 +4191,7 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
                 [
                     "--enable-cross-compile",
                     f"--arch={arch}",
-                    f"--cc='clang -arch {arch}'",
+                    f"--cc=clang -arch {arch}",
                 ]
             )
 
