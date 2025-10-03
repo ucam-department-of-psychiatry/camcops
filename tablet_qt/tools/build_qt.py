@@ -3946,7 +3946,13 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
             # - https://stackoverflow.com/questions/5311515/gcc-fpic-option
             # The flag applies to clang as well as gcc.
         if target_platform.macos:
-            cflags.append(f"-mmacosx-version-min={cfg.macos_min_version}")
+            arch = target_platform.apple_arch_name
+            cflags.extend(
+                [
+                    f"-arch {arch}",
+                    f"-mmacosx-version-min={cfg.macos_min_version}",
+                ]
+            )
         if "CFLAGS" in env:
             # inherit this too; 2018-08-24
             cflags.append(env["CFLAGS"])
