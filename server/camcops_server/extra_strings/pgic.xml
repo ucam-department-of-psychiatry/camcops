@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="pgic">
+    <string name="title">Patient Global Impression of Change</string>
+    <string name="question">Since the start of the study, my overall status is:</string>
+    <string name="a1">Very Much Improved</string>
+    <string name="a2">Much Improved</string>
+    <string name="a3">Minimally Improved</string>
+    <string name="a4">No Change</string>
+    <string name="a5">Minimally Worse</string>
+    <string name="a6">Much Worse</string>
+    <string name="a7">Very Much Worse</string>
+  </task>
+</resources>
