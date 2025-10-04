@@ -3509,7 +3509,14 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
             BUILD_PLATFORM.cpu == Cpu.X86_64
             and target_platform.cpu == Cpu.ARM_V8_64
         ):
-            qt_config_cmake_args += ['-DCMAKE_OSX_ARCHITECTURES="arm64"']
+            # CMAKE_SYSTEM_NAME is workaround for
+            # https://bugreports.qt.io/browse/QTBUG-121322
+            # "The syncqt process exited with code Bad CPU type in executable
+            # and without any useful output.
+            qt_config_cmake_args += [
+                '-DCMAKE_OSX_ARCHITECTURES="arm64"',
+                "-DCMAKE_SYSTEM_NAME=Darwin",
+            ]
         elif (
             BUILD_PLATFORM.cpu == Cpu.ARM_V8_64
             and target_platform.cpu == Cpu.X86_64
