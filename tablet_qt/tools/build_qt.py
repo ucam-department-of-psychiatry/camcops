@@ -3324,6 +3324,7 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
     # list(APPEND cmake_args "--trace-source FindFFmpeg.cmake")
     # list(APPEND cmake_args "--trace-expand")
     # probably best to redirect output to a file. There is a lot of it.
+    log.info("Build platform is {}...", BUILD_PLATFORM)
     log.info("Configuring Qt for {}...", target_platform)
 
     # https://doc.qt.io/qt-6.5/opensslsupport.html
