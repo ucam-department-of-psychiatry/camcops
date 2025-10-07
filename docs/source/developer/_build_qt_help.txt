@@ -10,9 +10,9 @@ usage: build_qt.py [-h] [--show_config_only] [--root_dir ROOT_DIR]
                    [--build_android_x86_32] [--build_android_x86_64]
                    [--build_android_arm_v7_32] [--build_android_arm_v8_64]
                    [--build_linux_x86_64] [--build_macos_x86_64]
-                   [--build_windows_x86_64] [--build_windows_x86_32]
-                   [--build_ios_arm_v7_32] [--build_ios_arm_v8_64]
-                   [--build_ios_simulator_x86_32]
+                   [--build_macos_arm_v8_64] [--build_windows_x86_64]
+                   [--build_windows_x86_32] [--build_ios_arm_v7_32]
+                   [--build_ios_arm_v8_64] [--build_ios_simulator_x86_32]
                    [--build_ios_simulator_x86_64]
                    [--qt_build_type {debug,release,release_w_symbols}]
                    [--qt_src_dirname QT_SRC_DIRNAME] [--qt_openssl_static]
@@ -87,6 +87,9 @@ Architecture:
                         CPU; check with 'sysctl -a|grep cpu', and see
                         https://support.apple.com/en-gb/HT201948 ) (default:
                         False)
+  --build_macos_arm_v8_64
+                        An architecture target (macOS under an ARM 64-bit CPU;
+                        check with 'sysctl -a|grep cpu' (default: False)
   --build_windows_x86_64
                         An architecture target (Windows with an Intel/AMD
                         64-bit CPU) (default: False)
