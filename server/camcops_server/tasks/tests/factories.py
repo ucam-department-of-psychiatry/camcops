@@ -158,6 +158,7 @@ from camcops_server.tasks.pcl5 import Pcl5
 from camcops_server.tasks.pcl import PclC, PclM, PclS
 from camcops_server.tasks.pdss import Pdss
 from camcops_server.tasks.perinatalpoem import PerinatalPoem
+from camcops_server.tasks.pgic import Pgic
 from camcops_server.tasks.photo import (
     Photo,
     PhotoSequence,
@@ -1146,6 +1147,13 @@ class PclSFactory(TaskHasPatientFactory):
 class PdssFactory(TaskHasPatientFactory):
     class Meta:
         model = Pdss
+
+    id = factory.Sequence(lambda n: n + 1)
+
+
+class PgicFactory(TaskHasPatientFactory):
+    class Meta:
+        model = Pgic
 
     id = factory.Sequence(lambda n: n + 1)
 
