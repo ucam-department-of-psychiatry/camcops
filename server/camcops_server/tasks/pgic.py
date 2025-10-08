@@ -29,13 +29,10 @@ Patient Global Impression of Change (PGIC) task.
 
 from typing import Optional, TYPE_CHECKING
 
-import cardinal_pythonlib.rnc_web as ws
-from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy import UnicodeText
 from sqlalchemy.orm import Mapped
 
 from camcops_server.cc_modules.cc_constants import CssClass
-from camcops_server.cc_modules.cc_html import answer, tr
+from camcops_server.cc_modules.cc_html import tr
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     mapped_camcops_column,
     ONE_TO_SEVEN_CHECKER,
@@ -56,7 +53,6 @@ class Pgic(TaskHasPatientMixin, Task):  # type: ignore[misc]
         permitted_value_checker=ONE_TO_SEVEN_CHECKER,
         comment="1 Very Much Improved to 7 Very Much Worse",
     )
-    
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -66,8 +62,7 @@ class Pgic(TaskHasPatientMixin, Task):  # type: ignore[misc]
     def is_complete(self) -> bool:
         return self.question is not None
 
-
-    def get_task_html(self, req: "CamcopsRequest") -> str: # produces table 
+    def get_task_html(self, req: "CamcopsRequest") -> str:  # produces table
         rows = self.get_task_html_rows(req)
 
         html = """
@@ -89,9 +84,11 @@ class Pgic(TaskHasPatientMixin, Task):  # type: ignore[misc]
         return html
 
     def get_task_html_rows(self, req: "CamcopsRequest") -> str:
-        question_text = self.xstring(req, "question") #refers to named string in XML file
+        question_text = self.xstring(
+            req, "question"
+        )  # refers to named string in XML file
         header = f"""
-            <tr> 
+            <tr>
                 <th width="100%">{question_text}</th>
             </tr>
         """
@@ -99,4 +96,3 @@ class Pgic(TaskHasPatientMixin, Task):  # type: ignore[misc]
         row = tr(f"{self.question} - {response}")
 
         return header + row
-    
