@@ -3560,7 +3560,14 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
             "Don't know how to compile Qt for " + str(target_platform)
         )
 
-    cross_compiling = target_platform.cpu != BUILD_PLATFORM.cpu
+    cross_compiling = (
+        target_platform.android
+        or target_platform.ios
+        or (
+            BUILD_PLATFORM.macos
+            and BUILD_PLATFORM.cpu_arm_family != target_platform.cpu_x86_family
+        )
+    )
 
     if cfg.qt_host_path:
         # on iOS this must be set to something like:
