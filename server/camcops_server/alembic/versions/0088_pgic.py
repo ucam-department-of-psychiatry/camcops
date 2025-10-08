@@ -349,6 +349,15 @@ def upgrade() -> None:  # a lot of columns for metadata beyond PGIC itself
             unique=False,
         )
 
+    with op.batch_alter_table("pgic", schema=None) as batch_op:
+        batch_op.create_foreign_key(
+            batch_op.f("fk_pgic__device_id"),
+            "_security_devices",
+            ["_device_id"],
+            ["id"],
+            use_alter=True,
+        )
+
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade() -> None:  # to go back to previous versions
