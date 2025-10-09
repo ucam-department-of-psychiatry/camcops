@@ -581,7 +581,9 @@ FFMPEG_VERSION = "n6.0"
 
 # Mac things; https://gist.github.com/armadsen/b30f352a8d6f6c87a146
 MIN_IOS_VERSION = "7.0"
-MIN_MACOS_VERSION = "11"  # https://doc.qt.io/qt-6.5/macos.html
+
+with open(join(VERSIONS_DIR, "macos.txt")) as f:
+    MIN_MACOS_VERSION = f.read().strip()
 
 
 # -----------------------------------------------------------------------------
@@ -3506,6 +3508,10 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
         pass
 
     elif target_platform.macos:
+        qt_config_cmake_args += [
+            f"-DCMAKE_OSX_DEPLOYMENT_TARGET={cfg.macos_min_version}"
+        ]
+
         if (
             BUILD_PLATFORM.cpu == Cpu.X86_64
             and target_platform.cpu == Cpu.ARM_V8_64
@@ -3565,7 +3571,7 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
         or target_platform.ios
         or (
             BUILD_PLATFORM.macos
-            and BUILD_PLATFORM.cpu_arm_family != target_platform.cpu_x86_family
+            and BUILD_PLATFORM.cpu_arm_family != target_platform.cpu_arm_family
         )
     )
 
