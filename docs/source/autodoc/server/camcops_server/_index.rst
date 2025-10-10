@@ -119,6 +119,7 @@ server/camcops_server
     alembic/versions/0085_aq.py.rst
     alembic/versions/0086_hamd_specific_comments.py.rst
     alembic/versions/0087_empsa.py.rst
+    alembic/versions/0088_pgic.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -358,6 +359,7 @@ server/camcops_server
     extra_strings/pcl.xml.rst
     extra_strings/pcl5.xml.rst
     extra_strings/perinatal_poem.xml.rst
+    extra_strings/pgic.xml.rst
     extra_strings/phq15.xml.rst
     extra_strings/phq8.xml.rst
     extra_strings/phq9.xml.rst
@@ -467,6 +469,7 @@ server/camcops_server
     tasks/pcl5.py.rst
     tasks/pdss.py.rst
     tasks/perinatalpoem.py.rst
+    tasks/pgic.py.rst
     tasks/photo.py.rst
     tasks/phq15.py.rst
     tasks/phq8.py.rst
