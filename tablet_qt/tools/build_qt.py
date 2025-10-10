@@ -57,6 +57,9 @@ Status
 | macOS (OS X), x86,  | macOS, x86, 64-bit          | OK 2019-06-17           |
 | 64-bit              |                             |                         |
 +---------------------+-----------------------------+-------------------------+
+| macOS (OS X), ARM,  | macOS, ARM, 64-bit          | In development          |
+| 64-bit              |                             | 2025-10-01              |
++---------------------+-----------------------------+-------------------------+
 |                     | iOS, x86 (for emulator)     | deferred                |
 +---------------------+-----------------------------+-------------------------+
 |                     | iOS, ARM, 32-bit            | OK 2019-06-17           |
@@ -578,7 +581,9 @@ FFMPEG_VERSION = "n6.0"
 
 # Mac things; https://gist.github.com/armadsen/b30f352a8d6f6c87a146
 MIN_IOS_VERSION = "7.0"
-MIN_MACOS_VERSION = "11"  # https://doc.qt.io/qt-6.5/macos.html
+
+with open(join(VERSIONS_DIR, "macos.txt")) as f:
+    MIN_MACOS_VERSION = f.read().strip()
 
 
 # -----------------------------------------------------------------------------
@@ -823,7 +828,7 @@ class Platform(object):
             raise NotImplementedError(f"Unknown target CPU: {cpu!r}")
 
         # 64-bit support only (thus far)?
-        if os in (Os.LINUX, Os.MACOS) and not self.cpu_x86_64bit_family:
+        if os in (Os.LINUX, Os.MACOS) and not self.cpu_64bit:
             raise NotImplementedError(
                 f"Don't know how to build for CPU {cpu} on system {os}"
             )
@@ -963,6 +968,10 @@ class Platform(object):
     @property
     def cpu_arm_64bit(self) -> bool:
         return self.cpu in (Cpu.ARM_V8_64,)
+
+    @property
+    def cpu_arm_64bit_family(self) -> bool:
+        return self.cpu_arm_family and self.cpu_64bit
 
     # -------------------------------------------------------------------------
     # Linkage method of Qt
@@ -1353,7 +1362,7 @@ class Platform(object):
                 "macos_platform_name requested but not using MacOS"
             )
 
-        if self.cpu_x86_family:
+        if self.cpu_x86_family or self.cpu_arm_family:
             return "MacOSX"
 
         raise ValueError("Unknown combination for macos_platform_name")
@@ -1521,6 +1530,8 @@ def get_build_platform() -> Platform:
         cpu = Cpu.X86_64
     elif m == "AMD64":
         cpu = Cpu.AMD_64
+    elif m == "arm64":
+        cpu = Cpu.ARM_V8_64
     else:
         raise NotImplementedError(f"Don't know host (build) CPU {m!r}")
     distro_id = distro.id() if distro else ""
@@ -1551,6 +1562,7 @@ class Config(object):
         )  # type: bool
         self.build_linux_x86_64 = args.build_linux_x86_64  # type: bool
         self.build_macos_x86_64 = args.build_macos_x86_64  # type: bool
+        self.build_macos_arm_v8_64 = args.build_macos_arm_v8_64  # type: bool
         self.build_windows_x86_64 = args.build_windows_x86_64  # type: bool
         self.build_windows_x86_32 = args.build_windows_x86_32  # type: bool
         self.build_ios_arm_v7_32 = args.build_ios_arm_v7_32  # type: bool
@@ -1573,6 +1585,7 @@ class Config(object):
             elif BUILD_PLATFORM.macos:
                 # MacOS
                 self.build_macos_x86_64 = True
+                self.build_macos_arm_v8_64 = True
                 # iOS
                 self.build_ios_arm_v7_32 = True
                 self.build_ios_arm_v8_64 = True
@@ -2781,6 +2794,8 @@ def openssl_target_os_args(target_platform: Platform) -> List[str]:
         elif target_platform.cpu_x86_64bit_family:
             # https://gist.github.com/tmiz/1441111
             return ["darwin64-x86_64-cc"]
+        elif target_platform.cpu_arm_64bit_family:
+            return ["darwin64-arm64-cc"]
 
     elif target_platform.ios:
         # https://gist.github.com/foozmeat/5154962
@@ -3311,6 +3326,7 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
     # list(APPEND cmake_args "--trace-source FindFFmpeg.cmake")
     # list(APPEND cmake_args "--trace-expand")
     # probably best to redirect output to a file. There is a lot of it.
+    log.info("Build platform is {}...", BUILD_PLATFORM)
     log.info("Configuring Qt for {}...", target_platform)
 
     # https://doc.qt.io/qt-6.5/opensslsupport.html
@@ -3492,6 +3508,28 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
         pass
 
     elif target_platform.macos:
+        qt_config_cmake_args += [
+            f"-DCMAKE_OSX_DEPLOYMENT_TARGET={cfg.macos_min_version}"
+        ]
+
+        if (
+            BUILD_PLATFORM.cpu == Cpu.X86_64
+            and target_platform.cpu == Cpu.ARM_V8_64
+        ):
+            # CMAKE_SYSTEM_NAME is workaround for
+            # https://bugreports.qt.io/browse/QTBUG-121322
+            # "The syncqt process exited with code Bad CPU type in executable
+            # and without any useful output.
+            qt_config_cmake_args += [
+                '-DCMAKE_OSX_ARCHITECTURES="arm64"',
+                "-DCMAKE_SYSTEM_NAME=Darwin",
+            ]
+        elif (
+            BUILD_PLATFORM.cpu == Cpu.ARM_V8_64
+            and target_platform.cpu == Cpu.X86_64
+        ):
+            qt_config_cmake_args += ['-DCMAKE_OSX_ARCHITECTURES="x86_64"']
+
         if BUILD_PLATFORM.macos:
             qt_config_args += []  # not cross-compiling
         else:
@@ -3528,6 +3566,15 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
             "Don't know how to compile Qt for " + str(target_platform)
         )
 
+    cross_compiling = (
+        target_platform.android
+        or target_platform.ios
+        or (
+            BUILD_PLATFORM.macos
+            and BUILD_PLATFORM.cpu_arm_family != target_platform.cpu_arm_family
+        )
+    )
+
     if cfg.qt_host_path:
         # on iOS this must be set to something like:
         # /Users/me/qt6_local_build/qt_macos_x86_64_install
@@ -3535,6 +3582,9 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
         # or
         # /Users/me/Qt/<version>/macos
         # for pre-installed Qt
+
+        if not cross_compiling:
+            fail("qt_host_path was set unexpectedly when not cross-compiling")
 
         # CMake won't warn us if this isn't a valid path
         if not isdir(cfg.qt_host_path):
@@ -3544,6 +3594,9 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
             fail(f"qt_host_path {cfg.qt_host_path} does not contain bin/qmake")
 
         qt_config_cmake_args.append(f"-DQT_HOST_PATH={cfg.qt_host_path}")
+    else:
+        if cross_compiling:
+            fail("qt_host_path shoud be set when cross-compiling")
 
     for objdir in objdirs:
         extra_cmake_cxxflags.append(f"-B{objdir}")
@@ -3914,7 +3967,13 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
             # - https://stackoverflow.com/questions/5311515/gcc-fpic-option
             # The flag applies to clang as well as gcc.
         if target_platform.macos:
-            cflags.append(f"-mmacosx-version-min={cfg.macos_min_version}")
+            arch = target_platform.apple_arch_name
+            cflags.extend(
+                [
+                    f"-arch {arch}",
+                    f"-mmacosx-version-min={cfg.macos_min_version}",
+                ]
+            )
         if "CFLAGS" in env:
             # inherit this too; 2018-08-24
             cflags.append(env["CFLAGS"])
@@ -4145,6 +4204,18 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
             ]
         )
 
+        if target_platform.cpu != BUILD_PLATFORM.cpu:
+            # arch either arm64 or x86_64
+            arch = target_platform.apple_arch_name
+
+            config_args.extend(
+                [
+                    "--enable-cross-compile",
+                    f"--arch={arch}",
+                    f"--cc=clang -arch {arch}",
+                ]
+            )
+
     make = MAKE
 
     make_args = [make]
@@ -4361,6 +4432,9 @@ def master_builder(args: argparse.Namespace) -> None:
 
     if cfg.build_macos_x86_64:  # for 64-bit Intel macOS
         build_for(Os.MACOS, Cpu.X86_64)
+
+    if cfg.build_macos_arm_v8_64:  # for 64-bit ARM macOS
+        build_for(Os.MACOS, Cpu.ARM_V8_64)
 
     if cfg.build_windows_x86_64:  # for 64-bit Windows
         build_for(Os.WINDOWS, Cpu.X86_64)
@@ -4625,6 +4699,12 @@ def main() -> None:
         help="An architecture target (macOS under an Intel 64-bit CPU; "
         "check with 'sysctl -a|grep cpu', and see "
         "https://support.apple.com/en-gb/HT201948 )",
+    )
+    archgroup.add_argument(
+        "--build_macos_arm_v8_64",
+        action="store_true",
+        help="An architecture target (macOS under an ARM 64-bit CPU; "
+        "check with 'sysctl -a|grep cpu'",
     )
     archgroup.add_argument(
         "--build_windows_x86_64",
