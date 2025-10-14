@@ -284,6 +284,9 @@ OPENSSL_VERSION_FILE = "$${VERSIONS_DIR}/openssl.txt"
 OPENSSL_VERSION = $$cat($${OPENSSL_VERSION_FILE})
 # ... see build_qt.py or changelog.rst for chronology
 
+MACOS_VERSION_FILE = "$${VERSIONS_DIR}/macos.txt"
+MACOS_VERSION = $$cat($${MACOS_VERSION_FILE})
+
 # -----------------------------------------------------------------------------
 # Architecture
 # -----------------------------------------------------------------------------
@@ -390,12 +393,14 @@ macx {
     CAMCOPS_QT_LINKAGE = "static"
     CAMCOPS_OPENSSL_LINKAGE = "static"
 
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = $${MACOS_VERSION}
+
     contains(QT_ARCH, x86_64) {
         message("Building for MacOS/x86_64 architecture")
         CAMCOPS_ARCH_TAG = "macos_x86_64"
     } else {
-        message("Building for MacOS/x86_32 architecture")
-        CAMCOPS_ARCH_TAG = "macos_x86_32"
+        message("Building for MacOS/ARM v8 64-bit architecture")
+        CAMCOPS_ARCH_TAG = "macos_armv8_64"
     }
 }
 ios {
