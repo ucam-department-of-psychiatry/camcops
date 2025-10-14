@@ -4012,3 +4012,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Bump CherryPy to fix error ``AttributeError: module 'inspect' has no attribute
   'getargspec'`` when running ``camcops_server`` commands on Python 3.11 and
   above.
+
+- Build Qt, third party libraries and CamCOPS on MacOS Silicon (ARM).
