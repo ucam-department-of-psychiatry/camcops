@@ -2452,9 +2452,11 @@ Linux (Ubuntu) (DEFUNCT)
 OS_X_PACKAGE_HELP = """
 macOS (OS X)
 -------------------------------------------------------------------------------
+ccache      brew update && brew install ccache
 clang       Install XCode
 cmake       brew update && brew install cmake
 gobjdump    brew update && brew install binutils
+yasm        brew update && brew install yasm
 """
 
 WINDOWS_PACKAGE_HELP = r"""
