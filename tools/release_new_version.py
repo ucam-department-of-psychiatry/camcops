@@ -1247,16 +1247,28 @@ class VersionReleaser:
 
     def build_client_releases_for_mac_host(self) -> None:
         self.build_client_macos_x86_64()
+        self.build_client_macos_arm_v8_64()
         self.build_client_ios_arm_v8_64()
 
     def build_client_macos_x86_64(self) -> None:
-        self.build_client(self.macos_arch, self.make_on_path)
-        self.sign_macos_client()
-        submission_id = self.submit_macos_dmg_for_notarization()
+        self.build_client(self.macos_x86_64_arch, self.make_on_path)
+        self.sign_macos_client(self.macos_x86_64_camcops_app)
+        submission_id = self.submit_macos_dmg_for_notarization(
+            self.macos_x86_64_camcops_dmg
+        )
         self.check_macos_dmg_submission(submission_id)
-        self.staple_macos_dmg()
+        self.staple_macos_dmg(self.macos_x86_64_camcops_dmg)
 
-    def sign_macos_client(self) -> None:
+    def build_client_macos_arm_v8_64(self) -> None:
+        self.build_client(self.macos_arm_v8_64_arch, self.make_on_path)
+        self.sign_macos_client(self.macos_arm_v8_64_camcops_app)
+        submission_id = self.submit_macos_dmg_for_notarization(
+            self.macos_arm_v8_64_camcops_dmg
+        )
+        self.check_macos_dmg_submission(submission_id)
+        self.staple_macos_dmg(self.macos_arm_v8_64_camcops_dmg)
+
+    def sign_macos_client(self, macos_camcops_app: str) -> None:
         # Sign app with valid developer ID certificate, include a secure
         # timestamp and have the hardened runtime enabled.
         qt_base_dir = self.get_qt_base_dir()
@@ -1271,7 +1283,7 @@ class VersionReleaser:
         self.run_with_check(
             [
                 mac_deploy_qt,
-                self.macos_camcops_app,
+                macos_camcops_app,
                 "-always-overwrite",
                 "-verbose=3",
                 "-no-strip",
@@ -1280,7 +1292,7 @@ class VersionReleaser:
             ]
         )
 
-    def submit_macos_dmg_for_notarization(self) -> str:
+    def submit_macos_dmg_for_notarization(self, macos_camcops_dmg: str) -> str:
         print(
             "When prompted, enter the app-specific password for 'notarytool'"
         )
@@ -1293,7 +1305,7 @@ class VersionReleaser:
                 self.apple_id,
                 "--team-id",
                 self.apple_team_id,
-                self.macos_camcops_dmg,
+                macos_camcops_dmg,
             ],
             check=True,
             stdout=PIPE,
@@ -1353,14 +1365,14 @@ class VersionReleaser:
                 print("Gave up waiting.")
                 sys.exit(EXIT_FAILURE)
 
-    def staple_macos_dmg(self) -> None:
+    def staple_macos_dmg(self, macos_camcops_dmg: str) -> None:
         self.run_with_check(
             [
                 "xcrun",
                 "stapler",
                 "staple",
                 "-v",
-                self.macos_camcops_dmg,
+                macos_camcops_dmg,
             ]
         )
 
@@ -1418,13 +1430,23 @@ class VersionReleaser:
         return self.getenv_or_exit("CAMCOPS_QT6_BASE_DIR")
 
     @property
-    def macos_camcops_app(self) -> str:
-        build_dir = self.get_build_dir(self.macos_arch)
+    def macos_x86_64_camcops_app(self) -> str:
+        build_dir = self.get_build_dir(self.macos_x86_64_arch)
         return os.path.join(build_dir, "camcops.app")
 
     @property
-    def macos_camcops_dmg(self) -> str:
-        build_dir = self.get_build_dir(self.macos_arch)
+    def macos_x86_64_camcops_dmg(self) -> str:
+        build_dir = self.get_build_dir(self.macos_x86_64_arch)
+        return os.path.join(build_dir, "camcops.dmg")
+
+    @property
+    def macos_arm_v8_64_camcops_app(self) -> str:
+        build_dir = self.get_build_dir(self.macos_arm_v8_64_arch)
+        return os.path.join(build_dir, "camcops.app")
+
+    @property
+    def macos_arm_v8_64_camcops_dmg(self) -> str:
+        build_dir = self.get_build_dir(self.macos_arm_v8_64_arch)
         return os.path.join(build_dir, "camcops.dmg")
 
     def get_windows_environment(self, windows_arch: str) -> dict[str, str]:
@@ -1470,8 +1492,12 @@ class VersionReleaser:
         )
 
     @property
-    def macos_arch(self) -> str:
+    def macos_x86_64_arch(self) -> str:
         return "macos_x86_64"
+
+    @property
+    def macos_arm_v8_64_arch(self) -> str:
+        return "macos_arm_v8_64"
 
     @property
     def apple_id(self) -> str:
