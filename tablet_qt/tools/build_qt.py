@@ -2991,7 +2991,10 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         ]
     # OpenSSL's Configure script applies optimizations by default.
     if target_platform.android:
-        configure_args += [f"-D__ANDROID_API__={cfg.android_sdk_version}"]
+        configure_args += [
+            "-Wl,-z,max-page-size=16384",  # 16kb page size, not yet in 3.0.x
+            f"-D__ANDROID_API__={cfg.android_sdk_version}",
+        ]
     if target_platform.ios:
         configure_args += ["no-makedepend"]
 
