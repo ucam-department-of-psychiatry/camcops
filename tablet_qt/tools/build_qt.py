@@ -1628,9 +1628,20 @@ class Config(object):
         # - used for cross-compilation to Android targets
         self.android_sdk_version = ANDROID_SDK_VERSION
         self.android_sdk_root = args.android_sdk_root  # type: str
+        if not isdir(self.android_sdk_root):
+            fail(
+                f"android_sdk_root {self.android_sdk_root} "
+                "is not a valid directory"
+            )
         self.android_ndk_root = join(
             args.android_ndk_root, ANDROID_NDK_VERSION
         )  # type: str
+        if not isdir(self.android_ndk_root):
+            fail(
+                f"android_ndk_root {self.android_ndk_root} "
+                "is not a valid directory"
+            )
+
         self.android_ndk_host = args.android_ndk_host  # type: str
         self.android_toolchain_version = (
             args.android_toolchain_version
