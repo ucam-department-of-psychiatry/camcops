@@ -4149,6 +4149,7 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
                 f"--cxx={cxx}",
                 f"--ar={ar}",
                 f"--ranlib={ranlib}",
+                "--extra-ldflags=-Wl,-z,max-page-size=16384",  # 16kb page size
             ]
         )
 
