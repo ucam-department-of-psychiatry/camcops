@@ -2,12 +2,11 @@ diff --git a/cmake/QtPlatformTargetHelpers.cmake b/cmake/QtPlatformTargetHelpers
 index 54d1916f9eb..061f1844b01 100644
 --- a/cmake/QtPlatformTargetHelpers.cmake
 +++ b/cmake/QtPlatformTargetHelpers.cmake
-@@ -33,6 +33,8 @@ function(qt_internal_setup_public_platform_target)
+@@ -33,5 +33,7 @@ function(qt_internal_setup_public_platform_target)
      # in order to satisfy linker dependencies. Both of these libraries are part of
      # the NDK.
      if (ANDROID)
-+        # 16kb page size on Android, fixed in 6.5.11
++        # 16KB page size on Android, fixed in 6.5.11
 +        target_link_options(Platform INTERFACE "-Wl,-z,max-page-size=16384")
          target_link_libraries(Platform INTERFACE log)
      endif()
- 

@@ -6,7 +6,7 @@ buildscript {
 
     dependencies {
         // Android Gradle Plugin (AGP)
-        // Minimum version to support 16kb page size
+        // Minimum version to support 16KB page size
         // https://android-developers.googleblog.com/2024/12/get-your-apps-ready-for-16-kb-page-size-devices.html
         classpath 'com.android.tools.build:gradle:8.5.1'
     }
