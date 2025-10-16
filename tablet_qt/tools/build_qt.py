@@ -2997,7 +2997,10 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         ]
     # OpenSSL's Configure script applies optimizations by default.
     if target_platform.android:
-        configure_args += [f"-D__ANDROID_API__={cfg.android_sdk_version}"]
+        configure_args += [
+            "-Wl,-z,max-page-size=16384",  # 16KB page size, not yet in 3.0.x
+            f"-D__ANDROID_API__={cfg.android_sdk_version}",
+        ]
     if target_platform.ios:
         configure_args += ["no-makedepend"]
 
@@ -4196,6 +4199,7 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
                 f"--cxx={cxx}",
                 f"--ar={ar}",
                 f"--ranlib={ranlib}",
+                "--extra-ldflags=-Wl,-z,max-page-size=16384",  # 16KB page size
             ]
         )
 
@@ -4403,6 +4407,19 @@ def master_builder(args: argparse.Namespace) -> None:
             f"Building (1) OpenSSL, (2) SQLite/SQLCipher, (3) Qt "
             f"for {target_platform}"
         )
+
+        if target_platform.android:
+            if not isdir(cfg.android_ndk_root):
+                fail(
+                    f"android_ndk_root {cfg.android_ndk_root} "
+                    "is not a valid directory"
+                )
+            if not isdir(cfg.android_sdk_root):
+                fail(
+                    f"android_sdk_root {cfg.android_sdk_root} "
+                    "is not a valid directory"
+                )
+
         if cfg.build_openssl:
             build_openssl(cfg, target_platform)
         if cfg.build_sqlcipher:

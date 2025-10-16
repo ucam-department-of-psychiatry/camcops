@@ -4014,3 +4014,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   above.
 
 - Build Qt, third party libraries and CamCOPS on MacOS Silicon (ARM).
+
+- Fix Android page alignment to 16KB (required for Play Store submissions from
+  November 2025).
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/415
