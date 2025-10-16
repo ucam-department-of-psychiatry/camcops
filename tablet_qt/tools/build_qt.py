@@ -2992,7 +2992,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     # OpenSSL's Configure script applies optimizations by default.
     if target_platform.android:
         configure_args += [
-            "-Wl,-z,max-page-size=16384",  # 16kb page size, not yet in 3.0.x
+            "-Wl,-z,max-page-size=16384",  # 16KB page size, not yet in 3.0.x
             f"-D__ANDROID_API__={cfg.android_sdk_version}",
         ]
     if target_platform.ios:
@@ -4149,7 +4149,7 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
                 f"--cxx={cxx}",
                 f"--ar={ar}",
                 f"--ranlib={ranlib}",
-                "--extra-ldflags=-Wl,-z,max-page-size=16384",  # 16kb page size
+                "--extra-ldflags=-Wl,-z,max-page-size=16384",  # 16KB page size
             ]
         )
 
