@@ -133,6 +133,7 @@
 #include "tasks/pcls.h"
 #include "tasks/pdss.h"
 #include "tasks/perinatalpoem.h"
+#include "tasks/pgic.h"
 #include "tasks/photo.h"
 #include "tasks/photosequence.h"
 #include "tasks/phq15.h"
@@ -291,6 +292,7 @@ void InitTasks(TaskFactory& factory)
     initializePclS(factory);
     initializePdss(factory);
     initializePerinatalPoem(factory);
+    initializePgic(factory);
     initializePhoto(factory);
     initializePhotoSequence(factory);
     initializePhq8(factory);

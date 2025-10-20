@@ -844,6 +844,8 @@ tablet_qt
     tasks/pdss.h.rst
     tasks/perinatalpoem.cpp.rst
     tasks/perinatalpoem.h.rst
+    tasks/pgic.cpp.rst
+    tasks/pgic.h.rst
     tasks/photo.cpp.rst
     tasks/photo.h.rst
     tasks/photosequence.cpp.rst

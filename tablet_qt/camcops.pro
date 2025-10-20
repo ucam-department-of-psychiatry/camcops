@@ -999,6 +999,7 @@ SOURCES += \
     tasks/pcls.cpp \
     tasks/pdss.cpp \
     tasks/perinatalpoem.cpp \
+    tasks/pgic.cpp \
     tasks/photo.cpp \
     tasks/photosequence.cpp \
     tasks/phq15.cpp \
@@ -1498,6 +1499,7 @@ HEADERS += \
     tasks/pcls.h \
     tasks/pdss.h \
     tasks/perinatalpoem.h \
+    tasks/pgic.h \
     tasks/photo.h \
     tasks/photosequence.h \
     tasks/phq15.h \
