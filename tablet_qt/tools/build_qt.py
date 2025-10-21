@@ -4519,6 +4519,14 @@ def main() -> None:
     """
     Main entry point.
     """
+
+    if "GENERATING_CAMCOPS_DOCS" in os.environ:
+        # Pretend we're on a different platform for consistency in the
+        # documented help for this script.
+        help_platform = Platform(Os.LINUX, Cpu.X86_64, "ubuntu")
+    else:
+        help_platform = BUILD_PLATFORM
+
     # -------------------------------------------------------------------------
     # Command-line arguments
     # -------------------------------------------------------------------------
@@ -4670,7 +4678,8 @@ def main() -> None:
         action="store_false",
         help="Do not inherit the parent OS environment variables",
     )
-    parser.set_defaults(inherit_os_env=not BUILD_PLATFORM.linux)
+
+    parser.set_defaults(inherit_os_env=not help_platform.linux)
 
     # Architectures
     archgroup = parser.add_argument_group(
@@ -4681,7 +4690,7 @@ def main() -> None:
         action="store_true",
         help=(
             f"Build for all architectures supported on this host (this host "
-            f"is: {BUILD_PLATFORM})"
+            f"is: {help_platform})"
         ),
     )
     archgroup.add_argument(
