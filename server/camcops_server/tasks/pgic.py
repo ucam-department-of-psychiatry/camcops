@@ -38,6 +38,9 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     ONE_TO_SEVEN_CHECKER,
 )
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
+from camcops_server.cc_modules.cc_trackerhelpers import (
+    TrackerInfo
+)
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -48,6 +51,7 @@ DP = 2
 class Pgic(TaskHasPatientMixin, Task):  # type: ignore[misc]
     __tablename__ = "pgic"
     shortname = "PGIC"
+    provides_trackers = True
 
     question: Mapped[Optional[int]] = mapped_camcops_column(
         permitted_value_checker=ONE_TO_SEVEN_CHECKER,
@@ -61,6 +65,16 @@ class Pgic(TaskHasPatientMixin, Task):  # type: ignore[misc]
 
     def is_complete(self) -> bool:
         return self.question is not None
+
+    def get_trackers(self, req: "CamcopsRequest") -> list[TrackerInfo]:
+        return [
+            TrackerInfo(
+                value=self.question,
+                axis_label="PGIC Score",
+                axis_min=-0.5,
+                axis_max=7.5,
+            )
+        ]
 
     def get_task_html(self, req: "CamcopsRequest") -> str:  # produces table
         rows = self.get_task_html_rows(req)
