@@ -55,5 +55,4 @@ public:
 
 
     static const QString PGIC_TABLENAME;
-
 };

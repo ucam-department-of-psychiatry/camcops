@@ -21,23 +21,23 @@
 #include "pgic.h"
 
 #include "common/uiconst.h"
+#include "db/fieldref.h"
 #include "lib/convert.h"
 #include "lib/stringfunc.h"
 #include "maths/mathfunc.h"
+#include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/quheading.h"
 #include "questionnairelib/qulineedit.h"
 #include "questionnairelib/qulineeditinteger.h"
+#include "questionnairelib/qumcq.h"
 #include "questionnairelib/qupage.h"
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/task.h"
 #include "tasklib/taskfactory.h"
 #include "tasklib/taskregistrar.h"
-#include "db/fieldref.h"
-#include "questionnairelib/namevalueoptions.h"
-#include "questionnairelib/qumcq.h"
 using mathfunc::anyNull;
 using mathfunc::meanOrNull;
 using stringfunc::strseq;
@@ -112,17 +112,13 @@ QStringList Pgic::summary() const
 
     const QString fmt = QString("%1: <b>%2</b> %3<br>");
     const int answer = valueInt(FN_QUESTION);
-    const QString answer_str = answer ? QString::number(valueInt(FN_QUESTION)) : "?";
+    const QString answer_str
+        = answer ? QString::number(valueInt(FN_QUESTION)) : "?";
     const QString answer_def = answer ? xstring("a" + answer_str) : "";
 
-    lines.append(fmt.arg(
-        xstring(FN_QUESTION),
-        answer_str,
-        answer_def
-    ));
+    lines.append(fmt.arg(xstring(FN_QUESTION), answer_str, answer_def));
 
     return lines;
-
 }
 
 OpenableWidget* Pgic::editor(const bool read_only)
