@@ -449,7 +449,7 @@
 <context>
     <name>CamcopsApp</name>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="+901"/>
+        <location filename="../core/camcopsapp.cpp" line="+898"/>
         <source>Configuring internal database</source>
         <translation>Konfiguration af intern database</translation>
     </message>
@@ -520,7 +520,7 @@
         <translation>Nej, annuller</translation>
     </message>
     <message>
-        <location line="-2174"/>
+        <location line="-2171"/>
         <source>You did not select how you would like to use CamCOPS</source>
         <translation>Du valgte ikke, hvordan du vil bruge CamCOPS</translation>
     </message>
@@ -535,7 +535,7 @@
         <translation>Du kan ikke ændre tilstand, når der stadig er opgaver, der skal overføres</translation>
     </message>
     <message>
-        <location line="+148"/>
+        <location line="+145"/>
         <source>Registering patient...</source>
         <translation>Registrering af patient...</translation>
     </message>
@@ -725,7 +725,7 @@ på grund af denne fejl:
         <translation>JEG ER IKKE ENIG</translation>
     </message>
     <message>
-        <location line="-3224"/>
+        <location line="-3221"/>
         <source>OK. Goodbye.</source>
         <translation>Okay. Farvel.</translation>
     </message>
@@ -735,7 +735,7 @@ på grund af denne fejl:
         <translation>Du nægtede betingelserne.</translation>
     </message>
     <message>
-        <location line="+1183"/>
+        <location line="+1180"/>
         <source>You entered an incorrect password. Try again?&lt;br&gt;&lt;br&gt;Answer &lt;b&gt;%1&lt;/b&gt; to enter your password again.&lt;br&gt;Answer &lt;b&gt;%2&lt;/b&gt; if you can&apos;t remember your password.</source>
         <extracomment>%1 and %2 are Yes and No respectively i.e. the dialog button labels</extracomment>
         <translation>Du har indtastet en forkert adgangskode. Prøv igen??&lt;br&gt;&lt;br&gt;Svar &lt;b&gt;%1&lt;/b&gt; for at indtaste din adgangskode igen.&lt;br&gt;Svar &lt;b&gt;%2&lt;/b&gt; hvis du ikke kan huske din adgangskode.</translation>
@@ -3972,7 +3972,7 @@ enig</translation>
         <translation>Indtast serveradgangskode</translation>
     </message>
     <message>
-        <location line="+43"/>
+        <location line="+41"/>
         <source>+++ Ignoring %1 SSL error(s):</source>
         <translation>+++ Ignorerer %1 SSL-fejl(er):</translation>
     </message>
@@ -4048,12 +4048,12 @@ enig</translation>
         <translation>... Okay</translation>
     </message>
     <message>
-        <location line="-1800"/>
+        <location line="-1798"/>
         <source>Reply is not from CamCOPS API. Are your server settings misconfigured?</source>
         <translation>Svaret kommer ikke fra CamCOPS API. Er dine serverindstillinger forkert konfigureret?</translation>
     </message>
     <message>
-        <location line="+225"/>
+        <location line="+223"/>
         <source>Testing HTTP GET connection to:</source>
         <translation>Test af HTTP GET-forbindelse til:</translation>
     </message>
@@ -4466,7 +4466,7 @@ enig</translation>
         <translation>Indtast gammel adgangskode:</translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+8"/>
         <source>Enter new password:</source>
         <translation>Indtast ny adgangskode:</translation>
     </message>
@@ -4476,7 +4476,7 @@ enig</translation>
         <translation>Skal være mindst %1 tegn</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+5"/>
         <source>Enter new password again for confirmation:</source>
         <translation>Indtast ny adgangskode igen for bekræftelse:</translation>
     </message>
@@ -4619,12 +4619,12 @@ enig</translation>
 <context>
     <name>PatientRegistrationDialog</name>
     <message>
-        <location filename="../dialogs/patientregistrationdialog.cpp" line="+44"/>
+        <location filename="../dialogs/patientregistrationdialog.cpp" line="+45"/>
         <source>Registration</source>
         <translation>Registrering</translation>
     </message>
     <message>
-        <location line="+51"/>
+        <location line="+46"/>
         <source>&lt;b&gt;CamCOPS server location&lt;/b&gt; (e.g. https://server.example.com/camcops/api):</source>
         <translation>&lt;b&gt;CamCOPS-serverplacering&lt;/b&gt; (f.eks. https://server.example.com/camcops/api):</translation>
     </message>
@@ -4755,6 +4755,19 @@ enig</translation>
         <location filename="../menu/personalitymenu.cpp" line="+40"/>
         <source>Personality and experience</source>
         <translation>Personlighed og erfaring</translation>
+    </message>
+</context>
+<context>
+    <name>Pgic</name>
+    <message>
+        <location filename="../tasks/pgic.cpp" line="+73"/>
+        <source>Patient Global Impression of Change</source>
+        <translation>Patient Global Impression of Change [Patientens globale indtryk af forandring]</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>A 1 item self-report assessment tool designed to measure if there has been an improvement or decline in clinical status.</source>
+        <translation>Et selvrapporteringsværktøj med ét element, der er designet til at måle, om der har været en forbedring eller forringelse af den kliniske status.</translation>
     </message>
 </context>
 <context>
@@ -5016,7 +5029,7 @@ enig</translation>
         <translation>Lås først op</translation>
     </message>
     <message>
-        <location line="+96"/>
+        <location line="+90"/>
         <source>Choose language</source>
         <translation>Vælg sprog</translation>
     </message>
@@ -5118,7 +5131,7 @@ enig</translation>
 <context>
     <name>QuLineEditDouble</name>
     <message>
-        <location filename="../questionnairelib/qulineeditdouble.cpp" line="+48"/>
+        <location filename="../questionnairelib/qulineeditdouble.cpp" line="+44"/>
         <source>real number, %1 dp</source>
         <translation>reelt tal, %1 decimaler</translation>
     </message>
@@ -7646,7 +7659,7 @@ Tak!</translation>
 <context>
     <name>ValidatingLineEdit</name>
     <message>
-        <location filename="../widgets/validatinglineedit.cpp" line="+72"/>
+        <location filename="../widgets/validatinglineedit.cpp" line="+297"/>
         <source>Valid</source>
         <translation>Gyldig</translation>
     </message>
