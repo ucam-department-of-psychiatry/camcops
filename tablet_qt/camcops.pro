@@ -237,6 +237,7 @@ gcc {
 
 android {
     QMAKE_RESOURCE_FLAGS += "-compress-algo zlib"
+    QMAKE_LFLAGS += "-Wl,-z,max-page-size=16384"  # 16KB page size
 }
 
 # =============================================================================

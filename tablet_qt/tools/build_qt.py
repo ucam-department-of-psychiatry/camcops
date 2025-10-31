@@ -57,8 +57,8 @@ Status
 | macOS (OS X), x86,  | macOS, x86, 64-bit          | OK 2019-06-17           |
 | 64-bit              |                             |                         |
 +---------------------+-----------------------------+-------------------------+
-| macOS (OS X), ARM,  | macOS, ARM, 64-bit          | In development          |
-| 64-bit              |                             | 2025-10-01              |
+| macOS (OS X), ARM,  | macOS, ARM, 64-bit          | OK 2025-10-14           |
+| 64-bit              |                             |                         |
 +---------------------+-----------------------------+-------------------------+
 |                     | iOS, x86 (for emulator)     | deferred                |
 +---------------------+-----------------------------+-------------------------+
@@ -2454,9 +2454,11 @@ Linux (Ubuntu) (DEFUNCT)
 OS_X_PACKAGE_HELP = """
 macOS (OS X)
 -------------------------------------------------------------------------------
+ccache      brew update && brew install ccache
 clang       Install XCode
 cmake       brew update && brew install cmake
 gobjdump    brew update && brew install binutils
+yasm        brew update && brew install yasm
 """
 
 WINDOWS_PACKAGE_HELP = r"""
@@ -2995,7 +2997,10 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         ]
     # OpenSSL's Configure script applies optimizations by default.
     if target_platform.android:
-        configure_args += [f"-D__ANDROID_API__={cfg.android_sdk_version}"]
+        configure_args += [
+            "-Wl,-z,max-page-size=16384",  # 16KB page size, not yet in 3.0.x
+            f"-D__ANDROID_API__={cfg.android_sdk_version}",
+        ]
     if target_platform.ios:
         configure_args += ["no-makedepend"]
 
@@ -4194,6 +4199,7 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
                 f"--cxx={cxx}",
                 f"--ar={ar}",
                 f"--ranlib={ranlib}",
+                "--extra-ldflags=-Wl,-z,max-page-size=16384",  # 16KB page size
             ]
         )
 
@@ -4401,6 +4407,19 @@ def master_builder(args: argparse.Namespace) -> None:
             f"Building (1) OpenSSL, (2) SQLite/SQLCipher, (3) Qt "
             f"for {target_platform}"
         )
+
+        if target_platform.android:
+            if not isdir(cfg.android_ndk_root):
+                fail(
+                    f"android_ndk_root {cfg.android_ndk_root} "
+                    "is not a valid directory"
+                )
+            if not isdir(cfg.android_sdk_root):
+                fail(
+                    f"android_sdk_root {cfg.android_sdk_root} "
+                    "is not a valid directory"
+                )
+
         if cfg.build_openssl:
             build_openssl(cfg, target_platform)
         if cfg.build_sqlcipher:
@@ -4500,6 +4519,14 @@ def main() -> None:
     """
     Main entry point.
     """
+
+    if "GENERATING_CAMCOPS_DOCS" in os.environ:
+        # Pretend we're on a different platform for consistency in the
+        # documented help for this script.
+        help_platform = Platform(Os.LINUX, Cpu.X86_64, "ubuntu")
+    else:
+        help_platform = BUILD_PLATFORM
+
     # -------------------------------------------------------------------------
     # Command-line arguments
     # -------------------------------------------------------------------------
@@ -4651,7 +4678,8 @@ def main() -> None:
         action="store_false",
         help="Do not inherit the parent OS environment variables",
     )
-    parser.set_defaults(inherit_os_env=not BUILD_PLATFORM.linux)
+
+    parser.set_defaults(inherit_os_env=not help_platform.linux)
 
     # Architectures
     archgroup = parser.add_argument_group(
@@ -4662,7 +4690,7 @@ def main() -> None:
         action="store_true",
         help=(
             f"Build for all architectures supported on this host (this host "
-            f"is: {BUILD_PLATFORM})"
+            f"is: {help_platform})"
         ),
     )
     archgroup.add_argument(

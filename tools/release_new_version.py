@@ -1496,6 +1496,10 @@ class VersionReleaser:
         return "macos_x86_64"
 
     @property
+    def macos_arm_v8_64_arch(self) -> str:
+        return "macos_arm_v8_64"
+
+    @property
     def apple_id(self) -> str:
         return self.getenv_or_exit("CAMCOPS_APPLE_ID")
 
