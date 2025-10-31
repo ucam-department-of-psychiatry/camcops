@@ -153,7 +153,7 @@ INSTALL_REQUIRES = [
     "prettytable==0.7.2",
     "psutil==6.1.1",  # process management, cardinal_pythonlib dependency, not currently used  # noqa: E501
     "pyparsing==2.4.7",
-    "pypdf==6.0.0",  # Used by cardinal_pythonlib.pdf
+    "pypdf==6.1.3",  # Used by cardinal_pythonlib.pdf
     "python-dateutil==2.9.0.post0",  # date/time extensions.
     "sqlparse==0.5.0",
     # extra
