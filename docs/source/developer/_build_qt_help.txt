@@ -58,15 +58,15 @@ General:
   --verbose {0,1,2}, -v {0,1,2}
                         Verbosity level (default: 0)
   --inherit_os_env      Inherit the parent OS environment variables (default:
-                        True)
+                        False)
   --no_inherit_os_env   Do not inherit the parent OS environment variables
-                        (default: True)
+                        (default: False)
 
 Architecture:
   Choose architecture for which to build
 
   --build_all           Build for all architectures supported on this host
-                        (this host is: macOS/ARM v8 (64/32-bit)) (default:
+                        (this host is: Linux/Intel x86 (64-bit)) (default:
                         False)
   --build_android_x86_32
                         An architecture target (Android under an Intel x86
