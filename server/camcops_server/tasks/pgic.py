@@ -38,9 +38,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     ONE_TO_SEVEN_CHECKER,
 )
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
-from camcops_server.cc_modules.cc_trackerhelpers import (
-    TrackerInfo
-)
+from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
