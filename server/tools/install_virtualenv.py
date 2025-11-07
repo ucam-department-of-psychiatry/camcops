@@ -49,7 +49,7 @@ try:
 except ImportError:
     distro = None
 
-assert sys.version_info >= (3, 9), "Need Python 3.9 or higher"
+assert sys.version_info >= (3, 10), "Need Python 3.10 or higher"
 LINUX = platform.system() == "Linux"
 if distro:
     LINUX_DIST = distro.linux_distribution()[0].lower()

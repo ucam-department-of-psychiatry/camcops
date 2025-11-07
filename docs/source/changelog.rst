@@ -4018,3 +4018,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Fix Android page alignment to 16KB (required for Play Store submissions from
   November 2025).
   https://github.com/ucam-department-of-psychiatry/camcops/issues/415
+
+- **Minimum Python version now Python 3.10.**. Python 3.9 has reached end-of-life.
