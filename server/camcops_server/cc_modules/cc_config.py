@@ -187,7 +187,7 @@ DEFAULT_LINUX_CAMCOPS_EXECUTABLE = os.path.join(
 DEFAULT_LINUX_CAMCOPS_STATIC_DIR = os.path.join(
     DEFAULT_LINUX_CAMCOPS_VENV_DIR,
     "lib",
-    "python3.9",
+    "python3.10",
     "site-packages",
     "camcops_server",
     "static",

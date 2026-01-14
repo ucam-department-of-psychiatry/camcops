@@ -19,7 +19,7 @@
 # - ubuntu:18.04? Requires "apt install python3" or similar? Quite tricky.
 #   Also larger.
 
-FROM python:3.9-slim-bullseye
+FROM python:3.10-slim-bullseye
 
 # ... note that "-bullseye" (not "-slim-bullseye") includes some things we need,
 # but is LARGER overall.

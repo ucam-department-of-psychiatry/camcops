@@ -251,7 +251,6 @@ system_python_executable()
         python3.12 python312
         python3.11 python311
         python3.10 python310
-        python3.9 python39
         python3
         python
     )
@@ -552,7 +551,7 @@ Priority: optional
 Architecture: all
 Maintainer: Rudolf Cardinal <rnc1001@cam.ac.uk>
 Depends: {DEPENDENCIES}
-X-Python3-Version: >= 3.9, <= 3.12
+X-Python3-Version: >= 3.10, <= 3.12
 Recommends: mysql-workbench
 Description: Cambridge Cognitive and Psychiatric Test Kit (CamCOPS), server
  packages.
