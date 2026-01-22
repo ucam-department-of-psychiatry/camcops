@@ -615,6 +615,9 @@ protected:
 
     QString defaultUserAgent() const;
 
+private:
+    void tidyUpFailedRegistration();
+
 signals:
     // Signal that the "needs upload" state has changed.
     void needsUploadChanged(bool needs_upload);

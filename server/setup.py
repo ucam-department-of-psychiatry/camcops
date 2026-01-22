@@ -118,7 +118,7 @@ INSTALL_REQUIRES = [
     "sqlalchemy==2.0.39",  # database access
     "statsmodels==0.14.4",  # e.g. logistic regression
     "twilio==7.9.3",  # SMS backend for Multi-factor authentication
-    "urllib3==2.5.0",  # requests dependency
+    "urllib3==2.6.3",  # requests dependency
     "Wand==0.6.1",  # ImageMagick binding
     # -------------------------------------------------------------------------
     # Not installed here
@@ -153,9 +153,9 @@ INSTALL_REQUIRES = [
     "prettytable==0.7.2",
     "psutil==6.1.1",  # process management, cardinal_pythonlib dependency, not currently used  # noqa: E501
     "pyparsing==2.4.7",
-    "pypdf==6.1.3",  # Used by cardinal_pythonlib.pdf
+    "pypdf==6.6.0",  # Used by cardinal_pythonlib.pdf
     "python-dateutil==2.9.0.post0",  # date/time extensions.
-    "sqlparse==0.5.0",
+    "sqlparse==0.5.4",
     # extra
     "py-bcrypt==0.4",  # used by cardinal_pythonlib.crypto
     # -------------------------------------------------------------------------

@@ -197,6 +197,14 @@ class ServerErrorException(Exception):
     pass
 
 
+class ForbiddenErrorException(Exception):
+    """
+    Exception class for testing an erratic firewall.
+    """
+
+    pass
+
+
 # =============================================================================
 # Return message functions
 # =============================================================================
@@ -255,6 +263,15 @@ def fail_server_error_from_exception(e: Exception) -> NoReturn:
     the specified exception.
     """
     fail_server_error(exception_description(e))
+
+
+def fail_forbidden_error(msg: str) -> NoReturn:
+    """
+    Test function to simulate an erratic firewall.
+
+    Raises :exc:`ForbiddenErrorException`.
+    """
+    raise ForbiddenErrorException(msg)
 
 
 def fail_unsupported_operation(operation: str) -> NoReturn:

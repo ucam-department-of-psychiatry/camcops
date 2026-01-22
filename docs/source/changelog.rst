@@ -4020,3 +4020,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   https://github.com/ucam-department-of-psychiatry/camcops/issues/415
 
 - **Minimum Python version now Python 3.10.**. Python 3.9 has reached end-of-life.
+
+- Fix bug where it was not possible for a single user to upload tasks because of
+  an incomplete patient registration.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/367

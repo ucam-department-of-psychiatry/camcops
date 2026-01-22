@@ -386,6 +386,7 @@ from camcops_server.cc_modules.cc_client_api_core import (
     fail_server_error,
     fail_unsupported_operation,
     fail_user_error,
+    ForbiddenErrorException,
     get_server_live_records,
     require_keys,
     ServerErrorException,
@@ -3443,6 +3444,14 @@ def client_api(req: "CamcopsRequest") -> Response:
             TabletParam.ERROR: escape_newlines(str(e)),
         }
         status = "503 Database Unavailable: " + str(e)
+
+    except ForbiddenErrorException as e:
+        log.error("Forbidden: {}", e)
+        resultdict = {
+            TabletParam.SUCCESS: FAILURE_CODE,
+            TabletParam.ERROR: escape_newlines(str(e)),
+        }
+        status = "403 Forbidden: " + str(e)
 
     except Exception as e:
         # All other exceptions. May include database write failures.
