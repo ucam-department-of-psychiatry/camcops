@@ -155,7 +155,7 @@ INSTALL_REQUIRES = [
     "pyparsing==2.4.7",
     "pypdf==6.4.0",  # Used by cardinal_pythonlib.pdf
     "python-dateutil==2.9.0.post0",  # date/time extensions.
-    "sqlparse==0.5.0",
+    "sqlparse==0.5.4",
     # extra
     "py-bcrypt==0.4",  # used by cardinal_pythonlib.crypto
     # -------------------------------------------------------------------------
