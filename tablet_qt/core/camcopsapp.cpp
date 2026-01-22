@@ -544,10 +544,11 @@ void CamcopsApp::tidyUpFailedRegistration()
 {
     // An erratic firewall that rejects some genuine requests and allows others
     // can result in broken registrations unless we tidy up properly. If
-    // registering the patient succeeds but registering the device fails, unless
-    // we delete the partly registered patient, we will end up with multiple
-    // patients in the database with the same ID and we won't be able to submit
-    // tasks. We're in single user mode so simplest just to delete all patients.
+    // registering the patient succeeds but registering the device fails,
+    // unless we delete the partly registered patient, we will end up with
+    // multiple patients in the database with the same ID and we won't be able
+    // to submit tasks. We're in single user mode so simplest just to delete
+    // all patients.
     m_datadb->deleteFrom(Patient::TABLENAME);
 }
 
