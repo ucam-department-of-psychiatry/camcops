@@ -199,6 +199,9 @@ class VersionReleaser:
 
     minimum_java_version = Version("17.0.0")
 
+    ios_sdk_version_search = r"^SDKVersion: (\d+)\.(\d+)\.?(\d+)?"
+    minimum_ios_sdk_version = Version("18.0.0")
+
     def __init__(
         self,
         new_client_version: Version,
@@ -1424,7 +1427,46 @@ class VersionReleaser:
         )
 
     def build_client_ios_arm_v8_64(self) -> None:
+        self.check_ios_sdk_version()
         self.build_client("ios_armv8_64", self.make_on_path)
+
+    def check_ios_sdk_version(self) -> None:
+        ios_sdk_version = self.get_ios_sdk_version()
+
+        if ios_sdk_version < self.minimum_ios_sdk_version:
+            print(
+                f"iOS SDK version is {ios_sdk_version} and "
+                f"must be at least {self.minimum_ios_sdk_version}"
+            )
+            sys.exit(EXIT_FAILURE)
+
+    def get_ios_sdk_version(self) -> Version:
+        lines = (
+            run(
+                ["xcodebuild", "-version", "-sdk", "iphoneos"],
+                stdout=PIPE,
+                check=True,
+            )
+            .stdout.decode("utf-8")
+            .splitlines()
+        )
+
+        version = None
+
+        for line in lines:
+            m = re.match(self.ios_sdk_version_search, line)
+            if m is not None:
+                version = Version(
+                    major=int(m.group(1)),
+                    minor=int(m.group(2)),
+                    patch=int(m.group(3) or 0),
+                )
+                break
+
+        if version is None:
+            raise MissingVersionException("Failed to find iOS SDK version")
+
+        return version
 
     def build_client_releases_for_windows_host(self) -> None:
         self.build_client_windows_x86_32()
