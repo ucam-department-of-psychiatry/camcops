@@ -38,6 +38,7 @@ Quick links:
 - :ref:`2023 <changelog_2023>`
 - :ref:`2024 <changelog_2024>`
 - :ref:`2025 <changelog_2025>`
+- :ref:`2026 <changelog_2026>`
 
 - :ref:`v2.3.3 <changelog_v2.3.3>`
 - :ref:`v2.3.4 <changelog_v2.3.4>`
@@ -69,6 +70,7 @@ Quick links:
 - :ref:`v2.4.21 <changelog_v2.4.21>`
 - :ref:`v2.4.22 <changelog_v2.4.22>`
 - :ref:`v2.4.23 <changelog_v2.4.23>`
+- :ref:`v2.4.24 <changelog_v2.4.24>`
 
 Contributors
 ------------
@@ -4006,8 +4008,15 @@ Current C++/SQLite client, Python/SQLAlchemy server
   was broken in the demonstration task such that you couldn't enter a valid negative number.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/407
 
-**Client and server v2.4.24, IN PROGRESS**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. _changelog_2026:
+
+2026
+~~~~
+
+.. _changelog_v2.4.24:
+
+**Client and server v2.4.24, released 23 Jan 2026**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Bump CherryPy to fix error ``AttributeError: module 'inspect' has no attribute
   'getargspec'`` when running ``camcops_server`` commands on Python 3.11 and
@@ -4024,3 +4033,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Fix bug where it was not possible for a single user to upload tasks because of
   an incomplete patient registration.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/367
+
+**Client and server v2.4.25, IN PROGRESS**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
