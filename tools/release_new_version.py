@@ -1484,7 +1484,7 @@ class VersionReleaser:
     @property
     def macos_x86_64_camcops_dmg(self) -> str:
         build_dir = self.get_build_dir(self.macos_x86_64_arch)
-        return os.path.join(build_dir, "camcops.dmg")
+        return os.path.join(build_dir, "camcops_intel.dmg")
 
     @property
     def macos_arm_v8_64_camcops_app(self) -> str:
@@ -1494,7 +1494,7 @@ class VersionReleaser:
     @property
     def macos_arm_v8_64_camcops_dmg(self) -> str:
         build_dir = self.get_build_dir(self.macos_arm_v8_64_arch)
-        return os.path.join(build_dir, "camcops.dmg")
+        return os.path.join(build_dir, "camcops_apple_silicon.dmg")
 
     def get_windows_environment(self, windows_arch: str) -> dict[str, str]:
         # Lifted from the build_qt.py script
