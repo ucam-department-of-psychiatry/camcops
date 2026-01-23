@@ -195,6 +195,10 @@ class VersionReleaser:
         r"(^# Created by CamCOPS version )(\d+)(\.)(\d+)(\.)(\d+)(\.)"
     )
 
+    java_version_search = r"^openjdk version \"(\d+)\.(\d+)\.(\d+)(_*\d*)\""
+
+    minimum_java_version = Version("17.0.0")
+
     def __init__(
         self,
         new_client_version: Version,
@@ -1206,6 +1210,7 @@ class VersionReleaser:
         )
         android_version = "android-35"  # TODO
         java_home = self.get_java_home()
+        self.check_java_version(java_home)
 
         # Read by androiddeployqt so make sure it's defined
         self.getenv_or_exit("QT_ANDROID_KEYSTORE_PATH")
@@ -1226,6 +1231,48 @@ class VersionReleaser:
             ],
             env=env,
         )
+
+    def check_java_version(self, java_home: str) -> None:
+        java_version = self.get_java_version(java_home)
+
+        if java_version < self.minimum_java_version:
+            print(
+                f"Java version is {java_version} and "
+                f"must be at least {self.minimum_java_version}"
+            )
+            sys.exit(EXIT_FAILURE)
+
+    def get_java_version(self, java_home: str) -> Version:
+        java_executable = os.path.join(java_home, "bin", "java")
+
+        lines = (
+            run(
+                [java_executable, "-version"],
+                stderr=PIPE,
+                check=True,
+            )
+            .stderr.decode("utf-8")
+            .splitlines()
+        )
+
+        version = None
+
+        for line in lines:
+            m = re.match(self.java_version_search, line)
+            if m is not None:
+                version = Version(
+                    major=int(m.group(1)),
+                    minor=int(m.group(2)),
+                    patch=int(m.group(3)),
+                )
+                break
+
+        if version is None:
+            raise MissingVersionException(
+                f"Failed to find java version from {java_executable}"
+            )
+
+        return version
 
     def get_android_environment(self) -> dict[str, str]:
         env = os.environ.copy()
