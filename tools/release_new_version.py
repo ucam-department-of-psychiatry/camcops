@@ -1544,7 +1544,7 @@ class VersionReleaser:
 
     @property
     def macos_arm_v8_64_arch(self) -> str:
-        return "macos_arm_v8_64"
+        return "macos_armv8_64"
 
     @property
     def apple_id(self) -> str:
