@@ -1296,6 +1296,9 @@ class VersionReleaser:
         return self.getenv_or_exit("ANDROID_SDK_ROOT")
 
     def build_client_releases_for_mac_host(self) -> None:
+        # TODO: Check dmg exists and stapler validate output
+        # Skip build step if valid dmg
+
         self.build_client_macos_x86_64()
         self.build_client_macos_arm_v8_64()
         self.build_client_ios_arm_v8_64()
