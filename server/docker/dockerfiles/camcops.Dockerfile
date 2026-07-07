@@ -46,7 +46,8 @@ RUN adduser --disabled-password --gecos '' --uid $USER_ID camcops
 #   directory for our Python package.
 # - So in short, here we refer to the context as ".".
 
-ADD pyproject.toml /camcops/src
+
+ADD pyproject.toml /camcops/src/
 ADD server /camcops/src/server
 
 
