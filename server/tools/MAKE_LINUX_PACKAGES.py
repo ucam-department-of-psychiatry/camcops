@@ -898,7 +898,6 @@ def build_package() -> None:
     """
     log.info("Building Python package")
 
-    setup_py = join(SRCSERVERDIR, "setup.py")
     sdist_basefilename = "camcops_server-{}.tar.gz".format(MAINVERSION)
     src_sdist_file = join(SRCSERVERDIR, "dist", sdist_basefilename)
     wrk_sdist_file = join(WRKBASEDIR, sdist_basefilename)
@@ -909,7 +908,7 @@ def build_package() -> None:
     except OSError:
         pass
     os.chdir(SETUP_PY_DIR)  # or setup.py looks in wrong places?
-    cmdargs = ["python", setup_py, "sdist"]
+    cmdargs = ["python", "-m", "build"]
     call(cmdargs)
     remove_gzip_timestamp(src_sdist_file)
 
@@ -1161,7 +1160,7 @@ def main() -> None:
 - In brief, the following sequence is followed as the package is built:
 
   * The CamCOPS server is packaged up from source using
-        python setup.py sdist
+        python -m build
     and zipped in a Debian-safe way.
 
   * The principle is that the Python package should do all the work, not the
