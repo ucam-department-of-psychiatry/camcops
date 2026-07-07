@@ -109,7 +109,7 @@ services:
             context: ../../../
 
             # Filename of the Dockerfile to use, relative to the context.
-            dockerfile: docker/dockerfiles/camcops.Dockerfile
+            dockerfile: server/docker/dockerfiles/camcops.Dockerfile
 
             args:
                 - USER_ID=${CAMCOPS_DOCKER_INSTALL_USER_ID}
