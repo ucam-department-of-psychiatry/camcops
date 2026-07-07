@@ -33,6 +33,7 @@ dependencies = [
     "alembic==1.14.1",  # database migrations
     "asteval==1.0.6",  # safe-ish alternative to eval
     "black==24.4.2",  # auto code formatter, keep in sync with .pre-commit-config.yaml
+    "build==1.5.0",  # For building the Python package
     "cardinal_pythonlib==2.0.5",  # RNC libraries
     "celery==5.3.6",  # background tasks
     "colander==1.7.0",  # serialization/deserialization from web forms
