@@ -36,6 +36,7 @@ RUN adduser --disabled-password --gecos '' --uid $USER_ID camcops
 # -----------------------------------------------------------------------------
 # ADD: files to copy
 # -----------------------------------------------------------------------------
+# - TODO: Update this comment
 # - Syntax: ADD <host_file_spec> <container_dest_dir>
 # - The host file spec is relative to the context (and can't go "above" it).
 # - This docker file lives in the "server/docker/dockerfiles" directory within
@@ -45,7 +46,8 @@ RUN adduser --disabled-password --gecos '' --uid $USER_ID camcops
 #   directory for our Python package.
 # - So in short, here we refer to the context as ".".
 
-ADD . /camcops/src
+ADD pyproject.toml /camcops/src
+ADD server /camcops/src/server
 
 
 # -----------------------------------------------------------------------------

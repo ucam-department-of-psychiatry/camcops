@@ -129,7 +129,7 @@ services:
         # Build a container from a Dockerfile.
         build:
             # Context for Docker to build the image (relative to this file).
-            context: ../../
+            context: ../../../
 
             # Filename of the Dockerfile to use, relative to the context.
             dockerfile: docker/dockerfiles/camcops.Dockerfile
