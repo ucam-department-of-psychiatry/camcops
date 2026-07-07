@@ -107,7 +107,7 @@ dependencies = [
     "colorlog==4.1.0",
     "isodate==0.6.0",
     "openpyxl==3.0.7",  # also for pyexcel-xlsx
-    "pandas==1.4.4",
+    "pandas==2.3.3",
     "prettytable==0.7.2",
     "psutil==6.1.1",  # process management, cardinal_pythonlib dependency, not currently used
     "pyparsing==2.4.7",
