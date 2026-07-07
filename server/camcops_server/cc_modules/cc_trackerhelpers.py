@@ -32,7 +32,6 @@ from typing import List, Optional, Union
 
 import numpy as np
 
-
 DEFAULT_TRACKER_ASPECT_RATIO = 2.0  # width / height
 
 

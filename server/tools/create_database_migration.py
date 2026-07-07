@@ -116,8 +116,7 @@ def main() -> None:
         n_sequence_chars=N_SEQUENCE_CHARS,
         db_url=config.db_url,
     )
-    print(
-        r"""
+    print(r"""
 Now:
 
 - Check the new migration file.
@@ -134,8 +133,7 @@ Now:
   ... suggests an error that should be "Sometype().with_variant(...)"; see
   source here.
 
-    """
-    )
+    """)
 
 
 if __name__ == "__main__":

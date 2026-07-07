@@ -43,7 +43,6 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 )
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
-
 # =============================================================================
 # LynallIamLifeEvents
 # =============================================================================
@@ -235,16 +234,14 @@ class LynallIamLifeEvents(  # type: ignore[misc]
             else:
                 a_severity = ""
                 a_frequency = ""
-            q_a.append(
-                f"""
+            q_a.append(f"""
                 <tr>
                     <td>{q_main}</td>
                     <td>{a_main}</td>
                     <td>{a_severity}</td>
                     <td>{a_frequency}</td>
                 </tr>
-            """
-            )
+            """)
         return f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">

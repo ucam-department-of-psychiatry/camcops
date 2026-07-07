@@ -35,7 +35,6 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 
-
 _DEFAULT_APPLICABILITY = False
 
 

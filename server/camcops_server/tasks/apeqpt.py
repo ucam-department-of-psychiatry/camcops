@@ -51,7 +51,6 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import get_from_dict, Task
 
-
 # =============================================================================
 # APEQPT
 # =============================================================================

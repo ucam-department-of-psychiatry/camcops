@@ -37,7 +37,6 @@ from os import pardir
 from os.path import abspath, dirname, join
 import sys
 
-
 # =============================================================================
 # Environment variable names
 # =============================================================================

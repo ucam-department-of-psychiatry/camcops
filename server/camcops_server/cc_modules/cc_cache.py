@@ -109,14 +109,12 @@ Crash using type-hinted functions under Python 3.5 with dogpile.cache==0.6.4:
 
 """  # noqa
 
-
 # =============================================================================
 # Imports; logging
 # =============================================================================
 
 from cardinal_pythonlib.dogpile_cache import kw_fkg_allowing_type_hints as fkg
 from dogpile.cache import make_region
-
 
 # =============================================================================
 # The main cache: static for the lifetime of this process.

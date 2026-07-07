@@ -63,7 +63,6 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasPatientMixin,
 )
 
-
 # =============================================================================
 # Icd10SpecPD
 # =============================================================================
@@ -766,10 +765,7 @@ class Icd10SpecPD(  # type: ignore[misc]
         h += self.standard_pd_html(req, "dependent", Icd10SpecPD.N_DEPENDENT)
 
         # Done
-        h += (
-            """
+        h += """
             </table>
-        """
-            + ICD10_COPYRIGHT_DIV
-        )
+        """ + ICD10_COPYRIGHT_DIV
         return h

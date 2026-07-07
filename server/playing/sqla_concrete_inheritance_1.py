@@ -44,7 +44,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.collections import attribute_mapped_collection
 from sqlalchemy.ext.declarative import declared_attr, AbstractConcreteBase
 
-
 Base = declarative_base()
 
 

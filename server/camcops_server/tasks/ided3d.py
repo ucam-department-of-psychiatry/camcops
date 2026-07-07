@@ -55,7 +55,6 @@ from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 from camcops_server.cc_modules.cc_text import SS
 
-
 # =============================================================================
 # Helper functions
 # =============================================================================

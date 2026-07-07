@@ -369,7 +369,7 @@ def crop_pdf(
     # don't care about). ImageMagick will convert it to a different
     # density for us, at which point we can refer to it in terms of pixels.
     # First, we get its size.
-    (src_width_inches, src_height_inches) = get_pdf_print_size_inches(
+    src_width_inches, src_height_inches = get_pdf_print_size_inches(
         src_filename, autocrop, verbose=verbose
     )
     log.debug(
@@ -517,7 +517,7 @@ def tile_pdf(
         raise AssertionError("Must specify width/height/both")
 
     # Get source size
-    (src_width_inches, src_height_inches) = get_pdf_print_size_inches(
+    src_width_inches, src_height_inches = get_pdf_print_size_inches(
         src_filename, autocrop, verbose=verbose
     )
     log.debug(

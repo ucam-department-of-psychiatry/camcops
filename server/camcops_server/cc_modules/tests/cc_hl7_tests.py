@@ -47,7 +47,6 @@ from camcops_server.cc_modules.cc_testfactories import (
 from camcops_server.cc_modules.cc_unittest import BasicDatabaseTestCase
 from camcops_server.tasks.tests.factories import Phq9Factory
 
-
 # =============================================================================
 # Unit tests
 # =============================================================================

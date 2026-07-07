@@ -44,7 +44,6 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     PendulumDateTimeAsIsoTextColType,
 )
 
-
 # =============================================================================
 # Revision identifiers, used by Alembic.
 # =============================================================================

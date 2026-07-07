@@ -34,7 +34,6 @@ from camcops_server.cc_modules.cc_taskcollection import (
 from camcops_server.cc_modules.cc_taskfilter import TaskFilter
 from camcops_server.cc_modules.cc_unittest import BasicDatabaseTestCase
 
-
 # =============================================================================
 # Unit tests
 # =============================================================================

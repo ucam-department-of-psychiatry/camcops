@@ -283,6 +283,6 @@ def change_filename_ext(filename: str, new_extension_with_dot: str) -> str:
     """
     Replaces the extension, i.e. the part of the filename after its last '.'.
     """
-    (root, ext) = os.path.splitext(filename)
+    root, ext = os.path.splitext(filename)
     # ... converts "blah.blah.txt" to ("blah.blah", ".txt")
     return root + new_extension_with_dot

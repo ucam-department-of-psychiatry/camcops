@@ -59,7 +59,6 @@ from prompt_toolkit.validation import Validator, ValidationError
 from python_on_whales import docker, DockerClient, DockerException
 from semantic_version import Version
 
-
 # =============================================================================
 # Constants
 # =============================================================================

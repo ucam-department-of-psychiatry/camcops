@@ -49,7 +49,6 @@ from camcops_server.cc_modules.cc_task import (
 from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
-
 # =============================================================================
 # PANSS
 # =============================================================================

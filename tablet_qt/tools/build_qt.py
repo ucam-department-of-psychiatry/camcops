@@ -3198,9 +3198,7 @@ def already_checked_out(src_gitdir: str, commit: str) -> bool:
         [GIT, "describe", "--tags"],  # Tag matches
         [GIT, "rev-parse", "HEAD"],  # Commit matches
     ]:
-        (stdout, stderr) = run(
-            git_test, allow_failure=True, capture_stdout=True
-        )
+        stdout, stderr = run(git_test, allow_failure=True, capture_stdout=True)
         name = stdout.strip()
         if name == commit:
             log.info("{} already checked out", commit)
@@ -3257,7 +3255,7 @@ def deinit_unused_submodules(cfg: Config) -> None:
 def get_submodule_names(cfg: Config) -> List[str]:
     chdir(cfg.qt_src_gitdir)
 
-    (stdout, stderr) = run(
+    stdout, stderr = run(
         [
             GIT,
             "config",
@@ -3697,8 +3695,7 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
         try:
             run(qt_config_args, env)  # The configure step takes a few seconds.
         except subprocess.CalledProcessError:
-            log.warning(
-                """Qt 'configure' failure.
+            log.warning("""Qt 'configure' failure.
 
 ===============================================================================
 Troubleshooting Qt 'configure' failures
@@ -3723,8 +3720,7 @@ Troubleshooting Qt 'configure' failures
     clearly. This is IMPORTANT or other error messages incorrectly distract
     you.
 
-"""
-            )
+""")
             sys.exit(EXIT_FAILURE)
 
 
@@ -3762,8 +3758,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
             ]
             run(cmake_args, env)
         except subprocess.CalledProcessError:
-            log.warning(
-                """Qt 'make' failure.
+            log.warning("""Qt 'make' failure.
 
 ===============================================================================
 Troubleshooting Qt 'make' failures
@@ -3786,8 +3781,7 @@ A.  Standard header files like os/log.h should live within
     - Upgrade Xcode. (Xcode 7 is too old on macOS 10.13. Try Xcode 9.4.1.)
       That should install SDKs for iOS 11.4 and macOS 10.13.4.
 
-"""
-            )
+""")
             sys.exit(EXIT_FAILURE)
 
     # -------------------------------------------------------------------------
@@ -4495,8 +4489,7 @@ def master_builder(args: argparse.Namespace) -> None:
         log.warning("Nothing more to do. Run with --help argument for help.")
         sys.exit(EXIT_FAILURE)
 
-    log.info(
-        """
+    log.info("""
 ..
 
 ===============================================================================
@@ -4505,8 +4498,7 @@ Now, to compile CamCOPS using Qt Creator:
 
 See tablet_qt/notes/QT_PROJECT_SETTINGS.txt
 
-    """
-    )
+    """)
     sys.exit(EXIT_SUCCESS)
 
 

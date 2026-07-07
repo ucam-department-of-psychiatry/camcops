@@ -35,7 +35,6 @@ from twilio.rest import Client
 
 from camcops_server.cc_modules.cc_constants import SmsBackendNames
 
-
 _backends = {}
 log = logging.getLogger(__name__)
 

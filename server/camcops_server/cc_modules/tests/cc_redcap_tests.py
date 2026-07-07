@@ -250,11 +250,9 @@ class RedcapFieldmapTests(TestCase):
         with tempfile.NamedTemporaryFile(
             mode="w", suffix="xml"
         ) as fieldmap_file:
-            fieldmap_file.write(
-                """<?xml version="1.0" encoding="UTF-8"?>
+            fieldmap_file.write("""<?xml version="1.0" encoding="UTF-8"?>
 <someothertag></someothertag>
-"""
-            )
+""")
             fieldmap_file.flush()
 
             with self.assertRaises(RedcapExportException) as cm:
@@ -274,10 +272,8 @@ class RedcapFieldmapTests(TestCase):
         with tempfile.NamedTemporaryFile(
             mode="w", suffix="xml"
         ) as fieldmap_file:
-            fieldmap_file.write(
-                """<?xml version="1.0" encoding="UTF-8"?>
-"""
-            )
+            fieldmap_file.write("""<?xml version="1.0" encoding="UTF-8"?>
+""")
             fieldmap_file.flush()
 
             with self.assertRaises(RedcapExportException) as cm:
@@ -291,12 +287,10 @@ class RedcapFieldmapTests(TestCase):
         with tempfile.NamedTemporaryFile(
             mode="w", suffix="xml"
         ) as fieldmap_file:
-            fieldmap_file.write(
-                """<?xml version="1.0" encoding="UTF-8"?>
+            fieldmap_file.write("""<?xml version="1.0" encoding="UTF-8"?>
                 <fieldmap>
                 </fieldmap>
-                """
-            )
+                """)
             fieldmap_file.flush()
 
             with self.assertRaises(RedcapExportException) as cm:
@@ -310,13 +304,11 @@ class RedcapFieldmapTests(TestCase):
         with tempfile.NamedTemporaryFile(
             mode="w", suffix="xml"
         ) as fieldmap_file:
-            fieldmap_file.write(
-                """<?xml version="1.0" encoding="UTF-8"?>
+            fieldmap_file.write("""<?xml version="1.0" encoding="UTF-8"?>
                 <fieldmap>
                 <patient />
                 </fieldmap>
-                """
-            )
+                """)
             fieldmap_file.flush()
 
             with self.assertRaises(RedcapExportException) as cm:
@@ -332,13 +324,11 @@ class RedcapFieldmapTests(TestCase):
         with tempfile.NamedTemporaryFile(
             mode="w", suffix="xml"
         ) as fieldmap_file:
-            fieldmap_file.write(
-                """<?xml version="1.0" encoding="UTF-8"?>
+            fieldmap_file.write("""<?xml version="1.0" encoding="UTF-8"?>
                 <fieldmap>
                     <patient instrument="patient_record" redcap_field="patient_id" />
                 </fieldmap>
-                """  # noqa: E501
-            )
+                """)  # noqa: E501
             fieldmap_file.flush()
 
             with self.assertRaises(RedcapExportException) as cm:
@@ -352,14 +342,12 @@ class RedcapFieldmapTests(TestCase):
         with tempfile.NamedTemporaryFile(
             mode="w", suffix="xml"
         ) as fieldmap_file:
-            fieldmap_file.write(
-                """<?xml version="1.0" encoding="UTF-8"?>
+            fieldmap_file.write("""<?xml version="1.0" encoding="UTF-8"?>
                 <fieldmap>
                    <patient instrument="patient_record" redcap_field="patient_id" />
                    <record />
                 </fieldmap>
-                """  # noqa: E501
-            )
+                """)  # noqa: E501
             fieldmap_file.flush()
 
             with self.assertRaises(RedcapExportException) as cm:
@@ -375,14 +363,12 @@ class RedcapFieldmapTests(TestCase):
         with tempfile.NamedTemporaryFile(
             mode="w", suffix="xml"
         ) as fieldmap_file:
-            fieldmap_file.write(
-                """<?xml version="1.0" encoding="UTF-8"?>
+            fieldmap_file.write("""<?xml version="1.0" encoding="UTF-8"?>
                 <fieldmap>
                     <patient instrument="patient_record" redcap_field="patient_id" />
                     <record instrument="patient_record" redcap_field="record_id" />
                 </fieldmap>
-                """  # noqa: E501
-            )
+                """)  # noqa: E501
             fieldmap_file.flush()
 
             with self.assertRaises(RedcapExportException) as cm:
@@ -396,8 +382,7 @@ class RedcapFieldmapTests(TestCase):
         with tempfile.NamedTemporaryFile(
             mode="w", suffix="xml"
         ) as fieldmap_file:
-            fieldmap_file.write(
-                """<?xml version="1.0" encoding="UTF-8"?>
+            fieldmap_file.write("""<?xml version="1.0" encoding="UTF-8"?>
                 <fieldmap>
                     <patient instrument="patient_record" redcap_field="patient_id" />
                     <record instrument="patient_record" redcap_field="record_id" />
@@ -405,8 +390,7 @@ class RedcapFieldmapTests(TestCase):
                         <instrument />
                     </instruments>
                 </fieldmap>
-                """  # noqa: E501
-            )
+                """)  # noqa: E501
             fieldmap_file.flush()
 
             with self.assertRaises(RedcapExportException) as cm:
@@ -420,8 +404,7 @@ class RedcapFieldmapTests(TestCase):
         with tempfile.NamedTemporaryFile(
             mode="w", suffix="xml"
         ) as fieldmap_file:
-            fieldmap_file.write(
-                """<?xml version="1.0" encoding="UTF-8"?>
+            fieldmap_file.write("""<?xml version="1.0" encoding="UTF-8"?>
                 <fieldmap>
                     <patient instrument="patient_record" redcap_field="patient_id" />
                     <record instrument="patient_record" redcap_field="record_id" />
@@ -433,8 +416,7 @@ class RedcapFieldmapTests(TestCase):
                         </instrument>
                     </instruments>
                 </fieldmap>
-                """  # noqa: E501
-            )
+                """)  # noqa: E501
             fieldmap_file.flush()
 
             with self.assertRaises(RedcapExportException) as cm:
@@ -448,8 +430,7 @@ class RedcapFieldmapTests(TestCase):
         with tempfile.NamedTemporaryFile(
             mode="w", suffix="xml"
         ) as fieldmap_file:
-            fieldmap_file.write(
-                """<?xml version="1.0" encoding="UTF-8"?>
+            fieldmap_file.write("""<?xml version="1.0" encoding="UTF-8"?>
                 <fieldmap>
                     <patient instrument="patient_record" redcap_field="patient_id" />
                     <record instrument="patient_record" redcap_field="record_id" />
@@ -461,8 +442,7 @@ class RedcapFieldmapTests(TestCase):
                         </instrument>
                     </instruments>
                 </fieldmap>
-                """  # noqa: E501
-            )
+                """)  # noqa: E501
             fieldmap_file.flush()
 
             with self.assertRaises(RedcapExportException) as cm:

@@ -66,7 +66,6 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerLabel,
 )
 
-
 WORDLIST = ["FACE", "VELVET", "CHURCH", "DAISY", "RED"]
 
 

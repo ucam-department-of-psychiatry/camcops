@@ -39,7 +39,6 @@ import sys
 import cardinal_pythonlib.rnc_db as rnc_db
 import cardinal_pythonlib.rnc_web as ws
 
-
 # =============================================================================
 # Actual demo application
 # =============================================================================

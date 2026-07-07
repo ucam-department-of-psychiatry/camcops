@@ -37,7 +37,6 @@ from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_sqla_coltypes import TableNameColType
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 
-
 # =============================================================================
 # DirtyTable
 # =============================================================================

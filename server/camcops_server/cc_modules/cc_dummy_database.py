@@ -68,7 +68,6 @@ from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_user import User
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
-
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session as SqlASession
     from camcops_server.cc_modules.cc_config import CamcopsConfig

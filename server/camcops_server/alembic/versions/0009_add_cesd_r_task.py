@@ -42,7 +42,6 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     SemanticVersionColType,
 )
 
-
 # =============================================================================
 # Revision identifiers, used by Alembic.
 # =============================================================================

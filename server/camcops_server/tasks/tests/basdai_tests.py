@@ -29,7 +29,6 @@ from unittest import mock, TestCase
 
 from camcops_server.tasks.basdai import Basdai
 
-
 # =============================================================================
 # Unit tests
 # =============================================================================

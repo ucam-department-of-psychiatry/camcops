@@ -28,7 +28,6 @@ camcops_server/cc_modules/tests/cc_device_tests.py
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 
-
 # =============================================================================
 # Unit tests
 # =============================================================================
