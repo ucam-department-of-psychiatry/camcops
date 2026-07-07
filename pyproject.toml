@@ -1,5 +1,6 @@
 [build-system]
-requires = ["setuptools >= 73"]
+# Pinned to <82 until Pyramid removes pkg_resources dependency
+requires = ["setuptools >= 73, < 82.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
