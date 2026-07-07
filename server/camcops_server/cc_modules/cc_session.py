@@ -404,7 +404,7 @@ class CamcopsSession(Base):
         self,
         ip_addr: str = None,
         last_activity_utc: Pendulum = None,
-        **kwargs: Any
+        **kwargs: Any,
     ):
         """
         Args:

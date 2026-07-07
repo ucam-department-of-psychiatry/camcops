@@ -91,7 +91,7 @@ class IpUse(Base):
         commercial: bool = _DEFAULT_APPLICABILITY,
         educational: bool = _DEFAULT_APPLICABILITY,
         research: bool = _DEFAULT_APPLICABILITY,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         """
         We provide __init__() so we can create a default object without
