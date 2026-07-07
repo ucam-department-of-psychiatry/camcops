@@ -10,4 +10,4 @@ ${PYTHON} -m pip install -U pip setuptools wheel
 echo dumping pre-installed packages
 ${PYTHON} -m pip freeze
 echo installing pip packages
-${PYTHON} -m pip install -e server/.
+${PYTHON} -m pip install -e .
