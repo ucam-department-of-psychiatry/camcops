@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "camcops_server"
 description = "CamCOPS server"
 authors = [{name = "Rudolf Cardinal", email = "rnc1001@cam.ac.uk"}]
-license = "GNU General Public License v3 or later"
+license = "GPL-3.0-or-later"
 # TODO: license-files, readme: parent dir not allowed in path
 keywords = ["cardinal"]
 classifiers = [
