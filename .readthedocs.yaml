@@ -24,4 +24,4 @@ build:
 python:
   install:
     - method: pip
-      path: server
+      path: .
