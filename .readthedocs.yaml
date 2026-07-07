@@ -19,7 +19,7 @@ build:
     pre_install:
       # Pin setuptools to avoid pkg_resources import error from Pyramid
       # See also pyproject.toml
-      - pip install --upgrade "setuptools==82.0.0"
+      - python -m pip install --upgrade "setuptools==82.0.0"
 
 python:
   install:
