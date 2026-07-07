@@ -51,7 +51,7 @@ Ensure the virtualenv is activated as above.
 
   .. code-block:: bash
 
-      cd ~/dev/camcops/camcops_server
+      cd ~/dev/camcops
       python -m pip install -e .
 
 
