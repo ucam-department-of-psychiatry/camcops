@@ -274,7 +274,6 @@ system_python_executable()
 # =============================================================================
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))  # tools
-SETUP_PY_DIR = os.path.abspath(join(THIS_DIR, os.pardir))
 PROJECT_BASE_DIR = os.path.abspath(join(THIS_DIR, os.pardir, os.pardir))
 
 DSTBASEDIR = LINUX_DEFAULT_CAMCOPS_DIR
@@ -907,7 +906,7 @@ def build_package() -> None:
         os.remove(src_sdist_file)
     except OSError:
         pass
-    os.chdir(SETUP_PY_DIR)  # or setup.py looks in wrong places?
+    os.chdir(PROJECT_BASE_DIR)  # or setup.py looks in wrong places?
     cmdargs = ["python", "-m", "build"]
     call(cmdargs)
     remove_gzip_timestamp(src_sdist_file)

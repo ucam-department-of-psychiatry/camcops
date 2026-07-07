@@ -1078,7 +1078,7 @@ class VersionReleaser:
             return
 
         self.remove_old_pypi_builds()
-        os.chdir(SERVER_SOURCE_DIR)
+        os.chdir(PROJECT_ROOT)
 
         self.run_with_check(["python", "-m", "build"])
         pypi_packages = [str(f) for f in self.get_pypi_builds()]
