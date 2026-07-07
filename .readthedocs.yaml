@@ -15,6 +15,11 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.10"
+  jobs:
+    pre_install:
+      # Pin setuptools to avoid pkg_resources import error from Pyramid
+      # See also pyproject.toml
+      - pip install --upgrade "setuptools==82.0.0"
 
 python:
   install:
