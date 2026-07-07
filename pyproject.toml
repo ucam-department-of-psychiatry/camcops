@@ -123,7 +123,7 @@ dependencies = [
     "amqp==5.3.1",  # for celery
     "Chameleon==3.8.1",  # for Deform
     "tornado==6.5.5",  # for celery
-    "webob==1.8.8",  # for pyramid
+    "webob==1.8.10",  # for pyramid
 ]
 
 [project.urls]
