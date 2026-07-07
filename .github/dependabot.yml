@@ -6,3 +6,7 @@ updates:
       interval: "daily"
     allow:
       - update-type: "security"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
