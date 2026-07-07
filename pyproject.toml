@@ -10,13 +10,9 @@ license = "GPL-3.0-or-later"
 # TODO: license-files, readme: parent dir not allowed in path
 keywords = ["cardinal"]
 classifiers = [
-    # How mature is this project?
     "Development Status :: 5 - Production/Stable",
-    # Indicate who your project is intended for
     "Intended Audience :: Healthcare Industry",
     "Intended Audience :: Science/Research",
-    # Pick your license as you wish (should match "license" above)
-    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
