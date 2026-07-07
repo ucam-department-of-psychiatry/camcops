@@ -49,7 +49,7 @@ dependencies = [
     "gunicorn==23.0.0",  # web server (Unix only)
     "hl7==0.3.5",  # For HL7 export
     "lockfile==0.12.2",  # File locking for background tasks
-    "lxml==4.9.4",  # Will speed up openpyxl export [NO LONGER CRITICAL]
+    "lxml==6.1.0",  # Will speed up openpyxl export [NO LONGER CRITICAL]
     "matplotlib==3.9.4",  # Used for trackers and some tasks. SLOW INSTALLATION.
     "numpy==1.26.4",  # Used by some tasks. SLOW INSTALLATION.
     "paginate==0.5.6",  # pagination for web server
