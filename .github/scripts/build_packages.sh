@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-sudo apt-get -y install alien fakeroot lintian gdebi
+sudo apt-get -y install alien fakeroot lintian gdebi python3-build
 # 429 = Too many requests. Unfortunately wget doesn't read the
 # Retry-after header so just wait 5 minutes
 wget --retry-on-http-error=429 --waitretry=300 --tries=20 https://downloads.sourceforge.net/project/rpmrebuild/rpmrebuild/2.15/rpmrebuild-2.15-1.noarch.rpm
