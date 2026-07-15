@@ -10,6 +10,7 @@ on:
             - .github/scripts/create_config_file.sh
             - .github/scripts/python_setup.sh
             - .github/workflows/python-tests.yml
+            - pyproject.toml
 jobs:
     python-tests:
         strategy:

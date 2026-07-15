@@ -8,6 +8,7 @@ on:
             - '**.py'
             - .github/scripts/python_setup.sh
             - .github/workflows/mypy.yml
+            - pyproject.toml
 jobs:
     mypy:
         strategy:

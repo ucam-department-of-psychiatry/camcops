@@ -8,6 +8,8 @@ on:
             - '**.py'
             - .github/scripts/python_setup.sh
             - .github/workflows/python-package-checks.yml
+            - pyproject.toml
+
 jobs:
     python-package-checks:
         strategy:
