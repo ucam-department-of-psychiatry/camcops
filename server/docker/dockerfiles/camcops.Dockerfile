@@ -48,6 +48,7 @@ RUN adduser --disabled-password --gecos '' --uid $USER_ID camcops
 
 
 ADD pyproject.toml /camcops/src/
+ADD MANIFEST.in /camcops/src/
 ADD server /camcops/src/server
 
 
