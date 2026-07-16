@@ -6,9 +6,10 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "camcops_server"
 description = "CamCOPS server"
+readme = "README.rst"
 authors = [{name = "Rudolf Cardinal", email = "rnc1001@cam.ac.uk"}]
 license = "GPL-3.0-or-later"
-# TODO: license-files, readme: parent dir not allowed in path
+license-files = ["LICENSE.txt", "LICENSE_GPLv3.txt", "LICENSE_LGPLv3.txt"]
 keywords = ["cardinal"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
