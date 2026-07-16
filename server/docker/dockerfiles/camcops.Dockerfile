@@ -36,15 +36,13 @@ RUN adduser --disabled-password --gecos '' --uid $USER_ID camcops
 # -----------------------------------------------------------------------------
 # ADD: files to copy
 # -----------------------------------------------------------------------------
-# - TODO: Update this comment
 # - Syntax: ADD <host_file_spec> <container_dest_dir>
 # - The host file spec is relative to the context (and can't go "above" it).
 # - This docker file lives in the "server/docker/dockerfiles" directory within
 #   the CamCOPS source, so we expect Docker to be told (externally -- see e.g.
-#   the Docker Compose file) that the context is a higher directory, "server/".
-#   That is the directory containing "setup.py" and therefore the installation
+#   the Docker Compose file) that the context is the top level project directory.
+#   That is the directory containing "pyproject.toml" and therefore the installation
 #   directory for our Python package.
-# - So in short, here we refer to the context as ".".
 
 
 ADD pyproject.toml /camcops/src/
