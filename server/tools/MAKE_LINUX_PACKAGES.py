@@ -894,8 +894,8 @@ def build_package() -> None:
         os.remove(src_sdist_file)
     except OSError:
         pass
-    os.chdir(PROJECT_BASE_DIR)  # or setup.py looks in wrong places?
-    cmdargs = ["python", "-m", "build"]
+    os.chdir(PROJECT_BASE_DIR)
+    cmdargs = [sys.executable, "-m", "build"]
     call(cmdargs)
     remove_gzip_timestamp(src_sdist_file)
 

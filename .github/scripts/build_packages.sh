@@ -13,5 +13,4 @@ sudo dpkg -i rpmrebuild_2.15-2_all.deb
 
 echo building packages
 PYTHON=${HOME}/venv/bin/python
-${PYTHON} -m pip install build
 ${PYTHON} server/tools/MAKE_LINUX_PACKAGES.py
