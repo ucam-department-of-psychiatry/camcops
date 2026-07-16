@@ -116,7 +116,7 @@ services:
 
         # If you specify "image" as well as "build", Compose names the built
         # image. Syntax is "IMAGE[:TAG]".
-        image: camcops_server
+        image: ${CAMCOPS_DOCKER_IMAGE_TAG}
         # Don't try to pull from https://hub.docker.com/_/camcops_server
         pull_policy: never
         container_name: camcops_camcops_workers
@@ -156,7 +156,7 @@ services:
     camcops_scheduler:
 
         # Re-use the image built above.
-        image: camcops_server
+        image: ${CAMCOPS_DOCKER_IMAGE_TAG}
         # Don't try to pull from https://hub.docker.com/_/camcops_server
         pull_policy: never
         container_name: camcops_camcops_scheduler
@@ -195,7 +195,7 @@ services:
 
     camcops_server:
         # Re-use the image built above.
-        image: camcops_server
+        image: ${CAMCOPS_DOCKER_IMAGE_TAG}
         # Don't try to pull from https://hub.docker.com/_/camcops_server
         pull_policy: never
         container_name: camcops_camcops_server
@@ -248,7 +248,7 @@ services:
 
     flower:
         # Re-use the image built above.
-        image: camcops_server
+        image: ${CAMCOPS_DOCKER_IMAGE_TAG}
         # Don't try to pull from https://hub.docker.com/_/camcops_server
         pull_policy: never
         container_name: camcops_flower
