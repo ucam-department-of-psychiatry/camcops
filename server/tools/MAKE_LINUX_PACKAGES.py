@@ -886,7 +886,8 @@ def build_package() -> None:
     log.info("Building Python package")
 
     sdist_basefilename = "camcops_server-{}.tar.gz".format(MAINVERSION)
-    src_sdist_file = join(SRCSERVERDIR, "dist", sdist_basefilename)
+    dist_dir = join(SRCSERVERDIR, "dist")
+    src_sdist_file = join(dist_dir, sdist_basefilename)
     wrk_sdist_file = join(WRKBASEDIR, sdist_basefilename)
 
     try:
@@ -895,7 +896,7 @@ def build_package() -> None:
     except OSError:
         pass
     os.chdir(PROJECT_BASE_DIR)
-    cmdargs = [sys.executable, "-m", "build"]
+    cmdargs = [sys.executable, "-m", "build", "-o", dist_dir]
     call(cmdargs)
     remove_gzip_timestamp(src_sdist_file)
 
