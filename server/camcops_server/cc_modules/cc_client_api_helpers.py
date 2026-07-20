@@ -35,7 +35,6 @@ from sqlalchemy.sql.schema import Table
 from camcops_server.cc_modules.cc_all_models import NONTASK_CLIENT_TABLENAMES
 from camcops_server.cc_modules.cc_patient import Patient, PatientIdNum
 
-
 # =============================================================================
 # Table sort order
 # =============================================================================

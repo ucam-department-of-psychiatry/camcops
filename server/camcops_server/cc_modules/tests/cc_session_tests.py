@@ -35,7 +35,6 @@ from camcops_server.cc_modules.cc_unittest import (
 )
 from camcops_server.cc_modules.cc_user import User
 
-
 # =============================================================================
 # Unit tests
 # =============================================================================

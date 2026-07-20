@@ -48,7 +48,6 @@ from camcops_server.cc_modules.cc_baseconstants import (
 )
 from camcops_server.cc_modules.cc_language import DEFAULT_LOCALE
 
-
 # =============================================================================
 # Number of ID numbers. Don't alter this lightly; influences database fields.
 # =============================================================================

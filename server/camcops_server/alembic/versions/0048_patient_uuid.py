@@ -42,7 +42,6 @@ import sqlalchemy as sa
 
 from camcops_server.cc_modules.cc_sqla_coltypes import UuidColType
 
-
 # =============================================================================
 # Revision identifiers, used by Alembic.
 # =============================================================================

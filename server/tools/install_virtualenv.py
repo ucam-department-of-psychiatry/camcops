@@ -67,9 +67,7 @@ created. For example, for a testing environment
 or for a production environment:
     sudo --user=www-data XDG_CACHE_HOME=/usr/share/MYPROJECT/.cache \\
         {script} /usr/share/MYPROJECT/virtualenv
-""".format(
-    script=os.path.basename(__file__)
-)
+""".format(script=os.path.basename(__file__))
 
 PYTHON = sys.executable  # Windows needs this before Python executables
 PYTHONBASE = os.path.basename(PYTHON)

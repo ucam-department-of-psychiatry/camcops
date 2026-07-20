@@ -32,7 +32,6 @@ import unittest
 
 from camcops_server.cc_modules.cc_export import UserDownloadFile
 
-
 # =============================================================================
 # Unit tests
 # =============================================================================

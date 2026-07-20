@@ -61,7 +61,6 @@ from camcops_server.cc_modules.cc_taskcollection import (
     TaskSortMethod,
 )
 
-
 if TYPE_CHECKING:
     from sqlalchemy.sql.elements import Cast
     from camcops_server.cc_modules.cc_request import CamcopsRequest

@@ -47,7 +47,6 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasRespondentMixin,
 )
 
-
 # =============================================================================
 # ZBI
 # =============================================================================
@@ -163,10 +162,7 @@ class Zbi12(  # type: ignore[misc]
                 else None
             )
             h += tr(self.wxstring(req, "q" + str(q)), answer(fa))
-        h += (
-            """
+        h += """
             </table>
-        """
-            + DATA_COLLECTION_UNLESS_UPGRADED_DIV
-        )
+        """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV
         return h

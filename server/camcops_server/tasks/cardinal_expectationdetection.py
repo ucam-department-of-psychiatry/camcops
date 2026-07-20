@@ -1158,7 +1158,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):  # type: ignore[m
             if n_absent > 0
             else None
         )
-        (c, dprime) = self.get_c_dprime(
+        c, dprime = self.get_c_dprime(
             p_detected_given_present, p_detected_given_absent
         )
         # hits: p_detected_given_present

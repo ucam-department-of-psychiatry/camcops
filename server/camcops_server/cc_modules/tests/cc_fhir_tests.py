@@ -73,7 +73,6 @@ from camcops_server.tasks.tests.factories import (
     Phq9Factory,
 )
 
-
 log = logging.getLogger()
 
 

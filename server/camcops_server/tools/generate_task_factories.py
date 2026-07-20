@@ -50,15 +50,13 @@ def main() -> None:
             else:
                 sub_class_name = "TaskFactory"
 
-            print(
-                f"""
+            print(f"""
 class {factory_name}({sub_class_name}):
     class Meta:
         model = {task_class_name}
 
     id = factory.Sequence(lambda n: n + 1)
-"""
-            )
+""")
 
     for filename, class_name in task_dict.items():
         print(f"from camcops_server.tasks.{filename} import {class_name}")

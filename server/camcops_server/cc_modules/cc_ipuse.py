@@ -35,7 +35,6 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 
-
 _DEFAULT_APPLICABILITY = False
 
 
@@ -91,7 +90,7 @@ class IpUse(Base):
         commercial: bool = _DEFAULT_APPLICABILITY,
         educational: bool = _DEFAULT_APPLICABILITY,
         research: bool = _DEFAULT_APPLICABILITY,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         """
         We provide __init__() so we can create a default object without

@@ -5,12 +5,12 @@ name: Database upgrade/downgrade
 on:
     push:
         paths:
+            - 'pyproject.toml'
             - .github/scripts/create_config_file.sh
             - .github/scripts/mysql_local_setup.sh
             - .github/scripts/python_setup.sh
             - .github/workflows/database-upgrade-downgrade.yml
             - 'server/camcops_server/**'
-            - 'server/setup.py'
 jobs:
     database-upgrade-downgrade:
         runs-on: ubuntu-22.04

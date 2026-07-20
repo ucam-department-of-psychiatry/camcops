@@ -41,7 +41,6 @@ from alembic import op
 from alembic.operations.base import BatchOperations
 import sqlalchemy as sa
 
-
 # =============================================================================
 # Revision identifiers, used by Alembic.
 # =============================================================================

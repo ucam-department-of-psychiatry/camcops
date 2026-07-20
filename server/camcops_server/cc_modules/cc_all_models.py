@@ -136,7 +136,6 @@ from camcops_server.cc_modules.cc_taskschedulereports import (  # noqa: F401
     TaskAssignmentReport,
 )
 
-
 # =============================================================================
 # Logging
 # =============================================================================

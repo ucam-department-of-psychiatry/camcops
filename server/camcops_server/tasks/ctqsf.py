@@ -34,7 +34,6 @@ from semantic_version import Version
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
-
 # =============================================================================
 # CTQ-SF
 # =============================================================================

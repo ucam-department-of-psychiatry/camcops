@@ -40,7 +40,6 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     camcops_column,
 )
 
-
 CREATE = False
 CREATE_BOTH = False
 ADD = False

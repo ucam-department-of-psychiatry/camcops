@@ -45,7 +45,6 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     SemanticVersionColType,
 )
 
-
 # =============================================================================
 # Revision identifiers, used by Alembic.
 # =============================================================================
@@ -4188,7 +4187,7 @@ def upgrade() -> None:
         # mysql_collate='utf8mb4_unicode_ci',
         mysql_charset="utf8mb4 COLLATE utf8mb4_unicode_ci",
         mysql_engine="InnoDB",
-        mysql_row_format="DYNAMIC"
+        mysql_row_format="DYNAMIC",
     )
     with op.batch_alter_table("cecaq3", schema=None) as batch_op:
         batch_op.create_index(
@@ -17120,7 +17119,7 @@ def upgrade() -> None:
         # mysql_collate='utf8mb4_unicode_ci',
         mysql_charset="utf8mb4 COLLATE utf8mb4_unicode_ci",
         mysql_engine="InnoDB",
-        mysql_row_format="DYNAMIC"
+        mysql_row_format="DYNAMIC",
     )
     with op.batch_alter_table("ybocssc", schema=None) as batch_op:
         batch_op.create_index(

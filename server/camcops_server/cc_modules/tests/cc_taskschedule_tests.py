@@ -46,7 +46,6 @@ from camcops_server.cc_modules.cc_testfactories import (
 )
 from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
 
-
 # =============================================================================
 # Unit tests
 # =============================================================================
@@ -183,7 +182,7 @@ class PatientTaskScheduleTests(DemoRequestTestCase):
         pts = PatientTaskScheduleFactory(task_schedule=schedule)
 
         url = pts.email_body(self.req)
-        (scheme, netloc, path, query, fragment) = urlsplit(url)
+        scheme, netloc, path, query, fragment = urlsplit(url)
         self.assertEqual(scheme, "https")
         self.assertEqual(netloc, "ucam-department-of-psychiatry.github.io")
         self.assertEqual(path, "/camcops/register")
@@ -202,7 +201,7 @@ class PatientTaskScheduleTests(DemoRequestTestCase):
         pts = PatientTaskScheduleFactory(task_schedule=schedule)
 
         url = pts.email_body(self.req)
-        (scheme, netloc, path, query, fragment) = urlsplit(url)
+        scheme, netloc, path, query, fragment = urlsplit(url)
         self.assertEqual(scheme, "camcops")
         self.assertEqual(netloc, "ucam-department-of-psychiatry.github.io")
         self.assertEqual(path, "/camcops/register")

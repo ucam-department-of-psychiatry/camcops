@@ -42,7 +42,6 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 import cardinal_pythonlib.sqlalchemy.list_types
 
-
 # =============================================================================
 # Revision identifiers, used by Alembic.
 # =============================================================================

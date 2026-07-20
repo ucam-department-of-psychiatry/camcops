@@ -40,7 +40,6 @@ Creation date: 2020-02-24 12:18:37.252761
 from alembic import op
 from sqlalchemy.dialects import mysql
 
-
 # =============================================================================
 # Revision identifiers, used by Alembic.
 # =============================================================================

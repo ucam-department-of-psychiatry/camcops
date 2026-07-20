@@ -34,7 +34,6 @@ from colander import SchemaNode
 
 from camcops_server.cc_modules.cc_forms import RequestAwareMixin
 
-
 DEFAULT_BY_YEAR = True
 DEFAULT_BY_MONTH = True
 DEFAULT_BY_DAY_OF_MONTH = False

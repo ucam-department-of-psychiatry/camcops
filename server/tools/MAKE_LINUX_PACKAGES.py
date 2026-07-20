@@ -274,7 +274,6 @@ system_python_executable()
 # =============================================================================
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))  # tools
-SETUP_PY_DIR = os.path.abspath(join(THIS_DIR, os.pardir))
 PROJECT_BASE_DIR = os.path.abspath(join(THIS_DIR, os.pardir, os.pardir))
 
 DSTBASEDIR = LINUX_DEFAULT_CAMCOPS_DIR
@@ -404,8 +403,7 @@ def check_prerequisites() -> None:
     log.info("Checking prerequisites")
     for cmd in PREREQUISITES:
         if shutil.which(cmd) is None:
-            log.warning(
-                f"""The command {cmd!r} is missing.
+            log.warning(f"""The command {cmd!r} is missing.
 
     To install Alien:
         sudo apt-get install alien
@@ -417,8 +415,7 @@ def check_prerequisites() -> None:
             fakeroot alien --to-deb rpmrebuild-2.15-1.noarch.rpm
         3. Install:
             sudo dpkg --install rpmrebuild_2.15-2_all.deb
-            """  # noqa
-            )
+            """)  # noqa
             log.critical(f"{cmd} command not found; stopping")
             sys.exit(1)
 
@@ -620,9 +617,7 @@ stop_supervisord
 
 echo '{PACKAGE}: preinst file finished'
 
-    """.format(
-        BASHFUNC=BASHFUNC, PACKAGE=PACKAGE_DEB_NAME
-    )
+    """.format(BASHFUNC=BASHFUNC, PACKAGE=PACKAGE_DEB_NAME)
 
 
 # -----------------------------------------------------------------------------
@@ -785,9 +780,7 @@ restart_supervisord
 
 echo '{PACKAGE}: postrm file finished'
 
-    """.format(
-        BASHFUNC=BASHFUNC, PACKAGE=PACKAGE_DEB_NAME
-    )
+    """.format(BASHFUNC=BASHFUNC, PACKAGE=PACKAGE_DEB_NAME)
 
 
 # -----------------------------------------------------------------------------
@@ -801,9 +794,7 @@ def get_override() -> str:
 # If we did want to close a new-package ITP bug:
 # https://www.debian.org/doc/manuals/developers-reference/pkgs.html#upload-bugfix
 {PACKAGE} binary: new-package-should-close-itp-bug
-    """.format(
-        PACKAGE=PACKAGE_DEB_NAME
-    )
+    """.format(PACKAGE=PACKAGE_DEB_NAME)
 
 
 # -----------------------------------------------------------------------------
@@ -869,9 +860,7 @@ echo 'Launching CamCOPS command-line tool...' >&2
 
 {DST_CAMCOPS_LAUNCHER} "$@"
 
-    """.format(
-        DST_CAMCOPS_LAUNCHER=DST_CAMCOPS_LAUNCHER
-    )
+    """.format(DST_CAMCOPS_LAUNCHER=DST_CAMCOPS_LAUNCHER)
 
 
 def get_camcops_server_meta_launcher() -> str:
@@ -882,9 +871,7 @@ echo 'Launching CamCOPS meta-command tool...' >&2
 
 {DST_CAMCOPS_META_LAUNCHER} "$@"
 
-    """.format(
-        DST_CAMCOPS_META_LAUNCHER=DST_CAMCOPS_META_LAUNCHER
-    )
+    """.format(DST_CAMCOPS_META_LAUNCHER=DST_CAMCOPS_META_LAUNCHER)
 
 
 # =============================================================================
@@ -898,9 +885,9 @@ def build_package() -> None:
     """
     log.info("Building Python package")
 
-    setup_py = join(SRCSERVERDIR, "setup.py")
     sdist_basefilename = "camcops_server-{}.tar.gz".format(MAINVERSION)
-    src_sdist_file = join(SRCSERVERDIR, "dist", sdist_basefilename)
+    dist_dir = join(SRCSERVERDIR, "dist")
+    src_sdist_file = join(dist_dir, sdist_basefilename)
     wrk_sdist_file = join(WRKBASEDIR, sdist_basefilename)
 
     try:
@@ -908,8 +895,8 @@ def build_package() -> None:
         os.remove(src_sdist_file)
     except OSError:
         pass
-    os.chdir(SETUP_PY_DIR)  # or setup.py looks in wrong places?
-    cmdargs = ["python", setup_py, "sdist"]
+    os.chdir(PROJECT_BASE_DIR)
+    cmdargs = [sys.executable, "-m", "build", "-o", dist_dir]
     call(cmdargs)
     remove_gzip_timestamp(src_sdist_file)
 
@@ -1161,7 +1148,7 @@ def main() -> None:
 - In brief, the following sequence is followed as the package is built:
 
   * The CamCOPS server is packaged up from source using
-        python setup.py sdist
+        python -m build
     and zipped in a Debian-safe way.
 
   * The principle is that the Python package should do all the work, not the

@@ -210,12 +210,9 @@ class HadsBase(TaskHasPatientMixin, Task, ABC):  # type: ignore[misc]
             else:
                 a = f"{v}: {self.wxstring(req, f'q{n}_a{v}')}"  # type: ignore[assignment]  # noqa: E501
             h += tr_qa(q, a)
-        h += (
-            """
+        h += """
             </table>
-        """
-            + DATA_COLLECTION_UNLESS_UPGRADED_DIV
-        )
+        """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV
         return h
 
 

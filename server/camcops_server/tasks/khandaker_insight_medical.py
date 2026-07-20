@@ -45,7 +45,6 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import bool_column
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
-
 # =============================================================================
 # Constants
 # =============================================================================

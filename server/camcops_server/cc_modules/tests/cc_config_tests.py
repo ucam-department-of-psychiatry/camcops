@@ -30,7 +30,6 @@ from unittest import TestCase
 
 from camcops_server.cc_modules.cc_config import CamcopsConfig, get_demo_config
 
-
 # =============================================================================
 # Unit tests
 # =============================================================================

@@ -1440,14 +1440,12 @@ def camcops_main() -> int:
     set_level_for_logger_and_its_handlers(rootlogger, loglevel)
 
     # Say hello
-    log.info(
-        f"""
+    log.info(f"""
 # =============================================================================
 # CamCOPS server version {CAMCOPS_SERVER_VERSION}
 # Created by Rudolf Cardinal. See {CAMCOPS_URL}
 # =============================================================================
-"""
-    )
+""")
     log.debug(
         """
 # -----------------------------------------------------------------------------

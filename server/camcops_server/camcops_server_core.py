@@ -1037,14 +1037,12 @@ def dev_cli(config: CamcopsConfig) -> None:
     with command_line_request_context() as req:
         # noinspection PyUnusedLocal
         dbsession = req.dbsession  # noqa: F841
-        log.error(
-            """Entering developer command-line.
+        log.error("""Entering developer command-line.
     - Config is available in 'config'.
     - Database engine is available in 'engine'.
     - Dummy request is available in 'req'.
     - Database session is available in 'dbsession'.
-        """
-        )
+        """)
         import pdb
 
         pdb.set_trace()

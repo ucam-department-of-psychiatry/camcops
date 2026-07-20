@@ -8,6 +8,7 @@ on:
             - '**.py'
             - .github/scripts/python_setup.sh
             - .github/workflows/precommit.yml
+            - pyproject.toml
 jobs:
     precommit-checks:
         runs-on: ubuntu-22.04

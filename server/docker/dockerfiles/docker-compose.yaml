@@ -28,29 +28,6 @@
 #   CAMCOPS_DOCKER_INSTALL_USER_ID
 
 # =============================================================================
-# docker-compose file syntax version
-# =============================================================================
-
-version: "3.5"
-    # - Ubuntu 18.04 LTS comes with docker-compose version 1.17.1 and docker
-    #   version 19.03.6. The help seems to suggest that this should support
-    #   version 3.7 (certainly, the Docker Engine version is high enough at
-    #   19.03.0+), but it doesn't (suggesting the docker-compose version is too
-    #   old). Empirically, the highest supported version appears to be 3.5.
-    #
-    # - Version 3.7 works fine with whatever comes with Ubuntu 20.04 LTS.
-    #
-    # - The docker-compose release notes indicate that v3.7 was supported by
-    #   docker-compose 1.22.0, and v3.6 by docker-compose 1.20.0.
-    #
-    # - We're not using v3.6+ features yet, so fine to stick with v3.5.
-    #
-    # - https://docs.docker.com/compose/compose-file/compose-versioning/
-    # - https://docs.docker.com/compose/compose-file/compose-versioning/#version-3
-    # - https://github.com/docker/compose/releases
-
-
-# =============================================================================
 # Data volumes
 # =============================================================================
 
@@ -129,17 +106,17 @@ services:
         # Build a container from a Dockerfile.
         build:
             # Context for Docker to build the image (relative to this file).
-            context: ../../
+            context: ../../../
 
             # Filename of the Dockerfile to use, relative to the context.
-            dockerfile: docker/dockerfiles/camcops.Dockerfile
+            dockerfile: server/docker/dockerfiles/camcops.Dockerfile
 
             args:
                 - USER_ID=${CAMCOPS_DOCKER_INSTALL_USER_ID}
 
         # If you specify "image" as well as "build", Compose names the built
         # image. Syntax is "IMAGE[:TAG]".
-        image: camcops_server
+        image: ${CAMCOPS_DOCKER_IMAGE_TAG}
         # Don't try to pull from https://hub.docker.com/_/camcops_server
         pull_policy: never
         container_name: camcops_camcops_workers
@@ -179,7 +156,7 @@ services:
     camcops_scheduler:
 
         # Re-use the image built above.
-        image: camcops_server
+        image: ${CAMCOPS_DOCKER_IMAGE_TAG}
         # Don't try to pull from https://hub.docker.com/_/camcops_server
         pull_policy: never
         container_name: camcops_camcops_scheduler
@@ -218,7 +195,7 @@ services:
 
     camcops_server:
         # Re-use the image built above.
-        image: camcops_server
+        image: ${CAMCOPS_DOCKER_IMAGE_TAG}
         # Don't try to pull from https://hub.docker.com/_/camcops_server
         pull_policy: never
         container_name: camcops_camcops_server
@@ -271,7 +248,7 @@ services:
 
     flower:
         # Re-use the image built above.
-        image: camcops_server
+        image: ${CAMCOPS_DOCKER_IMAGE_TAG}
         # Don't try to pull from https://hub.docker.com/_/camcops_server
         pull_policy: never
         container_name: camcops_flower

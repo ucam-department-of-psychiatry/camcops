@@ -46,7 +46,6 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasPatientMixin,
 )
 
-
 WORDLIST = [  # Value is true/1 for CORRECT, false/0 for INCORRECT
     "chord",
     "ache",

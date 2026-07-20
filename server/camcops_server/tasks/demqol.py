@@ -56,7 +56,6 @@ from camcops_server.cc_modules.cc_task import (
 )
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
-
 # =============================================================================
 # Constants
 # =============================================================================
@@ -214,7 +213,7 @@ class Demqol(  # type: ignore[misc]
         )
 
     def total_score(self) -> float:
-        (total, extrapolated) = self.totalscore_extrapolated()
+        total, extrapolated = self.totalscore_extrapolated()
         return total
 
     def get_q(self, req: CamcopsRequest, n: int) -> str:
@@ -222,7 +221,7 @@ class Demqol(  # type: ignore[misc]
         return "Q" + nstr + ". " + self.wxstring(req, "proxy_q" + nstr)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        (total, extrapolated) = self.totalscore_extrapolated()
+        total, extrapolated = self.totalscore_extrapolated()
         main_dict = {
             None: None,
             1: "1 — " + self.wxstring(req, "a1"),
@@ -416,7 +415,7 @@ class DemqolProxy(  # type: ignore[misc]
         )
 
     def total_score(self) -> float:
-        (total, extrapolated) = self.totalscore_extrapolated()
+        total, extrapolated = self.totalscore_extrapolated()
         return total
 
     def get_q(self, req: CamcopsRequest, n: int) -> str:
@@ -424,7 +423,7 @@ class DemqolProxy(  # type: ignore[misc]
         return "Q" + nstr + ". " + self.wxstring(req, "proxy_q" + nstr)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        (total, extrapolated) = self.totalscore_extrapolated()
+        total, extrapolated = self.totalscore_extrapolated()
         main_dict = {
             None: None,
             1: "1 — " + self.wxstring(req, "a1"),

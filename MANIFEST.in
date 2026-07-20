@@ -6,7 +6,7 @@
 # Pick directories to include (graft) or exclude (prune):
 # =============================================================================
 
-graft camcops_server
+graft server/camcops_server
 
 # =============================================================================
 # Now exclude duff things:

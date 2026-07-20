@@ -37,7 +37,6 @@ from camcops_server.cc_modules.cc_sms import (
     TwilioSmsBackend,
 )
 
-
 TEST_MESSAGE = "Test Message"
 # https://www.ofcom.org.uk/phones-telecoms-and-internet/information-for-industry/numbering/numbers-for-drama  # noqa: E501
 # 07700 900000 to 900999 reserved for TV and Radio drama purposes

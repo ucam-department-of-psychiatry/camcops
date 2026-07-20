@@ -44,7 +44,6 @@ from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
-
 # =============================================================================
 # PDSS
 # =============================================================================
@@ -189,12 +188,9 @@ class Pdss(  # type: ignore[misc]
                 else None
             )
             h += tr(qtext, answer(atext))
-        h += (
-            """
+        h += """
             </table>
-        """
-            + DATA_COLLECTION_UNLESS_UPGRADED_DIV
-        )
+        """ + DATA_COLLECTION_UNLESS_UPGRADED_DIV
         return h
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:

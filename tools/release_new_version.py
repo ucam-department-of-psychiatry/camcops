@@ -78,6 +78,9 @@ SERVER_SOURCE_DIR = os.path.join(PROJECT_ROOT, "server")
 SERVER_TOOLS_DIR = os.path.join(SERVER_SOURCE_DIR, "tools")
 SERVER_DIST_DIR = os.path.join(SERVER_SOURCE_DIR, "dist")
 SERVER_PACKAGE_DIR = os.path.join(SERVER_SOURCE_DIR, "packagebuild")
+DOCKER_ENV_FILE = os.path.join(
+    SERVER_SOURCE_DIR, "docker", "dockerfiles", ".env"
+)
 MAKE_LINUX_PACKAGES = os.path.join(SERVER_TOOLS_DIR, "MAKE_LINUX_PACKAGES.py")
 SERVER_VERSION_FILE = os.path.join(
     SERVER_SOURCE_DIR, "camcops_server", "cc_modules", "cc_version_string.py"
@@ -137,6 +140,12 @@ class MissingDateException(Exception):
 
 
 class VersionReleaser:
+    docker_version_search = (
+        # (               1               )( 2 )( 3)( 4 )( 5)( 6 )(7)"
+        r"(^CAMCOPS_DOCKER_IMAGE_TAG=camcops_server:)(\d+)(\.)(\d+)(\.)(\d+)($)"  # noqa: E501
+    )
+    docker_version_replace = r"\g<1>{major}\g<3>{minor}\g<5>{patch}\g<7>"
+
     client_version_search = (
         # (               1                       )( 2 )( 3  )( 4 )(  5 )( 6 )( 7  )   # noqa: E501
         r"(^const Version CAMCOPS_CLIENT_VERSION\()(\d+)(,\s+)(\d+)(,\s+)(\d+)(\);$)"  # noqa: E501
@@ -553,6 +562,46 @@ class VersionReleaser:
             "The release date in cc_version_string.py "
             f"({current_server_date}) does not match the desired "
             f"release date ({self.release_date})"
+        )
+
+    def check_docker_version(self) -> None:
+        current_docker_version = self.get_docker_version()
+        if current_docker_version == self.new_version:
+            return
+
+        if self.update_versions:
+            return self.update_file(
+                DOCKER_ENV_FILE,
+                self.docker_version_search,
+                self.docker_version_replace.format(
+                    major=self.new_version.major,
+                    minor=self.new_version.minor,
+                    patch=self.new_version.patch,
+                ),
+            )
+
+        self.errors.append(
+            f"The current docker version ({current_docker_version}) "
+            "does not match the desired version "
+            f"({self.new_version})"
+        )
+
+    def get_docker_version(self) -> Version:
+        """
+        Return the CamCOPS Server Docker image version
+        """
+        with open(DOCKER_ENV_FILE, "r") as f:
+            for line in f.readlines():
+                m = re.match(self.docker_version_search, line)
+                if m is not None:
+                    return Version(
+                        major=int(m.group(2)),
+                        minor=int(m.group(4)),
+                        patch=int(m.group(6)),
+                    )
+
+        raise MissingVersionException(
+            f"Could not find version in {DOCKER_ENV_FILE}"
         )
 
     def check_client_version(self) -> None:
@@ -972,6 +1021,8 @@ class VersionReleaser:
         if self.should_release_server:
             self.check_server_date()
 
+        self.check_docker_version()
+
         self.check_client_version()
         if self.should_release_client:
             self.check_client_date()
@@ -1078,9 +1129,9 @@ class VersionReleaser:
             return
 
         self.remove_old_pypi_builds()
-        os.chdir(SERVER_SOURCE_DIR)
+        os.chdir(PROJECT_ROOT)
 
-        self.run_with_check(["python", "setup.py", "sdist", "bdist_wheel"])
+        self.run_with_check(["python", "-m", "build"])
         pypi_packages = [str(f) for f in self.get_pypi_builds()]
         print(
             "Uploading to PyPI. You will need an API token from "

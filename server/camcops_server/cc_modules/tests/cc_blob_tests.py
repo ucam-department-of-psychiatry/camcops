@@ -29,7 +29,6 @@ from camcops_server.cc_modules.cc_blob import Blob
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.cc_modules.cc_xml import XmlElement
 
-
 # =============================================================================
 # Unit tests
 # =============================================================================

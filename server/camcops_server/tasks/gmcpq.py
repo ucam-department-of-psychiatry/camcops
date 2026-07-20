@@ -54,7 +54,6 @@ from camcops_server.cc_modules.cc_sqla_coltypes import SexColType
 from camcops_server.cc_modules.cc_task import get_from_dict, Task
 from camcops_server.cc_modules.cc_text import SS
 
-
 # =============================================================================
 # GMCPQ
 # =============================================================================

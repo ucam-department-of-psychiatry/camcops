@@ -665,13 +665,11 @@ def get_information_schema_query(req: "CamcopsRequest") -> Result:
     dbname = req.engine.url.database
     # Query the information schema for our database.
     # https://docs.sqlalchemy.org/en/13/core/sqlelement.html#sqlalchemy.sql.expression.text  # noqa
-    query = text(
-        """
+    query = text("""
         SELECT *
         FROM information_schema.columns
         WHERE table_schema = :dbname
-    """
-    ).bindparams(dbname=dbname)
+    """).bindparams(dbname=dbname)
     return req.dbsession.execute(query)
 
 

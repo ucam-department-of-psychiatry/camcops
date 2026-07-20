@@ -171,7 +171,7 @@ class FetchThread(Thread):
         req: "CamcopsRequest",
         task_class: Type[Task],
         factory: "TaskCollection",
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         self.req = req
         self.task_class = task_class

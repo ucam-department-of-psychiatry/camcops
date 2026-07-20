@@ -43,7 +43,6 @@ from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 
-
 # =============================================================================
 # Common GBO constants
 # =============================================================================
@@ -490,15 +489,13 @@ class Gbogras(TaskHasPatientMixin, Task):  # type: ignore[misc]
         rows = []  # type: List[str]
         for goalnum, rate_attr, desc_attr, prog_attr in self.GOAL_TUPLES:
             if getattr(self, rate_attr):
-                rows.append(
-                    f"""
+                rows.append(f"""
                     <tr>
                         <td>{answer(goalnum)}</td>
                         <td>{answer(getattr(self, desc_attr))}</td>
                         <td>{answer(getattr(self, prog_attr))}</td>
                     </tr>
-                """
-                )
+                """)
         newline = "\n"
         return f"""
             <div class="{CssClass.SUMMARY}">

@@ -5,6 +5,7 @@ name: Installer
 on:
     push:
         paths:
+            - 'pyproject.toml'
             - 'server/camcops_server/**'
             - .github/workflows/installer.yml
             - .github/scripts/installer_setup.sh
@@ -14,7 +15,6 @@ on:
             - .github/scripts/set_camcops_docker_mysql_environment
             - 'server/docker/**'
             - 'server/installer/**'
-            - server/setup.py
 jobs:
     installer:
         runs-on: ubuntu-latest

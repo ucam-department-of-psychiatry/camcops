@@ -209,7 +209,7 @@ Windows 10
     REM or install from a cloned git repository:
     cd \some_path
     git clone <REPOSITORY_URL>
-    cd camcops\server
+    cd camcops
     pip install -e .
 
     REM -----------------------------------------------------------------------

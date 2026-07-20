@@ -44,7 +44,6 @@ from cardinal_pythonlib.nhs import generate_random_nhs_number
 from faker import Faker
 from scrapy import FormRequest, Request, Spider
 
-
 BASE_URL = "https://192.168.1.141:8000"
 
 

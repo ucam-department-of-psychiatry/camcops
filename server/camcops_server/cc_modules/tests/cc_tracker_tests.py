@@ -30,7 +30,6 @@ from camcops_server.cc_modules.cc_taskcollection import TaskFilter
 from camcops_server.cc_modules.cc_tracker import ClinicalTextView, Tracker
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 
-
 # =============================================================================
 # Unit tests
 # =============================================================================
