@@ -121,11 +121,21 @@ dependencies = [
     # -------------------------------------------------------------------------
     # Dependencies of other things above
     # -------------------------------------------------------------------------
+    "Chameleon==3.8.1",  # for Deform
+    "Pyphen==0.17.2",  # Weasyprint dependency
     "alabaster==0.7.12",  # for sphinx
     "amqp==5.3.1",  # for celery
-    "Chameleon==3.8.1",  # for Deform
+    "brotli==1.2.0",  # Weasyprint dependency
+    "cssselect2==0.9.0",  # Weasyprint dependency
+    "fonttools==4.63.0",  # Weasyprint dependency
+    "pydyf==0.12.1",  # Weasyprint dependency
+    "tinycss2==1.5.1",  # Weasyprint dependency
+    "tinyhtml5==2.1.0",  # Weasyprint dependency
     "tornado==6.5.7",  # for celery
+    "weasyprint==69.0",  # HTML to PDF
+    "webencodings==0.5.1",  # Weasyprint dependency
     "webob==1.8.10",  # for pyramid
+    "zopfli==0.4.3",  # Weasyprint dependency
 ]
 
 [project.urls]
