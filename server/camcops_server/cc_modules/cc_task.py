@@ -2718,7 +2718,6 @@ class Task(GenericTabletRecordMixin, Base):
             req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             anonymise: hide patient identifying details?
         """
-        req.prepare_for_html_figures()
         return render(
             "task.mako",
             dict(
@@ -2815,7 +2814,6 @@ class Task(GenericTabletRecordMixin, Base):
         Gets the HTML used to make the PDF (slightly different from the HTML
         used for the HTML view).
         """
-        req.prepare_for_pdf_figures()
         return render(
             "task.mako",
             dict(

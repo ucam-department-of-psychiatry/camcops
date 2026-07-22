@@ -296,10 +296,6 @@ class MatplotlibConstants(object):
     WHOLE_PANEL = 111  # as in: ax = fig.add_subplot(111)
 
 
-# Debugging option
-USE_SVG_IN_HTML = True  # set to False for PNG debugging
-
-
 # =============================================================================
 # CSS/HTML constants
 # =============================================================================
