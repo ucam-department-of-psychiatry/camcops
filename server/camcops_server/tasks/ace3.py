@@ -158,8 +158,8 @@ def tr_heading(left: str, right: str) -> str:
     """
     return f"""
         <tr>
-            <th width="67%">{left}</th>
-            <th width="33%">{right}</th>
+            <th>{left}</th>
+            <th>{right}</th>
         </tr>
     """
 
@@ -828,6 +828,11 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):  # type: ignore[mi
             + f"""
                 <div class="{CssClass.SUMMARY}">
                     <table class="{CssClass.SUMMARY}">
+                        <colgroup>
+                            <col />
+                            <col />
+                            <col class="ace3-figure-col">
+                        </colgroup>
                         <tr>
                             {self.get_is_complete_td_pair(req)}
                             <td class="{CssClass.FIGURE}"
@@ -850,6 +855,10 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):  # type: ignore[mi
                     </table>
                 </div>
                 <table class="{CssClass.TASKCONFIG}">
+                    <colgroup>
+                        <col class="ace3-col-task-aspect" />
+                        <col class="ace3-col-setting" />
+                    </colgroup>
             """
             + tr_heading("Task aspect", "Setting")
             + tr_qa("Edition", self.task_edition)
@@ -860,6 +869,10 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):  # type: ignore[mi
             )
             + f"""
                 <table class="{CssClass.TASKDETAIL}">
+                    <colgroup>
+                        <col class="ace3-col-question" />
+                        <col class="ace3-col-answer-score" />
+                    </colgroup>
             """
             + tr_heading("Question", "Answer/score")
             + tr_qa(

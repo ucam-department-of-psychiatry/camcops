@@ -533,15 +533,6 @@ table.taskdetail td {
     border: ${va.ZERO};
 }
 
-/* For tables that will make it to a PDF, fix Weasyprint column widths.
-   But not for all (e.g. webview task list) tables. */
-table.clinician, table.extradetail, table.general,
-        table.pdf_logo_header, table.summary,
-        table.taskconfig, table.taskdetail,
-        table.fixed {
-    table-layout: fixed;
-}
-
 %if va.paged_media:
 
     /* PDF extras */
@@ -583,3 +574,14 @@ table.clinician, table.extradetail, table.general,
     ## http://weasyprint.org/docs/changelog/
 
 %endif
+
+/* Task specifics */
+.ace3-col-task-aspect,
+.ace3-col-question {
+    width: 67%;
+}
+
+.ace3-col-setting,
+.ace3-col-answer-score {
+    width: 33%;
+}
