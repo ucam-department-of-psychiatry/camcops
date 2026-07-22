@@ -56,7 +56,6 @@ dependencies = [
     "paginate==0.5.6",  # pagination for web server
     "pendulum==3.0.0",  # date/time classes
     "pexpect==4.8.0",  # for open_sqlcipher.py
-    "pdfkit==1.0.0",  # wkhtmltopdf interface, for PDF generation from HTML
     "phonenumbers==8.12.30",  # phone number parsing, storing and validating
     "pycap==1.1.1",  # REDCap integration
     "Pillow==12.2.0",  # used by a dependency; pin for security warnings
