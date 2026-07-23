@@ -4,8 +4,6 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
-    allow:
-      - update-type: "security"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
