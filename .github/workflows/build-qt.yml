@@ -24,7 +24,7 @@ jobs:
                       os: windows-2022
         runs-on: ${{ matrix.os }}
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v7
             - name: Free up disk space
               # The runner on Ubuntu will run out of space so we remove some of the things
               # we don't need.
