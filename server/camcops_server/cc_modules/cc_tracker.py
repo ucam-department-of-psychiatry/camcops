@@ -550,7 +550,6 @@ class TrackerCtvCommon(object):
         """
         Returns HTML to be made into a PDF representing this object.
         """
-        self.req.prepare_for_pdf_figures()
         return self._get_pdf_html()
 
     def get_pdf(self) -> bytes:
