@@ -540,7 +540,6 @@ class TrackerCtvCommon(object):
         """
         Get HTML representing this object.
         """
-        self.req.prepare_for_html_figures()
         return self._get_html()
 
     # -------------------------------------------------------------------------
