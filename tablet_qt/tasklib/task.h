@@ -150,7 +150,7 @@ public:
         return false;
     }
 
-    // Does this task prohibit research use?
+    // Does this task prohibit educational use?
     virtual bool prohibitsEducational() const
     {
         return false;
