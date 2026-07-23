@@ -1,7 +1,9 @@
 version: 2
 updates:
   - package-ecosystem: "pip"
-    directory: "/" # Location of package manifests
+    directories:
+      - "/"
+      - "/server/installer"
     schedule:
       interval: "daily"
     open-pull-requests-limit: 0
