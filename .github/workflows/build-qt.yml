@@ -24,7 +24,7 @@ jobs:
                       os: windows-2022
         runs-on: ${{ matrix.os }}
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v7
             - name: Free up disk space
               # The runner on Ubuntu will run out of space so we remove some of the things
               # we don't need.
@@ -32,7 +32,7 @@ jobs:
               run: |
                   set -eux -o pipefail
                   ${GITHUB_WORKSPACE}/.github/scripts/free_up_disk_space.sh
-            - uses: actions/setup-python@v5
+            - uses: actions/setup-python@v7
               with:
                   python-version: "3.10"
             - name: Common Linux prerequisites
@@ -134,7 +134,7 @@ jobs:
                   ${{ github.workspace }}\.github\scripts\install_msys_packages.ps1
             - name: restore ccache
               id: ccache
-              uses: actions/cache@v3
+              uses: actions/cache@v6
               with:
                   path: ${{ runner.temp }}/ccache
                   # "github.run_id" is unique, which causes the cache to always get
