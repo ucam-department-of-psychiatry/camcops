@@ -118,6 +118,11 @@ sup, sub {
 sub {
     top: 0.5em;
 }
+/* Matplotlib fixes width and height in point sizes */
+svg {
+    max-width: 100%;
+    max-height: 100%;
+}
 table {
     width: 100%; /* particularly for PDFs */
     vertical-align: top;
