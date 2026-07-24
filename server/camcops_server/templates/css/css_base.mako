@@ -50,20 +50,6 @@ CSS notes:
     va = self.get_css_varargs()  # calls child
 %>
 
-/* Display PNG fallback image... */
-svg img.svg {
-    display: none;
-}
-img.pngfallback {
-    display: inline;
-}
-/* ... unless our browser supports SVG */
-html.svg svg img.svg {
-    display: inline;
-}
-html.svg img.pngfallback {
-    display: none;
-}
 
 /* Overall defaults */
 
