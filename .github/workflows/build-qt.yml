@@ -134,7 +134,7 @@ jobs:
                   ${{ github.workspace }}\.github\scripts\install_msys_packages.ps1
             - name: restore ccache
               id: ccache
-              uses: actions/cache@v3
+              uses: actions/cache@v6
               with:
                   path: ${{ runner.temp }}/ccache
                   # "github.run_id" is unique, which causes the cache to always get
