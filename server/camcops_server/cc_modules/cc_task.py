@@ -113,6 +113,7 @@ from sqlalchemy.sql.sqltypes import (
     Text,
     Time,
 )
+from weasyprint import CSS
 
 from camcops_server.cc_modules.cc_audit import audit
 from camcops_server.cc_modules.cc_baseconstants import DOCUMENTATION_URL
@@ -166,7 +167,7 @@ from camcops_server.cc_modules.cc_html import (
     tr_qa,
 )
 from camcops_server.cc_modules.cc_pdf import pdf_from_html
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg
+from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_snomed import SnomedLookup
 from camcops_server.cc_modules.cc_specialnote import SpecialNote
@@ -189,6 +190,7 @@ from camcops_server.cc_modules.cc_summaryelement import (
     ExtraSummaryTable,
     SummaryElement,
 )
+from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_version import (
     CAMCOPS_SERVER_VERSION,
     CAMCOPS_SERVER_VERSION_STRING,
@@ -2771,7 +2773,13 @@ class Task(GenericTabletRecordMixin, Base):
         """
         html = self.get_pdf_html(req, anonymise=anonymise)  # main content
         if CSS_PAGED_MEDIA:
-            return pdf_from_html(req, html=html)
+            weasyprint_options = {
+                "stylesheets": [self.get_weasyprint_stylesheet(req)],
+            }
+
+            return pdf_from_html(
+                req, html=html, weasyprint_options=weasyprint_options
+            )
         else:
             return pdf_from_html(
                 req,
@@ -2806,6 +2814,65 @@ class Task(GenericTabletRecordMixin, Base):
                     )
                 },
             )
+
+    def get_weasyprint_stylesheet(self, req: "CamcopsRequest") -> CSS:
+        _ = req.gettext
+        page_top_left_text = self.get_weasyprint_top_left_text(req)
+        page_top_left_content = f'"{page_top_left_text}"'
+        page_bottom_right_content = _(
+            '"Page " counter(page) " of " counter(pages)'
+        )
+        page_bottom_left_content = _(
+            '"{task_shortname} created {timestamp}"'
+        ).format(
+            task_shortname=self.shortname,
+            timestamp=format_datetime(
+                self.when_created, DateFormat.LONG_DATETIME
+            ),
+        )
+
+        # font-size and line-height correspond with SMALLFONTSIZE and
+        # SMALLLINEHEIGHT in def_css_constants.mako
+        weasyprint_css = f"""
+            @page {{
+                @top-left {{
+                    content: {page_top_left_content};
+                }}
+                @bottom-right {{
+                    content: {page_bottom_right_content};
+                }}
+                @bottom-left {{
+                    content: {page_bottom_left_content};
+                }}
+            }}
+            """
+
+        return CSS(string=weasyprint_css)
+
+    def get_weasyprint_top_left_text(self, req: "CamcopsRequest") -> str:
+        if self.is_anonymous:
+            return req.sstring(SS.ANONYMOUS_TASK)
+
+        _ = req.gettext
+
+        anonymise = req.get_bool_param(ViewParam.ANONYMISE, False)
+        if anonymise:
+            return _("Patient details hidden at user’s request!")
+
+        if self.patient:
+            name = self.patient.get_surname_forename_upper()
+            sex = self.patient.get_sex_verbose()
+            dob = self.patient.get_dob_html(req, longform=False)
+            idnums = "; ".join(
+                [
+                    f"{idobj.short_description(req)}: {idobj.idnum_value}"
+                    for idobj in self.patient.idnums
+                ]
+            )
+
+            return f"{name} {sex} {dob} {idnums}"
+
+        return _("Missing patient!")
 
     def get_pdf_html(
         self, req: "CamcopsRequest", anonymise: bool = False

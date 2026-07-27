@@ -32,6 +32,7 @@ camcops_server/templates/base/base_pdf.mako
 
 <%!
 # import logging
+from cardinal_pythonlib.pdf import Processors
 from camcops_server.cc_modules.cc_constants import PDF_ENGINE
 # log = logging.getLogger(__name__)
 %>
@@ -46,7 +47,9 @@ from camcops_server.cc_modules.cc_constants import PDF_ENGINE
 ## For CSS paged media:
 <%block name="footer_block">
     <div id="footerContent">
+    %if PDF_ENGINE == Processors.XHTML2PDF:
         ${ _("Page") } <pdf:pagenumber/> ${ _("of") } <pdf:pagecount/>.
+    %endif
         <%block name="extra_footer_content"/>
     </div>
 </%block>

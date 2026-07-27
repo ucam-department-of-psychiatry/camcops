@@ -55,6 +55,7 @@ def pdf_from_html(
     header_html: str = None,
     footer_html: str = None,
     extra_wkhtmltopdf_options: Dict[str, Any] = None,
+    weasyprint_options: dict[str, Any] = None,
 ) -> bytes:
     """
     Create and return a PDF from the HTML provided.
@@ -73,4 +74,5 @@ def pdf_from_html(
         processor=PDF_ENGINE,
         wkhtmltopdf_filename=cfg.wkhtmltopdf_filename,
         wkhtmltopdf_options=wkhtmltopdf_options,
+        weasyprint_options=weasyprint_options,
     )

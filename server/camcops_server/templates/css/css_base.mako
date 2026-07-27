@@ -538,6 +538,9 @@ table.taskdetail td {
 
     /* PDF paging via CSS Paged Media */
     @page {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: ${va.SMALLFONTSIZE};
+        line-height: ${va.SMALLLINEHEIGHT};
         size: A4 ${va.ORIENTATION};
         margin-left: ${va.MAINMARGIN};
         margin-right: ${va.MAINMARGIN};
@@ -559,11 +562,6 @@ table.taskdetail td {
             margin-right: ${va.MAINMARGIN};
         }
     }
-
-    ## WEASYPRINT: NOT WORKING PROPERLY YET: WEASYPRINT DOESN'T YET SUPPORT RUNNING ELEMENTS
-    ## http://librelist.com/browser//weasyprint/2013/7/4/header-and-footer-for-each-page/#abe45ec357d593df44ffca48253817ef
-    ## http://weasyprint.org/docs/changelog/
-
 %endif
 
 /* Task specifics */

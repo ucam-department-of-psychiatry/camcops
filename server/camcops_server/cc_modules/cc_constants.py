@@ -34,6 +34,7 @@ import multiprocessing
 import os
 from typing import cast
 
+from cardinal_pythonlib.pdf import Processors
 from cardinal_pythonlib.randomness import create_base64encoded_randomness
 from cardinal_pythonlib.sqlalchemy.session import make_mysql_url
 from cardinal_pythonlib.tcpipconst import Ports
@@ -234,10 +235,10 @@ ERA_NOW = "NOW"  # defines the current era in database records
 # PDF engine: now always "pdfkit".
 # =============================================================================
 
-# PDF_ENGINE = "xhtml2pdf"  # working
-# PDF_ENGINE = "pdfkit"  # no longer maintained, not available on later Ubuntu
-PDF_ENGINE = "weasyprint"
-# ... value must be one of: xhtml2pdf, weasyprint, pdfkit
+# PDF_ENGINE = Processors.XHTML2PDF  # working
+# PDF_ENGINE = Processors.PDFKIT  # no longer maintained, wkhtmltopdf not available on later Ubuntu  # noqa: E501
+PDF_ENGINE = Processors.WEASYPRINT
+# ... value must be one of: XHTML2PDF, WEASYPRINT, PDFKIT
 
 
 # =============================================================================
