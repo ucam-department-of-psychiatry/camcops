@@ -517,7 +517,10 @@ class IDED3D(TaskHasPatientMixin, Task):  # type: ignore[misc]
         h += f"""
             </table>
             <table class="{CssClass.TASKDETAIL}">
-                <tr><th width="50%">Measure</th><th width="50%">Value</th></tr>
+                <tr>
+                    <th width="50%">Measure</th>
+                    <th width="50%">Value</th>
+                </tr>
         """
         h += tr_qa("Aborted?", get_yes_no_none(req, self.aborted))
         h += tr_qa("Finished?", get_yes_no_none(req, self.finished))

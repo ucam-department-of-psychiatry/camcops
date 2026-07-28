@@ -166,7 +166,10 @@ class QolSG(TaskHasPatientMixin, Task):  # type: ignore[misc]
                 Values &lt;0 and &gt;1 are possible with some gambles.
             </div>
             <table class="{CssClass.TASKDETAIL}">
-                <tr><th width="50%">Measure</th><th width="50%">Value</th></tr>
+                <tr>
+                    <th width="50%">Measure</th>
+                    <th width="50%">Value</th>
+                </tr>
         """
         h += tr_qa("Category choice: start time", self.category_start_time)
         h += tr_qa(
