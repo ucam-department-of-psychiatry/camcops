@@ -831,7 +831,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task):  # type: ignore[mi
                         <colgroup>
                             <col />
                             <col />
-                            <col class="ace3-figure-col">
+                            <col class="ace3-figure-col" />
                         </colgroup>
                         <tr>
                             {self.get_is_complete_td_pair(req)}
