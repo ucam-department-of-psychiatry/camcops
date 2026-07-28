@@ -33,7 +33,8 @@ camcops_server/templates/taskcommon/tracker_ctv.mako
 
 from markupsafe import escape
 from cardinal_pythonlib.datetimefunc import format_datetime
-from camcops_server.cc_modules.cc_constants import CSS_PAGED_MEDIA, DateFormat
+from cardinal_pythonlib.pdf import Processors
+from camcops_server.cc_modules.cc_constants import CSS_PAGED_MEDIA, DateFormat, PDF_ENGINE
 from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewParam
 from camcops_server.cc_modules.cc_tracker import format_daterange
 from camcops_server.cc_modules.cc_version_string import CAMCOPS_SERVER_VERSION_STRING
@@ -65,10 +66,14 @@ def inherit_file(context):
 
 %if CSS_PAGED_MEDIA and viewtype == ViewArg.PDF:
     <%block name="extra_header_content">
+    %if CSS_PAGED_MEDIA and (viewtype == ViewArg.PDF) and (PDF_ENGINE == Processors.XHTML2PDF):
         <%include file="tracker_ctv_header.mako" args="tracker=tracker"/>
+    %endif
     </%block>
     <%block name="extra_footer_content">
+    %if CSS_PAGED_MEDIA and (viewtype == ViewArg.PDF) and (PDF_ENGINE == Processors.XHTML2PDF):
         <%include file="tracker_ctv_footer.mako" args="tracker=tracker"/>
+    %endif
     </%block>
 %endif
 ## For non-paged media (i.e. wkhtmltopdf), the headers/footers are made separately.

@@ -46,7 +46,10 @@ from camcops_server.cc_modules.cc_constants import (
 )
 from camcops_server.cc_modules.cc_filename import get_export_filename
 from camcops_server.cc_modules.cc_plot import matplotlib
-from camcops_server.cc_modules.cc_pdf import pdf_from_html
+from camcops_server.cc_modules.cc_pdf import (
+    pdf_from_html,
+    weasyprint_page_stylesheet,
+)
 from camcops_server.cc_modules.cc_pyramid import ViewArg, ViewParam
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_task import Task
@@ -62,6 +65,7 @@ from camcops_server.cc_modules.cc_xml import (
 )
 
 import matplotlib.dates  # delayed until after the cc_plot import
+from weasyprint import CSS
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_patient import Patient  # noqa: F401
@@ -559,7 +563,13 @@ class TrackerCtvCommon(object):
         req = self.req
         html = self.get_pdf_html()  # main content
         if CSS_PAGED_MEDIA:
-            return pdf_from_html(req, html)
+            weasyprint_options = {
+                "stylesheets": [self.get_weasyprint_stylesheet(req)],
+            }
+
+            return pdf_from_html(
+                req, html=html, weasyprint_options=weasyprint_options
+            )
         else:
             return pdf_from_html(
                 req,
@@ -588,6 +598,30 @@ class TrackerCtvCommon(object):
                 ),
                 extra_wkhtmltopdf_options={"orientation": "Portrait"},
             )
+
+    def get_weasyprint_stylesheet(self, req: "CamcopsRequest") -> CSS:
+        _ = req.gettext
+        top_left_text = self.get_weasyprint_top_left_text(req)
+        top_left_content = f'"{top_left_text}"'
+        bottom_right_content = _('"Page " counter(page) " of " counter(pages)')
+        bottom_left_content = _('"{label} accessed {timestamp}"').format(
+            label=_("CTV") if self.as_ctv else _("Tracker"),
+            timestamp=format_datetime(req.now, DateFormat.LONG_DATETIME),
+        )
+
+        return weasyprint_page_stylesheet(
+            top_left_content=top_left_content,
+            bottom_left_content=bottom_left_content,
+            bottom_right_content=bottom_right_content,
+        )
+
+    def get_weasyprint_top_left_text(self, req: "CamcopsRequest") -> str:
+        _ = req.gettext
+
+        if self.patient:
+            return self.patient.prettystr(req)
+
+        return _("Missing patient!")
 
     def suggested_pdf_filename(self) -> str:
         """

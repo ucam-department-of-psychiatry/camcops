@@ -166,7 +166,10 @@ from camcops_server.cc_modules.cc_html import (
     tr,
     tr_qa,
 )
-from camcops_server.cc_modules.cc_pdf import pdf_from_html
+from camcops_server.cc_modules.cc_pdf import (
+    pdf_from_html,
+    weasyprint_page_stylesheet,
+)
 from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_snomed import SnomedLookup
@@ -2817,12 +2820,10 @@ class Task(GenericTabletRecordMixin, Base):
 
     def get_weasyprint_stylesheet(self, req: "CamcopsRequest") -> CSS:
         _ = req.gettext
-        page_top_left_text = self.get_weasyprint_top_left_text(req)
-        page_top_left_content = f'"{page_top_left_text}"'
-        page_bottom_right_content = _(
-            '"Page " counter(page) " of " counter(pages)'
-        )
-        page_bottom_left_content = _(
+        top_left_text = self.get_weasyprint_top_left_text(req)
+        top_left_content = f'"{top_left_text}"'
+        bottom_right_content = _('"Page " counter(page) " of " counter(pages)')
+        bottom_left_content = _(
             '"{task_shortname} created {timestamp}"'
         ).format(
             task_shortname=self.shortname,
@@ -2831,23 +2832,11 @@ class Task(GenericTabletRecordMixin, Base):
             ),
         )
 
-        # font-size and line-height correspond with SMALLFONTSIZE and
-        # SMALLLINEHEIGHT in def_css_constants.mako
-        weasyprint_css = f"""
-            @page {{
-                @top-left {{
-                    content: {page_top_left_content};
-                }}
-                @bottom-right {{
-                    content: {page_bottom_right_content};
-                }}
-                @bottom-left {{
-                    content: {page_bottom_left_content};
-                }}
-            }}
-            """
-
-        return CSS(string=weasyprint_css)
+        return weasyprint_page_stylesheet(
+            top_left_content=top_left_content,
+            bottom_left_content=bottom_left_content,
+            bottom_right_content=bottom_right_content,
+        )
 
     def get_weasyprint_top_left_text(self, req: "CamcopsRequest") -> str:
         if self.is_anonymous:
@@ -2860,17 +2849,7 @@ class Task(GenericTabletRecordMixin, Base):
             return _("Patient details hidden at user’s request!")
 
         if self.patient:
-            name = self.patient.get_surname_forename_upper()
-            sex = self.patient.get_sex_verbose()
-            dob = self.patient.get_dob_html(req, longform=False)
-            idnums = "; ".join(
-                [
-                    f"{idobj.short_description(req)}: {idobj.idnum_value}"
-                    for idobj in self.patient.idnums
-                ]
-            )
-
-            return f"{name} {sex} {dob} {idnums}"
+            return self.patient.prettystr(req)
 
         return _("Missing patient!")
 
