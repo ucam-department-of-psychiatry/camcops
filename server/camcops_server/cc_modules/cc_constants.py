@@ -235,7 +235,7 @@ ERA_NOW = "NOW"  # defines the current era in database records
 # PDF engine: now always "pdfkit".
 # =============================================================================
 
-# PDF_ENGINE = Processors.XHTML2PDF  # working
+# PDF_ENGINE = Processors.XHTML2PDF  # working, though SVG appears broken
 # PDF_ENGINE = Processors.PDFKIT  # no longer maintained, wkhtmltopdf not available on later Ubuntu  # noqa: E501
 PDF_ENGINE = Processors.WEASYPRINT
 # ... value must be one of: XHTML2PDF, WEASYPRINT, PDFKIT
