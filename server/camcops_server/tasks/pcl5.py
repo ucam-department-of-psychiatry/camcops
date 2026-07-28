@@ -299,8 +299,12 @@ class Pcl5(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="70%">Question</th>
-                    <th width="30%">Answer</th>
+                    <colgroup>
+                        <col class="pcl5-question-col" />
+                        <col class="pcl5-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {q_a}
             </table>

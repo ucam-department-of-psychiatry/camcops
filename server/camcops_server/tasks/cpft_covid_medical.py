@@ -103,8 +103,12 @@ class CpftCovidMedical(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="60%">Question</th>
-                    <th width="40%">Answer</th>
+                    <colgroup>
+                        <col class="cpft-covid-medical-question-col" />
+                        <col class="cpft-covid-medical-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {''.join(rows)}
             </table>

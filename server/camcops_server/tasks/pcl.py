@@ -243,8 +243,12 @@ class PclCommon(TaskHasPatientMixin, Task, ABC):  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="70%">Question</th>
-                    <th width="30%">Answer</th>
+                    <colgroup>
+                        <col class="pcl-question-col" />
+                        <col class="pcl-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {q_a}
             </table>

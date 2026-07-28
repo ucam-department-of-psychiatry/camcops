@@ -167,8 +167,12 @@ class QolSG(TaskHasPatientMixin, Task):  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="50%">Measure</th>
-                    <th width="50%">Value</th>
+                    <colgroup>
+                        <col class="qolsg-measure-col" />
+                        <col class="qolsg-value-col" />
+                    </colgroup>
+                    <th>Measure</th>
+                    <th>Value</th>
                 </tr>
         """
         h += tr_qa("Category choice: start time", self.category_start_time)

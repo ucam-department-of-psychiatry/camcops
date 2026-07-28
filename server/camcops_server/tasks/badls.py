@@ -171,9 +171,14 @@ class Badls(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="30%">Question</th>
-                    <th width="50%">Answer <sup>[1]</sup></th>
-                    <th width="20%">Score</th>
+                    <colgroup>
+                        <col class="badls-question-col" />
+                        <col class="badls-answer-col" />
+                        <col class="badls-score-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer <sup>[1]</sup></th>
+                    <th>Score</th>
                 </tr>
                 {q_a}
             </table>

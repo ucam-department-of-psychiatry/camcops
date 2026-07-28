@@ -100,8 +100,12 @@ class Irac(TaskHasPatientMixin, Task):  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="50%">Question</th>
-                    <th width="50%">Answer</th>
+                    <colgroup>
+                        <col class="irac-question-col" />
+                        <col class="irac-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {tr_qa(self.wxstring(req, "q_aim"), ws.webify(self.aim))}
                 {tr_qa(self.wxstring(req, "q_achieved"), achieved)}

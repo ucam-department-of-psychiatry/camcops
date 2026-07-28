@@ -720,8 +720,12 @@ class Icd10SpecPD(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="80%">Question</th>
-                    <th width="20%">Answer</th>
+                    <colgroup>
+                        <col class="icd10specpd-question-col" />
+                        <col class="icd10specpd-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
         """
 

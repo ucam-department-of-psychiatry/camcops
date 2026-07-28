@@ -220,8 +220,12 @@ class Bprs(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="60%">Question</th>
-                    <th width="40%">Answer <sup>[2]</sup></th>
+                    <colgroup>
+                        <col class="bprs-question-col" />
+                        <col class="bprs-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer <sup>[2]</sup></th>
                 </tr>
                 {q_a}
             </table>

@@ -164,8 +164,12 @@ class Pdss(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="60%">Question</th>
-                    <th width="40%">Answer ({qmin}–{qmax})</th>
+                    <colgroup>
+                        <col class="pdss-question-col" />
+                        <col class="pdss-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer ({qmin}–{qmax})</th>
                 </tr>
         """.format(
             CssClass=CssClass,

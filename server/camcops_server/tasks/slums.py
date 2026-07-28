@@ -320,8 +320,12 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):  # type: ignore[m
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="80%">Question</th>
-                    <th width="20%">Score</th>
+                    <colgroup>
+                        <col class="slums-question-col" />
+                        <col class="slums-score-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Score</th>
                 </tr>
         """.format(
             clinician_comments=self.get_standard_clinician_comments_block(

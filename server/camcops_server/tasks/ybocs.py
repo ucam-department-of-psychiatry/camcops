@@ -262,15 +262,23 @@ class Ybocs(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="50%">Target symptom</th>
-                    <th width="50%">Detail</th>
+                    <colgroup>
+                        <col class="ybocs-target-col" />
+                        <col class="ybocs-detail-col" />
+                    </colgroup>
+                    <th>Target symptom</th>
+                    <th>Detail</th>
                 </tr>
                 {target_symptoms}
             </table>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="50%">Question</th>
-                    <th width="50%">Answer</th>
+                    <colgroup>
+                        <col class="ybocs-question-col" />
+                        <col class="ybocs-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {q_a}
             </table>
@@ -478,10 +486,16 @@ class YbocsSc(  # type: ignore[misc]
         h = f"""
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="55%">Symptom</th>
-                    <th width="15%">Current</th>
-                    <th width="15%">Past</th>
-                    <th width="15%">Principal</th>
+                    <colgroup>
+                        <col class="ybocssc-symptom-col" />
+                        <col class="ybocssc-current-col" />
+                        <col class="ybocssc-past-col" />
+                        <col class="ybocssc-principal-col" />
+                    </colgroup>
+                    <th>Symptom</th>
+                    <th>Current</th>
+                    <th>Past</th>
+                    <th>Principal</th>
                 </tr>
         """
         for group in self.GROUPS:

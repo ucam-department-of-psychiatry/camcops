@@ -268,8 +268,12 @@ class Honos(
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="50%">Question</th>
-                    <th width="50%">Answer <sup>[1]</sup></th>
+                    <colgroup>
+                        <col class="honos-question-col" />
+                        <col class="honos-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer <sup>[1]</sup></th>
                 </tr>
                 {period_rated}
                 {one_to_eight}
@@ -479,8 +483,12 @@ class Honos65(
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="50%">Question</th>
-                    <th width="50%">Answer <sup>[1]</sup></th>
+                    <colgroup>
+                        <col class="honos65-question-col" />
+                        <col class="honos65-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer <sup>[1]</sup></th>
                 </tr>
                 {period_rated}
                 {one_to_eight}
@@ -636,8 +644,12 @@ class Honosca(
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="50%">Question</th>
-                    <th width="50%">Answer <sup>[1]</sup></th>
+                    <colgroup>
+                        <col class="honosca-question-col" />
+                        <col class="honosca-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer <sup>[1]</sup></th>
                 </tr>
                 {period_rated}
                 {section_a_subhead}

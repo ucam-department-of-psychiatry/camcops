@@ -4829,7 +4829,10 @@ class Cisr(TaskHasPatientMixin, Task):  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="75%">Page</th>
+                    <colgroup>
+                        <col class="cisr-page-col" />
+                    </colgroup>
+                    <th>Page</th>
                     <th width="25%">Answer</td>
                 </tr>
                 {"".join(demographics_html_list)}
@@ -4841,7 +4844,10 @@ class Cisr(TaskHasPatientMixin, Task):  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="75%">Page</th>
+                    <colgroup>
+                        <col class="cisr-page-col" />
+                    </colgroup>
+                    <th>Page</th>
                     <th width="25%">Answer</td>
                 </tr>
                 {"".join(question_html_list)}

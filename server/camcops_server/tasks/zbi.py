@@ -149,7 +149,10 @@ class Zbi12(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="75%">Question</th>
+                    <colgroup>
+                        <col class="zbi12-question-col" />
+                    </colgroup>
+                    <th>Question</th>
                     <th width="25%">Answer ({self.MIN_PER_Q}–{self.MAX_PER_Q})
                     </th>
                 </tr>

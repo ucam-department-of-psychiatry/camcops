@@ -231,8 +231,12 @@ class CgiSch(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="70%">Question</th>
-                    <th width="30%">Answer <sup>[1]</sup></th>
+                    <colgroup>
+                        <col class="cgisch-question-col" />
+                        <col class="cgisch-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer <sup>[1]</sup></th>
                 </tr>
                 {subheading_spanning_two_columns(self.wxstring(req, "i_title"))}
                 {tr_span_col(self.wxstring(req, "i_question"), cols=2)}

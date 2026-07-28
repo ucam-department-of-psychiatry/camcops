@@ -225,8 +225,12 @@ class Hamd7(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="30%">Question</th>
-                    <th width="70%">Answer</th>
+                    <colgroup>
+                        <col class="hamd7-question-col" />
+                        <col class="hamd7-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {q_a}
             </table>

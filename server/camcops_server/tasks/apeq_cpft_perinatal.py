@@ -147,8 +147,12 @@ class APEQCPFTPerinatal(Task):
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="60%">Question</th>
-                    <th width="40%">Answer</th>
+                    <colgroup>
+                        <col class="apeq-cpft-perinatal-question-col" />
+                        <col class="apeq-cpft-perinatal-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {q_a}
                 {tr_qa(self.wxstring(req, "q_ff_rating"),

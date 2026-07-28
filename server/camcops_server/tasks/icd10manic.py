@@ -448,8 +448,12 @@ class Icd10Manic(TaskHasClinicianMixin, TaskHasPatientMixin, Task):  # type: ign
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="80%">Question</th>
-                    <th width="20%">Answer</th>
+                    <colgroup>
+                        <col class="icd10manic-question-col" />
+                        <col class="icd10manic-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
         """.format(
             clinician_comments=self.get_standard_clinician_comments_block(

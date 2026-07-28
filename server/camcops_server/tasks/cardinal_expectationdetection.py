@@ -792,8 +792,12 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):  # type: ignore[m
             </div>
             <table class="{CssClass.TASKCONFIG}">
                 <tr>
-                    <th width="50%">Configuration variable</th>
-                    <th width="50%">Value</th>
+                    <colgroup>
+                        <col class="cardinal-expdet-configuration-col" />
+                        <col class="cardinal-expdet-value-col" />
+                    </colgroup>
+                    <th>Configuration variable</th>
+                    <th>Value</th>
                 </tr>
         """
         h += tr_qa("Number of blocks", self.num_blocks)
@@ -838,8 +842,12 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):  # type: ignore[m
             </table>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="50%">Measure</th>
-                    <th width="50%">Value</th>
+                    <colgroup>
+                        <col class="cardinal-expdet-measure-col" />
+                        <col class="cardinal-expdet-value-col" />
+                    </colgroup>
+                    <th>Measure</th>
+                    <th>Value</th>
                 </tr>
         """
         h += tr_qa("Aborted?", get_yes_no_none(req, self.aborted))

@@ -302,8 +302,12 @@ class Panss(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="40%">Question</th>
-                    <th width="60%">Answer</th>
+                    <colgroup>
+                        <col class="panss-question-col" />
+                        <col class="panss-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {q_a}
             </table>

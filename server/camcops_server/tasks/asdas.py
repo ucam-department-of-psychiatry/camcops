@@ -274,8 +274,12 @@ class Asdas(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="60%">Question</th>
-                    <th width="40%">Answer</th>
+                    <colgroup>
+                        <col class="asdas-question-col" />
+                        <col class="asdas-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {rows}
             </table>

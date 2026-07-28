@@ -109,8 +109,12 @@ class AbstractSatisfaction(object):
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="50%">Question</th>
-                    <th width="50%">Answer</th>
+                    <colgroup>
+                        <col class="service-satisfaction-question-col" />
+                        <col class="service-satisfaction-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {tr_qa(req.wappstring(AS.SATIS_SERVICE_BEING_RATED),
                        self.service)}

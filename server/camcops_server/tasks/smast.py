@@ -209,8 +209,12 @@ class Smast(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="80%">Question</th>
-                    <th width="20%">Answer</th>
+                    <colgroup>
+                        <col class="smast-question-col" />
+                        <col class="smast-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {q_a}
             </table>

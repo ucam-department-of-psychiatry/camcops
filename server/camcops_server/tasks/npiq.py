@@ -229,10 +229,16 @@ class NpiQ(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="40%">Question</th>
-                    <th width="20%">Endorsed</th>
-                    <th width="20%">Severity (patient)</th>
-                    <th width="20%">Distress (carer)</th>
+                    <colgroup>
+                        <col class="npiq-question-col" />
+                        <col class="npiq-endorsed-col" />
+                        <col class="npiq-severity-col" />
+                        <col class="npiq-distress-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Endorsed</th>
+                    <th>Severity (patient)</th>
+                    <th>Distress (carer)</th>
                 </tr>
         """
         for q in range(1, self.NQUESTIONS + 1):

@@ -172,8 +172,12 @@ class Wemwbs(  # type: ignore[misc]
             </div>
             <table class="{css_taskdetail}">
                 <tr>
-                    <th width="60%">Question</th>
-                    <th width="40%">Answer</th>
+                    <colgroup>
+                        <col class="wemwbs-question-col" />
+                        <col class="wemwbs-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {q_a}
             </table>
@@ -349,8 +353,12 @@ class Swemwbs(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="60%">Question</th>
-                    <th width="40%">Answer</th>
+                    <colgroup>
+                        <col class="swemwbs-question-col" />
+                        <col class="swemwbs-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {q_a}
             </table>

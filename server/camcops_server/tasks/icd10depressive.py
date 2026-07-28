@@ -532,8 +532,12 @@ class Icd10Depressive(TaskHasClinicianMixin, TaskHasPatientMixin, Task):  # type
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="80%">Question</th>
-                    <th width="20%">Answer</th>
+                    <colgroup>
+                        <col class="icd10depressive-question-col" />
+                        <col class="icd10depressive-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
         """.format(
             clinician_comments=self.get_standard_clinician_comments_block(

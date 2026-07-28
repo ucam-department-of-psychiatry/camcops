@@ -192,8 +192,12 @@ class Bprse(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="60%">Question</th>
-                    <th width="40%">Answer <sup>[1]</sup></th>
+                    <colgroup>
+                        <col class="bprse-question-col" />
+                        <col class="bprse-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer <sup>[1]</sup></th>
                 </tr>
                 {q_a}
             </table>

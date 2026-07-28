@@ -159,8 +159,12 @@ class Cia(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="60%">{question}</th>
-                    <th width="40%">Response</th>
+                    <colgroup>
+                        <col class="cia-question-col" />
+                        <col class="cia-response-col" />
+                    </colgroup>
+                    <th>{question}</th>
+                    <th>Response</th>
                 </tr>
                 {rows}
             </table>

@@ -99,8 +99,12 @@ class Fft(TaskHasPatientMixin, Task):  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="50%">Question</th>
-                    <th width="50%">Answer</th>
+                    <colgroup>
+                        <col class="fft-question-col" />
+                        <col class="fft-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {tr_qa(req.wappstring(AS.SATIS_SERVICE_BEING_RATED),
                        self.service)}

@@ -259,8 +259,12 @@ class Iesr(  # type: ignore[misc]
             </table>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="75%">Question</th>
-                    <th width="25%">Answer (0–4)</th>
+                    <colgroup>
+                        <col class="iesr-question-col" />
+                        <col class="iesr-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer (0–4)</th>
                 </tr>
         """  # noqa
         for q in range(1, self.NQUESTIONS + 1):
