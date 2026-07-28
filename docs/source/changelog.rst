@@ -4036,3 +4036,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client and server v2.4.25, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Replace wkhtmltopdf and PDFKit, neither of which are maintained with Weasyprint.
+  https://github.com/ucam-department-of-psychiatry/camcops/issues/383
