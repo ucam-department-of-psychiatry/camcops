@@ -40,7 +40,7 @@ from cardinal_pythonlib.datetimefunc import (
     get_now_utc_datetime,
     get_now_utc_pendulum,
 )
-from cardinal_pythonlib.email.sendmail import (
+from cardinal_pythonlib.email_utils.sendmail import (
     CONTENT_TYPE_HTML,
     CONTENT_TYPE_TEXT,
 )

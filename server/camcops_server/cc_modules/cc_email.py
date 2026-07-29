@@ -37,7 +37,7 @@ from cardinal_pythonlib.datetimefunc import (
     get_now_localtz_pendulum,
     get_now_utc_pendulum,
 )
-from cardinal_pythonlib.email.sendmail import (
+from cardinal_pythonlib.email_utils.sendmail import (
     COMMASPACE,
     make_email,
     send_msg,

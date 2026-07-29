@@ -33,7 +33,7 @@ import logging
 from typing import Any, Dict, List, Optional, Type, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.datetimefunc import convert_datetime_to_utc
-from cardinal_pythonlib.json.serialize import register_class_for_json
+from cardinal_pythonlib.json_utils.serialize import register_class_for_json
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import auto_repr
 from cardinal_pythonlib.sqlalchemy.list_types import (
