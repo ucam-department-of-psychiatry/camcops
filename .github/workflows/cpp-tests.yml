@@ -20,7 +20,7 @@ jobs:
     cpp-tests:
         runs-on: ubuntu-22.04
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v7
             - name: Work out Qt release
               # We use the version of Qt built by the build-qt.yml action. This
               # abuses the GitHub release mechanism by making a draft release
@@ -121,7 +121,7 @@ jobs:
                   llvm \
                   python3
 
-            - uses: actions/setup-python@v5
+            - uses: actions/setup-python@v7
               with:
                   python-version: "3.10"
 
