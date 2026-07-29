@@ -273,7 +273,7 @@ class TestAnonymousTask(Task):
     __tablename__ = "test_anonymous_task"
 
 
-class TestPatientTask(TaskHasPatientMixin, Task):
+class TestPatientTask(TaskHasPatientMixin, Task):  # type: ignore[misc]
     __tablename__ = "test_patient_task"
 
 
