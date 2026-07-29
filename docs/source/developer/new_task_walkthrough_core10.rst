@@ -117,6 +117,9 @@ Server
 
 - work through, mirroring calculations on client
 
+- if new CSS is required, edit
+  ``server/camcops_server/templates/css/css_base.mako``
+
 - check with PyCharm
 
 - create database revision using ``server/tools/create_database_migration.py``;
