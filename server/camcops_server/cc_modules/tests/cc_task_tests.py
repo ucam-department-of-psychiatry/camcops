@@ -38,11 +38,13 @@ from camcops_server.cc_modules.cc_dummy_database import DummyDataInserter
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_pyramid import ViewParam
 from camcops_server.cc_modules.cc_request import CamcopsRequest
-from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_testfactories import UserFactory
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.cc_modules.cc_validators import validate_task_tablename
+from camcops_server.cc_modules.cc_task import Task
+from camcops_server.tasks.apeq_cpft_perinatal import APEQCPFTPerinatal
+from camcops_server.tasks.bmi import Bmi
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -269,14 +271,6 @@ class TaskTests(DemoDatabaseTestCase):
             t.delete_entirely(req)
 
 
-class TestAnonymousTask(Task):
-    __tablename__ = "test_anonymous_task"
-
-
-class TestPatientTask(TaskHasPatientMixin, Task):  # type: ignore[misc]
-    __tablename__ = "test_patient_task"
-
-
 class GetPdfTests(TestCase):
     anonymised_text = "anonymised patient"
     anonymous_text = "anonymous task"
@@ -296,8 +290,7 @@ class GetPdfTests(TestCase):
         self.mock_format_datetime.return_value = self.formatted_date
 
     def test_weasyprint_stylesheet_for_anonymous_task(self) -> None:
-        task = TestAnonymousTask()
-        task.shortname = "test"
+        task = APEQCPFTPerinatal()
 
         self.request.sstring.return_value = self.anonymous_text
         self.request.gettext.side_effect = [
@@ -328,8 +321,7 @@ class GetPdfTests(TestCase):
         )
 
     def test_weasyprint_stylesheet_for_anonymised_patient(self) -> None:
-        task = TestPatientTask()
-        task.shortname = "test"
+        task = Bmi()
 
         self.request.get_bool_param.return_value = True
         self.request.gettext.side_effect = [
@@ -357,7 +349,7 @@ class GetPdfTests(TestCase):
         )
 
         self.mock_timestamp_string.format.assert_called_with(
-            task_shortname="test", timestamp=self.formatted_date
+            task_shortname="BMI", timestamp=self.formatted_date
         )
         self.mock_format_datetime.assert_called_with(
             task.when_created, DateFormat.LONG_DATETIME
@@ -372,8 +364,7 @@ class GetPdfTests(TestCase):
         )
 
     def test_weasyprint_stylesheet_for_patient(self) -> None:
-        task = TestPatientTask()
-        task.shortname = "test"
+        task = Bmi()
         task.patient = mock.Mock(spec=Patient)
         task.patient.prettystr.return_value = self.patient_text
 
@@ -402,7 +393,7 @@ class GetPdfTests(TestCase):
         )
 
         self.mock_timestamp_string.format.assert_called_with(
-            task_shortname="test", timestamp=self.formatted_date
+            task_shortname="BMI", timestamp=self.formatted_date
         )
         self.mock_format_datetime.assert_called_with(
             task.when_created, DateFormat.LONG_DATETIME
@@ -416,8 +407,7 @@ class GetPdfTests(TestCase):
         )
 
     def test_weasyprint_stylesheet_for_missing_patient(self) -> None:
-        task = TestPatientTask()
-        task.shortname = "test"
+        task = Bmi()
 
         self.request.get_bool_param.return_value = False
         self.request.gettext.side_effect = [
@@ -444,7 +434,7 @@ class GetPdfTests(TestCase):
         )
 
         self.mock_timestamp_string.format.assert_called_with(
-            task_shortname="test", timestamp=self.formatted_date
+            task_shortname="BMI", timestamp=self.formatted_date
         )
         self.mock_format_datetime.assert_called_with(
             task.when_created, DateFormat.LONG_DATETIME
