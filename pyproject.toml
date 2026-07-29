@@ -35,7 +35,7 @@ dependencies = [
     "asteval==1.0.6",  # safe-ish alternative to eval
     "black==26.5.1",  # auto code formatter, keep in sync with .pre-commit-config.yaml
     "build==1.5.0",  # For building the Python package
-    "cardinal_pythonlib==2.0.5",  # RNC libraries
+    "cardinal_pythonlib==2.2.0",  # RNC libraries
     "celery==5.3.6",  # background tasks
     "colander==1.7.0",  # serialization/deserialization from web forms
     "CherryPy==18.10.0",  # web server
