@@ -26,6 +26,7 @@ camcops_server/cc_modules/tests/cc_config_tests.py
 
 import configparser
 from io import StringIO
+import logging
 from unittest import TestCase
 
 from camcops_server.cc_modules.cc_config import CamcopsConfig, get_demo_config
@@ -44,6 +45,7 @@ class EmailConfigTests(TestCase):
         self.parser = configparser.ConfigParser()
         self.parser.read_string(config_text)
 
+    def test_export_recipients_use_site_email_config(self) -> None:
         self.parser.set("export", "RECIPIENTS", "recipient_A")
         self.parser.set(
             "recipient:recipient_A", "TRANSMISSION_METHOD", "email"
@@ -68,12 +70,11 @@ class EmailConfigTests(TestCase):
 
         with StringIO() as buffer:
             self.parser.write(buffer)
-            self.config = CamcopsConfig(
+            config = CamcopsConfig(
                 config_filename="", config_text=buffer.getvalue()
             )
 
-    def test_export_recipients_use_site_email_config(self) -> None:
-        recipient = self.config._export_recipients[0]
+        recipient = config._export_recipients[0]
         self.assertEqual(recipient.recipient_name, "recipient_A")
 
         self.assertEqual(recipient.email_host, "smtp.example.com")
@@ -91,3 +92,27 @@ class EmailConfigTests(TestCase):
             recipient.email_reply_to,
             "CamCOPS clinical administrator <admin@example.com>",
         )
+
+    def test_weasyprint_loglevel(self) -> None:
+        self.parser.set("site", "WEASYPRINT_LOGLEVEL", "info")
+        with StringIO() as buffer:
+            self.parser.write(buffer)
+            config = CamcopsConfig(
+                config_filename="", config_text=buffer.getvalue()
+            )
+
+        self.assertEqual(config.weasyprint_loglevel, logging.INFO)
+        logger = logging.getLogger("weasyprint")
+        self.assertEqual(logger.level, logging.INFO)
+
+    def test_fonttools_loglevel(self) -> None:
+        self.parser.set("site", "FONTTOOLS_LOGLEVEL", "info")
+        with StringIO() as buffer:
+            self.parser.write(buffer)
+            config = CamcopsConfig(
+                config_filename="", config_text=buffer.getvalue()
+            )
+
+        self.assertEqual(config.fonttools_loglevel, logging.INFO)
+        logger = logging.getLogger("fontTools")
+        self.assertEqual(logger.level, logging.INFO)
