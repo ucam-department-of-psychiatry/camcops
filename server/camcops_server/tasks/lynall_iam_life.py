@@ -259,10 +259,16 @@ class LynallIamLifeEvents(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="40%">Question</th>
-                    <th width="20%">Experienced</th>
-                    <th width="20%">Severity</th>
-                    <th width="20%">Frequency</th>
+                    <colgroup>
+                        <col class="lynall-iam-life-question-col" />
+                        <col class="lynall-iam-life-experienced-col" />
+                        <col class="lynall-iam-life-severity-col" />
+                        <col class="lynall-iam-life-frequency-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Experienced</th>
+                    <th>Severity</th>
+                    <th>Frequency</th>
                 </tr>
                 {"".join(q_a)}
             </table>

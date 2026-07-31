@@ -95,8 +95,12 @@ class IsaaqEd(
         _ = req.gettext
         header = """
             <tr>
-                <th width="70%">{title}</th>
-                <th width="30%">{score}</th>
+                <colgroup>
+                    <col class="isaaqed-title-col" />
+                    <col class="isaaqed-score-col" />
+                </colgroup>
+                <th>{title}</th>
+                <th>{score}</th>
             </tr>
         """.format(
             title=self.xstring(req, "grid_title"),

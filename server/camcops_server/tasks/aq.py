@@ -406,9 +406,14 @@ class Aq(  # type: ignore[misc]
         score_text = _("Score")
         header = f"""
             <tr>
-                <th width="70%">Statement</th>
-                <th width="20%">Answer</th>
-                <th width="10%">{score_text}</th>
+                <colgroup>
+                    <col class="aq-statement-col" />
+                    <col class="aq-answer-col" />
+                    <col class="aq-score-col" />
+                </colgroup>
+                <th>Statement</th>
+                <th>Answer</th>
+                <th>{score_text}</th>
             </tr>
         """
         return header + self.get_task_html_rows_for_range(

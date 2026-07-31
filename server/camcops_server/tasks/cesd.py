@@ -227,8 +227,12 @@ class Cesd(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="70%">Question</th>
-                    <th width="30%">Answer</th>
+                    <colgroup>
+                        <col class="cesd-question-col" />
+                        <col class="cesd-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {q_a}
             </table>

@@ -268,12 +268,16 @@ class KhandakerMojoSociodemographics(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="60%">Question</th>
-                    <th width="40%">Answer</th>
+                    <colgroup>
+                        <col class="khandaker-mojo-sociodemographics-question-col" />
+                        <col class="khandaker-mojo-sociodemographics-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {rows}
             </table>
-        """
+        """  # noqa: E501
 
         return html
 

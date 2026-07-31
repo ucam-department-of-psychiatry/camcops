@@ -210,8 +210,12 @@ class Cgi(TaskHasPatientMixin, TaskHasClinicianMixin, Task):  # type: ignore[mis
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="30%">Question</th>
-                    <th width="70%">Answer</th>
+                    <colgroup>
+                        <col class="cgi-question-col" />
+                        <col class="cgi-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {tr_q1}
                 {tr_q2}
@@ -292,8 +296,12 @@ class CgiI(TaskHasPatientMixin, TaskHasClinicianMixin, Task):  # type: ignore[mi
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="50%">Question</th>
-                    <th width="50%">Answer</th>
+                    <colgroup>
+                        <col class="cgi-i-question-col" />
+                        <col class="cgi-i-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {tr_qa(self.wxstring(req, "i_q"), self.get_rating_text(req))}
             </table>

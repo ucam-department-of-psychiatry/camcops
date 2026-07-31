@@ -215,10 +215,16 @@ class DiagnosisBase(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="10%">Diagnosis #</th>
-                    <th width="10%">Code</th>
-                    <th width="40%">Description</th>
-                    <th width="40%">Comment</th>
+                    <colgroup>
+                        <col class="diagnosis-diagnosis-col" />
+                        <col class="diagnosis-code-col" />
+                        <col class="diagnosis-description-col" />
+                        <col class="diagnosis-comment-col" />
+                    </colgroup>
+                    <th>Diagnosis #</th>
+                    <th>Code</th>
+                    <th>Description</th>
+                    <th>Comment</th>
                 </tr>
         """
         for item in self.items:

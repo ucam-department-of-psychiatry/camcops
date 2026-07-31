@@ -85,7 +85,6 @@ WORKDIR /camcops
 # - libmagickwand-dev: ImageMagick, used by CamCOPS
 # - libmysqlclient-dev: for MySQL access (needed by Python mysqlclient package)
 #   ... replaced by libmariadb-dev in Debian 11
-# - wget: for fetching other stuff! See below.
 # - wait-for-it: wait for a host/TCP port (to synchronize containers)
 #
 # Not now needed:
@@ -95,26 +94,6 @@ WORKDIR /camcops
 # - python3-dev: some Python packages require it
 #   ... seems to be present anyway
 #
-# Also, install wkhtmltopdf in a different way, as above.
-#
-# - wkhtmltopdf is required by CamCOPS for PDF generation. However, the Debian
-#   version (0.12.5) is NOT the "patched Qt" edition, so we have to do that
-#   more "manually". See
-#   - https://wkhtmltopdf.org/downloads.html
-#   - https://stackoverflow.com/questions/38262173/how-to-correctly-install-wkhtmltopdf-on-debian-64-bit
-#   EXCEPT that although the Debian version says:
-#
-#   Reduced Functionality:
-#     This version of wkhtmltopdf has been compiled against a version of QT without
-#     the wkhtmltopdf patches. Therefore some features are missing, if you need
-#     these features please use the static version.
-#     Currently the list of features only supported with patch QT includes:
-#    - Printing more than one HTML document into a PDF file.
-#    - Running without an X11 server.
-#
-#   ... it does actually run without an X11 server.
-#   However, it doesn't add headers/footers to PDFs. So, we need the "patched
-#   Qt" version still -- and hence wget, gdebi, etc.
 #
 # Then
 #
@@ -141,21 +120,12 @@ RUN echo "- Updating package information..." \
     && apt-get install -y --no-install-recommends \
         gcc \
         g++ \
-        gdebi \
         git \
-        wget \
         \
         wait-for-it \
         \
         libmagickwand-dev \
         libmariadb-dev \
-    && echo "- wkhtmltopdf: Fetching wkhtmltopdf with patched Qt..." \
-    && wget -O /tmp/wkhtmltopdf.deb \
-        https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb \
-    && echo "- wkhtmltopdf: Installing wkhtmltopdf..." \
-    && gdebi --non-interactive /tmp/wkhtmltopdf.deb \
-    && echo "- wkhtmltopdf: Cleaning up..." \
-    && rm /tmp/wkhtmltopdf.deb \
     && echo "- Creating Python 3 virtual environment..." \
     && python3 -m venv /camcops/venv \
     && echo "- Upgrading pip within virtual environment..." \
@@ -175,9 +145,7 @@ RUN echo "- Updating package information..." \
     && echo "- Removing OS packages used only for the installation..." \
     && apt-get purge -y \
         gcc \
-        gdebi \
         git \
-        wget \
     && apt-get autoremove -y \
     && echo "- Cleaning up..." \
     && rm -rf /var/lib/apt/lists/* \

@@ -169,8 +169,12 @@ class DemoQuestionnaire(
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="50%">Question</th>
-                    <th width="50%">Answer</th>
+                    <colgroup>
+                        <col class="demoquestionnaire-question-col" />
+                        <col class="demoquestionnaire-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
         """
         for i in range(1, N_MCQ + 1):

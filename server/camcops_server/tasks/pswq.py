@@ -170,9 +170,14 @@ class Pswq(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="70%">Question</th>
-                    <th width="15%">Answer (1–5)</th>
-                    <th width="15%">Score (1–5)</th>
+                    <colgroup>
+                        <col class="pswq-question-col" />
+                        <col class="pswq-answer-col" />
+                        <col class="pswq-score-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer (1–5)</th>
+                    <th>Score (1–5)</th>
                 </tr>
         """
         for q in range(1, self.NQUESTIONS + 1):

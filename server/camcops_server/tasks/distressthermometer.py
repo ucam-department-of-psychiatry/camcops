@@ -154,8 +154,12 @@ class DistressThermometer(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="50%">Question</th>
-                    <th width="50%">Answer</th>
+                    <colgroup>
+                        <col class="distressthermometer-question-col" />
+                        <col class="distressthermometer-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
         """
         h += tr_qa(

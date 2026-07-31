@@ -553,9 +553,14 @@ class Rand36(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="60%">Question</th>
-                    <th width="30%">Answer</th>
-                    <th width="10%">Score</th>
+                    <colgroup>
+                        <col class="rand36-question-col" />
+                        <col class="rand36-answer-col" />
+                        <col class="rand36-score-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
+                    <th>Score</th>
                 </tr>
         """
         for q in range(1, 2 + 1):

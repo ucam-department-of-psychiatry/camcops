@@ -32,6 +32,7 @@ camcops_server/templates/base/base_pdf.mako
 
 <%!
 # import logging
+from cardinal_pythonlib.pdf import Processors
 from camcops_server.cc_modules.cc_constants import PDF_ENGINE
 # log = logging.getLogger(__name__)
 %>
@@ -46,7 +47,9 @@ from camcops_server.cc_modules.cc_constants import PDF_ENGINE
 ## For CSS paged media:
 <%block name="footer_block">
     <div id="footerContent">
+    %if PDF_ENGINE == Processors.XHTML2PDF:
         ${ _("Page") } <pdf:pagenumber/> ${ _("of") } <pdf:pagecount/>.
+    %endif
         <%block name="extra_footer_content"/>
     </div>
 </%block>
@@ -58,7 +61,7 @@ from camcops_server.cc_modules.cc_constants import PDF_ENGINE
     # ... exact parameter doesn't matter; we only want PDF_LOGO_HEIGHT.
     %>
 
-    %if PDF_ENGINE in ("pdfkit", "weasyprint"):
+    %if PDF_ENGINE in (Processors.PDFKIT, Processors.WEASYPRINT):
         ## weasyprint: div with floating img does not work properly
         <div class="pdf_logo_header">
             <table>
@@ -78,7 +81,7 @@ from camcops_server.cc_modules.cc_constants import PDF_ENGINE
             </table>
         </div>
 
-    %elif PDF_ENGINE in ("xhtml2pdf", ):
+    %elif PDF_ENGINE in (Processors.XHTML2PDF, ):
         ## xhtml2pdf: hard to get logos positioned any other way than within a table
         <div class="header">
             <table class="noborder">

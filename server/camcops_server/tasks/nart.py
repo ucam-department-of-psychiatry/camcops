@@ -298,9 +298,14 @@ class Nart(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="16%">Word</th><th width="16%">Correct?</th>
-                    <th width="16%">Word</th><th width="16%">Correct?</th>
-                    <th width="16%">Word</th><th width="16%">Correct?</th>
+                    <colgroup>
+                        <col class="nart-word-col" />
+                        <col class="nart-word-col" />
+                        <col class="nart-word-col" />
+                    </colgroup>
+                    <th>Word</th><th width="16%">Correct?</th>
+                    <th>Word</th><th width="16%">Correct?</th>
+                    <th>Word</th><th width="16%">Correct?</th>
                 </tr>
                 {q_a}
             </table>

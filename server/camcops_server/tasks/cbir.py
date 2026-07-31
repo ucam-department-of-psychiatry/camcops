@@ -436,9 +436,14 @@ class CbiR(  # type: ignore[misc]
             </table>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="50%">Question</th>
-                    <th width="25%">Frequency (0–4)</th>
-                    <th width="25%">Distress (0–4)</th>
+                    <colgroup>
+                        <col class="cbir-question-col" />
+                        <col class="cbir-frequency-col" />
+                        <col class="cbir-distress-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Frequency (0–4)</th>
+                    <th>Distress (0–4)</th>
                 </tr>
                 {subheading_spanning_three_columns(heading_memory)}
                 {get_question_rows(*self.QNUMS_MEMORY)}

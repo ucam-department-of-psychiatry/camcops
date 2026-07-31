@@ -176,16 +176,24 @@ class Wsas(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="75%">Question</th>
-                    <th width="25%">Answer</th>
+                    <colgroup>
+                        <col class="wsas-question-col" />
+                        <col class="wsas-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {tr_qa(self.wxstring(req, "q_retired_etc"),
                        get_true_false(req, self.retired_etc))}
             </table>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="75%">Question</th>
-                    <th width="25%">Answer (0–8)</th>
+                    <colgroup>
+                        <col class="wsas-question-col" />
+                        <col class="wsas-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer (0–8)</th>
                 </tr>
                 {q_a}
             </table>

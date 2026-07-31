@@ -181,8 +181,12 @@ class Gbogres(TaskHasPatientMixin, Task):  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="15%">Goal number</th>
-                    <th width="85%">Goal description</th>
+                    <colgroup>
+                        <col class="gbogres-goal-col" />
+                        <col class="gbogres-goal-col" />
+                    </colgroup>
+                    <th>Goal number</th>
+                    <th>Goal description</th>
                 </tr>
                 <tr><td>1</td><td>{answer(self.goal_1_description,
                                           default="")}</td></tr>
@@ -310,7 +314,10 @@ class Gbogpc(TaskHasPatientMixin, Task):  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="30%">Date</th>
+                    <colgroup>
+                        <col class="gbogpc-date-col" />
+                    </colgroup>
+                    <th>Date</th>
                     <td width="70%">{
         answer(format_datetime(self.date, DateFormat.SHORT_DATE,
                                default=None))}</td>
@@ -507,9 +514,14 @@ class Gbogras(TaskHasPatientMixin, Task):  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="15%">Goal number</th>
-                    <th width="70%">Description</th>
-                    <th width="15%">Progress <sup>[1]</sup></th>
+                    <colgroup>
+                        <col class="gbogras-goal-col" />
+                        <col class="gbogras-description-col" />
+                        <col class="gbogras-progress-col" />
+                    </colgroup>
+                    <th>Goal number</th>
+                    <th>Description</th>
+                    <th>Progress <sup>[1]</sup></th>
                 </tr>
                 {newline.join(rows)}
             </table>

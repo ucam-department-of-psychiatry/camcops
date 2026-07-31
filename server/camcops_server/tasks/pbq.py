@@ -295,8 +295,12 @@ class Pbq(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="60%">Question</th>
-                    <th width="40%">Answer ({self.MIN_PER_Q}–{self.MAX_PER_Q})</th>
+                    <colgroup>
+                        <col class="pbq-question-col" />
+                        <col class="pbq-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer ({self.MIN_PER_Q}–{self.MAX_PER_Q})</th>
                 </tr>
         """  # noqa
         for q in range(1, self.NQUESTIONS + 1):

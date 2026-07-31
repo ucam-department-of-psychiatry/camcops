@@ -175,9 +175,9 @@ from cardinal_pythonlib.datetimefunc import (
     get_tz_local,
     get_tz_utc,
 )
-from cardinal_pythonlib.email.sendmail import CONTENT_TYPE_TEXT
+from cardinal_pythonlib.email_utils.sendmail import CONTENT_TYPE_TEXT
 from cardinal_pythonlib.fileops import relative_filename_within_dir
-from cardinal_pythonlib.json.serialize import register_for_json
+from cardinal_pythonlib.json_utils.serialize import register_for_json
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.pyramid.responses import (
     OdsResponse,

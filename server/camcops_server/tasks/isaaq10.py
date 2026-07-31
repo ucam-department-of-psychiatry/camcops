@@ -117,8 +117,12 @@ class Isaaq10(
         _ = req.gettext
         header_format = """
             <tr>
-                <th width="70%">{title}</th>
-                <th width="30%">{score}</th>
+                <colgroup>
+                    <col class="isaaq10-title-col" />
+                    <col class="isaaq10-score-col" />
+                </colgroup>
+                <th>{title}</th>
+                <th>{score}</th>
             </tr>
         """
 

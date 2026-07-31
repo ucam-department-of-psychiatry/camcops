@@ -49,7 +49,7 @@ from cardinal_pythonlib.datetimefunc import (
     get_age,
     PotentialDatetimeType,
 )
-from cardinal_pythonlib.json.typing_helpers import JsonObjectType
+from cardinal_pythonlib.json_utils.typing_helpers import JsonObjectType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
 from fhirclient.models.address import Address

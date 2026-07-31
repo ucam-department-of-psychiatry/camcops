@@ -309,11 +309,18 @@ class Caps(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="60%">Question</th>
-                    <th width="10%">Endorsed?</th>
-                    <th width="10%">Distress (1–5)</th>
-                    <th width="10%">Intrusiveness (1–5)</th>
-                    <th width="10%">Frequency (1–5)</th>
+                    <colgroup>
+                        <col class="caps-question-col" />
+                        <col class="caps-endorsed-col" />
+                        <col class="caps-distress-col" />
+                        <col class="caps-intrusiveness-col" />
+                        <col class="caps-frequency-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Endorsed?</th>
+                    <th>Distress (1–5)</th>
+                    <th>Intrusiveness (1–5)</th>
+                    <th>Frequency (1–5)</th>
                 </tr>
             </table>
             <div class="{CssClass.FOOTNOTES}">

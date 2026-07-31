@@ -238,8 +238,12 @@ class Ciwa(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="35%">Question</th>
-                    <th width="65%">Answer</th>
+                    <colgroup>
+                        <col class="ciwa-question-col" />
+                        <col class="ciwa-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {q_a}
                 {subheading_spanning_two_columns(

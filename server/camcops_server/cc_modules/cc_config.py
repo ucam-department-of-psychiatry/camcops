@@ -429,8 +429,9 @@ def get_demo_config(for_docker: bool = False) -> str:
 
 {ConfigParamSite.WEBVIEW_LOGLEVEL} = {cd.WEBVIEW_LOGLEVEL_TEXTFORMAT}
 {ConfigParamSite.CLIENT_API_LOGLEVEL} = {cd.CLIENT_API_LOGLEVEL_TEXTFORMAT}
+{ConfigParamSite.FONTTOOLS_LOGLEVEL} = {cd.FONTTOOLS_LOGLEVEL_TEXTFORMAT}
+{ConfigParamSite.WEASYPRINT_LOGLEVEL} = {cd.WEASYPRINT_LOGLEVEL_TEXTFORMAT}
 {ConfigParamSite.ALLOW_INSECURE_COOKIES} = {cd.ALLOW_INSECURE_COOKIES}
-
 
 # =============================================================================
 # Web server options
@@ -1435,6 +1436,16 @@ class CamcopsConfig(object):
             parser, s, cs.WEBVIEW_LOGLEVEL, cd.WEBVIEW_LOGLEVEL
         )
         logging.getLogger().setLevel(self.webview_loglevel)  # root logger
+
+        self.fonttools_loglevel = get_config_parameter_loglevel(
+            parser, s, cs.FONTTOOLS_LOGLEVEL, cd.FONTTOOLS_LOGLEVEL
+        )
+        logging.getLogger("fontTools").setLevel(self.fonttools_loglevel)
+        self.weasyprint_loglevel = get_config_parameter_loglevel(
+            parser, s, cs.WEASYPRINT_LOGLEVEL, cd.WEASYPRINT_LOGLEVEL
+        )
+        logging.getLogger("weasyprint").setLevel(self.weasyprint_loglevel)
+
         # ... MUTABLE GLOBAL STATE (if relatively unimportant); todo: fix
         self.wkhtmltopdf_filename = _get_str(s, cs.WKHTMLTOPDF_FILENAME)
 

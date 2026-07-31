@@ -58,7 +58,6 @@ from cardinal_pythonlib.fileops import get_directory_contents_size, mkdir_p
 from cardinal_pythonlib.httpconst import HttpMethod
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.plot import (
-    png_img_html_from_pyplot_figure,
     svg_html_from_pyplot_figure,
 )
 import cardinal_pythonlib.rnc_web as ws
@@ -92,12 +91,7 @@ from camcops_server.cc_modules.cc_config import (
     get_config,
     get_config_filename_from_os_env,
 )
-from camcops_server.cc_modules.cc_constants import (
-    CSS_PAGED_MEDIA,
-    DateFormat,
-    PlotDefaults,
-    USE_SVG_IN_HTML,
-)
+from camcops_server.cc_modules.cc_constants import DateFormat
 from camcops_server.cc_modules.cc_idnumdef import (
     get_idnum_definitions,
     IdNumDefinition,
@@ -243,10 +237,6 @@ class CamcopsRequest(Request):
 
         """  # noqa
         super().__init__(*args, **kwargs)
-        self.use_svg = False  # use SVG (not just PNG) for graphics
-        self.provide_png_fallback_for_svg = (
-            True  # for SVG: provide PNG fallback image?
-        )
         self.add_response_callback(complete_request_add_cookies)
         self._camcops_session = None  # type: Optional[CamcopsSession]
         self._debugging_db_session = (
@@ -1284,48 +1274,6 @@ class CamcopsRequest(Request):
         """
         return ws.webify(self.sstring(which_string))
 
-    # -------------------------------------------------------------------------
-    # PNG versus SVG output, so tasks don't have to care (for e.g. PDF/web)
-    # -------------------------------------------------------------------------
-
-    def prepare_for_pdf_figures(self) -> None:
-        """
-        Switch the server (for this request) to producing figures in a format
-        most suitable for PDF.
-        """
-        if CSS_PAGED_MEDIA:
-            # unlikely -- we use wkhtmltopdf instead now
-            self.switch_output_to_png()
-            # ... even weasyprint's SVG handling is inadequate
-        else:
-            # This is the main method -- we use wkhtmltopdf these days
-            self.switch_output_to_svg(provide_png_fallback=False)
-            # ... wkhtmltopdf can cope with SVGs
-
-    def prepare_for_html_figures(self) -> None:
-        """
-        Switch the server (for this request) to producing figures in a format
-        most suitable for HTML.
-        """
-        self.switch_output_to_svg()
-
-    def switch_output_to_png(self) -> None:
-        """
-        Switch server (for this request) to producing figures in PNG format.
-        """
-        self.use_svg = False
-
-    def switch_output_to_svg(self, provide_png_fallback: bool = True) -> None:
-        """
-        Switch server (for this request) to producing figures in SVG format.
-
-        Args:
-            provide_png_fallback:
-                Offer a PNG fallback option/
-        """
-        self.use_svg = True
-        self.provide_png_fallback_for_svg = provide_png_fallback
-
     @staticmethod
     def create_figure(**kwargs: Any) -> Figure:
         """
@@ -1512,23 +1460,10 @@ class CamcopsRequest(Request):
 
     def get_html_from_pyplot_figure(self, fig: Figure) -> str:
         """
-        Make HTML (as PNG or SVG) from pyplot
+        Make HTML (SVG) from pyplot
         :class:`matplotlib.figure.Figure`.
         """
-        if USE_SVG_IN_HTML and self.use_svg:
-            result = svg_html_from_pyplot_figure(fig)
-            if self.provide_png_fallback_for_svg:
-                # return both an SVG and a PNG image, for browsers that can't
-                # deal with SVG; the Javascript header will sort this out
-                # http://www.voormedia.nl/blog/2012/10/displaying-and-detecting-support-for-svg-images  # noqa
-                result += png_img_html_from_pyplot_figure(
-                    fig, PlotDefaults.DEFAULT_PLOT_DPI, "pngfallback"
-                )
-            return result
-        else:
-            return png_img_html_from_pyplot_figure(
-                fig, PlotDefaults.DEFAULT_PLOT_DPI
-            )
+        return svg_html_from_pyplot_figure(fig)
 
     # -------------------------------------------------------------------------
     # Convenience functions for user information

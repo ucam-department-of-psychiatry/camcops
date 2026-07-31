@@ -335,8 +335,12 @@ class CopeBrief(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="50%">Question</th>
-                    <th width="50%">Answer</th>
+                    <colgroup>
+                        <col class="cope-brief-question-col" />
+                        <col class="cope-brief-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {q_a}
             </table>

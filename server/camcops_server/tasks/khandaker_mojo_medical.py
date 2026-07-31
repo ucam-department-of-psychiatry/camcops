@@ -565,24 +565,36 @@ class KhandakerMojoMedical(  # type: ignore[misc]
             <h3>{heading_1}</h3>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="60%">Question</th>
-                    <th width="40%">Answer</th>
+                    <colgroup>
+                        <col class="khandaker-mojo-medical-question-col" />
+                        <col class="khandaker-mojo-medical-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {rows_1}
             </table>
             <h3>{heading_2}</h3>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="60%">Question</th>
-                    <th width="40%">Answer</th>
+                    <colgroup>
+                        <col class="khandaker-mojo-medical-question-col" />
+                        <col class="khandaker-mojo-medical-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {rows_2}
             </table>
             <h3>{heading_3}</h3>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="60%">Question</th>
-                    <th width="40%">Answer</th>
+                    <colgroup>
+                        <col class="khandaker-mojo-medical-question-col" />
+                        <col class="khandaker-mojo-medical-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {rows_3}
             </table>

@@ -193,8 +193,12 @@ class Gad7(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="50%">Question</th>
-                    <th width="50%">Answer</th>
+                    <colgroup>
+                        <col class="gad7-question-col" />
+                        <col class="gad7-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {q_a}
             </table>

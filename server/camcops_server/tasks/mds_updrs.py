@@ -415,8 +415,12 @@ class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task):  # type: ignor
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="70%">Question</th>
-                    <th width="30%">Answer</th>
+                    <colgroup>
+                        <col class="mds-updrs-question-col" />
+                        <col class="mds-updrs-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {q_a}
             </table>

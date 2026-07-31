@@ -162,8 +162,12 @@ class QolBasic(TaskHasPatientMixin, Task):  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="33%">Scale</th>
-                    <th width="33%">Answer</th>
+                    <colgroup>
+                        <col class="qolbasic-scale-col" />
+                        <col class="qolbasic-answer-col" />
+                    </colgroup>
+                    <th>Scale</th>
+                    <th>Answer</th>
                     <td width="33%">Implied QoL</th>
                 </tr>
                 {tto}

@@ -34,6 +34,7 @@ camcops_server/cc_modules/cc_pdf.py
 from typing import Any, Dict, TYPE_CHECKING
 
 from cardinal_pythonlib.pdf import get_pdf_from_html
+from weasyprint import CSS
 
 from camcops_server.cc_modules.cc_constants import (
     PDF_ENGINE,
@@ -55,6 +56,7 @@ def pdf_from_html(
     header_html: str = None,
     footer_html: str = None,
     extra_wkhtmltopdf_options: Dict[str, Any] = None,
+    weasyprint_options: dict[str, Any] = None,
 ) -> bytes:
     """
     Create and return a PDF from the HTML provided.
@@ -73,4 +75,34 @@ def pdf_from_html(
         processor=PDF_ENGINE,
         wkhtmltopdf_filename=cfg.wkhtmltopdf_filename,
         wkhtmltopdf_options=wkhtmltopdf_options,
+        weasyprint_options=weasyprint_options,
     )
+
+
+def weasyprint_page_stylesheet(
+    top_left_content: str = '""',
+    top_right_content: str = '""',
+    bottom_left_content: str = '""',
+    bottom_right_content: str = '""',
+) -> CSS:
+
+    # There are other Margin at-rules if needed:
+    # https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@page#margin_at-rules
+    weasyprint_css = f"""
+        @page {{
+            @top-left {{
+                content: {top_left_content};
+            }}
+            @top-right {{
+                content: {top_right_content};
+            }}
+            @bottom-left {{
+                content: {bottom_left_content};
+            }}
+            @bottom-right {{
+                content: {bottom_right_content};
+            }}
+        }}
+    """
+
+    return CSS(string=weasyprint_css)

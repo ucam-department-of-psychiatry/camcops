@@ -512,8 +512,12 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):  # type: ignore[misc]
           </div>
           <table class="{CssClass.TASKDETAIL}">
             <tr>
-              <th width="60%">{req.sstring(SS.QUESTION)}</th>
-              <th width="40%">{req.sstring(SS.ANSWER)}</th>
+                <colgroup>
+                    <col class="lynall-iam-medical-req-col" />
+                    <col class="lynall-iam-medical-req-col" />
+                </colgroup>
+              <th>{req.sstring(SS.QUESTION)}</th>
+              <th>{req.sstring(SS.ANSWER)}</th>
             </tr>
             {rows_1_to_9}
             <tr class="subheading">

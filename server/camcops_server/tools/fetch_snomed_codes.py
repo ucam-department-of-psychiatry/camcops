@@ -44,7 +44,7 @@ import sys
 from typing import Dict, List, Optional, Set, Tuple, Union
 
 from cardinal_pythonlib.argparse_func import ShowAllSubparserHelpAction
-from cardinal_pythonlib.json.typing_helpers import JsonValueType
+from cardinal_pythonlib.json_utils.typing_helpers import JsonValueType
 from cardinal_pythonlib.httpconst import HttpStatus
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
 from cardinal_pythonlib.rate_limiting import rate_limited

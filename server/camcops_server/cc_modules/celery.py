@@ -113,7 +113,7 @@ import logging
 import os
 from typing import Any, Dict, Generator, TYPE_CHECKING
 
-from cardinal_pythonlib.json.serialize import json_encode, json_decode
+from cardinal_pythonlib.json_utils.serialize import json_encode, json_decode
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from celery import Celery, current_task
 from kombu.serialization import register

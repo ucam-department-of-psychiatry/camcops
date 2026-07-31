@@ -34,6 +34,7 @@ import multiprocessing
 import os
 from typing import cast
 
+from cardinal_pythonlib.pdf import Processors
 from cardinal_pythonlib.randomness import create_base64encoded_randomness
 from cardinal_pythonlib.sqlalchemy.session import make_mysql_url
 from cardinal_pythonlib.tcpipconst import Ports
@@ -231,13 +232,13 @@ ERA_NOW = "NOW"  # defines the current era in database records
 
 
 # =============================================================================
-# PDF engine: now always "pdfkit".
+# PDF engine: now always "weasyprint".
 # =============================================================================
 
-# PDF_ENGINE = "xhtml2pdf"  # working
-PDF_ENGINE = "pdfkit"  # working
-# PDF_ENGINE = "weasyprint"  # working but table <tr> element bugs
-# ... value must be one of: xhtml2pdf, weasyprint, pdfkit
+# PDF_ENGINE = Processors.XHTML2PDF  # working, though SVG appears broken
+# PDF_ENGINE = Processors.PDFKIT  # no longer maintained, wkhtmltopdf not available on later Ubuntu  # noqa: E501
+PDF_ENGINE = Processors.WEASYPRINT
+# ... value must be one of: XHTML2PDF, WEASYPRINT, PDFKIT
 
 
 # =============================================================================
@@ -294,10 +295,6 @@ class MatplotlibConstants(object):
     MARKER_STAR = "*"
 
     WHOLE_PANEL = 111  # as in: ax = fig.add_subplot(111)
-
-
-# Debugging option
-USE_SVG_IN_HTML = True  # set to False for PNG debugging
 
 
 # =============================================================================
@@ -462,6 +459,7 @@ class ConfigParamSite(object):
     EMAIL_SENDER = "EMAIL_SENDER"
     EMAIL_USE_TLS = "EMAIL_USE_TLS"
     EXTRA_STRING_FILES = "EXTRA_STRING_FILES"
+    FONTTOOLS_LOGLEVEL = "FONTTOOLS_LOGLEVEL"
     LANGUAGE = "LANGUAGE"
     LOCAL_INSTITUTION_URL = "LOCAL_INSTITUTION_URL"
     LOCAL_LOGO_FILE_ABSOLUTE = "LOCAL_LOGO_FILE_ABSOLUTE"
@@ -487,6 +485,7 @@ class ConfigParamSite(object):
     USER_DOWNLOAD_DIR = "USER_DOWNLOAD_DIR"
     USER_DOWNLOAD_FILE_LIFETIME_MIN = "USER_DOWNLOAD_FILE_LIFETIME_MIN"
     USER_DOWNLOAD_MAX_SPACE_MB = "USER_DOWNLOAD_MAX_SPACE_MB"
+    WEASYPRINT_LOGLEVEL = "WEASYPRINT_LOGLEVEL"
     WEBVIEW_LOGLEVEL = "WEBVIEW_LOGLEVEL"
     WKHTMLTOPDF_FILENAME = "WKHTMLTOPDF_FILENAME"
 
@@ -730,6 +729,10 @@ class ConfigDefaults(object):
     EXTRA_STRING_FILES = os.path.join(
         DEFAULT_EXTRA_STRINGS_DIR, "*.xml"
     )  # cosmetic; for demo configs only
+    FONTTOOLS_LOGLEVEL = logging.WARNING
+    FONTTOOLS_LOGLEVEL_TEXTFORMAT = (
+        "warning"  # should match FONTTOOLS_LOGLEVEL
+    )
     LANGUAGE = DEFAULT_LOCALE
     LOCAL_INSTITUTION_URL = "https://camcops.readthedocs.io/"
     LOCAL_LOGO_FILE_ABSOLUTE = os.path.join(STATIC_ROOT_DIR, "logo_local.png")
@@ -749,6 +752,10 @@ class ConfigDefaults(object):
     )
     USER_DOWNLOAD_FILE_LIFETIME_MIN = 60
     USER_DOWNLOAD_MAX_SPACE_MB = 100
+    WEASYPRINT_LOGLEVEL = logging.ERROR
+    WEASYPRINT_LOGLEVEL_TEXTFORMAT = (
+        "error"  # should match WEASYPRINT_LOGLEVEL
+    )
     WEBVIEW_LOGLEVEL = logging.INFO
     WEBVIEW_LOGLEVEL_TEXTFORMAT = "info"  # should match WEBVIEW_LOGLEVEL
 

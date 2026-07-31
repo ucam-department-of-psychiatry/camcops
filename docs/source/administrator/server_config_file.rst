@@ -848,6 +848,22 @@ Note that for "debug"-level information to show up, you must also provide the
 ``--verbose`` argument to ``camcops_server``.
 
 
+FONTTOOLS_LOGLEVEL
+##################
+
+*Loglevel.* Default: ``warning``.
+
+Set the log level for the third party fontTools library, used in PDF generation.
+
+
+WEASYPRINT_LOGLEVEL
+###################
+
+*Loglevel.* Default: ``error``.
+
+Set the log level for the third party Weasyprint library, used in PDF generation.
+
+
 ALLOW_INSECURE_COOKIES
 ######################
 

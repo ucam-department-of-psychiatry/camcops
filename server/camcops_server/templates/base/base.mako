@@ -37,14 +37,6 @@ camcops_server/templates/base/base.mako
             <meta charset="utf-8">
             <%block name="extra_head_start"></%block>
             <link rel="icon" type="image/png" href="${ request.url_camcops_favicon | n }">
-            <script nonce="${ request.nonce | n }">
-                /* set "html.svg" if our browser supports SVG */
-                // noinspection JSDeprecatedSymbols
-                if (document.implementation.hasFeature(
-                        "https://www.w3.org/TR/SVG11/feature#Image", "1.1")) {
-                    document.documentElement.className = "svg";
-                }
-            </script>
             <style nonce="${ request.nonce | n }">
                 <%block name="css"></%block>
             </style>

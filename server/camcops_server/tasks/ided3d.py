@@ -476,8 +476,12 @@ class IDED3D(TaskHasPatientMixin, Task):  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKCONFIG}">
                 <tr>
-                    <th width="50%">Configuration variable</th>
-                    <th width="50%">Value</th>
+                    <colgroup>
+                        <col class="ided3d-configuration-col" />
+                        <col class="ided3d-value-col" />
+                    </colgroup>
+                    <th>Configuration variable</th>
+                    <th>Value</th>
                 </tr>
         """
         h += tr_qa(self.wxstring(req, "last_stage"), self.last_stage)
@@ -517,7 +521,14 @@ class IDED3D(TaskHasPatientMixin, Task):  # type: ignore[misc]
         h += f"""
             </table>
             <table class="{CssClass.TASKDETAIL}">
-                <tr><th width="50%">Measure</th><th width="50%">Value</th></tr>
+                <tr>
+                    <colgroup>
+                        <col class="ided3d-measure-col" />
+                        <col class="ided3d-value-col" />
+                    </colgroup>
+                    <th>Measure</th>
+                    <th>Value</th>
+                </tr>
         """
         h += tr_qa("Aborted?", get_yes_no_none(req, self.aborted))
         h += tr_qa("Finished?", get_yes_no_none(req, self.finished))

@@ -160,8 +160,12 @@ class Icd10Mixed(TaskHasClinicianMixin, TaskHasPatientMixin, Task):  # type: ign
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="80%">Question</th>
-                    <th width="20%">Answer</th>
+                    <colgroup>
+                        <col class="icd10mixed-question-col" />
+                        <col class="icd10mixed-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {mixture_or_rapid_alternation}
                 {duration_at_least_2_weeks}

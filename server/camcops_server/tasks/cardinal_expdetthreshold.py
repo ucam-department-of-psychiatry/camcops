@@ -576,10 +576,14 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKCONFIG}">
                 <tr>
-                    <th width="50%">Configuration variable</th>
-                    <th width="50%">Value</th>
+                    <colgroup>
+                        <col class="cardinal-expdetthreshold-configuration-col" />
+                        <col class="cardinal-expdetthreshold-value-col" />
+                    </colgroup>
+                    <th>Configuration variable</th>
+                    <th>Value</th>
                 </tr>
-        """
+        """  # noqa: E501
         h += tr_qa("Modality", modality)
         h += tr_qa("Target number", self.target_number)
         h += tr_qa("Background filename", ws.webify(self.background_filename))
@@ -607,7 +611,14 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):  # type: ignore[misc]
         h += f"""
             </table>
             <table class="{CssClass.TASKDETAIL}">
-                <tr><th width="50%">Measure</th><th width="50%">Value</th></tr>
+                <tr>
+                    <colgroup>
+                        <col class="cardinal-expdetthreshold-measure-col" />
+                        <col class="cardinal-expdetthreshold-value-col" />
+                    </colgroup>
+                    <th>Measure</th>
+                    <th>Value</th>
+                </tr>
         """
         h += tr_qa("Finished?", get_yes_no_none(req, self.finished))
         h += tr_qa("Logistic intercept", ws.number_to_dp(self.intercept, DP))

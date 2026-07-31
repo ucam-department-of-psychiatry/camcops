@@ -432,8 +432,12 @@ class Kirby(TaskHasPatientMixin, Task):  # type: ignore[misc]
           </div>
           <table class="{CssClass.TASKDETAIL}">
             <tr>
-              <th width="75%">Question</th>
-              <th width="25%">Answer</th>
+                <colgroup>
+                    <col class="kirby-mcq-question-col" />
+                    <col class="kirby-mcq-answer-col" />
+                </colgroup>
+              <th>Question</th>
+              <th>Answer</th>
             </tr>
             {q_a}
           </table>

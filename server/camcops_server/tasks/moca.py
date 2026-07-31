@@ -359,8 +359,12 @@ class Moca(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="69%">Question</th>
-                    <th width="31%">Score</th>
+                    <colgroup>
+                        <col class="moca-question-col" />
+                        <col class="moca-score-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Score</th>
                 </tr>
         """.format(
             clinician_comments=self.get_standard_clinician_comments_block(

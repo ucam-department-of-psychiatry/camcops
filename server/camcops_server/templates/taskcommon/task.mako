@@ -32,10 +32,12 @@ camcops_server/templates/taskcommon/task.mako
 <%!
 
 from cardinal_pythonlib.datetimefunc import format_datetime
+from cardinal_pythonlib.pdf import Processors
 from camcops_server.cc_modules.cc_constants import (
     CSS_PAGED_MEDIA,
     DateFormat,
     ERA_NOW,
+    PDF_ENGINE,
 )
 from camcops_server.cc_modules.cc_html import (
     answer,
@@ -78,14 +80,16 @@ def inherit_file(context):
 ## For CSS paged media, extra headers
 ## ============================================================================
 
-%if CSS_PAGED_MEDIA and viewtype == ViewArg.PDF:
     <%block name="extra_header_content">
+    %if CSS_PAGED_MEDIA and (viewtype == ViewArg.PDF) and (PDF_ENGINE == Processors.XHTML2PDF):
         <%include file="task_page_header.mako" args="task=task, anonymise=anonymise"/>
+    %endif
     </%block>
     <%block name="extra_footer_content">
+    %if CSS_PAGED_MEDIA and (viewtype == ViewArg.PDF) and (PDF_ENGINE == Processors.XHTML2PDF):
         <%include file="task_page_footer.mako" args="task=task"/>
+    %endif
     </%block>
-%endif
 ## For non-paged media (i.e. wkhtmltopdf), the headers/footers are made separately.
 
 ## ============================================================================

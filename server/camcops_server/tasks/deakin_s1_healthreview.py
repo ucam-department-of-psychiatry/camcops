@@ -475,8 +475,12 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="50%">Question</th>
-                    <th width="50%">Answer</th>
+                    <colgroup>
+                        <col class="deakin-s1-healthreview-question-col" />
+                        <col class="deakin-s1-healthreview-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
         """ + (
             self.get_twocol_val_row("ethnicity")

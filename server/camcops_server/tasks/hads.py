@@ -191,8 +191,12 @@ class HadsBase(TaskHasPatientMixin, Task, ABC):  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="50%">Question</th>
-                    <th width="50%">Answer</th>
+                    <colgroup>
+                        <col class="hads-question-col" />
+                        <col class="hads-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
         """
         for n in range(1, self.NQUESTIONS + 1):

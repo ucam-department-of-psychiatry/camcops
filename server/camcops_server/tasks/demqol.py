@@ -264,8 +264,12 @@ class Demqol(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="50%">Question</th>
-                    <th width="50%">Answer</th>
+                    <colgroup>
+                        <col class="demqol-question-col" />
+                        <col class="demqol-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
         """
         for n in range(1, self.NQUESTIONS + 1):
@@ -464,8 +468,12 @@ class DemqolProxy(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="50%">Question</th>
-                    <th width="50%">Answer</th>
+                    <colgroup>
+                        <col class="demqolproxy-question-col" />
+                        <col class="demqolproxy-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
         """
         for n in range(1, self.NQUESTIONS + 1):

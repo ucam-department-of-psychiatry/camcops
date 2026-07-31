@@ -196,8 +196,12 @@ class Paradise24(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="60%">Question</th>
-                    <th width="40%">Score</th>
+                    <colgroup>
+                        <col class="paradise24-question-col" />
+                        <col class="paradise24-score-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Score</th>
                 </tr>
                 {rows}
             </table>

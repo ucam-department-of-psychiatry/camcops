@@ -171,8 +171,12 @@ class Gds15(  # type: ignore[misc]
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th width="70%">Question</th>
-                    <th width="30%">Answer</th>
+                    <colgroup>
+                        <col class="gds15-question-col" />
+                        <col class="gds15-answer-col" />
+                    </colgroup>
+                    <th>Question</th>
+                    <th>Answer</th>
                 </tr>
                 {q_a}
             </table>

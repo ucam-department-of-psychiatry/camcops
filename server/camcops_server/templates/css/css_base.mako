@@ -50,20 +50,6 @@ CSS notes:
     va = self.get_css_varargs()  # calls child
 %>
 
-/* Display PNG fallback image... */
-svg img.svg {
-    display: none;
-}
-img.pngfallback {
-    display: inline;
-}
-/* ... unless our browser supports SVG */
-html.svg svg img.svg {
-    display: inline;
-}
-html.svg img.pngfallback {
-    display: none;
-}
 
 /* Overall defaults */
 
@@ -131,6 +117,11 @@ sup, sub {
 }
 sub {
     top: 0.5em;
+}
+/* Matplotlib fixes width and height in point sizes */
+svg {
+    max-width: 100%;
+    max-height: 100%;
 }
 table {
     width: 100%; /* particularly for PDFs */
@@ -533,15 +524,6 @@ table.taskdetail td {
     border: ${va.ZERO};
 }
 
-/* For tables that will make it to a PDF, fix Weasyprint column widths.
-   But not for all (e.g. webview task list) tables. */
-table.clinician, table.extradetail, table.general,
-        table.pdf_logo_header, table.summary,
-        table.taskconfig, table.taskdetail,
-        table.fixed {
-    table-layout: fixed;
-}
-
 %if va.paged_media:
 
     /* PDF extras */
@@ -556,6 +538,9 @@ table.clinician, table.extradetail, table.general,
 
     /* PDF paging via CSS Paged Media */
     @page {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: ${va.SMALLFONTSIZE};
+        line-height: ${va.SMALLLINEHEIGHT};
         size: A4 ${va.ORIENTATION};
         margin-left: ${va.MAINMARGIN};
         margin-right: ${va.MAINMARGIN};
@@ -577,9 +562,911 @@ table.clinician, table.extradetail, table.general,
             margin-right: ${va.MAINMARGIN};
         }
     }
-
-    ## WEASYPRINT: NOT WORKING PROPERLY YET: WEASYPRINT DOESN'T YET SUPPORT RUNNING ELEMENTS
-    ## http://librelist.com/browser//weasyprint/2013/7/4/header-and-footer-for-each-page/#abe45ec357d593df44ffca48253817ef
-    ## http://weasyprint.org/docs/changelog/
-
 %endif
+
+/* Task specifics */
+.ace3-col-task-aspect,
+.ace3-col-question {
+    width: 67%;
+}
+
+.ace3-col-setting,
+.ace3-col-answer-score {
+    width: 33%;
+}
+.aims-question-col {
+    width: 50%;
+}
+.aims-answer-col {
+    width: 50%;
+}
+
+.apeq-cpft-perinatal-question-col {
+    width: 60%;
+}
+.apeq-cpft-perinatal-answer-col {
+    width: 40%;
+}
+
+.apeqpt-question-col {
+    width: 60%;
+}
+.apeqpt-answer-col {
+    width: 40%;
+}
+
+.aq-statement-col {
+    width: 70%;
+}
+.aq-answer-col {
+    width: 20%;
+}
+.aq-score-col {
+    width: 10%;
+}
+
+.asdas-question-col {
+    width: 60%;
+}
+.asdas-answer-col {
+    width: 40%;
+}
+
+.audit-question-col {
+    width: 50%;
+}
+.audit-answer-col {
+    width: 50%;
+}
+
+.audit-c-question-col {
+    width: 50%;
+}
+.audit-c-answer-col {
+    width: 50%;
+}
+
+.badls-question-col {
+    width: 30%;
+}
+.badls-answer-col {
+    width: 50%;
+}
+.badls-score-col {
+    width: 20%;
+}
+
+.basdai-question-col {
+    width: 60%;
+}
+.basdai-answer-col {
+    width: 40%;
+}
+
+.bdi-question-col {
+    width: 70%;
+}
+.bdi-answer-col {
+    width: 30%;
+}
+
+
+.bprs-question-col {
+    width: 60%;
+}
+.bprs-answer-col {
+    width: 40%;
+}
+
+.bprse-question-col {
+    width: 60%;
+}
+.bprse-answer-col {
+    width: 40%;
+}
+
+.cage-question-col {
+    width: 70%;
+}
+.cage-answer-col {
+    width: 30%;
+}
+
+
+.caps-question-col {
+    width: 60%;
+}
+.caps-endorsed-col {
+    width: 10%;
+}
+.caps-distress-col {
+    width: 10%;
+}
+.caps-intrusiveness-col {
+    width: 10%;
+}
+.caps-frequency-col {
+    width: 10%;
+}
+
+.cardinal-expdetthreshold-configuration-col {
+    width: 50%;
+}
+.cardinal-expdetthreshold-value-col {
+    width: 50%;
+}
+
+.cardinal-expdetthreshold-measure-col {
+    width: 50%;
+}
+.cardinal-expdetthreshold-value-col {
+    width: 50%;
+}
+
+.cardinal-expdet-configuration-col {
+    width: 50%;
+}
+.cardinal-expdet-value-col {
+    width: 50%;
+}
+
+.cardinal-expdet-measure-col {
+    width: 50%;
+}
+.cardinal-expdet-value-col {
+    width: 50%;
+}
+
+.cbir-question-col {
+    width: 50%;
+}
+.cbir-frequency-col {
+    width: 25%;
+}
+.cbir-distress-col {
+    width: 25%;
+}
+
+
+.cesd-question-col {
+    width: 70%;
+}
+.cesd-answer-col {
+    width: 30%;
+}
+
+.cesdr-question-col {
+    width: 70%;
+}
+.cesdr-answer-col {
+    width: 30%;
+}
+
+.cet-question-col {
+    width: 60%;
+}
+.cet-answer-col {
+    width: 40%;
+}
+
+.cgi-question-col {
+    width: 30%;
+}
+.cgi-answer-col {
+    width: 70%;
+}
+
+.cgi-i-question-col {
+    width: 50%;
+}
+.cgi-i-answer-col {
+    width: 50%;
+}
+
+.cgisch-question-col {
+    width: 70%;
+}
+.cgisch-answer-col {
+    width: 30%;
+}
+
+.chit-question-col {
+    width: 60%;
+}
+.chit-answer-col {
+    width: 40%;
+}
+
+.cia-question-col {
+    width: 60%;
+}
+.cia-response-col {
+    width: 40%;
+}
+
+.cisr-page-col {
+    width: 75%;
+}
+
+.cisr-page-col {
+    width: 75%;
+}
+
+.ciwa-question-col {
+    width: 35%;
+}
+.ciwa-answer-col {
+    width: 65%;
+}
+
+
+.cope-brief-question-col {
+    width: 50%;
+}
+.cope-brief-answer-col {
+    width: 50%;
+}
+
+.core10-question-col {
+    width: 60%;
+}
+.core10-answer-col {
+    width: 40%;
+}
+
+.cpft-covid-medical-question-col {
+    width: 60%;
+}
+.cpft-covid-medical-answer-col {
+    width: 40%;
+}
+
+
+.cpft-research-preferences-question-col {
+    width: 60%;
+}
+.cpft-research-preferences-answer-col {
+    width: 40%;
+}
+
+
+.dast-question-col {
+    width: 80%;
+}
+.dast-answer-col {
+    width: 20%;
+}
+
+.deakin-s1-healthreview-question-col {
+    width: 50%;
+}
+.deakin-s1-healthreview-answer-col {
+    width: 50%;
+}
+
+.demoquestionnaire-question-col {
+    width: 50%;
+}
+.demoquestionnaire-answer-col {
+    width: 50%;
+}
+
+.demqol-question-col {
+    width: 50%;
+}
+.demqol-answer-col {
+    width: 50%;
+}
+
+.demqolproxy-question-col {
+    width: 50%;
+}
+.demqolproxy-answer-col {
+    width: 50%;
+}
+
+.diagnosis-diagnosis-col {
+    width: 10%;
+}
+.diagnosis-code-col {
+    width: 10%;
+}
+.diagnosis-description-col {
+    width: 40%;
+}
+.diagnosis-comment-col {
+    width: 40%;
+}
+
+.distressthermometer-question-col {
+    width: 50%;
+}
+.distressthermometer-answer-col {
+    width: 50%;
+}
+
+.edeq-question-col {
+    width: 60%;
+}
+.edeq-score-col {
+    width: 40%;
+}
+
+.elixhauserci-question-col {
+    width: 50%;
+}
+.elixhauserci-answer-col {
+    width: 50%;
+}
+
+
+.epds-question-col {
+    width: 50%;
+}
+.epds-answer-col {
+    width: 50%;
+}
+
+.eq5d5l-question-col {
+    width: 60%;
+}
+.eq5d5l-answer-col {
+    width: 40%;
+}
+
+.esspri-question-col {
+    width: 60%;
+}
+.esspri-answer-col {
+    width: 40%;
+}
+
+.factg-question-col {
+    width: 50%;
+}
+.factg-answer-col {
+    width: 50%;
+}
+
+.fast-question-col {
+    width: 60%;
+}
+.fast-answer-col {
+    width: 40%;
+}
+
+.fft-question-col {
+    width: 50%;
+}
+.fft-answer-col {
+    width: 50%;
+}
+
+.frs-question-col {
+    width: 50%;
+}
+.frs-answer-col {
+    width: 50%;
+}
+
+.gad7-question-col {
+    width: 50%;
+}
+.gad7-answer-col {
+    width: 50%;
+}
+
+
+.gbogres-goal-col {
+    width: 85%;
+}
+.gbogres-goal-col {
+    width: 85%;
+}
+
+.gbogpc-date-col {
+    width: 30%;
+}
+
+.gbogras-goal-col {
+    width: 15%;
+}
+.gbogras-description-col {
+    width: 70%;
+}
+.gbogras-progress-col {
+    width: 15%;
+}
+
+.gds15-question-col {
+    width: 70%;
+}
+.gds15-answer-col {
+    width: 30%;
+}
+
+.gmcpq-question-col {
+    width: 60%;
+}
+.gmcpq-answer-col {
+    width: 40%;
+}
+
+.hads-question-col {
+    width: 50%;
+}
+.hads-answer-col {
+    width: 50%;
+}
+
+.hama-question-col {
+    width: 50%;
+}
+.hama-answer-col {
+    width: 50%;
+}
+
+.hamd-question-col {
+    width: 40%;
+}
+.hamd-answer-col {
+    width: 60%;
+}
+
+.hamd7-question-col {
+    width: 30%;
+}
+.hamd7-answer-col {
+    width: 70%;
+}
+
+.honos-question-col {
+    width: 50%;
+}
+.honos-answer-col {
+    width: 50%;
+}
+
+.honos65-question-col {
+    width: 50%;
+}
+.honos65-answer-col {
+    width: 50%;
+}
+
+.honosca-question-col {
+    width: 50%;
+}
+.honosca-answer-col {
+    width: 50%;
+}
+
+.icd10depressive-question-col {
+    width: 80%;
+}
+.icd10depressive-answer-col {
+    width: 20%;
+}
+
+.icd10manic-question-col {
+    width: 80%;
+}
+.icd10manic-answer-col {
+    width: 20%;
+}
+
+.icd10mixed-question-col {
+    width: 80%;
+}
+.icd10mixed-answer-col {
+    width: 20%;
+}
+
+.icd10schizophrenia-question-col {
+    width: 80%;
+}
+.icd10schizophrenia-answer-col {
+    width: 20%;
+}
+
+.icd10schizotypal-question-col {
+    width: 80%;
+}
+.icd10schizotypal-answer-col {
+    width: 20%;
+}
+
+.icd10specpd-question-col {
+    width: 80%;
+}
+.icd10specpd-answer-col {
+    width: 20%;
+}
+
+.ided3d-configuration-col {
+    width: 50%;
+}
+.ided3d-value-col {
+    width: 50%;
+}
+
+.ided3d-measure-col {
+    width: 50%;
+}
+.ided3d-value-col {
+    width: 50%;
+}
+
+.iesr-question-col {
+    width: 75%;
+}
+.iesr-answer-col {
+    width: 25%;
+}
+
+.ifs-question-col {
+    width: 50%;
+}
+.ifs-answer-col {
+    width: 50%;
+}
+
+.irac-question-col {
+    width: 50%;
+}
+.irac-answer-col {
+    width: 50%;
+}
+
+.isaaq10-title-col {
+    width: 70%;
+}
+.isaaq10-score-col {
+    width: 30%;
+}
+
+
+.isaaqed-title-col {
+    width: 70%;
+}
+.isaaqed-score-col {
+    width: 30%;
+}
+
+
+.khandaker-mojo-medical-question-col {
+    width: 60%;
+}
+.khandaker-mojo-medical-answer-col {
+    width: 40%;
+}
+
+.khandaker-mojo-medical-question-col {
+    width: 60%;
+}
+.khandaker-mojo-medical-answer-col {
+    width: 40%;
+}
+
+.khandaker-mojo-medical-question-col {
+    width: 60%;
+}
+.khandaker-mojo-medical-answer-col {
+    width: 40%;
+}
+
+
+.khandaker-mojo-sociodemographics-question-col {
+    width: 60%;
+}
+.khandaker-mojo-sociodemographics-answer-col {
+    width: 40%;
+}
+
+.kirby-mcq-question-col {
+    width: 75%;
+}
+.kirby-mcq-answer-col {
+    width: 25%;
+}
+
+.lynall-iam-life-question-col {
+    width: 40%;
+}
+.lynall-iam-life-experienced-col {
+    width: 20%;
+}
+.lynall-iam-life-severity-col {
+    width: 20%;
+}
+.lynall-iam-life-frequency-col {
+    width: 20%;
+}
+
+.lynall-iam-medical-req-col {
+    width: 40%;
+}
+.lynall-iam-medical-req-col {
+    width: 40%;
+}
+
+.maas-question-col {
+    width: 60%;
+}
+.maas-answer-col {
+    width: 40%;
+}
+
+.mast-question-col {
+    width: 80%;
+}
+.mast-answer-col {
+    width: 20%;
+}
+
+.mds-updrs-question-col {
+    width: 70%;
+}
+.mds-updrs-answer-col {
+    width: 30%;
+}
+
+.mfi20-question-col {
+    width: 60%;
+}
+.mfi20-answer-col {
+    width: 40%;
+}
+
+.moca-question-col {
+    width: 69%;
+}
+.moca-score-col {
+    width: 31%;
+}
+
+.nart-word-col {
+    width: 16%;
+}
+
+.npiq-question-col {
+    width: 40%;
+}
+.npiq-endorsed-col {
+    width: 20%;
+}
+.npiq-severity-col {
+    width: 20%;
+}
+.npiq-distress-col {
+    width: 20%;
+}
+
+.ors-question-col {
+    width: 60%;
+}
+.ors-answer-col {
+    width: 40%;
+}
+
+.panss-question-col {
+    width: 40%;
+}
+.panss-answer-col {
+    width: 60%;
+}
+
+.paradise24-question-col {
+    width: 60%;
+}
+.paradise24-score-col {
+    width: 40%;
+}
+
+.pbq-question-col {
+    width: 60%;
+}
+.pbq-answer-col {
+    width: 40%;
+}
+
+.pcl-question-col {
+    width: 70%;
+}
+.pcl-answer-col {
+    width: 30%;
+}
+
+.pcl5-question-col {
+    width: 70%;
+}
+.pcl5-answer-col {
+    width: 30%;
+}
+
+.pdss-question-col {
+    width: 60%;
+}
+.pdss-answer-col {
+    width: 40%;
+}
+
+.perinatal-poem-question-col {
+    width: 60%;
+}
+.perinatal-poem-answer-col {
+    width: 40%;
+}
+
+
+.phq15-question-col {
+    width: 70%;
+}
+.phq15-answer-col {
+    width: 30%;
+}
+
+.phq8-question-col {
+    width: 60%;
+}
+.phq8-answer-col {
+    width: 40%;
+}
+
+.phq9-question-col {
+    width: 60%;
+}
+.phq9-answer-col {
+    width: 40%;
+}
+
+
+.pswq-question-col {
+    width: 70%;
+}
+.pswq-answer-col {
+    width: 15%;
+}
+.pswq-score-col {
+    width: 15%;
+}
+
+
+.qolbasic-scale-col {
+    width: 33%;
+}
+.qolbasic-answer-col {
+    width: 33%;
+}
+
+.qolsg-measure-col {
+    width: 50%;
+}
+.qolsg-value-col {
+    width: 50%;
+}
+
+.rand36-question-col {
+    width: 60%;
+}
+.rand36-answer-col {
+    width: 30%;
+}
+.rand36-score-col {
+    width: 10%;
+}
+
+.rapid3-question-col {
+    width: 60%;
+}
+.rapid3-answer-col {
+    width: 40%;
+}
+
+.service-satisfaction-question-col {
+    width: 50%;
+}
+.service-satisfaction-answer-col {
+    width: 50%;
+}
+
+.sfmpq2-question-col {
+    width: 60%;
+}
+.sfmpq2-answer-col {
+    width: 40%;
+}
+
+.shaps-question-col {
+    width: 60%;
+}
+.shaps-answer-col {
+    width: 40%;
+}
+
+.slums-question-col {
+    width: 80%;
+}
+.slums-score-col {
+    width: 20%;
+}
+
+.smast-question-col {
+    width: 80%;
+}
+.smast-answer-col {
+    width: 20%;
+}
+
+.srs-question-col {
+    width: 60%;
+}
+.srs-answer-col {
+    width: 40%;
+}
+
+.suppsp-question-col {
+    width: 60%;
+}
+.suppsp-score-col {
+    width: 40%;
+}
+
+.wemwbs-question-col {
+    width: 60%;
+}
+.wemwbs-answer-col {
+    width: 40%;
+}
+
+.swemwbs-question-col {
+    width: 60%;
+}
+.swemwbs-answer-col {
+    width: 40%;
+}
+
+.wsas-question-col {
+    width: 75%;
+}
+.wsas-answer-col {
+    width: 25%;
+}
+
+.wsas-question-col {
+    width: 75%;
+}
+.wsas-answer-col {
+    width: 25%;
+}
+
+.ybocs-target-col {
+    width: 50%;
+}
+.ybocs-detail-col {
+    width: 50%;
+}
+
+.ybocs-question-col {
+    width: 50%;
+}
+.ybocs-answer-col {
+    width: 50%;
+}
+
+.ybocssc-symptom-col {
+    width: 55%;
+}
+.ybocssc-current-col {
+    width: 15%;
+}
+.ybocssc-past-col {
+    width: 15%;
+}
+.ybocssc-principal-col {
+    width: 15%;
+}
+
+.zbi12-question-col {
+    width: 75%;
+}

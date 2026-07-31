@@ -44,7 +44,7 @@ from typing import (
     Union,
 )
 
-from cardinal_pythonlib.json.serialize import (
+from cardinal_pythonlib.json_utils.serialize import (
     register_class_for_json,
     register_enum_for_json,
 )
