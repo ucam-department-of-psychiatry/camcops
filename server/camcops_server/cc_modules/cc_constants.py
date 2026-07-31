@@ -232,7 +232,7 @@ ERA_NOW = "NOW"  # defines the current era in database records
 
 
 # =============================================================================
-# PDF engine: now always "pdfkit".
+# PDF engine: now always "weasyprint".
 # =============================================================================
 
 # PDF_ENGINE = Processors.XHTML2PDF  # working, though SVG appears broken
