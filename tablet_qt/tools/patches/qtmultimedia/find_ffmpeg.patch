@@ -1,5 +1,5 @@
 diff --git a/cmake/FindFFmpeg.cmake b/cmake/FindFFmpeg.cmake
-index 86be24dd7..68af3afba 100644
+index 2c581442b..d7b52b674 100644
 --- a/cmake/FindFFmpeg.cmake
 +++ b/cmake/FindFFmpeg.cmake
 @@ -208,7 +208,7 @@ foreach (_component ${FFmpeg_FIND_COMPONENTS})
