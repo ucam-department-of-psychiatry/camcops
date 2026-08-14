@@ -11,6 +11,7 @@ on:
             - .github/scripts/change_apt_mirror.sh
             - .github/scripts/cpp_tests.sh
             - .github/scripts/python_setup.sh
+            - .github/scripts/qt_untagged_release_id.txt
             - .github/workflows/cpp-tests.yml
             - tablet_qt/versions/qt_version.txt
             - tablet_qt/tools/build_qt.py
