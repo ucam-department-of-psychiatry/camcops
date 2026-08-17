@@ -30,6 +30,7 @@ from camcops_server.tasks.aims import Aims
 from camcops_server.tasks.apeq_cpft_perinatal import APEQCPFTPerinatal
 from camcops_server.tasks.apeqpt import Apeqpt
 from camcops_server.tasks.aq import Aq
+from camcops_server.tasks.aq10 import Aq10
 from camcops_server.tasks.asdas import Asdas
 from camcops_server.tasks.audit import Audit, AuditC
 

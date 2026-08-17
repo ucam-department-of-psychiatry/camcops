@@ -605,6 +605,16 @@ table.taskdetail td {
     width: 10%;
 }
 
+.aq10-statement-col {
+    width: 70%;
+}
+.aq10-answer-col {
+    width: 20%;
+}
+.aq10-score-col {
+    width: 10%;
+}
+
 .asdas-question-col {
     width: 60%;
 }
