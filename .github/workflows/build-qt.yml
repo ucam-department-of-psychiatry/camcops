@@ -8,7 +8,9 @@ on:
         paths:
             - tablet_qt/tools/build_qt.py
             - tablet_qy/tools/patches/**.patch
-            - tablet_qt/versions/qt_version.txt
+            - tablet_qt/versions/eigen.txt
+            - tablet_qt/versions/openssl.txt
+            - tablet_qt/versions/qt.txt
             - .github/scripts/change_apt_mirror.sh
             - .github/scripts/free_up_disk_space.sh
             - .github/scripts/install_msys_packages.ps1

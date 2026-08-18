@@ -11,6 +11,7 @@ on:
             - .github/scripts/add_apt_sources.sh
             - .github/scripts/change_apt_mirror.sh
             - .github/scripts/build_client.sh
+            - .github/scripts/qt_untagged_release_id.txt
             - .github/workflows/build-client.yml
 jobs:
     build-client:

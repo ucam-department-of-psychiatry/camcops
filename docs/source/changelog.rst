@@ -4039,3 +4039,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Replace wkhtmltopdf and PDFKit, neither of which are maintained with Weasyprint.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/383
+
+- Qt version now 6.5.9.
