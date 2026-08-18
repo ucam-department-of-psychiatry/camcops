@@ -226,19 +226,19 @@ class Aq(AqCommon):
             ),
         ]
 
-    def social_skill_score(self) -> int or None:
+    def social_skill_score(self) -> int | None:
         return self.questions_score(self.SOCIAL_SKILL_QUESTIONS)
 
-    def attention_switching_score(self) -> int or None:
+    def attention_switching_score(self) -> int | None:
         return self.questions_score(self.ATTENTION_SWITCHING_QUESTIONS)
 
-    def attention_to_detail_score(self) -> int or None:
+    def attention_to_detail_score(self) -> int | None:
         return self.questions_score(self.ATTENTION_TO_DETAIL_QUESTIONS)
 
-    def communication_score(self) -> int or None:
+    def communication_score(self) -> int | None:
         return self.questions_score(self.COMMUNICATION_QUESTIONS)
 
-    def imagination_score(self) -> int or None:
+    def imagination_score(self) -> int | None:
         return self.questions_score(self.IMAGINATION_QUESTIONS)
 
     def get_task_html(self, req: CamcopsRequest) -> str:

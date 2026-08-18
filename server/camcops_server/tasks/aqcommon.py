@@ -60,6 +60,12 @@ class AqCommon(TaskHasPatientMixin, Task):  # type: ignore[misc]
     AGREE_OPTIONS = [DEFINITELY_AGREE, SLIGHTLY_AGREE]
     DISAGREE_OPTIONS = [SLIGHTLY_DISAGREE, DEFINITELY_DISAGREE]
 
+    # Define in derived class
+    FIRST_Q: int
+    LAST_Q: int
+    MAX_SCORE: int
+    AGREE_SCORING_QUESTIONS: list[int]
+
     @classmethod
     def all_field_names(cls) -> list[str]:
         return strseq(cls.PREFIX, cls.FIRST_Q, cls.LAST_Q)
@@ -87,10 +93,10 @@ class AqCommon(TaskHasPatientMixin, Task):  # type: ignore[misc]
             )
         ]
 
-    def score(self) -> int or None:
+    def score(self) -> int | None:
         return self.questions_score(self.all_questions())
 
-    def questions_score(self, q_nums: Iterable[int]) -> int or None:
+    def questions_score(self, q_nums: Iterable[int]) -> int | None:
         total = 0
 
         for q_num in q_nums:
@@ -102,7 +108,7 @@ class AqCommon(TaskHasPatientMixin, Task):  # type: ignore[misc]
 
         return total
 
-    def question_score(self, q_num: int) -> int or None:
+    def question_score(self, q_num: int) -> int | None:
         """
         Returns 1 if the answer reflects autistic-like behaviour, mildly or
         strongly (per Baron-Cohen et al. 2001, p6). Returns 0 for the opposite.
@@ -169,7 +175,7 @@ class AqCommon(TaskHasPatientMixin, Task):  # type: ignore[misc]
 
         return rows
 
-    def get_answer_cell(self, req: CamcopsRequest, q_num: int) -> str or None:
+    def get_answer_cell(self, req: CamcopsRequest, q_num: int) -> str | None:
         q_field = self.PREFIX + str(q_num)
 
         response = getattr(self, q_field)
