@@ -295,7 +295,8 @@ Neurodiversity
 
 |neurodiversity|
 
-- :ref:`Adult Autism Spectrum Quotient (AQ) <aq>`
+- :ref:`Autism Spectrum Quotient (AQ) (Adult) <aq>`
+- :ref:`Autism Spectrum Quotient – 10 items (AQ-10) (Adult) <aq10>`
 
 
 Personality and experience

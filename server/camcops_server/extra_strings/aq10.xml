@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
   <task name="aq10">
-    <string name="title">Autism Spectrum Quotient – 10 Items (AQ-10)</string>
+    <string name="title">Autism Spectrum Quotient – 10 Items (AQ-10) (Adult)</string>
     <string name="subtitle">A quick referral guide for adults with suspected autism who do not have a learning disability.</string>
     <string name="instructions">Please tick one option per question only:</string>
 
@@ -20,5 +20,7 @@
     <string name="option_1">slightly agree</string>
     <string name="option_2">slightly disagree</string>
     <string name="option_3">definitely disagree</string>
+
+    <string name="score">Score</string>
   </task>
 </resources>

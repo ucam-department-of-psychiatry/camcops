@@ -23,7 +23,7 @@ camcops_server/tasks/aq.py
 
 ===============================================================================
 
-**The Adult Autism Spectrum Quotient (AQ) Ages 16+ task.**
+**Autism Spectrum Quotient (AQ) (Adult) task.**
 
 """
 
@@ -183,7 +183,7 @@ class Aq(AqCommon):
     @staticmethod
     def longname(req: CamcopsRequest) -> str:
         _ = req.gettext
-        return _("Adult Autism Spectrum Quotient")
+        return _("Autism Spectrum Quotient (Adult)")
 
     def get_summaries(self, req: CamcopsRequest) -> list[SummaryElement]:
         mas = self.MAX_AREA_SCORE

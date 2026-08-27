@@ -20,8 +20,8 @@
 
 .. _aq:
 
-Adult Autism Spectrum Quotient (AQ)
------------------------------------
+Autism Spectrum Quotient (AQ) (Adult)
+-------------------------------------
 
 .. include:: include_permission_contextual.rst
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
   <task name="aq">
-    <string name="title">The Adult Autism Spectrum Quotient (AQ)</string>
+    <string name="title">Autism Spectrum Quotient (AQ) (Adult)</string>
     <string name="subtitle">Ages 16+</string>
     <!-- Paper version:
          - says "Below are [sic] a list..."

@@ -85,7 +85,7 @@ QString Aq::shortname() const
 
 QString Aq::longname() const
 {
-    return tr("Adult Autism Spectrum Quotient");
+    return tr("Autism Spectrum Quotient (Adult)");
 }
 
 QString Aq::description() const
