@@ -17,50 +17,63 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 */
-
 #pragma once
-#include <QPointer>
 
-#include "aqfamily.h"
 #include "tasklib/task.h"
 
-
-class CamcopsApp;
-class OpenableWidget;
-class Questionnaire;
 class QuMcqGrid;
 
-void initializeAq(TaskFactory& factory);
-
-class Aq : public AqFamily
+class AqFamily : public Task
 {
+    // This is an abstract class (it doesn't implement all of Task's pure
+    // virtual methods). It supports the AQ and AQ-10 tasks.
     Q_OBJECT
 
 public:
-    Aq(CamcopsApp& app,
-       DatabaseManager& db,
-       int load_pk = dbconst::NONEXISTENT_PK,
-       QObject* parent = nullptr);
+    AqFamily(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        const QString& tablename,
+        const int last_q,
+        const QVector<int> agree_scoring_questions,
+        QObject* parent = nullptr
+    );
+
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
-    virtual QString shortname() const override;
-    virtual QString longname() const override;
-    virtual QString description() const override;
+    virtual bool prohibitsCommercial() const override
+    {
+        return true;
+    }
 
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
-    virtual QStringList summary() const override;
+    virtual bool isComplete() const override;
+    virtual QStringList detail() const override;
+    virtual OpenableWidget* editor(bool read_only = false) override;
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
-    QVariant socialSkillScore() const;
-    QVariant attentionSwitchingScore() const;
-    QVariant attentionToDetailScore() const;
-    QVariant communicationScore() const;
-    QVariant imaginationScore() const;
+    QVariant score() const;
 
-public:
-    static const QString AQ_TABLENAME;
+protected:
+    const int m_first_q = 1;
+    int m_last_q;
+    const QString m_q_prefix = "q";
+    QVector<int> m_agree_scoring_questions;
+
+    QStringList fieldNames() const;
+
+    QuMcqGrid* buildGrid(QSharedPointer<NameValueOptions> options);
+    QSharedPointer<NameValueOptions> buildOptions() const;
+    QString rangeScore(
+        const QString& description,
+        const QVariant score,
+        const int min,
+        const int max
+    ) const;
+    QVariant questionsScore(const QVector<int> qnums) const;
+    QVariant questionScore(const int qnum) const;
 };

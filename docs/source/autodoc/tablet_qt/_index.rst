@@ -628,6 +628,8 @@ tablet_qt
     tasks/apeqpt.h.rst
     tasks/aq.cpp.rst
     tasks/aq.h.rst
+    tasks/aqfamily.cpp.rst
+    tasks/aqfamily.h.rst
     tasks/asdas.cpp.rst
     tasks/asdas.h.rst
     tasks/audit.cpp.rst

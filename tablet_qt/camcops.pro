@@ -894,6 +894,7 @@ SOURCES += \
     tasks/apeqcpftperinatal.cpp \
     tasks/apeqpt.cpp \
     tasks/aq.cpp \
+    tasks/aqfamily.cpp \
     tasks/asdas.cpp \
     tasks/audit.cpp \
     tasks/auditc.cpp \
@@ -1393,6 +1394,7 @@ HEADERS += \
     tasks/apeqcpftperinatal.h \
     tasks/apeqpt.h \
     tasks/aq.h \
+    tasks/aqfamily.h \
     tasks/asdas.h \
     tasks/audit.h \
     tasks/auditc.h \
