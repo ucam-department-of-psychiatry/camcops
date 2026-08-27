@@ -133,7 +133,7 @@ dependencies = [
     "tornado==6.5.7",  # for celery
     "weasyprint==69.0",  # HTML to PDF
     "webencodings==0.5.1",  # Weasyprint dependency
-    "webob==1.8.10",  # for pyramid
+    "webob==1.8.11",  # for pyramid
     "zopfli==0.4.3",  # Weasyprint dependency
 ]
 
