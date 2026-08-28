@@ -32,7 +32,7 @@ dependencies = [
     # The GitHub syntax (for development only) is:
     # "libraryname @ git+https://github.com/owner/reponame@commitsignature#egg==libraryname-version"
     "alembic==1.14.1",  # database migrations
-    "asteval==1.0.6",  # safe-ish alternative to eval
+    "asteval==1.0.9",  # safe-ish alternative to eval
     "black==26.5.1",  # auto code formatter, keep in sync with .pre-commit-config.yaml
     "build==1.5.0",  # For building the Python package
     "cardinal_pythonlib==2.2.0",  # RNC libraries
@@ -114,7 +114,7 @@ dependencies = [
     "pyparsing==2.4.7",
     "pypdf==6.15.0",  # Used by cardinal_pythonlib.pdf
     "python-dateutil==2.9.0.post0",  # date/time extensions.
-    "sqlparse==0.5.4",
+    "sqlparse==0.6.0",
     # extra
     "py-bcrypt==0.4",  # used by cardinal_pythonlib.crypto
     # -------------------------------------------------------------------------
@@ -133,7 +133,7 @@ dependencies = [
     "tornado==6.5.7",  # for celery
     "weasyprint==69.0",  # HTML to PDF
     "webencodings==0.5.1",  # Weasyprint dependency
-    "webob==1.8.10",  # for pyramid
+    "webob==1.8.11",  # for pyramid
     "zopfli==0.4.3",  # Weasyprint dependency
 ]
 
