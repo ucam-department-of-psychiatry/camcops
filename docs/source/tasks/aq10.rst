@@ -29,7 +29,7 @@ A 10-item self-administered "red flag" instrument to help frontline health
 professions decide whether to make a referral for a full diagnostic
 assessment for an autism spectrum condition (ASC) in adults.
 
-The 10 questions are taken from :ref:`The Adult Autism Spectrum Quotient (AQ)
+The 10 questions are taken from :ref:`Autism Spectrum Quotient (AQ) (Adult)
 <aq>` and they are scored in the same way.
 
 If the individual scores 6 or above, consider referring them for a specialist
