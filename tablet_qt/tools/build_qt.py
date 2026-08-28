@@ -570,7 +570,8 @@ OPENSSL_SRC_URL = (
 # SQLCipher; https://www.zetetic.net/sqlcipher/open-source/
 
 SQLCIPHER_GIT_URL = "https://github.com/sqlcipher/sqlcipher.git"
-SQLCIPHER_GIT_COMMIT = "7c460791eba939e6c6872825219a6644ca47283b"
+# Branch, tag or commit ID (long) to check out when cloning SQLCipher
+SQLCIPHER_GIT_COMMIT = "v4.6.1"
 
 # Eigen
 with open(join(VERSIONS_DIR, "eigen.txt")) as f:
@@ -3828,6 +3829,7 @@ def fetch_sqlcipher(cfg: Config) -> None:
     git_clone(
         prettyname="SQLCipher",
         url=cfg.sqlcipher_git_url,
+        branch=cfg.sqlcipher_git_commit,
         directory=cfg.sqlcipher_src_gitdir,
         # We must have LF endings, not CR+LF, because we're going to use Unix
         # tools even under Windows.
