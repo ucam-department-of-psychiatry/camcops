@@ -47,11 +47,10 @@ Versions of software etc. used by CamCOPS
 +----------------+---------+---------------------------------------------------+
 | Qt             | 6.5.x   | 2026-03-31 (LTS) but 6.5.x branch now             |
 |                |         | commercial-only with delayed open source release. |
-|                |         | Latest non-commercial, non-LTS release is 6.6.    |
 |                |         | https://endoflife.date/qt                         |
 +----------------+---------+---------------------------------------------------+
 | SQLAlchemy     | 2.0     | No scheduled date. 2.1 is still in development.   |
 |                |         | https://www.sqlalchemy.org/download.html          |
 +----------------+---------+---------------------------------------------------+
-| SQL Cipher     | 4.5.5   | ?; based on SQLite 3.42.0                         |
+| SQL Cipher     | 4.18.0  | ?; based on SQLite 3.53.4                         |
 +----------------+---------+---------------------------------------------------+
