@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="aq10">
+    <string name="title">Autism Spectrum Quotient – 10 Items (AQ-10) (Adult)</string>
+    <string name="subtitle">A quick referral guide for adults with suspected autism who do not have a learning disability.</string>
+    <string name="instructions">Please tick one option per question only:</string>
+
+    <string name="q1">I often notice small sounds when others do not.</string>
+    <string name="q2">I usually concentrate more on the whole picture, rather than the small details.</string>
+    <string name="q3">I find it easy to do more than one thing at once.</string>
+    <string name="q4">If there is an interruption, I can switch back to what I was doing very quickly.</string>
+    <string name="q5">I find it easy to “read between the lines” when someone is talking to me.</string>
+    <string name="q6">I know how to tell if someone listening to me is getting bored.</string>
+    <string name="q7">When I’m reading a story, I find it difficult to work out the characters’ intentions.</string>
+    <string name="q8">I like to collect information about categories of things (e.g. types of car, types of bird, types of train, types of plant, etc.).</string>
+    <string name="q9">I find it easy to work out what someone is thinking or feeling just by looking at their face.</string>
+    <string name="q10">I find it difficult to work out people’s intentions.</string>
+
+    <string name="option_0">definitely agree</string>
+    <string name="option_1">slightly agree</string>
+    <string name="option_2">slightly disagree</string>
+    <string name="option_3">definitely disagree</string>
+
+    <string name="score">Score</string>
+  </task>
+</resources>

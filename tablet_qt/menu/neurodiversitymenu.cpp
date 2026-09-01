@@ -24,6 +24,7 @@
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 #include "tasks/aq.h"
+#include "tasks/aq10.h"
 
 NeurodiversityMenu::NeurodiversityMenu(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_NEURODIVERSITY))
@@ -54,5 +55,6 @@ void NeurodiversityMenu::makeItems()
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
         MAKE_TASK_MENU_ITEM(Aq::AQ_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Aq10::AQ10_TABLENAME, m_app),
     };
 }

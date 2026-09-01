@@ -40,6 +40,7 @@ All tasks
     apeqpt.rst
     apeq_cpft_perinatal.rst
     aq.rst
+    aq10.rst
     asdas.rst
     audit.rst
     badls.rst

@@ -23,28 +23,21 @@ camcops_server/tasks/aq.py
 
 ===============================================================================
 
-**The Adult Autism Spectrum Quotient (AQ) Ages 16+ task.**
+**Autism Spectrum Quotient (AQ) (Adult) task.**
 
 """
 
-from typing import Any, Dict, Iterable, List, Optional, Type
+from typing import Any, Iterable, Type
 
-from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
-from camcops_server.cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from camcops_server.cc_modules.cc_db import add_multiple_columns
-from camcops_server.cc_modules.cc_fhir import (
-    FHIRAnsweredQuestion,
-    FHIRAnswerType,
-    FHIRQuestionType,
-)
 from camcops_server.cc_modules.cc_html import answer, tr
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
-from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 from camcops_server.cc_modules.cc_text import SS
+from camcops_server.tasks.aqcommon import AqCommon
 
 
 def to_csv(values: Iterable[Any]) -> str:
@@ -54,22 +47,14 @@ def to_csv(values: Iterable[Any]) -> str:
     return ", ".join(str(v) for v in values)
 
 
-class Aq(  # type: ignore[misc]
-    TaskHasPatientMixin,
-    Task,
-):
+class Aq(AqCommon):
     __tablename__ = "aq"
     shortname = "AQ"
 
-    prohibits_commercial = True
-
     FIRST_Q = 1
     LAST_Q = 50
-    PREFIX = "q"
     MAX_AREA_SCORE = 10
     MAX_SCORE = 50
-
-    # Questions where agreement indicates autistic-like traits.
 
     @classmethod
     def extend_columns(cls: Type["Aq"], **kwargs: Any) -> None:
@@ -146,6 +131,7 @@ class Aq(  # type: ignore[misc]
             ],
         )
 
+    # Questions where agreement indicates autistic-like traits.
     # As listed in Baron-Cohen et al. (2001) [see refs in aq.rst], p7:
     #   'Scoring the AQ: “Definitely agree” or “slightly agree” responses
     #   scored 1 point, on the following items: 1, 2, 4, 5, 6, 7, 9, 12, 13,
@@ -153,12 +139,13 @@ class Aq(  # type: ignore[misc]
     #   “Definitely disagree” or “slightly disagree” responses scored 1 point,
     #   on the following items: 3, 8, 10, 11, 14, 15, 17, 24, 25, 27, 28, 29,
     #   30, 31, 32, 34, 36, 37, 38, 40, 44, 47, 48, 49, 50.'
-    # HOWEVER, there is likely an error here in the published paper:
+    # HOWEVER, there is an error here in the published paper:
     # Baron-Cohen et al. (2001) list Q1 as an "agree" question, but
     # agreement there is a preference for doing things with others versus on
     # one's own, so disagreement would be the more autistic-like answer (e.g.
     # per WHO ICD-10 criteria for F84.1). The ARC's scoring sheet lists Q1 as a
     # "disagree" question.
+    # This correction is made explicit in the erratum (see aq.rst).
     AGREE_SCORING_QUESTIONS = [
         2,
         4,
@@ -186,18 +173,6 @@ class Aq(  # type: ignore[misc]
         46,
     ]
 
-    # Internal coding (not scoring) -- in the order on the questionnaire:
-    DEFINITELY_AGREE = 0
-    SLIGHTLY_AGREE = 1
-    SLIGHTLY_DISAGREE = 2
-    DEFINITELY_DISAGREE = 3
-
-    AGREE_OPTIONS = [DEFINITELY_AGREE, SLIGHTLY_AGREE]
-    DISAGREE_OPTIONS = [SLIGHTLY_DISAGREE, DEFINITELY_DISAGREE]
-
-    ALL_FIELD_NAMES = strseq(PREFIX, FIRST_Q, LAST_Q)
-    ALL_QUESTIONS = range(FIRST_Q, LAST_Q + 1)
-
     # Areas (domains): see Baron-Cohen et al. (2001), p6.
     SOCIAL_SKILL_QUESTIONS = [1, 11, 13, 15, 22, 36, 44, 45, 47, 48]
     ATTENTION_SWITCHING_QUESTIONS = [2, 4, 10, 16, 25, 32, 34, 37, 43, 46]
@@ -208,28 +183,9 @@ class Aq(  # type: ignore[misc]
     @staticmethod
     def longname(req: CamcopsRequest) -> str:
         _ = req.gettext
-        return _("Adult Autism Spectrum Quotient")
+        return _("Autism Spectrum Quotient (Adult)")
 
-    def is_complete(self) -> bool:
-        # noinspection PyUnresolvedReferences
-        if self.any_fields_none(self.ALL_FIELD_NAMES):
-            return False
-
-        return True
-
-    def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
-        if not self.is_complete():
-            return CTV_INCOMPLETE
-        return [
-            CtvInfo(
-                content=(
-                    f"{req.sstring(SS.TOTAL_SCORE)} "
-                    f"{self.score()}/{self.MAX_SCORE}"
-                )
-            )
-        ]
-
-    def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
+    def get_summaries(self, req: CamcopsRequest) -> list[SummaryElement]:
         mas = self.MAX_AREA_SCORE
         return self.standard_task_summary_fields() + [
             SummaryElement(
@@ -270,65 +226,20 @@ class Aq(  # type: ignore[misc]
             ),
         ]
 
-    def score(self) -> Optional[int]:
-        return self.questions_score(self.ALL_QUESTIONS)
-
-    def social_skill_score(self) -> Optional[int]:
+    def social_skill_score(self) -> int | None:
         return self.questions_score(self.SOCIAL_SKILL_QUESTIONS)
 
-    def attention_switching_score(self) -> Optional[int]:
+    def attention_switching_score(self) -> int | None:
         return self.questions_score(self.ATTENTION_SWITCHING_QUESTIONS)
 
-    def attention_to_detail_score(self) -> Optional[int]:
+    def attention_to_detail_score(self) -> int | None:
         return self.questions_score(self.ATTENTION_TO_DETAIL_QUESTIONS)
 
-    def communication_score(self) -> Optional[int]:
+    def communication_score(self) -> int | None:
         return self.questions_score(self.COMMUNICATION_QUESTIONS)
 
-    def imagination_score(self) -> Optional[int]:
+    def imagination_score(self) -> int | None:
         return self.questions_score(self.IMAGINATION_QUESTIONS)
-
-    def questions_score(self, q_nums: Iterable[int]) -> Optional[int]:
-        total = 0
-
-        for q_num in q_nums:
-            score = self.question_score(q_num)
-            if score is None:
-                return None
-
-            total += score
-
-        return total
-
-    def question_score(self, q_num: int) -> Optional[int]:
-        """
-        Returns 1 if the answer reflects autistic-like behaviour, mildly or
-        strongly (per Baron-Cohen et al. 2001, p6). Returns 0 for the opposite.
-        Returns None for no answer or an invalid answer.
-        """
-        q_field = self.PREFIX + str(q_num)
-        a = getattr(self, q_field)
-        if a is None:
-            return None
-
-        if q_num in self.AGREE_SCORING_QUESTIONS:
-            # Questions where agreement indicates autistic-like traits
-            if a in self.AGREE_OPTIONS:
-                return 1
-            elif a in self.DISAGREE_OPTIONS:
-                return 0
-            else:
-                # Shouldn't happen, but safety check
-                return None
-        else:
-            # Questions where disagreement indicates autistic-like traits
-            if a in self.AGREE_OPTIONS:
-                return 0
-            elif a in self.DISAGREE_OPTIONS:
-                return 1
-            else:
-                # Shouldn't happen, but safety check
-                return None
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         rows = self.get_task_html_rows(req)
@@ -400,72 +311,3 @@ class Aq(  # type: ignore[misc]
             rows=rows,
         )
         return html
-
-    def get_task_html_rows(self, req: CamcopsRequest) -> str:
-        _ = req.gettext
-        score_text = _("Score")
-        header = f"""
-            <tr>
-                <colgroup>
-                    <col class="aq-statement-col" />
-                    <col class="aq-answer-col" />
-                    <col class="aq-score-col" />
-                </colgroup>
-                <th>Statement</th>
-                <th>Answer</th>
-                <th>{score_text}</th>
-            </tr>
-        """
-        return header + self.get_task_html_rows_for_range(
-            req, self.FIRST_Q, self.LAST_Q
-        )
-
-    def get_task_html_rows_for_range(
-        self, req: CamcopsRequest, first_q: int, last_q: int
-    ) -> str:
-        rows = ""
-        for q_num in range(first_q, last_q + 1):
-            field = self.PREFIX + str(q_num)
-            question_cell = f"{q_num}. {self.xstring(req, field)}"
-            score = self.question_score(q_num)
-
-            rows += tr(
-                question_cell,
-                answer(self.get_answer_cell(req, q_num)),
-                score,
-            )
-
-        return rows
-
-    def get_answer_cell(
-        self, req: CamcopsRequest, q_num: int
-    ) -> Optional[str]:
-        q_field = self.PREFIX + str(q_num)
-
-        response = getattr(self, q_field)
-        if response is None:
-            return response
-
-        return self.wxstring(req, f"option_{response}")
-
-    def get_fhir_questionnaire(
-        self, req: CamcopsRequest
-    ) -> List[FHIRAnsweredQuestion]:
-        items = []  # type: List[FHIRAnsweredQuestion]
-        options = {}  # type: Dict[int, str]
-        for index in range(4):
-            options[index] = self.wxstring(req, f"option_{index}")
-        for q_field in self.ALL_FIELD_NAMES:
-            items.append(
-                FHIRAnsweredQuestion(
-                    qname=q_field,
-                    qtext=self.xstring(req, q_field),
-                    qtype=FHIRQuestionType.CHOICE,
-                    answer_type=FHIRAnswerType.INTEGER,
-                    answer=getattr(self, q_field),
-                    answer_options=options,
-                )
-            )
-        return items
-
-    # No SNOMED codes for the AQ as of 2024-06-26.

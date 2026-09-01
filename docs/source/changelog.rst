@@ -3921,7 +3921,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   is rotated.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/347
 
-- New task: :ref:`The Adult Autism Spectrum Quotient (AQ) <aq>`. (Database revision 0085.)
+- New task: :ref:`Autism Spectrum Quotient (AQ) (Adult) <aq>`. (Database revision 0085.)
 
 - Fix a bug where if the user entered an incorrect password and then cancelled the
   dialog to prompt them to delete the database, it was impossible for them to then
@@ -4043,3 +4043,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Qt version now 6.5.9.
 
 - SQL Cipher version is now v4.18.0, based on SQLite 3.53.4
+
+- New task: :ref:`Autism Spectrum Quotient (10 items) (AQ-10) (Adult) <aq10>`. (Database revision 0088.)

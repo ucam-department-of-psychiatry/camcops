@@ -26,21 +26,20 @@
 
 
 class CamcopsApp;
-class OpenableWidget;
-class Questionnaire;
-class QuMcqGrid;
 
-void initializeAq(TaskFactory& factory);
+void initializeAq10(TaskFactory& factory);
 
-class Aq : public AqFamily
+class Aq10 : public AqFamily
 {
     Q_OBJECT
 
 public:
-    Aq(CamcopsApp& app,
-       DatabaseManager& db,
-       int load_pk = dbconst::NONEXISTENT_PK,
-       QObject* parent = nullptr);
+    Aq10(
+        CamcopsApp& app,
+        DatabaseManager& db,
+        int load_pk = dbconst::NONEXISTENT_PK,
+        QObject* parent = nullptr
+    );
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
@@ -52,15 +51,7 @@ public:
     // Instance overrides
     // ------------------------------------------------------------------------
     virtual QStringList summary() const override;
-    // ------------------------------------------------------------------------
-    // Task-specific calculations
-    // ------------------------------------------------------------------------
-    QVariant socialSkillScore() const;
-    QVariant attentionSwitchingScore() const;
-    QVariant attentionToDetailScore() const;
-    QVariant communicationScore() const;
-    QVariant imaginationScore() const;
 
 public:
-    static const QString AQ_TABLENAME;
+    static const QString AQ10_TABLENAME;
 };
