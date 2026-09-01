@@ -571,7 +571,7 @@ OPENSSL_SRC_URL = (
 
 SQLCIPHER_GIT_URL = "https://github.com/sqlcipher/sqlcipher.git"
 # Branch, tag or commit ID (long) to check out when cloning SQLCipher
-SQLCIPHER_GIT_COMMIT = "v4.6.1"
+SQLCIPHER_GIT_COMMIT = "v4.7.0"
 
 # Eigen
 with open(join(VERSIONS_DIR, "eigen.txt")) as f:
@@ -3872,7 +3872,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     target_h = join(destdir, "sqlite3.h")
     target_c = join(destdir, "sqlite3.c")
     target_o = join(destdir, "sqlite3" + target_platform.obj_ext)
-    target_exe = join(destdir, "sqlcipher")  # not always wanted
+    target_exe = join(destdir, "sqlite3")  # not always wanted
 
     want_exe = not target_platform.mobile and not BUILD_PLATFORM.windows
 
@@ -3957,6 +3957,8 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         cflags = [
             "-DSQLITE_HAS_CODEC",
             f"-I{openssl_include_dir}",
+            "-DSQLITE_EXTRA_INIT=sqlcipher_extra_init",
+            "-DSQLITE_EXTRA_SHUTDOWN=sqlcipher_extra_shutdown",
             # ... sqlite.c does e.g. "#include <openssl/rand.h>"
         ]
         if target_platform.android and USE_CLANG_NOT_GCC_FOR_ANDROID_ARM:
@@ -4024,15 +4026,17 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         config_args = []  # type: List[str]
         config_args += [
             join(destdir, "configure"),
-            "--enable-tempstore=yes",  # see README.md; equivalent to SQLITE_TEMP_STORE=2  # noqa
+            "--with-tempstore=yes",  # see README.md; equivalent to SQLITE_TEMP_STORE=2  # noqa
             # no quotes (they're fine on the command line but not here):
             f'CFLAGS={" ".join(cflags + gccflags)}',
             f'LDFLAGS={" ".join(ldflags)}',
         ]
         if link_openssl_statically:
-            config_args.append("--with-crypto-lib=none")
             config_args.append("--disable-shared")
-            config_args.append("--enable-static=yes")
+            config_args.append("--enable-static")
+        else:
+            config_args.append("--enable-shared")
+            config_args.append("--disable-static")
 
         # By default, SQLCipher compiles with "-O2" optimizations under gcc;
         # see its "configure" script.
@@ -4060,17 +4064,15 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
             # Cygwin).
             require(MAKE)
             require(TCLSH)
-            if not isfile(target_c) or not isfile(target_h):
-                # Under Windows, if we were to use cl rather than gcc, e.g. by
-                # setting env["CC"], it fails because the make environment uses
-                # Unix-style paths. So we let it use gcc.
-                run([MAKE, "sqlite3.c"], env)  # the amalgamation target
-            if not isfile(target_exe) or not isfile(target_o):
-                run(
-                    [MAKE, "sqlite3" + target_platform.obj_ext], env
-                )  # for static linking
-            if want_exe and not isfile(target_exe):
-                run([MAKE, "sqlcipher"], env)  # the command-line executable
+            # Build amalgamation
+            run([MAKE, "sqlite3.c"], env)
+
+            # Build object from amalgamation
+            run(
+                [MAKE, "sqlite3" + target_platform.obj_ext], env
+            )  # for static linking
+            if want_exe:
+                run([MAKE, "sqlite3"], env)  # the command-line executable
 
         # -------------------------------------------------------------------------
         # SQLCipher/Unix: Check and report
@@ -4083,7 +4085,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         f"- {target_h}\n"
         f"and the library:\n"
         f"- {target_o}\n"
-        f"and, on non-mobile platforms, the executable:\n"
+        f"and, on non-mobile platforms, the SQLite/SQLCipher CLI:\n"
         f"- {target_exe}"
     )
 
