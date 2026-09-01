@@ -571,7 +571,7 @@ OPENSSL_SRC_URL = (
 
 SQLCIPHER_GIT_URL = "https://github.com/sqlcipher/sqlcipher.git"
 # Branch, tag or commit ID (long) to check out when cloning SQLCipher
-SQLCIPHER_GIT_COMMIT = "v4.7.0"
+SQLCIPHER_GIT_COMMIT = "v4.18.0"
 
 # Eigen
 with open(join(VERSIONS_DIR, "eigen.txt")) as f:
