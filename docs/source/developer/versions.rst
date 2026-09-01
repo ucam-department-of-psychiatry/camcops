@@ -53,5 +53,5 @@ Versions of software etc. used by CamCOPS
 | SQLAlchemy     | 2.0     | No scheduled date. 2.1 is still in development.   |
 |                |         | https://www.sqlalchemy.org/download.html          |
 +----------------+---------+---------------------------------------------------+
-| SQL Cipher     | 4.6.1   | ?; based on SQLite 3.46.1                         |
+| SQL Cipher     | 4.7.0   | ?; based on SQLite 3.49.1                         |
 +----------------+---------+---------------------------------------------------+
