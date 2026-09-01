@@ -4041,3 +4041,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
   https://github.com/ucam-department-of-psychiatry/camcops/issues/383
 
 - Qt version now 6.5.9.
+
+- FFmpeg version now 7.1.3

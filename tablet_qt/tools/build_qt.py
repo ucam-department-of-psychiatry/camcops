@@ -577,7 +577,7 @@ with open(join(VERSIONS_DIR, "eigen.txt")) as f:
     EIGEN_VERSION = f.read().strip()
 
 # FFmpeg
-FFMPEG_VERSION = "n6.0"
+FFMPEG_VERSION = "n7.1.3"
 
 # Mac things; https://gist.github.com/armadsen/b30f352a8d6f6c87a146
 MIN_IOS_VERSION = "7.0"
@@ -4122,9 +4122,21 @@ def build_ffmpeg(cfg: Config, target_platform: Platform) -> None:
 
     require(YASM)
 
-    untar_to_directory(
-        cfg.ffmpeg_src_fullpath, rootdir, run_func=run, chdir_via_python=True
-    )
+    ffmpeg_version_dir = join(rootdir, f"FFmpeg-{FFMPEG_VERSION}")
+
+    if not isdir(ffmpeg_version_dir):
+        untar_to_directory(
+            cfg.ffmpeg_src_fullpath,
+            rootdir,
+            skip_if_dir_exists=False,  # Checks rootdir, not version subdir
+            run_func=run,
+            chdir_via_python=True,
+        )
+    else:
+        log.info(
+            f"Skipping extraction of {cfg.ffmpeg_src_fullpath} because "
+            f"{ffmpeg_version_dir} already exists"
+        )
 
     env = cfg.get_starting_env()
 

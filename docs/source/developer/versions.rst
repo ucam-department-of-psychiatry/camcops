@@ -33,7 +33,7 @@ Versions of software etc. used by CamCOPS
 |                |         | recent activity at                                |
 |                |         | https://gitlab.com/libeigen/eigen                 |
 +----------------+---------+---------------------------------------------------+
-| FFmpeg         | 6.0     | ?; https://endoflife.date/ffmpeg                  |
+| FFmpeg         | 7.1.3   | ? (LTS); https://endoflife.date/ffmpeg            |
 +----------------+---------+---------------------------------------------------+
 | OpenSSL        | 3.0.x   | 2026-09-07 (LTS);                                 |
 |                |         | https://www.openssl.org/policies/releasestrat.html|
