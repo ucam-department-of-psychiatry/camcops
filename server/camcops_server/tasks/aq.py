@@ -56,8 +56,6 @@ class Aq(AqCommon):
     MAX_AREA_SCORE = 10
     MAX_SCORE = 50
 
-    # Questions where agreement indicates autistic-like traits.
-
     @classmethod
     def extend_columns(cls: Type["Aq"], **kwargs: Any) -> None:
         add_multiple_columns(
@@ -133,6 +131,7 @@ class Aq(AqCommon):
             ],
         )
 
+    # Questions where agreement indicates autistic-like traits.
     # As listed in Baron-Cohen et al. (2001) [see refs in aq.rst], p7:
     #   'Scoring the AQ: “Definitely agree” or “slightly agree” responses
     #   scored 1 point, on the following items: 1, 2, 4, 5, 6, 7, 9, 12, 13,
@@ -140,12 +139,13 @@ class Aq(AqCommon):
     #   “Definitely disagree” or “slightly disagree” responses scored 1 point,
     #   on the following items: 3, 8, 10, 11, 14, 15, 17, 24, 25, 27, 28, 29,
     #   30, 31, 32, 34, 36, 37, 38, 40, 44, 47, 48, 49, 50.'
-    # HOWEVER, there is likely an error here in the published paper:
+    # HOWEVER, there is an error here in the published paper:
     # Baron-Cohen et al. (2001) list Q1 as an "agree" question, but
     # agreement there is a preference for doing things with others versus on
     # one's own, so disagreement would be the more autistic-like answer (e.g.
     # per WHO ICD-10 criteria for F84.1). The ARC's scoring sheet lists Q1 as a
     # "disagree" question.
+    # This correction is made explicit in the erratum (see aq.rst).
     AGREE_SCORING_QUESTIONS = [
         2,
         4,

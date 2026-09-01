@@ -83,10 +83,11 @@ Baron-Cohen S, Wheelwright S, Skinner R, Martin J, Clubley E (2001).
 The autism-spectrum quotient (AQ): evidence from Asperger
 syndrome/high-functioning autism, males and females, scientists and
 mathematicians.
-*J Autism Dev Disord.* 31(1): 5-17.
-Erratum in: *J Autism Dev Disord.* 2001 Dec;31(6):603.
-https://doi.org/10.1023/a:1005653411471
-https://pubmed.ncbi.nlm.nih.gov/11439754/
+*J Autism Dev Disord.* 31(1): 5-17;
+https://doi.org/10.1023/a:1005653411471;
+https://pubmed.ncbi.nlm.nih.gov/11439754/.
+Erratum in: *J Autism Dev Disord.* 2001 Dec;31(6):603;
+https://doi.org/10.1023/A:1017455213300.
 
 Woodbury-Smith MR, Robinson J, Wheelwright S, Baron-Cohen S (2005).
 Screening adults for Asperger Syndrome using the AQ: a preliminary study of its
