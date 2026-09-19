@@ -151,6 +151,7 @@ from camcops_server.tasks.mfi20 import Mfi20
 from camcops_server.tasks.moca import Moca
 from camcops_server.tasks.nart import Nart
 from camcops_server.tasks.npiq import NpiQ
+from camcops_server.tasks.ocir import Ocir
 from camcops_server.tasks.ors import Ors
 from camcops_server.tasks.panss import Panss
 from camcops_server.tasks.paradise24 import Paradise24
@@ -1091,6 +1092,13 @@ class NartFactory(TaskHasPatientFactory):
 class NpiQFactory(TaskHasPatientFactory):
     class Meta:
         model = NpiQ
+
+    id = factory.Sequence(lambda n: n + 1)
+
+
+class OcirFactory(TaskHasPatientFactory):
+    class Meta:
+        model = Ocir
 
     id = factory.Sequence(lambda n: n + 1)
 
