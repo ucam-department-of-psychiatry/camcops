@@ -14,14 +14,14 @@
 # -----------------------------------------------------------------------------
 # - Avoid Alpine Linux?
 #   https://pythonspeed.com/articles/base-image-python-docker-images/
-# - python:3.6-slim-buster? This is a Debian distribution ("buster" is Debian
-#   10). Seems to work fine.
-# - ubuntu:18.04? Requires "apt install python3" or similar? Quite tricky.
+# - python:3.11-slim-bookworm? This is a Debian distribution ("bookworm" is Debian
+#   12). Seems to work fine.
+# - ubuntu? Requires "apt install python3" or similar? Quite tricky.
 #   Also larger.
 
-FROM python:3.10-slim-bullseye
+FROM python:3.11-slim-bookworm
 
-# ... note that "-bullseye" (not "-slim-bullseye") includes some things we need,
+# ... note that "-bookworm" (not "-slim-bookworm") includes some things we need,
 # but is LARGER overall.
 
 # -----------------------------------------------------------------------------
