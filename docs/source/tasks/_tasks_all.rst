@@ -116,6 +116,7 @@ All tasks
     moca.rst
     nart.rst
     npiq.rst
+    ocir.rst
     ors.rst
     panss.rst
     paradise24.rst

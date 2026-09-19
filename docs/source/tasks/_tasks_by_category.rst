@@ -76,6 +76,8 @@ Affective (mood and anxiety) disorders
 
 - :ref:`Impact of Event Scale – Revised (IES-R) <iesr>`
 
+- :ref:`Obsessive-Compulsive Inventory Revised (OCI-R) <ocir>`
+
 - :ref:`Panic Disorder Severity Scale (PDSS) <pdss>`
 
 - :ref:`PTSD Checklist for DSM-IV: Civilian version (PCL-C) <pcl_c>`

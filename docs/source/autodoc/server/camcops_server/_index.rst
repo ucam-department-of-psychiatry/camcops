@@ -120,6 +120,7 @@ server/camcops_server
     alembic/versions/0086_hamd_specific_comments.py.rst
     alembic/versions/0087_empsa.py.rst
     alembic/versions/0088_aq10.py.rst
+    alembic/versions/0089_ocir.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -464,6 +465,7 @@ server/camcops_server
     tasks/moca.py.rst
     tasks/nart.py.rst
     tasks/npiq.py.rst
+    tasks/ocir.py.rst
     tasks/ors.py.rst
     tasks/panss.py.rst
     tasks/paradise24.py.rst

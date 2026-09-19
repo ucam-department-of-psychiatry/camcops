@@ -146,6 +146,7 @@ from camcops_server.tasks.moca import Moca
 from camcops_server.tasks.nart import Nart
 from camcops_server.tasks.npiq import NpiQ
 
+from camcops_server.tasks.ocir import Ocir
 from camcops_server.tasks.ors import Ors
 
 from camcops_server.tasks.panss import Panss
