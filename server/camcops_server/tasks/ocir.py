@@ -141,7 +141,7 @@ class Ocir(TaskHasPatientMixin, Task):  # type: ignore[misc]
             CtvInfo(
                 content=(
                     f"{req.sstring(SS.TOTAL_SCORE)} "
-                    f"{self.score()}/{self.MAX_SCORE}"
+                    f"{self.score()}/{self.MAX_TOTAL_SCORE}"
                 )
             )
         ]
