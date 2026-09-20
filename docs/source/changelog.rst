@@ -4045,3 +4045,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - SQL Cipher version is now v4.18.0, based on SQLite 3.53.4
 
 - New task: :ref:`Autism Spectrum Quotient (10 items) (AQ-10) (Adult) <aq10>`. (Database revision 0088.)
+
+- Update the Docker image to use Debian 12. Debian 11 has now reached end-of-life.
