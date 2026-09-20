@@ -131,7 +131,7 @@ dependencies = [
     "tinycss2==1.5.1",  # Weasyprint dependency
     "tinyhtml5==2.1.0",  # Weasyprint dependency
     "tornado==6.5.8",  # for celery
-    "weasyprint==69.0",  # HTML to PDF
+    "weasyprint==70.0",  # HTML to PDF
     "webencodings==0.5.1",  # Weasyprint dependency
     "webob==1.8.11",  # for pyramid
     "zopfli==0.4.3",  # Weasyprint dependency
