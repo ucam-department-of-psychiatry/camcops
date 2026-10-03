@@ -163,8 +163,7 @@ RUN echo "- Updating package information..." \
 # -----------------------------------------------------------------------------
 # We'll do this via docker-compose instead.
 
-# EXPOSE 8000
-
+ENTRYPOINT ["/camcops/src/server/docker/dockerfiles/docker-entrypoint.sh"]
 
 # -----------------------------------------------------------------------------
 # CMD: run the foreground task whose lifetime determines the container

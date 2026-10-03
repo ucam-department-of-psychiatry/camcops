@@ -279,10 +279,9 @@ class CamcopsInstaller(Installer):
 
         self.info(f"Creating {config}")
         Path(config).touch()
-        self.run_camcops_command("env")
-        self.run_camcops_command(
-            "camcops_server demo_camcops_config --docker > "
-            "$CAMCOPS_CONFIG_FILE"
+        self.run_command_and_output_to_file(
+            ["camcops_server", "demo_camcops_config", "--docker"],
+            config,
         )
         self.configure_config()
 
@@ -308,8 +307,13 @@ class CamcopsInstaller(Installer):
         self.search_replace_file(self.config_full_path(), replace_dict)
 
     def create_or_update_database(self) -> None:
-        self.run_camcops_command(
-            "camcops_server upgrade_db --config $CAMCOPS_CONFIG_FILE"
+        self.run_command(
+            [
+                "camcops_server",
+                "upgrade_db",
+                "--config",
+                "$CAMCOPS_CONFIG_FILE",
+            ]
         )
 
     def create_superuser(self) -> None:
@@ -317,9 +321,15 @@ class CamcopsInstaller(Installer):
         # with the given username
         username = self.get_installer_env("SUPERUSER_USERNAME")
         password = self.get_installer_env("SUPERUSER_PASSWORD")
-        self.run_camcops_command(
-            "camcops_server make_superuser "
-            f"--username {username} --password {password}"
+        self.run_command(
+            [
+                "camcops_server",
+                "make_superuser",
+                "--username",
+                username,
+                "--password",
+                password,
+            ]
         )
 
     def report_status(self) -> None:
