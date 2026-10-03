@@ -25,6 +25,7 @@
 # Those without defaults:
 #
 #   CAMCOPS_DOCKER_CONFIG_HOST_DIR
+#   CAMCOPS_DOCKER_INSTALL_GROUP_ID
 #   CAMCOPS_DOCKER_INSTALL_USER_ID
 
 # =============================================================================
@@ -113,6 +114,7 @@ services:
 
             args:
                 - USER_ID=${CAMCOPS_DOCKER_INSTALL_USER_ID}
+                - GROUP_ID=${CAMCOPS_DOCKER_INSTALL_GROUP_ID}
 
         # If you specify "image" as well as "build", Compose names the built
         # image. Syntax is "IMAGE[:TAG]".
