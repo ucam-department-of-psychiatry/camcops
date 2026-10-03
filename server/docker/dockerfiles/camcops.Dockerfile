@@ -30,8 +30,14 @@ FROM python:3.11-slim-bookworm
 # https://vsupalov.com/docker-shared-permissions/
 
 ARG USER_ID
-RUN adduser --disabled-password --gecos '' --uid $USER_ID camcops
+ARG GROUP_ID
 
+RUN addgroup --gid $GROUP_ID camcops
+
+# The --no-log-init is necessary to prevent the image ballooning in size
+# when USER_ID is large
+# See https://github.com/moby/moby/issues/5419
+RUN useradd --no-log-init --uid $USER_ID --gid $GROUP_ID camcops
 
 # -----------------------------------------------------------------------------
 # ADD: files to copy

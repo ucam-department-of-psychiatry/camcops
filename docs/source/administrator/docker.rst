@@ -149,7 +149,7 @@ To install CamCOPS from scratch:
 
     .. code-block:: bash
 
-        curl --location https://github.com/ucam-department-of-psychiatry/camcops/releases/latest/download/installer.sh --fail --output camcops_docker_installer.sh && chmod u+x camcops_docker_installer.sh && ./camcops_docker_installer.sh
+        curl --location \https://github.com/ucam-department-of-psychiatry/camcops/releases/download/v\ |version|\ /installer_boot.py --fail --output installer_boot.py && chmod u+x installer_boot.py && python3 installer_boot.py --camcops_root_dir /path/to/top/level/camcops/dir
 
 Enter any required information and after several minutes, you should see the
 message ``The CamCOPS application is running at ...`` and everything will be

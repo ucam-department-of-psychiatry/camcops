@@ -7,3 +7,4 @@ prompt-toolkit==3.0.30
 semantic_version==2.10.0
 # python-on-whales doesn't support pydantic v2
 pydantic==1.10.13
+ucam-installkit @ git+ssh://git@github.com/ucam-department-of-psychiatry/ucam-installkit.git#main
