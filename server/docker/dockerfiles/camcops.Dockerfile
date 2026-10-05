@@ -172,7 +172,4 @@ ENTRYPOINT ["/camcops/src/server/docker/dockerfiles/docker-entrypoint.sh"]
 # Note: can be (and is) overridden by the "command" option in a docker-compose
 # file.
 
-# CMD ["/camcops/venv/bin/camcops_server" , "serve_gunicorn"]
-# CMD ["/bin/bash"]
-
 USER camcops
