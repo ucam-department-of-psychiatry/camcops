@@ -306,13 +306,18 @@ class CamcopsInstaller(Installer):
 
         self.search_replace_file(self.config_full_path(), replace_dict)
 
-    def create_or_update_database(self) -> None:
+    def create_or_update_databases(self) -> None:
+        container_config_file = join(
+            DockerPath.CONFIG_DIR,
+            self.get_docker_env("CAMCOPS_CONFIG_FILENAME"),
+        )
+
         self.run_command(
             [
                 "camcops_server",
                 "upgrade_db",
                 "--config",
-                "$CAMCOPS_CONFIG_FILE",
+                container_config_file,
             ]
         )
 
