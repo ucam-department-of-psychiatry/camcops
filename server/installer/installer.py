@@ -39,7 +39,6 @@ from pathlib import Path
 import sys
 
 # noinspection PyUnresolvedReferences
-from python_on_whales import docker
 from ucam_installkit import EXIT_USER, Installer
 
 
@@ -163,7 +162,7 @@ class CamcopsInstaller(Installer):
 
     def configure_custom(self) -> None:
         self.configure_config_files()
-        self.configure_camcops_server_ports()
+        self.configure_camcops_webapp_ports()
         self.configure_https()
         self.configure_camcops_db()
         self.configure_superuser()
@@ -176,7 +175,7 @@ class CamcopsInstaller(Installer):
         Path(config_dir).mkdir(parents=True, exist_ok=True)
         self.set_docker_env("CAMCOPS_CONFIG_FILENAME", "camcops.conf")
 
-    def configure_camcops_server_ports(self) -> None:
+    def configure_camcops_webapp_ports(self) -> None:
         self.set_docker_env("CAMCOPS_HOST_PORT", self.get_camcops_host_port)
         self.set_docker_env(
             "CAMCOPS_INTERNAL_PORT",
@@ -337,9 +336,11 @@ class CamcopsInstaller(Installer):
             ]
         )
 
-    def report_status(self) -> None:
-        localhost_url = self.get_camcops_server_localhost_url()
-        self.info(f"The CamCOPS application is running at {localhost_url}")
+    def get_webapp_path(self) -> str:
+        return "/"
+
+    def get_webapp_port_from_host(self) -> str:
+        return self.get_docker_env("CAMCOPS_HOST_PORT")
 
     # -------------------------------------------------------------------------
     # Fetching information from environment variables or statically
@@ -353,19 +354,6 @@ class CamcopsInstaller(Installer):
 
     def should_create_mysql_container(self) -> bool:
         return self.get_installer_env("CREATE_MYSQL_CONTAINER") == "1"
-
-    @staticmethod
-    def get_camcops_server_ip_address() -> str:
-        container = docker.container.inspect("camcops_camcops_server")
-        network_settings = container.network_settings
-
-        return network_settings.networks["camcops_camcops_network"].ip_address
-
-    def get_camcops_server_port(self) -> str:
-        return self.get_docker_env("CAMCOPS_INTERNAL_PORT")
-
-    def get_camcops_server_port_from_host(self) -> str:
-        return self.get_docker_env("CAMCOPS_HOST_PORT")
 
     def dockerfiles_host_dir(self) -> str:
         return join(self.docker_host_dir(), "dockerfiles")
