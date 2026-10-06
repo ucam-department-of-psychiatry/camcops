@@ -20,18 +20,27 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v7
-            - name: Run installer
+            - name: Run installer with interal MySQL database
               run: |
                 set -eux -o pipefail
                 source ${GITHUB_WORKSPACE}/.github/scripts/set_camcops_docker_environment
                 ${GITHUB_WORKSPACE}/.github/scripts/installer_setup.sh
                 cd ${GITHUB_WORKSPACE}/server/installer
-                ./installer.sh -d
+                python3 installer_boot.py --camcops_root_dir /camcops --run_locally
                 export CAMCOPS_HOME=${GITHUB_WORKSPACE}
                 ${GITHUB_WORKSPACE}/.github/scripts/post_installation_checks.sh
-                # Now do it again with an external MySQL database
+                python3 installer_boot.py --camcops_root_dir /camcops --run_locally stop
                 rm ${CAMCOPS_DOCKER_CONFIG_HOST_DIR}/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}
+
+            - name: Run installer with external MySQL database
+              run: |
+                set -eux -o pipefail
                 source ${GITHUB_WORKSPACE}/.github/scripts/set_camcops_docker_mysql_environment
+                ${GITHUB_WORKSPACE}/.github/scripts/installer_setup.sh
                 ${GITHUB_WORKSPACE}/.github/scripts/mysql_docker_setup.sh
-                ./installer.sh -d
+                cd ${GITHUB_WORKSPACE}/server/installer
+                python3 installer_boot.py --camcops_root_dir /camcops --run_locally
+                export CAMCOPS_HOME=${GITHUB_WORKSPACE}
                 ${GITHUB_WORKSPACE}/.github/scripts/post_installation_checks.sh
+                python3 installer_boot.py --camcops_root_dir /camcops --run_locally stop
+                rm ${CAMCOPS_DOCKER_CONFIG_HOST_DIR}/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}
