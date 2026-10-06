@@ -20,11 +20,15 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v7
-            - name: Run installer with interal MySQL database
+            - name: Common setup
               run: |
                 set -eux -o pipefail
                 source ${GITHUB_WORKSPACE}/.github/scripts/set_camcops_docker_environment
                 ${GITHUB_WORKSPACE}/.github/scripts/installer_setup.sh
+
+            - name: Run installer with interal MySQL database
+              run: |
+                set -eux -o pipefail
                 cd ${GITHUB_WORKSPACE}/server/installer
                 python3 installer_boot.py --camcops_root_dir /camcops --run_locally
                 export CAMCOPS_HOME=${GITHUB_WORKSPACE}
@@ -36,7 +40,6 @@ jobs:
               run: |
                 set -eux -o pipefail
                 source ${GITHUB_WORKSPACE}/.github/scripts/set_camcops_docker_mysql_environment
-                ${GITHUB_WORKSPACE}/.github/scripts/installer_setup.sh
                 ${GITHUB_WORKSPACE}/.github/scripts/mysql_docker_setup.sh
                 cd ${GITHUB_WORKSPACE}/server/installer
                 python3 installer_boot.py --camcops_root_dir /camcops --run_locally
