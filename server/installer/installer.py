@@ -167,6 +167,7 @@ class CamcopsInstaller(Installer):
         self.configure_camcops_db()
         self.configure_superuser()
         self.configure_flower_host_port()
+        self.create_directories()
 
     def configure_config_files(self) -> None:
         config_dir = self.default_config_host_dir()
@@ -263,6 +264,10 @@ class CamcopsInstaller(Installer):
 
     def configure_flower_host_port(self) -> None:
         self.set_docker_env("FLOWER_HOST_PORT", self.get_flower_host_port)
+
+    def create_directories(self) -> None:
+        config_dir = self.get_docker_env("CONFIG_HOST_DIR")
+        Path(config_dir).mkdir(parents=True, exist_ok=True)
 
     def create_config(self) -> None:
         config = self.config_full_path()
