@@ -225,7 +225,7 @@ class CamcopsInstaller(Installer):
             "3. A user must exist with access to the database using "
             "mysql_native_password authentication."
         )
-        self.set_insatller_env(
+        self.set_installer_env(
             "MYSQL_SERVER",
             self.get_external_mysql_server,
         )
