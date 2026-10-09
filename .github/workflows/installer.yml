@@ -25,7 +25,7 @@ jobs:
                 set -eux -o pipefail
                 ${GITHUB_WORKSPACE}/.github/scripts/installer_setup.sh
 
-            - name: Run installer with interal MySQL database
+            - name: Run installer with internal MySQL database
               run: |
                 set -eux -o pipefail
                 cd ${GITHUB_WORKSPACE}/server/installer
