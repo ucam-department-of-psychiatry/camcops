@@ -36,10 +36,14 @@ from datetime import datetime
 from os import chdir, rename
 from os.path import dirname, exists, join, realpath
 from pathlib import Path
+import socket
 import sys
+import time
 
 # noinspection PyUnresolvedReferences
-from ucam_installkit import EXIT_USER, Installer
+from ucam_installkit import BASH, Database, EXIT_USER, Installer
+
+DEFAULT_TIMEOUT_S = 60
 
 
 class DockerPath:
@@ -105,8 +109,32 @@ class CamcopsInstaller(Installer):
 
         self.set_installer_env("CAMCOPS_ROOT_HOST_DIR", camcops_root_dir)
 
+    # TODO: Move to ucam-installkit
+    @property
+    def databases(self) -> dict[str, Database]:
+        if self._databases is None:
+            self._databases = self.get_databases()
+
+        return self._databases
+
+    def get_databases(self) -> dict[str, Database]:
+        return {
+            "mysql": Database(
+                "CamCOPS database",
+                "This database is used by the CamCOPS web application.",
+                "mysql",
+                self.get_installer_env("MYSQL_SERVER"),
+                self.get_installer_env("MYSQL_PORT"),
+                self.get_docker_env("MYSQL_DATABASE_NAME"),
+                self.get_docker_env("MYSQL_USER_NAME"),
+                self.get_docker_env("MYSQL_USER_PASSWORD"),
+                self.get_docker_env("MYSQL_ROOT_PASSWORD"),
+                self.get_docker_env("MYSQL_HOST_PORT"),
+            ),
+        }
+
     def get_compose_files(self) -> list[str | Path]:
-        compose_files = ["docker-compose.yaml"]
+        compose_files: list[str | Path] = ["docker-compose.yaml"]
 
         if self.should_create_mysql_container():
             compose_files.append("docker-compose-mysql.yaml")
@@ -146,7 +174,7 @@ class CamcopsInstaller(Installer):
         db_name = self.get_docker_env("MYSQL_DATABASE_NAME")
 
         command = [
-            DockerPath.BASH,
+            BASH,
             "-c",
             f"mysql -u {mysql_user} -p {db_name}",
         ]
@@ -188,7 +216,7 @@ class CamcopsInstaller(Installer):
         if self.should_create_mysql_container():
             return self.configure_mysql_container()
 
-        self.configure_external_db()
+        self.configure_external_db(self.databases["mysql"])
 
     def configure_mysql_container(self) -> None:
         self.set_docker_env(
@@ -210,7 +238,7 @@ class CamcopsInstaller(Installer):
             self.get_mysql_host_port,
         )
 
-    def configure_external_db(self) -> None:
+    def external_db_instructions(self) -> None:
         self.info(
             "CamCOPS will attempt to connect to the external database during "
             "installation."
@@ -224,27 +252,6 @@ class CamcopsInstaller(Installer):
         self.info(
             "3. A user must exist with access to the database using "
             "mysql_native_password authentication."
-        )
-        self.set_installer_env(
-            "MYSQL_SERVER",
-            self.get_external_mysql_server,
-        )
-        self.set_installer_env(
-            "MYSQL_PORT",
-            self.get_external_mysql_port,
-        )
-        self.set_docker_env(
-            "MYSQL_DATABASE_NAME",
-            self.get_external_mysql_database_name,
-        )
-        self.set_docker_env(
-            "MYSQL_USER_NAME",
-            self.get_external_mysql_user_name,
-        )
-        self.set_docker_env(
-            "MYSQL_USER_PASSWORD",
-            self.get_external_mysql_user_password,
-            obscure=True,
         )
 
     def configure_superuser(self) -> None:
@@ -307,6 +314,10 @@ class CamcopsInstaller(Installer):
         self.search_replace_file(self.config_full_path(), replace_dict)
 
     def create_or_update_databases(self) -> None:
+        self.wait_for_port(
+            "127.0.0.1", int(self.get_docker_env("MYSQL_HOST_PORT"))
+        )
+
         container_config_file = join(
             DockerPath.CONFIG_DIR,
             self.get_docker_env("CAMCOPS_CONFIG_FILENAME"),
@@ -320,6 +331,32 @@ class CamcopsInstaller(Installer):
                 container_config_file,
             ]
         )
+
+    def wait_for_mysql(self) -> None:
+        if self.should_create_mysql_container():
+            host = "127.0.0.1"
+            port = self.get_docker_env("MYSQL_HOST_PORT")
+        else:
+            host = self.get_installer_env("MYSQL_SERVER")
+            port = self.get_installer_env("MYSQL_PORT")
+
+        self.wait_for_port(host, int(port))
+
+    # TODO: Move to ucam_installkit
+    def wait_for_port(
+        self, host: str, port: int, timeout_s: float = DEFAULT_TIMEOUT_S
+    ) -> None:
+        start_time = time.time()
+
+        while time.time() - start_time < timeout_s:
+            try:
+                with socket.create_connection((host, port), timeout_s):
+                    return
+
+            except OSError:
+                time.sleep(1)
+
+        raise TimeoutError(f"Gave up waiting for port {port} on {host}.")
 
     def create_superuser(self) -> None:
         # Will either create a superuser or update an existing one
@@ -420,23 +457,26 @@ class CamcopsInstaller(Installer):
             default="host.docker.internal",
         )
 
-    def get_external_mysql_port(self) -> str:
+    def get_external_db_engine(self) -> str:
+        return "mysql"
+
+    def get_external_db_port(self) -> str:
         return self.get_user_input(
             "Enter the port number of the external CamCOPS database server:",
             default="3306",
         )
 
-    def get_external_mysql_database_name(self) -> str:
+    def get_external_db_database_name(self) -> str:
         return self.get_user_input(
             "Enter the name of the external CamCOPS database:"
         )
 
-    def get_external_mysql_user_name(self) -> str:
+    def get_external_db_user_name(self) -> str:
         return self.get_user_input(
             "Enter the name of the external CamCOPS database user:"
         )
 
-    def get_external_mysql_user_password(self) -> str:
+    def get_external_db_user_password(self) -> str:
         return self.get_user_password(
             "Enter the password of the external CamCOPS database user:"
         )
@@ -584,15 +624,13 @@ def main() -> None:
         installer.stop()
 
     elif args.command == Command.RUN_COMMAND:
-        installer.run_camcops_command(args.camcops_command)
+        installer.run_command(args.camcops_command)
 
     elif args.command == Command.EXEC_COMMAND:
-        installer.exec_camcops_command(
-            args.camcops_command, as_root=args.as_root
-        )
+        installer.exec_command(args.camcops_command, as_root=args.as_root)
 
     elif args.command == Command.SHELL:
-        installer.run_shell_in_camcops_container(as_root=args.as_root)
+        installer.run_shell_in_container(as_root=args.as_root)
 
     elif args.command == Command.DBSHELL:
         installer.run_dbshell_in_db_container()
