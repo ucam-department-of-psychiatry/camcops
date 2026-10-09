@@ -59,16 +59,16 @@ jobs:
                   compose_file2=${GITHUB_WORKSPACE}/server/docker/dockerfiles/docker-compose-mysql.yaml
 
                   if [ -f "${compose_file1}" ]; then
-                      compose_args=-f "${compose_file1}"
+                      compose_args=(-f "${compose_file1}")
 
                       if [ -f "${compose_file2}" ]; then
-                          compose_args=${compose_args} -f "${compose_file2}"
-                          docker compose "${compose_args} logs mysql
+                          compose_args+=(-f "${compose_file2}")
+                          docker compose "${compose_args[*]}" logs mysql
                       fi
                       echo "Dumping Docker logs"
-                      docker compose "${compose_args} logs rabbitmq
-                      docker compose "${compose_args} logs camcops_workers
-                      docker compose "${compose_args} logs camcops_scheduler
-                      docker compose "${compose_args} logs camcops_server
-                      docker compose "${compose_args} logs flower
+                      docker compose "${compose_args[*]}" logs rabbitmq
+                      docker compose "${compose_args[*]}" logs camcops_workers
+                      docker compose "${compose_args[*]}" logs camcops_scheduler
+                      docker compose "${compose_args[*]}" logs camcops_server
+                      docker compose "${compose_args[*]}" logs flower
                   fi
