@@ -125,7 +125,7 @@ class CamcopsInstaller(Installer):
             "mysql": Database(
                 "CamCOPS database",
                 "This database is used by the CamCOPS web application.",
-                "mysql",
+                f"{installer_prefix}MYSQL_ENGINE",
                 f"{installer_prefix}MYSQL_SERVER",
                 f"{installer_prefix}MYSQL_PORT",
                 f"{docker_prefix}MYSQL_DATABASE_NAME",
