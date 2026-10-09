@@ -52,23 +52,19 @@ jobs:
               if: failure()
               run: |
                   set -euo pipefail
-                  cd ${GITHUB_WORKSPACE}
+                  cd ${GITHUB_WORKSPACE}/server/docker/dockerfiles
                   sleep 120
 
-                  compose_file1=${GITHUB_WORKSPACE}/server/docker/dockerfiles/docker-compose.yaml
-                  compose_file2=${GITHUB_WORKSPACE}/server/docker/dockerfiles/docker-compose-mysql.yaml
+                  compose_file1=docker-compose.yaml
+                  compose_file2=docker-compose-mysql.yaml
 
-                  if [ -f "${compose_file1}" ]; then
-                      compose_args=(-f "${compose_file1}")
+                  echo "Dumping Docker logs"
+                  docker compose -f "${compose_file1}" logs rabbitmq
+                  docker compose -f "${compose_file1}" logs camcops_workers
+                  docker compose -f "${compose_file1}" logs camcops_scheduler
+                  docker compose -f "${compose_file1}" logs camcops_server
+                  docker compose -f "${compose_file1}" logs flower
 
-                      if [ -f "${compose_file2}" ]; then
-                          compose_args+=(-f "${compose_file2}")
-                          docker compose "${compose_args[*]}" logs mysql
-                      fi
-                      echo "Dumping Docker logs"
-                      docker compose "${compose_args[*]}" logs rabbitmq
-                      docker compose "${compose_args[*]}" logs camcops_workers
-                      docker compose "${compose_args[*]}" logs camcops_scheduler
-                      docker compose "${compose_args[*]}" logs camcops_server
-                      docker compose "${compose_args[*]}" logs flower
+                  if [ "${CAMCOPS_INSTALLER_CREATE_MYSQL_CONTAINER}" == "1" ]; then
+                      docker compose -f "${compose_file1}" -f "${compose_file2}" logs mysql
                   fi
