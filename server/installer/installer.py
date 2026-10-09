@@ -118,18 +118,21 @@ class CamcopsInstaller(Installer):
         return self._databases
 
     def get_databases(self) -> dict[str, Database]:
+        docker_prefix = self.get_docker_envvar_prefix()
+        installer_prefix = self.get_installer_envvar_prefix()
+
         return {
             "mysql": Database(
                 "CamCOPS database",
                 "This database is used by the CamCOPS web application.",
                 "mysql",
-                self.get_installer_env("MYSQL_SERVER"),
-                self.get_installer_env("MYSQL_PORT"),
-                self.get_docker_env("MYSQL_DATABASE_NAME"),
-                self.get_docker_env("MYSQL_USER_NAME"),
-                self.get_docker_env("MYSQL_USER_PASSWORD"),
-                self.get_docker_env("MYSQL_ROOT_PASSWORD"),
-                self.get_docker_env("MYSQL_HOST_PORT"),
+                f"{installer_prefix}MYSQL_SERVER",
+                f"{installer_prefix}MYSQL_PORT",
+                f"{docker_prefix}MYSQL_DATABASE_NAME",
+                f"{docker_prefix}MYSQL_USER_NAME",
+                f"{docker_prefix}MYSQL_USER_PASSWORD",
+                f"{docker_prefix}MYSQL_ROOT_PASSWORD",
+                f"{docker_prefix}MYSQL_HOST_PORT",
             ),
         }
 
