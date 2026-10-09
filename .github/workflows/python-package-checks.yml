@@ -42,4 +42,4 @@ jobs:
                   #                     dependency on pkg_resources (https://github.com/Pylons/pyramid/issues/3731).
                   #                     Nearly complete as of 2026-08-28.
                   # SFTY-20260902-58666 nltk. CVE-2026-81726. Is a dependency of safety and is not used by CamCOPS.
-                  safety check --full-report --ignore=SFTY-20260721-58460 --ignore==SFTY-20260902-58666
+                  safety check --full-report --ignore=SFTY-20260721-58460 --ignore=SFTY-20260902-58666
