@@ -108,11 +108,7 @@ class CamcopsInstaller(Installer):
     def get_compose_files(self) -> list[str | Path]:
         compose_files = ["docker-compose.yaml"]
 
-        create_mysql_container = self.get_installer_env(
-            "CREATE_MYSQL_CONTAINER"
-        )
-
-        if create_mysql_container == "1":
+        if self.should_create_mysql_container():
             compose_files.append("docker-compose-mysql.yaml")
 
         return compose_files
