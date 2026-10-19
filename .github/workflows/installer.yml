@@ -68,6 +68,6 @@ jobs:
                   docker compose -f "${compose_file1}" logs camcops_server
                   docker compose -f "${compose_file1}" logs flower
 
-                  if [ "${{ steps.run_with_external_db.conclusion }}" == "failure" ]; then
+                  if [ "${{ steps.run_with_internal_db.conclusion }}" != "success" ]; then
                       docker compose -f "${compose_file1}" -f "${compose_file2}" logs mysql
                   fi
