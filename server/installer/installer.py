@@ -32,8 +32,7 @@ environment is NOT available.
 """
 
 from argparse import ArgumentParser
-from datetime import datetime
-from os import chdir, rename
+from os import chdir
 from os.path import dirname, exists, join, realpath
 from pathlib import Path
 import sys
@@ -298,22 +297,13 @@ class CamcopsInstaller(Installer):
 
     def create_config(self) -> None:
         config = self.config_full_path()
-
-        if exists(config):
-            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-            backup_filename = f"{config}.saved.{timestamp}"
-            self.info(
-                "Your existing config file has been renamed as "
-                f"{backup_filename}"
+        if not exists(config):
+            self.info(f"Creating {config}")
+            Path(config).touch()
+            self.run_command_and_output_to_file(
+                ["camcops_server", "demo_camcops_config", "--docker"],
+                config,
             )
-            rename(config, backup_filename)
-
-        self.info(f"Creating {config}")
-        Path(config).touch()
-        self.run_command_and_output_to_file(
-            ["camcops_server", "demo_camcops_config", "--docker"],
-            config,
-        )
         self.configure_config()
 
     def configure_config(self) -> None:
