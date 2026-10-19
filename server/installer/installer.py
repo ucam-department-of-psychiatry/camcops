@@ -36,9 +36,7 @@ from datetime import datetime
 from os import chdir, rename
 from os.path import dirname, exists, join, realpath
 from pathlib import Path
-import socket
 import sys
-import time
 
 # noinspection PyUnresolvedReferences
 from ucam_installkit import BASH, Database, EXIT_USER, Installer
@@ -72,10 +70,22 @@ class DockerComposeServices:
     CAMCOPS_SERVER = "camcops_server"
     CAMCOPS_WORKERS = "camcops_workers"
     MYSQL = "mysql"
+    RABBITMQ = "rabbitmq"
 
 
 class EnvVar:
     PASSWORD_SUFFIX = "PASSWORD"
+
+
+# =============================================================================
+# Ports
+# =============================================================================
+
+
+class Ports:
+    # In numeric order
+    MYSQL = "3306"
+    RABBITMQ = "5672"
 
 
 # =============================================================================
@@ -194,6 +204,7 @@ class CamcopsInstaller(Installer):
         self.configure_camcops_db()
         self.configure_superuser()
         self.configure_flower_host_port()
+        self.configure_wait_for()
         self.create_directories()
 
     def configure_config_files(self) -> None:
@@ -271,6 +282,16 @@ class CamcopsInstaller(Installer):
     def configure_flower_host_port(self) -> None:
         self.set_docker_env("FLOWER_HOST_PORT", self.get_flower_host_port)
 
+    def configure_wait_for(self) -> None:
+        wait_for = [
+            f"{DockerComposeServices.RABBITMQ}:{Ports.RABBITMQ}",
+        ]
+
+        if self.should_create_mysql_container():
+            wait_for.append(f"{DockerComposeServices.MYSQL}:{Ports.MYSQL}")
+
+        self.set_docker_env("CAMCOPS_WAIT_FOR", " ".join(wait_for))
+
     def create_directories(self) -> None:
         config_dir = self.get_docker_env("CONFIG_HOST_DIR")
         Path(config_dir).mkdir(parents=True, exist_ok=True)
@@ -317,10 +338,6 @@ class CamcopsInstaller(Installer):
         self.search_replace_file(self.config_full_path(), replace_dict)
 
     def create_or_update_databases(self) -> None:
-        self.wait_for_port(
-            "127.0.0.1", int(self.get_docker_env("MYSQL_HOST_PORT"))
-        )
-
         container_config_file = join(
             DockerPath.CONFIG_DIR,
             self.get_docker_env("CAMCOPS_CONFIG_FILENAME"),
@@ -334,32 +351,6 @@ class CamcopsInstaller(Installer):
                 container_config_file,
             ]
         )
-
-    def wait_for_mysql(self) -> None:
-        if self.should_create_mysql_container():
-            host = "127.0.0.1"
-            port = self.get_docker_env("MYSQL_HOST_PORT")
-        else:
-            host = self.get_installer_env("MYSQL_SERVER")
-            port = self.get_installer_env("MYSQL_PORT")
-
-        self.wait_for_port(host, int(port))
-
-    # TODO: Move to ucam_installkit
-    def wait_for_port(
-        self, host: str, port: int, timeout_s: float = DEFAULT_TIMEOUT_S
-    ) -> None:
-        start_time = time.time()
-
-        while time.time() - start_time < timeout_s:
-            try:
-                with socket.create_connection((host, port), timeout_s):
-                    return
-
-            except OSError:
-                time.sleep(1)
-
-        raise TimeoutError(f"Gave up waiting for port {port} on {host}.")
 
     def create_superuser(self) -> None:
         # Will either create a superuser or update an existing one

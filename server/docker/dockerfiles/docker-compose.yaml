@@ -15,6 +15,7 @@
 #   CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME
 #   CAMCOPS_DOCKER_CAMCOPS_HOST_PORT
 #   CAMCOPS_DOCKER_CAMCOPS_INTERNAL_PORT
+#   CAMCOPS_DOCKER_CAMCOPS_WAIT_FOR
 #   CAMCOPS_DOCKER_FLOWER_HOST_PORT
 #   CAMCOPS_DOCKER_MYSQL_DATABASE_NAME
 #   CAMCOPS_DOCKER_MYSQL_USER_NAME
@@ -139,6 +140,7 @@ services:
         # Environment variables
         environment:
             CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}"
+            CAMCOPS_WAIT_FOR: ${CAMCOPS_DOCKER_CAMCOPS_WAIT_FOR}
 
         # Command to execute
         command: [
@@ -183,6 +185,7 @@ services:
         # Environment variables
         environment:
             CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}"
+            CAMCOPS_WAIT_FOR: ${CAMCOPS_DOCKER_CAMCOPS_WAIT_FOR}
 
         # Command to execute
         command: [
@@ -226,6 +229,7 @@ services:
         # Environment variables
         environment:
             CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}"
+            CAMCOPS_WAIT_FOR: ${CAMCOPS_DOCKER_CAMCOPS_WAIT_FOR}
 
         # Command to execute
         # Can use shell-style or list-style syntax.
@@ -280,6 +284,7 @@ services:
         # Environment variables
         environment:
             CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}"
+            CAMCOPS_WAIT_FOR: ${CAMCOPS_DOCKER_CAMCOPS_WAIT_FOR}
 
         command: [
             "wait-for-it", "--host=rabbitmq", "--port=5672", "--timeout=0", "--strict", "--",
