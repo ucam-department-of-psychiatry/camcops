@@ -25,18 +25,6 @@ jobs:
                 set -eux -o pipefail
                 ${GITHUB_WORKSPACE}/.github/scripts/installer_setup.sh
 
-            - name: Run installer with internal MySQL database
-              id: run_with_internal_db
-              run: |
-                set -eux -o pipefail
-                cd ${GITHUB_WORKSPACE}/server/installer
-                source ${GITHUB_WORKSPACE}/.github/scripts/set_camcops_docker_environment
-                python3 installer_boot.py --camcops_root_dir /camcops --run_locally
-                export CAMCOPS_HOME=${GITHUB_WORKSPACE}
-                ${GITHUB_WORKSPACE}/.github/scripts/post_installation_checks.sh
-                python3 installer_boot.py --camcops_root_dir /camcops --run_locally stop
-                rm ${CAMCOPS_DOCKER_CONFIG_HOST_DIR}/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}
-
             - name: Run installer with external MySQL database
               id: run_with_external_db
               run: |
@@ -50,6 +38,19 @@ jobs:
                 ${GITHUB_WORKSPACE}/.github/scripts/post_installation_checks.sh
                 python3 installer_boot.py --camcops_root_dir /camcops --run_locally stop
                 rm ${CAMCOPS_DOCKER_CONFIG_HOST_DIR}/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}
+
+            - name: Run installer with internal MySQL database
+              id: run_with_internal_db
+              run: |
+                set -eux -o pipefail
+                cd ${GITHUB_WORKSPACE}/server/installer
+                source ${GITHUB_WORKSPACE}/.github/scripts/set_camcops_docker_environment
+                python3 installer_boot.py --camcops_root_dir /camcops --run_locally
+                export CAMCOPS_HOME=${GITHUB_WORKSPACE}
+                ${GITHUB_WORKSPACE}/.github/scripts/post_installation_checks.sh
+                python3 installer_boot.py --camcops_root_dir /camcops --run_locally stop
+                rm ${CAMCOPS_DOCKER_CONFIG_HOST_DIR}/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}
+
             - name: Dump logs
               if: failure()
               run: |
