@@ -143,10 +143,7 @@ services:
             CAMCOPS_WAIT_FOR: ${CAMCOPS_DOCKER_CAMCOPS_WAIT_FOR}
 
         # Command to execute
-        command: [
-            "wait-for-it", "--host=rabbitmq", "--port=5672", "--timeout=0", "--strict", "--",
-            "/camcops/venv/bin/camcops_server", "launch_workers",
-        ]
+        command: ["/camcops/venv/bin/camcops_server", "launch_workers"]
 
         extra_hosts:
             - "host.docker.internal:host-gateway"
@@ -188,10 +185,7 @@ services:
             CAMCOPS_WAIT_FOR: ${CAMCOPS_DOCKER_CAMCOPS_WAIT_FOR}
 
         # Command to execute
-        command: [
-            "wait-for-it", "--host=rabbitmq", "--port=5672", "--timeout=0", "--strict", "--",
-            "/camcops/venv/bin/camcops_server", "launch_scheduler",
-        ]
+        command: ["/camcops/venv/bin/camcops_server", "launch_scheduler"]
 
 
     # -------------------------------------------------------------------------
@@ -233,10 +227,7 @@ services:
 
         # Command to execute
         # Can use shell-style or list-style syntax.
-        command: [
-            "wait-for-it", "--host=rabbitmq", "--port=5672", "--timeout=0", "--strict", "--",
-            "/camcops/venv/bin/camcops_server", "serve_cherrypy",
-        ]
+        command: ["/camcops/venv/bin/camcops_server", "serve_cherrypy"]
 
 
     # -------------------------------------------------------------------------
@@ -286,10 +277,7 @@ services:
             CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}"
             CAMCOPS_WAIT_FOR: ${CAMCOPS_DOCKER_CAMCOPS_WAIT_FOR}
 
-        command: [
-            "wait-for-it", "--host=rabbitmq", "--port=5672", "--timeout=0", "--strict", "--",
-            "/camcops/venv/bin/camcops_server", "launch_monitor",
-        ]
+        command: ["/camcops/venv/bin/camcops_server", "launch_monitor"]
 
 # =============================================================================
 # Networks
