@@ -141,6 +141,7 @@ services:
         environment:
             CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}"
             CAMCOPS_WAIT_FOR: ${CAMCOPS_DOCKER_CAMCOPS_WAIT_FOR}
+            MPLCONFIGDIR: "/camcops/cfg/matplotlib"
 
         # Command to execute
         command: ["/camcops/venv/bin/camcops_server", "launch_workers"]
@@ -183,6 +184,7 @@ services:
         environment:
             CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}"
             CAMCOPS_WAIT_FOR: ${CAMCOPS_DOCKER_CAMCOPS_WAIT_FOR}
+            MPLCONFIGDIR: "/camcops/cfg/matplotlib"
 
         # Command to execute
         command: ["/camcops/venv/bin/camcops_server", "launch_scheduler"]
@@ -224,6 +226,7 @@ services:
         environment:
             CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}"
             CAMCOPS_WAIT_FOR: ${CAMCOPS_DOCKER_CAMCOPS_WAIT_FOR}
+            MPLCONFIGDIR: "/camcops/cfg/matplotlib"
 
         # Command to execute
         # Can use shell-style or list-style syntax.
@@ -276,6 +279,7 @@ services:
         environment:
             CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}"
             CAMCOPS_WAIT_FOR: ${CAMCOPS_DOCKER_CAMCOPS_WAIT_FOR}
+            MPLCONFIGDIR: "/camcops/cfg/matplotlib"
 
         command: ["/camcops/venv/bin/camcops_server", "launch_monitor"]
 
