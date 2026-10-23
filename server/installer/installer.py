@@ -40,8 +40,6 @@ import sys
 # noinspection PyUnresolvedReferences
 from ucam_installkit import BASH, Database, EXIT_USER, Installer
 
-DEFAULT_TIMEOUT_S = 60
-
 
 class DockerPath:
     """
