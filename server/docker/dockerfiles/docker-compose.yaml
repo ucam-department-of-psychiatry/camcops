@@ -15,6 +15,7 @@
 #   CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME
 #   CAMCOPS_DOCKER_CAMCOPS_HOST_PORT
 #   CAMCOPS_DOCKER_CAMCOPS_INTERNAL_PORT
+#   CAMCOPS_DOCKER_CAMCOPS_WAIT_FOR
 #   CAMCOPS_DOCKER_FLOWER_HOST_PORT
 #   CAMCOPS_DOCKER_MYSQL_DATABASE_NAME
 #   CAMCOPS_DOCKER_MYSQL_USER_NAME
@@ -25,6 +26,7 @@
 # Those without defaults:
 #
 #   CAMCOPS_DOCKER_CONFIG_HOST_DIR
+#   CAMCOPS_DOCKER_INSTALL_GROUP_ID
 #   CAMCOPS_DOCKER_INSTALL_USER_ID
 
 # =============================================================================
@@ -113,6 +115,7 @@ services:
 
             args:
                 - USER_ID=${CAMCOPS_DOCKER_INSTALL_USER_ID}
+                - GROUP_ID=${CAMCOPS_DOCKER_INSTALL_GROUP_ID}
 
         # If you specify "image" as well as "build", Compose names the built
         # image. Syntax is "IMAGE[:TAG]".
@@ -137,12 +140,11 @@ services:
         # Environment variables
         environment:
             CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}"
+            CAMCOPS_WAIT_FOR: ${CAMCOPS_DOCKER_CAMCOPS_WAIT_FOR}
+            MPLCONFIGDIR: "/camcops/cfg/matplotlib"
 
         # Command to execute
-        command: [
-            "wait-for-it", "--host=rabbitmq", "--port=5672", "--timeout=0", "--strict", "--",
-            "/camcops/venv/bin/camcops_server", "launch_workers",
-        ]
+        command: ["/camcops/venv/bin/camcops_server", "launch_workers"]
 
         extra_hosts:
             - "host.docker.internal:host-gateway"
@@ -181,12 +183,11 @@ services:
         # Environment variables
         environment:
             CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}"
+            CAMCOPS_WAIT_FOR: ${CAMCOPS_DOCKER_CAMCOPS_WAIT_FOR}
+            MPLCONFIGDIR: "/camcops/cfg/matplotlib"
 
         # Command to execute
-        command: [
-            "wait-for-it", "--host=rabbitmq", "--port=5672", "--timeout=0", "--strict", "--",
-            "/camcops/venv/bin/camcops_server", "launch_scheduler",
-        ]
+        command: ["/camcops/venv/bin/camcops_server", "launch_scheduler"]
 
 
     # -------------------------------------------------------------------------
@@ -224,13 +225,12 @@ services:
         # Environment variables
         environment:
             CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}"
+            CAMCOPS_WAIT_FOR: ${CAMCOPS_DOCKER_CAMCOPS_WAIT_FOR}
+            MPLCONFIGDIR: "/camcops/cfg/matplotlib"
 
         # Command to execute
         # Can use shell-style or list-style syntax.
-        command: [
-            "wait-for-it", "--host=rabbitmq", "--port=5672", "--timeout=0", "--strict", "--",
-            "/camcops/venv/bin/camcops_server", "serve_cherrypy",
-        ]
+        command: ["/camcops/venv/bin/camcops_server", "serve_cherrypy"]
 
 
     # -------------------------------------------------------------------------
@@ -278,11 +278,10 @@ services:
         # Environment variables
         environment:
             CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}"
+            CAMCOPS_WAIT_FOR: ${CAMCOPS_DOCKER_CAMCOPS_WAIT_FOR}
+            MPLCONFIGDIR: "/camcops/cfg/matplotlib"
 
-        command: [
-            "wait-for-it", "--host=rabbitmq", "--port=5672", "--timeout=0", "--strict", "--",
-            "/camcops/venv/bin/camcops_server", "launch_monitor",
-        ]
+        command: ["/camcops/venv/bin/camcops_server", "launch_monitor"]
 
 # =============================================================================
 # Networks

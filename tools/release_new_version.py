@@ -228,7 +228,9 @@ class VersionReleaser:
         self.skip_git_checks = skip_git_checks
         self.errors: list[Any] = []
 
-    def run_with_check(self, args: List[str], env=None) -> None:
+    def run_with_check(
+        self, args: List[str], env: dict[str, str] = None
+    ) -> None:
         """
         Run a command with arguments. Raise :exc:`CalledProcessError` if the
         exit code was not zero.
@@ -566,7 +568,7 @@ class VersionReleaser:
 
     def check_docker_version(self) -> None:
         current_docker_version = self.get_docker_version()
-        if current_docker_version == self.new_version:
+        if current_docker_version == self.new_server_version:
             return
 
         if self.update_versions:
@@ -574,16 +576,16 @@ class VersionReleaser:
                 DOCKER_ENV_FILE,
                 self.docker_version_search,
                 self.docker_version_replace.format(
-                    major=self.new_version.major,
-                    minor=self.new_version.minor,
-                    patch=self.new_version.patch,
+                    major=self.new_server_version.major,
+                    minor=self.new_server_version.minor,
+                    patch=self.new_server_version.patch,
                 ),
             )
 
         self.errors.append(
             f"The current docker version ({current_docker_version}) "
             "does not match the desired version "
-            f"({self.new_version})"
+            f"({self.new_server_version})"
         )
 
     def get_docker_version(self) -> Version:

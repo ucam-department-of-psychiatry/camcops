@@ -30,8 +30,14 @@ FROM python:3.11-slim-bookworm
 # https://vsupalov.com/docker-shared-permissions/
 
 ARG USER_ID
-RUN adduser --disabled-password --gecos '' --uid $USER_ID camcops
+ARG GROUP_ID
 
+RUN addgroup --gid $GROUP_ID camcops
+
+# The --no-log-init is necessary to prevent the image ballooning in size
+# when USER_ID is large
+# See https://github.com/moby/moby/issues/5419
+RUN useradd --no-log-init --uid $USER_ID --gid $GROUP_ID camcops
 
 # -----------------------------------------------------------------------------
 # ADD: files to copy
@@ -157,8 +163,7 @@ RUN echo "- Updating package information..." \
 # -----------------------------------------------------------------------------
 # We'll do this via docker-compose instead.
 
-# EXPOSE 8000
-
+ENTRYPOINT ["/camcops/src/server/docker/dockerfiles/docker-entrypoint.sh"]
 
 # -----------------------------------------------------------------------------
 # CMD: run the foreground task whose lifetime determines the container
@@ -166,8 +171,5 @@ RUN echo "- Updating package information..." \
 # -----------------------------------------------------------------------------
 # Note: can be (and is) overridden by the "command" option in a docker-compose
 # file.
-
-# CMD ["/camcops/venv/bin/camcops_server" , "serve_gunicorn"]
-# CMD ["/bin/bash"]
 
 USER camcops
