@@ -124,7 +124,7 @@ dependencies = [
     "Pyphen==0.17.2",  # Weasyprint dependency
     "alabaster==0.7.12",  # for sphinx
     "amqp==5.3.1",  # for celery
-    "brotli==1.2.0",  # Weasyprint dependency
+    "brotli==1.2.1",  # Weasyprint dependency
     "cssselect2==0.9.0",  # Weasyprint dependency
     "fonttools==4.63.0",  # Weasyprint dependency
     "pydyf==0.12.1",  # Weasyprint dependency
