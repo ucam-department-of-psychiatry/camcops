@@ -254,9 +254,10 @@ system_python_executable()
         python3
         python
     )
-    for option in ${python_options[@]}; do
-        python_exe=$(which $option)
-        if [ ! -z "${python_exe}" ]; then
+    for option in "${python_options[@]}"; do
+        python_exe=$(command -v "$option" || true)
+        >&2 echo "Checking $option: ${python_exe:-not found}"
+        if [ ! -n "${python_exe}" ]; then
             >&2 echo "CamCOPS: found system Python at ${python_exe}"
             echo ${python_exe}
             return 0  # success
@@ -643,6 +644,13 @@ echo '{PACKAGE}: postinst file executing'
 
 echo 'About to install virtual environment'
 export XDG_CACHE_HOME={DSTPYTHONCACHE}
+
+# TEMPORARY DEBUGGING
+echo "PATH=$PATH" >&2
+echo "python3.11=$(command -v python3.11 || echo not-found)" >&2
+echo "python3=$(command -v python3 || echo not-found)" >&2
+ls -l /opt/hostedtoolcache/Python/ || true
+
 $(system_python_executable) {DSTVENVSCRIPT} {DSTPYTHONVENV} --skippackagechecks
 
 echo 'About to install CamCOPS into virtual environment'
