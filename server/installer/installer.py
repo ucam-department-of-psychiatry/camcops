@@ -171,9 +171,6 @@ class CamcopsInstaller(Installer):
     def get_run_service(self) -> str:
         return DockerComposeServices.CAMCOPS_WORKERS
 
-    def get_web_service(self) -> str:
-        return DockerComposeServices.CAMCOPS_SERVER
-
     def get_exec_service(self) -> str:
         return DockerComposeServices.CAMCOPS_SERVER
 
