@@ -37,6 +37,7 @@ jobs:
             - name: Build and install debian package
               run: |
                   set -euo pipefail
+                  apt-get install python3.11
                   ${GITHUB_WORKSPACE}/.github/scripts/python_setup.sh
                   ${GITHUB_WORKSPACE}/.github/scripts/build_packages.sh
                   echo installing debian package
