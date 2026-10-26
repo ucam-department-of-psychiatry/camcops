@@ -257,7 +257,7 @@ system_python_executable()
     for option in "${python_options[@]}"; do
         python_exe=$(command -v "$option" || true)
         >&2 echo "Checking $option: ${python_exe:-not found}"
-        if [ ! -n "${python_exe}" ]; then
+        if [ -n "${python_exe}" ]; then
             >&2 echo "CamCOPS: found system Python at ${python_exe}"
             echo ${python_exe}
             return 0  # success
