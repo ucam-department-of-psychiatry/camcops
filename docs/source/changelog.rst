@@ -4049,3 +4049,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Update the Docker image to use Debian 12. Debian 11 has now reached end-of-life.
 
 - Update the version of MySQL used when running the CamCOPS database in a Docker container to 8.4.
+
+- **Minimum Python version now Python 3.11.**. Python 3.10 has reached end-of-life.
