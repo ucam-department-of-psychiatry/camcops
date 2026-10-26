@@ -34,19 +34,24 @@ jobs:
               run: |
                   set -euo pipefail
                   ${GITHUB_WORKSPACE}/.github/scripts/change_apt_mirror.sh
+
+            - name: Install system Python for Ubuntu 22.04
+              if: matrix.os == 'ubuntu-22.04'
+              run: |
+                  # If this isn't installed, on Ubuntu 22.04 the package install script
+                  # defaults to Python 3.10, which is now too old.
+                  set -euo pipefail
+                  sudo apt-get -y install python3.11
+
             - name: Build and install debian package
               run: |
                   set -euo pipefail
-                  # If this isn't installed, on Ubuntu 22.04 the package install script
-                  # defaults to Python 3.10, which is now too old.
-                  python3.11 --version
-                  # sudo apt-get install python3.11
                   ${GITHUB_WORKSPACE}/.github/scripts/python_setup.sh
                   ${GITHUB_WORKSPACE}/.github/scripts/build_packages.sh
                   echo installing debian package
                   # Possible scope for confusion here: at this point we should
                   # be running whatever version of Python the package depends
-                  # on.
+                  # on, not the one installed by GitHub in the setup-python action above.
                   server/tools/REINSTALL_DEBIAN_PACKAGE.sh
                   echo checking packages for conflicts
                   /usr/share/camcops/venv/bin/pip check
