@@ -39,7 +39,7 @@ jobs:
                   set -euo pipefail
                   # If this isn't installed, on Ubuntu 22.04 the package install script
                   # defaults to Python 3.10, which is now too old.
-                  apt-get install python3.11
+                  sudo apt-get install python3.11
                   ${GITHUB_WORKSPACE}/.github/scripts/python_setup.sh
                   ${GITHUB_WORKSPACE}/.github/scripts/build_packages.sh
                   echo installing debian package
