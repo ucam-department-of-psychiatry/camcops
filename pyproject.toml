@@ -45,7 +45,7 @@ dependencies = [
     "factory_boy==3.2.1",  # easier test data creation
     "Faker==4.1.1",  # create fake data; for test and dummy database creation
     "fhirclient==4.2.0",  # FHIR export
-    "flake8==5.0.4",  # code checks, keep in sync with .pre-commit-config.yaml
+    "flake8==6.1.0",  # code checks, keep in sync with .pre-commit-config.yaml
     "flower==2.0.1",  # monitor for Celery
     "gunicorn==23.0.0",  # web server (Unix only)
     "hl7==0.3.5",  # For HL7 export
