@@ -70,7 +70,7 @@ and separately (not necessarily within a CamCOPS virtual environment) in
 
 import sys
 
-MINIMUM_PYTHON_VERSION = (3, 10)
+MINIMUM_PYTHON_VERSION = (3, 11)
 
 
 def assert_minimum_python_version() -> None:

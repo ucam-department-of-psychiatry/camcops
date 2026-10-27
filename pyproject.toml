@@ -18,12 +18,12 @@ classifiers = [
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Medical Science Apps.",
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dynamic = ["version"]
 dependencies = [
     # -------------------------------------------------------------------------
@@ -59,7 +59,7 @@ dependencies = [
     "pexpect==4.8.0",  # for open_sqlcipher.py
     "phonenumbers==8.12.30",  # phone number parsing, storing and validating
     "pycap==1.1.1",  # REDCap integration
-    "Pillow==12.3.0",  # used by a dependency; pin for security warnings
+    "Pillow==13.0.0",  # used by a dependency; pin for security warnings
     "Pygments==2.20.0",  # Syntax highlighting for introspection/DDL
     "pyexcel-ods3==0.6.0",  # ODS spreadsheet export
     "pyexcel-xlsx==0.6.0",  # XLSX spreadsheet export
@@ -72,7 +72,7 @@ dependencies = [
     "requests==2.33.0",  # in fetch_snomed_codes.py and cc_sms.py, but also required by something else?
     "rich-argparse==0.5.0",  # colourful help
     "sadisplay==0.4.9",  # SQL Alchemy schema display script
-    "scipy==1.13.1",  # used by some tasks. slow installation.
+    "scipy==1.14.1",  # used by some tasks. slow installation.
     "semantic_version==2.8.5",  # semantic versioning; better than semver
     "setuptools >= 73, < 82.0.0", # required by Pyramid for pkg_resources, remove when fixed
     "sqlalchemy==2.0.39",  # database access

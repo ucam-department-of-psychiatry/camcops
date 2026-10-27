@@ -47,14 +47,7 @@ class DockerPath:
     """
 
     ROOT_DIR = "/camcops"
-
     CONFIG_DIR = join(ROOT_DIR, "cfg")
-
-    TMP_DIR = join(ROOT_DIR, "tmp")
-    PRIVATE_FILE_STORAGE_ROOT = join(TMP_DIR, "files")
-
-    VENV_DIR = join(ROOT_DIR, "venv")
-    CAMCOPS_INSTALL_DIR = join(VENV_DIR, "lib", "python3.10", "site-packages")
 
 
 class DockerComposeServices:
