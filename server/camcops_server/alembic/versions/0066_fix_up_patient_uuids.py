@@ -46,6 +46,7 @@ from alembic import op
 from sqlalchemy import orm
 from sqlalchemy.engine.strategies import MockEngineStrategy
 from sqlalchemy.sql.expression import bindparam, select, update
+from sqlalchemy.sql.schema import Table
 
 from camcops_server.cc_modules.cc_patient import Patient
 
@@ -89,7 +90,7 @@ def upgrade() -> None:
 
     # Some shorthand:
     # noinspection PyUnresolvedReferences
-    patient_table = Patient.__table__  # type: ignore[assignment] # type: Table
+    patient_table: Table = Patient.__table__  # type: ignore[assignment]
     # noinspection PyProtectedMember
     pk_col = patient_table.columns._pk  # type: ignore[assignment]
     uuid_col = patient_table.columns.uuid  # type: ignore[assignment]

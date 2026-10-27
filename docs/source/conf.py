@@ -354,8 +354,8 @@ def register_css_role_allowing_content_substitution(css_class: str) -> None:
         Returns the tuple (nodes, messages).
         Search docutils for "role_fn" to see how this function will be called.
         """
-        options = options or {}  # type: Dict[str, Any]
-        content = content or []  # type: List[str]
+        options: Dict[str, Any] = options or {}
+        content: List[str] = content or []
         log.debug(
             "rolefunc() called with role_name={rn!r}, rawtext={rt!r}, "
             "text={t!r}, lineno={ln}, inliner={i!r}, "
@@ -372,9 +372,9 @@ def register_css_role_allowing_content_substitution(css_class: str) -> None:
         parsed_nodes, parsed_msgs = inliner.parse(
             text=text, lineno=0, memo=inliner, parent=None  # type: ignore[arg-type]  # noqa: E501
         )
-        top_node = nodes.inline(  # was nodes.inline
+        top_node: Element = nodes.inline(  # was nodes.inline
             text="", refid=css_class, **options
-        )  # type: Element
+        )
         top_node["classes"].append(
             css_class
         )  # see deprecated Element.set_class

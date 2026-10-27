@@ -1683,10 +1683,10 @@ class CamcopsPage(Page):
         )
         # Original defines attributes outside __init__, so:
         self.radius = 2
-        self.curpage_attr = {}  # type: Dict[str, str]
+        self.curpage_attr: dict[str, str] = {}
         self.separator = ""
-        self.link_attr = {}  # type: Dict[str, str]
-        self.dotdot_attr = {}  # type: Dict[str, str]
+        self.link_attr: dict[str, str] = {}
+        self.dotdot_attr: dict[str, str] = {}
         self.url = ""
 
     # noinspection PyShadowingBuiltins
@@ -1714,10 +1714,10 @@ class CamcopsPage(Page):
         number per page to 100. Or simply use the URL to go beyond the end.
         """
         format = format or self.default_pager_pattern()
-        link_attr = link_attr or {}  # type: Dict[str, str]
-        curpage_attr = curpage_attr or {}  # type: Dict[str, str]
-        # dotdot_attr = dotdot_attr or {}  # type: Dict[str, str]
-        # dotdot_attr = dotdot_attr or {'class': 'pager_dotdot'}  # our default!  # noqa: E501
+        link_attr: dict[str, str] = link_attr or {}
+        curpage_attr: dict[str, str] = curpage_attr or {}
+        # dotdot_attr: dict[str, str] = dotdot_attr or {}
+        # dotdot_attr: dict[str, str] = dotdot_attr or {'class': 'pager_dotdot'}  # our default!  # noqa: E501
         return super().pager(
             format=format,
             url=url,
@@ -1793,7 +1793,7 @@ class CamcopsPage(Page):
             if self.last_page
             else None
         )  # type: Optional[int]
-        nav_items = {
+        nav_items: dict[str, Any] = {
             "first_page": None,
             "last_page": None,
             "previous_page": None,
@@ -1801,7 +1801,7 @@ class CamcopsPage(Page):
             "current_page": None,
             "radius": self.radius,
             "range_pages": [],
-        }  # type: Dict[str, Any]
+        }
 
         if leftmost_page is None or rightmost_page is None:
             return nav_items
