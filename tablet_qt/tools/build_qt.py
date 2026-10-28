@@ -4055,6 +4055,14 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
             config_args.append(f"--host={target_platform.sqlcipher_platform}")
         config_args.append(f"--prefix={cfg.sysroot(target_platform, env)}")
 
+        if target_platform.macos:
+            # Since SQLCipher moved from autosetup to autoconf it no longer
+            # falls back to gcc if no compiler is found. For cross-
+            # compilation this would normally be the wrong thing to do but in
+            # the case of MacOS, gcc is an alias for Apple clang and the same
+            # binary is used to build on both architectures.
+            config_args.append('CC="gcc"')
+
         # ---------------------------------------------------------------------
         # SQLCipher/Unix: configure
         # ---------------------------------------------------------------------
