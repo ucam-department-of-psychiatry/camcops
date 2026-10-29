@@ -254,7 +254,6 @@ server/camcops_server
     cc_modules/tests/merge_db_tests.py.rst
     cc_modules/tests/webview_tests.py.rst
     cc_modules/webview.py.rst
-    conftest.py.rst
     extra_string_templates/BLANK_TEMPLATE.xml.rst
     extra_string_templates/asdas_TEMPLATE.xml.rst
     extra_string_templates/badls_TEMPLATE.xml.rst
