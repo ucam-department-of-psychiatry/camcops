@@ -1037,7 +1037,6 @@ class VersionReleaser:
 
         self.check_docker_version()
 
-        self.read_camcops_pro()
         self.check_client_version()
         if self.should_release_client:
             self.check_client_date()
