@@ -11,6 +11,8 @@ on:
             - .github/scripts/python_setup.sh
             - .github/workflows/python-tests.yml
             - pyproject.toml
+            - pytest.ini
+            - conftest.py
 jobs:
     python-tests:
         strategy:
