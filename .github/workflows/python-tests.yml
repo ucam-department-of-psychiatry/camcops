@@ -37,5 +37,5 @@ jobs:
                   export CAMCOPS_CONFIG_FILE="${HOME}/camcops.cfg"
                   ${GITHUB_WORKSPACE}/.github/scripts/create_config_file.sh
                   echo running tests
-                  cd server/camcops_server
+                  cd ${GITHUB_WORKSPACE}
                   SQLALCHEMY_WARN_20=1 pytest -v -W error::sqlalchemy.exc.MovedIn20Warning -W error::sqlalchemy.exc.SADeprecationWarning
