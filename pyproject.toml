@@ -110,7 +110,7 @@ dependencies = [
     "openpyxl==3.0.7",  # also for pyexcel-xlsx
     "pandas==2.3.3",
     "prettytable==0.7.2",
-    "psutil==6.1.1",  # process management, cardinal_pythonlib dependency, not currently used
+    "psutil==7.2.2",  # process management, cardinal_pythonlib dependency, not currently used
     "pyparsing==2.4.7",
     "pypdf==6.21.2",  # Used by cardinal_pythonlib.pdf
     "python-dateutil==2.9.0.post0",  # date/time extensions.
