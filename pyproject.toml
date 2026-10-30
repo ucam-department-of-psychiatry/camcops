@@ -132,7 +132,7 @@ dependencies = [
     "pydyf==0.12.1",  # Weasyprint dependency
     "tinycss2==1.5.1",  # Weasyprint dependency
     "tinyhtml5==2.1.0",  # Weasyprint dependency
-    "tornado==6.5.9",  # for celery
+    "tornado==6.6",  # for celery
     "weasyprint==70.0",  # HTML to PDF
     "webencodings==0.5.1",  # Weasyprint dependency
     "webob==1.8.11",  # for pyramid
