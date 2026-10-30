@@ -1371,6 +1371,16 @@ class Platform(object):
     # -------------------------------------------------------------------------
     # Other cross-compilation details
     # -------------------------------------------------------------------------
+    @property
+    def cross_compiling(self) -> bool:
+        return (
+            self.android
+            or self.ios
+            or (
+                BUILD_PLATFORM.macos
+                and BUILD_PLATFORM.cpu_arm_family != self.cpu_arm_family
+            )
+        )
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -3570,14 +3580,7 @@ def configure_qt(cfg: Config, target_platform: Platform) -> None:
             "Don't know how to compile Qt for " + str(target_platform)
         )
 
-    cross_compiling = (
-        target_platform.android
-        or target_platform.ios
-        or (
-            BUILD_PLATFORM.macos
-            and BUILD_PLATFORM.cpu_arm_family != target_platform.cpu_arm_family
-        )
-    )
+    cross_compiling = target_platform.cross_compiling
 
     if cfg.qt_host_path:
         # on iOS this must be set to something like:
@@ -4047,8 +4050,18 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         # "host" means "target").
 
         config_args.append(f"--build={BUILD_PLATFORM.sqlcipher_platform}")
-        config_args.append(f"--host={target_platform.sqlcipher_platform}")
+
+        if target_platform.cross_compiling:
+            config_args.append(f"--host={target_platform.sqlcipher_platform}")
         config_args.append(f"--prefix={cfg.sysroot(target_platform, env)}")
+
+        if target_platform.macos:
+            # Since SQLCipher moved from autosetup to autoconf it no longer
+            # falls back to gcc if no compiler is found. For cross-
+            # compilation this would normally be the wrong thing to do but in
+            # the case of MacOS, gcc is an alias for Apple clang and the same
+            # binary is used to build on both architectures.
+            config_args.append('CC="gcc"')
 
         # ---------------------------------------------------------------------
         # SQLCipher/Unix: configure
