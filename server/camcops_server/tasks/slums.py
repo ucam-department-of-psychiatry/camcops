@@ -30,8 +30,12 @@ from typing import cast, List, Optional
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
+# TODO: pyflakes not longer supports legacy type comments but if we update
+# these to PEP 526 style. SQLAlchemy will use the type information for
+# Annotated Declarative Table form and that is currently broken for
+# relationships. So we ignore the unused import error here.
+from camcops_server.cc_modules.cc_blob import Blob  # noqa: F401
 from camcops_server.cc_modules.cc_blob import (
-    Blob,
     blob_relationship,
     get_blob_img_html,
 )
@@ -190,12 +194,16 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):  # type: ignore[m
         UnicodeText, comment="Clinician's comments"
     )
 
-    clockpicture: Blob | None = blob_relationship(  # type: ignore[assignment]
+    # TODO: pyflakes not longer supports legacy type comments but if we update
+    # these to PEP 526 style. SQLAlchemy will use the type information for
+    # Annotated Declarative Table form and that is currently broken for
+    # relationships.
+    clockpicture = blob_relationship(  # type: ignore[assignment]
         "Slums", "clockpicture_blobid"
-    )
-    shapespicture: Blob | None = blob_relationship(  # type: ignore[assignment]
+    )  # type: Optional[Blob]
+    shapespicture = blob_relationship(  # type: ignore[assignment]
         "Slums", "shapespicture_blobid"
-    )
+    )  # type: Optional[Blob]
 
     PREAMBLE_FIELDS = ["alert", "highschooleducation"]
     SCORED_FIELDS = [

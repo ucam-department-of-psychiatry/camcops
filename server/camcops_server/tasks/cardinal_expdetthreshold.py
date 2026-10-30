@@ -255,12 +255,17 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):  # type: ignore[misc]
     )
 
     # Relationships
-    trials: list[CardinalExpDetThresholdTrial] = ancillary_relationship(
+
+    # TODO: pyflakes not longer supports legacy type comments but if we update
+    # these to PEP 526 style. SQLAlchemy will use the type information for
+    # Annotated Declarative Table form and that is currently broken for
+    # relationships.
+    trials = ancillary_relationship(  # type: ignore[assignment]
         parent_class_name="CardinalExpDetThreshold",
         ancillary_class_name="CardinalExpDetThresholdTrial",
         ancillary_fk_to_parent_attr_name="cardinal_expdetthreshold_id",
         ancillary_order_by_attr_name="trial",
-    )  # type: ignore[assignment]
+    )  # type: list[CardinalExpDetThresholdTrial]
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

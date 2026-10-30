@@ -424,18 +424,23 @@ class IDED3D(TaskHasPatientMixin, Task):  # type: ignore[misc]
     )
 
     # Relationships
-    trials: list[IDED3DTrial] = ancillary_relationship(
+
+    # TODO: pyflakes not longer supports legacy type comments but if we update
+    # these to PEP 526 style. SQLAlchemy will use the type information for
+    # Annotated Declarative Table form and that is currently broken for
+    # relationships.
+    trials = ancillary_relationship(  # type: ignore[assignment]
         parent_class_name="IDED3D",
         ancillary_class_name="IDED3DTrial",
         ancillary_fk_to_parent_attr_name="ided3d_id",
         ancillary_order_by_attr_name="trial",
-    )  # type: ignore[assignment]
-    stages: list[IDED3DStage] = ancillary_relationship(
+    )  # type: list[IDED3DTrial]
+    stages = ancillary_relationship(  # type: ignore[assignment]
         parent_class_name="IDED3D",
         ancillary_class_name="IDED3DStage",
         ancillary_fk_to_parent_attr_name="ided3d_id",
         ancillary_order_by_attr_name="stage",
-    )  # type: ignore[assignment]
+    )  # type: list[IDED3DStage]
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
