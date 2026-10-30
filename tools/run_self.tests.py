@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/tools/run_server_self_tests.py
+tools/run_self_tests.py
 
 ===============================================================================
 
@@ -25,7 +25,7 @@ camcops_server/tools/run_server_self_tests.py
 
 ===============================================================================
 
-**Run server self-tests.**
+**Run self-tests.**
 
 """
 
@@ -35,8 +35,8 @@ import sys
 
 from cardinal_pythonlib.cmdline import cmdline_quote
 
-from camcops_server.cc_modules.cc_baseconstants import CAMCOPS_SERVER_DIRECTORY
-from camcops_server.conftest import TEST_DATABASE_FILENAME
+THIS_DIR = os.path.dirname(os.path.realpath(__file__))
+PROJECT_ROOT = os.path.relpath(os.path.join(THIS_DIR, ".."))
 
 
 def main() -> None:
@@ -52,16 +52,16 @@ def main() -> None:
     pytest -k search_term   # all matching test files, functions, classes, etc.
 
 - Pytest will find additional options in:
-    {CAMCOPS_SERVER_DIRECTORY}/conftest.py
-    {CAMCOPS_SERVER_DIRECTORY}/pytest.ini
+    {PROJECT_ROOT}/conftest.py
+    {PROJECT_ROOT}/pytest.ini
   ... if you are running pytest manually, RUN FROM THAT DIRECTORY.
 
 - Note that an SQLite database is saved in
-    {TEST_DATABASE_FILENAME}
+    camcops_test.sqlite
   ... DELETE THAT AND RETRY IF THE TESTS FAIL!
 
 - We'll do this now:
-    cd {CAMCOPS_SERVER_DIRECTORY}
+    cd {PROJECT_ROOT}
     {formatted_args}
 """)
     # https://stackoverflow.com/questions/36456920
@@ -72,7 +72,7 @@ def main() -> None:
 
     # print(f"cmdargs: {cmdargs!r}")
     input("Press Enter when ready...")
-    os.chdir(CAMCOPS_SERVER_DIRECTORY)
+    os.chdir(PROJECT_ROOT)
     subprocess.run(cmdargs)
 
 

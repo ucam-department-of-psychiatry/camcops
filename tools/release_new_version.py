@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-r"""
+"""
 tools/release_new_version.py
 
 ===============================================================================
@@ -69,9 +69,6 @@ CHANGELOG = os.path.join(DOCS_SOURCE_DIR, "changelog.rst")
 APACHE_CONFIG_FILE = os.path.join(
     DOCS_SOURCE_DIR, "administrator", "_demo_apache_config.conf"
 )
-PLAY_STORE_RELEASE_HISTORY_FILE = os.path.join(
-    DOCS_SOURCE_DIR, "developer", "play_store_release_history.csv"
-)
 
 # Server paths
 SERVER_SOURCE_DIR = os.path.join(PROJECT_ROOT, "server")
@@ -92,7 +89,6 @@ VERSIONS_DIR = os.path.join(TABLET_QT_DIR, "versions")
 QT_VERSION_FILE = os.path.join(VERSIONS_DIR, "qt.txt")
 ANDROID_NDK_VERSION_FILE = os.path.join(VERSIONS_DIR, "android_ndk.txt")
 CLIENT_BUILD_DIR = os.path.join(TABLET_QT_DIR, "build")
-PROJECT_FILE = os.path.join(TABLET_QT_DIR, "camcops.pro")
 CLIENT_VERSION_FILE = os.path.join(
     TABLET_QT_DIR, "version", "camcopsversion.cpp"
 )
@@ -127,7 +123,7 @@ def valid_date(date_string: str) -> date:
         raise argparse.ArgumentTypeError(message)
 
 
-class MissingCodeException(Exception):
+class MissingCamcopsProVariableException(Exception):
     pass
 
 
@@ -175,15 +171,8 @@ class VersionReleaser:
         r"(\d+) (\(32-bit ARM\)); (\d+) (\(64-bit ARM\))"
     )
 
-    android_32_bit_version_code_search = (
-        r'(CAMCOPS_32_BIT_VERSION_CODE) = "(\d+)"'
-    )
-    android_32_bit_version_code_replace = r'\g<1> = "{code_32_bit}"'
-
-    android_64_bit_version_code_search = (
-        r'(CAMCOPS_64_BIT_VERSION_CODE) = "(\d+)"'
-    )
-    android_64_bit_version_code_replace = r'\g<1> = "{code_64_bit}"'
+    camcops_pro_int_variable_search = r'({name}) = "(\d+)"'
+    camcops_pro_int_variable_replace = r'\g<1> = "{value}"'
 
     ios_short_version_search = (
         # (                      1                         )( 3 )( 3)( 4 )( 5)( 6 )(    7    )  # noqa: E501
@@ -218,6 +207,8 @@ class VersionReleaser:
         release_date: date,
         update_versions: bool,
         skip_git_checks: bool,
+        project_filename: str | None = None,
+        play_store_release_history_filename: str | None = None,
     ) -> None:
         self.new_client_version = new_client_version
         self.new_server_version = new_server_version
@@ -227,6 +218,19 @@ class VersionReleaser:
         self.update_versions = update_versions
         self.skip_git_checks = skip_git_checks
         self.errors: list[Any] = []
+        self.project_filename = project_filename or os.path.join(
+            TABLET_QT_DIR, "camcops.pro"
+        )
+
+        with open(self.project_filename, "r") as f:
+            self.project_file_data = f.read()
+
+        self.play_store_release_history_filename = (
+            play_store_release_history_filename
+            or os.path.join(
+                DOCS_SOURCE_DIR, "developer", "play_store_release_history.csv"
+            )
+        )
 
     def run_with_check(
         self, args: List[str], env: dict[str, str] = None
@@ -786,14 +790,21 @@ class VersionReleaser:
                 f"{next_64_bit_version_code} (64-bit ARM)"
             )
 
+            minimum_android_api = self.get_camcops_pro_int_variable(
+                "ANDROID_MIN_SDK_VERSION",
+            )
+
+            target_android_api = self.get_camcops_pro_int_variable(
+                "ANDROID_TARGET_SDK_VERSION",
+            )
+
             return self.append_to_releases_table(
                 self.new_client_version,
                 version_code_string=version_code_string,
                 version_name=self.new_client_version,
                 release_date_string=self.release_date.strftime("%Y-%m-%d"),
-                # TODO: Read from camcops.pro
-                minimum_android_api=23,
-                target_android_api=35,  # As of 2025-08-31
+                minimum_android_api=minimum_android_api,
+                target_android_api=target_android_api,
             )
 
         self.errors.append(
@@ -810,7 +821,9 @@ class VersionReleaser:
         minimum_android_api: Union[int, str] = "N/A",
         target_android_api: Union[int, str] = "N/A",
     ) -> None:
-        with open(PLAY_STORE_RELEASE_HISTORY_FILE, "a", newline="") as f:
+        with open(
+            self.play_store_release_history_filename, "a", newline=""
+        ) as f:
             writer = csv.writer(f)
             writer.writerow(
                 [
@@ -835,33 +848,27 @@ class VersionReleaser:
         else:
             next_32_bit_version_code = latest_32_bit_version_code + 2
 
-        current_32_bit_version_code = self.get_android_32_bit_version_code()
+        current_32_bit_version_code = self.get_camcops_pro_int_variable(
+            "CAMCOPS_32_BIT_VERSION_CODE"
+        )
 
         if current_32_bit_version_code == next_32_bit_version_code:
             return
 
         if self.update_versions:
             return self.update_file(
-                PROJECT_FILE,
-                self.android_32_bit_version_code_search,
-                self.android_32_bit_version_code_replace.format(
-                    code_32_bit=next_32_bit_version_code,
+                self.project_file_data,
+                self.camcops_pro_int_variable_search.format(
+                    name="CAMCOPS_32_BIT_VERSION_CODE"
+                ),
+                self.camcops_pro_int_variable_replace.format(
+                    value=next_32_bit_version_code,
                 ),
             )
 
         return self.errors.append(
             f"The 32-bit version code ({current_32_bit_version_code}) in "
             f"camcops.pro should be {next_32_bit_version_code}"
-        )
-
-    def get_android_32_bit_version_code(self) -> int:
-        with open(PROJECT_FILE, "r") as f:
-            m = re.search(self.android_32_bit_version_code_search, f.read())
-            if m is not None:
-                return int(m.group(2))
-
-        raise MissingCodeException(
-            "Could not 32-bit version code in camcops.pro"
         )
 
     def check_android_64_bit_version_code(self) -> None:
@@ -876,17 +883,21 @@ class VersionReleaser:
         else:
             next_64_bit_version_code = latest_64_bit_version_code + 2
 
-        current_64_bit_version_code = self.get_android_64_bit_version_code()
+        current_64_bit_version_code = self.get_camcops_pro_int_variable(
+            "CAMCOPS_64_BIT_VERSION_CODE"
+        )
 
         if current_64_bit_version_code == next_64_bit_version_code:
             return
 
         if self.update_versions:
             return self.update_file(
-                PROJECT_FILE,
-                self.android_64_bit_version_code_search,
-                self.android_64_bit_version_code_replace.format(
-                    code_64_bit=next_64_bit_version_code,
+                self.project_filename,
+                self.camcops_pro_int_variable_search.format(
+                    name="CAMCOPS_64_BIT_VERSION_CODE",
+                ),
+                self.camcops_pro_int_variable_replace.format(
+                    value=next_64_bit_version_code,
                 ),
             )
 
@@ -895,14 +906,15 @@ class VersionReleaser:
             f"camcops.pro should be {next_64_bit_version_code}"
         )
 
-    def get_android_64_bit_version_code(self) -> int:
-        with open(PROJECT_FILE, "r") as f:
-            m = re.search(self.android_64_bit_version_code_search, f.read())
-            if m is not None:
-                return int(m.group(2))
+    def get_camcops_pro_int_variable(self, name: str) -> int:
+        regex = self.camcops_pro_int_variable_search.format(name=name)
 
-        raise MissingCodeException(
-            "Could not 64-bit version code in camcops.pro"
+        m = re.search(regex, self.project_file_data)
+        if m is not None:
+            return int(m.group(2))
+
+        raise MissingCamcopsProVariableException(
+            f"Could not find {name} in camcops.pro"
         )
 
     def get_android_releases(self) -> List[Dict[str, Any]]:
@@ -911,7 +923,7 @@ class VersionReleaser:
         code_32_bit = 0
         code_64_bit = 0
 
-        with open(PLAY_STORE_RELEASE_HISTORY_FILE, newline="") as f:
+        with open(self.play_store_release_history_filename, newline="") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 try:
@@ -1554,7 +1566,9 @@ class VersionReleaser:
 
         os.makedirs(build_dir, exist_ok=True)
         os.chdir(build_dir)
-        self.run_with_check([qmake, PROJECT_FILE] + qmake_args, env=env)
+        self.run_with_check(
+            [qmake, self.project_file_data] + qmake_args, env=env
+        )
         self.run_with_check([make, f"-j{self.cpu_count}"], env=env)
 
     def get_qmake(self, arch: str) -> str:
