@@ -4051,3 +4051,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Update the version of MySQL used when running the CamCOPS database in a Docker container to 8.4.
 
 - **Minimum Python version now Python 3.11.**. Python 3.10 has reached end-of-life.
+
+- Update OpenSSL to 3.5 LTS.

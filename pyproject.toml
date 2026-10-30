@@ -52,6 +52,8 @@ dependencies = [
     "lockfile==0.12.2",  # File locking for background tasks
     "lxml==6.1.0",  # Will speed up openpyxl export [NO LONGER CRITICAL]
     "matplotlib==3.9.4",  # Used for trackers and some tasks. SLOW INSTALLATION.
+    "numba==0.62.1",  # cardinal_pythonlib dependency. Pinned for llvmlite wheel on MacOS x86_64.
+    # After this version we will have to build our own. https://numba.readthedocs.io/en/stable/release/0.62.0-notes.html
     "numpy==1.26.4",  # Used by some tasks. SLOW INSTALLATION.
     "paginate==0.5.6",  # pagination for web server
     "pendulum==3.0.0",  # date/time classes

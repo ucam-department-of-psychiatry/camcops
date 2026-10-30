@@ -38,8 +38,8 @@ Versions of software etc. used by CamCOPS
 | MySQL          | 8.4     | 2029-04-30 (LTS);                                 |
 |                |         | https://endoflife.date/mysql                      |
 +----------------+---------+---------------------------------------------------+
-| OpenSSL        | 3.0.x   | 2026-09-07 (LTS);                                 |
-|                |         | https://www.openssl.org/policies/releasestrat.html|
+| OpenSSL        | 3.5.x   | 2030-04-08 (LTS);                                 |
+|                |         | https://openssl-library.org/roadmap/              |
 +----------------+---------+---------------------------------------------------+
 | Python         | 3.11    | 2027-10-31                                        |
 +----------------+---------+---------------------------------------------------+
