@@ -26,7 +26,7 @@ camcops_server/cc_modules/tests/cc_spreadsheet_tests.py
 """
 
 import io
-from typing import Any, Dict
+from typing import Any
 from unittest import TestCase
 import uuid
 from xml.dom.minidom import parseString
@@ -191,7 +191,7 @@ class SpreadsheetCollectionTests(TestCase):
         if openpyxl:
             self.fail("This test has not been written for openpyxl")
         else:
-            wb = pyexcel_xlsx.get_data(buffer)  # type: Dict[str, Any]
+            wb: dict[str, Any] = pyexcel_xlsx.get_data(buffer)
             self.assertIn(["UUID"], wb["Testing"])
             self.assertIn(
                 ["6457cb90-1ca0-47a7-9f40-767567819bee"], wb["Testing"]

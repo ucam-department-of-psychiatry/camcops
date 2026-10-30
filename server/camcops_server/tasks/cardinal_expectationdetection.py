@@ -461,18 +461,18 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):  # type: ignore[m
     )
 
     # Relationships
-    trials = ancillary_relationship(  # type: ignore[assignment]
+    trials: list[ExpDetTrial] = ancillary_relationship(
         parent_class_name="CardinalExpectationDetection",
         ancillary_class_name="ExpDetTrial",
         ancillary_fk_to_parent_attr_name="cardinal_expdet_id",
         ancillary_order_by_attr_name="trial",
-    )  # type: List[ExpDetTrial]
-    groupspecs = ancillary_relationship(  # type: ignore[assignment]
+    )  # type: ignore[assignment]
+    groupspecs: list[ExpDetTrialGroupSpec] = ancillary_relationship(
         parent_class_name="CardinalExpectationDetection",
         ancillary_class_name="ExpDetTrialGroupSpec",
         ancillary_fk_to_parent_attr_name="cardinal_expdet_id",
         ancillary_order_by_attr_name="group_num",
-    )  # type: List[ExpDetTrialGroupSpec]
+    )  # type: ignore[assignment]
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

@@ -26,7 +26,7 @@ camcops_server/tasks/cet.py
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, List, Optional, Type, Union
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Float
@@ -430,7 +430,7 @@ class Cet(  # type: ignore[misc]
     ) -> List[FHIRAnsweredQuestion]:
         items = []  # type: List[FHIRAnsweredQuestion]
 
-        answer_options = {}  # type: Dict[int, str]
+        answer_options: dict[int, str] = {}
         for index in range(self.MIN_ANSWER, self.MAX_ANSWER + 1):
             answer_options[index] = self.wxstring(req, f"a{index}")
         for q_field in self.QUESTIONS:

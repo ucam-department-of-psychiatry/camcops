@@ -27,7 +27,7 @@ camcops_server/tasks/cardinal_expdetthreshold.py
 
 import math
 import logging
-from typing import List, Optional, Tuple, Type
+from typing import Optional, Tuple, Type
 
 from cardinal_pythonlib.maths_numpy import inv_logistic, logistic
 import cardinal_pythonlib.rnc_web as ws
@@ -255,12 +255,12 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):  # type: ignore[misc]
     )
 
     # Relationships
-    trials = ancillary_relationship(  # type: ignore[assignment]
+    trials: list[CardinalExpDetThresholdTrial] = ancillary_relationship(
         parent_class_name="CardinalExpDetThreshold",
         ancillary_class_name="CardinalExpDetThresholdTrial",
         ancillary_fk_to_parent_attr_name="cardinal_expdetthreshold_id",
         ancillary_order_by_attr_name="trial",
-    )  # type: List[CardinalExpDetThresholdTrial]
+    )  # type: ignore[assignment]
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

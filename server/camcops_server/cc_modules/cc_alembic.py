@@ -173,7 +173,7 @@ def create_database_from_scratch(camcops_cfg: "CamcopsConfig") -> None:
     log.info(f"Performing one-step database creation for: {safe_url}")
 
     # Create the tables:
-    metadata = Base.metadata  # type: MetaData
+    metadata: MetaData = Base.metadata
     engine = camcops_cfg.get_sqla_engine()
     metadata.create_all(engine)
 

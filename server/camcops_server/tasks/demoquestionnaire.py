@@ -136,15 +136,15 @@ class DemoQuestionnaire(
         "time_only", Time
     )  # v2
 
-    photo = blob_relationship(  # type: ignore[assignment]
+    photo: Blob | None = blob_relationship(  # type: ignore[assignment]
         "DemoQuestionnaire", "photo_blobid"
-    )  # type: Optional[Blob]
-    canvas = blob_relationship(  # type: ignore[assignment]
+    )
+    canvas: Blob | None = blob_relationship(  # type: ignore[assignment]
         "DemoQuestionnaire", "canvas_blobid"
-    )  # type: Optional[Blob]
-    canvas2 = blob_relationship(  # type: ignore[assignment]
+    )
+    canvas2: Blob | None = blob_relationship(  # type: ignore[assignment]
         "DemoQuestionnaire", "canvas2_blobid"
-    )  # type: Optional[Blob]
+    )
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

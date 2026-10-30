@@ -25,7 +25,7 @@ camcops_server/tasks/apeq_cpft_perinatal.py
 
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any, List, Optional, Tuple, Type
 
 from cardinal_pythonlib.classes import classproperty
 
@@ -122,10 +122,10 @@ class APEQCPFTPerinatal(Task):
         return self.all_fields_not_none(self.REQUIRED_FIELDS)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        options_main = {None: "?"}  # type: Dict[Optional[int], str]
+        options_main: dict[int | None, str] = {None: "?"}
         for o in range(0, 2 + 1):
             options_main[o] = self.wxstring(req, f"main_a{o}")
-        options_ff = {None: "?"}  # type: Dict[Optional[int], str]
+        options_ff: dict[int | None, str] = {None: "?"}
         for o in range(0, 5 + 1):
             options_ff[o] = self.wxstring(req, f"ff_a{o}")
 

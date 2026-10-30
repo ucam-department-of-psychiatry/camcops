@@ -27,7 +27,7 @@ camcops_server/cc_modules/cc_taskschedulereports.py
 
 """
 
-from typing import List, Type, TYPE_CHECKING, Union
+from typing import List, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.sqlalchemy.core_query import (
@@ -159,16 +159,14 @@ class TaskAssignmentReport(Report):
         emails_query = self._get_emails_sent_query(req, by_year, by_month)
         emails_query.alias("emails_data")
 
-        selectors = (
-            []
-        )  # type: List[Union[ColumnElement[Any], FromClause, int]]
-        sorters = []  # type: List[Union[str, bool, Visitable, None]]
-        groupers = [
+        selectors: list[ColumnElement[Any] | FromClause | int] = []
+        sorters: list[str | bool | Visitable | None] = []
+        groupers: list[str | bool | Visitable | None] = [
             self.label_group_id,
             self.label_schedule_id,
             self.label_group_name,
             self.label_schedule_name,
-        ]  # type: List[Union[str, bool, Visitable, None]]
+        ]
 
         # Merge the three queries.
         all_data = union_all(tasks_query, patients_query, emails_query).alias(
@@ -332,14 +330,12 @@ class TaskAssignmentReport(Report):
         ts = TaskSchedule.__table__
         group = Group.__table__
 
-        groupers = [
+        groupers: list[str | bool | Visitable | None] = [
             group.c.id,
             ts.c.id,
-        ]  # type: List[Union[str, bool, Visitable, None]]
+        ]
 
-        selectors = (
-            []
-        )  # type: List[Union[ColumnElement[Any], FromClause, int]]
+        selectors: list[ColumnElement[Any] | FromClause | int] = []
 
         if by_year:
             selectors.append(

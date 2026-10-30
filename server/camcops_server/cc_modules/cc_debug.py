@@ -29,7 +29,7 @@ camcops_server/cc_modules/cc_debug.py
 
 import cProfile
 from types import FrameType
-from typing import Any, Callable, Set, Union
+from typing import Any, Callable, Union
 
 TraceFuncType = Callable[[FrameType, str, Any], Union[Callable, None]]
 # ... returns a trace function (but we can't make the type definition
@@ -87,7 +87,7 @@ def makefunc_trace_unique_calls(file_only: bool = False) -> TraceFuncType:
         file_only:
             Shows files called only, not functions with line numbers.
     """
-    called = set()  # type: Set[str]
+    called: set[str] = set()
 
     # noinspection PyUnusedLocal
     def _trace_calls(frame: FrameType, event: str, arg: Any) -> None:

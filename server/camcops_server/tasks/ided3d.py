@@ -25,7 +25,7 @@ camcops_server/tasks/ided3d.py
 
 """
 
-from typing import Any, List, Optional, Type
+from typing import Any, Optional, Type
 
 import cardinal_pythonlib.rnc_web as ws
 from pendulum import DateTime as Pendulum
@@ -424,18 +424,18 @@ class IDED3D(TaskHasPatientMixin, Task):  # type: ignore[misc]
     )
 
     # Relationships
-    trials = ancillary_relationship(  # type: ignore[assignment]
+    trials: list[IDED3DTrial] = ancillary_relationship(
         parent_class_name="IDED3D",
         ancillary_class_name="IDED3DTrial",
         ancillary_fk_to_parent_attr_name="ided3d_id",
         ancillary_order_by_attr_name="trial",
-    )  # type: List[IDED3DTrial]
-    stages = ancillary_relationship(  # type: ignore[assignment]
+    )  # type: ignore[assignment]
+    stages: list[IDED3DStage] = ancillary_relationship(
         parent_class_name="IDED3D",
         ancillary_class_name="IDED3DStage",
         ancillary_fk_to_parent_attr_name="ided3d_id",
         ancillary_order_by_attr_name="stage",
-    )  # type: List[IDED3DStage]
+    )  # type: ignore[assignment]
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

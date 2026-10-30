@@ -34,7 +34,6 @@ from typing import (
     List,
     NoReturn,
     Optional,
-    Set,
     TYPE_CHECKING,
 )
 
@@ -523,11 +522,11 @@ class UploadTableChanges(object):
 
     def __init__(self, table: Table) -> None:
         self.table = table
-        self._addition_pks = set()  # type: Set[int]
-        self._removal_modified_pks = set()  # type: Set[int]
-        self._removal_deleted_pks = set()  # type: Set[int]
-        self._preservation_pks = set()  # type: Set[int]
-        self._current_pks = set()  # type: Set[int]
+        self._addition_pks: set[int] = set()
+        self._removal_modified_pks: set[int] = set()
+        self._removal_deleted_pks: set[int] = set()
+        self._preservation_pks: set[int] = set()
+        self._current_pks: set[int] = set()
 
     # -------------------------------------------------------------------------
     # Basic info

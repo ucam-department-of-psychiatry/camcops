@@ -386,10 +386,10 @@ class Hamd(  # type: ignore[misc]
                 if q == "q16a" or q == "q16b":
                     rangestr = " <sup>range 0–2; ‘3’ not scored</sup>"
                 else:
-                    col = getattr(self.__class__, q)  # type: Column
-                    pvc = col.info[
+                    col: Column = getattr(self.__class__, q)
+                    pvc: PermittedValueChecker = col.info[
                         COLATTR_PERMITTED_VALUE_CHECKER
-                    ]  # type: PermittedValueChecker
+                    ]
                     rangestr = " <sup>range {}–{}</sup>".format(
                         pvc.minimum,
                         pvc.maximum,

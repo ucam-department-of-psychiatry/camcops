@@ -30,7 +30,7 @@ camcops_server/cc_modules/cc_user.py
 import datetime
 import logging
 import re
-from typing import Any, List, Optional, Set, Tuple, TYPE_CHECKING
+from typing import Any, List, Optional, Tuple, TYPE_CHECKING
 
 import cardinal_pythonlib.crypto as rnc_crypto
 from cardinal_pythonlib.datetimefunc import convert_datetime_to_local
@@ -966,7 +966,7 @@ class User(Base):
         # https://stackoverflow.com/questions/4045403/python-how-to-add-the-contents-of-an-iterable-to-a-set  # noqa
         #
         # Process as a set rather than a list, to eliminate duplicates:
-        group_ids = set()  # type: Set[int]
+        group_ids: set[int] = set()
         for my_group in self.groups:  # type: Group
             group_ids.update(my_group.ids_of_groups_group_may_see())
         return list(group_ids)
@@ -1113,7 +1113,7 @@ class User(Base):
         ``view_own_user_info.mako``).
 
         """
-        groups = set(self.groups)  # type: Set[Group]
+        groups: set[Group] = set(self.groups)
         for my_group in self.groups:  # type: Group
             groups.update(set(my_group.can_see_other_groups))
         return sorted(list(groups), key=lambda g: g.name)

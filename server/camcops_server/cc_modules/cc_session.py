@@ -211,7 +211,7 @@ class CamcopsSession(Base):
         The session is found using the ID/token information in the request's
         cookies.
         """
-        pyramid_session = req.session  # type: ISession
+        pyramid_session: ISession = req.session
         # noinspection PyArgumentList
         session_id_str = pyramid_session.get(CookieKey.SESSION_ID, "")
         # noinspection PyArgumentList

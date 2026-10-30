@@ -205,7 +205,7 @@ for __orm_class in gen_orm_classes_from_base(Base):
             if __tablename.startswith("_"):
                 pass
             # noinspection PyUnresolvedReferences
-            __table = __orm_class.__table__  # type: ignore[assignment]
+            __table = __orm_class.__table__  # type: ignore[assignment, attr-defined]  # noqa: E501
             CLIENT_TABLE_MAP[__tablename] = __table  # type: ignore[assignment]
             if not issubclass(__orm_class, Task):
                 NONTASK_CLIENT_TABLENAMES.append(__tablename)

@@ -190,12 +190,12 @@ class Slums(TaskHasClinicianMixin, TaskHasPatientMixin, Task):  # type: ignore[m
         UnicodeText, comment="Clinician's comments"
     )
 
-    clockpicture = blob_relationship(  # type: ignore[assignment]
+    clockpicture: Blob | None = blob_relationship(  # type: ignore[assignment]
         "Slums", "clockpicture_blobid"
-    )  # type: Optional[Blob]
-    shapespicture = blob_relationship(  # type: ignore[assignment]
+    )
+    shapespicture: Blob | None = blob_relationship(  # type: ignore[assignment]
         "Slums", "shapespicture_blobid"
-    )  # type: Optional[Blob]
+    )
 
     PREAMBLE_FIELDS = ["alert", "highschooleducation"]
     SCORED_FIELDS = [
