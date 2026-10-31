@@ -396,6 +396,10 @@ register_css_role_allowing_content_substitution("tabletmenu")
 # autoclass_content = "both"
 autoclass_content = "class"
 
+# Problem with SQLAlchemy DeclarativeBaseNoMeta
+# undefined label: 'orm_declarative_metadata'
+autodoc_inherit_docstrings = False
+
 # To prevent Alembic env.py breaking:
 os.environ["_SPHINX_AUTODOC_IN_PROGRESS"] = "true"
 
