@@ -23,6 +23,8 @@ camcops_server/tasks/tests/rapid3_tests.py
 
 ===============================================================================
 
+**Test Routine Assessment of Patient Index Data (RAPID 3) task.**
+
 """
 
 from unittest import mock

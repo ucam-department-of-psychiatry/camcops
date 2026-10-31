@@ -23,6 +23,8 @@ camcops_server/cc_modules/tests/cc_taskcollection_tests.py
 
 ===============================================================================
 
+**Test classes to fetch tasks from the database as efficiently as possible.**
+
 """
 
 from kombu.serialization import dumps, loads

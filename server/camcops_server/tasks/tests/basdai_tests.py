@@ -23,6 +23,8 @@ camcops_server/tasks/tests/basdai_tests.py
 
 ===============================================================================
 
+**Test Bath Ankylosing Spondylitis Disease Activity Index (BASDAI) task.**
+
 """
 
 from unittest import mock, TestCase

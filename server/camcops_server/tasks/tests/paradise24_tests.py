@@ -23,6 +23,8 @@ camcops_server/tasks/tests/paradise24_tests.py
 
 ===============================================================================
 
+**Test PARADISE 24 task.**
+
 """
 
 from unittest import mock, TestCase

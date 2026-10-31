@@ -23,6 +23,8 @@ camcops_server/tasks/tests/apeq_cpft_perinatal_tests.py
 
 ===============================================================================
 
+Test APEQ-CPFT-Perinatal task.
+
 """
 
 import pendulum

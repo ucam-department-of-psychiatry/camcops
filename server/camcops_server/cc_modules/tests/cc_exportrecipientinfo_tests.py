@@ -23,6 +23,8 @@ camcops_server/cc_modules/tests/cc_exportrecipientinfo_tests.py
 
 ===============================================================================
 
+Test ExportRecipientInfo class.
+
 """
 
 from unittest import TestCase

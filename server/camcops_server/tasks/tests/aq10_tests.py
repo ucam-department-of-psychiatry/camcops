@@ -23,6 +23,8 @@ camcops_server/tasks/tests/aq10_tests.py
 
 ===============================================================================
 
+Test AQ-10 task.
+
 """
 
 from unittest import TestCase

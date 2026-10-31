@@ -23,6 +23,8 @@ camcops_server/tasks/tests/cpft_research_preferences_tests.py
 
 ===============================================================================
 
+Test CPFT Research Preferences task.
+
 """
 
 from unittest import mock

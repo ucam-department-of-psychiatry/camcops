@@ -22,6 +22,9 @@ camcops_server/cc_modules/tests/cc_sqla_coltypes_tests.py
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+**Test SQLAlchemy column types used by CamCOPS.**
+
 """
 
 import datetime

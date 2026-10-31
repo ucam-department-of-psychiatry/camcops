@@ -23,6 +23,8 @@ camcops_server/cc_modules/tests/cc_request_tests.py
 
 ===============================================================================
 
+**Test the Pyramid Request object customized for CamCOPS.**
+
 """
 
 from unittest import mock

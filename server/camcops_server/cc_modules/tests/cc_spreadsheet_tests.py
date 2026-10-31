@@ -23,6 +23,9 @@ camcops_server/cc_modules/tests/cc_spreadsheet_tests.py
 
 ===============================================================================
 
+**Test Helper functions/classes for spreadsheet-style tab-separated value (TSV)
+(and related) exports.**
+
 """
 
 import io

@@ -22,6 +22,9 @@ camcops_server/cc_modules/tests/webview_tests.py
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+**Test the CamCOPS web front end.**
+
 """
 
 from collections import OrderedDict

@@ -23,6 +23,8 @@ camcops_server/cc_modules/tests/cc_sms_tests.py
 
 ===============================================================================
 
+**Test sending SMS via supported backends.**
+
 """
 
 import logging

@@ -23,6 +23,8 @@ camcops_server/tasks/tests/maas_tests.py
 
 ===============================================================================
 
+Test MAAS task.
+
 """
 
 import pendulum
