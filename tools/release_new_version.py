@@ -193,7 +193,7 @@ class VersionReleaser:
         r"(^# Created by CamCOPS version )(\d+)(\.)(\d+)(\.)(\d+)(\.)"
     )
 
-    java_version_search = r"^openjdk version \"(\d+)\.(\d+)\.(\d+)(_*\d*)\""
+    java_version_search = r"^openjdk version \"(\d+)\.(\d+)\.(\d+)(.*\d*)\""
 
     minimum_java_version = Version("17.0.0")
 
