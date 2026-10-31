@@ -857,7 +857,7 @@ class VersionReleaser:
 
         if self.update_versions:
             return self.update_file(
-                self.project_file_data,
+                self.project_filename,
                 self.camcops_pro_int_variable_search.format(
                     name="CAMCOPS_32_BIT_VERSION_CODE"
                 ),
