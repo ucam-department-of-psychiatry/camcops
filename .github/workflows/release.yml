@@ -17,12 +17,7 @@ jobs:
               uses: actions/checkout@v7
             - name: Work out tag
               id: vars
-              run: echo "tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
-            - name: Create tar file
-              run: |
-                set -euo pipefail
-                cd ${GITHUB_WORKSPACE}
-                git archive --format=tar.gz -o /tmp/camcops_server.tar.gz --prefix=camcops/ ${{ steps.vars.outputs.tag }}
+              run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
             - name: Create DEB and RPM packages
               run: |
                 set -euo pipefail
@@ -31,7 +26,7 @@ jobs:
             - name: Create release with artifacts
               uses: ncipollo/release-action@v1
               with:
-                  artifacts: "server/installer/installer.sh,/tmp/camcops_server.tar.gz,server/packagebuild/*.deb,server/packagebuild/*.rpm"
+                  artifacts: "server/installer/installer_boot.py,server/packagebuild/*.deb,server/packagebuild/*.rpm"
                   token: ${{ secrets.GITHUB_TOKEN }}
             - name: Test installer
               run: |
@@ -39,8 +34,8 @@ jobs:
                 source ${GITHUB_WORKSPACE}/.github/scripts/set_camcops_docker_environment
                 ${GITHUB_WORKSPACE}/.github/scripts/installer_setup.sh
                 cd ${HOME}
-                curl -L --retry 10 --fail https://github.com/ucam-department-of-psychiatry/camcops/releases/latest/download/installer.sh --output camcops_docker_installer.sh
-                chmod u+x camcops_docker_installer.sh
-                ./camcops_docker_installer.sh
-                export CAMCOPS_HOME=${HOME}/camcops
+                curl -L --retry 10 --fail https://github.com/ucam-department-of-psychiatry/camcops/releases/download/${{ steps.vars.outputs.tag }}/installer_boot.py --output installer_boot.py
+                chmod u+x installer_boot.py
+                python3 installer_boot.py --camcops_root_dir /camcops --version ${{ steps.vars.outputs.tag }}
+                export CAMCOPS_HOME=/camcops/src
                 ${GITHUB_WORKSPACE}/.github/scripts/post_installation_checks.sh
