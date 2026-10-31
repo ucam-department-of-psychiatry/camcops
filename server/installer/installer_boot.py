@@ -93,7 +93,7 @@ class InstallerBoot:
         if self.run_locally:
             return os.path.dirname(os.path.realpath(__file__))
 
-        return os.path.join(self.src_dir, "installer")
+        return os.path.join(self.src_dir, "server", "installer")
 
     def boot(self) -> None:
         self.ensure_root_dir_exists()
