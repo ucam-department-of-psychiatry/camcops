@@ -1570,7 +1570,7 @@ class VersionReleaser:
         os.makedirs(build_dir, exist_ok=True)
         os.chdir(build_dir)
         self.run_with_check(
-            [qmake, self.project_file_data] + qmake_args, env=env
+            [qmake, self.project_filename] + qmake_args, env=env
         )
         self.run_with_check([make, f"-j{self.cpu_count}"], env=env)
 
