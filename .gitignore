@@ -45,6 +45,7 @@ htmlcov/
 # Packaging
 server/camcops_server.egg-info
 server/build/
+dist/
 
 # pytest coverage
 .coverage
