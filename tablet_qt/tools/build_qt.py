@@ -4883,7 +4883,8 @@ def main() -> None:
             level=loglevel, format=LOG_FORMAT, datefmt=LOG_DATEFMT
         )
     if args.tee:
-        with open(args.tee, "wt") as tee_file:  # type: TextIO
+        tee_file: TextIO
+        with open(args.tee, "wt") as tee_file:
             with tee_log(tee_file, loglevel=loglevel):
                 master_builder(args)
     else:

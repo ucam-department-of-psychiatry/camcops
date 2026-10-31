@@ -32,7 +32,7 @@ Largely superseded by CRATE (https://doi.org/10.1186%2Fs12911-017-0437-1).
 from collections import OrderedDict
 import csv
 import sys
-from typing import Dict, List, Generator, TextIO, Tuple, TYPE_CHECKING, Union
+from typing import Generator, TextIO, Tuple, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.sqlalchemy.orm_inspect import coltype_as_typeengine
 from cardinal_pythonlib.sqlalchemy.schema import (
@@ -95,7 +95,7 @@ def _gen_columns_for_anon_staging_db(
     """
     url = SQLITE_MEMORY_URL
     engine = create_engine(url, echo=False)
-    session = sessionmaker(bind=engine)()  # type: SqlASession
+    session: SqlASession = sessionmaker(bind=engine)()
     export_options = TaskExportOptions(
         include_blobs=recipient.db_include_blobs,  # type: ignore[arg-type]
         db_patient_id_per_row=recipient.db_patient_id_per_row,  # type: ignore[arg-type]  # noqa: E501
@@ -139,7 +139,7 @@ def _get_cris_dd_row(
     column: Union[Column, None],
     recipient: "ExportRecipientInfo",
     dest_dialect: Dialect = None,
-) -> Dict:
+) -> dict:
     """
     Args:
         column:
@@ -311,7 +311,7 @@ def _get_crate_dd_row(
     dest_dialect: Dialect = None,
     src_db: str = "camcops",
     default_indexlen: int = 100,
-) -> Dict:
+) -> dict:
     """
     Args:
         column:
@@ -370,7 +370,7 @@ def _get_crate_dd_row(
         destsqltype = desttype.compile(dialect=dest_dialect)
 
     # src_flags
-    src_flags = []  # type: List[str]
+    src_flags: list[str] = []
     primary_key = colname == FN_PK
     if primary_key:
         src_flags.extend(["K", "C"])

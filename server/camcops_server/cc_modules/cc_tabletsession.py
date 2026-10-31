@@ -28,7 +28,7 @@ camcops_server/cc_modules/cc_tabletsession.py
 """
 
 import logging
-from typing import Optional, Set, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.httpconst import HttpMethod
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -133,7 +133,7 @@ class TabletSession(object):
         # Other version things are done via properties
 
         # Upload efficiency
-        self._dirty_table_names = set()  # type: Set[str]
+        self._dirty_table_names: set[str] = set()
 
         # Report
         log.info(

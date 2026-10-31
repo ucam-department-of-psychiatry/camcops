@@ -243,7 +243,7 @@ class PatientInfoPresence(object):
             present: map from token to :class:`QuadState`
             default: default :class:`QuadState` to return if unspecified
         """
-        self.present = present or {}  # type: Dict[int, QuadState]
+        self.present: dict[int, QuadState] = present or {}
         self.default = default
         for t in self.present.keys():
             assert is_info_token(t)
@@ -329,7 +329,7 @@ class PatientInfoPresence(object):
         Returns a :class:`PatientInfoPresence` representing whether different
         kinds of information about the patient are present or not.
         """
-        presences = {
+        presences: dict[int, QuadState] = {
             TK_FORENAME: bool_to_quad(bool(ptinfo.forename)),
             TK_SURNAME: bool_to_quad(bool(ptinfo.surname)),
             TK_SEX: bool_to_quad(bool(ptinfo.sex)),
@@ -339,7 +339,7 @@ class PatientInfoPresence(object):
             TK_GP: bool_to_quad(bool(ptinfo.gp)),
             TK_OTHER_DETAILS: bool_to_quad(bool(ptinfo.otherdetails)),
             TK_OTHER_IDNUM: Q_FALSE,  # may change
-        }  # type: Dict[int, QuadState]
+        }
         for iddef in ptinfo.idnum_definitions:
             this_idnum_present = iddef.idnum_value is not None
             presences[iddef.which_idnum] = bool_to_quad(this_idnum_present)

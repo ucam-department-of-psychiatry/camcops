@@ -297,7 +297,7 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     def get_patient_server_pk(self) -> int:
-        patient = self.patient  # type: Patient
+        patient: Patient = self.patient
         if not patient:
             raise ValueError(
                 "Corrupted database? PatientIdNum can't fetch its Patient"

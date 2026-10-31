@@ -29,7 +29,7 @@ camcops_server/cc_modules/cc_dummy_database.py
 
 import logging
 import random
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from cardinal_pythonlib.datetimefunc import (
     convert_datetime_to_utc,
@@ -244,10 +244,10 @@ class DummyDataFactory(DummyDataInserter):
         self.era_time_utc = convert_datetime_to_utc(self.era_time)
         self.era = format_datetime(self.era_time, DateFormat.ISO8601)
 
-        self.group = None  # type: Optional[Group]
-        self.user = None  # type: Optional[User]
-        self.device = None  # type: Optional[Device]
-        self.nhs_iddef = None  # type: Optional[IdNumDefinition]
+        self.group: Group | None = None
+        self.user: User | None = None
+        self.device: Device | None = None
+        self.nhs_iddef: IdNumDefinition | None = None
 
     def add_data(self) -> None:
         # noinspection PyTypeChecker

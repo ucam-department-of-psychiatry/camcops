@@ -33,6 +33,7 @@ core
 
 # Python
 __pycache__/
+*.swp
 
 # Test database
 camcops_test.sqlite*

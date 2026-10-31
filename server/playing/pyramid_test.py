@@ -163,7 +163,7 @@ import os
 import re
 import sys
 import traceback
-from typing import Callable, Dict, List, Tuple
+from typing import Callable, List
 
 import arrow
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -381,13 +381,14 @@ def get_config():  # -> DummyConfig:  # https://bitbucket.org/zzzeek/dogpile.cac
 
 
 @static_cache_region.cache_on_arguments()
-def get_extra_strings():  # -> Dict[Tuple[str, str], str]:  # https://bitbucket.org/zzzeek/dogpile.cache/issues/96/error-in-python-35-with-use-of-deprecated  # noqa
+def get_extra_strings() -> dict[tuple[str, str], str]:
+    # https://bitbucket.org/zzzeek/dogpile.cache/issues/96/error-in-python-35-with-use-of-deprecated  # noqa E501
     cfg = get_config()  # type: DummyConfig
     log.info(
         "Expensive string-loading function; SHOULD ONLY BE CALLED ONCE; "
         "pretending to read file {}.".format(cfg.xstring_filename)
     )
-    xstringdict = {}  # type: Dict[Tuple[str, str], str]
+    xstringdict: dict[tuple[str.str], str] = {}
     for task in (TASKNAME_1, TASKNAME_2):
         for stringname in (STRINGNAME_1, STRINGNAME_2):
             task_string_pair = (task, stringname)
@@ -396,7 +397,7 @@ def get_extra_strings():  # -> Dict[Tuple[str, str], str]:  # https://bitbucket.
 
 
 def xstring(task: str, stringname: str, default: str = None) -> str:
-    xstringdict = get_extra_strings()  # type: Dict[Tuple[str, str], str]
+    xstringdict: dict[tuple[str, str].str] = get_extra_strings()
     task_string_pair = (task, stringname)
     return xstringdict.get(task_string_pair, default)
 
@@ -607,7 +608,7 @@ class CamcopsHttpSession(Base):
     @classmethod
     def get_http_session(cls, request: Request) -> "CamcopsHttpSession":
         dbsession = request.dbsession
-        pyramid_session = request.session  # type: ISession
+        pyramid_session: ISession = request.session
         try:
             # noinspection PyArgumentList
             session_id = int(pyramid_session.get(CookieKeys.SESSION_ID, None))

@@ -30,7 +30,7 @@ uses these for displaying tasks, and provides them to client devices.**
 
 import glob
 import logging
-from typing import Dict, List
+from typing import Dict
 import xml.etree.cElementTree as ElementTree
 
 # ... cElementTree is a faster implementation
@@ -322,7 +322,7 @@ def all_extra_strings_as_dicts(
 
     cfg = get_config(config_filename)
     assert cfg.extra_string_files is not None
-    filenames = []  # type: List [str]
+    filenames: list[str] = []
     for filespec in cfg.extra_string_files:
         possibles = glob.glob(filespec)
         filenames.extend(possibles)

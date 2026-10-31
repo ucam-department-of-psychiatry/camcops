@@ -2267,9 +2267,9 @@ class Task(GenericTabletRecordMixin, Base):
             if (int_type or bool_type) and hasattr(
                 column, COLATTR_PERMITTED_VALUE_CHECKER
             ):
-                pvc = getattr(
+                pvc: PermittedValueChecker = getattr(
                     column, COLATTR_PERMITTED_VALUE_CHECKER
-                )  # type: PermittedValueChecker
+                )
                 if pvc is not None:
                     pv = pvc.permitted_values_inc_minmax()
                     if pv:

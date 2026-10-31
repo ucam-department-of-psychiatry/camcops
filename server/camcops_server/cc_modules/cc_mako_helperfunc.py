@@ -27,7 +27,7 @@ camcops_server/cc_modules/cc_mako_helperfunc.py
 
 """
 
-from typing import Any, Iterable, List, TYPE_CHECKING
+from typing import Any, Iterable, TYPE_CHECKING
 
 from camcops_server.cc_modules.cc_pyramid import ViewParam
 
@@ -69,7 +69,7 @@ def listview(
     Returns:
         str: HTML
     """
-    parts = []  # type: List[str]
+    parts: list[str] = []
     for obj in objects:
         obj_id = obj.id
         url = req.route_url(route_name, _query={ViewParam.ID: obj_id})

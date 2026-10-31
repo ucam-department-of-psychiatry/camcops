@@ -235,7 +235,7 @@ def print_long_comments(
 
     num_long_lines = 0
 
-    lines_seen = set()  # type: Set[int]
+    lines_seen: Set[int] = set()
     with open(filename) as f:
         contents = f.read()
     lexer = CppCommentLexer()

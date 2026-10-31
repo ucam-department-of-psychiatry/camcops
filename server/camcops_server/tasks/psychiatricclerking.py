@@ -25,7 +25,7 @@ camcops_server/tasks/psychiatricclerking.py
 
 """
 
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.orm import Mapped, mapped_column
@@ -302,7 +302,7 @@ class PsychiatricClerking(  # type: ignore[misc]
         return html
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
-        refinement = {}  # type: Dict[SnomedConcept, str]
+        refinement: dict[SnomedConcept, str] = {}
 
         def add(snomed_lookup: str, contents: Optional[str]) -> None:
             if not contents:

@@ -985,11 +985,11 @@ class Patient(GenericTabletRecordMixin, Base):
         See https://www.hl7.org/fhir/patient.html.
         """
         # The JSON objects we will build up:
-        patient_dict = {}  # type: JsonObjectType
+        patient_dict: JsonObjectType = {}
 
         # Name
         if self.forename or self.surname:
-            name_dict = {}  # type: JsonObjectType
+            name_dict: JsonObjectType = {}
             if self.forename:
                 name_dict[Fc.NAME_GIVEN] = [self.forename]
             if self.surname:
@@ -1357,9 +1357,7 @@ class DistinctPatientReport(Report):
         ]
         # noinspection PyUnresolvedReferences
         select_from = Patient.__table__
-        wheres = [
-            Patient._current == True  # noqa: E712
-        ]  # type: List[ClauseElement]
+        wheres: list[ClauseElement] = [Patient._current == True]  # noqa: E712
         if not req.user.superuser:
             # Restrict to accessible groups
             group_ids = req.user.ids_of_groups_user_may_report_on

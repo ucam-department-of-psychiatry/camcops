@@ -25,7 +25,7 @@ camcops_server/tasks/progressnote.py
 
 """
 
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.orm import Mapped, mapped_column
@@ -98,7 +98,7 @@ class ProgressNote(TaskHasPatientMixin, TaskHasClinicianMixin, Task):  # type: i
         """
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
-        refinement = {}  # type: Dict[SnomedConcept, str]
+        refinement: dict[SnomedConcept, str] = {}
         if self.note:
             refinement[req.snomed(SnomedLookup.CLINICAL_NOTE)] = self.note
         codes = [

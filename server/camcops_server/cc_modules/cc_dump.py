@@ -30,12 +30,9 @@ camcops_server/cc_modules/cc_dump.py
 import logging
 from typing import (
     Any,
-    Dict,
     Generator,
     Iterable,
-    List,
     Optional,
-    Set,
     Tuple,
     Type,
     TYPE_CHECKING,
@@ -172,16 +169,16 @@ class DumpController(object):
         # We start with blank metadata.
         self.dst_metadata = MetaData()
         # Tables we are inserting into the destination database:
-        self.dst_tables = {}  # type: Dict[str, Table]
+        self.dst_tables: dict[str, Table] = {}
         # ... note that creating a Table() for a given SQLAlchemy metadata is
         #     permitted only once, so we add to self.dst_tables as soon
         #     as we create that.
         # Tables we've created:
-        self.tablenames_created = set()  # type: Set[str]
+        self.tablenames_created: set[str] = set()
         # Tables we've processed, though we may ignore them:
-        self.tablenames_seen = set()  # type: Set[str]
+        self.tablenames_seen: set[str] = set()
         # ORM objects we've visited:
-        self.instances_seen = set()  # type: Set[object]
+        self.instances_seen: set[object] = set()
 
         if export_options.db_make_all_tables_even_empty:
             self._create_all_dest_tables()
@@ -200,10 +197,9 @@ class DumpController(object):
         """
         Generates all destination tables.
         """
-        tablenames_seen = set()  # type: Set[str]
-        for cls in gen_orm_classes_from_base(
-            GenericTabletRecordMixin
-        ):  # type: Type[GenericTabletRecordMixin]
+        tablenames_seen: set[str] = set()
+        cls: Type[GenericTabletRecordMixin]
+        for cls in gen_orm_classes_from_base(GenericTabletRecordMixin):
             instance = cls()
             for table in self.gen_all_dest_tables_for_obj(instance):
                 if table.name in tablenames_seen:
@@ -329,7 +325,7 @@ class DumpController(object):
         dst_table = src_table.to_metadata(self.dst_metadata)
 
         # Copy columns, dropping any we don't want, and dropping FK constraints
-        changed_columns = []  # type: List[Column]
+        changed_columns: list[Column] = []
 
         for dst_column in dst_table.columns:
             if dst_column.foreign_keys:
@@ -470,7 +466,7 @@ class DumpController(object):
         tablename = src_table.name
         dst_table = self.dst_tables[tablename]
         assert dst_table.name == tablename
-        row = {}  # type: Dict[str, Any]
+        row: dict[str, Any] = {}
         # Copy columns, skipping any we don't want
         for attrname, column in gen_columns(src_obj):
             if self._dump_skip_column(tablename, column.name):

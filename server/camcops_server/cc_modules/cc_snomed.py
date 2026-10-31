@@ -1646,7 +1646,7 @@ def get_icd9cm_icd10_snomed_concepts_from_athena(
         )
         icd_code = icd.concept_code
         # log.debug("Processing icd = {}", icd)
-        possible_snomed = []  # type: List[AthenaConceptRow]
+        possible_snomed: list[AthenaConceptRow] = []
         for rel in relationships:
             if rel.concept_id_1 != icd.concept_id:
                 continue

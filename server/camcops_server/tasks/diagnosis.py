@@ -188,7 +188,7 @@ class DiagnosisBase(  # type: ignore[misc]
         comment="Date that diagnoses relate to",
     )
 
-    items = None  # type: List[DiagnosisItemBase]
+    items: list[DiagnosisItemBase] = None
     # ... must be overridden by a relationship
 
     hl7_coding_system = "?"
@@ -201,7 +201,9 @@ class DiagnosisBase(  # type: ignore[misc]
             return False
         if self.get_num_items() == 0:
             return False
-        for item in self.items:  # type: DiagnosisItemBase
+
+        item: DiagnosisItemBase
+        for item in self.items:
             if item.is_empty():
                 return False
         return True

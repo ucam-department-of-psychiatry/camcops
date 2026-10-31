@@ -255,7 +255,8 @@ class CamcopsInstaller(Installer):
         self.info("2. The database must exist.")
         self.info(
             "3. A user must exist with access to the database using "
-            "mysql_native_password authentication."
+            "password authentication (e.g. "
+            "mysql_native_password [deprecated], caching_sha2_password)."
         )
 
     def configure_superuser(self) -> None:

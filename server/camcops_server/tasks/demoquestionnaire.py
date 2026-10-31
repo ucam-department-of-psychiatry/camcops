@@ -32,7 +32,12 @@ from pendulum import DateTime as Pendulum
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Float, Time, UnicodeText
 
-from camcops_server.cc_modules.cc_blob import Blob, blob_relationship
+# TODO: pyflakes not longer supports legacy type comments but if we update
+# these to PEP 526 style. SQLAlchemy will use the type information for
+# Annotated Declarative Table form and that is currently broken for
+# relationships. So we ignore the unused import error here.
+from camcops_server.cc_modules.cc_blob import Blob  # noqa: F401
+from camcops_server.cc_modules.cc_blob import blob_relationship
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer
@@ -136,6 +141,10 @@ class DemoQuestionnaire(
         "time_only", Time
     )  # v2
 
+    # TODO: pyflakes not longer supports legacy type comments but if we update
+    # these to PEP 526 style. SQLAlchemy will use the type information for
+    # Annotated Declarative Table form and that is currently broken for
+    # relationships.
     photo = blob_relationship(  # type: ignore[assignment]
         "DemoQuestionnaire", "photo_blobid"
     )  # type: Optional[Blob]
