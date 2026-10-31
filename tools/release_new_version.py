@@ -73,7 +73,7 @@ APACHE_CONFIG_FILE = os.path.join(
 # Server paths
 SERVER_SOURCE_DIR = os.path.join(PROJECT_ROOT, "server")
 SERVER_TOOLS_DIR = os.path.join(SERVER_SOURCE_DIR, "tools")
-SERVER_DIST_DIR = os.path.join(SERVER_SOURCE_DIR, "dist")
+SERVER_DIST_DIR = os.path.join(PROJECT_ROOT, "dist")
 SERVER_PACKAGE_DIR = os.path.join(SERVER_SOURCE_DIR, "packagebuild")
 DOCKER_ENV_FILE = os.path.join(
     SERVER_SOURCE_DIR, "docker", "dockerfiles", ".env"
@@ -1156,6 +1156,9 @@ class VersionReleaser:
             "https://packaging.python.org/en/latest/specifications/pypirc/"
             "..."
         )
+
+        assert pypi_packages
+
         self.run_with_check(["twine", "upload"] + pypi_packages)
 
     def uploaded_to_pypi(self) -> bool:
