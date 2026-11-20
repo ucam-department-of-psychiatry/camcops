@@ -27,7 +27,7 @@ camcops_server/tasks/cardinal_expdetthreshold.py
 
 import math
 import logging
-from typing import List, Optional, Tuple, Type
+from typing import Optional, Tuple, Type
 
 from cardinal_pythonlib.maths_numpy import inv_logistic, logistic
 import cardinal_pythonlib.rnc_web as ws
@@ -255,12 +255,17 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):  # type: ignore[misc]
     )
 
     # Relationships
+
+    # TODO: pyflakes not longer supports legacy type comments but if we update
+    # these to PEP 526 style. SQLAlchemy will use the type information for
+    # Annotated Declarative Table form and that is currently broken for
+    # relationships.
     trials = ancillary_relationship(  # type: ignore[assignment]
         parent_class_name="CardinalExpDetThreshold",
         ancillary_class_name="CardinalExpDetThresholdTrial",
         ancillary_fk_to_parent_attr_name="cardinal_expdetthreshold_id",
         ancillary_order_by_attr_name="trial",
-    )  # type: List[CardinalExpDetThresholdTrial]
+    )  # type: list[CardinalExpDetThresholdTrial]
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

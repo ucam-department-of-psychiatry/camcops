@@ -25,7 +25,7 @@ camcops_server/tasks/ided3d.py
 
 """
 
-from typing import Any, List, Optional, Type
+from typing import Any, Optional, Type
 
 import cardinal_pythonlib.rnc_web as ws
 from pendulum import DateTime as Pendulum
@@ -424,18 +424,23 @@ class IDED3D(TaskHasPatientMixin, Task):  # type: ignore[misc]
     )
 
     # Relationships
+
+    # TODO: pyflakes not longer supports legacy type comments but if we update
+    # these to PEP 526 style. SQLAlchemy will use the type information for
+    # Annotated Declarative Table form and that is currently broken for
+    # relationships.
     trials = ancillary_relationship(  # type: ignore[assignment]
         parent_class_name="IDED3D",
         ancillary_class_name="IDED3DTrial",
         ancillary_fk_to_parent_attr_name="ided3d_id",
         ancillary_order_by_attr_name="trial",
-    )  # type: List[IDED3DTrial]
+    )  # type: list[IDED3DTrial]
     stages = ancillary_relationship(  # type: ignore[assignment]
         parent_class_name="IDED3D",
         ancillary_class_name="IDED3DStage",
         ancillary_fk_to_parent_attr_name="ided3d_id",
         ancillary_order_by_attr_name="stage",
-    )  # type: List[IDED3DStage]
+    )  # type: list[IDED3DStage]
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

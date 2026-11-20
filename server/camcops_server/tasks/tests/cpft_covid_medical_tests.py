@@ -23,6 +23,8 @@ camcops_server/tasks/tests/cpft_covid_medical_tests.py
 
 ===============================================================================
 
+Test CPFT Covid Medical task.
+
 """
 
 from unittest import mock

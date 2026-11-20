@@ -30,7 +30,7 @@ camcops_server/cc_modules/cc_taskfilter.py
 import datetime
 from enum import Enum
 import logging
-from typing import Any, Dict, List, Optional, Type, TYPE_CHECKING, Union
+from typing import Any, Dict, List, Optional, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.datetimefunc import convert_datetime_to_utc
 from cardinal_pythonlib.json_utils.serialize import register_class_for_json
@@ -466,12 +466,8 @@ class TaskFilter(Base):
         self.device_ids = []  # type: List[int]
         self.adding_user_ids = []  # type: List[int]
         self.group_ids = []  # type: List[int]
-        self.start_datetime = (
-            None
-        )  # type: Union[None, Pendulum, datetime.datetime]
-        self.end_datetime = (
-            None
-        )  # type: Union[None, Pendulum, datetime.datetime]
+        self.start_datetime: Pendulum | datetime.datetime | None = None
+        self.end_datetime: Pendulum | datetime.datetime | None = None
         self.text_contents = []  # type: List[str]
 
         self.complete_only = None  # type: Optional[bool]
@@ -519,7 +515,7 @@ class TaskFilter(Base):
             q = q.filter(func.upper(Patient.sex) == self.sex.upper())
 
         if self.idnum_criteria:
-            id_filter_parts = []  # type: List[ColumnElement]
+            id_filter_parts: list[ColumnElement] = []
             if via_index:
                 q = q.join(PatientIdNumIndexEntry)
                 # "Specify possible ID number values"

@@ -138,14 +138,14 @@ class Blob(GenericTabletRecordMixin, TaskDescendant, Base):
         Returns the current Blob object, or None.
         """
         # noinspection PyPep8
-        blob = (
+        blob: Optional[Blob] = (
             dbsession.query(cls)
             .filter(cls.id == clientpk)  # type: ignore[arg-type]
             .filter(cls._device_id == device_id)
             .filter(cls._era == era)
             .filter(cls._current == True)  # noqa: E712
             .first()
-        )  # type: Optional[Blob]
+        )
         return blob
 
     @classmethod
@@ -163,7 +163,7 @@ class Blob(GenericTabletRecordMixin, TaskDescendant, Base):
 
         Use particularly to look up BLOBs matching old task records.
         """
-        blob = (
+        blob: Optional[Blob] = (
             dbsession.query(cls)
             .filter(cls.id == clientpk)  # type: ignore[arg-type]
             .filter(cls._device_id == device_id)
@@ -171,7 +171,7 @@ class Blob(GenericTabletRecordMixin, TaskDescendant, Base):
             .filter(cls._when_added_batch_utc <= referrer_added_utc)
             .filter(cls._when_removed_batch_utc == referrer_removed_utc)
             .first()
-        )  # type: Optional[Blob]
+        )
         # Note, for referrer_removed_utc: if this is None, then the comparison
         # "field == None" is made; otherwise "field == value".
         # Since SQLAlchemy translates "== None" to "IS NULL", we're OK.

@@ -750,11 +750,11 @@ class TaskCollection(object):
             # Text filtering requested, but there are no text columns, so
             # by definition the filter must fail.
             return None
-        clauses_over_text_phrases = []  # type: List[ColumnElement]
+        clauses_over_text_phrases: list[ColumnElement] = []
         # ... each e.g. "col1 LIKE '%paracetamol%' OR col2 LIKE '%paracetamol%'"  # noqa
         for textfilter in tf.text_contents:
             tf_lower = textfilter.lower()
-            clauses_over_columns = []  # type: List[ColumnElement]
+            clauses_over_columns: list[ColumnElement] = []
             # ... each e.g. "col1 LIKE '%paracetamol%'"
             for textcol in textcols:
                 # Case-insensitive comparison:
@@ -934,9 +934,9 @@ class TaskCollection(object):
                 )
                 # Anonymous is OK:
                 # noinspection PyPep8
-                liberal_or_anon_criteria = [
+                liberal_or_anon_criteria: list[ClauseElement] = [
                     TaskIndexEntry.patient_pk == None  # noqa: E711
-                ]  # type: List[ClauseElement]
+                ]
                 for gid in liberal_group_ids:
                     liberal_or_anon_criteria.append(
                         TaskIndexEntry.group_id == gid  # this group OK

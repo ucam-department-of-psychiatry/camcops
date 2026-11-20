@@ -23,6 +23,8 @@ camcops_server/cc_modules/tests/cc_pyramid_tests.py
 
 ===============================================================================
 
+**Test functions for the Pyramid web framework.**
+
 """
 
 from pyramid.security import Authenticated, Everyone

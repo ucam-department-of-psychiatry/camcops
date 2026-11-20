@@ -23,6 +23,8 @@ camcops_server/tasks/tests/bmi_tests.py
 
 ===============================================================================
 
+Test BMI task.
+
 """
 
 from unittest import TestCase

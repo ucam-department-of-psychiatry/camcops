@@ -47,7 +47,7 @@ services:
     mysql:
         # Base Docker image. We use a standard MySQL image; see
         # https://hub.docker.com/_/mysql
-        image: mysql:5.7
+        image: mysql:8.4
         container_name: camcops_db
         # Restart policy.
         # - I am slightly confused between "when the computer reboots" and
@@ -120,27 +120,3 @@ services:
         depends_on:
             - mysql
             - rabbitmq
-
-        # Command to execute
-        command: [
-            "wait-for-it", "--host=mysql", "--port=3306", "--timeout=0", "--strict", "--",
-            "wait-for-it", "--host=rabbitmq", "--port=5672", "--timeout=0", "--strict", "--",
-            "/camcops/venv/bin/camcops_server", "launch_workers",
-        ]
-
-    camcops_scheduler:
-        # Command to execute
-        command: [
-            "wait-for-it", "--host=mysql", "--port=3306", "--timeout=0", "--strict", "--",
-            "wait-for-it", "--host=rabbitmq", "--port=5672", "--timeout=0", "--strict", "--",
-            "/camcops/venv/bin/camcops_server", "launch_scheduler",
-        ]
-
-    camcops_server:
-        # Command to execute
-        # Can use shell-style or list-style syntax.
-        command: [
-            "wait-for-it", "--host=mysql", "--port=3306", "--timeout=0", "--strict", "--",
-            "wait-for-it", "--host=rabbitmq", "--port=5672", "--timeout=0", "--strict", "--",
-            "/camcops/venv/bin/camcops_server", "serve_cherrypy",
-        ]

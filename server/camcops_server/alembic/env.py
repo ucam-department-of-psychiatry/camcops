@@ -83,7 +83,7 @@ def debug_op_object(
     """
     Describes a :class:`OpContainer`.
     """
-    lines = []  # type: List[str]
+    lines: List[str] = []
     spacer = "    " * level
     thisobj = spacer + str(op)
     if isinstance(op, ModifyTableOps):
@@ -183,7 +183,7 @@ def process_revision_directives(
         script = directives[0]
 
         # Check/filter our upgrade table ops.
-        upgrade_ops = script.upgrade_ops  # type: UpgradeOps
+        upgrade_ops: UpgradeOps = script.upgrade_ops
 
         # If no changes to the schema are produced, don't generate a revision
         # file:
@@ -270,7 +270,7 @@ def run_alembic() -> None:
     Run migrations via Alembic.
     """
     # Get Alembic config.
-    alembic_config = context.config  # type: AlembicConfig
+    alembic_config: AlembicConfig = context.config
     target_metadata = Base.metadata
 
     # Get database URL. Previously via get_default_config_from_os_env(); now

@@ -23,6 +23,8 @@ camcops_server/tasks/tests/diagnosis_tests.py
 
 ===============================================================================
 
+Test Diagnosis tasks.
+
 """
 
 from camcops_server.cc_modules.cc_testfactories import (

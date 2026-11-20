@@ -23,6 +23,8 @@ camcops_server/cc_modules/tests/cc_proquint_tests.py
 
 ===============================================================================
 
+Test conversion of integers into Pronounceable Quintuplets (proquints).
+
 """
 
 import random

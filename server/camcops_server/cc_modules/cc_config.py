@@ -187,7 +187,7 @@ DEFAULT_LINUX_CAMCOPS_EXECUTABLE = os.path.join(
 DEFAULT_LINUX_CAMCOPS_STATIC_DIR = os.path.join(
     DEFAULT_LINUX_CAMCOPS_VENV_DIR,
     "lib",
-    "python3.10",
+    "python3.11",
     "site-packages",
     "camcops_server",
     "static",
@@ -1369,7 +1369,7 @@ class CamcopsConfig(object):
         self.plot_fontsize = cd.PLOT_FONTSIZE
 
         self.region_code = _get_str(s, cs.REGION_CODE, cd.REGION_CODE)
-        self.restricted_tasks = {}  # type: Dict[str, List[str]]
+        self.restricted_tasks: dict[str, list[str]] = {}
         # ... maps XML task names to lists of authorized group names
         restricted_tasks = _get_multiline(s, cs.RESTRICTED_TASKS)
         for rt_line in restricted_tasks:

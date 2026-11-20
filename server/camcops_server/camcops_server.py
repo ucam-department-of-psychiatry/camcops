@@ -555,12 +555,12 @@ def add_sub(
     """
     if description is None:
         description = help
-    subparser = sp.add_parser(
+    subparser: ArgumentParser = sp.add_parser(
         cmd,
         help=help,
         description=description,
         formatter_class=ArgumentDefaultsRichHelpFormatter,
-    )  # type: ArgumentParser
+    )
 
     # This needs to be in the top-level parser and the sub-parsers (it does not
     # appear in the subparsers just because it's in the top-level parser, which
@@ -674,13 +674,13 @@ def camcops_main() -> int:
     # Subcommand subparser
     # -------------------------------------------------------------------------
 
-    subparsers = parser.add_subparsers(
+    subparsers: _SubParsersAction = parser.add_subparsers(
         title="commands",
         description="Valid CamCOPS commands are as follows.",
         help="Specify one command.",
         dest="command",  # sorts out the help for the command being mandatory
         # https://stackoverflow.com/questions/23349349/argparse-with-required-subparser  # noqa
-    )  # type: _SubParsersAction
+    )
     subparsers.required = True  # requires a command
     # You can't use "add_subparsers" more than once.
     # Subparser groups seem not yet to be supported:
@@ -1472,7 +1472,7 @@ def camcops_main() -> int:
     # Call the subparser function for the chosen command
     if progargs.func is None:
         raise NotImplementedError("Command-line function not implemented!")
-    success = progargs.func(progargs)  # type: Optional[bool]
+    success: Optional[bool] = progargs.func(progargs)
     if success is None or success is True:
         return EXIT_SUCCESS
     else:

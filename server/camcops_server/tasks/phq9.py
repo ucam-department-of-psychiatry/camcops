@@ -26,7 +26,7 @@ camcops_server/tasks/phq9.py
 """
 
 import logging
-from typing import Any, cast, Dict, List, Optional, Type
+from typing import Any, cast, List, Optional, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.orm import Mapped
@@ -386,7 +386,7 @@ class Phq9(  # type: ignore[misc]
     ) -> List[FHIRAnsweredQuestion]:
         items = []  # type: List[FHIRAnsweredQuestion]
 
-        main_options = {}  # type: Dict[int, str]
+        main_options: dict[int, str] = {}
         for index in range(4):
             main_options[index] = self.wxstring(req, f"a{index}")
         for q_field in self.MAIN_QUESTIONS:

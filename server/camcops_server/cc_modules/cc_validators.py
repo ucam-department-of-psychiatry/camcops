@@ -39,7 +39,7 @@ WARNING: even the error messages shouldn't contain the error-producing strings.
 import ipaddress
 import logging
 import re
-from typing import Callable, List, Optional, TYPE_CHECKING
+from typing import Callable, Optional, TYPE_CHECKING
 import urllib.parse
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -130,7 +130,7 @@ def describe_regex_permitted_char(
     """
     assert expression.startswith("[") and expression.endswith("]")
     content = expression[1:-1]  # strip off surrounding []
-    permitted = []  # type: List[str]
+    permitted: list[str] = []
     length = len(content)
     _ = req.gettext if req else dummy_gettext
     i = 0

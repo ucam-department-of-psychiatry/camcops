@@ -23,6 +23,8 @@ camcops_server/tasks/tests/edeq_tests.py
 
 ===============================================================================
 
+Test EDE-Q task.
+
 """
 
 from unittest import mock, TestCase

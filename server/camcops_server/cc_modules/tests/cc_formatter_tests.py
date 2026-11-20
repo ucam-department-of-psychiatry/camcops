@@ -23,6 +23,8 @@ camcops_server/cc_modules/tests/cc_formatter_tests.py
 
 ===============================================================================
 
+Test safe alternative to str.format().
+
 """
 
 from unittest import TestCase

@@ -27,7 +27,7 @@ camcops_server/tasks/kirby.py
 
 import logging
 import math
-from typing import Dict, List, Optional, Type
+from typing import List, Optional, Type
 
 import numpy as np
 from numpy.linalg.linalg import LinAlgError
@@ -301,7 +301,7 @@ class Kirby(TaskHasPatientMixin, Task):  # type: ignore[misc]
         """
         # 1. For every k value assessed by the questions, establish the degree
         #    of consistency.
-        consistency = {}  # type: Dict[float, int]
+        consistency: dict[float, int] = {}
         for pair in results:
             k = pair.k_indifference()
             if k not in consistency:
@@ -345,7 +345,7 @@ class Kirby(TaskHasPatientMixin, Task):  # type: ignore[misc]
             y[i] = int(pair.chose_ldr)  # bool to int
         lr = sm.Logit(y, x)
         try:
-            result = lr.fit()  # type: BinaryResultsWrapper
+            result: BinaryResultsWrapper = lr.fit()
         except (
             LinAlgError,  # e.g. "singular matrix"
             PerfectSeparationError,

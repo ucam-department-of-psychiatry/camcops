@@ -13,7 +13,7 @@
 ; VERSION-DEPENDENT VALUES
 ; =============================================================================
 
-#define CamcopsClientVersion "2.4.24"
+#define CamcopsClientVersion "2.4.25"
 
 ; =============================================================================
 ; VALUES DEPENDING ON THE DEVELOPER'S BUILD ENVIRONMENT

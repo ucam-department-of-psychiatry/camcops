@@ -37,7 +37,7 @@ they're registered (and also Task knows about all its subclasses).**
 # -----------------------------------------------------------------------------
 
 import logging
-from typing import Dict, List, Type
+from typing import Type
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_orm_classes_from_base
@@ -190,11 +190,12 @@ RESERVED_TABLE_NAMES = [
 # Catalogue tables that clients use
 # =============================================================================
 
-CLIENT_TABLE_MAP = {}  # type: Dict[str, Table]
-NONTASK_CLIENT_TABLENAMES = []  # type: List[str]
+CLIENT_TABLE_MAP: dict[str, Table] = {}
+NONTASK_CLIENT_TABLENAMES: list[str] = []
 
 # Add all tables that clients may upload to (including ancillary tables).
-for __orm_class in gen_orm_classes_from_base(Base):  # type: Type[Base]
+_orm_class: Type[Base]
+for __orm_class in gen_orm_classes_from_base(Base):
     # noinspection PyUnresolvedReferences
     if issubclass(__orm_class, GenericTabletRecordMixin):
         __tablename = __orm_class.__tablename__
@@ -204,7 +205,7 @@ for __orm_class in gen_orm_classes_from_base(Base):  # type: Type[Base]
             if __tablename.startswith("_"):
                 pass
             # noinspection PyUnresolvedReferences
-            __table = __orm_class.__table__  # type: ignore[assignment]
+            __table = __orm_class.__table__  # type: ignore[assignment, attr-defined]  # noqa: E501
             CLIENT_TABLE_MAP[__tablename] = __table  # type: ignore[assignment]
             if not issubclass(__orm_class, Task):
                 NONTASK_CLIENT_TABLENAMES.append(__tablename)

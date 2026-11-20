@@ -158,11 +158,8 @@ import tempfile
 from typing import (
     Any,
     Container,
-    Dict,
-    List,
     Generator,
     Optional,
-    Set,
     Tuple,
     Type,
     TYPE_CHECKING,
@@ -257,7 +254,7 @@ EMPTY_SET: Container[str] = set()
 
 def print_export_queue(
     req: "CamcopsRequest",
-    recipient_names: List[str] = None,
+    recipient_names: list[str] = None,
     all_recipients: bool = False,
     via_index: bool = True,
     pretty: bool = False,
@@ -321,7 +318,7 @@ def print_export_queue(
 
 def export(
     req: "CamcopsRequest",
-    recipient_names: List[str] = None,
+    recipient_names: list[str] = None,
     all_recipients: bool = False,
     via_index: bool = True,
     schedule_via_backend: bool = False,
@@ -404,7 +401,7 @@ def export_whole_database(
                 "Exporting to database: {}",
                 get_safe_url_from_engine(dst_engine),
             )
-            dst_session = sessionmaker(bind=dst_engine)()  # type: SqlASession
+            dst_session: SqlASession = sessionmaker(bind=dst_engine)()
             task_generator = gen_tasks_having_exportedtasks(collection)
             export_options = TaskExportOptions(
                 include_blobs=recipient.db_include_blobs,
@@ -605,7 +602,7 @@ def export_task(
 def gen_audited_tasks_for_task_class(
     collection: "TaskCollection",
     cls: Type[Task],
-    audit_descriptions: List[str],
+    audit_descriptions: list[str],
 ) -> Generator[Task, None, None]:
     """
     Generates tasks from a collection, for a given task class, simultaneously
@@ -623,7 +620,7 @@ def gen_audited_tasks_for_task_class(
     Yields:
         :class:`camcops_server.cc_modules.cc_task.Task` objects
     """
-    pklist = []  # type: List[int]
+    pklist: list[int] = []
     for task in collection.tasks_for_task_class(cls):
         pklist.append(task.pk)
         yield task
@@ -633,7 +630,7 @@ def gen_audited_tasks_for_task_class(
 
 
 def gen_audited_tasks_by_task_class(
-    collection: "TaskCollection", audit_descriptions: List[str]
+    collection: "TaskCollection", audit_descriptions: list[str]
 ) -> Generator[Task, None, None]:
     """
     Generates tasks from a collection, across task classes, simultaneously
@@ -995,7 +992,7 @@ class TaskCollectionExporter(object):
             :class:`camcops_server.cc_modules.cc_spreadsheet.SpreadsheetCollection`
             object
         """
-        audit_descriptions = []  # type: List[str]
+        audit_descriptions: list[str] = []
         options = self.options
         if options.spreadsheet_simplified:
             summary_exclusion_tables = (
@@ -1011,7 +1008,7 @@ class TaskCollectionExporter(object):
         coll = SpreadsheetCollection()
 
         # Iterate through tasks, creating the spreadsheet collection
-        schema_elements = set()  # type: Set[SummarySchemaInfo]
+        schema_elements: set[SummarySchemaInfo] = set()
         for cls in self.collection.task_classes():
             schema_done = False
             for task in gen_audited_tasks_for_task_class(
@@ -1154,9 +1151,7 @@ class SqliteExporter(TaskCollectionExporter):
         with tempfile.TemporaryDirectory() as tmpdirname:
             db_filename = os.path.join(tmpdirname, self.db_basename)
             self._write_to_sqlite_file(db_filename)
-            connection = sqlite3.connect(
-                db_filename
-            )  # type: sqlite3.Connection
+            connection: sqlite3.Connection = sqlite3.connect(db_filename)
             sql_text = sql_from_sqlite_database(connection)
             connection.close()
             return sql_text
@@ -1187,7 +1182,7 @@ class SqliteExporter(TaskCollectionExporter):
         #
         #   engine = create_engine('{dialect}://'.format(dialect=dialect_name),
         #                          strategy='mock', executor=dump)
-        #   dst_session = sessionmaker(bind=engine)()  # type: SqlASession
+        #   dst_session: SqlASession = sessionmaker(bind=engine)()
         #
         # ... you get the error
         #   AttributeError: 'MockConnection' object has no attribute 'begin'
@@ -1227,7 +1222,7 @@ class SqliteExporter(TaskCollectionExporter):
         # ---------------------------------------------------------------------
         # Iterate through tasks, creating tables as we need them.
         # ---------------------------------------------------------------------
-        audit_descriptions = []  # type: List[str]
+        audit_descriptions: list[str] = []
         task_generator = gen_audited_tasks_by_task_class(
             self.collection, audit_descriptions
         )
@@ -1301,10 +1296,9 @@ class SqlExporter(SqliteExporter):
 
 # Create mapping from "viewtype" to class.
 # noinspection PyTypeChecker
-DOWNLOADER_CLASSES = {}  # type: Dict[str, Type[TaskCollectionExporter]]
-for _cls in gen_all_subclasses(
-    TaskCollectionExporter
-):  # type: Type[TaskCollectionExporter]
+DOWNLOADER_CLASSES: dict[str, Type[TaskCollectionExporter]] = {}
+_cls: Type[TaskCollectionExporter]
+for _cls in gen_all_subclasses(TaskCollectionExporter):
     # noinspection PyTypeChecker
     DOWNLOADER_CLASSES[_cls.viewtype] = _cls  # type: ignore[index]
 
@@ -1468,9 +1462,9 @@ class UserDownloadFile(object):
         if not self.exists:
             return None
         # noinspection PyTypeChecker
-        creation = Pendulum.fromtimestamp(
+        creation: Pendulum = Pendulum.fromtimestamp(
             self.statinfo.st_mtime, tz=get_tz_utc()
-        )  # type: Pendulum
+        )
         # ... gives the correct time in the UTC timezone
         # ... note that utcfromtimestamp() gives a time without a timezone,
         #     which is unhelpful!
@@ -1499,7 +1493,7 @@ class UserDownloadFile(object):
         death = self.when_last_modified + Duration(
             minutes=self.permitted_lifespan_min
         )
-        remaining = death - now  # type: Interval
+        remaining: Interval = death - now
         # Note that Interval is a subclass of Duration, but its __str__()
         # method is different. Duration maps __str__() to in_words(), but
         # Interval maps __str__() to __repr__().
@@ -1586,7 +1580,7 @@ class UserDownloadFile(object):
         directory: str,
         permitted_lifespan_min: float = 0,
         req: "CamcopsRequest" = None,
-    ) -> List["UserDownloadFile"]:
+    ) -> list["UserDownloadFile"]:
         """
         Scans the directory and returns a list of :class:`UserDownloadFile`
         objects, one for each file in the directory.
@@ -1599,7 +1593,7 @@ class UserDownloadFile(object):
             permitted_lifespan_min: lifespan for each file
             req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         """
-        results = []  # type: List[UserDownloadFile]
+        results: list[UserDownloadFile] = []
         # Imagine directory == "/etc":
         for root, dirs, files in os.walk(directory):
             # ... then root might at times be "/etc/apache2"

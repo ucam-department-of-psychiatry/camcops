@@ -26,7 +26,7 @@ camcops_server/tasks/phq8.py
 """
 
 import logging
-from typing import Any, cast, Dict, List, Type
+from typing import Any, cast, List, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Boolean, Integer
@@ -336,7 +336,7 @@ class Phq8(  # type: ignore[misc]
     ) -> List[FHIRAnsweredQuestion]:
         items = []  # type: List[FHIRAnsweredQuestion]
 
-        answer_options = {}  # type: Dict[int, str]
+        answer_options: dict[int, str] = {}
         for index in range(4):
             answer_options[index] = self.wxstring(req, f"a{index}")
         for q_field in self.QUESTIONS:

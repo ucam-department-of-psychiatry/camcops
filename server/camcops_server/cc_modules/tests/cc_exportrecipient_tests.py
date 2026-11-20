@@ -23,6 +23,8 @@ camcops_server/cc_modules/tests/cc_exportrecipient_tests.py
 
 ===============================================================================
 
+Test ExportRecipient class
+
 """
 
 from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase

@@ -23,6 +23,8 @@ camcops_server/cc_modules/tests/cc_task_tests.py
 
 ===============================================================================
 
+**Test core CamCOPS task functionality.**
+
 """
 
 import logging

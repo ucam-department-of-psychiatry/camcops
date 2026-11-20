@@ -22,6 +22,9 @@ camcops_server/cc_modules/tests/cc_config_tests.py
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+Test reading and representation of the CamCOPS config file.
+
 """
 
 import configparser

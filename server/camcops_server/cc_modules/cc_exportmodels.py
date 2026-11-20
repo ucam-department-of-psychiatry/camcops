@@ -34,7 +34,7 @@ import posixpath
 import socket
 import subprocess
 import sys
-from typing import Any, Generator, List, Optional, Tuple, TYPE_CHECKING
+from typing import Any, Generator, List, Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.datetimefunc import (
     get_now_utc_datetime,
@@ -1126,7 +1126,7 @@ class ExportedTaskEmail(Base):
         encoding = "utf8"
 
         # Export task
-        attachments = []  # type: List[Tuple[str, bytes]]
+        attachments: list[tuple[str, bytes]] = []
         if task_format == FileType.PDF:
             binary = task.get_pdf(req)
         elif task_format == FileType.HTML:

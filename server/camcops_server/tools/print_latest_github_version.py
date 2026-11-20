@@ -48,7 +48,6 @@ Test code for version sorting:
 import logging
 import subprocess
 import sys
-from typing import List
 
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
 from semantic_version import Version
@@ -68,7 +67,7 @@ def main() -> None:
         line.split()[1].replace("refs/tags/v", "")
         for line in output.splitlines()
     ]
-    versions = []  # type: List[Version]
+    versions: list[Version] = []
     for v in version_strings:
         try:
             versions.append(Version(v))

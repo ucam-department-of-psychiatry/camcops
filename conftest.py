@@ -1,5 +1,5 @@
 """
-camcops_server/conftest.py
+conftest.py
 
 ===============================================================================
 
@@ -46,7 +46,6 @@ import camcops_server.cc_modules.cc_all_models  # noqa: F401
 
 # ... import side effects (ensure all models registered)
 
-from camcops_server.cc_modules.cc_baseconstants import CAMCOPS_SERVER_DIRECTORY
 from camcops_server.cc_modules.cc_config import get_demo_config
 from camcops_server.cc_modules.cc_sqlalchemy import (
     Base,
@@ -62,10 +61,9 @@ if TYPE_CHECKING:
     from _pytest.config.argparsing import Parser
     from _pytest.fixtures import FixtureRequest
 
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))  # cc_modules
 
-TEST_DATABASE_FILENAME = os.path.join(
-    CAMCOPS_SERVER_DIRECTORY, "camcops_test.sqlite"
-)
+TEST_DATABASE_FILENAME = os.path.join(THIS_DIR, "camcops_test.sqlite")
 
 
 def pytest_addoption(parser: "Parser") -> None:

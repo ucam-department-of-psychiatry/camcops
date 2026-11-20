@@ -23,6 +23,8 @@ camcops_server/tasks/tests/empsa_tests.py
 
 ===============================================================================
 
+Test Eating and Meal Preparation Skills Assessment (EMPSA) task.
+
 """
 
 from unittest import TestCase

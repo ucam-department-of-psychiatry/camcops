@@ -23,6 +23,8 @@ camcops_server/cc_modules/tests/cc_dump_tests.py
 
 ===============================================================================
 
+Test methods for providing a dump of data from the server to the web user.
+
 """
 
 from typing import List, TYPE_CHECKING

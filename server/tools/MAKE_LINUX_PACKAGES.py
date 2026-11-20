@@ -248,15 +248,16 @@ system_python_executable()
     # Use as: $(system_python_executable) ...
 
     python_options=(
+        python3.13 python313
         python3.12 python312
         python3.11 python311
-        python3.10 python310
         python3
         python
     )
-    for option in ${python_options[@]}; do
-        python_exe=$(which $option)
-        if [ ! -z "${python_exe}" ]; then
+    for option in "${python_options[@]}"; do
+        python_exe=$(command -v "$option" || true)
+        >&2 echo "Checking $option: ${python_exe:-not found}"
+        if [ -n "${python_exe}" ]; then
             >&2 echo "CamCOPS: found system Python at ${python_exe}"
             echo ${python_exe}
             return 0  # success
@@ -548,7 +549,7 @@ Priority: optional
 Architecture: all
 Maintainer: Rudolf Cardinal <rnc1001@cam.ac.uk>
 Depends: {DEPENDENCIES}
-X-Python3-Version: >= 3.10, <= 3.12
+X-Python3-Version: >= 3.11, <= 3.13
 Recommends: mysql-workbench
 Description: Cambridge Cognitive and Psychiatric Test Kit (CamCOPS), server
  packages.
@@ -643,6 +644,7 @@ echo '{PACKAGE}: postinst file executing'
 
 echo 'About to install virtual environment'
 export XDG_CACHE_HOME={DSTPYTHONCACHE}
+
 $(system_python_executable) {DSTVENVSCRIPT} {DSTPYTHONVENV} --skippackagechecks
 
 echo 'About to install CamCOPS into virtual environment'

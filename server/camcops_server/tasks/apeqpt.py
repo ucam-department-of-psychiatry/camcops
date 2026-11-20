@@ -27,7 +27,7 @@ camcops_server/tasks/apeqpt.py
 
 """
 
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 from pendulum import DateTime as Pendulum
 from sqlalchemy.orm import Mapped
@@ -181,7 +181,7 @@ class Apeqpt(Task):
     ) -> List[FHIRAnsweredQuestion]:
         items = []  # type: List[FHIRAnsweredQuestion]
 
-        yes_no_options = {}  # type: Dict[int, str]
+        yes_no_options: dict[int, str] = {}
         for index in range(2):
             yes_no_options[index] = self.wxstring(req, f"a{index}_choice")
         items.append(
@@ -218,7 +218,7 @@ class Apeqpt(Task):
             )
         )
 
-        satisfaction_options = {}  # type: Dict[int, str]
+        satisfaction_options: dict[int, str] = {}
         for index in range(5):
             satisfaction_options[index] = self.wxstring(
                 req, f"a{index}_satisfaction"

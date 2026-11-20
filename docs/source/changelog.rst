@@ -71,6 +71,7 @@ Quick links:
 - :ref:`v2.4.22 <changelog_v2.4.22>`
 - :ref:`v2.4.23 <changelog_v2.4.23>`
 - :ref:`v2.4.24 <changelog_v2.4.24>`
+- :ref:`v2.4.25 <changelog_v2.4.25>`
 
 Contributors
 ------------
@@ -4034,8 +4035,10 @@ Current C++/SQLite client, Python/SQLAlchemy server
   an incomplete patient registration.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/367
 
-**Client and server v2.4.25, IN PROGRESS**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. _changelog_v2.4.25:
+
+**Client and server v2.4.25, released 31 Oct 2026**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Replace wkhtmltopdf and PDFKit, neither of which are maintained with Weasyprint.
   https://github.com/ucam-department-of-psychiatry/camcops/issues/383
@@ -4045,3 +4048,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - SQL Cipher version is now v4.18.0, based on SQLite 3.53.4
 
 - New task: :ref:`Autism Spectrum Quotient (10 items) (AQ-10) (Adult) <aq10>`. (Database revision 0088.)
+
+- Update the Docker image to use Debian 12. Debian 11 has now reached end-of-life.
+
+- Update the version of MySQL used when running the CamCOPS database in a Docker container to 8.4.
+
+- **Minimum Python version now Python 3.11.**. Python 3.10 has reached end-of-life.
+
+- Update OpenSSL to 3.5 LTS.
+
+**Client and server v2.4.26, IN PROGRESS**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

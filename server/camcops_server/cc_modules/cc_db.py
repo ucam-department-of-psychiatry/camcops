@@ -1274,7 +1274,7 @@ def add_multiple_columns(  # type: ignore[no-untyped-def]
         pv:
             list of permitted values, or ``None``
     """
-    colkwargs = {} if colkwargs is None else colkwargs  # type: Dict[str, Any]
+    colkwargs: dict[str, Any] = {} if colkwargs is None else colkwargs
     comment_strings = comment_strings or []
     for n in range(start, end + 1):
         nstr = str(n)

@@ -29,7 +29,7 @@ showing text that a clinician might care about.**
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Set, Tuple, TYPE_CHECKING
+from typing import Any, List, Optional, Tuple, TYPE_CHECKING
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -179,7 +179,7 @@ def consistency_idnums(
     """
     # 1. Generate "known", mapping which_idnum -> set of observed non-NULL
     # idnum_values
-    known = {}  # type: Dict[int, Set[int]]
+    known: dict[int, set[int]] = {}
     for task_idnum_list in idnum_lists:
         for idnum in task_idnum_list:
             idnum_value = idnum.idnum_value
@@ -190,7 +190,7 @@ def consistency_idnums(
                 known[which_idnum].add(idnum_value)
 
     # 2. For every observed which_idnum, was it observed in all tasks?
-    present_in_all = {}  # type: Dict[int, bool]
+    present_in_all: dict[int, bool] = {}
     for which_idnum in known.keys():
         present_for_all_tasks = all(
             # "For all tasks..."

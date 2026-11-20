@@ -345,7 +345,6 @@ from typing import (
     List,
     Optional,
     Sequence,
-    Set,
     Tuple,
     TYPE_CHECKING,
 )
@@ -634,7 +633,7 @@ def ensure_valid_patient_json(
     errors = []  # type: List[str]
     finalizing = None
     ptinfo = BarePatientInfo()
-    idnum_types_seen = set()  # type: Set[int]
+    idnum_types_seen: set[int] = set()
     for k, v in pt_dict.items():
         # May not be necessary as JSON has already been validated
         ensure_string(k, allow_none=False)
@@ -1268,13 +1267,13 @@ def flag_all_records_deleted(req: "CamcopsRequest", table: Table) -> int:
 
     Returns the number of rows affected.
     """
-    rp = req.dbsession.execute(
+    rp: CursorResult = req.dbsession.execute(
         update(table)
         .where(table.c[FN_DEVICE_ID] == req.tabletsession.device_id)
         .where(table.c[FN_CURRENT])
         .where(table.c[FN_ERA] == ERA_NOW)
         .values(values_delete_later())
-    )  # type: CursorResult
+    )
     return rp.rowcount
     # https://docs.sqlalchemy.org/en/latest/core/connections.html?highlight=rowcount#sqlalchemy.engine.Result.rowcount  # noqa
 

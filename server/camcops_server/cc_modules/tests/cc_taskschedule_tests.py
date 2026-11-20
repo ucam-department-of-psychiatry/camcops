@@ -23,6 +23,8 @@ camcops_server/cc_modules/tests/cc_taskschedule_tests.py
 
 ===============================================================================
 
+Test support for a schedule of tasks to be completed in Single User Mode.
+
 """
 
 from urllib.parse import parse_qs, urlsplit

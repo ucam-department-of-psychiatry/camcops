@@ -33,6 +33,7 @@ core
 
 # Python
 __pycache__/
+*.swp
 
 # Test database
 camcops_test.sqlite*
@@ -44,6 +45,7 @@ htmlcov/
 # Packaging
 server/camcops_server.egg-info
 server/build/
+dist/
 
 # pytest coverage
 .coverage

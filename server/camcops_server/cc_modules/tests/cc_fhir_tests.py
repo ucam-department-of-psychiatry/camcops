@@ -28,7 +28,7 @@ camcops_server/cc_modules/tests/cc_fhir_tests.py
 import datetime
 import json
 import logging
-from typing import Dict, List
+from typing import Dict
 from unittest import mock
 
 from cardinal_pythonlib.httpconst import HttpMethod
@@ -428,9 +428,7 @@ class FhirTaskExporterPhq9Tests(FhirExportPatientTestCase):
 
         self.dbsession.commit()
 
-        entries = (
-            exported_task_fhir.entries
-        )  # type: List[ExportedTaskFhirEntry]
+        entries: list[ExportedTaskFhirEntry] = exported_task_fhir.entries
 
         entries.sort(key=lambda e: e.location)
 

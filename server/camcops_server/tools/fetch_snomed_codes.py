@@ -41,7 +41,7 @@ import json
 import logging
 import requests
 import sys
-from typing import Dict, List, Optional, Set, Tuple, Union
+from typing import Dict, List, Optional, Union
 
 from cardinal_pythonlib.argparse_func import ShowAllSubparserHelpAction
 from cardinal_pythonlib.json_utils.typing_helpers import JsonValueType
@@ -219,7 +219,7 @@ SWEMWBS1 = "Short Warwick Edinburgh Mental Well-Being Scale"
 SWEMWBS2 = "Short Warwick-Edinburgh Mental Well-Being Scale"
 WSAS = "Improving Access to Psychological Therapies programme Work and Social Adjustment Scale"  # noqa
 
-CCMAP = OrderedDict(
+CCMAP: dict[str, tuple] = OrderedDict(
     [
         # camcops_name, snomed_term_details (= term_name, semantic_type, term_suffix)  # noqa
         (SL.OBSERVABLE_ENTITY, ("Observable entity", ST.OBS)),
@@ -668,7 +668,7 @@ CCMAP = OrderedDict(
         ),
         (SL.WSAS_PROCEDURE_ASSESSMENT, (f"{ASSESS} {WSAS}", ST.PROC)),
     ]
-)  # type: Dict[str, Tuple]
+)
 
 
 # =============================================================================
@@ -966,7 +966,7 @@ def fetch_camcops_snomed_codes(
         for x in dir(SnomedLookup)
         if not x.startswith("_")
     ]
-    seen = set()  # type: Set[str]
+    seen: set[str] = set()
     with open(filename, "wt") as f:
         print(XML_HEADER, file=f)
         for camcops_name, snomed_term_details in CCMAP.items():

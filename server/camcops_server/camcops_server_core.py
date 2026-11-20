@@ -285,7 +285,7 @@ def make_wsgi_app(
               d = self.__dict__
               d['environ'] = environ
         so we should be able to use
-              request.environ  # type: Dict[str, str]
+              request.environ  # a dict[str, str]
 
     """
     log.debug("Creating WSGI app")
@@ -303,20 +303,20 @@ def make_wsgi_app(
 
     if show_requests:
         # noinspection PyTypeChecker
-        app = RequestLoggingMiddleware(  # type: ignore[no-redef]
+        app: Router = RequestLoggingMiddleware(  # type: ignore[no-redef]
             app,
             logger=logging.getLogger(__name__),
             loglevel=logging.INFO,
             show_request_immediately=show_request_immediately,
             show_response=show_response,
             show_timing=show_timing,
-        )  # type: Router
+        )
 
     if reverse_proxied_config and reverse_proxied_config.necessary():
         # noinspection PyTypeChecker
-        app = ReverseProxiedMiddleware(  # type: ignore[no-redef]
+        app: Router = ReverseProxiedMiddleware(  # type: ignore[no-redef]
             app=app, config=reverse_proxied_config, debug=debug_reverse_proxy
-        )  # type: Router
+        )
 
     log.debug("WSGI app created")
     return app
@@ -524,7 +524,7 @@ def serve_gunicorn(
             options: Dict[str, Any] = None,
             debug_show_known_settings: bool = False,
         ) -> None:
-            self.options = options or {}  # type: Dict[str, Any]
+            self.options: Dict[str, Any] = options or {}
             self.application = app_
             super().__init__()
             if debug_show_known_settings:
@@ -723,7 +723,7 @@ def make_data_dictionary(
             save=False,
             database_versions=False,
         )
-        recipient = recipients[0]  # type: ExportRecipientInfo
+        recipient: ExportRecipientInfo = recipients[0]
         log.info(
             f"Generating {target} data dictionary for export recipient "
             f"{recipient_name!r}; writing to {filename!r}"

@@ -27,7 +27,7 @@ camcops_server/tasks/lynall_iam_life.py
 
 """
 
-from typing import Any, List, Type
+from typing import Any, Type
 
 from sqlalchemy.sql.sqltypes import Integer
 
@@ -205,7 +205,7 @@ class LynallIamLifeEvents(  # type: ignore[misc]
             2: self.wxstring(req, "severity_a2"),
             1: self.wxstring(req, "severity_a1"),
         }
-        q_a = []  # type: List[str]
+        q_a: list[str] = []
         for q in range(1, N_QUESTIONS + 1):
             fieldname_main = qfieldname_main(q)
             q_main = self.wxstring(req, fieldname_main)

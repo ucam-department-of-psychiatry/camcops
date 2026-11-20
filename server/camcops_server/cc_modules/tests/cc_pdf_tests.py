@@ -21,6 +21,9 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 
 ===============================================================================
+
+**Test PDF functions.**
+
 """
 
 from unittest import mock, TestCase

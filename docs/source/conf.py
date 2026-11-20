@@ -112,7 +112,11 @@ master_doc = "index"
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+
+# Since Sphinx 5.0 language = None is not recommended and generates a
+# warning.
+# https://github.com/sphinx-doc/sphinx/issues/10474
+language = "en"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -354,8 +358,8 @@ def register_css_role_allowing_content_substitution(css_class: str) -> None:
         Returns the tuple (nodes, messages).
         Search docutils for "role_fn" to see how this function will be called.
         """
-        options = options or {}  # type: Dict[str, Any]
-        content = content or []  # type: List[str]
+        options: Dict[str, Any] = options or {}
+        content: List[str] = content or []
         log.debug(
             "rolefunc() called with role_name={rn!r}, rawtext={rt!r}, "
             "text={t!r}, lineno={ln}, inliner={i!r}, "
@@ -372,9 +376,9 @@ def register_css_role_allowing_content_substitution(css_class: str) -> None:
         parsed_nodes, parsed_msgs = inliner.parse(
             text=text, lineno=0, memo=inliner, parent=None  # type: ignore[arg-type]  # noqa: E501
         )
-        top_node = nodes.inline(  # was nodes.inline
+        top_node: Element = nodes.inline(  # was nodes.inline
             text="", refid=css_class, **options
-        )  # type: Element
+        )
         top_node["classes"].append(
             css_class
         )  # see deprecated Element.set_class
@@ -391,6 +395,10 @@ register_css_role_allowing_content_substitution("tabletmenu")
 # https://stackoverflow.com/questions/5599254/how-to-use-sphinxs-autodoc-to-document-a-classs-init-self-method  # noqa
 # autoclass_content = "both"
 autoclass_content = "class"
+
+# Problem with SQLAlchemy DeclarativeBaseNoMeta
+# undefined label: 'orm_declarative_metadata'
+autodoc_inherit_docstrings = False
 
 # To prevent Alembic env.py breaking:
 os.environ["_SPHINX_AUTODOC_IN_PROGRESS"] = "true"

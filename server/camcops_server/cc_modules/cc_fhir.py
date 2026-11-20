@@ -146,7 +146,7 @@ This problem occurs intermittently:
 from enum import Enum
 import json
 import logging
-from typing import Any, Dict, List, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.httpconst import HttpMethod
@@ -403,7 +403,7 @@ class FhirTaskExporter(object):
             # specific
             raise FhirExportException(f"Error from fhirclient: {e}")
 
-    def parse_response(self, response: Dict) -> None:
+    def parse_response(self, response: dict) -> None:
         """
         Parse the response from the FHIR server to which we have sent our
         task. The response looks something like this:
@@ -524,7 +524,7 @@ def fhir_reference_from_identifier(identifier: Identifier) -> str:
 
 def fhir_observation_component_from_snomed(
     req: "CamcopsRequest", expr: SnomedExpression
-) -> Dict:
+) -> dict:
     """
     Returns a FHIR ObservationComponent (as a dict in JSON format) for a SNOMED
     CT expression.
@@ -585,9 +585,9 @@ def fhir_observation_component_from_snomed(
 def make_fhir_bundle_entry(
     resource_type_url: str,
     identifier: Identifier,
-    resource: Dict,
+    resource: dict,
     identifier_is_list: bool = True,
-) -> Dict:
+) -> dict:
     """
     Builds a FHIR BundleEntry, as a JSON dict.
 
@@ -692,7 +692,7 @@ class FHIRAnsweredQuestion:
         qtype: FHIRQuestionType,
         answer_type: FHIRAnswerType,
         answer: Any,
-        answer_options: Dict[Any, str] = None,
+        answer_options: dict[Any, str] = None,
     ) -> None:
         """
         Args:
@@ -715,7 +715,7 @@ class FHIRAnsweredQuestion:
         self.qtype = qtype
         self.answer = answer
         self.answer_type = answer_type
-        self.answer_options = answer_options or {}  # type: Dict[Any, str]
+        self.answer_options: dict[Any, str] = answer_options or {}
 
         # Checks
         if self.is_mcq:
@@ -753,7 +753,7 @@ class FHIRAnsweredQuestion:
     # Abstract (class)
     # -------------------------------------------------------------------------
 
-    def questionnaire_item(self) -> Dict:
+    def questionnaire_item(self) -> dict:
         """
         Returns a JSON/dict representation of a FHIR QuestionnaireItem.
         """
@@ -768,7 +768,7 @@ class FHIRAnsweredQuestion:
         # Extras for multiple-choice questions: what are the possible answers?
         if self.is_mcq:
             # Add permitted answers.
-            options = []  # type: List[Dict]
+            options: list[dict] = []
             # We asserted mcq_qa earlier.
             for code, display in self.answer_options.items():
                 options.append(
@@ -839,7 +839,7 @@ class FHIRAnsweredQuestion:
             jsondict={answer_type.value: fhir_answer}
         )
 
-    def questionnaire_response_item(self) -> Dict:
+    def questionnaire_response_item(self) -> dict:
         """
         Returns a JSON/dict representation of a FHIR QuestionnaireResponseItem.
         """

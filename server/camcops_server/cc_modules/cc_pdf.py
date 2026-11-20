@@ -61,9 +61,7 @@ def pdf_from_html(
     """
     Create and return a PDF from the HTML provided.
     """
-    extra_wkhtmltopdf_options = (
-        extra_wkhtmltopdf_options or {}
-    )  # type: Dict[str, Any]
+    extra_wkhtmltopdf_options: dict[str, Any] = extra_wkhtmltopdf_options or {}
     wkhtmltopdf_options = dict(
         WKHTMLTOPDF_OPTIONS, **extra_wkhtmltopdf_options
     )

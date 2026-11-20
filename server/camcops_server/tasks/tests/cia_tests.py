@@ -23,6 +23,8 @@ camcops_server/tasks/tests/cia_tests.py
 
 ===============================================================================
 
+Test CIA task.
+
 """
 
 from unittest import TestCase

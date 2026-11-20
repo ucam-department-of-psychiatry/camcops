@@ -25,7 +25,7 @@ camcops_server/tasks/lynall_iam_medical.py
 
 """
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional, Union
 
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
@@ -379,7 +379,7 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):  # type: ignore[misc]
             req, "q4a_option", 1, self.Q4_N_OPTIONS
         )
         q7a_options = self.make_options_from_xstrings(req, "q7a_option", 0, 1)
-        _q7b_anchors = []  # type: List[str]
+        _q7b_anchors: list[str] = []
         for _o in (1, 10):
             _wxstring = self.wxstring(req, f"q7b_anchor_{_o}")
             _q7b_anchors.append(f"{_o}: {_wxstring}")

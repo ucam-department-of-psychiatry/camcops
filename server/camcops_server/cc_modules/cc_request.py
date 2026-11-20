@@ -41,7 +41,6 @@ from typing import (
     Generator,
     List,
     Optional,
-    Set,
     Tuple,
     TYPE_CHECKING,
 )
@@ -288,8 +287,8 @@ class CamcopsRequest(Request):
 
         .. code-block:: none
 
-            ccsession = request.camcops_session  # type: CamcopsSession
-            pyramid_session = request.session  # type: ISession
+            ccsession: CamcopsSession = request.camcops_session
+            pyramid_session: ISession = request.session
         """
         if self._camcops_session is None:
             from camcops_server.cc_modules.cc_session import (
@@ -345,7 +344,7 @@ class CamcopsRequest(Request):
         dbsession.flush()  # sets the PK for ccsession, if it wasn't set
         # Write the details back to the Pyramid session (will be persisted
         # via the Response automatically):
-        pyramid_session = self.session  # type: ISession
+        pyramid_session: ISession = self.session
         ccsession = self.camcops_session
         pyramid_session[CookieKey.SESSION_ID] = str(ccsession.id)
         pyramid_session[CookieKey.SESSION_TOKEN] = ccsession.token
@@ -1127,7 +1126,7 @@ class CamcopsRequest(Request):
         <RESTRICTED_TASKS>` option.
         """
         restricted_tasks = self.config.restricted_tasks
-        user_group_names = None  # type: Optional[Set[str]]
+        user_group_names: set[str] | None = None
 
         def task_permitted(task_xml_name: str) -> bool:
             nonlocal user_group_names
@@ -1447,15 +1446,14 @@ class CamcopsRequest(Request):
             final_fontdict.update(fontdict)
         fp = FontProperties(**final_fontdict)
 
-        axes = []  # type: List[Axis]
+        axes: list[Axis] = []
         if x_ticklabels:  # and hasattr(ax, "xaxis"):
             axes.append(ax.xaxis)
         if y_ticklabels:  # and hasattr(ax, "yaxis"):
             axes.append(ax.yaxis)
         for axis in axes:
-            for ticklabel in axis.get_ticklabels(
-                which="both"
-            ):  # type: Text  # I think!
+            ticklabel: Text
+            for ticklabel in axis.get_ticklabels(which="both"):
                 ticklabel.set_fontproperties(fp)
 
     def get_html_from_pyplot_figure(self, fig: Figure) -> str:
@@ -2268,7 +2266,7 @@ class CamcopsDummyRequest(CamcopsRequest, DummyRequest):
         if not d:
             return
         # webob.request.BaseRequest.GET reads from self.environ['QUERY_STRING']
-        paramdict = self.GET.copy()  # type: MultiDict
+        paramdict: MultiDict = self.GET.copy()
         paramdict.update(d)
         env = self.environ
         # Delete the cached version.
