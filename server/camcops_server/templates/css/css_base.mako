@@ -1252,6 +1252,26 @@ table.taskdetail td {
     width: 20%;
 }
 
+.ocir-category-col {
+    width: 70%;
+}
+.ocir-total-col {
+    width: 15%;
+}
+.ocir-mean-col {
+    width: 15%;
+}
+.ocir-statement-col {
+    width: 80%;
+}
+.ocir-answer-col {
+    width: 10%;
+}
+.ocir-score-col {
+    width: 10%
+}
+
+
 .ors-question-col {
     width: 60%;
 }

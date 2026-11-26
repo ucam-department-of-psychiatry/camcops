@@ -40,7 +40,7 @@ from camcops_server.cc_modules.cc_fhir import (
     FHIRAnswerType,
     FHIRQuestionType,
 )
-from camcops_server.cc_modules.cc_html import answer, tr
+from camcops_server.cc_modules.cc_html import answer, sup, th, tr
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
@@ -232,17 +232,14 @@ class Ocir(TaskHasPatientMixin, Task):  # type: ignore[misc]
 
     def get_task_html_rows(self, req: CamcopsRequest) -> str:
         _ = req.gettext
-        css_col_prefix = self.__tablename__
+        statement = _("Statement")
+        answer = _("Answer")
         score_text = _("Score")
+
         header = f"""
             <tr>
-                <colgroup>
-                    <col class="{css_col_prefix}-statement-col" />
-                    <col class="{css_col_prefix}-answer-col" />
-                    <col class="{css_col_prefix}-score-col" />
-                </colgroup>
-                <th>Statement</th>
-                <th>Answer</th>
+                <th>{statement}</th>
+                <th>{answer}</th>
                 <th>{score_text}</th>
             </tr>
         """
@@ -251,23 +248,30 @@ class Ocir(TaskHasPatientMixin, Task):  # type: ignore[misc]
         )
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        rows = self.get_task_html_rows(req)
+        detail_rows = self.get_task_html_rows(req)
 
         html = """
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
                     {tr_is_complete}
-                    {total_score}
-                    {washing_score}
-                    {obsessing_score}
-                    {hoarding_score}
-                    {ordering_score}
-                    {checking_score}
-                    {neutralising_score}
+                </table>
+                <table class="{CssClass.SUMMARY}">
+                    <colgroup>
+                        <col class="{css_col_prefix}-category-col" />
+                        <col class="{css_col_prefix}-total-col" />
+                        <col class="{css_col_prefix}-mean-col" />
+                    </colgroup>
+                    {summary_header}
+                    {summary_rows}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
-                {rows}
+                <colgroup>
+                    <col class="{css_col_prefix}-statement-col" />
+                    <col class="{css_col_prefix}-answer-col" />
+                    <col class="{css_col_prefix}-score-col" />
+                </colgroup>
+                {detail_rows}
             </table>
             <div class="{CssClass.FOOTNOTES}">
                 [1] Questions {washing_q_nums}.
@@ -275,43 +279,69 @@ class Ocir(TaskHasPatientMixin, Task):  # type: ignore[misc]
                 [3] Questions {hoarding_q_nums}.
                 [4] Questions {ordering_q_nums}.
                 [5] Questions {checking_q_nums}.
-                [6] Questions {neutralising_q_nums}.
+                [6] Questions {neutralising_q_nums}. {scoring_notes}
             </div>
         """.format(
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
-            total_score=tr(
-                req.sstring(SS.TOTAL_SCORE),
-                answer(self.score()) + f" / {self.MAX_TOTAL_SCORE}",
+            css_col_prefix=self.__tablename__,
+            summary_header=tr(
+                th(self.wxstring(req, "category")),
+                th(self.wxstring(req, "total")),
+                th(self.wxstring(req, "mean")),
+                literal=True,
             ),
-            washing_score=tr(
-                self.wxstring(req, "washing_score") + " <sup>[1]</sup>",
-                answer(self.washing_score()) + f" / {self.MAX_SUBSCALE_SCORE}",
-            ),
-            obsessing_score=tr(
-                self.wxstring(req, "obsessing_score") + " <sup>[2]</sup>",
-                answer(self.obsessing_score())
-                + f" / {self.MAX_SUBSCALE_SCORE}",
-            ),
-            hoarding_score=tr(
-                self.wxstring(req, "hoarding_score") + " <sup>[3]</sup>",
-                answer(self.hoarding_score())
-                + f" / {self.MAX_SUBSCALE_SCORE}",
-            ),
-            ordering_score=tr(
-                self.wxstring(req, "ordering_score") + " <sup>[4]</sup>",
-                answer(self.ordering_score())
-                + f" / {self.MAX_SUBSCALE_SCORE}",
-            ),
-            checking_score=tr(
-                self.wxstring(req, "checking_score") + " <sup>[5]</sup>",
-                answer(self.checking_score())
-                + f" / {self.MAX_SUBSCALE_SCORE}",
-            ),
-            neutralising_score=tr(
-                self.wxstring(req, "neutralising_score") + " <sup>[6]</sup>",
-                answer(self.neutralising_score())
-                + f" / {self.MAX_SUBSCALE_SCORE}",
+            summary_rows="".join(
+                [
+                    self.summary_row(
+                        req,
+                        "washing",
+                        self.washing_score(),
+                        self.QUESTIONS_PER_SUBSCALE,
+                        1,
+                    ),
+                    self.summary_row(
+                        req,
+                        "obsessing",
+                        self.obsessing_score(),
+                        self.QUESTIONS_PER_SUBSCALE,
+                        2,
+                    ),
+                    self.summary_row(
+                        req,
+                        "hoarding",
+                        self.hoarding_score(),
+                        self.QUESTIONS_PER_SUBSCALE,
+                        3,
+                    ),
+                    self.summary_row(
+                        req,
+                        "ordering",
+                        self.ordering_score(),
+                        self.QUESTIONS_PER_SUBSCALE,
+                        4,
+                    ),
+                    self.summary_row(
+                        req,
+                        "checking",
+                        self.checking_score(),
+                        self.QUESTIONS_PER_SUBSCALE,
+                        5,
+                    ),
+                    self.summary_row(
+                        req,
+                        "neutralising",
+                        self.neutralising_score(),
+                        self.QUESTIONS_PER_SUBSCALE,
+                        6,
+                    ),
+                    self.summary_row(
+                        req,
+                        "total",
+                        self.score(),
+                        self.LAST_Q,
+                    ),
+                ]
             ),
             washing_q_nums=to_csv(self.WASHING_QUESTIONS),
             obsessing_q_nums=to_csv(self.OBSESSING_QUESTIONS),
@@ -319,9 +349,28 @@ class Ocir(TaskHasPatientMixin, Task):  # type: ignore[misc]
             ordering_q_nums=to_csv(self.ORDERING_QUESTIONS),
             checking_q_nums=to_csv(self.CHECKING_QUESTIONS),
             neutralising_q_nums=to_csv(self.NEUTRALISING_QUESTIONS),
-            rows=rows,
+            detail_rows=detail_rows,
+            scoring_notes=self.wxstring(req, "scoring_notes"),
         )
         return html
+
+    def summary_row(
+        self,
+        req: CamcopsRequest,
+        title: str,
+        score: int,
+        num_questions: int,
+        footnote_number: int = 0,
+    ) -> str:
+        mean = round(score / num_questions, 2)
+        max_score = num_questions * self.MAX_Q_SCORE
+
+        footnote = f" {sup(str(footnote_number))}" if footnote_number else ""
+        return tr(
+            self.wxstring(req, title) + footnote,
+            answer(score) + f" / {max_score}",
+            answer(mean) + f" / {self.MAX_Q_SCORE}",
+        )
 
     def get_task_html_rows_for_range(
         self, req: CamcopsRequest, first_q: int, last_q: int
