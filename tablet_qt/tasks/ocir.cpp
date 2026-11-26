@@ -61,9 +61,7 @@ void initializeOcir(TaskFactory& factory)
     static TaskRegistrar<Ocir> registered(factory);
 }
 
-
-Ocir::Ocir(
-    CamcopsApp& app, DatabaseManager& db, const int load_pk) :
+Ocir::Ocir(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, OCIR_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addFields(strseq(Q_PREFIX, FIRST_Q, LAST_Q), QMetaType::fromType<int>());
@@ -191,35 +189,18 @@ QStringList Ocir::summary() const
     };
 
     return QStringList{
+        rangeScore(xstring("washing_mean"), washingMean(), MIN_MEAN, MAX_MEAN),
         rangeScore(
-            xstring("washing_mean"),
-            washingMean(),
-            MIN_MEAN,
-            MAX_MEAN
+            xstring("checking_mean"), checkingMean(), MIN_MEAN, MAX_MEAN
         ),
         rangeScore(
-            xstring("checking_mean"),
-            checkingMean(),
-            MIN_MEAN,
-            MAX_MEAN
+            xstring("ordering_mean"), orderingMean(), MIN_MEAN, MAX_MEAN
         ),
         rangeScore(
-            xstring("ordering_mean"),
-            orderingMean(),
-            MIN_MEAN,
-            MAX_MEAN
+            xstring("obsessing_mean"), obsessingMean(), MIN_MEAN, MAX_MEAN
         ),
         rangeScore(
-            xstring("obsessing_mean"),
-            obsessingMean(),
-            MIN_MEAN,
-            MAX_MEAN
-        ),
-        rangeScore(
-            xstring("hoarding_mean"),
-            hoardingMean(),
-            MIN_MEAN,
-            MAX_MEAN
+            xstring("hoarding_mean"), hoardingMean(), MIN_MEAN, MAX_MEAN
         ),
         rangeScore(
             xstring("neutralising_mean"),

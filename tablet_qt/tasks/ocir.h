@@ -84,5 +84,4 @@ private:
     QVariant obsessingMean() const;
     QVariant hoardingMean() const;
     QVariant neutralisingMean() const;
-
 };
