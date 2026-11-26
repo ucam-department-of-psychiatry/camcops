@@ -358,11 +358,15 @@ class Ocir(TaskHasPatientMixin, Task):  # type: ignore[misc]
         self,
         req: CamcopsRequest,
         title: str,
-        score: int,
+        score: int | None,
         num_questions: int,
         footnote_number: int = 0,
     ) -> str:
-        mean = round(score / num_questions, 2)
+
+        mean = None
+        if score is not None:
+            mean = round(score / num_questions, 2)
+
         max_score = num_questions * self.MAX_Q_SCORE
 
         footnote = f" {sup(str(footnote_number))}" if footnote_number else ""
