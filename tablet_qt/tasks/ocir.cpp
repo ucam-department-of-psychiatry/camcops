@@ -80,7 +80,7 @@ QString Ocir::shortname() const
 
 QString Ocir::longname() const
 {
-    return tr("Obsessive-Compulsive Inventory (OCI)");
+    return tr("Obsessive-Compulsive Inventory");
 }
 
 QString Ocir::description() const

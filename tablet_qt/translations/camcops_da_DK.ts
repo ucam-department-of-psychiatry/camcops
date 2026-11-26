@@ -4388,7 +4388,7 @@ enig</translation>
 <context>
     <name>NeurodiversityMenu</name>
     <message>
-        <location filename="../menu/neurodiversitymenu.cpp" line="+49"/>
+        <location filename="../menu/neurodiversitymenu.cpp" line="+50"/>
         <source>Neurodiversity</source>
         <translation>Neurodiversitet</translation>
     </message>
@@ -4404,6 +4404,19 @@ enig</translation>
         <location line="+5"/>
         <source>12-item carer-rated scale for use in dementia.</source>
         <translation>12-vare omsorgsgiver-rated skala til brug i demens.</translation>
+    </message>
+</context>
+<context>
+    <name>Ocir</name>
+    <message>
+        <location filename="../tasks/ocir.cpp" line="+83"/>
+        <source>Obsessive-Compulsive Inventory</source>
+        <translation>Obsessive-Compulsive Inventory [Obsessiv Kompulsiv Inventar]</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>An 18-item self-report measure to assess symptoms of obsessive–compulsive disorder (OCD).</source>
+        <translation>Et selvrapporteringsinstrument med 18 punkter til vurdering af symptomer på obsessiv-kompulsiv lidelse.</translation>
     </message>
 </context>
 <context>
@@ -5566,7 +5579,7 @@ enig</translation>
 <context>
     <name>SetMenuCpftAdultEatingDisorders</name>
     <message>
-        <location filename="../menu/setmenucpftadulteatingdisorders.cpp" line="+56"/>
+        <location filename="../menu/setmenucpftadulteatingdisorders.cpp" line="+57"/>
         <source>CPFT Adult Eating Disorders Service</source>
         <translation>CPFT Voksen Spiseforstyrrelser Service</translation>
     </message>
@@ -5591,7 +5604,7 @@ enig</translation>
         <translation>Særlige betingelser</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+10"/>
         <source>Treatment/care</source>
         <translation>Behandling/pleje</translation>
     </message>
