@@ -991,6 +991,7 @@ SOURCES += \
     tasks/moca.cpp \
     tasks/nart.cpp \
     tasks/npiq.cpp \
+    tasks/ocir.cpp \
     tasks/ors.cpp \
     tasks/panss.cpp \
     tasks/paradise24.cpp \
@@ -1492,6 +1493,7 @@ HEADERS += \
     tasks/moca.h \
     tasks/nart.h \
     tasks/npiq.h \
+    tasks/ocir.h \
     tasks/ors.h \
     tasks/panss.h \
     tasks/paradise24.h \

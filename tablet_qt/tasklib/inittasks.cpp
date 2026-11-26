@@ -123,6 +123,7 @@
 #include "tasks/moca.h"
 #include "tasks/nart.h"
 #include "tasks/npiq.h"
+#include "tasks/ocir.h"
 #include "tasks/ors.h"
 #include "tasks/panss.h"
 #include "tasks/paradise24.h"
@@ -281,6 +282,7 @@ void InitTasks(TaskFactory& factory)
     initializeNart(factory);
     initializeNpiQ(factory);
 
+    initializeOcir(factory);
     initializeOrs(factory);
 
     initializePanss(factory);

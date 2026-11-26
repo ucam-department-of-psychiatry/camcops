@@ -826,6 +826,8 @@ tablet_qt
     tasks/nart.h.rst
     tasks/npiq.cpp.rst
     tasks/npiq.h.rst
+    tasks/ocir.cpp.rst
+    tasks/ocir.h.rst
     tasks/ors.cpp.rst
     tasks/ors.h.rst
     tasks/panss.cpp.rst
