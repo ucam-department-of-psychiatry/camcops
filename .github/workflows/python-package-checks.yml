@@ -42,4 +42,34 @@ jobs:
                   #                     dependency on pkg_resources (https://github.com/Pylons/pyramid/issues/3731).
                   #                     Nearly complete as of 2026-08-28.
                   # SFTY-20260902-58666 nltk. CVE-2026-81726. Is a dependency of safety and is not used by CamCOPS.
-                  safety check --full-report --ignore=SFTY-20260721-58460 --ignore=SFTY-20260902-58666
+                  # SFTY-20261017-54654 filelock. Safety is pulling in an old version but we don't
+                  # SFTY-20261017-57659           use it outside of development.
+                  # SFTY-20261017-72390
+                  # SFTY-20261020-11422
+                  # SFTY-20261020-13394
+                  # SFTY-20261020-18367
+                  # SFTY-20261020-25530
+                  # SFTY-20261020-34461
+                  # SFTY-20261020-81101
+                  # SFTY-20261020-91319
+                  # SFTY-20261023-16869
+                  # SFTY-20261023-24590
+                  # SFTY-20261023-10299 setuptools. GHSA-xmj3-9gf7-h52w. Fixed in 84.1.0 but we
+                  #                     can't upgrade as above.
+                  safety check --full-report \
+                      --ignore=SFTY-20260721-58460 \
+                      --ignore=SFTY-20260902-58666 \
+                      --ignore=SFTY-20261017-54654 \
+                      --ignore=SFTY-20261017-57659 \
+                      --ignore=SFTY-20261017-72390 \
+                      --ignore=SFTY-20261020-11422 \
+                      --ignore=SFTY-20261020-13394 \
+                      --ignore=SFTY-20261020-18367 \
+                      --ignore=SFTY-20261020-25530 \
+                      --ignore=SFTY-20261020-34461 \
+                      --ignore=SFTY-20261020-81101 \
+                      --ignore=SFTY-20261020-91319 \
+                      --ignore=SFTY-20261023-07051 \
+                      --ignore=SFTY-20261023-10299 \
+                      --ignore=SFTY-20261023-16869 \
+                      --ignore=SFTY-20261023-24590
