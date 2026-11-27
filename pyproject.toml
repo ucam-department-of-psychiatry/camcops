@@ -92,7 +92,7 @@ dependencies = [
     # -------------------------------------------------------------------------
     # Direct requirements of CamCOPS development tools
     # -------------------------------------------------------------------------
-    "Babel==2.9.1",  # reads code, generates gettext files; dev only but was already installed
+    "Babel==2.19.0",  # reads code, generates gettext files; dev only but was already installed
     "pre-commit==2.20.0",  # development only, various sanity checks on code
     "sphinx==7.1.2",  # development only
     "sphinxcontrib-applehelp==1.0.4",  # development only
