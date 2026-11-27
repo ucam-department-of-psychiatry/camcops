@@ -6,8 +6,9 @@ on:
     push:
         paths:
             - .github/workflows/docs.yml
-            - .github/scripts/change_apt_mirror.sh
             - .github/scripts/build_docs.sh
+            - .github/scripts/change_apt_mirror.sh
+            - .github/scripts/check_git_changes.sh
             - docs/**
             - server/**
             - tablet_qt/**
