@@ -19,3 +19,5 @@ CAMCOPS_DIR=$2
 ${PYTHON} "${CAMCOPS_DIR}/server/tools/build_server_translations.py" all
 
 ${CAMCOPS_DIR}/.github/scripts/check_git_changes.sh
+
+test -z "$(msgattrib --untranslated "${CAMCOPS_DIR}/server/camcops_server/translations/da_DK/LC_MESSAGES/camcops_da_DK.po")"
