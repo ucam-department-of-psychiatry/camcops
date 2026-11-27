@@ -225,6 +225,7 @@ Operations:
             # "--help",
             f"--charset={CHARSET}",
             f"--mapping-file={MAPPING_FILE}",
+            "--no-location",
             f"--output-file={POT_FILE}",
             "--no-wrap",
             f"--msgid-bugs-address={MSGID_BUGS_ADDR}",

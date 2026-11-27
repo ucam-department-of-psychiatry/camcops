@@ -1,0 +1,31 @@
+---
+# yamllint disable rule:line-length
+name: Report missing server translations
+# yamllint disable-line rule:truthy
+on:
+    push:
+        paths:
+            - .github/scripts/check_git_changes.sh
+            - .github/scripts/python_setup.sh
+            - .github/scripts/report_missing_server_translations.sh
+            - .github/workflows/report-missing-server-translations.yml
+            # As per babel.cfg
+            - 'server/camcops_server/**.py'
+            - 'server/camcops_server/**.mako'
+            - server/tools/build_server_translations.py
+            - server/tools/babel.cfg
+            - 'server/camcops_server/translations/**'
+
+jobs:
+    report-missing-server-translations:
+        runs-on: ubuntu-22.04
+        steps:
+            - uses: actions/checkout@v7
+            - uses: actions/setup-python@v7
+              with:
+                  python-version: "3.11"
+            - name: Report missing server translations
+              run: |
+                  set -euo pipefail
+                  ${GITHUB_WORKSPACE}/.github/scripts/python_setup.sh
+                  ${GITHUB_WORKSPACE}/.github/scripts/report_missing_server_translations.sh ${HOME}/venv/bin/python ${GITHUB_WORKSPACE}
